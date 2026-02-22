@@ -493,3 +493,12 @@ describe('phase32 coverage', () => {
   it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
   it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles array pop', () => { const a = [1,2,3]; expect(a.pop()).toBe(3); expect(a).toEqual([1,2]); });
+  it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
+});

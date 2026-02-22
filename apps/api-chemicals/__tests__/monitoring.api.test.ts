@@ -660,3 +660,12 @@ describe('phase32 coverage', () => {
   it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
   it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+});

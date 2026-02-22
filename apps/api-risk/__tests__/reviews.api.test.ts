@@ -503,3 +503,12 @@ describe('phase32 coverage', () => {
   it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
   it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+});

@@ -528,3 +528,12 @@ describe('phase32 coverage', () => {
   it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
   it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+});

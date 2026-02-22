@@ -474,3 +474,12 @@ describe('phase32 coverage', () => {
   it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
   it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+});

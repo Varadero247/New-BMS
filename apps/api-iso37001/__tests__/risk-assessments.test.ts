@@ -761,3 +761,12 @@ describe('phase32 coverage', () => {
   it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
   it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+});

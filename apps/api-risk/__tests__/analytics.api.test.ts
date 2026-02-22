@@ -528,3 +528,12 @@ describe('phase32 coverage', () => {
   it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
   it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+  it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+});

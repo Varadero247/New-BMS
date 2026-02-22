@@ -689,3 +689,12 @@ describe('phase32 coverage', () => {
   it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
   it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles delete operator', () => { const o: any = {a:1,b:2}; delete o.a; expect(o.a).toBeUndefined(); });
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+});

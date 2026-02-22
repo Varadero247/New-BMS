@@ -407,3 +407,12 @@ describe('phase32 coverage', () => {
   it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
   it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+});

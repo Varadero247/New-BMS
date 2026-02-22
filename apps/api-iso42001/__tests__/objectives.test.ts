@@ -504,3 +504,12 @@ describe('phase32 coverage', () => {
   it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
   it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+});

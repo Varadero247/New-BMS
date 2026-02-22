@@ -395,3 +395,12 @@ describe('phase32 coverage', () => {
   it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
   it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+});

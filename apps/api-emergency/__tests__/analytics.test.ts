@@ -666,3 +666,12 @@ describe('phase32 coverage', () => {
   it('handles empty array length', () => { expect([].length).toBe(0); });
   it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+});

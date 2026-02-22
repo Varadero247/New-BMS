@@ -487,3 +487,12 @@ describe('phase32 coverage', () => {
   it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
   it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+});

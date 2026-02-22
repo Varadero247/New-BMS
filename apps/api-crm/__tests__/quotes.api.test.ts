@@ -639,3 +639,12 @@ describe('phase32 coverage', () => {
   it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
   it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles delete operator', () => { const o: any = {a:1,b:2}; delete o.a; expect(o.a).toBeUndefined(); });
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+});

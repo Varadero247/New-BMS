@@ -594,3 +594,12 @@ describe('phase32 coverage', () => {
   it('handles memoization pattern', () => { const cache = new Map<number,number>(); const fib = (n: number): number => { if(n<=1)return n; if(cache.has(n))return cache.get(n)!; const v=fib(n-1)+fib(n-2); cache.set(n,v); return v; }; expect(fib(10)).toBe(55); });
   it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+});

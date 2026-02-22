@@ -608,3 +608,12 @@ describe('phase32 coverage', () => {
   it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
   it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+  it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
+});

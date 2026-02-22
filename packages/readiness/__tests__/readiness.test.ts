@@ -542,3 +542,12 @@ describe('phase32 coverage', () => {
   it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
   it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+});

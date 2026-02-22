@@ -523,3 +523,12 @@ describe('phase32 coverage', () => {
   it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
   it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+});

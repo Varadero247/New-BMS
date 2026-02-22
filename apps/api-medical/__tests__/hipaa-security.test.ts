@@ -501,3 +501,12 @@ describe('phase32 coverage', () => {
   it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
   it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+  it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+});

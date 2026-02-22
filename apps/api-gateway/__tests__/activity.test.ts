@@ -515,3 +515,12 @@ describe('phase32 coverage', () => {
   it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
   it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+});

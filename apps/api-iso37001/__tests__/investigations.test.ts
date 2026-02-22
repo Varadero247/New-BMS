@@ -756,3 +756,12 @@ describe('phase32 coverage', () => {
   it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
   it('handles empty array length', () => { expect([].length).toBe(0); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+});

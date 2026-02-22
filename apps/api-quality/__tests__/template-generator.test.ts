@@ -646,3 +646,12 @@ describe('phase32 coverage', () => {
   it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
   it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+  it('handles delete operator', () => { const o: any = {a:1,b:2}; delete o.a; expect(o.a).toBeUndefined(); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+  it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
+});

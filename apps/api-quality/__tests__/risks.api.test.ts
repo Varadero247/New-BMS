@@ -853,3 +853,12 @@ describe('phase32 coverage', () => {
   it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
   it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+});

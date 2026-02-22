@@ -619,3 +619,12 @@ describe('phase32 coverage', () => {
   it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
   it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+});

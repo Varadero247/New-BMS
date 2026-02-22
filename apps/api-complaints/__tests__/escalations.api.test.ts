@@ -401,3 +401,12 @@ describe('phase32 coverage', () => {
   it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
   it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+});

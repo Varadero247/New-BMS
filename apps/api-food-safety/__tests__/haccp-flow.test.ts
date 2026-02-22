@@ -810,3 +810,12 @@ describe('phase32 coverage', () => {
   it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
   it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+  it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
+});

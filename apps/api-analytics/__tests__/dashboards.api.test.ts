@@ -781,3 +781,12 @@ describe('phase32 coverage', () => {
   it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
   it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+});

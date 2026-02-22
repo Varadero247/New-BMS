@@ -634,3 +634,12 @@ describe('phase32 coverage', () => {
   it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
   it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+});

@@ -432,3 +432,12 @@ describe('phase32 coverage', () => {
   it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
   it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+});

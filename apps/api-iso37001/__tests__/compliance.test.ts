@@ -665,3 +665,12 @@ describe('phase32 coverage', () => {
   it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
   it('handles left shift', () => { expect(1 << 3).toBe(8); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+});

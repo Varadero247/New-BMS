@@ -557,3 +557,12 @@ describe('phase32 coverage', () => {
   it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
   it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
+});

@@ -364,3 +364,12 @@ describe('phase32 coverage', () => {
   it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
   it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+});

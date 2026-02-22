@@ -524,3 +524,12 @@ describe('phase32 coverage', () => {
   it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
   it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+});

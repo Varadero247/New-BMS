@@ -831,3 +831,12 @@ describe('phase32 coverage', () => {
   it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
   it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+});

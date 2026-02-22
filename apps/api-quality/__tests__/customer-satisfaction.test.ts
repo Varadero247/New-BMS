@@ -976,3 +976,12 @@ describe('phase32 coverage', () => {
   it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
   it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
+});

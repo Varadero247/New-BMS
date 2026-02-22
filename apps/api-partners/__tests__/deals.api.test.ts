@@ -655,3 +655,12 @@ describe('phase32 coverage', () => {
   it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
   it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+});

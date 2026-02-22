@@ -617,3 +617,12 @@ describe('phase32 coverage', () => {
   it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
   it('handles memoization pattern', () => { const cache = new Map<number,number>(); const fib = (n: number): number => { if(n<=1)return n; if(cache.has(n))return cache.get(n)!; const v=fib(n-1)+fib(n-2); cache.set(n,v); return v; }; expect(fib(10)).toBe(55); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+});

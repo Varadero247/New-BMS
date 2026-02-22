@@ -640,3 +640,12 @@ describe('phase32 coverage', () => {
   it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
   it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+});

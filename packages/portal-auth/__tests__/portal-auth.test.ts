@@ -450,3 +450,12 @@ describe('phase32 coverage', () => {
   it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
   it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+});

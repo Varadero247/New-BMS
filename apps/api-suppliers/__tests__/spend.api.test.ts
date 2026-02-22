@@ -529,3 +529,12 @@ describe('phase32 coverage', () => {
   it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
   it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+});

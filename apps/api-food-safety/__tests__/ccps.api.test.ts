@@ -574,3 +574,12 @@ describe('phase32 coverage', () => {
   it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
   it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+});

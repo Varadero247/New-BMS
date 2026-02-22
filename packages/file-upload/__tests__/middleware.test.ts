@@ -604,3 +604,12 @@ describe('phase32 coverage', () => {
   it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
   it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+});

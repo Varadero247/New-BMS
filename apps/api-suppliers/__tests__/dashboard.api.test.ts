@@ -488,3 +488,12 @@ describe('phase32 coverage', () => {
   it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
   it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+});

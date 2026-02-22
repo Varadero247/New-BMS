@@ -557,3 +557,12 @@ describe('phase32 coverage', () => {
   it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
   it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+});

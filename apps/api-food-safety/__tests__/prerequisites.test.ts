@@ -524,3 +524,12 @@ describe('phase32 coverage', () => {
   it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
   it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+});

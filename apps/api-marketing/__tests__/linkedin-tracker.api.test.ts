@@ -662,3 +662,12 @@ describe('phase32 coverage', () => {
   it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
   it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+});

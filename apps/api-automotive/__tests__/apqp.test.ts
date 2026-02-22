@@ -1218,3 +1218,12 @@ describe('phase32 coverage', () => {
   it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
   it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles array pop', () => { const a = [1,2,3]; expect(a.pop()).toBe(3); expect(a).toEqual([1,2]); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+});

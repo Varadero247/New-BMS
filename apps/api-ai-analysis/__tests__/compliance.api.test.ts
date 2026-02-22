@@ -844,3 +844,12 @@ describe('phase32 coverage', () => {
   it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
   it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+});

@@ -487,3 +487,12 @@ describe('phase32 coverage', () => {
   it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
   it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
+});

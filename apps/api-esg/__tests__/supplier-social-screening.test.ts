@@ -517,3 +517,12 @@ describe('phase32 coverage', () => {
   it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
   it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+});

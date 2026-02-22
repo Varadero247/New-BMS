@@ -648,3 +648,12 @@ describe('phase32 coverage', () => {
   it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
   it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+});

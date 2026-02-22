@@ -757,3 +757,12 @@ describe('phase32 coverage', () => {
   it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
   it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+});

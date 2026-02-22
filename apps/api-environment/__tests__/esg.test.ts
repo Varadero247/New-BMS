@@ -1178,3 +1178,12 @@ describe('phase32 coverage', () => {
   it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
   it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+  it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
+  it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
+});

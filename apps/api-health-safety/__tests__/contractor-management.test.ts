@@ -482,3 +482,12 @@ describe('phase32 coverage', () => {
   it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
   it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+});

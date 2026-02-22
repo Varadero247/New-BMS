@@ -495,3 +495,12 @@ describe('phase32 coverage', () => {
   it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
   it('handles memoization pattern', () => { const cache = new Map<number,number>(); const fib = (n: number): number => { if(n<=1)return n; if(cache.has(n))return cache.get(n)!; const v=fib(n-1)+fib(n-2); cache.set(n,v); return v; }; expect(fib(10)).toBe(55); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+});

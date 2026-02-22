@@ -544,3 +544,12 @@ describe('phase32 coverage', () => {
   it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
   it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+});

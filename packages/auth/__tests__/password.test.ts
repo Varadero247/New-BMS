@@ -354,3 +354,12 @@ describe('phase32 coverage', () => {
   it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
   it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+});

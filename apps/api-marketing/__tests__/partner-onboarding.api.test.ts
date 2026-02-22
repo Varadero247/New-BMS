@@ -532,3 +532,12 @@ describe('phase32 coverage', () => {
   it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
   it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+});

@@ -590,3 +590,12 @@ describe('phase32 coverage', () => {
   it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
   it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+});

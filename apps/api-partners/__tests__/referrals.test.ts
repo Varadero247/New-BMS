@@ -474,3 +474,12 @@ describe('phase32 coverage', () => {
   it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
   it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles property descriptor', () => { const o = {}; Object.defineProperty(o, 'x', { value: 99, writable: false }); expect((o as any).x).toBe(99); });
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+});

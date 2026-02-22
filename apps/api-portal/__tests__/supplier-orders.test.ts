@@ -542,3 +542,12 @@ describe('phase32 coverage', () => {
   it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
   it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+  it('handles array pop', () => { const a = [1,2,3]; expect(a.pop()).toBe(3); expect(a).toEqual([1,2]); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+});

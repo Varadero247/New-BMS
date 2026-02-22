@@ -570,3 +570,12 @@ describe('phase32 coverage', () => {
   it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
   it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+});

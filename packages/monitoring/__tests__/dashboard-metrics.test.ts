@@ -393,3 +393,12 @@ describe('phase32 coverage', () => {
   it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
   it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+});

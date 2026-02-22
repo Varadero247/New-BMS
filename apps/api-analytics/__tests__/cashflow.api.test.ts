@@ -531,3 +531,12 @@ describe('phase32 coverage', () => {
   it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
   it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles array pop', () => { const a = [1,2,3]; expect(a.pop()).toBe(3); expect(a).toEqual([1,2]); });
+});

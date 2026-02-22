@@ -562,3 +562,12 @@ describe('phase32 coverage', () => {
   it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
   it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+});

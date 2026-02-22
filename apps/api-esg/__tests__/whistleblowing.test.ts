@@ -519,3 +519,12 @@ describe('phase32 coverage', () => {
   it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
   it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+});

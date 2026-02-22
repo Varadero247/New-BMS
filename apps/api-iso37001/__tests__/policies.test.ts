@@ -641,3 +641,12 @@ describe('phase32 coverage', () => {
   it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
   it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+});

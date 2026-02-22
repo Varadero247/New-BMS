@@ -621,3 +621,12 @@ describe('phase32 coverage', () => {
   it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
   it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
+  it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
+  it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
+});

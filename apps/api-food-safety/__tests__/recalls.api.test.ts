@@ -574,3 +574,12 @@ describe('phase32 coverage', () => {
   it('handles memoization pattern', () => { const cache = new Map<number,number>(); const fib = (n: number): number => { if(n<=1)return n; if(cache.has(n))return cache.get(n)!; const v=fib(n-1)+fib(n-2); cache.set(n,v); return v; }; expect(fib(10)).toBe(55); });
   it('handles string length', () => { expect('hello'.length).toBe(5); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+});

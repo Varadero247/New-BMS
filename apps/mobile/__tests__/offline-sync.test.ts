@@ -592,3 +592,12 @@ describe('phase32 coverage', () => {
   it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
   it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
+  it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+});

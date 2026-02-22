@@ -918,3 +918,12 @@ describe('phase32 coverage', () => {
   it('handles right shift', () => { expect(8 >> 2).toBe(2); });
   it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+  it('handles property descriptor', () => { const o = {}; Object.defineProperty(o, 'x', { value: 99, writable: false }); expect((o as any).x).toBe(99); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+});

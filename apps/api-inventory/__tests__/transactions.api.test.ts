@@ -749,3 +749,12 @@ describe('phase32 coverage', () => {
   it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
   it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+});

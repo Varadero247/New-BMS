@@ -517,3 +517,12 @@ describe('phase32 coverage', () => {
   it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
   it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+});

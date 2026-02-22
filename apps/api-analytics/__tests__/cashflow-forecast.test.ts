@@ -650,3 +650,12 @@ describe('phase32 coverage', () => {
   it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
   it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+});

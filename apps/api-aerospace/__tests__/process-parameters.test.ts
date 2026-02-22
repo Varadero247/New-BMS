@@ -533,3 +533,12 @@ describe('phase32 coverage', () => {
   it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
   it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+});

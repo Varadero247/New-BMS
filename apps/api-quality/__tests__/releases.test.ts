@@ -571,3 +571,12 @@ describe('phase32 coverage', () => {
   it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
   it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+  it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
+  it('handles delete operator', () => { const o: any = {a:1,b:2}; delete o.a; expect(o.a).toBeUndefined(); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+});

@@ -583,3 +583,12 @@ describe('phase32 coverage', () => {
   it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
   it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+});

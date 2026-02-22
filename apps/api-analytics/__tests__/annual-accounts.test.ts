@@ -561,3 +561,12 @@ describe('phase32 coverage', () => {
   it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
   it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+});

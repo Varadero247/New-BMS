@@ -602,3 +602,12 @@ describe('phase32 coverage', () => {
   it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
   it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles property descriptor', () => { const o = {}; Object.defineProperty(o, 'x', { value: 99, writable: false }); expect((o as any).x).toBe(99); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+});

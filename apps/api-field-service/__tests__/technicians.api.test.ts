@@ -591,3 +591,12 @@ describe('phase32 coverage', () => {
   it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
   it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+});

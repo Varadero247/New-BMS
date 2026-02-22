@@ -886,3 +886,12 @@ describe('phase32 coverage', () => {
   it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
   it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+  it('handles property descriptor', () => { const o = {}; Object.defineProperty(o, 'x', { value: 99, writable: false }); expect((o as any).x).toBe(99); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+});

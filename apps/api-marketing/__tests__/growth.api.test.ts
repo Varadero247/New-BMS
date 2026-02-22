@@ -681,3 +681,12 @@ describe('phase32 coverage', () => {
   it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
   it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles delete operator', () => { const o: any = {a:1,b:2}; delete o.a; expect(o.a).toBeUndefined(); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+});

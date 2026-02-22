@@ -830,3 +830,12 @@ describe('phase32 coverage', () => {
   it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
   it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+});

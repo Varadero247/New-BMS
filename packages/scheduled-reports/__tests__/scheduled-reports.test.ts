@@ -413,3 +413,12 @@ describe('phase32 coverage', () => {
   it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
   it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+});

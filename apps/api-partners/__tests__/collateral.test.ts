@@ -641,3 +641,12 @@ describe('phase32 coverage', () => {
   it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
   it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+});

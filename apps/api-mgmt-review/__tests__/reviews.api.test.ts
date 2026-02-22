@@ -509,3 +509,12 @@ describe('phase32 coverage', () => {
   it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
   it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+});

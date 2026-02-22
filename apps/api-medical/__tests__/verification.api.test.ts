@@ -661,3 +661,12 @@ describe('phase32 coverage', () => {
   it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
   it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+});

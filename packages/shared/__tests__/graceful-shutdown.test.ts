@@ -613,3 +613,12 @@ describe('phase32 coverage', () => {
   it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
   it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+  it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
+});

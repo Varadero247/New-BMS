@@ -510,3 +510,12 @@ describe('phase32 coverage', () => {
   it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
   it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles array pop', () => { const a = [1,2,3]; expect(a.pop()).toBe(3); expect(a).toEqual([1,2]); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+});

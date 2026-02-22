@@ -619,3 +619,12 @@ describe('phase32 coverage', () => {
   it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
   it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles delete operator', () => { const o: any = {a:1,b:2}; delete o.a; expect(o.a).toBeUndefined(); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+});

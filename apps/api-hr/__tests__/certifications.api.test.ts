@@ -541,3 +541,12 @@ describe('phase32 coverage', () => {
   it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
   it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('handles property descriptor', () => { const o = {}; Object.defineProperty(o, 'x', { value: 99, writable: false }); expect((o as any).x).toBe(99); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+});

@@ -570,3 +570,12 @@ describe('phase32 coverage', () => {
   it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
   it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+});

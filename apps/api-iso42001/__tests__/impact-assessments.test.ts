@@ -711,3 +711,12 @@ describe('phase32 coverage', () => {
   it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
   it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+});

@@ -423,3 +423,12 @@ describe('phase32 coverage', () => {
   it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
   it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+});

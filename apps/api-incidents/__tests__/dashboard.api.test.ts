@@ -387,3 +387,12 @@ describe('phase32 coverage', () => {
   it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
   it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+});

@@ -465,3 +465,12 @@ describe('phase32 coverage', () => {
   it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
   it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+});

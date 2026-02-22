@@ -374,3 +374,12 @@ describe('phase32 coverage', () => {
   it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
   it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+});

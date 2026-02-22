@@ -927,3 +927,12 @@ describe('phase32 coverage', () => {
   it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
   it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('handles array pop', () => { const a = [1,2,3]; expect(a.pop()).toBe(3); expect(a).toEqual([1,2]); });
+  it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+});

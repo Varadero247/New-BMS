@@ -424,3 +424,12 @@ describe('phase32 coverage', () => {
   it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
   it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+});

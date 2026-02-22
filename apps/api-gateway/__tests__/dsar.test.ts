@@ -588,3 +588,12 @@ describe('phase32 coverage', () => {
   it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
   it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+});

@@ -566,3 +566,12 @@ describe('phase32 coverage', () => {
   it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
   it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+});

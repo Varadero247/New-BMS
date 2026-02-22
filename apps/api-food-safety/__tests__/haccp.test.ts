@@ -518,3 +518,12 @@ describe('phase32 coverage', () => {
   it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
   it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+});

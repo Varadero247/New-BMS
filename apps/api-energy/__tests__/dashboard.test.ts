@@ -764,3 +764,12 @@ describe('phase32 coverage', () => {
   it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
   it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+});

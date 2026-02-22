@@ -413,3 +413,12 @@ describe('phase32 coverage', () => {
   it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
   it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+});

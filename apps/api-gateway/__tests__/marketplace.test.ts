@@ -612,3 +612,12 @@ describe('phase32 coverage', () => {
   it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
   it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+});

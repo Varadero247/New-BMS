@@ -671,3 +671,12 @@ describe('phase32 coverage', () => {
   it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
   it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+});

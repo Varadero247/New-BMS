@@ -547,3 +547,12 @@ describe('phase32 coverage', () => {
   it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
   it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+});

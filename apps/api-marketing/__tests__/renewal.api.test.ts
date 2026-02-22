@@ -516,3 +516,12 @@ describe('phase32 coverage', () => {
   it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
   it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+});

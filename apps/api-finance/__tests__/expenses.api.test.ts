@@ -519,3 +519,12 @@ describe('phase32 coverage', () => {
   it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
   it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+});

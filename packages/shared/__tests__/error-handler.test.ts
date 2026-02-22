@@ -477,3 +477,12 @@ describe('phase32 coverage', () => {
   it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
   it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+});

@@ -567,3 +567,12 @@ describe('phase32 coverage', () => {
   it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
   it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+});

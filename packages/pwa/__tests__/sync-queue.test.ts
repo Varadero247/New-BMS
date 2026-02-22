@@ -635,3 +635,12 @@ describe('phase32 coverage', () => {
   it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
   it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+});

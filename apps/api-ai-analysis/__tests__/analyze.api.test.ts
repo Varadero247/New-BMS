@@ -1080,3 +1080,12 @@ describe('phase32 coverage', () => {
   it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
   it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+});

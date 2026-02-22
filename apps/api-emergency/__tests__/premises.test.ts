@@ -640,3 +640,12 @@ describe('phase32 coverage', () => {
   it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
   it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+});

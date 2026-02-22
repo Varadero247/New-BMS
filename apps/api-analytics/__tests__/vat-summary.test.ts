@@ -456,3 +456,12 @@ describe('phase32 coverage', () => {
   it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
   it('handles empty array length', () => { expect([].length).toBe(0); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+});

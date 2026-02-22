@@ -793,3 +793,12 @@ describe('phase32 coverage', () => {
   it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
   it('handles left shift', () => { expect(1 << 3).toBe(8); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+});

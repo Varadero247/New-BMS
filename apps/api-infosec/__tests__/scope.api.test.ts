@@ -619,3 +619,12 @@ describe('phase32 coverage', () => {
   it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
   it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+});

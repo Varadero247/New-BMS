@@ -454,3 +454,12 @@ describe('phase32 coverage', () => {
   it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
   it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+});

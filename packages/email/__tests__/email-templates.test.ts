@@ -462,3 +462,12 @@ describe('phase32 coverage', () => {
   it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
   it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+});

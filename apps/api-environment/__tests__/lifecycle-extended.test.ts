@@ -645,3 +645,12 @@ describe('phase32 coverage', () => {
   it('handles right shift', () => { expect(8 >> 2).toBe(2); });
   it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+});

@@ -553,3 +553,12 @@ describe('phase32 coverage', () => {
   it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
   it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+});

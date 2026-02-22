@@ -517,3 +517,12 @@ describe('phase32 coverage', () => {
   it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
   it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+});

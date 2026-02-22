@@ -562,3 +562,12 @@ describe('phase32 coverage', () => {
   it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
   it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+  it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
+});

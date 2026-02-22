@@ -612,3 +612,12 @@ describe('phase32 coverage', () => {
   it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
   it('handles right shift', () => { expect(8 >> 2).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+});

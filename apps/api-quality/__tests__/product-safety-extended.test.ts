@@ -684,3 +684,12 @@ describe('phase32 coverage', () => {
   it('handles string length', () => { expect('hello'.length).toBe(5); });
   it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+});

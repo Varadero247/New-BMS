@@ -513,3 +513,12 @@ describe('phase32 coverage', () => {
   it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
   it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+  it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
+});

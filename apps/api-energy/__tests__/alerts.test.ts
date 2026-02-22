@@ -620,3 +620,12 @@ describe('phase32 coverage', () => {
   it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
   it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
+});

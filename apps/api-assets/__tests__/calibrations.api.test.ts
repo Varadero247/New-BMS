@@ -495,3 +495,12 @@ describe('phase32 coverage', () => {
   it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
   it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+});

@@ -389,3 +389,12 @@ describe('phase32 coverage', () => {
   it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
   it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+  it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+});

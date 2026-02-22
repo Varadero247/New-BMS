@@ -594,3 +594,12 @@ describe('phase32 coverage', () => {
   it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
   it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+  it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
+});

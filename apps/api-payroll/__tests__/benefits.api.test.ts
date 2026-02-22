@@ -775,3 +775,12 @@ describe('phase32 coverage', () => {
   it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
   it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+  it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+});

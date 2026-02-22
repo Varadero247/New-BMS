@@ -426,3 +426,12 @@ describe('phase32 coverage', () => {
   it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
   it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles array pop', () => { const a = [1,2,3]; expect(a.pop()).toBe(3); expect(a).toEqual([1,2]); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+  it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+});

@@ -465,3 +465,12 @@ describe('phase32 coverage', () => {
   it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
   it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+});

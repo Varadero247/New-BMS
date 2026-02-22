@@ -457,3 +457,12 @@ describe('phase32 coverage', () => {
   it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
   it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+});

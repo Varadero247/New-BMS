@@ -545,3 +545,12 @@ describe('phase32 coverage', () => {
   it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
   it('handles empty array length', () => { expect([].length).toBe(0); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+});

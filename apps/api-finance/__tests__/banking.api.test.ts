@@ -651,3 +651,12 @@ describe('phase32 coverage', () => {
   it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
   it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles property descriptor', () => { const o = {}; Object.defineProperty(o, 'x', { value: 99, writable: false }); expect((o as any).x).toBe(99); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+});

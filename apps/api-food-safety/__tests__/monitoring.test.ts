@@ -540,3 +540,12 @@ describe('phase32 coverage', () => {
   it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
   it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+});

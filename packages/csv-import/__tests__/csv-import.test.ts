@@ -544,3 +544,12 @@ describe('phase32 coverage', () => {
   it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
   it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+});

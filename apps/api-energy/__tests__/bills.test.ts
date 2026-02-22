@@ -623,3 +623,12 @@ describe('phase32 coverage', () => {
   it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
   it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
+  it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
+});

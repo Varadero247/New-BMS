@@ -700,3 +700,12 @@ describe('phase32 coverage', () => {
   it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
   it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+});

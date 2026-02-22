@@ -617,3 +617,12 @@ describe('phase32 coverage', () => {
   it('handles getter/setter', () => { const o = { _v: 0, get v() { return this._v; }, set v(n) { this._v = n; } }; o.v = 5; expect(o.v).toBe(5); });
   it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+});

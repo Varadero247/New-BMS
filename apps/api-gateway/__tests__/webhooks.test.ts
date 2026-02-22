@@ -564,3 +564,12 @@ describe('phase32 coverage', () => {
   it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
   it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+});

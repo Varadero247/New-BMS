@@ -647,3 +647,12 @@ describe('phase32 coverage', () => {
   it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
   it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+  it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
+  it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+});

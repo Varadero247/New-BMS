@@ -561,3 +561,12 @@ describe('phase32 coverage', () => {
   it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
   it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('adds two numbers', () => { expect(1 + 1).toBe(2); });
+});

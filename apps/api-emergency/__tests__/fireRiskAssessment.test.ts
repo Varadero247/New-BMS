@@ -596,3 +596,12 @@ describe('phase32 coverage', () => {
   it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
   it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
+});

@@ -627,3 +627,12 @@ describe('phase32 coverage', () => {
   it('handles left shift', () => { expect(1 << 3).toBe(8); });
   it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+});

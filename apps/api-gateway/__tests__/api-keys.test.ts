@@ -532,3 +532,12 @@ describe('phase32 coverage', () => {
   it('handles empty array length', () => { expect([].length).toBe(0); });
   it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+});

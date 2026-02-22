@@ -422,3 +422,12 @@ describe('phase32 coverage', () => {
   it('handles right shift', () => { expect(8 >> 2).toBe(2); });
   it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+  it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+});

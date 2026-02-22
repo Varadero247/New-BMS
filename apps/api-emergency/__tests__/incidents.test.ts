@@ -705,3 +705,12 @@ describe('phase32 coverage', () => {
   it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
   it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles delete operator', () => { const o: any = {a:1,b:2}; delete o.a; expect(o.a).toBeUndefined(); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+});

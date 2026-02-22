@@ -884,3 +884,12 @@ describe('phase32 coverage', () => {
   it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
   it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+  it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
+});

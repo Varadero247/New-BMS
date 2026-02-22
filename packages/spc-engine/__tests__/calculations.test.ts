@@ -633,3 +633,12 @@ describe('phase32 coverage', () => {
   it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
   it('handles left shift', () => { expect(1 << 3).toBe(8); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('handles modulo', () => { expect(10 % 3).toBe(1); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+});

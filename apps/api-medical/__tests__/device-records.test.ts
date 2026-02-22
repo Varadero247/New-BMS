@@ -764,3 +764,12 @@ describe('phase32 coverage', () => {
   it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
   it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+});

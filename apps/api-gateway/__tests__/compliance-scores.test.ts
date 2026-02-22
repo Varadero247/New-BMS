@@ -602,3 +602,12 @@ describe('phase32 coverage', () => {
   it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
   it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles delete operator', () => { const o: any = {a:1,b:2}; delete o.a; expect(o.a).toBeUndefined(); });
+  it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+});

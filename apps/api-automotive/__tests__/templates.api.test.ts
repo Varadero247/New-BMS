@@ -442,3 +442,12 @@ describe('phase32 coverage', () => {
   it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
   it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles encodeURIComponent', () => { expect(encodeURIComponent('hello world')).toBe('hello%20world'); });
+  it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+});

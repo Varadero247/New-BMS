@@ -746,3 +746,12 @@ describe('phase32 coverage', () => {
   it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
   it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
+  it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+});

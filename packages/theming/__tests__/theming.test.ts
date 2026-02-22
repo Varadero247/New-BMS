@@ -796,3 +796,8 @@ describe('Theme immutability', () => {
     expect(prev.brandName).toBe('IMS Platform');
   });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
+});

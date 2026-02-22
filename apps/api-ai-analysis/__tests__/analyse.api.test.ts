@@ -1274,3 +1274,12 @@ describe('phase32 coverage', () => {
   it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
   it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
+});

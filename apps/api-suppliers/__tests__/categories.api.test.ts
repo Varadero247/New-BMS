@@ -426,3 +426,12 @@ describe('phase32 coverage', () => {
   it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
   it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
+  it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
+  it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+});

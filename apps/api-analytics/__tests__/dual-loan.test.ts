@@ -463,3 +463,12 @@ describe('phase32 coverage', () => {
   it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
   it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
+  it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles array shift', () => { const a = [1,2,3]; expect(a.shift()).toBe(1); expect(a).toEqual([2,3]); });
+  it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
+});

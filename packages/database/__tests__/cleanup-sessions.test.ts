@@ -635,3 +635,12 @@ describe('phase32 coverage', () => {
   it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
   it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+});

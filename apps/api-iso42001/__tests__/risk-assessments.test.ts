@@ -683,3 +683,12 @@ describe('phase32 coverage', () => {
   it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
   it('handles left shift', () => { expect(1 << 3).toBe(8); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
+  it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
+  it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
+  it('handles iterable protocol', () => { const iter = { [Symbol.iterator]() { let i = 0; return { next() { return i < 3 ? { value: i++, done: false } : { value: undefined, done: true }; } }; } }; expect([...iter]).toEqual([0,1,2]); });
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+});

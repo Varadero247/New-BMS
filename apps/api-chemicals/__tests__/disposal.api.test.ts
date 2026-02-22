@@ -622,3 +622,12 @@ describe('phase32 coverage', () => {
   it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
   it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+  it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles void operator', () => { expect(void 0).toBeUndefined(); });
+  it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
+});

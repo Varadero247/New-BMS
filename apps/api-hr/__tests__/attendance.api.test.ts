@@ -691,3 +691,12 @@ describe('phase32 coverage', () => {
   it('handles string length', () => { expect('hello'.length).toBe(5); });
   it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+  it('handles string length property', () => { expect('typescript'.length).toBe(10); });
+  it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
+  it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
+  it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
+});

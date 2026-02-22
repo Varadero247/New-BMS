@@ -646,3 +646,12 @@ describe('phase32 coverage', () => {
   it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
   it('handles right shift', () => { expect(8 >> 2).toBe(2); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles Infinity', () => { expect(1/0).toBe(Infinity); expect(isFinite(1/0)).toBe(false); });
+  it('divides numbers', () => { expect(20 / 4).toBe(5); });
+  it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
+  it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+});

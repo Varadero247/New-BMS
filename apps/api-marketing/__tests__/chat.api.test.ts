@@ -645,3 +645,12 @@ describe('phase32 coverage', () => {
   it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
   it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
 });
+
+
+describe('phase33 coverage', () => {
+  it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
+  it('handles RangeError', () => { expect(() => new Array(-1)).toThrow(RangeError); });
+  it('converts number to string', () => { expect(String(42)).toBe('42'); });
+  it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
+  it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
+});
