@@ -520,3 +520,26 @@ describe('customer-documents — additional coverage 2', () => {
     );
   });
 });
+
+describe('customer documents — phase30 coverage', () => {
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+});

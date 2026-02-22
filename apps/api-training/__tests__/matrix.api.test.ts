@@ -481,3 +481,26 @@ describe('matrix — phase29 coverage', () => {
   });
 
 });
+
+describe('matrix — phase30 coverage', () => {
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+});

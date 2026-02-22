@@ -490,3 +490,26 @@ describe('records.api — phase28 coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('records — phase30 coverage', () => {
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+});

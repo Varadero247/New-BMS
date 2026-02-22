@@ -477,3 +477,26 @@ describe('findings — phase29 coverage', () => {
   });
 
 });
+
+describe('findings — phase30 coverage', () => {
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+});

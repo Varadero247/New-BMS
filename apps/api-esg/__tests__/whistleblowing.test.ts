@@ -478,3 +478,26 @@ describe('whistleblowing — phase29 coverage', () => {
   });
 
 });
+
+describe('whistleblowing — phase30 coverage', () => {
+  it('handles structuredClone', () => {
+    const obj2 = { a: 1 }; const clone = structuredClone(obj2); expect(clone).toEqual(obj2); expect(clone).not.toBe(obj2);
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+});

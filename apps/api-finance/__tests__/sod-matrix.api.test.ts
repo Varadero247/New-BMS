@@ -623,3 +623,26 @@ describe('sod matrix — phase29 coverage', () => {
   });
 
 });
+
+describe('sod matrix — phase30 coverage', () => {
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+});

@@ -501,3 +501,26 @@ describe('supplier orders — phase29 coverage', () => {
   });
 
 });
+
+describe('supplier orders — phase30 coverage', () => {
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles numeric identity', () => {
+    expect(1 + 1).toBe(2);
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+});

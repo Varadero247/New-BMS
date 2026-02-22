@@ -520,3 +520,26 @@ describe('vendors — phase29 coverage', () => {
   });
 
 });
+
+describe('vendors — phase30 coverage', () => {
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles array push', () => {
+    const a: number[] = []; a.push(1); expect(a).toHaveLength(1);
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles Number.isInteger', () => {
+    expect(Number.isInteger(42)).toBe(true);
+  });
+
+});

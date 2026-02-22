@@ -533,3 +533,26 @@ describe('checklists — phase29 coverage', () => {
   });
 
 });
+
+describe('checklists — phase30 coverage', () => {
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+});

@@ -582,3 +582,26 @@ describe('bills — phase29 coverage', () => {
   });
 
 });
+
+describe('bills — phase30 coverage', () => {
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+});

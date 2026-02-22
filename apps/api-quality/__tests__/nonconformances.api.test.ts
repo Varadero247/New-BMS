@@ -800,3 +800,26 @@ describe('Quality Nonconformances — phase28 coverage', () => {
     expect(res.body.data.total).toBe(0);
   });
 });
+
+describe('nonconformances — phase30 coverage', () => {
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+});

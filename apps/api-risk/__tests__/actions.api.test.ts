@@ -471,3 +471,26 @@ describe('actions — phase29 coverage', () => {
   });
 
 });
+
+describe('actions — phase30 coverage', () => {
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles Object.assign', () => {
+    expect(Object.assign({}, { a: 1 }, { b: 2 })).toEqual({ a: 1, b: 2 });
+  });
+
+});

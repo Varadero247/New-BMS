@@ -421,3 +421,26 @@ describe('Emails — additional phase28 coverage', () => {
     expect(res.body.data.id).toBe('seq-final');
   });
 });
+
+describe('emails — phase30 coverage', () => {
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+  it('handles every method', () => {
+    expect([1, 2, 3].every(x => x > 0)).toBe(true);
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+});

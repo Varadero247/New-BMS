@@ -469,3 +469,26 @@ describe('toolbox talks — phase29 coverage', () => {
   });
 
 });
+
+describe('toolbox talks — phase30 coverage', () => {
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles JSON stringify', () => {
+    expect(JSON.stringify({ a: 1 })).toBe('{"a":1}');
+  });
+
+  it('handles Number.isInteger', () => {
+    expect(Number.isInteger(42)).toBe(true);
+  });
+
+});

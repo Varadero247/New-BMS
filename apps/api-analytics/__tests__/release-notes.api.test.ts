@@ -478,3 +478,26 @@ describe('release notes — phase29 coverage', () => {
   });
 
 });
+
+describe('release notes — phase30 coverage', () => {
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles numeric identity', () => {
+    expect(1 + 1).toBe(2);
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+});

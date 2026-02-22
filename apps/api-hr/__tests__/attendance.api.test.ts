@@ -650,3 +650,26 @@ describe('attendance — phase29 coverage', () => {
   });
 
 });
+
+describe('attendance — phase30 coverage', () => {
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+});

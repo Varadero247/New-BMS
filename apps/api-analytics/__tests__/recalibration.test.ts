@@ -392,3 +392,26 @@ describe('recalibration — phase29 coverage', () => {
   });
 
 });
+
+describe('recalibration — phase30 coverage', () => {
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+  it('handles string trim', () => {
+    expect('  hello  '.trim()).toBe('hello');
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+});

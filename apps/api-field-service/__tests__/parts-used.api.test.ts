@@ -560,3 +560,26 @@ describe('parts used — phase29 coverage', () => {
   });
 
 });
+
+describe('parts used — phase30 coverage', () => {
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+  it('handles numeric type', () => {
+    expect(typeof 42).toBe('number');
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+});

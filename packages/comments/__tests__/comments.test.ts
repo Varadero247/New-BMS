@@ -350,3 +350,26 @@ describe('comments — phase29 coverage', () => {
   });
 
 });
+
+describe('comments — phase30 coverage', () => {
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+});

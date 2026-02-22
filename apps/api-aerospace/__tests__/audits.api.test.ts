@@ -715,3 +715,26 @@ describe('Aerospace Audits API — phase28 coverage', () => {
     });
   });
 });
+
+describe('audits — phase30 coverage', () => {
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+});

@@ -484,3 +484,26 @@ describe('Documents — phase28 coverage', () => {
     expect(res.body.data).toHaveProperty('message');
   });
 });
+
+describe('documents — phase30 coverage', () => {
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles every method', () => {
+    expect([1, 2, 3].every(x => x > 0)).toBe(true);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+});

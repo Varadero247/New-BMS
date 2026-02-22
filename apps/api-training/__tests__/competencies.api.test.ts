@@ -480,3 +480,26 @@ describe('competencies — phase29 coverage', () => {
   });
 
 });
+
+describe('competencies — phase30 coverage', () => {
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+});

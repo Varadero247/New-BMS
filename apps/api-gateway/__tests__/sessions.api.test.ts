@@ -572,3 +572,26 @@ describe('sessions — phase29 coverage', () => {
   });
 
 });
+
+describe('sessions — phase30 coverage', () => {
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+});

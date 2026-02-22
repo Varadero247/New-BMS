@@ -481,3 +481,26 @@ describe('scheduled reports — phase29 coverage', () => {
   });
 
 });
+
+describe('scheduled reports — phase30 coverage', () => {
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+});

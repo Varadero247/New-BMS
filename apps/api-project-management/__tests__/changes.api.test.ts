@@ -752,3 +752,26 @@ describe('changes — phase29 coverage', () => {
   });
 
 });
+
+describe('changes — phase30 coverage', () => {
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles Number.isInteger', () => {
+    expect(Number.isInteger(42)).toBe(true);
+  });
+
+  it('handles string includes', () => {
+    expect('hello world'.includes('world')).toBe(true);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+});

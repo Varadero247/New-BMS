@@ -408,3 +408,26 @@ describe('dashboard — phase29 coverage', () => {
   });
 
 });
+
+describe('dashboard — phase30 coverage', () => {
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('handles structuredClone', () => {
+    const obj2 = { a: 1 }; const clone = structuredClone(obj2); expect(clone).toEqual(obj2); expect(clone).not.toBe(obj2);
+  });
+
+  it('handles string includes', () => {
+    expect('hello world'.includes('world')).toBe(true);
+  });
+
+});

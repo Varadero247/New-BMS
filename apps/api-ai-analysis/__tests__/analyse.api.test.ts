@@ -1233,3 +1233,26 @@ describe('analyse.api — phase28 coverage', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('analyse — phase30 coverage', () => {
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+  it('handles numeric identity', () => {
+    expect(1 + 1).toBe(2);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+});

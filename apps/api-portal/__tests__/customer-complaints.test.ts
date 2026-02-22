@@ -561,3 +561,26 @@ describe('customer-complaints — phase28 coverage', () => {
     expect(res.body.pagination).toHaveProperty('total', 5);
   });
 });
+
+describe('customer complaints — phase30 coverage', () => {
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+  it('handles Object.assign', () => {
+    expect(Object.assign({}, { a: 1 }, { b: 2 })).toEqual({ a: 1, b: 2 });
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+});

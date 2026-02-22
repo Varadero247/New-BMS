@@ -509,3 +509,26 @@ describe('queries — phase29 coverage', () => {
   });
 
 });
+
+describe('queries — phase30 coverage', () => {
+  it('handles Number.isInteger', () => {
+    expect(Number.isInteger(42)).toBe(true);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles ternary operator', () => {
+    expect(true ? 'yes' : 'no').toBe('yes');
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+});

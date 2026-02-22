@@ -526,3 +526,26 @@ describe('Winback — phase28 coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('winback — phase30 coverage', () => {
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+});

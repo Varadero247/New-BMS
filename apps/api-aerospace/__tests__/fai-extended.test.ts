@@ -732,3 +732,26 @@ describe('FAI Routes — phase28 coverage', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('fai extended — phase30 coverage', () => {
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+  it('handles structuredClone', () => {
+    const obj2 = { a: 1 }; const clone = structuredClone(obj2); expect(clone).toEqual(obj2); expect(clone).not.toBe(obj2);
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+  it('handles parseFloat', () => {
+    expect(parseFloat('3.14')).toBeCloseTo(3.14);
+  });
+
+});

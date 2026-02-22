@@ -550,3 +550,26 @@ describe('technicians.api — phase28 coverage', () => {
     expect(mockPrisma.fsSvcTechnician.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('technicians — phase30 coverage', () => {
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+});

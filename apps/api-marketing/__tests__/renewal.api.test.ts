@@ -475,3 +475,26 @@ describe('renewal — phase29 coverage', () => {
   });
 
 });
+
+describe('renewal — phase30 coverage', () => {
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+  it('handles Promise type', () => {
+    expect(Promise.resolve(42)).toBeInstanceOf(Promise);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+});

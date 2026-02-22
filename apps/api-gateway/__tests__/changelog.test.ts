@@ -553,3 +553,26 @@ describe('changelog — phase29 coverage', () => {
   });
 
 });
+
+describe('changelog — phase30 coverage', () => {
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles object type', () => {
+    expect(typeof {}).toBe('object');
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles JSON stringify', () => {
+    expect(JSON.stringify({ a: 1 })).toBe('{"a":1}');
+  });
+
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+});

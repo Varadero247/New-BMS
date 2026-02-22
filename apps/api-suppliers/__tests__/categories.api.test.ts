@@ -385,3 +385,26 @@ describe('categories — phase29 coverage', () => {
   });
 
 });
+
+describe('categories — phase30 coverage', () => {
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+});

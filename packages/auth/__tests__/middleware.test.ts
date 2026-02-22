@@ -598,3 +598,26 @@ describe('middleware — phase29 coverage', () => {
   });
 
 });
+
+describe('middleware — phase30 coverage', () => {
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+});

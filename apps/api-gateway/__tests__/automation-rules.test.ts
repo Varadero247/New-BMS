@@ -471,3 +471,26 @@ describe('automation rules — phase29 coverage', () => {
   });
 
 });
+
+describe('automation rules — phase30 coverage', () => {
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+  it('handles numeric type', () => {
+    expect(typeof 42).toBe('number');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+});

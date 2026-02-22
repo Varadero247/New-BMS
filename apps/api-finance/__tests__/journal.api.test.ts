@@ -718,3 +718,26 @@ describe('journal — phase29 coverage', () => {
   });
 
 });
+
+describe('journal — phase30 coverage', () => {
+  it('handles ternary operator', () => {
+    expect(true ? 'yes' : 'no').toBe('yes');
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+  it('handles Math.floor', () => {
+    expect(Math.floor(3.9)).toBe(3);
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+});

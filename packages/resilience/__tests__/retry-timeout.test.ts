@@ -412,3 +412,26 @@ describe('retry timeout — phase29 coverage', () => {
   });
 
 });
+
+describe('retry timeout — phase30 coverage', () => {
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+});

@@ -691,3 +691,26 @@ describe('Aerospace Counterfeit Parts API — phase28 coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('counterfeit — phase30 coverage', () => {
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+});

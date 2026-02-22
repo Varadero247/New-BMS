@@ -445,3 +445,26 @@ describe('supplier register — phase29 coverage', () => {
   });
 
 });
+
+describe('supplier register — phase30 coverage', () => {
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+});

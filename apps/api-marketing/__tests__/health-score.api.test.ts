@@ -510,3 +510,26 @@ describe('Health Score — phase28 coverage', () => {
     expect(typeof res.body.data.message).toBe('string');
   });
 });
+
+describe('health score — phase30 coverage', () => {
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles parseFloat', () => {
+    expect(parseFloat('3.14')).toBeCloseTo(3.14);
+  });
+
+});

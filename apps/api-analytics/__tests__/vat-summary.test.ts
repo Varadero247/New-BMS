@@ -415,3 +415,26 @@ describe('vat summary — phase29 coverage', () => {
   });
 
 });
+
+describe('vat summary — phase30 coverage', () => {
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+});

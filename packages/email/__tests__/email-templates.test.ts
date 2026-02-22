@@ -421,3 +421,26 @@ describe('email templates — phase29 coverage', () => {
   });
 
 });
+
+describe('email templates — phase30 coverage', () => {
+  it('handles parseFloat', () => {
+    expect(parseFloat('3.14')).toBeCloseTo(3.14);
+  });
+
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+});

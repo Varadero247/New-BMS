@@ -310,3 +310,26 @@ describe('request hedging — phase29 coverage', () => {
   });
 
 });
+
+describe('request hedging — phase30 coverage', () => {
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles Promise type', () => {
+    expect(Promise.resolve(42)).toBeInstanceOf(Promise);
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+});

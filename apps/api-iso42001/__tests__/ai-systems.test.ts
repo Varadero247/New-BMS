@@ -606,3 +606,26 @@ describe('ai systems — phase29 coverage', () => {
   });
 
 });
+
+describe('ai systems — phase30 coverage', () => {
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+});

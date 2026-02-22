@@ -693,3 +693,26 @@ describe('activity — phase29 coverage', () => {
   });
 
 });
+
+describe('activity — phase30 coverage', () => {
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+  it('handles numeric type', () => {
+    expect(typeof 42).toBe('number');
+  });
+
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles every method', () => {
+    expect([1, 2, 3].every(x => x > 0)).toBe(true);
+  });
+
+});

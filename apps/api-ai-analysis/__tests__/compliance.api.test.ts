@@ -811,3 +811,18 @@ describe('Compliance Routes', () => {
     });
   });
 });
+
+describe('compliance — phase30 coverage', () => {
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+});

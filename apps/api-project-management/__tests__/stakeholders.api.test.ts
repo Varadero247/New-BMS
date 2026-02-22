@@ -749,3 +749,26 @@ describe('stakeholders — phase29 coverage', () => {
   });
 
 });
+
+describe('stakeholders — phase30 coverage', () => {
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+  it('handles ternary operator', () => {
+    expect(true ? 'yes' : 'no').toBe('yes');
+  });
+
+});

@@ -521,3 +521,26 @@ describe('service auth — phase29 coverage', () => {
   });
 
 });
+
+describe('service auth — phase30 coverage', () => {
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+});

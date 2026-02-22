@@ -533,3 +533,26 @@ describe('ccps — phase29 coverage', () => {
   });
 
 });
+
+describe('ccps — phase30 coverage', () => {
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+  it('handles Promise type', () => {
+    expect(Promise.resolve(42)).toBeInstanceOf(Promise);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+});

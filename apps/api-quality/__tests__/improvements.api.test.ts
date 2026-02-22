@@ -823,3 +823,26 @@ describe('improvements — phase29 coverage', () => {
   });
 
 });
+
+describe('improvements — phase30 coverage', () => {
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+});

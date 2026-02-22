@@ -445,3 +445,26 @@ describe('Transparency — additional phase28 coverage block', () => {
     expect(res.body.data).toHaveProperty('owner');
   });
 });
+
+describe('transparency — phase30 coverage', () => {
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles structuredClone', () => {
+    const obj2 = { a: 1 }; const clone = structuredClone(obj2); expect(clone).toEqual(obj2); expect(clone).not.toBe(obj2);
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+});

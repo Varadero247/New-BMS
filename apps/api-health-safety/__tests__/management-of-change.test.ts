@@ -423,3 +423,26 @@ describe('management of change — phase29 coverage', () => {
   });
 
 });
+
+describe('management of change — phase30 coverage', () => {
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+});

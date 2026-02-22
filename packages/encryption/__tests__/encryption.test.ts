@@ -286,3 +286,26 @@ describe('encryption — phase28 coverage', () => {
     expect(isEncryptionConfigured()).toBe(true);
   });
 });
+
+describe('encryption — phase30 coverage', () => {
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+});

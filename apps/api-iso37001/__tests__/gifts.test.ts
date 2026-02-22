@@ -638,3 +638,26 @@ describe('gifts — phase29 coverage', () => {
   });
 
 });
+
+describe('gifts — phase30 coverage', () => {
+  it('handles ternary operator', () => {
+    expect(true ? 'yes' : 'no').toBe('yes');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+});

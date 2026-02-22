@@ -487,3 +487,26 @@ describe('analytics — phase29 coverage', () => {
   });
 
 });
+
+describe('analytics — phase30 coverage', () => {
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+});

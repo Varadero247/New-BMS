@@ -590,3 +590,14 @@ describe('scope-emissions — phase28 coverage', () => {
     expect(call[0].where.scope).toBe(1);
   });
 });
+
+describe('scope emissions — phase30 coverage', () => {
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+});

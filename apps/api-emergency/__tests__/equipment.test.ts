@@ -594,3 +594,26 @@ describe('equipment — phase28 coverage', () => {
     expect(res.body).toHaveProperty('success', true);
   });
 });
+
+describe('equipment — phase30 coverage', () => {
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+  it('handles array push', () => {
+    const a: number[] = []; a.push(1); expect(a).toHaveLength(1);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+});

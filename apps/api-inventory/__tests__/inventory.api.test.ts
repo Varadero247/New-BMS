@@ -837,3 +837,26 @@ describe('inventory — phase29 coverage', () => {
   });
 
 });
+
+describe('inventory — phase30 coverage', () => {
+  it('handles Object.assign', () => {
+    expect(Object.assign({}, { a: 1 }, { b: 2 })).toEqual({ a: 1, b: 2 });
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+});

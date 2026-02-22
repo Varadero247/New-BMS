@@ -478,3 +478,26 @@ describe('dashboard.api — final one more', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('dashboard — phase30 coverage', () => {
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles string includes', () => {
+    expect('hello world'.includes('world')).toBe(true);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+});

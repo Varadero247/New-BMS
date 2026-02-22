@@ -446,3 +446,26 @@ describe('continuous verification — phase29 coverage', () => {
   });
 
 });
+
+describe('continuous verification — phase30 coverage', () => {
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+});

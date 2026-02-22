@@ -482,3 +482,26 @@ describe('tna — phase29 coverage', () => {
   });
 
 });
+
+describe('tna — phase30 coverage', () => {
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+});

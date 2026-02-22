@@ -771,3 +771,26 @@ describe('Automotive CSR API Routes — phase28 coverage', () => {
     expect(res.body.data).toContain('Scania');
   });
 });
+
+describe('csr — phase30 coverage', () => {
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+});

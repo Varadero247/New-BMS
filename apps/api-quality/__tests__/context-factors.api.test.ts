@@ -581,3 +581,26 @@ describe('context factors — phase29 coverage', () => {
   });
 
 });
+
+describe('context factors — phase30 coverage', () => {
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+});

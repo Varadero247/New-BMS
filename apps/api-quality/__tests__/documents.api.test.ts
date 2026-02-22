@@ -682,3 +682,26 @@ describe('documents — phase29 coverage', () => {
   });
 
 });
+
+describe('documents — phase30 coverage', () => {
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+});

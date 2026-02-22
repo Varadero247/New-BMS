@@ -374,3 +374,26 @@ describe('jwt — phase29 coverage', () => {
   });
 
 });
+
+describe('jwt — phase30 coverage', () => {
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+});

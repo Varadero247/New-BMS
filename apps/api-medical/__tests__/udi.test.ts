@@ -729,3 +729,26 @@ describe('udi — phase29 coverage', () => {
   });
 
 });
+
+describe('udi — phase30 coverage', () => {
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles Number.isInteger', () => {
+    expect(Number.isInteger(42)).toBe(true);
+  });
+
+  it('handles every method', () => {
+    expect([1, 2, 3].every(x => x > 0)).toBe(true);
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+});

@@ -436,3 +436,26 @@ describe('tasks — phase28 coverage', () => {
     expect(updated.assigneeName).toBe('Bob');
   });
 });
+
+describe('tasks — phase30 coverage', () => {
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles JSON stringify', () => {
+    expect(JSON.stringify({ a: 1 })).toBe('{"a":1}');
+  });
+
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+});

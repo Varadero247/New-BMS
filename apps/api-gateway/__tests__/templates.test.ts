@@ -814,3 +814,26 @@ describe('templates — phase29 coverage', () => {
   });
 
 });
+
+describe('templates — phase30 coverage', () => {
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+});

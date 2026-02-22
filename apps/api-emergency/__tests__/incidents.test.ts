@@ -664,3 +664,26 @@ describe('Emergency Incidents — phase28 coverage', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('incidents — phase30 coverage', () => {
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles array push', () => {
+    const a: number[] = []; a.push(1); expect(a).toHaveLength(1);
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+});

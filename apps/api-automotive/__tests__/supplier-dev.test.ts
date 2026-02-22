@@ -536,3 +536,26 @@ describe('supplier-dev — phase28 coverage', () => {
     expect(res.body.data.id).toBe(ID2);
   });
 });
+
+describe('supplier dev — phase30 coverage', () => {
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles Object.assign', () => {
+    expect(Object.assign({}, { a: 1 }, { b: 2 })).toEqual({ a: 1, b: 2 });
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+});

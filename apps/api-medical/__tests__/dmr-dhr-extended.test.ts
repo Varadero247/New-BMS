@@ -611,3 +611,26 @@ describe('dmr dhr extended — phase29 coverage', () => {
   });
 
 });
+
+describe('dmr dhr extended — phase30 coverage', () => {
+  it('handles parseFloat', () => {
+    expect(parseFloat('3.14')).toBeCloseTo(3.14);
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+});

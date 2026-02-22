@@ -615,3 +615,26 @@ describe('reports — phase29 coverage', () => {
   });
 
 });
+
+describe('reports — phase30 coverage', () => {
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+});

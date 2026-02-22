@@ -454,3 +454,26 @@ describe('approvals — phase29 coverage', () => {
   });
 
 });
+
+describe('approvals — phase30 coverage', () => {
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+});

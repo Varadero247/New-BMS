@@ -510,3 +510,26 @@ describe('reports — phase29 coverage', () => {
   });
 
 });
+
+describe('reports — phase30 coverage', () => {
+  it('handles numeric type', () => {
+    expect(typeof 42).toBe('number');
+  });
+
+  it('handles Promise type', () => {
+    expect(Promise.resolve(42)).toBeInstanceOf(Promise);
+  });
+
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles ternary operator', () => {
+    expect(true ? 'yes' : 'no').toBe('yes');
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+});

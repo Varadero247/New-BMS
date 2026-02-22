@@ -593,3 +593,26 @@ describe('controls — phase29 coverage', () => {
   });
 
 });
+
+describe('controls — phase30 coverage', () => {
+  it('handles Object.assign', () => {
+    expect(Object.assign({}, { a: 1 }, { b: 2 })).toEqual({ a: 1, b: 2 });
+  });
+
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+});

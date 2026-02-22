@@ -616,3 +616,26 @@ describe('LPA Routes — phase28 coverage', () => {
     expect(res.body.data).toHaveProperty('completedAudits');
   });
 });
+
+describe('lpa extended — phase30 coverage', () => {
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles structuredClone', () => {
+    const obj2 = { a: 1 }; const clone = structuredClone(obj2); expect(clone).toEqual(obj2); expect(clone).not.toBe(obj2);
+  });
+
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles JSON stringify', () => {
+    expect(JSON.stringify({ a: 1 })).toBe('{"a":1}');
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+});

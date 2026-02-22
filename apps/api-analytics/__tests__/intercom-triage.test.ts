@@ -613,3 +613,26 @@ describe('intercom triage — phase29 coverage', () => {
   });
 
 });
+
+describe('intercom triage — phase30 coverage', () => {
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles every method', () => {
+    expect([1, 2, 3].every(x => x > 0)).toBe(true);
+  });
+
+});

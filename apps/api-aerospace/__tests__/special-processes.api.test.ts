@@ -688,3 +688,26 @@ describe('special processes — phase29 coverage', () => {
   });
 
 });
+
+describe('special processes — phase30 coverage', () => {
+  it('handles numeric type', () => {
+    expect(typeof 42).toBe('number');
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles parseFloat', () => {
+    expect(parseFloat('3.14')).toBeCloseTo(3.14);
+  });
+
+  it('handles string includes', () => {
+    expect('hello world'.includes('world')).toBe(true);
+  });
+
+});

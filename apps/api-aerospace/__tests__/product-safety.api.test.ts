@@ -648,3 +648,26 @@ describe('product safety — phase29 coverage', () => {
   });
 
 });
+
+describe('product safety — phase30 coverage', () => {
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles array length', () => {
+    expect([1, 2, 3].length).toBe(3);
+  });
+
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+});

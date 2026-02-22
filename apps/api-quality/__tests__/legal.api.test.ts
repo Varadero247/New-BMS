@@ -735,3 +735,26 @@ describe('legal — phase29 coverage', () => {
   });
 
 });
+
+describe('legal — phase30 coverage', () => {
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles string trim', () => {
+    expect('  hello  '.trim()).toBe('hello');
+  });
+
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+});

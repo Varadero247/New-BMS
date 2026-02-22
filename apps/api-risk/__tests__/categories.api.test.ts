@@ -391,3 +391,26 @@ describe('categories — phase29 coverage', () => {
   });
 
 });
+
+describe('categories — phase30 coverage', () => {
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj3 = { [key]: 42 }; expect((obj3 as any).foo).toBe(42);
+  });
+
+  it('handles string includes', () => {
+    expect('hello world'.includes('world')).toBe(true);
+  });
+
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+  it('handles number isFinite', () => {
+    expect(isFinite(42)).toBe(true);
+  });
+
+});

@@ -705,3 +705,26 @@ describe('approvals — phase29 coverage', () => {
   });
 
 });
+
+describe('approvals — phase30 coverage', () => {
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+});

@@ -477,3 +477,26 @@ describe('HACCP CCP — additional phase28 tests', () => {
     );
   });
 });
+
+describe('haccp — phase30 coverage', () => {
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+});

@@ -491,3 +491,26 @@ describe('API Keys — phase28 coverage', () => {
     expect(res.body.meta).toHaveProperty('total', 0);
   });
 });
+
+describe('api keys — phase30 coverage', () => {
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+});

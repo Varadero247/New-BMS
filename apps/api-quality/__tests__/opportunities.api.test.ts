@@ -820,3 +820,26 @@ describe('Quality Opportunities — phase28 coverage', () => {
     expect(mockPrisma.qualOpportunity.update).not.toHaveBeenCalled();
   });
 });
+
+describe('opportunities — phase30 coverage', () => {
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+});

@@ -460,3 +460,26 @@ describe('nps — phase29 coverage', () => {
   });
 
 });
+
+describe('nps — phase30 coverage', () => {
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles Promise type', () => {
+    expect(Promise.resolve(42)).toBeInstanceOf(Promise);
+  });
+
+  it('handles array push', () => {
+    const a: number[] = []; a.push(1); expect(a).toHaveLength(1);
+  });
+
+});

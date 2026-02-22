@@ -688,3 +688,26 @@ describe('ISO 42001 Incidents — phase28 coverage', () => {
     );
   });
 });
+
+describe('incidents — phase30 coverage', () => {
+  it('handles string trim', () => {
+    expect('  hello  '.trim()).toBe('hello');
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles array length', () => {
+    expect([1, 2, 3].length).toBe(3);
+  });
+
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+});

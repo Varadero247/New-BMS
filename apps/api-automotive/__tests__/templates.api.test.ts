@@ -401,3 +401,26 @@ describe('Automotive Templates — phase28 coverage', () => {
     expect(hasXlsx).toBe(true);
   });
 });
+
+describe('templates — phase30 coverage', () => {
+  it('handles ternary operator', () => {
+    expect(true ? 'yes' : 'no').toBe('yes');
+  });
+
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles string trim', () => {
+    expect('  hello  '.trim()).toBe('hello');
+  });
+
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+});

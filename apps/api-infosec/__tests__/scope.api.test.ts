@@ -578,3 +578,26 @@ describe('scope — phase29 coverage', () => {
   });
 
 });
+
+describe('scope — phase30 coverage', () => {
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+});

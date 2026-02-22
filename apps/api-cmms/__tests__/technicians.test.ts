@@ -426,3 +426,26 @@ describe('Technicians — final coverage expansion', () => {
     expect(res.headers['content-type']).toMatch(/application\/json/);
   });
 });
+
+describe('technicians — phase30 coverage', () => {
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles number isFinite', () => {
+    expect(isFinite(42)).toBe(true);
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+});

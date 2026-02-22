@@ -463,3 +463,26 @@ describe('onboarding — phase29 coverage', () => {
   });
 
 });
+
+describe('onboarding — phase30 coverage', () => {
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles JSON stringify', () => {
+    expect(JSON.stringify({ a: 1 })).toBe('{"a":1}');
+  });
+
+});

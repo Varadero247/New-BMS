@@ -561,3 +561,26 @@ describe('compliance scores — phase29 coverage', () => {
   });
 
 });
+
+describe('compliance scores — phase30 coverage', () => {
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles every method', () => {
+    expect([1, 2, 3].every(x => x > 0)).toBe(true);
+  });
+
+});

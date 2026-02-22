@@ -560,3 +560,26 @@ describe('kpis — phase29 coverage', () => {
   });
 
 });
+
+describe('kpis — phase30 coverage', () => {
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+});

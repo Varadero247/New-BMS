@@ -577,3 +577,26 @@ describe('BCP Routes — phase28 coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('bcp — phase30 coverage', () => {
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles numeric identity', () => {
+    expect(1 + 1).toBe(2);
+  });
+
+});

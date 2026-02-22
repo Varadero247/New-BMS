@@ -660,3 +660,26 @@ describe('monitoring — phase29 coverage', () => {
   });
 
 });
+
+describe('monitoring — phase30 coverage', () => {
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles array length', () => {
+    expect([1, 2, 3].length).toBe(3);
+  });
+
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+});

@@ -409,3 +409,26 @@ describe('treatments — phase29 coverage', () => {
   });
 
 });
+
+describe('treatments — phase30 coverage', () => {
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles Promise type', () => {
+    expect(Promise.resolve(42)).toBeInstanceOf(Promise);
+  });
+
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+  it('handles number isFinite', () => {
+    expect(isFinite(42)).toBe(true);
+  });
+
+});

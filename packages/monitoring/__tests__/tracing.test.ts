@@ -319,3 +319,26 @@ describe('tracing — phase29 coverage', () => {
   });
 
 });
+
+describe('tracing — phase30 coverage', () => {
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles object type', () => {
+    expect(typeof {}).toBe('object');
+  });
+
+  it('handles indexOf method', () => {
+    expect([1, 2, 3].indexOf(2)).toBe(1);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+});

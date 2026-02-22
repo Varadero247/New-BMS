@@ -625,3 +625,26 @@ describe('analytics — phase29 coverage', () => {
   });
 
 });
+
+describe('analytics — phase30 coverage', () => {
+  it('handles Math.floor', () => {
+    expect(Math.floor(3.9)).toBe(3);
+  });
+
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+});

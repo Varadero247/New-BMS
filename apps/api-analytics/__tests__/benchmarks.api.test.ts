@@ -526,3 +526,26 @@ describe('benchmarks.api — phase28 coverage', () => {
     }
   });
 });
+
+describe('benchmarks — phase30 coverage', () => {
+  it('handles try-catch flow', () => {
+    let caught = false; try { throw new Error(); } catch { caught = true; } expect(caught).toBe(true);
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+});

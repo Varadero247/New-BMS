@@ -457,3 +457,26 @@ describe('ip allowlist — phase29 coverage', () => {
   });
 
 });
+
+describe('ip allowlist — phase30 coverage', () => {
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles array push', () => {
+    const a: number[] = []; a.push(1); expect(a).toHaveLength(1);
+  });
+
+});

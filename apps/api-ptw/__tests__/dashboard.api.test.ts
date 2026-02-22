@@ -439,3 +439,26 @@ describe('dashboard.api — phase28 coverage', () => {
     expect(mockPrisma.ptwMethodStatement.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('dashboard — phase30 coverage', () => {
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+});

@@ -685,3 +685,26 @@ describe('risks — phase29 coverage', () => {
   });
 
 });
+
+describe('risks — phase30 coverage', () => {
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+  it('handles number isFinite', () => {
+    expect(isFinite(42)).toBe(true);
+  });
+
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+});

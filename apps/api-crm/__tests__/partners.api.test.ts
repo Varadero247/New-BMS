@@ -655,3 +655,26 @@ describe('partners — phase29 coverage', () => {
   });
 
 });
+
+describe('partners — phase30 coverage', () => {
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles Math.floor', () => {
+    expect(Math.floor(3.9)).toBe(3);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+});

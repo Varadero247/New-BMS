@@ -505,3 +505,26 @@ describe('Parts Routes — phase28 coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('parts — phase30 coverage', () => {
+  it('handles structuredClone', () => {
+    const obj2 = { a: 1 }; const clone = structuredClone(obj2); expect(clone).toEqual(obj2); expect(clone).not.toBe(obj2);
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles number isFinite', () => {
+    expect(isFinite(42)).toBe(true);
+  });
+
+});

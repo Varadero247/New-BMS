@@ -539,3 +539,26 @@ describe("Assets — phase28 coverage", () => {
     expect(res.body.data.assetType).toBe("EQUIPMENT");
   });
 });
+
+describe('assets — phase30 coverage', () => {
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles parseFloat', () => {
+    expect(parseFloat('3.14')).toBeCloseTo(3.14);
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+});

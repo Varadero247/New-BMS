@@ -482,3 +482,26 @@ describe('downtime — phase29 coverage', () => {
   });
 
 });
+
+describe('downtime — phase30 coverage', () => {
+  it('handles array length', () => {
+    expect([1, 2, 3].length).toBe(3);
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+});

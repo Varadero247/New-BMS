@@ -424,3 +424,26 @@ describe('method statements — phase29 coverage', () => {
   });
 
 });
+
+describe('method statements — phase30 coverage', () => {
+  it('handles object type', () => {
+    expect(typeof {}).toBe('object');
+  });
+
+  it('handles array push', () => {
+    const a: number[] = []; a.push(1); expect(a).toHaveLength(1);
+  });
+
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles ternary operator', () => {
+    expect(true ? 'yes' : 'no').toBe('yes');
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+});

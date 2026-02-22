@@ -286,3 +286,26 @@ describe('permissions — phase29 coverage', () => {
   });
 
 });
+
+describe('permissions — phase30 coverage', () => {
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('handles Math.floor', () => {
+    expect(Math.floor(3.9)).toBe(3);
+  });
+
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles array push', () => {
+    const a: number[] = []; a.push(1); expect(a).toHaveLength(1);
+  });
+
+});

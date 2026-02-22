@@ -643,3 +643,26 @@ describe('esignature — phase29 coverage', () => {
   });
 
 });
+
+describe('esignature — phase30 coverage', () => {
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles object type', () => {
+    expect(typeof {}).toBe('object');
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+});

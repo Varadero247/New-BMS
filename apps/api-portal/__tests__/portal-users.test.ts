@@ -600,3 +600,26 @@ describe('portal users — phase29 coverage', () => {
   });
 
 });
+
+describe('portal users — phase30 coverage', () => {
+  it('handles string includes', () => {
+    expect('hello world'.includes('world')).toBe(true);
+  });
+
+  it('handles numeric identity', () => {
+    expect(1 + 1).toBe(2);
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+});

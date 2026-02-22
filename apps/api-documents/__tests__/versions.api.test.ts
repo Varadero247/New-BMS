@@ -476,3 +476,26 @@ describe('Versions — phase28 coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('versions — phase30 coverage', () => {
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+});

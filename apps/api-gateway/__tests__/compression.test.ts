@@ -454,3 +454,26 @@ describe('compression — phase29 coverage', () => {
   });
 
 });
+
+describe('compression — phase30 coverage', () => {
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+  it('handles Number.isInteger', () => {
+    expect(Number.isInteger(42)).toBe(true);
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+});

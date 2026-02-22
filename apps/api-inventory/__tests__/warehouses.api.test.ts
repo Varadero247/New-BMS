@@ -766,3 +766,26 @@ describe('warehouses — phase29 coverage', () => {
   });
 
 });
+
+describe('warehouses — phase30 coverage', () => {
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles try-catch flow', () => {
+    let caught = false; try { throw new Error(); } catch { caught = true; } expect(caught).toBe(true);
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+});

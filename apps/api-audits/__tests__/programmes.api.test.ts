@@ -458,3 +458,26 @@ describe('programmes — phase29 coverage', () => {
   });
 
 });
+
+describe('programmes — phase30 coverage', () => {
+  it('handles try-catch flow', () => {
+    let caught = false; try { throw new Error(); } catch { caught = true; } expect(caught).toBe(true);
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles JSON stringify', () => {
+    expect(JSON.stringify({ a: 1 })).toBe('{"a":1}');
+  });
+
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+});

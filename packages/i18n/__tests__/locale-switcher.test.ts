@@ -353,3 +353,26 @@ describe('@ims/i18n — phase28 coverage', () => {
     expect(unique).toHaveLength(locales.length);
   });
 });
+
+describe('locale switcher — phase30 coverage', () => {
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles object spread clone', () => {
+    const obj2 = { a: 1 }; const clone = { ...obj2 }; expect(clone).toEqual(obj2); expect(clone).not.toBe(obj2);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+});

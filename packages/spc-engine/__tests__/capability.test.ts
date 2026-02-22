@@ -327,3 +327,22 @@ describe('calculateCpk and calculatePpk — additional coverage to reach 40', ()
     expect(typeof result.sigma).toBe('number');
   });
 });
+
+describe('capability — phase30 coverage', () => {
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+});

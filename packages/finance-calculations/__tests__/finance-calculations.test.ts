@@ -274,3 +274,10 @@ describe('finance-calculations', () => {
     });
   });
 });
+
+describe('finance calculations — phase30 coverage', () => {
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+});

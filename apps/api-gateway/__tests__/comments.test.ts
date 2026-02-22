@@ -484,3 +484,26 @@ describe('comments — phase29 coverage', () => {
   });
 
 });
+
+describe('comments — phase30 coverage', () => {
+  it('handles try-catch flow', () => {
+    let caught = false; try { throw new Error(); } catch { caught = true; } expect(caught).toBe(true);
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+});

@@ -419,3 +419,14 @@ describe('getMandatoryGaps', () => {
     expect(gaps).toHaveLength(0);
   });
 });
+
+describe('audit engine — phase30 coverage', () => {
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+});

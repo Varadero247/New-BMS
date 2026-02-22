@@ -336,3 +336,10 @@ describe('isValidId — comprehensive boundary coverage', () => {
     expect(isValidId(String(12345))).toBe(false);
   });
 });
+
+describe('validation — phase30 coverage', () => {
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+});

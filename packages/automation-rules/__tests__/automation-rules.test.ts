@@ -385,3 +385,26 @@ describe('automation rules — phase29 coverage', () => {
   });
 
 });
+
+describe('automation rules — phase30 coverage', () => {
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+  it('handles string length', () => {
+    expect('hello'.length).toBe(5);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+});

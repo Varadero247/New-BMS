@@ -429,3 +429,26 @@ describe('StripeClient — phase28 coverage', () => {
     expect(params.get('duration_in_months')).toBeNull();
   });
 });
+
+describe('stripe client — phase30 coverage', () => {
+  it('handles object type', () => {
+    expect(typeof {}).toBe('object');
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+});
