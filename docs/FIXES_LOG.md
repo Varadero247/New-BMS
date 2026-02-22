@@ -1,5 +1,18 @@
 # IMS — Fixes Log
 
+## Phase 30 — Test Depth Expansion to ≥50 (February 22, 2026)
+
+Targeted expansion of all 679 test files with 45-49 `it()`/`test()` calls up to ≥50 runtime tests each.
+
+**Scope:** 679 test files across all API services, packages, and web apps. Each file received new `describe` blocks appended at the END. No existing tests were modified.
+
+**Net new tests:** +3,340 (32,786 → 36,126), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (1 failure → 0):**
+- `packages/i18n/__tests__/locale-switcher.test.ts`: `structuredClone` not available in Node.js <17 — replaced with spread clone `{ ...obj2 }`
+
+---
+
 ## Phase 28 — Test Depth Expansion to ≥45 (February 22, 2026)
 
 Targeted expansion of all 623 test files with 40-44 `it()` calls up to ≥45 runtime tests each. 52 parallel agent batches (aa–bz).
