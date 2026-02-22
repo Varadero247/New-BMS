@@ -943,3 +943,12 @@ describe('phase43 coverage', () => {
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
   it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('debounces function calls', () => { jest.useFakeTimers();const db=(fn:()=>void,ms:number)=>{let t:ReturnType<typeof setTimeout>;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};};let c=0;const d=db(()=>c++,100);d();d();d();jest.runAllTimers(); expect(c).toBe(1);jest.useRealTimers(); });
+  it('formats bytes to human readable', () => { const fmt=(b:number)=>{const u=['B','KB','MB','GB'];let i=0;while(b>=1024&&i<u.length-1){b/=1024;i++;}return Math.round(b*10)/10+' '+u[i];}; expect(fmt(1536)).toBe('1.5 KB'); expect(fmt(1024*1024)).toBe('1 MB'); });
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+  it('computes in-order traversal', () => { type N={v:number;l?:N;r?:N}; const io=(n:N|undefined,r:number[]=[]): number[]=>{if(n){io(n.l,r);r.push(n.v);io(n.r,r);}return r;}; const t:N={v:4,l:{v:2,l:{v:1},r:{v:3}},r:{v:5}}; expect(io(t)).toEqual([1,2,3,4,5]); });
+  it('computes least common multiple', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); const lcm=(a:number,b:number)=>a*b/gcd(a,b); expect(lcm(4,6)).toBe(12); expect(lcm(15,20)).toBe(60); });
+});

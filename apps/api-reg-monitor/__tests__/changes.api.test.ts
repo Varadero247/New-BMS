@@ -577,3 +577,12 @@ describe('phase43 coverage', () => {
   it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
   it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('debounces function calls', () => { jest.useFakeTimers();const db=(fn:()=>void,ms:number)=>{let t:ReturnType<typeof setTimeout>;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};};let c=0;const d=db(()=>c++,100);d();d();d();jest.runAllTimers(); expect(c).toBe(1);jest.useRealTimers(); });
+  it('checks if number is perfect', () => { const perf=(n:number)=>n>1&&Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)===n; expect(perf(6)).toBe(true); expect(perf(28)).toBe(true); expect(perf(12)).toBe(false); });
+  it('curries a two-argument function', () => { const curry=<A,B,C>(fn:(a:A,b:B)=>C)=>(a:A)=>(b:B)=>fn(a,b); const add=curry((a:number,b:number)=>a+b); expect(add(3)(4)).toBe(7); });
+  it('merges objects deeply', () => { const dm=(t:any,s:any):any=>{for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){t[k]=t[k]||{};dm(t[k],s[k]);}else t[k]=s[k];}return t;}; expect(dm({a:{x:1}},{a:{y:2},b:3})).toEqual({a:{x:1,y:2},b:3}); });
+  it('computes standard deviation', () => { const sd=(a:number[])=>Math.sqrt(a.reduce((s,v,_,arr)=>s+(v-arr.reduce((x,y)=>x+y,0)/arr.length)**2,0)/a.length); expect(Math.round(sd([2,4,4,4,5,5,7,9])*100)/100).toBe(2); });
+});

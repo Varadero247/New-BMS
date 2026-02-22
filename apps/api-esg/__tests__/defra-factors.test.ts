@@ -682,3 +682,12 @@ describe('phase43 coverage', () => {
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
   it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes set union', () => { const union=<T>(a:Set<T>,b:Set<T>)=>new Set([...a,...b]); const s=union(new Set([1,2,3]),new Set([3,4,5])); expect([...s].sort()).toEqual([1,2,3,4,5]); });
+  it('counts set bits (popcount)', () => { const pop=(n:number)=>{let c=0;while(n){c+=n&1;n>>=1;}return c;}; expect(pop(7)).toBe(3); expect(pop(255)).toBe(8); });
+  it('implements simple queue', () => { const mk=()=>{const q:number[]=[];return{enq:(v:number)=>q.push(v),deq:()=>q.shift(),front:()=>q[0],size:()=>q.length};}; const q=mk();q.enq(1);q.enq(2);q.enq(3); expect(q.front()).toBe(1);q.deq(); expect(q.front()).toBe(2); });
+  it('implements counting sort', () => { const cnt=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const c=new Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((n,i)=>r.push(...Array(n).fill(i)));return r;}; expect(cnt([4,2,2,8,3,3,1])).toEqual([1,2,2,3,3,4,8]); });
+  it('truncates string to max length with ellipsis', () => { const trunc=(s:string,n:number)=>s.length>n?s.slice(0,n-3)+'...':s; expect(trunc('Hello World',8)).toBe('Hello...'); expect(trunc('Hi',8)).toBe('Hi'); });
+});

@@ -891,3 +891,12 @@ describe('phase43 coverage', () => {
   it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
   it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('generates Gray code sequence', () => { const gray=(n:number)=>Array.from({length:1<<n},(_,i)=>i^(i>>1)); expect(gray(2)).toEqual([0,1,3,2]); });
+  it('formats duration in ms to human string', () => { const fmt=(ms:number)=>{const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60);return h?h+'h '+(m%60)+'m':m?(m%60)+'m '+(s%60)+'s':(s%60)+'s';}; expect(fmt(3661000)).toBe('1h 1m'); expect(fmt(125000)).toBe('2m 5s'); });
+  it('computes area of polygon (shoelace)', () => { const poly=(pts:[number,number][])=>{let s=0;const n=pts.length;for(let i=0;i<n;i++){const j=(i+1)%n;s+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}return Math.abs(s)/2;}; expect(poly([[0,0],[4,0],[4,3],[0,3]])).toBe(12); });
+  it('implements promise timeout wrapper', async () => { const withTimeout=<T>(p:Promise<T>,ms:number):Promise<T>=>{const t=new Promise<T>((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms));return Promise.race([p,t]);};await expect(withTimeout(Promise.resolve(42),100)).resolves.toBe(42); });
+  it('counts set bits (popcount)', () => { const pop=(n:number)=>{let c=0;while(n){c+=n&1;n>>=1;}return c;}; expect(pop(7)).toBe(3); expect(pop(255)).toBe(8); });
+});

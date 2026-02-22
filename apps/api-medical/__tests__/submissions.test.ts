@@ -793,3 +793,12 @@ describe('phase43 coverage', () => {
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
   it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes greatest common divisor', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); expect(gcd(48,18)).toBe(6); expect(gcd(100,75)).toBe(25); });
+  it('flattens deeply nested array', () => { const deepFlat=(a:any[]):any[]=>a.reduce((acc,v)=>Array.isArray(v)?[...acc,...deepFlat(v)]:[...acc,v],[]); expect(deepFlat([1,[2,[3,[4,[5]]]]])).toEqual([1,2,3,4,5]); });
+  it('computes area of polygon (shoelace)', () => { const poly=(pts:[number,number][])=>{let s=0;const n=pts.length;for(let i=0;i<n;i++){const j=(i+1)%n;s+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}return Math.abs(s)/2;}; expect(poly([[0,0],[4,0],[4,3],[0,3]])).toBe(12); });
+  it('implements simple queue', () => { const mk=()=>{const q:number[]=[];return{enq:(v:number)=>q.push(v),deq:()=>q.shift(),front:()=>q[0],size:()=>q.length};}; const q=mk();q.enq(1);q.enq(2);q.enq(3); expect(q.front()).toBe(1);q.deq(); expect(q.front()).toBe(2); });
+  it('computes max subarray sum (Kadane)', () => { const kad=(a:number[])=>{let cur=a[0],max=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); });
+});

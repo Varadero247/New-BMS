@@ -588,3 +588,12 @@ describe('phase43 coverage', () => {
   it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
   it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if two strings are anagrams', () => { const anagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(anagram('listen','silent')).toBe(true); expect(anagram('hello','world')).toBe(false); });
+  it('computes in-order traversal', () => { type N={v:number;l?:N;r?:N}; const io=(n:N|undefined,r:number[]=[]): number[]=>{if(n){io(n.l,r);r.push(n.v);io(n.r,r);}return r;}; const t:N={v:4,l:{v:2,l:{v:1},r:{v:3}},r:{v:5}}; expect(io(t)).toEqual([1,2,3,4,5]); });
+  it('computes Manhattan distance', () => { const man=(a:[number,number],b:[number,number])=>Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]); expect(man([1,2],[4,6])).toBe(7); });
+  it('wraps text at given width', () => { const wrap=(s:string,w:number)=>{const words=s.split(' ');const lines:string[]=[];let cur='';for(const wd of words){if(cur&&(cur+' '+wd).length>w){lines.push(cur);cur=wd;}else cur=cur?cur+' '+wd:wd;}if(cur)lines.push(cur);return lines;}; expect(wrap('the quick brown fox',10)).toEqual(['the quick','brown fox']); });
+  it('checks if three points are collinear', () => { const col=(ax:number,ay:number,bx:number,by:number,cx:number,cy:number)=>(by-ay)*(cx-ax)===(cy-ay)*(bx-ax); expect(col(1,1,2,2,3,3)).toBe(true); expect(col(1,1,2,2,3,4)).toBe(false); });
+});

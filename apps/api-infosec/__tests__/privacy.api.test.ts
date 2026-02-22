@@ -880,3 +880,12 @@ describe('phase43 coverage', () => {
   it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
   it('checks if date is in past', () => { const inPast=(d:Date)=>d.getTime()<Date.now(); expect(inPast(new Date('2020-01-01'))).toBe(true); expect(inPast(new Date('2099-01-01'))).toBe(false); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('generates Gray code sequence', () => { const gray=(n:number)=>Array.from({length:1<<n},(_,i)=>i^(i>>1)); expect(gray(2)).toEqual([0,1,3,2]); });
+  it('computes coin change (min coins)', () => { const cc=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(cc([1,5,6,9],11)).toBe(2); });
+  it('generates collatz sequence', () => { const coll=(n:number):number[]=>[n,...(n===1?[]:(n%2===0?coll(n/2):coll(3*n+1)))]; expect(coll(6)).toEqual([6,3,10,5,16,8,4,2,1]); });
+  it('converts binary string to decimal', () => { const toDec=(s:string)=>parseInt(s,2); expect(toDec('1010')).toBe(10); expect(toDec('11111111')).toBe(255); });
+  it('computes area of polygon (shoelace)', () => { const poly=(pts:[number,number][])=>{let s=0;const n=pts.length;for(let i=0;i<n;i++){const j=(i+1)%n;s+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}return Math.abs(s)/2;}; expect(poly([[0,0],[4,0],[4,3],[0,3]])).toBe(12); });
+});

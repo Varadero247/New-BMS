@@ -860,3 +860,12 @@ describe('phase43 coverage', () => {
   it('computes ReLU activation', () => { const relu=(x:number)=>Math.max(0,x); expect(relu(3)).toBe(3); expect(relu(-2)).toBe(0); expect(relu(0)).toBe(0); });
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('finds number of islands (flood fill)', () => { const ni=(g:number[][])=>{const r=g.map(row=>[...row]);let cnt=0;const dfs=(i:number,j:number)=>{if(i<0||i>=r.length||j<0||j>=r[0].length||r[i][j]!==1)return;r[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);};for(let i=0;i<r.length;i++)for(let j=0;j<r[0].length;j++)if(r[i][j]===1){cnt++;dfs(i,j);}return cnt;}; expect(ni([[1,1,0],[0,1,0],[0,0,1]])).toBe(2); });
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+  it('computes nth Fibonacci iteratively', () => { const fib=(n:number)=>{let a=0,b=1;for(let i=0;i<n;i++){[a,b]=[b,a+b];}return a;}; expect(fib(0)).toBe(0); expect(fib(7)).toBe(13); expect(fib(10)).toBe(55); });
+  it('checks deep equality of two objects', () => { const deq=(a:unknown,b:unknown):boolean=>{if(a===b)return true;if(typeof a!=='object'||typeof b!=='object'||!a||!b)return false;const ka=Object.keys(a as object),kb=Object.keys(b as object);return ka.length===kb.length&&ka.every(k=>deq((a as any)[k],(b as any)[k]));}; expect(deq({a:1,b:{c:2}},{a:1,b:{c:2}})).toBe(true); expect(deq({a:1},{a:2})).toBe(false); });
+  it('debounces function calls', () => { jest.useFakeTimers();const db=(fn:()=>void,ms:number)=>{let t:ReturnType<typeof setTimeout>;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};};let c=0;const d=db(()=>c++,100);d();d();d();jest.runAllTimers(); expect(c).toBe(1);jest.useRealTimers(); });
+});

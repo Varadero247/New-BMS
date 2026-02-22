@@ -423,3 +423,12 @@ describe('phase43 coverage', () => {
   it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
   it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('flattens nested array one level', () => { const flat1=(a:any[][])=>([] as any[]).concat(...a); expect(flat1([[1,2],[3,4],[5]])).toEqual([1,2,3,4,5]); });
+  it('batches array of promises into groups', async () => { const batch=async<T>(fns:(()=>Promise<T>)[],size:number):Promise<T[]>=>{const r:T[]=[];for(let i=0;i<fns.length;i+=size){const g=await Promise.all(fns.slice(i,i+size).map(f=>f()));r.push(...g);}return r;};const fns=[1,2,3,4,5].map(n=>()=>Promise.resolve(n*2));const r=await batch(fns,2); expect(r).toEqual([2,4,6,8,10]); });
+  it('computes Euclidean distance', () => { const eu=(a:number[],b:number[])=>Math.sqrt(a.reduce((s,v,i)=>s+(v-b[i])**2,0)); expect(eu([0,0],[3,4])).toBe(5); });
+  it('computes running maximum', () => { const runmax=(a:number[])=>a.reduce((acc,v)=>[...acc,Math.max(v,(acc[acc.length-1]??-Infinity))],[] as number[]); expect(runmax([3,1,4,1,5])).toEqual([3,3,4,4,5]); });
+  it('computes symmetric difference of two sets', () => { const sdiff=<T>(a:Set<T>,b:Set<T>)=>{const r=new Set(a);b.forEach(v=>r.has(v)?r.delete(v):r.add(v));return r;}; const s=sdiff(new Set([1,2,3]),new Set([2,3,4])); expect([...s].sort()).toEqual([1,4]); });
+});

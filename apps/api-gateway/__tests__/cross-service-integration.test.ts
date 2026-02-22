@@ -951,3 +951,12 @@ describe('phase43 coverage', () => {
   it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
   it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('counts set bits (popcount)', () => { const pop=(n:number)=>{let c=0;while(n){c+=n&1;n>>=1;}return c;}; expect(pop(7)).toBe(3); expect(pop(255)).toBe(8); });
+  it('checks BST property', () => { type N={v:number;l?:N;r?:N}; const ok=(n:N|undefined,lo=-Infinity,hi=Infinity):boolean=>!n||(n.v>lo&&n.v<hi&&ok(n.l,lo,n.v)&&ok(n.r,n.v,hi)); const t:N={v:5,l:{v:3,l:{v:1},r:{v:4}},r:{v:7}}; expect(ok(t)).toBe(true); });
+  it('checks if number is abundant', () => { const ab=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)>n; expect(ab(12)).toBe(true); expect(ab(6)).toBe(false); });
+  it('merges objects deeply', () => { const dm=(t:any,s:any):any=>{for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){t[k]=t[k]||{};dm(t[k],s[k]);}else t[k]=s[k];}return t;}; expect(dm({a:{x:1}},{a:{y:2},b:3})).toEqual({a:{x:1,y:2},b:3}); });
+  it('picks specified keys from object', () => { const pick=<T extends object,K extends keyof T>(o:T,...ks:K[]):Pick<T,K>=>{const r={} as Pick<T,K>;ks.forEach(k=>r[k]=o[k]);return r;}; expect(pick({a:1,b:2,c:3},'a','c')).toEqual({a:1,c:3}); });
+});

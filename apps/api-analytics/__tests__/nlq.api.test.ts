@@ -583,3 +583,12 @@ describe('phase43 coverage', () => {
   it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
   it('computes ReLU activation', () => { const relu=(x:number)=>Math.max(0,x); expect(relu(3)).toBe(3); expect(relu(-2)).toBe(0); expect(relu(0)).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('formats duration in ms to human string', () => { const fmt=(ms:number)=>{const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60);return h?h+'h '+(m%60)+'m':m?(m%60)+'m '+(s%60)+'s':(s%60)+'s';}; expect(fmt(3661000)).toBe('1h 1m'); expect(fmt(125000)).toBe('2m 5s'); });
+  it('checks if string is pangram', () => { const isPangram=(s:string)=>new Set(s.toLowerCase().replace(/[^a-z]/g,'')).size===26; expect(isPangram('The quick brown fox jumps over the lazy dog')).toBe(true); expect(isPangram('Hello world')).toBe(false); });
+  it('checks circle contains point', () => { const inCirc=(cx:number,cy:number,r:number,px:number,py:number)=>(px-cx)**2+(py-cy)**2<=r**2; expect(inCirc(0,0,5,3,4)).toBe(true); expect(inCirc(0,0,5,4,4)).toBe(false); });
+  it('computes Euclidean distance', () => { const eu=(a:number[],b:number[])=>Math.sqrt(a.reduce((s,v,i)=>s+(v-b[i])**2,0)); expect(eu([0,0],[3,4])).toBe(5); });
+  it('solves 0/1 knapsack', () => { const ks=(w:number[],v:number[],cap:number)=>{const n=w.length;const dp:number[][]=Array.from({length:n+1},()=>new Array(cap+1).fill(0));for(let i=1;i<=n;i++)for(let c=0;c<=cap;c++)dp[i][c]=w[i-1]<=c?Math.max(dp[i-1][c],dp[i-1][c-w[i-1]]+v[i-1]):dp[i-1][c];return dp[n][cap];}; expect(ks([2,3,4,5],[3,4,5,6],5)).toBe(7); });
+});

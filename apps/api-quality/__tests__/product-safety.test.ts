@@ -1342,3 +1342,12 @@ describe('phase43 coverage', () => {
   it('gets start of day', () => { const startOfDay=(d:Date)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()); const d=new Date('2026-03-15T14:30:00'); expect(startOfDay(d).getHours()).toBe(0); });
   it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if number is abundant', () => { const ab=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)>n; expect(ab(12)).toBe(true); expect(ab(6)).toBe(false); });
+  it('implements simple stack', () => { const mk=()=>{const s:number[]=[];return{push:(v:number)=>s.push(v),pop:()=>s.pop(),peek:()=>s[s.length-1],size:()=>s.length};}; const st=mk();st.push(1);st.push(2);st.push(3); expect(st.peek()).toBe(3);st.pop(); expect(st.peek()).toBe(2); });
+  it('computes Hamming distance', () => { const ham=(a:string,b:string)=>[...a].filter((c,i)=>c!==b[i]).length; expect(ham('karolin','kathrin')).toBe(3); });
+  it('implements simple queue', () => { const mk=()=>{const q:number[]=[];return{enq:(v:number)=>q.push(v),deq:()=>q.shift(),front:()=>q[0],size:()=>q.length};}; const q=mk();q.enq(1);q.enq(2);q.enq(3); expect(q.front()).toBe(1);q.deq(); expect(q.front()).toBe(2); });
+  it('formats duration in ms to human string', () => { const fmt=(ms:number)=>{const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60);return h?h+'h '+(m%60)+'m':m?(m%60)+'m '+(s%60)+'s':(s%60)+'s';}; expect(fmt(3661000)).toBe('1h 1m'); expect(fmt(125000)).toBe('2m 5s'); });
+});

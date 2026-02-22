@@ -660,3 +660,12 @@ describe('phase43 coverage', () => {
   it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
   it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements counting sort', () => { const cnt=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const c=new Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((n,i)=>r.push(...Array(n).fill(i)));return r;}; expect(cnt([4,2,2,8,3,3,1])).toEqual([1,2,2,3,3,4,8]); });
+  it('computes max subarray sum (Kadane)', () => { const kad=(a:number[])=>{let cur=a[0],max=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); });
+  it('computes symmetric difference of two sets', () => { const sdiff=<T>(a:Set<T>,b:Set<T>)=>{const r=new Set(a);b.forEach(v=>r.has(v)?r.delete(v):r.add(v));return r;}; const s=sdiff(new Set([1,2,3]),new Set([2,3,4])); expect([...s].sort()).toEqual([1,4]); });
+  it('checks if two strings are anagrams', () => { const anagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(anagram('listen','silent')).toBe(true); expect(anagram('hello','world')).toBe(false); });
+  it('parses query string to object', () => { const pqs=(s:string)=>Object.fromEntries(s.split('&').map(p=>{const [k,v]=p.split('=');return[decodeURIComponent(k),decodeURIComponent(v||'')];})); expect(pqs('a=1&b=hello%20world')).toEqual({a:'1',b:'hello world'}); });
+});

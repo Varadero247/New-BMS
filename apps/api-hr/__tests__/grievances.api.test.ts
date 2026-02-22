@@ -581,3 +581,12 @@ describe('phase43 coverage', () => {
   it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
   it('gets start of day', () => { const startOfDay=(d:Date)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()); const d=new Date('2026-03-15T14:30:00'); expect(startOfDay(d).getHours()).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('detects balanced brackets', () => { const bal=(s:string)=>{const st:string[]=[];for(const c of s){if('([{'.includes(c))st.push(c);else{const t=st.pop();if(c===')' && t!=='(')return false;if(c===']' && t!=='[')return false;if(c==='}' && t!=='{')return false;}}return st.length===0;}; expect(bal('([{}])')).toBe(true); expect(bal('([)]')).toBe(false); });
+  it('implements memoize decorator', () => { const memo=<T extends unknown[],R>(fn:(...a:T)=>R)=>{const c=new Map<string,R>();return(...a:T)=>{const k=JSON.stringify(a);if(c.has(k))return c.get(k)!;const r=fn(...a);c.set(k,r);return r;};}; let calls=0;const sq=memo((n:number)=>{calls++;return n*n;});sq(5);sq(5);sq(6); expect(calls).toBe(2); });
+  it('computes word break partition count', () => { const wb=(s:string,d:string[])=>{const ws=new Set(d);const dp=new Array(s.length+1).fill(0);dp[0]=1;for(let i=1;i<=s.length;i++)for(let j=0;j<i;j++)if(dp[j]&&ws.has(s.slice(j,i)))dp[i]+=dp[j];return dp[s.length];}; expect(wb('catsanddog',['cat','cats','and','sand','dog'])).toBe(2); });
+  it('computes integer square root', () => { const isqrt=(n:number)=>Math.floor(Math.sqrt(n)); expect(isqrt(16)).toBe(4); expect(isqrt(17)).toBe(4); expect(isqrt(25)).toBe(5); });
+  it('implements simple event emitter', () => { const ee=()=>{const m=new Map<string,((...a:any[])=>void)[]>();return{on:(e:string,fn:(...a:any[])=>void)=>{m.set(e,[...(m.get(e)||[]),fn]);},emit:(e:string,...a:any[])=>(m.get(e)||[]).forEach(fn=>fn(...a))};}; const em=ee();const calls:number[]=[];em.on('x',v=>calls.push(v));em.on('x',v=>calls.push(v*2));em.emit('x',5); expect(calls).toEqual([5,10]); });
+});

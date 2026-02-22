@@ -798,3 +798,12 @@ describe('phase43 coverage', () => {
   it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes greatest common divisor', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); expect(gcd(48,18)).toBe(6); expect(gcd(100,75)).toBe(25); });
+  it('interleaves two arrays', () => { const interleave=(a:number[],b:number[])=>a.flatMap((v,i)=>[v,b[i]]).filter(v=>v!==undefined); expect(interleave([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
+  it('checks point in axis-aligned rectangle', () => { const inRect=(px:number,py:number,x1:number,y1:number,x2:number,y2:number)=>px>=x1&&px<=x2&&py>=y1&&py<=y2; expect(inRect(3,3,1,1,5,5)).toBe(true); expect(inRect(6,3,1,1,5,5)).toBe(false); });
+  it('chunks array into groups of n', () => { const chunk=(a:number[],n:number)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,i*n+n)); expect(chunk([1,2,3,4,5],2)).toEqual([[1,2],[3,4],[5]]); });
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+});

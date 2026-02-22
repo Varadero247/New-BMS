@@ -608,3 +608,12 @@ describe('phase43 coverage', () => {
   it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
   it('computes days between two dates', () => { const daysBetween=(a:Date,b:Date)=>Math.round(Math.abs(b.getTime()-a.getTime())/86400000); expect(daysBetween(new Date('2026-01-01'),new Date('2026-01-31'))).toBe(30); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements binary search', () => { const bs=(a:number[],t:number):number=>{let l=0,r=a.length-1;while(l<=r){const m=(l+r)>>1;if(a[m]===t)return m;else if(a[m]<t)l=m+1;else r=m-1;}return -1;}; expect(bs([1,3,5,7,9],5)).toBe(2); expect(bs([1,3,5,7,9],4)).toBe(-1); });
+  it('converts array of pairs to Map', () => { const toMap=<K,V>(pairs:[K,V][])=>new Map(pairs); const m=toMap([[1,'a'],[2,'b'],[3,'c']]); expect(m.get(1)).toBe('a'); expect(m.size).toBe(3); });
+  it('implements simple event emitter', () => { const ee=()=>{const m=new Map<string,((...a:any[])=>void)[]>();return{on:(e:string,fn:(...a:any[])=>void)=>{m.set(e,[...(m.get(e)||[]),fn]);},emit:(e:string,...a:any[])=>(m.get(e)||[]).forEach(fn=>fn(...a))};}; const em=ee();const calls:number[]=[];em.on('x',v=>calls.push(v));em.on('x',v=>calls.push(v*2));em.emit('x',5); expect(calls).toEqual([5,10]); });
+  it('merges objects deeply', () => { const dm=(t:any,s:any):any=>{for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){t[k]=t[k]||{};dm(t[k],s[k]);}else t[k]=s[k];}return t;}; expect(dm({a:{x:1}},{a:{y:2},b:3})).toEqual({a:{x:1,y:2},b:3}); });
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+});

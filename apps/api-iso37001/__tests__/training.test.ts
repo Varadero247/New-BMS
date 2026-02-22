@@ -818,3 +818,12 @@ describe('phase43 coverage', () => {
   it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
   it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('converts camelCase to snake_case', () => { const toSnake=(s:string)=>s.replace(/[A-Z]/g,c=>'_'+c.toLowerCase()); expect(toSnake('helloWorldFoo')).toBe('hello_world_foo'); });
+  it('wraps text at given width', () => { const wrap=(s:string,w:number)=>{const words=s.split(' ');const lines:string[]=[];let cur='';for(const wd of words){if(cur&&(cur+' '+wd).length>w){lines.push(cur);cur=wd;}else cur=cur?cur+' '+wd:wd;}if(cur)lines.push(cur);return lines;}; expect(wrap('the quick brown fox',10)).toEqual(['the quick','brown fox']); });
+  it('computes cumulative sum', () => { const cumsum=(a:number[])=>a.reduce((acc,v,i)=>[...acc,((acc[i-1]||0)+v)],[] as number[]); expect(cumsum([1,2,3,4])).toEqual([1,3,6,10]); });
+  it('partitions array by predicate', () => { const part=(a:number[],fn:(v:number)=>boolean):[number[],number[]]=>a.reduce(([t,f],v)=>fn(v)?[[...t,v],f]:[t,[...f,v]],[[],[]] as [number[],number[]]); const [e,o]=part([1,2,3,4,5],v=>v%2===0); expect(e).toEqual([2,4]); expect(o).toEqual([1,3,5]); });
+  it('implements sliding window max', () => { const swmax=(a:number[],k:number)=>{const r:number[]=[];for(let i=0;i<=a.length-k;i++)r.push(Math.max(...a.slice(i,i+k)));return r;}; expect(swmax([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]); });
+});

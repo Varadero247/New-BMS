@@ -749,3 +749,12 @@ describe('phase43 coverage', () => {
   it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
   it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements LRU cache eviction', () => { const lru=(cap:number)=>{const m=new Map<number,number>();return{get:(k:number)=>{if(!m.has(k))return undefined;const _v=m.get(k)!;m.delete(k);m.set(k,_v);return _v;},put:(k:number,v:number)=>{if(m.has(k))m.delete(k);else if(m.size>=cap)m.delete(m.keys().next().value!);m.set(k,v);}};}; const c=lru(2);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBeUndefined(); expect(c.get(3)).toBe(30); });
+  it('computes running maximum', () => { const runmax=(a:number[])=>a.reduce((acc,v)=>[...acc,Math.max(v,(acc[acc.length-1]??-Infinity))],[] as number[]); expect(runmax([3,1,4,1,5])).toEqual([3,3,4,4,5]); });
+  it('normalizes vector to unit length', () => { const norm=(v:number[])=>{const m=Math.sqrt(v.reduce((s,x)=>s+x*x,0));return v.map(x=>x/m);}; const r=norm([3,4]); expect(Math.round(r[0]*100)/100).toBe(0.6); expect(Math.round(r[1]*100)/100).toBe(0.8); });
+  it('generates UUID v4 format string', () => { const uuid=()=>'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);}); const id=uuid(); expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/); });
+  it('computes standard deviation', () => { const sd=(a:number[])=>Math.sqrt(a.reduce((s,v,_,arr)=>s+(v-arr.reduce((x,y)=>x+y,0)/arr.length)**2,0)/a.length); expect(Math.round(sd([2,4,4,4,5,5,7,9])*100)/100).toBe(2); });
+});

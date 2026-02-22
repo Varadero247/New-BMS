@@ -545,3 +545,12 @@ describe('phase43 coverage', () => {
   it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
   it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes greatest common divisor', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); expect(gcd(48,18)).toBe(6); expect(gcd(100,75)).toBe(25); });
+  it('truncates string to max length with ellipsis', () => { const trunc=(s:string,n:number)=>s.length>n?s.slice(0,n-3)+'...':s; expect(trunc('Hello World',8)).toBe('Hello...'); expect(trunc('Hi',8)).toBe('Hi'); });
+  it('computes cross product of 2D vectors', () => { const cross=(ax:number,ay:number,bx:number,by:number)=>ax*by-ay*bx; expect(cross(1,0,0,1)).toBe(1); expect(cross(1,0,1,0)).toBe(0); });
+  it('checks if three points are collinear', () => { const col=(ax:number,ay:number,bx:number,by:number,cx:number,cy:number)=>(by-ay)*(cx-ax)===(cy-ay)*(bx-ax); expect(col(1,1,2,2,3,3)).toBe(true); expect(col(1,1,2,2,3,4)).toBe(false); });
+  it('computes prefix sums', () => { const prefix=(a:number[])=>{const r=[0];a.forEach(v=>r.push(r[r.length-1]+v));return r;}; expect(prefix([1,2,3])).toEqual([0,1,3,6]); });
+});

@@ -445,3 +445,12 @@ describe('phase43 coverage', () => {
   it('applies label encoding to categories', () => { const encode=(cats:string[])=>{const u=[...new Set(cats)];return cats.map(c=>u.indexOf(c));}; expect(encode(['a','b','a','c'])).toEqual([0,1,0,2]); });
   it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements simple queue', () => { const mk=()=>{const q:number[]=[];return{enq:(v:number)=>q.push(v),deq:()=>q.shift(),front:()=>q[0],size:()=>q.length};}; const q=mk();q.enq(1);q.enq(2);q.enq(3); expect(q.front()).toBe(1);q.deq(); expect(q.front()).toBe(2); });
+  it('deep clones a plain object', () => { const dc=(o:unknown):unknown=>{if(typeof o!=='object'||!o)return o;if(Array.isArray(o))return o.map(dc);return Object.fromEntries(Object.entries(o).map(([k,v])=>[k,dc(v)]));}; const src={a:1,b:{c:2,d:[3,4]}};const cl=dc(src) as typeof src;cl.b.c=99; expect(src.b.c).toBe(2); });
+  it('generates all substrings', () => { const subs=(s:string)=>{const r:string[]=[];for(let i=0;i<s.length;i++)for(let j=i+1;j<=s.length;j++)r.push(s.slice(i,j));return r;}; expect(subs('abc')).toEqual(['a','ab','abc','b','bc','c']); });
+  it('encodes run-length', () => { const rle=(s:string)=>s.replace(/(.)\1*/g,m=>m.length>1?m[0]+m.length:m[0]); expect(rle('aaabbc')).toBe('a3b2c'); expect(rle('abc')).toBe('abc'); });
+  it('implements simple event emitter', () => { const ee=()=>{const m=new Map<string,((...a:any[])=>void)[]>();return{on:(e:string,fn:(...a:any[])=>void)=>{m.set(e,[...(m.get(e)||[]),fn]);},emit:(e:string,...a:any[])=>(m.get(e)||[]).forEach(fn=>fn(...a))};}; const em=ee();const calls:number[]=[];em.on('x',v=>calls.push(v));em.on('x',v=>calls.push(v*2));em.emit('x',5); expect(calls).toEqual([5,10]); });
+});

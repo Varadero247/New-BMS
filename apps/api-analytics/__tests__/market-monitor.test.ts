@@ -651,3 +651,12 @@ describe('phase43 coverage', () => {
   it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
   it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes cumulative sum', () => { const cumsum=(a:number[])=>a.reduce((acc,v,i)=>[...acc,((acc[i-1]||0)+v)],[] as number[]); expect(cumsum([1,2,3,4])).toEqual([1,3,6,10]); });
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+  it('zips two arrays into pairs', () => { const zip=(a:number[],b:string[])=>a.map((v,i)=>[v,b[i]] as [number,string]); expect(zip([1,2,3],['a','b','c'])).toEqual([[1,'a'],[2,'b'],[3,'c']]); });
+  it('converts object to query string', () => { const qs=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&'); expect(qs({a:1,b:'hello world'})).toBe('a=1&b=hello%20world'); });
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+});

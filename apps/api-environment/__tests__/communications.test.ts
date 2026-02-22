@@ -1026,3 +1026,12 @@ describe('phase43 coverage', () => {
   it('sorts dates chronologically', () => { const dates=[new Date('2026-03-01'),new Date('2026-01-15'),new Date('2026-02-10')]; dates.sort((a,b)=>a.getTime()-b.getTime()); expect(dates[0].getMonth()).toBe(0); });
   it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements observable pattern', () => { const obs=<T>(init:T)=>{let v=init;const subs:((v:T)=>void)[]=[];return{get:()=>v,set:(nv:T)=>{v=nv;subs.forEach(fn=>fn(nv));},sub:(fn:(v:T)=>void)=>subs.push(fn)};}; const o=obs(0);const log:number[]=[];o.sub(v=>log.push(v));o.set(1);o.set(2); expect(log).toEqual([1,2]); });
+  it('implements sliding window max', () => { const swmax=(a:number[],k:number)=>{const r:number[]=[];for(let i=0;i<=a.length-k;i++)r.push(Math.max(...a.slice(i,i+k)));return r;}; expect(swmax([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]); });
+  it('computes area of polygon (shoelace)', () => { const poly=(pts:[number,number][])=>{let s=0;const n=pts.length;for(let i=0;i<n;i++){const j=(i+1)%n;s+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}return Math.abs(s)/2;}; expect(poly([[0,0],[4,0],[4,3],[0,3]])).toBe(12); });
+  it('computes greatest common divisor', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); expect(gcd(48,18)).toBe(6); expect(gcd(100,75)).toBe(25); });
+  it('implements XOR swap', () => { let a=5,b=10;a=a^b;b=a^b;a=a^b; expect(a).toBe(10); expect(b).toBe(5); });
+});

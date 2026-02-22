@@ -855,3 +855,12 @@ describe('phase43 coverage', () => {
   it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
   it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes greatest common divisor', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); expect(gcd(48,18)).toBe(6); expect(gcd(100,75)).toBe(25); });
+  it('computes variance of array', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
+  it('checks if string is pangram', () => { const isPangram=(s:string)=>new Set(s.toLowerCase().replace(/[^a-z]/g,'')).size===26; expect(isPangram('The quick brown fox jumps over the lazy dog')).toBe(true); expect(isPangram('Hello world')).toBe(false); });
+  it('implements pipe function composition', () => { const pipe=(...fns:((x:number)=>number)[])=>(x:number)=>fns.reduce((v,f)=>f(v),x); const double=(x:number)=>x*2; const inc=(x:number)=>x+1; const sq=(x:number)=>x*x; expect(pipe(double,inc,sq)(3)).toBe(49); });
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+});

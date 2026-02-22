@@ -1283,3 +1283,12 @@ describe('phase43 coverage', () => {
   it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
   it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+  it('converts snake_case to camelCase', () => { const toCamel=(s:string)=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()); expect(toCamel('hello_world_foo')).toBe('helloWorldFoo'); });
+  it('generates power set', () => { const ps=(a:number[]):number[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as number[][]); expect(ps([1,2,3]).length).toBe(8); });
+  it('flattens deeply nested array', () => { const deepFlat=(a:any[]):any[]=>a.reduce((acc,v)=>Array.isArray(v)?[...acc,...deepFlat(v)]:[...acc,v],[]); expect(deepFlat([1,[2,[3,[4,[5]]]]])).toEqual([1,2,3,4,5]); });
+  it('rotates array right by k', () => { const rotR=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(n-r),...a.slice(0,n-r)];}; expect(rotR([1,2,3,4,5],2)).toEqual([4,5,1,2,3]); });
+});

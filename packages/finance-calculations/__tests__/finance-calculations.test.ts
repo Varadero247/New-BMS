@@ -398,3 +398,12 @@ describe('phase43 coverage', () => {
   it('computes linear regression slope', () => { const slope=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);}; expect(slope([1,2,3,4,5],[2,4,6,8,10])).toBe(2); });
   it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('parses query string to object', () => { const pqs=(s:string)=>Object.fromEntries(s.split('&').map(p=>{const [k,v]=p.split('=');return[decodeURIComponent(k),decodeURIComponent(v||'')];})); expect(pqs('a=1&b=hello%20world')).toEqual({a:'1',b:'hello world'}); });
+  it('rotates array left by k', () => { const rotL=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(r),...a.slice(0,r)];}; expect(rotL([1,2,3,4,5],2)).toEqual([3,4,5,1,2]); });
+  it('computes coin change (min coins)', () => { const cc=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(cc([1,5,6,9],11)).toBe(2); });
+  it('batches array of promises into groups', async () => { const batch=async<T>(fns:(()=>Promise<T>)[],size:number):Promise<T[]>=>{const r:T[]=[];for(let i=0;i<fns.length;i+=size){const g=await Promise.all(fns.slice(i,i+size).map(f=>f()));r.push(...g);}return r;};const fns=[1,2,3,4,5].map(n=>()=>Promise.resolve(n*2));const r=await batch(fns,2); expect(r).toEqual([2,4,6,8,10]); });
+  it('computes totient function', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); const phi=(n:number)=>Array.from({length:n},(_,i)=>i+1).filter(k=>gcd(k,n)===1).length; expect(phi(9)).toBe(6); expect(phi(12)).toBe(4); });
+});

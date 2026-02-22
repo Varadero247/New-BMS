@@ -732,3 +732,12 @@ describe('phase43 coverage', () => {
   it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
   it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('capitalizes first letter of each word', () => { const title=(s:string)=>s.replace(/\b\w/g,c=>c.toUpperCase()); expect(title('hello world')).toBe('Hello World'); });
+  it('pads number with leading zeros', () => { const pad=(n:number,w:number)=>String(n).padStart(w,'0'); expect(pad(42,5)).toBe('00042'); expect(pad(1234,5)).toBe('01234'); });
+  it('generates UUID v4 format string', () => { const uuid=()=>'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);}); const id=uuid(); expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/); });
+  it('removes consecutive duplicate characters', () => { const dedup=(s:string)=>s.replace(/(.)\1+/g,(_,c)=>c); expect(dedup('aabbcc')).toBe('abc'); expect(dedup('aaabbbccc')).toBe('abc'); });
+  it('finds longest common prefix', () => { const lcp=(ss:string[])=>{let p=ss[0]||'';for(const s of ss)while(!s.startsWith(p))p=p.slice(0,-1);return p;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); });
+});

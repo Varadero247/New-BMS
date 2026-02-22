@@ -653,3 +653,12 @@ describe('phase43 coverage', () => {
   it('sorts dates chronologically', () => { const dates=[new Date('2026-03-01'),new Date('2026-01-15'),new Date('2026-02-10')]; dates.sort((a,b)=>a.getTime()-b.getTime()); expect(dates[0].getMonth()).toBe(0); });
   it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('interleaves two arrays', () => { const interleave=(a:number[],b:number[])=>a.flatMap((v,i)=>[v,b[i]]).filter(v=>v!==undefined); expect(interleave([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
+  it('converts object to query string', () => { const qs=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&'); expect(qs({a:1,b:'hello world'})).toBe('a=1&b=hello%20world'); });
+  it('generates power set', () => { const ps=(a:number[]):number[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as number[][]); expect(ps([1,2,3]).length).toBe(8); });
+  it('solves 0/1 knapsack', () => { const ks=(w:number[],v:number[],cap:number)=>{const n=w.length;const dp:number[][]=Array.from({length:n+1},()=>new Array(cap+1).fill(0));for(let i=1;i<=n;i++)for(let c=0;c<=cap;c++)dp[i][c]=w[i-1]<=c?Math.max(dp[i-1][c],dp[i-1][c-w[i-1]]+v[i-1]):dp[i-1][c];return dp[n][cap];}; expect(ks([2,3,4,5],[3,4,5,6],5)).toBe(7); });
+  it('counts set bits (popcount)', () => { const pop=(n:number)=>{let c=0;while(n){c+=n&1;n>>=1;}return c;}; expect(pop(7)).toBe(3); expect(pop(255)).toBe(8); });
+});

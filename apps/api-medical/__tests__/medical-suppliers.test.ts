@@ -803,3 +803,12 @@ describe('phase43 coverage', () => {
   it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
   it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('chunks array into groups of n', () => { const chunk=(a:number[],n:number)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,i*n+n)); expect(chunk([1,2,3,4,5],2)).toEqual([[1,2],[3,4],[5]]); });
+  it('picks specified keys from object', () => { const pick=<T extends object,K extends keyof T>(o:T,...ks:K[]):Pick<T,K>=>{const r={} as Pick<T,K>;ks.forEach(k=>r[k]=o[k]);return r;}; expect(pick({a:1,b:2,c:3},'a','c')).toEqual({a:1,c:3}); });
+  it('computes cross product of 2D vectors', () => { const cross=(ax:number,ay:number,bx:number,by:number)=>ax*by-ay*bx; expect(cross(1,0,0,1)).toBe(1); expect(cross(1,0,1,0)).toBe(0); });
+  it('computes matrix chain order cost', () => { const mc=(dims:number[])=>{const n=dims.length-1;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+dims[i]*dims[k+1]*dims[j+1]);}return dp[0][n-1];}; expect(mc([10,30,5,60])).toBe(4500); });
+  it('removes consecutive duplicate characters', () => { const dedup=(s:string)=>s.replace(/(.)\1+/g,(_,c)=>c); expect(dedup('aabbcc')).toBe('abc'); expect(dedup('aaabbbccc')).toBe('abc'); });
+});

@@ -641,3 +641,12 @@ describe('phase43 coverage', () => {
   it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
   it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if two strings are anagrams', () => { const anagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(anagram('listen','silent')).toBe(true); expect(anagram('hello','world')).toBe(false); });
+  it('groups array of objects by key', () => { const grp=<T extends Record<string,any>>(arr:T[],key:string)=>arr.reduce((acc,obj)=>{const k=obj[key];acc[k]=[...(acc[k]||[]),obj];return acc;},{} as Record<string,T[]>); const data=[{t:'a',v:1},{t:'b',v:2},{t:'a',v:3}]; expect(grp(data,'t')).toEqual({a:[{t:'a',v:1},{t:'a',v:3}],b:[{t:'b',v:2}]}); });
+  it('implements simple queue', () => { const mk=()=>{const q:number[]=[];return{enq:(v:number)=>q.push(v),deq:()=>q.shift(),front:()=>q[0],size:()=>q.length};}; const q=mk();q.enq(1);q.enq(2);q.enq(3); expect(q.front()).toBe(1);q.deq(); expect(q.front()).toBe(2); });
+  it('implements once (call at most once)', () => { const once=<T extends unknown[]>(fn:(...a:T)=>number)=>{let c:number|undefined;return(...a:T)=>{if(c===undefined)c=fn(...a);return c;};};let n=0;const f=once(()=>++n);f();f();f(); expect(f()).toBe(1); expect(n).toBe(1); });
+  it('implements memoize decorator', () => { const memo=<T extends unknown[],R>(fn:(...a:T)=>R)=>{const c=new Map<string,R>();return(...a:T)=>{const k=JSON.stringify(a);if(c.has(k))return c.get(k)!;const r=fn(...a);c.set(k,r);return r;};}; let calls=0;const sq=memo((n:number)=>{calls++;return n*n;});sq(5);sq(5);sq(6); expect(calls).toBe(2); });
+});

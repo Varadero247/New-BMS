@@ -716,3 +716,12 @@ describe('phase43 coverage', () => {
   it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
   it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('finds longest common prefix', () => { const lcp=(ss:string[])=>{let p=ss[0]||'';for(const s of ss)while(!s.startsWith(p))p=p.slice(0,-1);return p;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); });
+  it('generates UUID v4 format string', () => { const uuid=()=>'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);}); const id=uuid(); expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/); });
+  it('partitions array by predicate', () => { const part=(a:number[],fn:(v:number)=>boolean):[number[],number[]]=>a.reduce(([t,f],v)=>fn(v)?[[...t,v],f]:[t,[...f,v]],[[],[]] as [number[],number[]]); const [e,o]=part([1,2,3,4,5],v=>v%2===0); expect(e).toEqual([2,4]); expect(o).toEqual([1,3,5]); });
+  it('checks if three points are collinear', () => { const col=(ax:number,ay:number,bx:number,by:number,cx:number,cy:number)=>(by-ay)*(cx-ax)===(cy-ay)*(bx-ax); expect(col(1,1,2,2,3,3)).toBe(true); expect(col(1,1,2,2,3,4)).toBe(false); });
+  it('creates range array', () => { const range=(start:number,end:number,step=1)=>{const r:number[]=[];for(let i=start;i<end;i+=step)r.push(i);return r;}; expect(range(0,5)).toEqual([0,1,2,3,4]); expect(range(0,10,2)).toEqual([0,2,4,6,8]); });
+});

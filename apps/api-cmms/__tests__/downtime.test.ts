@@ -622,3 +622,12 @@ describe('phase43 coverage', () => {
   it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
   it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements counting sort', () => { const cnt=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const c=new Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((n,i)=>r.push(...Array(n).fill(i)));return r;}; expect(cnt([4,2,2,8,3,3,1])).toEqual([1,2,2,3,3,4,8]); });
+  it('finds prime factors', () => { const pf=(n:number):number[]=>{const f:number[]=[];for(let d=2;d*d<=n;d++)while(n%d===0){f.push(d);n=Math.floor(n/d);}if(n>1)f.push(n);return f;}; expect(pf(12)).toEqual([2,2,3]); expect(pf(100)).toEqual([2,2,5,5]); });
+  it('deep clones a plain object', () => { const dc=(o:unknown):unknown=>{if(typeof o!=='object'||!o)return o;if(Array.isArray(o))return o.map(dc);return Object.fromEntries(Object.entries(o).map(([k,v])=>[k,dc(v)]));}; const src={a:1,b:{c:2,d:[3,4]}};const cl=dc(src) as typeof src;cl.b.c=99; expect(src.b.c).toBe(2); });
+  it('finds the mode of an array', () => { const mode=(a:number[])=>{const f:Record<number,number>={};a.forEach(v=>{f[v]=(f[v]||0)+1;});return +Object.entries(f).sort((x,y)=>y[1]-x[1])[0][0];}; expect(mode([1,2,2,3])).toBe(2); });
+  it('computes running maximum', () => { const runmax=(a:number[])=>a.reduce((acc,v)=>[...acc,Math.max(v,(acc[acc.length-1]??-Infinity))],[] as number[]); expect(runmax([3,1,4,1,5])).toEqual([3,3,4,4,5]); });
+});

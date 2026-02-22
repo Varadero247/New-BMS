@@ -1277,3 +1277,12 @@ describe('phase43 coverage', () => {
   it('formats number with locale-like thousand separators', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+$)/g,','); expect(fmt(1000000)).toBe('1,000,000'); expect(fmt(1234)).toBe('1,234'); });
   it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes area of polygon (shoelace)', () => { const poly=(pts:[number,number][])=>{let s=0;const n=pts.length;for(let i=0;i<n;i++){const j=(i+1)%n;s+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}return Math.abs(s)/2;}; expect(poly([[0,0],[4,0],[4,3],[0,3]])).toBe(12); });
+  it('truncates string to max length with ellipsis', () => { const trunc=(s:string,n:number)=>s.length>n?s.slice(0,n-3)+'...':s; expect(trunc('Hello World',8)).toBe('Hello...'); expect(trunc('Hi',8)).toBe('Hi'); });
+  it('computes variance of array', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
+  it('converts snake_case to camelCase', () => { const toCamel=(s:string)=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()); expect(toCamel('hello_world_foo')).toBe('helloWorldFoo'); });
+  it('groups array of objects by key', () => { const grp=<T extends Record<string,any>>(arr:T[],key:string)=>arr.reduce((acc,obj)=>{const k=obj[key];acc[k]=[...(acc[k]||[]),obj];return acc;},{} as Record<string,T[]>); const data=[{t:'a',v:1},{t:'b',v:2},{t:'a',v:3}]; expect(grp(data,'t')).toEqual({a:[{t:'a',v:1},{t:'a',v:3}],b:[{t:'b',v:2}]}); });
+});

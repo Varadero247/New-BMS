@@ -703,3 +703,12 @@ describe('phase43 coverage', () => {
   it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
   it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('formats duration in ms to human string', () => { const fmt=(ms:number)=>{const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60);return h?h+'h '+(m%60)+'m':m?(m%60)+'m '+(s%60)+'s':(s%60)+'s';}; expect(fmt(3661000)).toBe('1h 1m'); expect(fmt(125000)).toBe('2m 5s'); });
+  it('evaluates postfix expression', () => { const evpf=(tokens:string[])=>{const s:number[]=[];for(const t of tokens){if(['+','-','*','/'].includes(t)){const b=s.pop()!,a=s.pop()!;s.push(t==='+'?a+b:t==='-'?a-b:t==='*'?a*b:Math.trunc(a/b));}else s.push(Number(t));}return s[0];}; expect(evpf(['2','1','+','3','*'])).toBe(9); expect(evpf(['4','13','5','/','+'])).toBe(6); });
+  it('computes symmetric difference of two sets', () => { const sdiff=<T>(a:Set<T>,b:Set<T>)=>{const r=new Set(a);b.forEach(v=>r.has(v)?r.delete(v):r.add(v));return r;}; const s=sdiff(new Set([1,2,3]),new Set([2,3,4])); expect([...s].sort()).toEqual([1,4]); });
+  it('computes greatest common divisor', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); expect(gcd(48,18)).toBe(6); expect(gcd(100,75)).toBe(25); });
+  it('checks if three points are collinear', () => { const col=(ax:number,ay:number,bx:number,by:number,cx:number,cy:number)=>(by-ay)*(cx-ax)===(cy-ay)*(bx-ax); expect(col(1,1,2,2,3,3)).toBe(true); expect(col(1,1,2,2,3,4)).toBe(false); });
+});

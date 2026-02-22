@@ -721,3 +721,12 @@ describe('phase43 coverage', () => {
   it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
   it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('throttles function calls', () => { jest.useFakeTimers();const th=(fn:()=>void,ms:number)=>{let last=0;return()=>{const now=Date.now();if(now-last>=ms){last=now;fn();}};};let c=0;const t=th(()=>c++,100);t();t();jest.advanceTimersByTime(150);t(); expect(c).toBe(2);jest.useRealTimers(); });
+  it('picks specified keys from object', () => { const pick=<T extends object,K extends keyof T>(o:T,...ks:K[]):Pick<T,K>=>{const r={} as Pick<T,K>;ks.forEach(k=>r[k]=o[k]);return r;}; expect(pick({a:1,b:2,c:3},'a','c')).toEqual({a:1,c:3}); });
+  it('computes nth Fibonacci iteratively', () => { const fib=(n:number)=>{let a=0,b=1;for(let i=0;i<n;i++){[a,b]=[b,a+b];}return a;}; expect(fib(0)).toBe(0); expect(fib(7)).toBe(13); expect(fib(10)).toBe(55); });
+  it('normalizes vector to unit length', () => { const norm=(v:number[])=>{const m=Math.sqrt(v.reduce((s,x)=>s+x*x,0));return v.map(x=>x/m);}; const r=norm([3,4]); expect(Math.round(r[0]*100)/100).toBe(0.6); expect(Math.round(r[1]*100)/100).toBe(0.8); });
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+});

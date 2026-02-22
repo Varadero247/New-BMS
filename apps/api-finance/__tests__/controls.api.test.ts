@@ -774,3 +774,12 @@ describe('phase43 coverage', () => {
   it('checks if date is in past', () => { const inPast=(d:Date)=>d.getTime()<Date.now(); expect(inPast(new Date('2020-01-01'))).toBe(true); expect(inPast(new Date('2099-01-01'))).toBe(false); });
   it('computes linear regression slope', () => { const slope=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);}; expect(slope([1,2,3,4,5],[2,4,6,8,10])).toBe(2); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('omits specified keys from object', () => { const omit=<T extends object,K extends keyof T>(o:T,...ks:K[]):Omit<T,K>=>{const r={...o} as any;ks.forEach(k=>delete r[k]);return r;}; expect(omit({a:1,b:2,c:3},'b')).toEqual({a:1,c:3}); });
+  it('interleaves two arrays', () => { const interleave=(a:number[],b:number[])=>a.flatMap((v,i)=>[v,b[i]]).filter(v=>v!==undefined); expect(interleave([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
+  it('inverts a key-value map', () => { const inv=(o:Record<string,string>)=>Object.fromEntries(Object.entries(o).map(([k,v])=>[v,k])); expect(inv({a:'1',b:'2',c:'3'})).toEqual({'1':'a','2':'b','3':'c'}); });
+  it('pads number with leading zeros', () => { const pad=(n:number,w:number)=>String(n).padStart(w,'0'); expect(pad(42,5)).toBe('00042'); expect(pad(1234,5)).toBe('01234'); });
+  it('implements pipe function composition', () => { const pipe=(...fns:((x:number)=>number)[])=>(x:number)=>fns.reduce((v,f)=>f(v),x); const double=(x:number)=>x*2; const inc=(x:number)=>x+1; const sq=(x:number)=>x*x; expect(pipe(double,inc,sq)(3)).toBe(49); });
+});

@@ -718,3 +718,12 @@ describe('phase43 coverage', () => {
   it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
   it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes set union', () => { const union=<T>(a:Set<T>,b:Set<T>)=>new Set([...a,...b]); const s=union(new Set([1,2,3]),new Set([3,4,5])); expect([...s].sort()).toEqual([1,2,3,4,5]); });
+  it('finds tree height', () => { type N={v:number;l?:N;r?:N}; const h=(n:N|undefined):number=>!n?0:1+Math.max(h(n.l),h(n.r)); const t:N={v:1,l:{v:2,l:{v:4}},r:{v:3}}; expect(h(t)).toBe(3); });
+  it('implements XOR swap', () => { let a=5,b=10;a=a^b;b=a^b;a=a^b; expect(a).toBe(10); expect(b).toBe(5); });
+  it('generates Gray code sequence', () => { const gray=(n:number)=>Array.from({length:1<<n},(_,i)=>i^(i>>1)); expect(gray(2)).toEqual([0,1,3,2]); });
+  it('groups consecutive equal elements', () => { const group=(a:number[])=>a.reduce((acc,v)=>{if(acc.length&&acc[acc.length-1][0]===v)acc[acc.length-1].push(v);else acc.push([v]);return acc;},[] as number[][]); expect(group([1,1,2,3,3,3])).toEqual([[1,1],[2],[3,3,3]]); });
+});

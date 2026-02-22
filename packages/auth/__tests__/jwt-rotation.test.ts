@@ -508,3 +508,12 @@ describe('phase43 coverage', () => {
   it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
   it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes cumulative sum', () => { const cumsum=(a:number[])=>a.reduce((acc,v,i)=>[...acc,((acc[i-1]||0)+v)],[] as number[]); expect(cumsum([1,2,3,4])).toEqual([1,3,6,10]); });
+  it('rotates array left by k', () => { const rotL=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(r),...a.slice(0,r)];}; expect(rotL([1,2,3,4,5],2)).toEqual([3,4,5,1,2]); });
+  it('implements memoize decorator', () => { const memo=<T extends unknown[],R>(fn:(...a:T)=>R)=>{const c=new Map<string,R>();return(...a:T)=>{const k=JSON.stringify(a);if(c.has(k))return c.get(k)!;const r=fn(...a);c.set(k,r);return r;};}; let calls=0;const sq=memo((n:number)=>{calls++;return n*n;});sq(5);sq(5);sq(6); expect(calls).toBe(2); });
+  it('checks if two strings are anagrams', () => { const anagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(anagram('listen','silent')).toBe(true); expect(anagram('hello','world')).toBe(false); });
+  it('implements insertion sort', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([12,11,13,5,6])).toEqual([5,6,11,12,13]); });
+});

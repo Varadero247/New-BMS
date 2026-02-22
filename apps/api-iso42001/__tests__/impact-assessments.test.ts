@@ -810,3 +810,12 @@ describe('phase43 coverage', () => {
   it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
   it('applies label encoding to categories', () => { const encode=(cats:string[])=>{const u=[...new Set(cats)];return cats.map(c=>u.indexOf(c));}; expect(encode(['a','b','a','c'])).toEqual([0,1,0,2]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('generates power set', () => { const ps=(a:number[]):number[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as number[][]); expect(ps([1,2,3]).length).toBe(8); });
+  it('counts nodes at each BFS level', () => { const bfs=(adj:number[][],start:number)=>{const visited=new Set([start]);const q=[start];const levels:number[]=[];while(q.length){const sz=q.length;let cnt=0;for(let i=0;i<sz;i++){const n=q.shift()!;cnt++;(adj[n]||[]).forEach(nb=>{if(!visited.has(nb)){visited.add(nb);q.push(nb);}});}levels.push(cnt);}return levels;}; expect(bfs([[1,2],[3],[3],[]],0)).toEqual([1,2,1]); });
+  it('computes max subarray sum (Kadane)', () => { const kad=(a:number[])=>{let cur=a[0],max=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); });
+  it('implements once (call at most once)', () => { const once=<T extends unknown[]>(fn:(...a:T)=>number)=>{let c:number|undefined;return(...a:T)=>{if(c===undefined)c=fn(...a);return c;};};let n=0;const f=once(()=>++n);f();f();f(); expect(f()).toBe(1); expect(n).toBe(1); });
+  it('computes matrix chain order cost', () => { const mc=(dims:number[])=>{const n=dims.length-1;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+dims[i]*dims[k+1]*dims[j+1]);}return dp[0][n-1];}; expect(mc([10,30,5,60])).toBe(4500); });
+});

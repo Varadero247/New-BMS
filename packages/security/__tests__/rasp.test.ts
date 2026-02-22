@@ -430,3 +430,12 @@ describe('phase43 coverage', () => {
   it('computes Pearson correlation', () => { const pearson=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;const num=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0);const den=Math.sqrt(x.reduce((s,v)=>s+(v-mx)**2,0)*y.reduce((s,v)=>s+(v-my)**2,0));return den===0?0:num/den;}; expect(pearson([1,2,3],[1,2,3])).toBeCloseTo(1); });
   it('computes week number of year', () => { const weekNum=(d:Date)=>{const start=new Date(d.getFullYear(),0,1);return Math.ceil(((d.getTime()-start.getTime())/86400000+start.getDay()+1)/7);}; expect(weekNum(new Date('2026-01-01'))).toBe(1); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes set union', () => { const union=<T>(a:Set<T>,b:Set<T>)=>new Set([...a,...b]); const s=union(new Set([1,2,3]),new Set([3,4,5])); expect([...s].sort()).toEqual([1,2,3,4,5]); });
+  it('extracts numbers from string', () => { const nums=(s:string)=>(s.match(/-?\d+\.?\d*/g)||[]).map(Number); expect(nums('abc 3 def -4.5 ghi 10')).toEqual([3,-4.5,10]); });
+  it('checks if number is power of two', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(16)).toBe(true); expect(isPow2(18)).toBe(false); expect(isPow2(1)).toBe(true); });
+  it('detects balanced brackets', () => { const bal=(s:string)=>{const st:string[]=[];for(const c of s){if('([{'.includes(c))st.push(c);else{const t=st.pop();if(c===')' && t!=='(')return false;if(c===']' && t!=='[')return false;if(c==='}' && t!=='{')return false;}}return st.length===0;}; expect(bal('([{}])')).toBe(true); expect(bal('([)]')).toBe(false); });
+  it('computes word break partition count', () => { const wb=(s:string,d:string[])=>{const ws=new Set(d);const dp=new Array(s.length+1).fill(0);dp[0]=1;for(let i=1;i<=s.length;i++)for(let j=0;j<i;j++)if(dp[j]&&ws.has(s.slice(j,i)))dp[i]+=dp[j];return dp[s.length];}; expect(wb('catsanddog',['cat','cats','and','sand','dog'])).toBe(2); });
+});

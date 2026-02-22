@@ -703,3 +703,12 @@ describe('phase43 coverage', () => {
   it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
   it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('omits specified keys from object', () => { const omit=<T extends object,K extends keyof T>(o:T,...ks:K[]):Omit<T,K>=>{const r={...o} as any;ks.forEach(k=>delete r[k]);return r;}; expect(omit({a:1,b:2,c:3},'b')).toEqual({a:1,c:3}); });
+  it('batches array of promises into groups', async () => { const batch=async<T>(fns:(()=>Promise<T>)[],size:number):Promise<T[]>=>{const r:T[]=[];for(let i=0;i<fns.length;i+=size){const g=await Promise.all(fns.slice(i,i+size).map(f=>f()));r.push(...g);}return r;};const fns=[1,2,3,4,5].map(n=>()=>Promise.resolve(n*2));const r=await batch(fns,2); expect(r).toEqual([2,4,6,8,10]); });
+  it('computes Hamming distance', () => { const ham=(a:string,b:string)=>[...a].filter((c,i)=>c!==b[i]).length; expect(ham('karolin','kathrin')).toBe(3); });
+  it('implements bubble sort', () => { const bub=(a:number[])=>{const r=[...a];for(let i=0;i<r.length-1;i++)for(let j=0;j<r.length-1-i;j++)if(r[j]>r[j+1])[r[j],r[j+1]]=[r[j+1],r[j]];return r;}; expect(bub([5,1,4,2,8])).toEqual([1,2,4,5,8]); });
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+});

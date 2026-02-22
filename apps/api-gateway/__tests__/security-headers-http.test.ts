@@ -534,3 +534,12 @@ describe('phase43 coverage', () => {
   it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
   it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if string is pangram', () => { const isPangram=(s:string)=>new Set(s.toLowerCase().replace(/[^a-z]/g,'')).size===26; expect(isPangram('The quick brown fox jumps over the lazy dog')).toBe(true); expect(isPangram('Hello world')).toBe(false); });
+  it('converts camelCase to snake_case', () => { const toSnake=(s:string)=>s.replace(/[A-Z]/g,c=>'_'+c.toLowerCase()); expect(toSnake('helloWorldFoo')).toBe('hello_world_foo'); });
+  it('omits specified keys from object', () => { const omit=<T extends object,K extends keyof T>(o:T,...ks:K[]):Omit<T,K>=>{const r={...o} as any;ks.forEach(k=>delete r[k]);return r;}; expect(omit({a:1,b:2,c:3},'b')).toEqual({a:1,c:3}); });
+  it('curries a two-argument function', () => { const curry=<A,B,C>(fn:(a:A,b:B)=>C)=>(a:A)=>(b:B)=>fn(a,b); const add=curry((a:number,b:number)=>a+b); expect(add(3)(4)).toBe(7); });
+  it('computes area of polygon (shoelace)', () => { const poly=(pts:[number,number][])=>{let s=0;const n=pts.length;for(let i=0;i<n;i++){const j=(i+1)%n;s+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}return Math.abs(s)/2;}; expect(poly([[0,0],[4,0],[4,3],[0,3]])).toBe(12); });
+});

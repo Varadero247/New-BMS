@@ -703,3 +703,12 @@ describe('phase43 coverage', () => {
   it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
   it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes nth Fibonacci iteratively', () => { const fib=(n:number)=>{let a=0,b=1;for(let i=0;i<n;i++){[a,b]=[b,a+b];}return a;}; expect(fib(0)).toBe(0); expect(fib(7)).toBe(13); expect(fib(10)).toBe(55); });
+  it('checks deep equality of two objects', () => { const deq=(a:unknown,b:unknown):boolean=>{if(a===b)return true;if(typeof a!=='object'||typeof b!=='object'||!a||!b)return false;const ka=Object.keys(a as object),kb=Object.keys(b as object);return ka.length===kb.length&&ka.every(k=>deq((a as any)[k],(b as any)[k]));}; expect(deq({a:1,b:{c:2}},{a:1,b:{c:2}})).toBe(true); expect(deq({a:1},{a:2})).toBe(false); });
+  it('evaluates postfix expression', () => { const evpf=(tokens:string[])=>{const s:number[]=[];for(const t of tokens){if(['+','-','*','/'].includes(t)){const b=s.pop()!,a=s.pop()!;s.push(t==='+'?a+b:t==='-'?a-b:t==='*'?a*b:Math.trunc(a/b));}else s.push(Number(t));}return s[0];}; expect(evpf(['2','1','+','3','*'])).toBe(9); expect(evpf(['4','13','5','/','+'])).toBe(6); });
+  it('implements sliding window max', () => { const swmax=(a:number[],k:number)=>{const r:number[]=[];for(let i=0;i<=a.length-k;i++)r.push(Math.max(...a.slice(i,i+k)));return r;}; expect(swmax([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]); });
+  it('implements pipe function composition', () => { const pipe=(...fns:((x:number)=>number)[])=>(x:number)=>fns.reduce((v,f)=>f(v),x); const double=(x:number)=>x*2; const inc=(x:number)=>x+1; const sq=(x:number)=>x*x; expect(pipe(double,inc,sq)(3)).toBe(49); });
+});

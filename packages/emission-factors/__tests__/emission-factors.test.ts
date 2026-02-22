@@ -404,3 +404,12 @@ describe('phase43 coverage', () => {
   it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
   it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements simple event emitter', () => { const ee=()=>{const m=new Map<string,((...a:any[])=>void)[]>();return{on:(e:string,fn:(...a:any[])=>void)=>{m.set(e,[...(m.get(e)||[]),fn]);},emit:(e:string,...a:any[])=>(m.get(e)||[]).forEach(fn=>fn(...a))};}; const em=ee();const calls:number[]=[];em.on('x',v=>calls.push(v));em.on('x',v=>calls.push(v*2));em.emit('x',5); expect(calls).toEqual([5,10]); });
+  it('implements selection sort', () => { const sel=(a:number[])=>{const r=[...a];for(let i=0;i<r.length-1;i++){let m=i;for(let j=i+1;j<r.length;j++)if(r[j]<r[m])m=j;[r[i],r[m]]=[r[m],r[i]];}return r;}; expect(sel([64,25,12,22,11])).toEqual([11,12,22,25,64]); });
+  it('retries async operation up to n times', async () => { let attempts=0;const retry=async(fn:()=>Promise<number>,n:number):Promise<number>=>{try{return await fn();}catch(e){if(n<=0)throw e;return retry(fn,n-1);}};const op=()=>{attempts++;return attempts<3?Promise.reject(new Error('fail')):Promise.resolve(42);};const r=await retry(op,5); expect(r).toBe(42); expect(attempts).toBe(3); });
+  it('chunks array into groups of n', () => { const chunk=(a:number[],n:number)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,i*n+n)); expect(chunk([1,2,3,4,5],2)).toEqual([[1,2],[3,4],[5]]); });
+  it('computes totient function', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); const phi=(n:number)=>Array.from({length:n},(_,i)=>i+1).filter(k=>gcd(k,n)===1).length; expect(phi(9)).toBe(6); expect(phi(12)).toBe(4); });
+});

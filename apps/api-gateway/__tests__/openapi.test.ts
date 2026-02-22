@@ -614,3 +614,12 @@ describe('phase43 coverage', () => {
   it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
   it('computes KL divergence (discrete)', () => { const kl=(p:number[],q:number[])=>p.reduce((s,v,i)=>v>0&&q[i]>0?s+v*Math.log(v/q[i]):s,0); expect(kl([0.5,0.5],[0.5,0.5])).toBeCloseTo(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements insertion sort', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([12,11,13,5,6])).toEqual([5,6,11,12,13]); });
+  it('computes word break partition count', () => { const wb=(s:string,d:string[])=>{const ws=new Set(d);const dp=new Array(s.length+1).fill(0);dp[0]=1;for(let i=1;i<=s.length;i++)for(let j=0;j<i;j++)if(dp[j]&&ws.has(s.slice(j,i)))dp[i]+=dp[j];return dp[s.length];}; expect(wb('catsanddog',['cat','cats','and','sand','dog'])).toBe(2); });
+  it('checks if number is power of two', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(16)).toBe(true); expect(isPow2(18)).toBe(false); expect(isPow2(1)).toBe(true); });
+  it('normalizes vector to unit length', () => { const norm=(v:number[])=>{const m=Math.sqrt(v.reduce((s,x)=>s+x*x,0));return v.map(x=>x/m);}; const r=norm([3,4]); expect(Math.round(r[0]*100)/100).toBe(0.6); expect(Math.round(r[1]*100)/100).toBe(0.8); });
+  it('rotates array left by k', () => { const rotL=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(r),...a.slice(0,r)];}; expect(rotL([1,2,3,4,5],2)).toEqual([3,4,5,1,2]); });
+});

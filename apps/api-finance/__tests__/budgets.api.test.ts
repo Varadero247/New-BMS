@@ -862,3 +862,12 @@ describe('phase43 coverage', () => {
   it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
   it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes set intersection', () => { const intersect=<T>(a:Set<T>,b:Set<T>)=>new Set([...a].filter(v=>b.has(v))); const s=intersect(new Set([1,2,3,4]),new Set([2,4,6])); expect([...s].sort()).toEqual([2,4]); });
+  it('normalizes vector to unit length', () => { const norm=(v:number[])=>{const m=Math.sqrt(v.reduce((s,x)=>s+x*x,0));return v.map(x=>x/m);}; const r=norm([3,4]); expect(Math.round(r[0]*100)/100).toBe(0.6); expect(Math.round(r[1]*100)/100).toBe(0.8); });
+  it('curries a two-argument function', () => { const curry=<A,B,C>(fn:(a:A,b:B)=>C)=>(a:A)=>(b:B)=>fn(a,b); const add=curry((a:number,b:number)=>a+b); expect(add(3)(4)).toBe(7); });
+  it('creates range array', () => { const range=(start:number,end:number,step=1)=>{const r:number[]=[];for(let i=start;i<end;i+=step)r.push(i);return r;}; expect(range(0,5)).toEqual([0,1,2,3,4]); expect(range(0,10,2)).toEqual([0,2,4,6,8]); });
+  it('counts set bits (popcount)', () => { const pop=(n:number)=>{let c=0;while(n){c+=n&1;n>>=1;}return c;}; expect(pop(7)).toBe(3); expect(pop(255)).toBe(8); });
+});

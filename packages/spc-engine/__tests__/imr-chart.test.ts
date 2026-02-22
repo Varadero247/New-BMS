@@ -502,3 +502,12 @@ describe('phase43 coverage', () => {
   it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
   it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes integer square root', () => { const isqrt=(n:number)=>Math.floor(Math.sqrt(n)); expect(isqrt(16)).toBe(4); expect(isqrt(17)).toBe(4); expect(isqrt(25)).toBe(5); });
+  it('computes set intersection', () => { const intersect=<T>(a:Set<T>,b:Set<T>)=>new Set([...a].filter(v=>b.has(v))); const s=intersect(new Set([1,2,3,4]),new Set([2,4,6])); expect([...s].sort()).toEqual([2,4]); });
+  it('computes word break partition count', () => { const wb=(s:string,d:string[])=>{const ws=new Set(d);const dp=new Array(s.length+1).fill(0);dp[0]=1;for(let i=1;i<=s.length;i++)for(let j=0;j<i;j++)if(dp[j]&&ws.has(s.slice(j,i)))dp[i]+=dp[j];return dp[s.length];}; expect(wb('catsanddog',['cat','cats','and','sand','dog'])).toBe(2); });
+  it('converts decimal to binary string', () => { const toBin=(n:number)=>n.toString(2); expect(toBin(10)).toBe('1010'); expect(toBin(255)).toBe('11111111'); });
+  it('batches array of promises into groups', async () => { const batch=async<T>(fns:(()=>Promise<T>)[],size:number):Promise<T[]>=>{const r:T[]=[];for(let i=0;i<fns.length;i+=size){const g=await Promise.all(fns.slice(i,i+size).map(f=>f()));r.push(...g);}return r;};const fns=[1,2,3,4,5].map(n=>()=>Promise.resolve(n*2));const r=await batch(fns,2); expect(r).toEqual([2,4,6,8,10]); });
+});

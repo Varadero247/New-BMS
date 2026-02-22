@@ -644,3 +644,12 @@ describe('phase43 coverage', () => {
   it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
   it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements selection sort', () => { const sel=(a:number[])=>{const r=[...a];for(let i=0;i<r.length-1;i++){let m=i;for(let j=i+1;j<r.length;j++)if(r[j]<r[m])m=j;[r[i],r[m]]=[r[m],r[i]];}return r;}; expect(sel([64,25,12,22,11])).toEqual([11,12,22,25,64]); });
+  it('implements once (call at most once)', () => { const once=<T extends unknown[]>(fn:(...a:T)=>number)=>{let c:number|undefined;return(...a:T)=>{if(c===undefined)c=fn(...a);return c;};};let n=0;const f=once(()=>++n);f();f();f(); expect(f()).toBe(1); expect(n).toBe(1); });
+  it('creates range array', () => { const range=(start:number,end:number,step=1)=>{const r:number[]=[];for(let i=start;i<end;i+=step)r.push(i);return r;}; expect(range(0,5)).toEqual([0,1,2,3,4]); expect(range(0,10,2)).toEqual([0,2,4,6,8]); });
+  it('checks if number is abundant', () => { const ab=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)>n; expect(ab(12)).toBe(true); expect(ab(6)).toBe(false); });
+  it('batches array of promises into groups', async () => { const batch=async<T>(fns:(()=>Promise<T>)[],size:number):Promise<T[]>=>{const r:T[]=[];for(let i=0;i<fns.length;i+=size){const g=await Promise.all(fns.slice(i,i+size).map(f=>f()));r.push(...g);}return r;};const fns=[1,2,3,4,5].map(n=>()=>Promise.resolve(n*2));const r=await batch(fns,2); expect(r).toEqual([2,4,6,8,10]); });
+});

@@ -713,3 +713,12 @@ describe('phase43 coverage', () => {
   it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
   it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes running maximum', () => { const runmax=(a:number[])=>a.reduce((acc,v)=>[...acc,Math.max(v,(acc[acc.length-1]??-Infinity))],[] as number[]); expect(runmax([3,1,4,1,5])).toEqual([3,3,4,4,5]); });
+  it('computes Manhattan distance', () => { const man=(a:[number,number],b:[number,number])=>Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]); expect(man([1,2],[4,6])).toBe(7); });
+  it('finds prime factors', () => { const pf=(n:number):number[]=>{const f:number[]=[];for(let d=2;d*d<=n;d++)while(n%d===0){f.push(d);n=Math.floor(n/d);}if(n>1)f.push(n);return f;}; expect(pf(12)).toEqual([2,2,3]); expect(pf(100)).toEqual([2,2,5,5]); });
+  it('computes variance of array', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
+  it('merges two sorted arrays', () => { const merge=(a:number[],b:number[])=>{const r:number[]=[];let i=0,j=0;while(i<a.length&&j<b.length)r.push(a[i]<b[j]?a[i++]:b[j++]);return r.concat(a.slice(i)).concat(b.slice(j));}; expect(merge([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
+});

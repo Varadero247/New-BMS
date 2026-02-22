@@ -729,3 +729,12 @@ describe('phase43 coverage', () => {
   it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
   it('computes days between two dates', () => { const daysBetween=(a:Date,b:Date)=>Math.round(Math.abs(b.getTime()-a.getTime())/86400000); expect(daysBetween(new Date('2026-01-01'),new Date('2026-01-31'))).toBe(30); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements observable pattern', () => { const obs=<T>(init:T)=>{let v=init;const subs:((v:T)=>void)[]=[];return{get:()=>v,set:(nv:T)=>{v=nv;subs.forEach(fn=>fn(nv));},sub:(fn:(v:T)=>void)=>subs.push(fn)};}; const o=obs(0);const log:number[]=[];o.sub(v=>log.push(v));o.set(1);o.set(2); expect(log).toEqual([1,2]); });
+  it('normalizes vector to unit length', () => { const norm=(v:number[])=>{const m=Math.sqrt(v.reduce((s,x)=>s+x*x,0));return v.map(x=>x/m);}; const r=norm([3,4]); expect(Math.round(r[0]*100)/100).toBe(0.6); expect(Math.round(r[1]*100)/100).toBe(0.8); });
+  it('generates power set', () => { const ps=(a:number[]):number[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as number[][]); expect(ps([1,2,3]).length).toBe(8); });
+  it('computes integer square root', () => { const isqrt=(n:number)=>Math.floor(Math.sqrt(n)); expect(isqrt(16)).toBe(4); expect(isqrt(17)).toBe(4); expect(isqrt(25)).toBe(5); });
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+});

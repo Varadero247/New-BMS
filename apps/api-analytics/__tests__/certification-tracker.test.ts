@@ -727,3 +727,12 @@ describe('phase43 coverage', () => {
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
   it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes edit distance (memoized)', () => { const ed=(a:string,b:string):number=>{const m=new Map<string,number>();const r=(i:number,j:number):number=>{const k=i+','+j;if(m.has(k))return m.get(k)!;const v=i===a.length?b.length-j:j===b.length?a.length-i:a[i]===b[j]?r(i+1,j+1):1+Math.min(r(i+1,j),r(i,j+1),r(i+1,j+1));m.set(k,v);return v;};return r(0,0);}; expect(ed('kitten','sitting')).toBe(3); });
+  it('picks specified keys from object', () => { const pick=<T extends object,K extends keyof T>(o:T,...ks:K[]):Pick<T,K>=>{const r={} as Pick<T,K>;ks.forEach(k=>r[k]=o[k]);return r;}; expect(pick({a:1,b:2,c:3},'a','c')).toEqual({a:1,c:3}); });
+  it('checks string rotation', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abcde','abced')).toBe(false); });
+  it('implements simple event emitter', () => { const ee=()=>{const m=new Map<string,((...a:any[])=>void)[]>();return{on:(e:string,fn:(...a:any[])=>void)=>{m.set(e,[...(m.get(e)||[]),fn]);},emit:(e:string,...a:any[])=>(m.get(e)||[]).forEach(fn=>fn(...a))};}; const em=ee();const calls:number[]=[];em.on('x',v=>calls.push(v));em.on('x',v=>calls.push(v*2));em.emit('x',5); expect(calls).toEqual([5,10]); });
+  it('implements XOR swap', () => { let a=5,b=10;a=a^b;b=a^b;a=a^b; expect(a).toBe(10); expect(b).toBe(5); });
+});

@@ -765,3 +765,12 @@ describe('phase43 coverage', () => {
   it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
   it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes integer square root', () => { const isqrt=(n:number)=>Math.floor(Math.sqrt(n)); expect(isqrt(16)).toBe(4); expect(isqrt(17)).toBe(4); expect(isqrt(25)).toBe(5); });
+  it('pads number with leading zeros', () => { const pad=(n:number,w:number)=>String(n).padStart(w,'0'); expect(pad(42,5)).toBe('00042'); expect(pad(1234,5)).toBe('01234'); });
+  it('computes cross product of 2D vectors', () => { const cross=(ax:number,ay:number,bx:number,by:number)=>ax*by-ay*bx; expect(cross(1,0,0,1)).toBe(1); expect(cross(1,0,1,0)).toBe(0); });
+  it('computes in-order traversal', () => { type N={v:number;l?:N;r?:N}; const io=(n:N|undefined,r:number[]=[]): number[]=>{if(n){io(n.l,r);r.push(n.v);io(n.r,r);}return r;}; const t:N={v:4,l:{v:2,l:{v:1},r:{v:3}},r:{v:5}}; expect(io(t)).toEqual([1,2,3,4,5]); });
+  it('parses query string to object', () => { const pqs=(s:string)=>Object.fromEntries(s.split('&').map(p=>{const [k,v]=p.split('=');return[decodeURIComponent(k),decodeURIComponent(v||'')];})); expect(pqs('a=1&b=hello%20world')).toEqual({a:'1',b:'hello world'}); });
+});

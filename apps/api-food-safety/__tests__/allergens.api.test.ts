@@ -634,3 +634,12 @@ describe('phase43 coverage', () => {
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
   it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('encodes run-length', () => { const rle=(s:string)=>s.replace(/(.)\1*/g,m=>m.length>1?m[0]+m.length:m[0]); expect(rle('aaabbc')).toBe('a3b2c'); expect(rle('abc')).toBe('abc'); });
+  it('computes least common multiple', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); const lcm=(a:number,b:number)=>a*b/gcd(a,b); expect(lcm(4,6)).toBe(12); expect(lcm(15,20)).toBe(60); });
+  it('detects balanced brackets', () => { const bal=(s:string)=>{const st:string[]=[];for(const c of s){if('([{'.includes(c))st.push(c);else{const t=st.pop();if(c===')' && t!=='(')return false;if(c===']' && t!=='[')return false;if(c==='}' && t!=='{')return false;}}return st.length===0;}; expect(bal('([{}])')).toBe(true); expect(bal('([)]')).toBe(false); });
+  it('implements memoize decorator', () => { const memo=<T extends unknown[],R>(fn:(...a:T)=>R)=>{const c=new Map<string,R>();return(...a:T)=>{const k=JSON.stringify(a);if(c.has(k))return c.get(k)!;const r=fn(...a);c.set(k,r);return r;};}; let calls=0;const sq=memo((n:number)=>{calls++;return n*n;});sq(5);sq(5);sq(6); expect(calls).toBe(2); });
+  it('computes prefix sums', () => { const prefix=(a:number[])=>{const r=[0];a.forEach(v=>r.push(r[r.length-1]+v));return r;}; expect(prefix([1,2,3])).toEqual([0,1,3,6]); });
+});

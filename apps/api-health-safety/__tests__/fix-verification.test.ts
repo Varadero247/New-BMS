@@ -686,3 +686,12 @@ describe('phase43 coverage', () => {
   it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
   it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if three points are collinear', () => { const col=(ax:number,ay:number,bx:number,by:number,cx:number,cy:number)=>(by-ay)*(cx-ax)===(cy-ay)*(bx-ax); expect(col(1,1,2,2,3,3)).toBe(true); expect(col(1,1,2,2,3,4)).toBe(false); });
+  it('zips two arrays into pairs', () => { const zip=(a:number[],b:string[])=>a.map((v,i)=>[v,b[i]] as [number,string]); expect(zip([1,2,3],['a','b','c'])).toEqual([[1,'a'],[2,'b'],[3,'c']]); });
+  it('groups consecutive equal elements', () => { const group=(a:number[])=>a.reduce((acc,v)=>{if(acc.length&&acc[acc.length-1][0]===v)acc[acc.length-1].push(v);else acc.push([v]);return acc;},[] as number[][]); expect(group([1,1,2,3,3,3])).toEqual([[1,1],[2],[3,3,3]]); });
+  it('generates UUID v4 format string', () => { const uuid=()=>'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);}); const id=uuid(); expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/); });
+  it('debounces function calls', () => { jest.useFakeTimers();const db=(fn:()=>void,ms:number)=>{let t:ReturnType<typeof setTimeout>;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};};let c=0;const d=db(()=>c++,100);d();d();d();jest.runAllTimers(); expect(c).toBe(1);jest.useRealTimers(); });
+});

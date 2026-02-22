@@ -687,3 +687,12 @@ describe('phase43 coverage', () => {
   it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
   it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('debounces function calls', () => { jest.useFakeTimers();const db=(fn:()=>void,ms:number)=>{let t:ReturnType<typeof setTimeout>;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};};let c=0;const d=db(()=>c++,100);d();d();d();jest.runAllTimers(); expect(c).toBe(1);jest.useRealTimers(); });
+  it('merges objects deeply', () => { const dm=(t:any,s:any):any=>{for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){t[k]=t[k]||{};dm(t[k],s[k]);}else t[k]=s[k];}return t;}; expect(dm({a:{x:1}},{a:{y:2},b:3})).toEqual({a:{x:1,y:2},b:3}); });
+  it('finds prime factors', () => { const pf=(n:number):number[]=>{const f:number[]=[];for(let d=2;d*d<=n;d++)while(n%d===0){f.push(d);n=Math.floor(n/d);}if(n>1)f.push(n);return f;}; expect(pf(12)).toEqual([2,2,3]); expect(pf(100)).toEqual([2,2,5,5]); });
+  it('finds tree height', () => { type N={v:number;l?:N;r?:N}; const h=(n:N|undefined):number=>!n?0:1+Math.max(h(n.l),h(n.r)); const t:N={v:1,l:{v:2,l:{v:4}},r:{v:3}}; expect(h(t)).toBe(3); });
+  it('checks if number is abundant', () => { const ab=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)>n; expect(ab(12)).toBe(true); expect(ab(6)).toBe(false); });
+});

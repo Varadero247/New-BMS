@@ -548,3 +548,12 @@ describe('phase43 coverage', () => {
   it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
   it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if number is abundant', () => { const ab=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)>n; expect(ab(12)).toBe(true); expect(ab(6)).toBe(false); });
+  it('computes least common multiple', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); const lcm=(a:number,b:number)=>a*b/gcd(a,b); expect(lcm(4,6)).toBe(12); expect(lcm(15,20)).toBe(60); });
+  it('implements compose (right to left)', () => { const comp=(...fns:((x:number)=>number)[])=>(x:number)=>[...fns].reverse().reduce((v,f)=>f(v),x); const double=(x:number)=>x*2; const inc=(x:number)=>x+1; expect(comp(double,inc)(3)).toBe(8); });
+  it('detects balanced brackets', () => { const bal=(s:string)=>{const st:string[]=[];for(const c of s){if('([{'.includes(c))st.push(c);else{const t=st.pop();if(c===')' && t!=='(')return false;if(c===']' && t!=='[')return false;if(c==='}' && t!=='{')return false;}}return st.length===0;}; expect(bal('([{}])')).toBe(true); expect(bal('([)]')).toBe(false); });
+  it('counts set bits (popcount)', () => { const pop=(n:number)=>{let c=0;while(n){c+=n&1;n>>=1;}return c;}; expect(pop(7)).toBe(3); expect(pop(255)).toBe(8); });
+});

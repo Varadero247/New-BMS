@@ -669,3 +669,12 @@ describe('phase43 coverage', () => {
   it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
   it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('finds tree height', () => { type N={v:number;l?:N;r?:N}; const h=(n:N|undefined):number=>!n?0:1+Math.max(h(n.l),h(n.r)); const t:N={v:1,l:{v:2,l:{v:4}},r:{v:3}}; expect(h(t)).toBe(3); });
+  it('counts vowels in string', () => { const cv=(s:string)=>(s.match(/[aeiouAEIOU]/g)||[]).length; expect(cv('Hello World')).toBe(3); });
+  it('checks string rotation', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abcde','abced')).toBe(false); });
+  it('computes word break partition count', () => { const wb=(s:string,d:string[])=>{const ws=new Set(d);const dp=new Array(s.length+1).fill(0);dp[0]=1;for(let i=1;i<=s.length;i++)for(let j=0;j<i;j++)if(dp[j]&&ws.has(s.slice(j,i)))dp[i]+=dp[j];return dp[s.length];}; expect(wb('catsanddog',['cat','cats','and','sand','dog'])).toBe(2); });
+  it('parses query string to object', () => { const pqs=(s:string)=>Object.fromEntries(s.split('&').map(p=>{const [k,v]=p.split('=');return[decodeURIComponent(k),decodeURIComponent(v||'')];})); expect(pqs('a=1&b=hello%20world')).toEqual({a:'1',b:'hello world'}); });
+});

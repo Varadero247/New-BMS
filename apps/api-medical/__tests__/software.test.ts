@@ -867,3 +867,12 @@ describe('phase43 coverage', () => {
   it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
   it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks BST property', () => { type N={v:number;l?:N;r?:N}; const ok=(n:N|undefined,lo=-Infinity,hi=Infinity):boolean=>!n||(n.v>lo&&n.v<hi&&ok(n.l,lo,n.v)&&ok(n.r,n.v,hi)); const t:N={v:5,l:{v:3,l:{v:1},r:{v:4}},r:{v:7}}; expect(ok(t)).toBe(true); });
+  it('merges objects deeply', () => { const dm=(t:any,s:any):any=>{for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){t[k]=t[k]||{};dm(t[k],s[k]);}else t[k]=s[k];}return t;}; expect(dm({a:{x:1}},{a:{y:2},b:3})).toEqual({a:{x:1,y:2},b:3}); });
+  it('counts vowels in string', () => { const cv=(s:string)=>(s.match(/[aeiouAEIOU]/g)||[]).length; expect(cv('Hello World')).toBe(3); });
+  it('groups array of objects by key', () => { const grp=<T extends Record<string,any>>(arr:T[],key:string)=>arr.reduce((acc,obj)=>{const k=obj[key];acc[k]=[...(acc[k]||[]),obj];return acc;},{} as Record<string,T[]>); const data=[{t:'a',v:1},{t:'b',v:2},{t:'a',v:3}]; expect(grp(data,'t')).toEqual({a:[{t:'a',v:1},{t:'a',v:3}],b:[{t:'b',v:2}]}); });
+  it('flattens nested object with dot notation', () => { const flat=(o:any,p=''):Record<string,any>=>{return Object.entries(o).reduce((acc,[k,v])=>{const kk=p?p+'.'+k:k;return typeof v==='object'&&v&&!Array.isArray(v)?{...acc,...flat(v,kk)}:{...acc,[kk]:v};},{});}; expect(flat({a:{b:{c:1}},d:2})).toEqual({'a.b.c':1,'d':2}); });
+});

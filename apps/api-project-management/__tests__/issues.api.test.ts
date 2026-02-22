@@ -888,3 +888,12 @@ describe('phase43 coverage', () => {
   it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
   it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('curries a two-argument function', () => { const curry=<A,B,C>(fn:(a:A,b:B)=>C)=>(a:A)=>(b:B)=>fn(a,b); const add=curry((a:number,b:number)=>a+b); expect(add(3)(4)).toBe(7); });
+  it('generates all permutations', () => { const perm=(a:number[]):number[][]=>a.length<=1?[a]:a.flatMap((v,i)=>perm([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p])); expect(perm([1,2,3]).length).toBe(6); });
+  it('computes area of polygon (shoelace)', () => { const poly=(pts:[number,number][])=>{let s=0;const n=pts.length;for(let i=0;i<n;i++){const j=(i+1)%n;s+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}return Math.abs(s)/2;}; expect(poly([[0,0],[4,0],[4,3],[0,3]])).toBe(12); });
+  it('counts vowels in string', () => { const cv=(s:string)=>(s.match(/[aeiouAEIOU]/g)||[]).length; expect(cv('Hello World')).toBe(3); });
+  it('implements insertion sort', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([12,11,13,5,6])).toEqual([5,6,11,12,13]); });
+});

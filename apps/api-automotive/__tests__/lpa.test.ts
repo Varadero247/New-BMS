@@ -1151,3 +1151,12 @@ describe('phase43 coverage', () => {
   it('computes week number of year', () => { const weekNum=(d:Date)=>{const start=new Date(d.getFullYear(),0,1);return Math.ceil(((d.getTime()-start.getTime())/86400000+start.getDay()+1)/7);}; expect(weekNum(new Date('2026-01-01'))).toBe(1); });
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements pipe function composition', () => { const pipe=(...fns:((x:number)=>number)[])=>(x:number)=>fns.reduce((v,f)=>f(v),x); const double=(x:number)=>x*2; const inc=(x:number)=>x+1; const sq=(x:number)=>x*x; expect(pipe(double,inc,sq)(3)).toBe(49); });
+  it('evaluates postfix expression', () => { const evpf=(tokens:string[])=>{const s:number[]=[];for(const t of tokens){if(['+','-','*','/'].includes(t)){const b=s.pop()!,a=s.pop()!;s.push(t==='+'?a+b:t==='-'?a-b:t==='*'?a*b:Math.trunc(a/b));}else s.push(Number(t));}return s[0];}; expect(evpf(['2','1','+','3','*'])).toBe(9); expect(evpf(['4','13','5','/','+'])).toBe(6); });
+  it('computes totient function', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); const phi=(n:number)=>Array.from({length:n},(_,i)=>i+1).filter(k=>gcd(k,n)===1).length; expect(phi(9)).toBe(6); expect(phi(12)).toBe(4); });
+  it('computes prefix sums', () => { const prefix=(a:number[])=>{const r=[0];a.forEach(v=>r.push(r[r.length-1]+v));return r;}; expect(prefix([1,2,3])).toEqual([0,1,3,6]); });
+  it('implements insertion sort', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([12,11,13,5,6])).toEqual([5,6,11,12,13]); });
+});

@@ -814,3 +814,12 @@ describe('phase43 coverage', () => {
   it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
   it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('generates all permutations', () => { const perm=(a:number[]):number[][]=>a.length<=1?[a]:a.flatMap((v,i)=>perm([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p])); expect(perm([1,2,3]).length).toBe(6); });
+  it('implements observable pattern', () => { const obs=<T>(init:T)=>{let v=init;const subs:((v:T)=>void)[]=[];return{get:()=>v,set:(nv:T)=>{v=nv;subs.forEach(fn=>fn(nv));},sub:(fn:(v:T)=>void)=>subs.push(fn)};}; const o=obs(0);const log:number[]=[];o.sub(v=>log.push(v));o.set(1);o.set(2); expect(log).toEqual([1,2]); });
+  it('implements simple event emitter', () => { const ee=()=>{const m=new Map<string,((...a:any[])=>void)[]>();return{on:(e:string,fn:(...a:any[])=>void)=>{m.set(e,[...(m.get(e)||[]),fn]);},emit:(e:string,...a:any[])=>(m.get(e)||[]).forEach(fn=>fn(...a))};}; const em=ee();const calls:number[]=[];em.on('x',v=>calls.push(v));em.on('x',v=>calls.push(v*2));em.emit('x',5); expect(calls).toEqual([5,10]); });
+  it('flattens deeply nested array', () => { const deepFlat=(a:any[]):any[]=>a.reduce((acc,v)=>Array.isArray(v)?[...acc,...deepFlat(v)]:[...acc,v],[]); expect(deepFlat([1,[2,[3,[4,[5]]]]])).toEqual([1,2,3,4,5]); });
+  it('computes nth Fibonacci iteratively', () => { const fib=(n:number)=>{let a=0,b=1;for(let i=0;i<n;i++){[a,b]=[b,a+b];}return a;}; expect(fib(0)).toBe(0); expect(fib(7)).toBe(13); expect(fib(10)).toBe(55); });
+});

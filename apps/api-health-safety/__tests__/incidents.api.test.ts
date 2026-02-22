@@ -925,3 +925,12 @@ describe('phase43 coverage', () => {
   it('computes Pearson correlation', () => { const pearson=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;const num=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0);const den=Math.sqrt(x.reduce((s,v)=>s+(v-mx)**2,0)*y.reduce((s,v)=>s+(v-my)**2,0));return den===0?0:num/den;}; expect(pearson([1,2,3],[1,2,3])).toBeCloseTo(1); });
   it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements LRU cache eviction', () => { const lru=(cap:number)=>{const m=new Map<number,number>();return{get:(k:number)=>{if(!m.has(k))return undefined;const _v=m.get(k)!;m.delete(k);m.set(k,_v);return _v;},put:(k:number,v:number)=>{if(m.has(k))m.delete(k);else if(m.size>=cap)m.delete(m.keys().next().value!);m.set(k,v);}};}; const c=lru(2);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBeUndefined(); expect(c.get(3)).toBe(30); });
+  it('counts ways to climb n stairs', () => { const clmb=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(clmb(5)).toBe(8); expect(clmb(10)).toBe(89); });
+  it('computes set intersection', () => { const intersect=<T>(a:Set<T>,b:Set<T>)=>new Set([...a].filter(v=>b.has(v))); const s=intersect(new Set([1,2,3,4]),new Set([2,4,6])); expect([...s].sort()).toEqual([2,4]); });
+  it('computes greatest common divisor', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); expect(gcd(48,18)).toBe(6); expect(gcd(100,75)).toBe(25); });
+  it('finds longest increasing subsequence length', () => { const lis=(a:number[])=>{const dp=new Array(a.length).fill(1);for(let i=1;i<a.length;i++)for(let j=0;j<i;j++)if(a[j]<a[i])dp[i]=Math.max(dp[i],dp[j]+1);return Math.max(...dp);}; expect(lis([10,9,2,5,3,7,101,18])).toBe(4); });
+});

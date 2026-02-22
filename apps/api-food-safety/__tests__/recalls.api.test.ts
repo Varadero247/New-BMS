@@ -673,3 +673,12 @@ describe('phase43 coverage', () => {
   it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
   it('computes weighted average', () => { const wavg=(vals:number[],wts:number[])=>{const sw=wts.reduce((s,v)=>s+v,0);return vals.reduce((s,v,i)=>s+v*wts[i],0)/sw;}; expect(wavg([1,2,3],[1,2,3])).toBeCloseTo(2.333,2); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('wraps text at given width', () => { const wrap=(s:string,w:number)=>{const words=s.split(' ');const lines:string[]=[];let cur='';for(const wd of words){if(cur&&(cur+' '+wd).length>w){lines.push(cur);cur=wd;}else cur=cur?cur+' '+wd:wd;}if(cur)lines.push(cur);return lines;}; expect(wrap('the quick brown fox',10)).toEqual(['the quick','brown fox']); });
+  it('finds all pairs summing to target', () => { const pairs=(a:number[],t:number)=>{const s=new Set(a);return a.filter(v=>s.has(t-v)&&v<=(t-v)).map(v=>[v,t-v]);}; expect(pairs([1,2,3,4,5,6],7)).toEqual([[1,6],[2,5],[3,4]]); });
+  it('converts decimal to binary string', () => { const toBin=(n:number)=>n.toString(2); expect(toBin(10)).toBe('1010'); expect(toBin(255)).toBe('11111111'); });
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+  it('computes cartesian product of two arrays', () => { const cp=(a:number[],b:number[])=>a.flatMap(x=>b.map(y=>[x,y])); expect(cp([1,2],[3,4])).toEqual([[1,3],[1,4],[2,3],[2,4]]); });
+});

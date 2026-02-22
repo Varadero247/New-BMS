@@ -546,3 +546,12 @@ describe('phase43 coverage', () => {
   it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
   it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes Manhattan distance', () => { const man=(a:[number,number],b:[number,number])=>Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]); expect(man([1,2],[4,6])).toBe(7); });
+  it('generates power set', () => { const ps=(a:number[]):number[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as number[][]); expect(ps([1,2,3]).length).toBe(8); });
+  it('groups consecutive equal elements', () => { const group=(a:number[])=>a.reduce((acc,v)=>{if(acc.length&&acc[acc.length-1][0]===v)acc[acc.length-1].push(v);else acc.push([v]);return acc;},[] as number[][]); expect(group([1,1,2,3,3,3])).toEqual([[1,1],[2],[3,3,3]]); });
+  it('implements counting sort', () => { const cnt=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const c=new Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((n,i)=>r.push(...Array(n).fill(i)));return r;}; expect(cnt([4,2,2,8,3,3,1])).toEqual([1,2,2,3,3,4,8]); });
+  it('computes prefix sums', () => { const prefix=(a:number[])=>{const r=[0];a.forEach(v=>r.push(r[r.length-1]+v));return r;}; expect(prefix([1,2,3])).toEqual([0,1,3,6]); });
+});

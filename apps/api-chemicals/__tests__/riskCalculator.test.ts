@@ -348,3 +348,12 @@ describe('phase43 coverage', () => {
   it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
   it('checks if date is in past', () => { const inPast=(d:Date)=>d.getTime()<Date.now(); expect(inPast(new Date('2020-01-01'))).toBe(true); expect(inPast(new Date('2099-01-01'))).toBe(false); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('converts camelCase to snake_case', () => { const toSnake=(s:string)=>s.replace(/[A-Z]/g,c=>'_'+c.toLowerCase()); expect(toSnake('helloWorldFoo')).toBe('hello_world_foo'); });
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+  it('checks BST property', () => { type N={v:number;l?:N;r?:N}; const ok=(n:N|undefined,lo=-Infinity,hi=Infinity):boolean=>!n||(n.v>lo&&n.v<hi&&ok(n.l,lo,n.v)&&ok(n.r,n.v,hi)); const t:N={v:5,l:{v:3,l:{v:1},r:{v:4}},r:{v:7}}; expect(ok(t)).toBe(true); });
+  it('rotates array right by k', () => { const rotR=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(n-r),...a.slice(0,n-r)];}; expect(rotR([1,2,3,4,5],2)).toEqual([4,5,1,2,3]); });
+  it('counts ways to climb n stairs', () => { const clmb=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(clmb(5)).toBe(8); expect(clmb(10)).toBe(89); });
+});

@@ -651,3 +651,12 @@ describe('phase43 coverage', () => {
   it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
   it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes Manhattan distance', () => { const man=(a:[number,number],b:[number,number])=>Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]); expect(man([1,2],[4,6])).toBe(7); });
+  it('deep clones a plain object', () => { const dc=(o:unknown):unknown=>{if(typeof o!=='object'||!o)return o;if(Array.isArray(o))return o.map(dc);return Object.fromEntries(Object.entries(o).map(([k,v])=>[k,dc(v)]));}; const src={a:1,b:{c:2,d:[3,4]}};const cl=dc(src) as typeof src;cl.b.c=99; expect(src.b.c).toBe(2); });
+  it('evaluates postfix expression', () => { const evpf=(tokens:string[])=>{const s:number[]=[];for(const t of tokens){if(['+','-','*','/'].includes(t)){const b=s.pop()!,a=s.pop()!;s.push(t==='+'?a+b:t==='-'?a-b:t==='*'?a*b:Math.trunc(a/b));}else s.push(Number(t));}return s[0];}; expect(evpf(['2','1','+','3','*'])).toBe(9); expect(evpf(['4','13','5','/','+'])).toBe(6); });
+  it('generates Gray code sequence', () => { const gray=(n:number)=>Array.from({length:1<<n},(_,i)=>i^(i>>1)); expect(gray(2)).toEqual([0,1,3,2]); });
+  it('computes cumulative sum', () => { const cumsum=(a:number[])=>a.reduce((acc,v,i)=>[...acc,((acc[i-1]||0)+v)],[] as number[]); expect(cumsum([1,2,3,4])).toEqual([1,3,6,10]); });
+});

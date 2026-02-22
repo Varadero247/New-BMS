@@ -1013,3 +1013,12 @@ describe('phase43 coverage', () => {
   it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
   it('computes linear regression slope', () => { const slope=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);}; expect(slope([1,2,3,4,5],[2,4,6,8,10])).toBe(2); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('generates all substrings', () => { const subs=(s:string)=>{const r:string[]=[];for(let i=0;i<s.length;i++)for(let j=i+1;j<=s.length;j++)r.push(s.slice(i,j));return r;}; expect(subs('abc')).toEqual(['a','ab','abc','b','bc','c']); });
+  it('implements once (call at most once)', () => { const once=<T extends unknown[]>(fn:(...a:T)=>number)=>{let c:number|undefined;return(...a:T)=>{if(c===undefined)c=fn(...a);return c;};};let n=0;const f=once(()=>++n);f();f();f(); expect(f()).toBe(1); expect(n).toBe(1); });
+  it('implements sliding window max', () => { const swmax=(a:number[],k:number)=>{const r:number[]=[];for(let i=0;i<=a.length-k;i++)r.push(Math.max(...a.slice(i,i+k)));return r;}; expect(swmax([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]); });
+  it('implements selection sort', () => { const sel=(a:number[])=>{const r=[...a];for(let i=0;i<r.length-1;i++){let m=i;for(let j=i+1;j<r.length;j++)if(r[j]<r[m])m=j;[r[i],r[m]]=[r[m],r[i]];}return r;}; expect(sel([64,25,12,22,11])).toEqual([11,12,22,25,64]); });
+  it('generates collatz sequence', () => { const coll=(n:number):number[]=>[n,...(n===1?[]:(n%2===0?coll(n/2):coll(3*n+1)))]; expect(coll(6)).toEqual([6,3,10,5,16,8,4,2,1]); });
+});

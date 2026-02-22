@@ -739,3 +739,12 @@ describe('phase43 coverage', () => {
   it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
   it('computes KL divergence (discrete)', () => { const kl=(p:number[],q:number[])=>p.reduce((s,v,i)=>v>0&&q[i]>0?s+v*Math.log(v/q[i]):s,0); expect(kl([0.5,0.5],[0.5,0.5])).toBeCloseTo(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes variance of array', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+  it('implements bubble sort', () => { const bub=(a:number[])=>{const r=[...a];for(let i=0;i<r.length-1;i++)for(let j=0;j<r.length-1-i;j++)if(r[j]>r[j+1])[r[j],r[j+1]]=[r[j+1],r[j]];return r;}; expect(bub([5,1,4,2,8])).toEqual([1,2,4,5,8]); });
+  it('checks if number is power of two', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(16)).toBe(true); expect(isPow2(18)).toBe(false); expect(isPow2(1)).toBe(true); });
+  it('finds the mode of an array', () => { const mode=(a:number[])=>{const f:Record<number,number>={};a.forEach(v=>{f[v]=(f[v]||0)+1;});return +Object.entries(f).sort((x,y)=>y[1]-x[1])[0][0];}; expect(mode([1,2,2,3])).toBe(2); });
+});

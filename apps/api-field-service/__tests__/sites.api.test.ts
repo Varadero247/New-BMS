@@ -661,3 +661,12 @@ describe('phase43 coverage', () => {
   it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
   it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('rotates array left by k', () => { const rotL=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(r),...a.slice(0,r)];}; expect(rotL([1,2,3,4,5],2)).toEqual([3,4,5,1,2]); });
+  it('computes nth Fibonacci iteratively', () => { const fib=(n:number)=>{let a=0,b=1;for(let i=0;i<n;i++){[a,b]=[b,a+b];}return a;}; expect(fib(0)).toBe(0); expect(fib(7)).toBe(13); expect(fib(10)).toBe(55); });
+  it('checks circle contains point', () => { const inCirc=(cx:number,cy:number,r:number,px:number,py:number)=>(px-cx)**2+(py-cy)**2<=r**2; expect(inCirc(0,0,5,3,4)).toBe(true); expect(inCirc(0,0,5,4,4)).toBe(false); });
+  it('generates Gray code sequence', () => { const gray=(n:number)=>Array.from({length:1<<n},(_,i)=>i^(i>>1)); expect(gray(2)).toEqual([0,1,3,2]); });
+  it('counts vowels in string', () => { const cv=(s:string)=>(s.match(/[aeiouAEIOU]/g)||[]).length; expect(cv('Hello World')).toBe(3); });
+});

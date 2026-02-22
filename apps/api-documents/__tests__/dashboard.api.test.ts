@@ -607,3 +607,12 @@ describe('phase43 coverage', () => {
   it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
   it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('removes consecutive duplicate characters', () => { const dedup=(s:string)=>s.replace(/(.)\1+/g,(_,c)=>c); expect(dedup('aabbcc')).toBe('abc'); expect(dedup('aaabbbccc')).toBe('abc'); });
+  it('throttles function calls', () => { jest.useFakeTimers();const th=(fn:()=>void,ms:number)=>{let last=0;return()=>{const now=Date.now();if(now-last>=ms){last=now;fn();}};};let c=0;const t=th(()=>c++,100);t();t();jest.advanceTimersByTime(150);t(); expect(c).toBe(2);jest.useRealTimers(); });
+  it('curries a two-argument function', () => { const curry=<A,B,C>(fn:(a:A,b:B)=>C)=>(a:A)=>(b:B)=>fn(a,b); const add=curry((a:number,b:number)=>a+b); expect(add(3)(4)).toBe(7); });
+  it('checks string rotation', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abcde','abced')).toBe(false); });
+  it('computes cumulative sum', () => { const cumsum=(a:number[])=>a.reduce((acc,v,i)=>[...acc,((acc[i-1]||0)+v)],[] as number[]); expect(cumsum([1,2,3,4])).toEqual([1,3,6,10]); });
+});

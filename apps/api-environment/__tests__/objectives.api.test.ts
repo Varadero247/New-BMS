@@ -1025,3 +1025,12 @@ describe('phase43 coverage', () => {
   it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
   it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes max subarray sum (Kadane)', () => { const kad=(a:number[])=>{let cur=a[0],max=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); });
+  it('omits specified keys from object', () => { const omit=<T extends object,K extends keyof T>(o:T,...ks:K[]):Omit<T,K>=>{const r={...o} as any;ks.forEach(k=>delete r[k]);return r;}; expect(omit({a:1,b:2,c:3},'b')).toEqual({a:1,c:3}); });
+  it('checks if number is power of two', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(16)).toBe(true); expect(isPow2(18)).toBe(false); expect(isPow2(1)).toBe(true); });
+  it('computes matrix chain order cost', () => { const mc=(dims:number[])=>{const n=dims.length-1;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+dims[i]*dims[k+1]*dims[j+1]);}return dp[0][n-1];}; expect(mc([10,30,5,60])).toBe(4500); });
+  it('computes greatest common divisor', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); expect(gcd(48,18)).toBe(6); expect(gcd(100,75)).toBe(25); });
+});

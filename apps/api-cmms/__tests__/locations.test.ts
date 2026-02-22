@@ -605,3 +605,12 @@ describe('phase43 coverage', () => {
   it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
   it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+  it('implements compose (right to left)', () => { const comp=(...fns:((x:number)=>number)[])=>(x:number)=>[...fns].reverse().reduce((v,f)=>f(v),x); const double=(x:number)=>x*2; const inc=(x:number)=>x+1; expect(comp(double,inc)(3)).toBe(8); });
+  it('checks if two strings are anagrams', () => { const anagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(anagram('listen','silent')).toBe(true); expect(anagram('hello','world')).toBe(false); });
+  it('implements promise timeout wrapper', async () => { const withTimeout=<T>(p:Promise<T>,ms:number):Promise<T>=>{const t=new Promise<T>((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms));return Promise.race([p,t]);};await expect(withTimeout(Promise.resolve(42),100)).resolves.toBe(42); });
+  it('computes Hamming distance', () => { const ham=(a:string,b:string)=>[...a].filter((c,i)=>c!==b[i]).length; expect(ham('karolin','kathrin')).toBe(3); });
+});

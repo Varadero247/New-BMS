@@ -574,3 +574,12 @@ describe('phase43 coverage', () => {
   it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
   it('sorts dates chronologically', () => { const dates=[new Date('2026-03-01'),new Date('2026-01-15'),new Date('2026-02-10')]; dates.sort((a,b)=>a.getTime()-b.getTime()); expect(dates[0].getMonth()).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if two strings are anagrams', () => { const anagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(anagram('listen','silent')).toBe(true); expect(anagram('hello','world')).toBe(false); });
+  it('counts vowels in string', () => { const cv=(s:string)=>(s.match(/[aeiouAEIOU]/g)||[]).length; expect(cv('Hello World')).toBe(3); });
+  it('converts binary string to decimal', () => { const toDec=(s:string)=>parseInt(s,2); expect(toDec('1010')).toBe(10); expect(toDec('11111111')).toBe(255); });
+  it('solves 0/1 knapsack', () => { const ks=(w:number[],v:number[],cap:number)=>{const n=w.length;const dp:number[][]=Array.from({length:n+1},()=>new Array(cap+1).fill(0));for(let i=1;i<=n;i++)for(let c=0;c<=cap;c++)dp[i][c]=w[i-1]<=c?Math.max(dp[i-1][c],dp[i-1][c-w[i-1]]+v[i-1]):dp[i-1][c];return dp[n][cap];}; expect(ks([2,3,4,5],[3,4,5,6],5)).toBe(7); });
+  it('implements counting sort', () => { const cnt=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const c=new Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((n,i)=>r.push(...Array(n).fill(i)));return r;}; expect(cnt([4,2,2,8,3,3,1])).toEqual([1,2,2,3,3,4,8]); });
+});

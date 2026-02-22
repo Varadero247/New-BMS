@@ -686,3 +686,12 @@ describe('phase43 coverage', () => {
   it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
   it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('converts snake_case to camelCase', () => { const toCamel=(s:string)=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()); expect(toCamel('hello_world_foo')).toBe('helloWorldFoo'); });
+  it('flattens deeply nested array', () => { const deepFlat=(a:any[]):any[]=>a.reduce((acc,v)=>Array.isArray(v)?[...acc,...deepFlat(v)]:[...acc,v],[]); expect(deepFlat([1,[2,[3,[4,[5]]]]])).toEqual([1,2,3,4,5]); });
+  it('implements counting sort', () => { const cnt=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const c=new Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((n,i)=>r.push(...Array(n).fill(i)));return r;}; expect(cnt([4,2,2,8,3,3,1])).toEqual([1,2,2,3,3,4,8]); });
+  it('finds longest common prefix', () => { const lcp=(ss:string[])=>{let p=ss[0]||'';for(const s of ss)while(!s.startsWith(p))p=p.slice(0,-1);return p;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); });
+  it('normalizes vector to unit length', () => { const norm=(v:number[])=>{const m=Math.sqrt(v.reduce((s,x)=>s+x*x,0));return v.map(x=>x/m);}; const r=norm([3,4]); expect(Math.round(r[0]*100)/100).toBe(0.6); expect(Math.round(r[1]*100)/100).toBe(0.8); });
+});

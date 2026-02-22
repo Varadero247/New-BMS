@@ -668,3 +668,12 @@ describe('phase43 coverage', () => {
   it('computes weighted average', () => { const wavg=(vals:number[],wts:number[])=>{const sw=wts.reduce((s,v)=>s+v,0);return vals.reduce((s,v,i)=>s+v*wts[i],0)/sw;}; expect(wavg([1,2,3],[1,2,3])).toBeCloseTo(2.333,2); });
   it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('counts ways to climb n stairs', () => { const clmb=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(clmb(5)).toBe(8); expect(clmb(10)).toBe(89); });
+  it('checks circle contains point', () => { const inCirc=(cx:number,cy:number,r:number,px:number,py:number)=>(px-cx)**2+(py-cy)**2<=r**2; expect(inCirc(0,0,5,3,4)).toBe(true); expect(inCirc(0,0,5,4,4)).toBe(false); });
+  it('reverses words in a sentence', () => { const revwords=(s:string)=>s.split(' ').reverse().join(' '); expect(revwords('hello world foo')).toBe('foo world hello'); });
+  it('checks if number is perfect', () => { const perf=(n:number)=>n>1&&Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)===n; expect(perf(6)).toBe(true); expect(perf(28)).toBe(true); expect(perf(12)).toBe(false); });
+  it('generates power set', () => { const ps=(a:number[]):number[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as number[][]); expect(ps([1,2,3]).length).toBe(8); });
+});

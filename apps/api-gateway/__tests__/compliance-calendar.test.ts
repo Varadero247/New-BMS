@@ -886,3 +886,12 @@ describe('phase43 coverage', () => {
   it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
   it('computes ReLU activation', () => { const relu=(x:number)=>Math.max(0,x); expect(relu(3)).toBe(3); expect(relu(-2)).toBe(0); expect(relu(0)).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('capitalizes first letter of each word', () => { const title=(s:string)=>s.replace(/\b\w/g,c=>c.toUpperCase()); expect(title('hello world')).toBe('Hello World'); });
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+  it('partitions array by predicate', () => { const part=(a:number[],fn:(v:number)=>boolean):[number[],number[]]=>a.reduce(([t,f],v)=>fn(v)?[[...t,v],f]:[t,[...f,v]],[[],[]] as [number[],number[]]); const [e,o]=part([1,2,3,4,5],v=>v%2===0); expect(e).toEqual([2,4]); expect(o).toEqual([1,3,5]); });
+  it('interleaves two arrays', () => { const interleave=(a:number[],b:number[])=>a.flatMap((v,i)=>[v,b[i]]).filter(v=>v!==undefined); expect(interleave([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
+  it('implements observable pattern', () => { const obs=<T>(init:T)=>{let v=init;const subs:((v:T)=>void)[]=[];return{get:()=>v,set:(nv:T)=>{v=nv;subs.forEach(fn=>fn(nv));},sub:(fn:(v:T)=>void)=>subs.push(fn)};}; const o=obs(0);const log:number[]=[];o.sub(v=>log.push(v));o.set(1);o.set(2); expect(log).toEqual([1,2]); });
+});

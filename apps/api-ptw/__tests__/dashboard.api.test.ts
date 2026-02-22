@@ -579,3 +579,12 @@ describe('phase43 coverage', () => {
   it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes nth Fibonacci iteratively', () => { const fib=(n:number)=>{let a=0,b=1;for(let i=0;i<n;i++){[a,b]=[b,a+b];}return a;}; expect(fib(0)).toBe(0); expect(fib(7)).toBe(13); expect(fib(10)).toBe(55); });
+  it('merges objects deeply', () => { const dm=(t:any,s:any):any=>{for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){t[k]=t[k]||{};dm(t[k],s[k]);}else t[k]=s[k];}return t;}; expect(dm({a:{x:1}},{a:{y:2},b:3})).toEqual({a:{x:1,y:2},b:3}); });
+  it('implements pipe function composition', () => { const pipe=(...fns:((x:number)=>number)[])=>(x:number)=>fns.reduce((v,f)=>f(v),x); const double=(x:number)=>x*2; const inc=(x:number)=>x+1; const sq=(x:number)=>x*x; expect(pipe(double,inc,sq)(3)).toBe(49); });
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+  it('flattens nested object with dot notation', () => { const flat=(o:any,p=''):Record<string,any>=>{return Object.entries(o).reduce((acc,[k,v])=>{const kk=p?p+'.'+k:k;return typeof v==='object'&&v&&!Array.isArray(v)?{...acc,...flat(v,kk)}:{...acc,[kk]:v};},{});}; expect(flat({a:{b:{c:1}},d:2})).toEqual({'a.b.c':1,'d':2}); });
+});

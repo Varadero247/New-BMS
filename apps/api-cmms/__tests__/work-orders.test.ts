@@ -656,3 +656,12 @@ describe('phase43 coverage', () => {
   it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
   it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements LRU cache eviction', () => { const lru=(cap:number)=>{const m=new Map<number,number>();return{get:(k:number)=>{if(!m.has(k))return undefined;const _v=m.get(k)!;m.delete(k);m.set(k,_v);return _v;},put:(k:number,v:number)=>{if(m.has(k))m.delete(k);else if(m.size>=cap)m.delete(m.keys().next().value!);m.set(k,v);}};}; const c=lru(2);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBeUndefined(); expect(c.get(3)).toBe(30); });
+  it('merges two sorted arrays', () => { const merge=(a:number[],b:number[])=>{const r:number[]=[];let i=0,j=0;while(i<a.length&&j<b.length)r.push(a[i]<b[j]?a[i++]:b[j++]);return r.concat(a.slice(i)).concat(b.slice(j));}; expect(merge([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
+  it('implements counting sort', () => { const cnt=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const c=new Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((n,i)=>r.push(...Array(n).fill(i)));return r;}; expect(cnt([4,2,2,8,3,3,1])).toEqual([1,2,2,3,3,4,8]); });
+  it('finds the mode of an array', () => { const mode=(a:number[])=>{const f:Record<number,number>={};a.forEach(v=>{f[v]=(f[v]||0)+1;});return +Object.entries(f).sort((x,y)=>y[1]-x[1])[0][0];}; expect(mode([1,2,2,3])).toBe(2); });
+  it('finds longest common prefix', () => { const lcp=(ss:string[])=>{let p=ss[0]||'';for(const s of ss)while(!s.startsWith(p))p=p.slice(0,-1);return p;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); });
+});

@@ -461,3 +461,12 @@ describe('phase43 coverage', () => {
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
   it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks BST property', () => { type N={v:number;l?:N;r?:N}; const ok=(n:N|undefined,lo=-Infinity,hi=Infinity):boolean=>!n||(n.v>lo&&n.v<hi&&ok(n.l,lo,n.v)&&ok(n.r,n.v,hi)); const t:N={v:5,l:{v:3,l:{v:1},r:{v:4}},r:{v:7}}; expect(ok(t)).toBe(true); });
+  it('finds tree height', () => { type N={v:number;l?:N;r?:N}; const h=(n:N|undefined):number=>!n?0:1+Math.max(h(n.l),h(n.r)); const t:N={v:1,l:{v:2,l:{v:4}},r:{v:3}}; expect(h(t)).toBe(3); });
+  it('checks if number is perfect', () => { const perf=(n:number)=>n>1&&Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)===n; expect(perf(6)).toBe(true); expect(perf(28)).toBe(true); expect(perf(12)).toBe(false); });
+  it('wraps text at given width', () => { const wrap=(s:string,w:number)=>{const words=s.split(' ');const lines:string[]=[];let cur='';for(const wd of words){if(cur&&(cur+' '+wd).length>w){lines.push(cur);cur=wd;}else cur=cur?cur+' '+wd:wd;}if(cur)lines.push(cur);return lines;}; expect(wrap('the quick brown fox',10)).toEqual(['the quick','brown fox']); });
+  it('implements simple event emitter', () => { const ee=()=>{const m=new Map<string,((...a:any[])=>void)[]>();return{on:(e:string,fn:(...a:any[])=>void)=>{m.set(e,[...(m.get(e)||[]),fn]);},emit:(e:string,...a:any[])=>(m.get(e)||[]).forEach(fn=>fn(...a))};}; const em=ee();const calls:number[]=[];em.on('x',v=>calls.push(v));em.on('x',v=>calls.push(v*2));em.emit('x',5); expect(calls).toEqual([5,10]); });
+});

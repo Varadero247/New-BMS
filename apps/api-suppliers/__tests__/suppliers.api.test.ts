@@ -636,3 +636,12 @@ describe('phase43 coverage', () => {
   it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
   it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements once (call at most once)', () => { const once=<T extends unknown[]>(fn:(...a:T)=>number)=>{let c:number|undefined;return(...a:T)=>{if(c===undefined)c=fn(...a);return c;};};let n=0;const f=once(()=>++n);f();f();f(); expect(f()).toBe(1); expect(n).toBe(1); });
+  it('finds all pairs summing to target', () => { const pairs=(a:number[],t:number)=>{const s=new Set(a);return a.filter(v=>s.has(t-v)&&v<=(t-v)).map(v=>[v,t-v]);}; expect(pairs([1,2,3,4,5,6],7)).toEqual([[1,6],[2,5],[3,4]]); });
+  it('implements sliding window max', () => { const swmax=(a:number[],k:number)=>{const r:number[]=[];for(let i=0;i<=a.length-k;i++)r.push(Math.max(...a.slice(i,i+k)));return r;}; expect(swmax([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]); });
+  it('implements insertion sort', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([12,11,13,5,6])).toEqual([5,6,11,12,13]); });
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+});

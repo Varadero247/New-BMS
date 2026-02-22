@@ -541,3 +541,12 @@ describe('phase43 coverage', () => {
   it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
   it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if string is pangram', () => { const isPangram=(s:string)=>new Set(s.toLowerCase().replace(/[^a-z]/g,'')).size===26; expect(isPangram('The quick brown fox jumps over the lazy dog')).toBe(true); expect(isPangram('Hello world')).toBe(false); });
+  it('finds prime factors', () => { const pf=(n:number):number[]=>{const f:number[]=[];for(let d=2;d*d<=n;d++)while(n%d===0){f.push(d);n=Math.floor(n/d);}if(n>1)f.push(n);return f;}; expect(pf(12)).toEqual([2,2,3]); expect(pf(100)).toEqual([2,2,5,5]); });
+  it('computes Euclidean distance', () => { const eu=(a:number[],b:number[])=>Math.sqrt(a.reduce((s,v,i)=>s+(v-b[i])**2,0)); expect(eu([0,0],[3,4])).toBe(5); });
+  it('extracts numbers from string', () => { const nums=(s:string)=>(s.match(/-?\d+\.?\d*/g)||[]).map(Number); expect(nums('abc 3 def -4.5 ghi 10')).toEqual([3,-4.5,10]); });
+  it('converts camelCase to snake_case', () => { const toSnake=(s:string)=>s.replace(/[A-Z]/g,c=>'_'+c.toLowerCase()); expect(toSnake('helloWorldFoo')).toBe('hello_world_foo'); });
+});

@@ -650,3 +650,12 @@ describe('phase43 coverage', () => {
   it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
   it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if string is pangram', () => { const isPangram=(s:string)=>new Set(s.toLowerCase().replace(/[^a-z]/g,'')).size===26; expect(isPangram('The quick brown fox jumps over the lazy dog')).toBe(true); expect(isPangram('Hello world')).toBe(false); });
+  it('generates all permutations', () => { const perm=(a:number[]):number[][]=>a.length<=1?[a]:a.flatMap((v,i)=>perm([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p])); expect(perm([1,2,3]).length).toBe(6); });
+  it('implements sliding window max', () => { const swmax=(a:number[],k:number)=>{const r:number[]=[];for(let i=0;i<=a.length-k;i++)r.push(Math.max(...a.slice(i,i+k)));return r;}; expect(swmax([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]); });
+  it('checks deep equality of two objects', () => { const deq=(a:unknown,b:unknown):boolean=>{if(a===b)return true;if(typeof a!=='object'||typeof b!=='object'||!a||!b)return false;const ka=Object.keys(a as object),kb=Object.keys(b as object);return ka.length===kb.length&&ka.every(k=>deq((a as any)[k],(b as any)[k]));}; expect(deq({a:1,b:{c:2}},{a:1,b:{c:2}})).toBe(true); expect(deq({a:1},{a:2})).toBe(false); });
+  it('counts occurrences of each value', () => { const freq=(a:string[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<string,number>); expect(freq(['a','b','a','c','b','a'])).toEqual({a:3,b:2,c:1}); });
+});

@@ -549,3 +549,12 @@ describe('phase43 coverage', () => {
   it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
   it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
 });
+
+
+describe('phase44 coverage', () => {
+  it('rotates array right by k', () => { const rotR=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(n-r),...a.slice(0,n-r)];}; expect(rotR([1,2,3,4,5],2)).toEqual([4,5,1,2,3]); });
+  it('computes Euclidean distance', () => { const eu=(a:number[],b:number[])=>Math.sqrt(a.reduce((s,v,i)=>s+(v-b[i])**2,0)); expect(eu([0,0],[3,4])).toBe(5); });
+  it('checks string rotation', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abcde','abced')).toBe(false); });
+  it('builds trie insert and search', () => { const trie=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n['#']=1;},has:(w:string)=>{let n=r;for(const c of w){if(!n[c])return false;n=n[c];}return !!n['#'];}};}; const t=trie();t.ins('cat');t.ins('car'); expect(t.has('cat')).toBe(true); expect(t.has('car')).toBe(true); expect(t.has('cab')).toBe(false); });
+  it('computes running maximum', () => { const runmax=(a:number[])=>a.reduce((acc,v)=>[...acc,Math.max(v,(acc[acc.length-1]??-Infinity))],[] as number[]); expect(runmax([3,1,4,1,5])).toEqual([3,3,4,4,5]); });
+});

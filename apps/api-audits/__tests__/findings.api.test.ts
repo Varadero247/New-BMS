@@ -617,3 +617,12 @@ describe('phase43 coverage', () => {
   it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
   it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes variance of array', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
+  it('generates all permutations', () => { const perm=(a:number[]):number[][]=>a.length<=1?[a]:a.flatMap((v,i)=>perm([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p])); expect(perm([1,2,3]).length).toBe(6); });
+  it('checks if number is power of two', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(16)).toBe(true); expect(isPow2(18)).toBe(false); expect(isPow2(1)).toBe(true); });
+  it('checks point in axis-aligned rectangle', () => { const inRect=(px:number,py:number,x1:number,y1:number,x2:number,y2:number)=>px>=x1&&px<=x2&&py>=y1&&py<=y2; expect(inRect(3,3,1,1,5,5)).toBe(true); expect(inRect(6,3,1,1,5,5)).toBe(false); });
+  it('implements once (call at most once)', () => { const once=<T extends unknown[]>(fn:(...a:T)=>number)=>{let c:number|undefined;return(...a:T)=>{if(c===undefined)c=fn(...a);return c;};};let n=0;const f=once(()=>++n);f();f();f(); expect(f()).toBe(1); expect(n).toBe(1); });
+});

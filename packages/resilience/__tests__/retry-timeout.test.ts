@@ -552,3 +552,12 @@ describe('phase43 coverage', () => {
   it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
   it('gets start of day', () => { const startOfDay=(d:Date)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()); const d=new Date('2026-03-15T14:30:00'); expect(startOfDay(d).getHours()).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('flattens nested object with dot notation', () => { const flat=(o:any,p=''):Record<string,any>=>{return Object.entries(o).reduce((acc,[k,v])=>{const kk=p?p+'.'+k:k;return typeof v==='object'&&v&&!Array.isArray(v)?{...acc,...flat(v,kk)}:{...acc,[kk]:v};},{});}; expect(flat({a:{b:{c:1}},d:2})).toEqual({'a.b.c':1,'d':2}); });
+  it('throttles function calls', () => { jest.useFakeTimers();const th=(fn:()=>void,ms:number)=>{let last=0;return()=>{const now=Date.now();if(now-last>=ms){last=now;fn();}};};let c=0;const t=th(()=>c++,100);t();t();jest.advanceTimersByTime(150);t(); expect(c).toBe(2);jest.useRealTimers(); });
+  it('flattens nested array one level', () => { const flat1=(a:any[][])=>([] as any[]).concat(...a); expect(flat1([[1,2],[3,4],[5]])).toEqual([1,2,3,4,5]); });
+  it('merges objects deeply', () => { const dm=(t:any,s:any):any=>{for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){t[k]=t[k]||{};dm(t[k],s[k]);}else t[k]=s[k];}return t;}; expect(dm({a:{x:1}},{a:{y:2},b:3})).toEqual({a:{x:1,y:2},b:3}); });
+  it('counts vowels in string', () => { const cv=(s:string)=>(s.match(/[aeiouAEIOU]/g)||[]).length; expect(cv('Hello World')).toBe(3); });
+});

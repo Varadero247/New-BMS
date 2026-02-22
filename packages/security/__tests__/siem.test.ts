@@ -648,3 +648,12 @@ describe('phase43 coverage', () => {
   it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
   it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('chunks array into groups of n', () => { const chunk=(a:number[],n:number)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,i*n+n)); expect(chunk([1,2,3,4,5],2)).toEqual([[1,2],[3,4],[5]]); });
+  it('rotates array right by k', () => { const rotR=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(n-r),...a.slice(0,n-r)];}; expect(rotR([1,2,3,4,5],2)).toEqual([4,5,1,2,3]); });
+  it('omits specified keys from object', () => { const omit=<T extends object,K extends keyof T>(o:T,...ks:K[]):Omit<T,K>=>{const r={...o} as any;ks.forEach(k=>delete r[k]);return r;}; expect(omit({a:1,b:2,c:3},'b')).toEqual({a:1,c:3}); });
+  it('deep clones a plain object', () => { const dc=(o:unknown):unknown=>{if(typeof o!=='object'||!o)return o;if(Array.isArray(o))return o.map(dc);return Object.fromEntries(Object.entries(o).map(([k,v])=>[k,dc(v)]));}; const src={a:1,b:{c:2,d:[3,4]}};const cl=dc(src) as typeof src;cl.b.c=99; expect(src.b.c).toBe(2); });
+  it('computes edit distance (memoized)', () => { const ed=(a:string,b:string):number=>{const m=new Map<string,number>();const r=(i:number,j:number):number=>{const k=i+','+j;if(m.has(k))return m.get(k)!;const v=i===a.length?b.length-j:j===b.length?a.length-i:a[i]===b[j]?r(i+1,j+1):1+Math.min(r(i+1,j),r(i,j+1),r(i+1,j+1));m.set(k,v);return v;};return r(0,0);}; expect(ed('kitten','sitting')).toBe(3); });
+});

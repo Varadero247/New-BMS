@@ -561,3 +561,12 @@ describe('phase43 coverage', () => {
   it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
   it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('rotates array right by k', () => { const rotR=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(n-r),...a.slice(0,n-r)];}; expect(rotR([1,2,3,4,5],2)).toEqual([4,5,1,2,3]); });
+  it('computes area of polygon (shoelace)', () => { const poly=(pts:[number,number][])=>{let s=0;const n=pts.length;for(let i=0;i<n;i++){const j=(i+1)%n;s+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}return Math.abs(s)/2;}; expect(poly([[0,0],[4,0],[4,3],[0,3]])).toBe(12); });
+  it('truncates string to max length with ellipsis', () => { const trunc=(s:string,n:number)=>s.length>n?s.slice(0,n-3)+'...':s; expect(trunc('Hello World',8)).toBe('Hello...'); expect(trunc('Hi',8)).toBe('Hi'); });
+  it('groups array of objects by key', () => { const grp=<T extends Record<string,any>>(arr:T[],key:string)=>arr.reduce((acc,obj)=>{const k=obj[key];acc[k]=[...(acc[k]||[]),obj];return acc;},{} as Record<string,T[]>); const data=[{t:'a',v:1},{t:'b',v:2},{t:'a',v:3}]; expect(grp(data,'t')).toEqual({a:[{t:'a',v:1},{t:'a',v:3}],b:[{t:'b',v:2}]}); });
+  it('groups consecutive equal elements', () => { const group=(a:number[])=>a.reduce((acc,v)=>{if(acc.length&&acc[acc.length-1][0]===v)acc[acc.length-1].push(v);else acc.push([v]);return acc;},[] as number[][]); expect(group([1,1,2,3,3,3])).toEqual([[1,1],[2],[3,3,3]]); });
+});

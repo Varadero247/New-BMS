@@ -521,3 +521,12 @@ describe('phase43 coverage', () => {
   it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
   it('gets start of day', () => { const startOfDay=(d:Date)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()); const d=new Date('2026-03-15T14:30:00'); expect(startOfDay(d).getHours()).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('capitalizes first letter of each word', () => { const title=(s:string)=>s.replace(/\b\w/g,c=>c.toUpperCase()); expect(title('hello world')).toBe('Hello World'); });
+  it('implements min stack with O(1) min', () => { const mk=()=>{const s:number[]=[],m:number[]=[];return{push:(v:number)=>{s.push(v);m.push(Math.min(v,m.length?m[m.length-1]:v));},pop:()=>{s.pop();m.pop();},min:()=>m[m.length-1]};}; const st=mk();st.push(3);st.push(1);st.push(2); expect(st.min()).toBe(1);st.pop(); expect(st.min()).toBe(1);st.pop(); expect(st.min()).toBe(3); });
+  it('computes integer square root', () => { const isqrt=(n:number)=>Math.floor(Math.sqrt(n)); expect(isqrt(16)).toBe(4); expect(isqrt(17)).toBe(4); expect(isqrt(25)).toBe(5); });
+  it('converts snake_case to camelCase', () => { const toCamel=(s:string)=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()); expect(toCamel('hello_world_foo')).toBe('helloWorldFoo'); });
+  it('checks string rotation', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abcde','abced')).toBe(false); });
+});

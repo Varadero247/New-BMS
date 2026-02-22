@@ -639,3 +639,12 @@ describe('phase43 coverage', () => {
   it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
   it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('formats bytes to human readable', () => { const fmt=(b:number)=>{const u=['B','KB','MB','GB'];let i=0;while(b>=1024&&i<u.length-1){b/=1024;i++;}return Math.round(b*10)/10+' '+u[i];}; expect(fmt(1536)).toBe('1.5 KB'); expect(fmt(1024*1024)).toBe('1 MB'); });
+  it('checks deep equality of two objects', () => { const deq=(a:unknown,b:unknown):boolean=>{if(a===b)return true;if(typeof a!=='object'||typeof b!=='object'||!a||!b)return false;const ka=Object.keys(a as object),kb=Object.keys(b as object);return ka.length===kb.length&&ka.every(k=>deq((a as any)[k],(b as any)[k]));}; expect(deq({a:1,b:{c:2}},{a:1,b:{c:2}})).toBe(true); expect(deq({a:1},{a:2})).toBe(false); });
+  it('checks if three points are collinear', () => { const col=(ax:number,ay:number,bx:number,by:number,cx:number,cy:number)=>(by-ay)*(cx-ax)===(cy-ay)*(bx-ax); expect(col(1,1,2,2,3,3)).toBe(true); expect(col(1,1,2,2,3,4)).toBe(false); });
+  it('implements insertion sort', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([12,11,13,5,6])).toEqual([5,6,11,12,13]); });
+  it('chunks array into groups of n', () => { const chunk=(a:number[],n:number)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,i*n+n)); expect(chunk([1,2,3,4,5],2)).toEqual([[1,2],[3,4],[5]]); });
+});

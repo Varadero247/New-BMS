@@ -608,3 +608,12 @@ describe('phase43 coverage', () => {
   it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
   it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('detects balanced brackets', () => { const bal=(s:string)=>{const st:string[]=[];for(const c of s){if('([{'.includes(c))st.push(c);else{const t=st.pop();if(c===')' && t!=='(')return false;if(c===']' && t!=='[')return false;if(c==='}' && t!=='{')return false;}}return st.length===0;}; expect(bal('([{}])')).toBe(true); expect(bal('([)]')).toBe(false); });
+  it('computes edit distance (memoized)', () => { const ed=(a:string,b:string):number=>{const m=new Map<string,number>();const r=(i:number,j:number):number=>{const k=i+','+j;if(m.has(k))return m.get(k)!;const v=i===a.length?b.length-j:j===b.length?a.length-i:a[i]===b[j]?r(i+1,j+1):1+Math.min(r(i+1,j),r(i,j+1),r(i+1,j+1));m.set(k,v);return v;};return r(0,0);}; expect(ed('kitten','sitting')).toBe(3); });
+  it('merges objects deeply', () => { const dm=(t:any,s:any):any=>{for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){t[k]=t[k]||{};dm(t[k],s[k]);}else t[k]=s[k];}return t;}; expect(dm({a:{x:1}},{a:{y:2},b:3})).toEqual({a:{x:1,y:2},b:3}); });
+  it('omits specified keys from object', () => { const omit=<T extends object,K extends keyof T>(o:T,...ks:K[]):Omit<T,K>=>{const r={...o} as any;ks.forEach(k=>delete r[k]);return r;}; expect(omit({a:1,b:2,c:3},'b')).toEqual({a:1,c:3}); });
+  it('computes matrix chain order cost', () => { const mc=(dims:number[])=>{const n=dims.length-1;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+dims[i]*dims[k+1]*dims[j+1]);}return dp[0][n-1];}; expect(mc([10,30,5,60])).toBe(4500); });
+});

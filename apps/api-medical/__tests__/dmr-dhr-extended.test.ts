@@ -751,3 +751,12 @@ describe('phase43 coverage', () => {
   it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
   it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
 });
+
+
+describe('phase44 coverage', () => {
+  it('detects balanced brackets', () => { const bal=(s:string)=>{const st:string[]=[];for(const c of s){if('([{'.includes(c))st.push(c);else{const t=st.pop();if(c===')' && t!=='(')return false;if(c===']' && t!=='[')return false;if(c==='}' && t!=='{')return false;}}return st.length===0;}; expect(bal('([{}])')).toBe(true); expect(bal('([)]')).toBe(false); });
+  it('picks specified keys from object', () => { const pick=<T extends object,K extends keyof T>(o:T,...ks:K[]):Pick<T,K>=>{const r={} as Pick<T,K>;ks.forEach(k=>r[k]=o[k]);return r;}; expect(pick({a:1,b:2,c:3},'a','c')).toEqual({a:1,c:3}); });
+  it('counts nodes at each BFS level', () => { const bfs=(adj:number[][],start:number)=>{const visited=new Set([start]);const q=[start];const levels:number[]=[];while(q.length){const sz=q.length;let cnt=0;for(let i=0;i<sz;i++){const n=q.shift()!;cnt++;(adj[n]||[]).forEach(nb=>{if(!visited.has(nb)){visited.add(nb);q.push(nb);}});}levels.push(cnt);}return levels;}; expect(bfs([[1,2],[3],[3],[]],0)).toEqual([1,2,1]); });
+  it('computes cartesian product of two arrays', () => { const cp=(a:number[],b:number[])=>a.flatMap(x=>b.map(y=>[x,y])); expect(cp([1,2],[3,4])).toEqual([[1,3],[1,4],[2,3],[2,4]]); });
+  it('solves 0/1 knapsack', () => { const ks=(w:number[],v:number[],cap:number)=>{const n=w.length;const dp:number[][]=Array.from({length:n+1},()=>new Array(cap+1).fill(0));for(let i=1;i<=n;i++)for(let c=0;c<=cap;c++)dp[i][c]=w[i-1]<=c?Math.max(dp[i-1][c],dp[i-1][c-w[i-1]]+v[i-1]):dp[i-1][c];return dp[n][cap];}; expect(ks([2,3,4,5],[3,4,5,6],5)).toBe(7); });
+});

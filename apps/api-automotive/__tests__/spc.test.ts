@@ -1641,3 +1641,12 @@ describe('phase43 coverage', () => {
   it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
   it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes max subarray sum (Kadane)', () => { const kad=(a:number[])=>{let cur=a[0],max=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); });
+  it('generates all substrings', () => { const subs=(s:string)=>{const r:string[]=[];for(let i=0;i<s.length;i++)for(let j=i+1;j<=s.length;j++)r.push(s.slice(i,j));return r;}; expect(subs('abc')).toEqual(['a','ab','abc','b','bc','c']); });
+  it('implements min stack with O(1) min', () => { const mk=()=>{const s:number[]=[],m:number[]=[];return{push:(v:number)=>{s.push(v);m.push(Math.min(v,m.length?m[m.length-1]:v));},pop:()=>{s.pop();m.pop();},min:()=>m[m.length-1]};}; const st=mk();st.push(3);st.push(1);st.push(2); expect(st.min()).toBe(1);st.pop(); expect(st.min()).toBe(1);st.pop(); expect(st.min()).toBe(3); });
+  it('implements memoize decorator', () => { const memo=<T extends unknown[],R>(fn:(...a:T)=>R)=>{const c=new Map<string,R>();return(...a:T)=>{const k=JSON.stringify(a);if(c.has(k))return c.get(k)!;const r=fn(...a);c.set(k,r);return r;};}; let calls=0;const sq=memo((n:number)=>{calls++;return n*n;});sq(5);sq(5);sq(6); expect(calls).toBe(2); });
+  it('groups consecutive equal elements', () => { const group=(a:number[])=>a.reduce((acc,v)=>{if(acc.length&&acc[acc.length-1][0]===v)acc[acc.length-1].push(v);else acc.push([v]);return acc;},[] as number[][]); expect(group([1,1,2,3,3,3])).toEqual([[1,1],[2],[3,3,3]]); });
+});

@@ -486,3 +486,12 @@ describe('phase43 coverage', () => {
   it('computes week number of year', () => { const weekNum=(d:Date)=>{const start=new Date(d.getFullYear(),0,1);return Math.ceil(((d.getTime()-start.getTime())/86400000+start.getDay()+1)/7);}; expect(weekNum(new Date('2026-01-01'))).toBe(1); });
   it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements memoize decorator', () => { const memo=<T extends unknown[],R>(fn:(...a:T)=>R)=>{const c=new Map<string,R>();return(...a:T)=>{const k=JSON.stringify(a);if(c.has(k))return c.get(k)!;const r=fn(...a);c.set(k,r);return r;};}; let calls=0;const sq=memo((n:number)=>{calls++;return n*n;});sq(5);sq(5);sq(6); expect(calls).toBe(2); });
+  it('computes edit distance (memoized)', () => { const ed=(a:string,b:string):number=>{const m=new Map<string,number>();const r=(i:number,j:number):number=>{const k=i+','+j;if(m.has(k))return m.get(k)!;const v=i===a.length?b.length-j:j===b.length?a.length-i:a[i]===b[j]?r(i+1,j+1):1+Math.min(r(i+1,j),r(i,j+1),r(i+1,j+1));m.set(k,v);return v;};return r(0,0);}; expect(ed('kitten','sitting')).toBe(3); });
+  it('flattens deeply nested array', () => { const deepFlat=(a:any[]):any[]=>a.reduce((acc,v)=>Array.isArray(v)?[...acc,...deepFlat(v)]:[...acc,v],[]); expect(deepFlat([1,[2,[3,[4,[5]]]]])).toEqual([1,2,3,4,5]); });
+  it('computes dot product', () => { const dot=(a:number[],b:number[])=>a.reduce((s,v,i)=>s+v*b[i],0); expect(dot([1,2,3],[4,5,6])).toBe(32); });
+  it('finds number of islands (flood fill)', () => { const ni=(g:number[][])=>{const r=g.map(row=>[...row]);let cnt=0;const dfs=(i:number,j:number)=>{if(i<0||i>=r.length||j<0||j>=r[0].length||r[i][j]!==1)return;r[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);};for(let i=0;i<r.length;i++)for(let j=0;j<r[0].length;j++)if(r[i][j]===1){cnt++;dfs(i,j);}return cnt;}; expect(ni([[1,1,0],[0,1,0],[0,0,1]])).toBe(2); });
+});

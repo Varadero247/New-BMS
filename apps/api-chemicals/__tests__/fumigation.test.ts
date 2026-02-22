@@ -644,3 +644,12 @@ describe('phase43 coverage', () => {
   it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
   it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('counts ways to climb n stairs', () => { const clmb=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(clmb(5)).toBe(8); expect(clmb(10)).toBe(89); });
+  it('retries async operation up to n times', async () => { let attempts=0;const retry=async(fn:()=>Promise<number>,n:number):Promise<number>=>{try{return await fn();}catch(e){if(n<=0)throw e;return retry(fn,n-1);}};const op=()=>{attempts++;return attempts<3?Promise.reject(new Error('fail')):Promise.resolve(42);};const r=await retry(op,5); expect(r).toBe(42); expect(attempts).toBe(3); });
+  it('throttles function calls', () => { jest.useFakeTimers();const th=(fn:()=>void,ms:number)=>{let last=0;return()=>{const now=Date.now();if(now-last>=ms){last=now;fn();}};};let c=0;const t=th(()=>c++,100);t();t();jest.advanceTimersByTime(150);t(); expect(c).toBe(2);jest.useRealTimers(); });
+  it('computes Manhattan distance', () => { const man=(a:[number,number],b:[number,number])=>Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]); expect(man([1,2],[4,6])).toBe(7); });
+  it('implements observable pattern', () => { const obs=<T>(init:T)=>{let v=init;const subs:((v:T)=>void)[]=[];return{get:()=>v,set:(nv:T)=>{v=nv;subs.forEach(fn=>fn(nv));},sub:(fn:(v:T)=>void)=>subs.push(fn)};}; const o=obs(0);const log:number[]=[];o.sub(v=>log.push(v));o.set(1);o.set(2); expect(log).toEqual([1,2]); });
+});

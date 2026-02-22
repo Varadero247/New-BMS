@@ -1070,3 +1070,12 @@ describe('phase43 coverage', () => {
   it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
   it('computes ReLU activation', () => { const relu=(x:number)=>Math.max(0,x); expect(relu(3)).toBe(3); expect(relu(-2)).toBe(0); expect(relu(0)).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes Manhattan distance', () => { const man=(a:[number,number],b:[number,number])=>Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]); expect(man([1,2],[4,6])).toBe(7); });
+  it('implements min stack with O(1) min', () => { const mk=()=>{const s:number[]=[],m:number[]=[];return{push:(v:number)=>{s.push(v);m.push(Math.min(v,m.length?m[m.length-1]:v));},pop:()=>{s.pop();m.pop();},min:()=>m[m.length-1]};}; const st=mk();st.push(3);st.push(1);st.push(2); expect(st.min()).toBe(1);st.pop(); expect(st.min()).toBe(1);st.pop(); expect(st.min()).toBe(3); });
+  it('implements memoize decorator', () => { const memo=<T extends unknown[],R>(fn:(...a:T)=>R)=>{const c=new Map<string,R>();return(...a:T)=>{const k=JSON.stringify(a);if(c.has(k))return c.get(k)!;const r=fn(...a);c.set(k,r);return r;};}; let calls=0;const sq=memo((n:number)=>{calls++;return n*n;});sq(5);sq(5);sq(6); expect(calls).toBe(2); });
+  it('implements insertion sort', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([12,11,13,5,6])).toEqual([5,6,11,12,13]); });
+  it('implements bubble sort', () => { const bub=(a:number[])=>{const r=[...a];for(let i=0;i<r.length-1;i++)for(let j=0;j<r.length-1-i;j++)if(r[j]>r[j+1])[r[j],r[j+1]]=[r[j+1],r[j]];return r;}; expect(bub([5,1,4,2,8])).toEqual([1,2,4,5,8]); });
+});

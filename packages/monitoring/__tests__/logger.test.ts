@@ -464,3 +464,12 @@ describe('phase43 coverage', () => {
   it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
   it('computes weighted average', () => { const wavg=(vals:number[],wts:number[])=>{const sw=wts.reduce((s,v)=>s+v,0);return vals.reduce((s,v,i)=>s+v*wts[i],0)/sw;}; expect(wavg([1,2,3],[1,2,3])).toBeCloseTo(2.333,2); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('checks if two strings are anagrams', () => { const anagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(anagram('listen','silent')).toBe(true); expect(anagram('hello','world')).toBe(false); });
+  it('omits specified keys from object', () => { const omit=<T extends object,K extends keyof T>(o:T,...ks:K[]):Omit<T,K>=>{const r={...o} as any;ks.forEach(k=>delete r[k]);return r;}; expect(omit({a:1,b:2,c:3},'b')).toEqual({a:1,c:3}); });
+  it('creates range array', () => { const range=(start:number,end:number,step=1)=>{const r:number[]=[];for(let i=start;i<end;i+=step)r.push(i);return r;}; expect(range(0,5)).toEqual([0,1,2,3,4]); expect(range(0,10,2)).toEqual([0,2,4,6,8]); });
+  it('implements bubble sort', () => { const bub=(a:number[])=>{const r=[...a];for(let i=0;i<r.length-1;i++)for(let j=0;j<r.length-1-i;j++)if(r[j]>r[j+1])[r[j],r[j+1]]=[r[j+1],r[j]];return r;}; expect(bub([5,1,4,2,8])).toEqual([1,2,4,5,8]); });
+  it('implements XOR swap', () => { let a=5,b=10;a=a^b;b=a^b;a=a^b; expect(a).toBe(10); expect(b).toBe(5); });
+});

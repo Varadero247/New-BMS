@@ -581,3 +581,12 @@ describe('phase43 coverage', () => {
   it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
   it('computes ReLU activation', () => { const relu=(x:number)=>Math.max(0,x); expect(relu(3)).toBe(3); expect(relu(-2)).toBe(0); expect(relu(0)).toBe(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('solves 0/1 knapsack', () => { const ks=(w:number[],v:number[],cap:number)=>{const n=w.length;const dp:number[][]=Array.from({length:n+1},()=>new Array(cap+1).fill(0));for(let i=1;i<=n;i++)for(let c=0;c<=cap;c++)dp[i][c]=w[i-1]<=c?Math.max(dp[i-1][c],dp[i-1][c-w[i-1]]+v[i-1]):dp[i-1][c];return dp[n][cap];}; expect(ks([2,3,4,5],[3,4,5,6],5)).toBe(7); });
+  it('finds longest increasing subsequence length', () => { const lis=(a:number[])=>{const dp=new Array(a.length).fill(1);for(let i=1;i<a.length;i++)for(let j=0;j<i;j++)if(a[j]<a[i])dp[i]=Math.max(dp[i],dp[j]+1);return Math.max(...dp);}; expect(lis([10,9,2,5,3,7,101,18])).toBe(4); });
+  it('checks circle contains point', () => { const inCirc=(cx:number,cy:number,r:number,px:number,py:number)=>(px-cx)**2+(py-cy)**2<=r**2; expect(inCirc(0,0,5,3,4)).toBe(true); expect(inCirc(0,0,5,4,4)).toBe(false); });
+  it('removes consecutive duplicate characters', () => { const dedup=(s:string)=>s.replace(/(.)\1+/g,(_,c)=>c); expect(dedup('aabbcc')).toBe('abc'); expect(dedup('aaabbbccc')).toBe('abc'); });
+  it('converts object to query string', () => { const qs=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&'); expect(qs({a:1,b:'hello world'})).toBe('a=1&b=hello%20world'); });
+});

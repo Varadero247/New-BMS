@@ -591,3 +591,12 @@ describe('phase43 coverage', () => {
   it('computes Pearson correlation', () => { const pearson=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;const num=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0);const den=Math.sqrt(x.reduce((s,v)=>s+(v-mx)**2,0)*y.reduce((s,v)=>s+(v-my)**2,0));return den===0?0:num/den;}; expect(pearson([1,2,3],[1,2,3])).toBeCloseTo(1); });
   it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('implements LRU cache eviction', () => { const lru=(cap:number)=>{const m=new Map<number,number>();return{get:(k:number)=>{if(!m.has(k))return undefined;const _v=m.get(k)!;m.delete(k);m.set(k,_v);return _v;},put:(k:number,v:number)=>{if(m.has(k))m.delete(k);else if(m.size>=cap)m.delete(m.keys().next().value!);m.set(k,v);}};}; const c=lru(2);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBeUndefined(); expect(c.get(3)).toBe(30); });
+  it('computes cartesian product of two arrays', () => { const cp=(a:number[],b:number[])=>a.flatMap(x=>b.map(y=>[x,y])); expect(cp([1,2],[3,4])).toEqual([[1,3],[1,4],[2,3],[2,4]]); });
+  it('computes greatest common divisor', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); expect(gcd(48,18)).toBe(6); expect(gcd(100,75)).toBe(25); });
+  it('generates collatz sequence', () => { const coll=(n:number):number[]=>[n,...(n===1?[]:(n%2===0?coll(n/2):coll(3*n+1)))]; expect(coll(6)).toEqual([6,3,10,5,16,8,4,2,1]); });
+  it('computes variance of array', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
+});

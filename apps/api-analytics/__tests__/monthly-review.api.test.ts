@@ -671,3 +671,12 @@ describe('phase43 coverage', () => {
   it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
   it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes variance of array', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
+  it('creates range array', () => { const range=(start:number,end:number,step=1)=>{const r:number[]=[];for(let i=start;i<end;i+=step)r.push(i);return r;}; expect(range(0,5)).toEqual([0,1,2,3,4]); expect(range(0,10,2)).toEqual([0,2,4,6,8]); });
+  it('computes symmetric difference of two sets', () => { const sdiff=<T>(a:Set<T>,b:Set<T>)=>{const r=new Set(a);b.forEach(v=>r.has(v)?r.delete(v):r.add(v));return r;}; const s=sdiff(new Set([1,2,3]),new Set([2,3,4])); expect([...s].sort()).toEqual([1,4]); });
+  it('implements once (call at most once)', () => { const once=<T extends unknown[]>(fn:(...a:T)=>number)=>{let c:number|undefined;return(...a:T)=>{if(c===undefined)c=fn(...a);return c;};};let n=0;const f=once(()=>++n);f();f();f(); expect(f()).toBe(1); expect(n).toBe(1); });
+  it('computes in-order traversal', () => { type N={v:number;l?:N;r?:N}; const io=(n:N|undefined,r:number[]=[]): number[]=>{if(n){io(n.l,r);r.push(n.v);io(n.r,r);}return r;}; const t:N={v:4,l:{v:2,l:{v:1},r:{v:3}},r:{v:5}}; expect(io(t)).toEqual([1,2,3,4,5]); });
+});

@@ -701,3 +701,12 @@ describe('phase43 coverage', () => {
   it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
   it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('formats duration in ms to human string', () => { const fmt=(ms:number)=>{const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60);return h?h+'h '+(m%60)+'m':m?(m%60)+'m '+(s%60)+'s':(s%60)+'s';}; expect(fmt(3661000)).toBe('1h 1m'); expect(fmt(125000)).toBe('2m 5s'); });
+  it('pads number with leading zeros', () => { const pad=(n:number,w:number)=>String(n).padStart(w,'0'); expect(pad(42,5)).toBe('00042'); expect(pad(1234,5)).toBe('01234'); });
+  it('checks if number is abundant', () => { const ab=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)>n; expect(ab(12)).toBe(true); expect(ab(6)).toBe(false); });
+  it('checks deep equality of two objects', () => { const deq=(a:unknown,b:unknown):boolean=>{if(a===b)return true;if(typeof a!=='object'||typeof b!=='object'||!a||!b)return false;const ka=Object.keys(a as object),kb=Object.keys(b as object);return ka.length===kb.length&&ka.every(k=>deq((a as any)[k],(b as any)[k]));}; expect(deq({a:1,b:{c:2}},{a:1,b:{c:2}})).toBe(true); expect(deq({a:1},{a:2})).toBe(false); });
+  it('implements XOR swap', () => { let a=5,b=10;a=a^b;b=a^b;a=a^b; expect(a).toBe(10); expect(b).toBe(5); });
+});

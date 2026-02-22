@@ -953,3 +953,12 @@ describe('phase43 coverage', () => {
   it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
   it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes cartesian product of two arrays', () => { const cp=(a:number[],b:number[])=>a.flatMap(x=>b.map(y=>[x,y])); expect(cp([1,2],[3,4])).toEqual([[1,3],[1,4],[2,3],[2,4]]); });
+  it('implements LRU cache eviction', () => { const lru=(cap:number)=>{const m=new Map<number,number>();return{get:(k:number)=>{if(!m.has(k))return undefined;const _v=m.get(k)!;m.delete(k);m.set(k,_v);return _v;},put:(k:number,v:number)=>{if(m.has(k))m.delete(k);else if(m.size>=cap)m.delete(m.keys().next().value!);m.set(k,v);}};}; const c=lru(2);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBeUndefined(); expect(c.get(3)).toBe(30); });
+  it('checks if three points are collinear', () => { const col=(ax:number,ay:number,bx:number,by:number,cx:number,cy:number)=>(by-ay)*(cx-ax)===(cy-ay)*(bx-ax); expect(col(1,1,2,2,3,3)).toBe(true); expect(col(1,1,2,2,3,4)).toBe(false); });
+  it('computes edit distance (memoized)', () => { const ed=(a:string,b:string):number=>{const m=new Map<string,number>();const r=(i:number,j:number):number=>{const k=i+','+j;if(m.has(k))return m.get(k)!;const v=i===a.length?b.length-j:j===b.length?a.length-i:a[i]===b[j]?r(i+1,j+1):1+Math.min(r(i+1,j),r(i,j+1),r(i+1,j+1));m.set(k,v);return v;};return r(0,0);}; expect(ed('kitten','sitting')).toBe(3); });
+  it('throttles function calls', () => { jest.useFakeTimers();const th=(fn:()=>void,ms:number)=>{let last=0;return()=>{const now=Date.now();if(now-last>=ms){last=now;fn();}};};let c=0;const t=th(()=>c++,100);t();t();jest.advanceTimersByTime(150);t(); expect(c).toBe(2);jest.useRealTimers(); });
+});

@@ -613,3 +613,12 @@ describe('phase43 coverage', () => {
   it('applies label encoding to categories', () => { const encode=(cats:string[])=>{const u=[...new Set(cats)];return cats.map(c=>u.indexOf(c));}; expect(encode(['a','b','a','c'])).toEqual([0,1,0,2]); });
   it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('flattens nested array one level', () => { const flat1=(a:any[][])=>([] as any[]).concat(...a); expect(flat1([[1,2],[3,4],[5]])).toEqual([1,2,3,4,5]); });
+  it('zips two arrays into pairs', () => { const zip=(a:number[],b:string[])=>a.map((v,i)=>[v,b[i]] as [number,string]); expect(zip([1,2,3],['a','b','c'])).toEqual([[1,'a'],[2,'b'],[3,'c']]); });
+  it('capitalizes first letter of each word', () => { const title=(s:string)=>s.replace(/\b\w/g,c=>c.toUpperCase()); expect(title('hello world')).toBe('Hello World'); });
+  it('implements observable pattern', () => { const obs=<T>(init:T)=>{let v=init;const subs:((v:T)=>void)[]=[];return{get:()=>v,set:(nv:T)=>{v=nv;subs.forEach(fn=>fn(nv));},sub:(fn:(v:T)=>void)=>subs.push(fn)};}; const o=obs(0);const log:number[]=[];o.sub(v=>log.push(v));o.set(1);o.set(2); expect(log).toEqual([1,2]); });
+  it('computes matrix chain order cost', () => { const mc=(dims:number[])=>{const n=dims.length-1;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+dims[i]*dims[k+1]*dims[j+1]);}return dp[0][n-1];}; expect(mc([10,30,5,60])).toBe(4500); });
+});

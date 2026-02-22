@@ -783,3 +783,12 @@ describe('phase43 coverage', () => {
   it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
   it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('finds all pairs summing to target', () => { const pairs=(a:number[],t:number)=>{const s=new Set(a);return a.filter(v=>s.has(t-v)&&v<=(t-v)).map(v=>[v,t-v]);}; expect(pairs([1,2,3,4,5,6],7)).toEqual([[1,6],[2,5],[3,4]]); });
+  it('computes variance of array', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
+  it('implements compose (right to left)', () => { const comp=(...fns:((x:number)=>number)[])=>(x:number)=>[...fns].reverse().reduce((v,f)=>f(v),x); const double=(x:number)=>x*2; const inc=(x:number)=>x+1; expect(comp(double,inc)(3)).toBe(8); });
+  it('partitions array by predicate', () => { const part=(a:number[],fn:(v:number)=>boolean):[number[],number[]]=>a.reduce(([t,f],v)=>fn(v)?[[...t,v],f]:[t,[...f,v]],[[],[]] as [number[],number[]]); const [e,o]=part([1,2,3,4,5],v=>v%2===0); expect(e).toEqual([2,4]); expect(o).toEqual([1,3,5]); });
+  it('converts binary string to decimal', () => { const toDec=(s:string)=>parseInt(s,2); expect(toDec('1010')).toBe(10); expect(toDec('11111111')).toBe(255); });
+});

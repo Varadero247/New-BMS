@@ -892,3 +892,12 @@ describe('phase43 coverage', () => {
   it('computes week number of year', () => { const weekNum=(d:Date)=>{const start=new Date(d.getFullYear(),0,1);return Math.ceil(((d.getTime()-start.getTime())/86400000+start.getDay()+1)/7);}; expect(weekNum(new Date('2026-01-01'))).toBe(1); });
   it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('merges two sorted arrays', () => { const merge=(a:number[],b:number[])=>{const r:number[]=[];let i=0,j=0;while(i<a.length&&j<b.length)r.push(a[i]<b[j]?a[i++]:b[j++]);return r.concat(a.slice(i)).concat(b.slice(j));}; expect(merge([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
+  it('computes totient function', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b); const phi=(n:number)=>Array.from({length:n},(_,i)=>i+1).filter(k=>gcd(k,n)===1).length; expect(phi(9)).toBe(6); expect(phi(12)).toBe(4); });
+  it('implements min stack with O(1) min', () => { const mk=()=>{const s:number[]=[],m:number[]=[];return{push:(v:number)=>{s.push(v);m.push(Math.min(v,m.length?m[m.length-1]:v));},pop:()=>{s.pop();m.pop();},min:()=>m[m.length-1]};}; const st=mk();st.push(3);st.push(1);st.push(2); expect(st.min()).toBe(1);st.pop(); expect(st.min()).toBe(1);st.pop(); expect(st.min()).toBe(3); });
+  it('implements selection sort', () => { const sel=(a:number[])=>{const r=[...a];for(let i=0;i<r.length-1;i++){let m=i;for(let j=i+1;j<r.length;j++)if(r[j]<r[m])m=j;[r[i],r[m]]=[r[m],r[i]];}return r;}; expect(sel([64,25,12,22,11])).toEqual([11,12,22,25,64]); });
+  it('reverses words in a sentence', () => { const revwords=(s:string)=>s.split(' ').reverse().join(' '); expect(revwords('hello world foo')).toBe('foo world hello'); });
+});

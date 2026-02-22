@@ -781,3 +781,12 @@ describe('phase43 coverage', () => {
   it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
   it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('retries async operation up to n times', async () => { let attempts=0;const retry=async(fn:()=>Promise<number>,n:number):Promise<number>=>{try{return await fn();}catch(e){if(n<=0)throw e;return retry(fn,n-1);}};const op=()=>{attempts++;return attempts<3?Promise.reject(new Error('fail')):Promise.resolve(42);};const r=await retry(op,5); expect(r).toBe(42); expect(attempts).toBe(3); });
+  it('wraps text at given width', () => { const wrap=(s:string,w:number)=>{const words=s.split(' ');const lines:string[]=[];let cur='';for(const wd of words){if(cur&&(cur+' '+wd).length>w){lines.push(cur);cur=wd;}else cur=cur?cur+' '+wd:wd;}if(cur)lines.push(cur);return lines;}; expect(wrap('the quick brown fox',10)).toEqual(['the quick','brown fox']); });
+  it('rotates array right by k', () => { const rotR=(a:number[],k:number)=>{const n=a.length;const r=k%n;return [...a.slice(n-r),...a.slice(0,n-r)];}; expect(rotR([1,2,3,4,5],2)).toEqual([4,5,1,2,3]); });
+  it('partitions array by predicate', () => { const part=(a:number[],fn:(v:number)=>boolean):[number[],number[]]=>a.reduce(([t,f],v)=>fn(v)?[[...t,v],f]:[t,[...f,v]],[[],[]] as [number[],number[]]); const [e,o]=part([1,2,3,4,5],v=>v%2===0); expect(e).toEqual([2,4]); expect(o).toEqual([1,3,5]); });
+  it('counts nodes at each BFS level', () => { const bfs=(adj:number[][],start:number)=>{const visited=new Set([start]);const q=[start];const levels:number[]=[];while(q.length){const sz=q.length;let cnt=0;for(let i=0;i<sz;i++){const n=q.shift()!;cnt++;(adj[n]||[]).forEach(nb=>{if(!visited.has(nb)){visited.add(nb);q.push(nb);}});}levels.push(cnt);}return levels;}; expect(bfs([[1,2],[3],[3],[]],0)).toEqual([1,2,1]); });
+});

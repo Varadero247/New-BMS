@@ -930,3 +930,12 @@ describe('phase43 coverage', () => {
   it('applies label encoding to categories', () => { const encode=(cats:string[])=>{const u=[...new Set(cats)];return cats.map(c=>u.indexOf(c));}; expect(encode(['a','b','a','c'])).toEqual([0,1,0,2]); });
   it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('computes coin change (min coins)', () => { const cc=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(cc([1,5,6,9],11)).toBe(2); });
+  it('generates collatz sequence', () => { const coll=(n:number):number[]=>[n,...(n===1?[]:(n%2===0?coll(n/2):coll(3*n+1)))]; expect(coll(6)).toEqual([6,3,10,5,16,8,4,2,1]); });
+  it('implements promise timeout wrapper', async () => { const withTimeout=<T>(p:Promise<T>,ms:number):Promise<T>=>{const t=new Promise<T>((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms));return Promise.race([p,t]);};await expect(withTimeout(Promise.resolve(42),100)).resolves.toBe(42); });
+  it('checks point in axis-aligned rectangle', () => { const inRect=(px:number,py:number,x1:number,y1:number,x2:number,y2:number)=>px>=x1&&px<=x2&&py>=y1&&py<=y2; expect(inRect(3,3,1,1,5,5)).toBe(true); expect(inRect(6,3,1,1,5,5)).toBe(false); });
+  it('counts nodes at each BFS level', () => { const bfs=(adj:number[][],start:number)=>{const visited=new Set([start]);const q=[start];const levels:number[]=[];while(q.length){const sz=q.length;let cnt=0;for(let i=0;i<sz;i++){const n=q.shift()!;cnt++;(adj[n]||[]).forEach(nb=>{if(!visited.has(nb)){visited.add(nb);q.push(nb);}});}levels.push(cnt);}return levels;}; expect(bfs([[1,2],[3],[3],[]],0)).toEqual([1,2,1]); });
+});

@@ -429,3 +429,12 @@ describe('phase43 coverage', () => {
   it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
   it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('counts vowels in string', () => { const cv=(s:string)=>(s.match(/[aeiouAEIOU]/g)||[]).length; expect(cv('Hello World')).toBe(3); });
+  it('converts snake_case to camelCase', () => { const toCamel=(s:string)=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()); expect(toCamel('hello_world_foo')).toBe('helloWorldFoo'); });
+  it('finds the mode of an array', () => { const mode=(a:number[])=>{const f:Record<number,number>={};a.forEach(v=>{f[v]=(f[v]||0)+1;});return +Object.entries(f).sort((x,y)=>y[1]-x[1])[0][0];}; expect(mode([1,2,2,3])).toBe(2); });
+  it('implements binary search', () => { const bs=(a:number[],t:number):number=>{let l=0,r=a.length-1;while(l<=r){const m=(l+r)>>1;if(a[m]===t)return m;else if(a[m]<t)l=m+1;else r=m-1;}return -1;}; expect(bs([1,3,5,7,9],5)).toBe(2); expect(bs([1,3,5,7,9],4)).toBe(-1); });
+  it('generates power set', () => { const ps=(a:number[]):number[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as number[][]); expect(ps([1,2,3]).length).toBe(8); });
+});

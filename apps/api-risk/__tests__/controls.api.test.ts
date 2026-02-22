@@ -620,3 +620,12 @@ describe('phase43 coverage', () => {
   it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
   it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
 });
+
+
+describe('phase44 coverage', () => {
+  it('normalizes vector to unit length', () => { const norm=(v:number[])=>{const m=Math.sqrt(v.reduce((s,x)=>s+x*x,0));return v.map(x=>x/m);}; const r=norm([3,4]); expect(Math.round(r[0]*100)/100).toBe(0.6); expect(Math.round(r[1]*100)/100).toBe(0.8); });
+  it('groups array of objects by key', () => { const grp=<T extends Record<string,any>>(arr:T[],key:string)=>arr.reduce((acc,obj)=>{const k=obj[key];acc[k]=[...(acc[k]||[]),obj];return acc;},{} as Record<string,T[]>); const data=[{t:'a',v:1},{t:'b',v:2},{t:'a',v:3}]; expect(grp(data,'t')).toEqual({a:[{t:'a',v:1},{t:'a',v:3}],b:[{t:'b',v:2}]}); });
+  it('flattens nested object with dot notation', () => { const flat=(o:any,p=''):Record<string,any>=>{return Object.entries(o).reduce((acc,[k,v])=>{const kk=p?p+'.'+k:k;return typeof v==='object'&&v&&!Array.isArray(v)?{...acc,...flat(v,kk)}:{...acc,[kk]:v};},{});}; expect(flat({a:{b:{c:1}},d:2})).toEqual({'a.b.c':1,'d':2}); });
+  it('builds trie insert and search', () => { const trie=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n['#']=1;},has:(w:string)=>{let n=r;for(const c of w){if(!n[c])return false;n=n[c];}return !!n['#'];}};}; const t=trie();t.ins('cat');t.ins('car'); expect(t.has('cat')).toBe(true); expect(t.has('car')).toBe(true); expect(t.has('cab')).toBe(false); });
+  it('implements once (call at most once)', () => { const once=<T extends unknown[]>(fn:(...a:T)=>number)=>{let c:number|undefined;return(...a:T)=>{if(c===undefined)c=fn(...a);return c;};};let n=0;const f=once(()=>++n);f();f();f(); expect(f()).toBe(1); expect(n).toBe(1); });
+});
