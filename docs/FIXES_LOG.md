@@ -1,5 +1,17 @@
 # IMS — Fixes Log
 
+## Phase 35 — Test Depth Expansion to ≥75 (February 22, 2026)
+
+Targeted expansion of all 701 test files with 70-74 tests to ≥75 each.
+
+**Net new tests:** +3,495 (49,888 → 53,383), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (9 → 0):**
+- TS2550 in multiple files: `String.replaceAll` not available in older TS lib targets → replaced with `split().join()`
+- TS2415 in multiple files: anonymous class generic mixin (`class extends T`) incorrectly extends base → replaced with simple class inheritance
+
+---
+
 ## Phase 34 — Test Depth Expansion to ≥70 (February 22, 2026)
 
 Targeted expansion of all 697 test files with 65-69 tests to ≥70 each.
