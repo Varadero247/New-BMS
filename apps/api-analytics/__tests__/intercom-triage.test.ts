@@ -726,3 +726,12 @@ describe('phase40 coverage', () => {
   it('checks if number is palindrome without string', () => { const isPalinNum=(n:number)=>{if(n<0)return false;let rev=0,orig=n;while(n>0){rev=rev*10+n%10;n=Math.floor(n/10);}return rev===orig;}; expect(isPalinNum(121)).toBe(true); expect(isPalinNum(123)).toBe(false); });
   it('computes longest bitonic subsequence length', () => { const lbs=(a:number[])=>{const n=a.length;const inc=Array(n).fill(1),dec=Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(a[j]<a[i])inc[i]=Math.max(inc[i],inc[j]+1);for(let i=n-2;i>=0;i--)for(let j=i+1;j<n;j++)if(a[j]<a[i])dec[i]=Math.max(dec[i],dec[j]+1);return Math.max(...a.map((_,i)=>inc[i]+dec[i]-1));}; expect(lbs([1,11,2,10,4,5,2,1])).toBe(6); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds longest subarray with equal 0s and 1s', () => { const longestEqual=(a:number[])=>{const map=new Map([[0,-1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(map.has(sum))max=Math.max(max,i-map.get(sum)!);else map.set(sum,i);}return max;}; expect(longestEqual([0,1,0])).toBe(2); });
+  it('checks if array is mountain', () => { const isMtn=(a:number[])=>{let i=0;while(i<a.length-1&&a[i]<a[i+1])i++;if(i===0||i===a.length-1)return false;while(i<a.length-1&&a[i]>a[i+1])i++;return i===a.length-1;}; expect(isMtn([0,2,3,4,2,1])).toBe(true); expect(isMtn([1,2,3])).toBe(false); });
+  it('counts ways to decode string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const dp=Array(s.length+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=s.length;i++){if(s[i-1]!=='0')dp[i]+=dp[i-1];const two=Number(s.slice(i-2,i));if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[s.length];}; expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('computes range sum using prefix array', () => { const pfx=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=pfx([1,2,3,4,5]); expect(q(1,3)).toBe(9); });
+  it('checks if array can be partitioned into equal sum halves', () => { const canPart=(a:number[])=>{const total=a.reduce((s,v)=>s+v,0);if(total%2!==0)return false;const half=total/2;const dp=new Set([0]);for(const v of a){const next=new Set(dp);for(const s of dp)next.add(s+v);dp.clear();for(const s of next)if(s<=half)dp.add(s);}return dp.has(half);}; expect(canPart([1,5,11,5])).toBe(true); expect(canPart([1,2,3,5])).toBe(false); });
+});

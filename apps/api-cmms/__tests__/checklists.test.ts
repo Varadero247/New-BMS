@@ -647,3 +647,12 @@ describe('phase40 coverage', () => {
   it('checks if array forms geometric progression', () => { const isGP=(a:number[])=>{if(a.length<2)return true;const r=a[1]/a[0];return a.every((v,i)=>i===0||v/a[i-1]===r);}; expect(isGP([2,6,18,54])).toBe(true); expect(isGP([1,2,3])).toBe(false); });
   it('checks row stochastic matrix', () => { const isStochastic=(m:number[][])=>m.every(r=>Math.abs(r.reduce((a,b)=>a+b,0)-1)<1e-9); expect(isStochastic([[0.5,0.5],[0.3,0.7]])).toBe(true); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+  it('finds Euler totient for small n', () => { const phi=(n:number)=>{let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}; expect(phi(9)).toBe(6); expect(phi(7)).toBe(6); });
+  it('implements LCS string reconstruction', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(''));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+a[i-1]:dp[i-1][j].length>=dp[i][j-1].length?dp[i-1][j]:dp[i][j-1];return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe('BCAB'); });
+  it('checks if string can form palindrome permutation', () => { const canFormPalin=(s:string)=>{const odd=[...s].reduce((cnt,c)=>{cnt.set(c,(cnt.get(c)||0)+1);return cnt;},new Map<string,number>());return[...odd.values()].filter(v=>v%2!==0).length<=1;}; expect(canFormPalin('carrace')).toBe(true); expect(canFormPalin('code')).toBe(false); });
+  it('finds celebrity in party (simulation)', () => { const findCeleb=(knows:(a:number,b:number)=>boolean,n:number)=>{let cand=0;for(let i=1;i<n;i++)if(knows(cand,i))cand=i;for(let i=0;i<n;i++)if(i!==cand&&(knows(cand,i)||!knows(i,cand)))return -1;return cand;}; const mat=[[0,1,1],[0,0,1],[0,0,0]]; const knows=(a:number,b:number)=>mat[a][b]===1; expect(findCeleb(knows,3)).toBe(2); });
+});

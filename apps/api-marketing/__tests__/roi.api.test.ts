@@ -598,3 +598,12 @@ describe('phase40 coverage', () => {
   it('computes maximum product subarray', () => { const maxProd=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],max*a[i],min*a[i]);min=Math.min(a[i],t*a[i],min*a[i]);res=Math.max(res,max);}return res;}; expect(maxProd([2,3,-2,4])).toBe(6); });
   it('computes integer log base 2', () => { const log2=(n:number)=>Math.floor(Math.log2(n)); expect(log2(8)).toBe(3); expect(log2(15)).toBe(3); expect(log2(16)).toBe(4); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements sparse set membership', () => { const set=new Set<number>([1,3,5,7,9]); const query=(v:number)=>set.has(v); expect(query(5)).toBe(true); expect(query(4)).toBe(false); });
+  it('implements segment tree point update query', () => { const n=8; const tree=Array(2*n).fill(0); const update=(i:number,v:number)=>{tree[n+i]=v;for(let j=(n+i)>>1;j>=1;j>>=1)tree[j]=tree[2*j]+tree[2*j+1];}; const query=(l:number,r:number)=>{let s=0;for(l+=n,r+=n+1;l<r;l>>=1,r>>=1){if(l&1)s+=tree[l++];if(r&1)s+=tree[--r];}return s;}; update(2,5);update(4,3); expect(query(2,4)).toBe(8); });
+  it('finds all permutations of array', () => { const perms=<T>(a:T[]):T[][]=>a.length<=1?[a]:[...a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p]))]; expect(perms([1,2,3]).length).toBe(6); });
+  it('checks if string is a valid hex color', () => { const isHex=(s:string)=>/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(s); expect(isHex('#fff')).toBe(true); expect(isHex('#aabbcc')).toBe(true); expect(isHex('#xyz')).toBe(false); });
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+});

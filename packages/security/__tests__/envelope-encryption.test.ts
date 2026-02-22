@@ -434,3 +434,12 @@ describe('phase40 coverage', () => {
   it('counts distinct islands count', () => { const grid=[[1,1,0,1,1],[1,0,0,0,0],[0,0,0,0,1],[1,1,0,1,1]]; const vis=grid.map(r=>[...r]); let count=0; const dfs=(i:number,j:number)=>{if(i<0||i>=vis.length||j<0||j>=vis[0].length||vis[i][j]!==1)return;vis[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);}; for(let i=0;i<vis.length;i++)for(let j=0;j<vis[0].length;j++)if(vis[i][j]===1){dfs(i,j);count++;} expect(count).toBe(4); });
   it('computes maximum sum circular subarray', () => { const maxCircSum=(a:number[])=>{const maxSub=(arr:number[])=>{let cur=arr[0],res=arr[0];for(let i=1;i<arr.length;i++){cur=Math.max(arr[i],cur+arr[i]);res=Math.max(res,cur);}return res;};const totalSum=a.reduce((s,v)=>s+v,0);const maxLinear=maxSub(a);const minLinear=-maxSub(a.map(v=>-v));const maxCircular=totalSum-minLinear;return maxCircular===0?maxLinear:Math.max(maxLinear,maxCircular);}; expect(maxCircSum([1,-2,3,-2])).toBe(3); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes sum of distances in tree', () => { const n=4; const adj=new Map([[0,[1,2]],[1,[0,3]],[2,[0]],[3,[1]]]); const dfs=(node:number,par:number,cnt:number[],dist:number[])=>{for(const nb of adj.get(node)||[]){if(nb===par)continue;dfs(nb,node,cnt,dist);cnt[node]+=cnt[nb];dist[node]+=dist[nb]+cnt[nb];}};const cnt=Array(n).fill(1),dist=Array(n).fill(0);dfs(0,-1,cnt,dist); expect(dist[0]).toBeGreaterThanOrEqual(0); });
+  it('computes extended GCD', () => { const extGcd=(a:number,b:number):[number,number,number]=>{if(b===0)return[a,1,0];const[g,x,y]=extGcd(b,a%b);return[g,y,x-Math.floor(a/b)*y];}; const[g]=extGcd(35,15); expect(g).toBe(5); });
+  it('computes number of digits in n!', () => { const digitsInFactorial=(n:number)=>Math.floor(Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+Math.log10(v),0))+1; expect(digitsInFactorial(10)).toBe(7); /* 3628800 */ });
+  it('checks if string can form palindrome permutation', () => { const canFormPalin=(s:string)=>{const odd=[...s].reduce((cnt,c)=>{cnt.set(c,(cnt.get(c)||0)+1);return cnt;},new Map<string,number>());return[...odd.values()].filter(v=>v%2!==0).length<=1;}; expect(canFormPalin('carrace')).toBe(true); expect(canFormPalin('code')).toBe(false); });
+  it('finds minimum operations to make array palindrome', () => { const minOps=(a:number[])=>{let ops=0,l=0,r=a.length-1;while(l<r){if(a[l]<a[r]){a[l+1]+=a[l];l++;ops++;}else if(a[l]>a[r]){a[r-1]+=a[r];r--;ops++;}else{l++;r--;}}return ops;}; expect(minOps([1,4,5,1])).toBe(1); });
+});

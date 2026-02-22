@@ -548,3 +548,12 @@ describe('phase40 coverage', () => {
   it('computes maximum sum circular subarray', () => { const maxCircSum=(a:number[])=>{const maxSub=(arr:number[])=>{let cur=arr[0],res=arr[0];for(let i=1;i<arr.length;i++){cur=Math.max(arr[i],cur+arr[i]);res=Math.max(res,cur);}return res;};const totalSum=a.reduce((s,v)=>s+v,0);const maxLinear=maxSub(a);const minLinear=-maxSub(a.map(v=>-v));const maxCircular=totalSum-minLinear;return maxCircular===0?maxLinear:Math.max(maxLinear,maxCircular);}; expect(maxCircSum([1,-2,3,-2])).toBe(3); });
   it('checks if matrix is identity', () => { const isId=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===(i===j?1:0))); expect(isId([[1,0],[0,1]])).toBe(true); expect(isId([[1,0],[0,2]])).toBe(false); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements dutch national flag partition', () => { const dnf=(a:number[])=>{const r=[...a];let lo=0,mid=0,hi=r.length-1;while(mid<=hi){if(r[mid]===0){[r[lo],r[mid]]=[r[mid],r[lo]];lo++;mid++;}else if(r[mid]===1)mid++;else{[r[mid],r[hi]]=[r[hi],r[mid]];hi--;}}return r;}; expect(dnf([2,0,1,2,1,0])).toEqual([0,0,1,1,2,2]); });
+  it('checks if number is automorphic', () => { const isAuto=(n:number)=>String(n*n).endsWith(String(n)); expect(isAuto(5)).toBe(true); expect(isAuto(6)).toBe(true); expect(isAuto(7)).toBe(false); });
+  it('checks if grid path exists with obstacles', () => { const hasPath=(grid:number[][])=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return false;const vis=Array.from({length:m},()=>Array(n).fill(false));const q:number[][]=[]; q.push([0,0]);vis[0][0]=true;const dirs=[[-1,0],[1,0],[0,-1],[0,1]];while(q.length){const[r,c]=q.shift()!;if(r===m-1&&c===n-1)return true;for(const[dr,dc] of dirs){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<m&&nc>=0&&nc<n&&!vis[nr][nc]&&grid[nr][nc]===0){vis[nr][nc]=true;q.push([nr,nc]);}}}return false;}; expect(hasPath([[0,0,0],[1,1,0],[0,0,0]])).toBe(true); });
+  it('computes extended GCD', () => { const extGcd=(a:number,b:number):[number,number,number]=>{if(b===0)return[a,1,0];const[g,x,y]=extGcd(b,a%b);return[g,y,x-Math.floor(a/b)*y];}; const[g]=extGcd(35,15); expect(g).toBe(5); });
+  it('finds longest consecutive sequence length', () => { const longestConsec=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s)if(!s.has(v-1)){let len=1;while(s.has(v+len))len++;max=Math.max(max,len);}return max;}; expect(longestConsec([100,4,200,1,3,2])).toBe(4); });
+});

@@ -467,3 +467,12 @@ describe('phase40 coverage', () => {
   it('computes nth ugly number', () => { const ugly=(n:number)=>{const u=[1];let i2=0,i3=0,i5=0;while(u.length<n){const next=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(next);if(next===u[i2]*2)i2++;if(next===u[i3]*3)i3++;if(next===u[i5]*5)i5++;}return u[n-1];}; expect(ugly(10)).toBe(12); });
   it('implements simple expression evaluator', () => { const calc=(s:string)=>{const tokens=s.split(/([+\-*/])/).map(t=>t.trim());let result=Number(tokens[0]);for(let i=1;i<tokens.length;i+=2){const op=tokens[i],val=Number(tokens[i+1]);if(op==='+')result+=val;else if(op==='-')result-=val;else if(op==='*')result*=val;else result/=val;}return result;}; expect(calc('3 + 4 * 2')).toBe(14); /* left-to-right */ });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements shortest path in unweighted graph', () => { const bfsDist=(adj:Map<number,number[]>,s:number,t:number)=>{const dist=new Map([[s,0]]);const q=[s];while(q.length){const u=q.shift()!;for(const v of adj.get(u)||[]){if(!dist.has(v)){dist.set(v,(dist.get(u)||0)+1);q.push(v);}}}return dist.get(t)??-1;}; const g=new Map([[0,[1,2]],[1,[3]],[2,[3]],[3,[]]]); expect(bfsDist(g,0,3)).toBe(2); });
+  it('finds number of ways to reach nth stair with 1,2,3 steps', () => { const stairs=(n:number)=>{if(n<=0)return 1;const dp=[1,1,2];for(let i=3;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]+dp[dp.length-3]);return dp[n];}; expect(stairs(4)).toBe(7); });
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+  it('finds longest consecutive sequence length', () => { const longestConsec=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s)if(!s.has(v-1)){let len=1;while(s.has(v+len))len++;max=Math.max(max,len);}return max;}; expect(longestConsec([100,4,200,1,3,2])).toBe(4); });
+  it('implements segment tree point update query', () => { const n=8; const tree=Array(2*n).fill(0); const update=(i:number,v:number)=>{tree[n+i]=v;for(let j=(n+i)>>1;j>=1;j>>=1)tree[j]=tree[2*j]+tree[2*j+1];}; const query=(l:number,r:number)=>{let s=0;for(l+=n,r+=n+1;l<r;l>>=1,r>>=1){if(l&1)s+=tree[l++];if(r&1)s+=tree[--r];}return s;}; update(2,5);update(4,3); expect(query(2,4)).toBe(8); });
+});

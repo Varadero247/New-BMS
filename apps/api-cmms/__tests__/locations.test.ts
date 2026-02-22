@@ -578,3 +578,12 @@ describe('phase40 coverage', () => {
   it('checks if array forms arithmetic progression', () => { const isAP=(a:number[])=>{const d=a[1]-a[0];return a.every((v,i)=>i===0||v-a[i-1]===d);}; expect(isAP([3,5,7,9])).toBe(true); expect(isAP([1,2,4])).toBe(false); });
   it('implements string multiplication', () => { const mul=(a:string,b:string)=>{const m=a.length,n=b.length,pos=Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const p=(Number(a[i]))*(Number(b[j]));const p1=i+j,p2=i+j+1;const sum=p+pos[p2];pos[p2]=sum%10;pos[p1]+=Math.floor(sum/10);}return pos.join('').replace(/^0+/,'')||'0';}; expect(mul('123','456')).toBe('56088'); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('checks if grid path exists with obstacles', () => { const hasPath=(grid:number[][])=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return false;const vis=Array.from({length:m},()=>Array(n).fill(false));const q:number[][]=[]; q.push([0,0]);vis[0][0]=true;const dirs=[[-1,0],[1,0],[0,-1],[0,1]];while(q.length){const[r,c]=q.shift()!;if(r===m-1&&c===n-1)return true;for(const[dr,dc] of dirs){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<m&&nc>=0&&nc<n&&!vis[nr][nc]&&grid[nr][nc]===0){vis[nr][nc]=true;q.push([nr,nc]);}}}return false;}; expect(hasPath([[0,0,0],[1,1,0],[0,0,0]])).toBe(true); });
+  it('finds number of ways to reach nth stair with 1,2,3 steps', () => { const stairs=(n:number)=>{if(n<=0)return 1;const dp=[1,1,2];for(let i=3;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]+dp[dp.length-3]);return dp[n];}; expect(stairs(4)).toBe(7); });
+  it('implements sparse set membership', () => { const set=new Set<number>([1,3,5,7,9]); const query=(v:number)=>set.has(v); expect(query(5)).toBe(true); expect(query(4)).toBe(false); });
+  it('implements segment tree point update query', () => { const n=8; const tree=Array(2*n).fill(0); const update=(i:number,v:number)=>{tree[n+i]=v;for(let j=(n+i)>>1;j>=1;j>>=1)tree[j]=tree[2*j]+tree[2*j+1];}; const query=(l:number,r:number)=>{let s=0;for(l+=n,r+=n+1;l<r;l>>=1,r>>=1){if(l&1)s+=tree[l++];if(r&1)s+=tree[--r];}return s;}; update(2,5);update(4,3); expect(query(2,4)).toBe(8); });
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+});

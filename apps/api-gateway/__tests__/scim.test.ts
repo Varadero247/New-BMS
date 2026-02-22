@@ -846,3 +846,12 @@ describe('phase40 coverage', () => {
   it('applies map over matrix', () => { const mapM=(m:number[][],fn:(v:number)=>number)=>m.map(r=>r.map(fn)); expect(mapM([[1,2],[3,4]],v=>v*2)).toEqual([[2,4],[6,8]]); });
   it('checks if array forms arithmetic progression', () => { const isAP=(a:number[])=>{const d=a[1]-a[0];return a.every((v,i)=>i===0||v-a[i-1]===d);}; expect(isAP([3,5,7,9])).toBe(true); expect(isAP([1,2,4])).toBe(false); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements segment tree point update query', () => { const n=8; const tree=Array(2*n).fill(0); const update=(i:number,v:number)=>{tree[n+i]=v;for(let j=(n+i)>>1;j>=1;j>>=1)tree[j]=tree[2*j]+tree[2*j+1];}; const query=(l:number,r:number)=>{let s=0;for(l+=n,r+=n+1;l<r;l>>=1,r>>=1){if(l&1)s+=tree[l++];if(r&1)s+=tree[--r];}return s;}; update(2,5);update(4,3); expect(query(2,4)).toBe(8); });
+  it('checks if string is a valid hex color', () => { const isHex=(s:string)=>/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(s); expect(isHex('#fff')).toBe(true); expect(isHex('#aabbcc')).toBe(true); expect(isHex('#xyz')).toBe(false); });
+  it('computes sum of first n odd numbers', () => { const sumOdd=(n:number)=>n*n; expect(sumOdd(5)).toBe(25); expect(sumOdd(10)).toBe(100); });
+  it('generates zigzag sequence', () => { const zz=(n:number)=>Array.from({length:n},(_,i)=>i%2===0?i:-i); expect(zz(5)).toEqual([0,-1,2,-3,4]); });
+  it('computes range sum using prefix array', () => { const pfx=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=pfx([1,2,3,4,5]); expect(q(1,3)).toBe(9); });
+});

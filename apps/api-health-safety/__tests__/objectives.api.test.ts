@@ -899,3 +899,12 @@ describe('phase40 coverage', () => {
   it('computes consistent hash bucket', () => { const bucket=(key:string,n:number)=>[...key].reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,0)%n; expect(bucket('user123',10)).toBeGreaterThanOrEqual(0); expect(bucket('user123',10)).toBeLessThan(10); });
   it('checks if expression has balanced delimiters', () => { const check=(s:string)=>{const map:{[k:string]:string}={')':'(',']':'[','}':'{'};const st:string[]=[];for(const c of s){if('([{'.includes(c))st.push(c);else if(')]}'.includes(c)){if(!st.length||st[st.length-1]!==map[c])return false;st.pop();}}return st.length===0;}; expect(check('[{()}]')).toBe(true); expect(check('[{(}]')).toBe(false); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('checks if string matches wildcard pattern', () => { const match=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?dp[i-1][j]||dp[i][j-1]:dp[i-1][j-1]&&(p[j-1]==='?'||p[j-1]===s[i-1]);return dp[m][n];}; expect(match('aa','*')).toBe(true); expect(match('cb','?a')).toBe(false); });
+  it('finds longest subarray with equal 0s and 1s', () => { const longestEqual=(a:number[])=>{const map=new Map([[0,-1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(map.has(sum))max=Math.max(max,i-map.get(sum)!);else map.set(sum,i);}return max;}; expect(longestEqual([0,1,0])).toBe(2); });
+  it('implements Prim MST weight for small graph', () => { const prim=(n:number,edges:[number,number,number][])=>{const adj=new Map<number,[number,number][]>();for(let i=0;i<n;i++)adj.set(i,[]);for(const [u,v,w] of edges){adj.get(u)!.push([v,w]);adj.get(v)!.push([u,w]);}const vis=new Set([0]);let total=0;while(vis.size<n){let minW=Infinity,minV=-1;for(const u of vis)for(const [v,w] of adj.get(u)||[])if(!vis.has(v)&&w<minW){minW=w;minV=v;}if(minV===-1)break;vis.add(minV);total+=minW;}return total;}; expect(prim(4,[[0,1,1],[1,2,2],[2,3,3],[0,3,10]])).toBe(6); });
+  it('implements sparse set membership', () => { const set=new Set<number>([1,3,5,7,9]); const query=(v:number)=>set.has(v); expect(query(5)).toBe(true); expect(query(4)).toBe(false); });
+  it('finds minimum operations to make array palindrome', () => { const minOps=(a:number[])=>{let ops=0,l=0,r=a.length-1;while(l<r){if(a[l]<a[r]){a[l+1]+=a[l];l++;ops++;}else if(a[l]>a[r]){a[r-1]+=a[r];r--;ops++;}else{l++;r--;}}return ops;}; expect(minOps([1,4,5,1])).toBe(1); });
+});

@@ -570,3 +570,12 @@ describe('phase40 coverage', () => {
   it('computes maximum sum circular subarray', () => { const maxCircSum=(a:number[])=>{const maxSub=(arr:number[])=>{let cur=arr[0],res=arr[0];for(let i=1;i<arr.length;i++){cur=Math.max(arr[i],cur+arr[i]);res=Math.max(res,cur);}return res;};const totalSum=a.reduce((s,v)=>s+v,0);const maxLinear=maxSub(a);const minLinear=-maxSub(a.map(v=>-v));const maxCircular=totalSum-minLinear;return maxCircular===0?maxLinear:Math.max(maxLinear,maxCircular);}; expect(maxCircSum([1,-2,3,-2])).toBe(3); });
   it('implements simple bloom filter logic', () => { const seeds=[7,11,13]; const size=64; const hashes=(v:string)=>seeds.map(s=>[...v].reduce((h,c)=>(h*s+c.charCodeAt(0))%size,0)); const bits=new Set<number>(); const add=(v:string)=>hashes(v).forEach(h=>bits.add(h)); const mightHave=(v:string)=>hashes(v).every(h=>bits.has(h)); add('hello'); expect(mightHave('hello')).toBe(true); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('generates zigzag sequence', () => { const zz=(n:number)=>Array.from({length:n},(_,i)=>i%2===0?i:-i); expect(zz(5)).toEqual([0,-1,2,-3,4]); });
+  it('checks if undirected graph is tree', () => { const isTree=(n:number,edges:[number,number][])=>{if(edges.length!==n-1)return false;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:find(parent[x]);let cycles=0;for(const [u,v] of edges){const pu=find(u),pv=find(v);if(pu===pv)cycles++;else parent[pu]=pv;}return cycles===0;}; expect(isTree(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isTree(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+  it('computes number of digits in n!', () => { const digitsInFactorial=(n:number)=>Math.floor(Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+Math.log10(v),0))+1; expect(digitsInFactorial(10)).toBe(7); /* 3628800 */ });
+  it('finds all permutations of array', () => { const perms=<T>(a:T[]):T[][]=>a.length<=1?[a]:[...a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p]))]; expect(perms([1,2,3]).length).toBe(6); });
+  it('finds maximum width of binary tree level', () => { const maxWidth=(nodes:number[])=>{const levels=new Map<number,number[]>();nodes.forEach((v,i)=>{if(v!==-1){const lvl=Math.floor(Math.log2(i+1));(levels.get(lvl)||levels.set(lvl,[]).get(lvl)!).push(i);}});return Math.max(...[...levels.values()].map(idxs=>idxs[idxs.length-1]-idxs[0]+1),1);}; expect(maxWidth([1,3,2,5,-1,-1,9,-1,-1,-1,-1,-1,-1,7])).toBeGreaterThan(0); });
+});

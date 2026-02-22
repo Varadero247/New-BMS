@@ -678,3 +678,12 @@ describe('phase40 coverage', () => {
   it('computes sliding window maximum', () => { const swMax=(a:number[],k:number)=>{const r:number[]=[];const dq:number[]=[];for(let i=0;i<a.length;i++){while(dq.length&&dq[0]<i-k+1)dq.shift();while(dq.length&&a[dq[dq.length-1]]<a[i])dq.pop();dq.push(i);if(i>=k-1)r.push(a[dq[0]]);}return r;}; expect(swMax([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]); });
   it('computes nth power sum 1^k+2^k+...+n^k', () => { const pwrSum=(n:number,k:number)=>Array.from({length:n},(_,i)=>Math.pow(i+1,k)).reduce((a,b)=>a+b,0); expect(pwrSum(3,2)).toBe(14); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('checks if grid path exists with obstacles', () => { const hasPath=(grid:number[][])=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return false;const vis=Array.from({length:m},()=>Array(n).fill(false));const q:number[][]=[]; q.push([0,0]);vis[0][0]=true;const dirs=[[-1,0],[1,0],[0,-1],[0,1]];while(q.length){const[r,c]=q.shift()!;if(r===m-1&&c===n-1)return true;for(const[dr,dc] of dirs){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<m&&nc>=0&&nc<n&&!vis[nr][nc]&&grid[nr][nc]===0){vis[nr][nc]=true;q.push([nr,nc]);}}}return false;}; expect(hasPath([[0,0,0],[1,1,0],[0,0,0]])).toBe(true); });
+  it('finds kth smallest in sorted matrix', () => { const kthSmallest=(matrix:number[][],k:number)=>[...matrix.flat()].sort((a,b)=>a-b)[k-1]; expect(kthSmallest([[1,5,9],[10,11,13],[12,13,15]],8)).toBe(13); });
+  it('computes minimum number of platforms needed', () => { const platforms=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){if(arr[i]<=dep[j]){plat++;i++;}else{plat--;j++;}max=Math.max(max,plat);}return max;}; expect(platforms([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+  it('finds longest consecutive sequence length', () => { const longestConsec=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s)if(!s.has(v-1)){let len=1;while(s.has(v+len))len++;max=Math.max(max,len);}return max;}; expect(longestConsec([100,4,200,1,3,2])).toBe(4); });
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+});

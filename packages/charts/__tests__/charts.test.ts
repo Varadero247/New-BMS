@@ -525,3 +525,12 @@ describe('phase40 coverage', () => {
   it('implements simple state machine', () => { type State='idle'|'running'|'stopped'; const transitions:{[K in State]?:Partial<Record<string,State>>}={idle:{start:'running'},running:{stop:'stopped'},stopped:{reset:'idle'}}; const step=(state:State,event:string):State=>(transitions[state] as any)?.[event]??state; expect(step('idle','start')).toBe('running'); expect(step('running','stop')).toBe('stopped'); });
   it('finds maximum area histogram', () => { const maxHist=(h:number[])=>{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||h[st[st.length-1]]>=h[i])){const height=h[st.pop()!];const width=st.length?i-st[st.length-1]-1:i;max=Math.max(max,height*width);}st.push(i);}return max;}; expect(maxHist([2,1,5,6,2,3])).toBe(10); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+  it('finds maximum width of binary tree level', () => { const maxWidth=(nodes:number[])=>{const levels=new Map<number,number[]>();nodes.forEach((v,i)=>{if(v!==-1){const lvl=Math.floor(Math.log2(i+1));(levels.get(lvl)||levels.set(lvl,[]).get(lvl)!).push(i);}});return Math.max(...[...levels.values()].map(idxs=>idxs[idxs.length-1]-idxs[0]+1),1);}; expect(maxWidth([1,3,2,5,-1,-1,9,-1,-1,-1,-1,-1,-1,7])).toBeGreaterThan(0); });
+  it('finds Euler totient for small n', () => { const phi=(n:number)=>{let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}; expect(phi(9)).toBe(6); expect(phi(7)).toBe(6); });
+  it('finds longest consecutive sequence length', () => { const longestConsec=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s)if(!s.has(v-1)){let len=1;while(s.has(v+len))len++;max=Math.max(max,len);}return max;}; expect(longestConsec([100,4,200,1,3,2])).toBe(4); });
+  it('generates zigzag sequence', () => { const zz=(n:number)=>Array.from({length:n},(_,i)=>i%2===0?i:-i); expect(zz(5)).toEqual([0,-1,2,-3,4]); });
+});

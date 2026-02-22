@@ -718,3 +718,12 @@ describe('phase40 coverage', () => {
   it('applies map over matrix', () => { const mapM=(m:number[][],fn:(v:number)=>number)=>m.map(r=>r.map(fn)); expect(mapM([[1,2],[3,4]],v=>v*2)).toEqual([[2,4],[6,8]]); });
   it('computes maximum product subarray', () => { const maxProd=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],max*a[i],min*a[i]);min=Math.min(a[i],t*a[i],min*a[i]);res=Math.max(res,max);}return res;}; expect(maxProd([2,3,-2,4])).toBe(6); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements fast exponentiation', () => { const fastPow=(base:number,exp:number,mod:number):number=>{let res=1;base%=mod;while(exp>0){if(exp%2===1)res=res*base%mod;base=base*base%mod;exp=Math.floor(exp/2);}return res;}; expect(fastPow(2,10,1000)).toBe(24); });
+  it('finds Euler totient for small n', () => { const phi=(n:number)=>{let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}; expect(phi(9)).toBe(6); expect(phi(7)).toBe(6); });
+  it('implements Prim MST weight for small graph', () => { const prim=(n:number,edges:[number,number,number][])=>{const adj=new Map<number,[number,number][]>();for(let i=0;i<n;i++)adj.set(i,[]);for(const [u,v,w] of edges){adj.get(u)!.push([v,w]);adj.get(v)!.push([u,w]);}const vis=new Set([0]);let total=0;while(vis.size<n){let minW=Infinity,minV=-1;for(const u of vis)for(const [v,w] of adj.get(u)||[])if(!vis.has(v)&&w<minW){minW=w;minV=v;}if(minV===-1)break;vis.add(minV);total+=minW;}return total;}; expect(prim(4,[[0,1,1],[1,2,2],[2,3,3],[0,3,10]])).toBe(6); });
+  it('computes minimum number of platforms needed', () => { const platforms=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){if(arr[i]<=dep[j]){plat++;i++;}else{plat--;j++;}max=Math.max(max,plat);}return max;}; expect(platforms([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+  it('finds all permutations of array', () => { const perms=<T>(a:T[]):T[][]=>a.length<=1?[a]:[...a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p]))]; expect(perms([1,2,3]).length).toBe(6); });
+});

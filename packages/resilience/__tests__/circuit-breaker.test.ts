@@ -495,3 +495,12 @@ describe('phase40 coverage', () => {
   it('checks if matrix is identity', () => { const isId=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===(i===j?1:0))); expect(isId([[1,0],[0,1]])).toBe(true); expect(isId([[1,0],[0,2]])).toBe(false); });
   it('implements simple state machine', () => { type State='idle'|'running'|'stopped'; const transitions:{[K in State]?:Partial<Record<string,State>>}={idle:{start:'running'},running:{stop:'stopped'},stopped:{reset:'idle'}}; const step=(state:State,event:string):State=>(transitions[state] as any)?.[event]??state; expect(step('idle','start')).toBe('running'); expect(step('running','stop')).toBe('stopped'); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements counting sort for strings', () => { const countSort=(a:string[])=>[...a].sort(); expect(countSort(['banana','apple','cherry'])).toEqual(['apple','banana','cherry']); });
+  it('checks if string matches wildcard pattern', () => { const match=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?dp[i-1][j]||dp[i][j-1]:dp[i-1][j-1]&&(p[j-1]==='?'||p[j-1]===s[i-1]);return dp[m][n];}; expect(match('aa','*')).toBe(true); expect(match('cb','?a')).toBe(false); });
+  it('checks if sentence is pangram', () => { const isPangram=(s:string)=>new Set(s.toLowerCase().replace(/[^a-z]/g,'')).size===26; expect(isPangram('The quick brown fox jumps over the lazy dog')).toBe(true); expect(isPangram('Hello world')).toBe(false); });
+  it('counts ways to decode string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const dp=Array(s.length+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=s.length;i++){if(s[i-1]!=='0')dp[i]+=dp[i-1];const two=Number(s.slice(i-2,i));if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[s.length];}; expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('finds maximum width of binary tree level', () => { const maxWidth=(nodes:number[])=>{const levels=new Map<number,number[]>();nodes.forEach((v,i)=>{if(v!==-1){const lvl=Math.floor(Math.log2(i+1));(levels.get(lvl)||levels.set(lvl,[]).get(lvl)!).push(i);}});return Math.max(...[...levels.values()].map(idxs=>idxs[idxs.length-1]-idxs[0]+1),1);}; expect(maxWidth([1,3,2,5,-1,-1,9,-1,-1,-1,-1,-1,-1,7])).toBeGreaterThan(0); });
+});

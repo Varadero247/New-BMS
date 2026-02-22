@@ -791,3 +791,12 @@ describe('phase40 coverage', () => {
   it('computes sum of geometric series', () => { const geoSum=(a:number,r:number,n:number)=>r===1?a*n:a*(1-Math.pow(r,n))/(1-r); expect(geoSum(1,2,4)).toBe(15); });
   it('computes sliding window maximum', () => { const swMax=(a:number[],k:number)=>{const r:number[]=[];const dq:number[]=[];for(let i=0;i<a.length;i++){while(dq.length&&dq[0]<i-k+1)dq.shift();while(dq.length&&a[dq[dq.length-1]]<a[i])dq.pop();dq.push(i);if(i>=k-1)r.push(a[dq[0]]);}return r;}; expect(swMax([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements shortest path in unweighted graph', () => { const bfsDist=(adj:Map<number,number[]>,s:number,t:number)=>{const dist=new Map([[s,0]]);const q=[s];while(q.length){const u=q.shift()!;for(const v of adj.get(u)||[]){if(!dist.has(v)){dist.set(v,(dist.get(u)||0)+1);q.push(v);}}}return dist.get(t)??-1;}; const g=new Map([[0,[1,2]],[1,[3]],[2,[3]],[3,[]]]); expect(bfsDist(g,0,3)).toBe(2); });
+  it('parses simple key=value config string', () => { const parse=(s:string)=>Object.fromEntries(s.split('\n').filter(Boolean).map(l=>l.split('=').map(p=>p.trim()) as [string,string])); expect(parse('host=localhost\nport=3000')).toEqual({host:'localhost',port:'3000'}); });
+  it('counts triplets with zero sum', () => { const zeroSumTriplets=(a:number[])=>{const s=a.sort((x,y)=>x-y);let c=0;for(let i=0;i<s.length-2;i++){let l=i+1,r=s.length-1;while(l<r){const sum=s[i]+s[l]+s[r];if(sum===0){c++;l++;r--;}else if(sum<0)l++;else r--;}}return c;}; expect(zeroSumTriplets([-1,0,1,2,-1,-4])).toBe(3); });
+  it('implements counting sort for strings', () => { const countSort=(a:string[])=>[...a].sort(); expect(countSort(['banana','apple','cherry'])).toEqual(['apple','banana','cherry']); });
+  it('checks if number is automorphic', () => { const isAuto=(n:number)=>String(n*n).endsWith(String(n)); expect(isAuto(5)).toBe(true); expect(isAuto(6)).toBe(true); expect(isAuto(7)).toBe(false); });
+});

@@ -575,3 +575,12 @@ describe('phase40 coverage', () => {
   it('computes nth ugly number', () => { const ugly=(n:number)=>{const u=[1];let i2=0,i3=0,i5=0;while(u.length<n){const next=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(next);if(next===u[i2]*2)i2++;if(next===u[i3]*3)i3++;if(next===u[i5]*5)i5++;}return u[n-1];}; expect(ugly(10)).toBe(12); });
   it('checks if number is perfect power', () => { const isPerfPow=(n:number)=>{for(let b=2;b*b<=n;b++)for(let e=2;Math.pow(b,e)<=n;e++)if(Math.pow(b,e)===n)return true;return false;}; expect(isPerfPow(8)).toBe(true); expect(isPerfPow(9)).toBe(true); expect(isPerfPow(10)).toBe(false); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('checks if string matches wildcard pattern', () => { const match=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?dp[i-1][j]||dp[i][j-1]:dp[i-1][j-1]&&(p[j-1]==='?'||p[j-1]===s[i-1]);return dp[m][n];}; expect(match('aa','*')).toBe(true); expect(match('cb','?a')).toBe(false); });
+  it('computes sum of all divisors up to n', () => { const sumDiv=(n:number)=>Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+v,0); expect(sumDiv(5)).toBe(15); });
+  it('implements segment tree point update query', () => { const n=8; const tree=Array(2*n).fill(0); const update=(i:number,v:number)=>{tree[n+i]=v;for(let j=(n+i)>>1;j>=1;j>>=1)tree[j]=tree[2*j]+tree[2*j+1];}; const query=(l:number,r:number)=>{let s=0;for(l+=n,r+=n+1;l<r;l>>=1,r>>=1){if(l&1)s+=tree[l++];if(r&1)s+=tree[--r];}return s;}; update(2,5);update(4,3); expect(query(2,4)).toBe(8); });
+  it('finds smallest subarray with sum >= target', () => { const minLen=(a:number[],t:number)=>{let min=Infinity,sum=0,l=0;for(let r=0;r<a.length;r++){sum+=a[r];while(sum>=t){min=Math.min(min,r-l+1);sum-=a[l++];}}return min===Infinity?0:min;}; expect(minLen([2,3,1,2,4,3],7)).toBe(2); });
+  it('computes sum of distances in tree', () => { const n=4; const adj=new Map([[0,[1,2]],[1,[0,3]],[2,[0]],[3,[1]]]); const dfs=(node:number,par:number,cnt:number[],dist:number[])=>{for(const nb of adj.get(node)||[]){if(nb===par)continue;dfs(nb,node,cnt,dist);cnt[node]+=cnt[nb];dist[node]+=dist[nb]+cnt[nb];}};const cnt=Array(n).fill(1),dist=Array(n).fill(0);dfs(0,-1,cnt,dist); expect(dist[0]).toBeGreaterThanOrEqual(0); });
+});

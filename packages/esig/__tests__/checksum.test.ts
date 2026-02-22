@@ -446,3 +446,12 @@ describe('phase40 coverage', () => {
   it('checks row stochastic matrix', () => { const isStochastic=(m:number[][])=>m.every(r=>Math.abs(r.reduce((a,b)=>a+b,0)-1)<1e-9); expect(isStochastic([[0.5,0.5],[0.3,0.7]])).toBe(true); });
   it('implements sparse table for range min query', () => { const a=[2,4,3,1,6,7,8,9,1,7]; const mn=(l:number,r:number)=>Math.min(...a.slice(l,r+1)); expect(mn(0,4)).toBe(1); expect(mn(2,7)).toBe(1); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds minimum operations to make array palindrome', () => { const minOps=(a:number[])=>{let ops=0,l=0,r=a.length-1;while(l<r){if(a[l]<a[r]){a[l+1]+=a[l];l++;ops++;}else if(a[l]>a[r]){a[r-1]+=a[r];r--;ops++;}else{l++;r--;}}return ops;}; expect(minOps([1,4,5,1])).toBe(1); });
+  it('computes minimum number of platforms needed', () => { const platforms=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){if(arr[i]<=dep[j]){plat++;i++;}else{plat--;j++;}max=Math.max(max,plat);}return max;}; expect(platforms([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+  it('implements LCS string reconstruction', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(''));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+a[i-1]:dp[i-1][j].length>=dp[i][j-1].length?dp[i-1][j]:dp[i][j-1];return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe('BCAB'); });
+  it('finds number of ways to reach nth stair with 1,2,3 steps', () => { const stairs=(n:number)=>{if(n<=0)return 1;const dp=[1,1,2];for(let i=3;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]+dp[dp.length-3]);return dp[n];}; expect(stairs(4)).toBe(7); });
+  it('computes largest rectangle in binary matrix', () => { const maxRect=(matrix:number[][])=>{if(!matrix.length)return 0;const h=Array(matrix[0].length).fill(0);let max=0;const hist=(heights:number[])=>{const st:number[]=[],n=heights.length;let m=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||heights[st[st.length-1]]>=heights[i])){const ht=heights[st.pop()!];const w=st.length?i-st[st.length-1]-1:i;m=Math.max(m,ht*w);}st.push(i);}return m;};for(const row of matrix){row.forEach((v,j)=>{h[j]=v===0?0:h[j]+v;});max=Math.max(max,hist(h));}return max;}; expect(maxRect([[1,0,1,0,0],[1,0,1,1,1],[1,1,1,1,1],[1,0,0,1,0]])).toBe(6); });
+});

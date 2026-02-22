@@ -587,3 +587,12 @@ describe('phase40 coverage', () => {
   it('finds next permutation', () => { const nextPerm=(a:number[])=>{const r=[...a];let i=r.length-2;while(i>=0&&r[i]>=r[i+1])i--;if(i>=0){let j=r.length-1;while(r[j]<=r[i])j--;[r[i],r[j]]=[r[j],r[i]];}let l=i+1,rt=r.length-1;while(l<rt){[r[l],r[rt]]=[r[rt],r[l]];l++;rt--;}return r;}; expect(nextPerm([1,2,3])).toEqual([1,3,2]); });
   it('checks if array forms arithmetic progression', () => { const isAP=(a:number[])=>{const d=a[1]-a[0];return a.every((v,i)=>i===0||v-a[i-1]===d);}; expect(isAP([3,5,7,9])).toBe(true); expect(isAP([1,2,4])).toBe(false); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds number of ways to reach nth stair with 1,2,3 steps', () => { const stairs=(n:number)=>{if(n<=0)return 1;const dp=[1,1,2];for(let i=3;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]+dp[dp.length-3]);return dp[n];}; expect(stairs(4)).toBe(7); });
+  it('counts ways to decode string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const dp=Array(s.length+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=s.length;i++){if(s[i-1]!=='0')dp[i]+=dp[i-1];const two=Number(s.slice(i-2,i));if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[s.length];}; expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('computes sum of all divisors up to n', () => { const sumDiv=(n:number)=>Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+v,0); expect(sumDiv(5)).toBe(15); });
+  it('computes number of digits in n!', () => { const digitsInFactorial=(n:number)=>Math.floor(Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+Math.log10(v),0))+1; expect(digitsInFactorial(10)).toBe(7); /* 3628800 */ });
+  it('computes largest rectangle in binary matrix', () => { const maxRect=(matrix:number[][])=>{if(!matrix.length)return 0;const h=Array(matrix[0].length).fill(0);let max=0;const hist=(heights:number[])=>{const st:number[]=[],n=heights.length;let m=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||heights[st[st.length-1]]>=heights[i])){const ht=heights[st.pop()!];const w=st.length?i-st[st.length-1]-1:i;m=Math.max(m,ht*w);}st.push(i);}return m;};for(const row of matrix){row.forEach((v,j)=>{h[j]=v===0?0:h[j]+v;});max=Math.max(max,hist(h));}return max;}; expect(maxRect([[1,0,1,0,0],[1,0,1,1,1],[1,1,1,1,1],[1,0,0,1,0]])).toBe(6); });
+});

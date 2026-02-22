@@ -1108,3 +1108,12 @@ describe('phase40 coverage', () => {
   it('computes number of valid parenthesizations', () => { const catalan=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>catalan(i)*catalan(n-1-i)).reduce((a,b)=>a+b,0); expect(catalan(3)).toBe(5); });
   it('implements simple state machine', () => { type State='idle'|'running'|'stopped'; const transitions:{[K in State]?:Partial<Record<string,State>>}={idle:{start:'running'},running:{stop:'stopped'},stopped:{reset:'idle'}}; const step=(state:State,event:string):State=>(transitions[state] as any)?.[event]??state; expect(step('idle','start')).toBe('running'); expect(step('running','stop')).toBe('stopped'); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('checks if string matches wildcard pattern', () => { const match=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?dp[i-1][j]||dp[i][j-1]:dp[i-1][j-1]&&(p[j-1]==='?'||p[j-1]===s[i-1]);return dp[m][n];}; expect(match('aa','*')).toBe(true); expect(match('cb','?a')).toBe(false); });
+  it('finds all permutations of array', () => { const perms=<T>(a:T[]):T[][]=>a.length<=1?[a]:[...a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p]))]; expect(perms([1,2,3]).length).toBe(6); });
+  it('implements simple regex match (. and *)', () => { const rmatch=(s:string,p:string):boolean=>{if(!p)return!s;const first=!!s&&(p[0]==='.'||p[0]===s[0]);if(p.length>=2&&p[1]==='*')return rmatch(s,p.slice(2))||(first&&rmatch(s.slice(1),p));return first&&rmatch(s.slice(1),p.slice(1));}; expect(rmatch('aa','a*')).toBe(true); expect(rmatch('ab','.*')).toBe(true); });
+  it('counts number of ways to express n as sum of consecutive', () => { const consecutive=(n:number)=>{let c=0;for(let i=2;i*(i-1)/2<n;i++)if((n-i*(i-1)/2)%i===0)c++;return c;}; expect(consecutive(15)).toBe(3); });
+  it('finds kth smallest in sorted matrix', () => { const kthSmallest=(matrix:number[][],k:number)=>[...matrix.flat()].sort((a,b)=>a-b)[k-1]; expect(kthSmallest([[1,5,9],[10,11,13],[12,13,15]],8)).toBe(13); });
+});

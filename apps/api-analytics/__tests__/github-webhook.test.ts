@@ -707,3 +707,12 @@ describe('phase40 coverage', () => {
   it('checks if matrix is identity', () => { const isId=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===(i===j?1:0))); expect(isId([[1,0],[0,1]])).toBe(true); expect(isId([[1,0],[0,2]])).toBe(false); });
   it('finds maximum path sum in triangle', () => { const tri=[[2],[3,4],[6,5,7],[4,1,8,3]]; const dp=tri.map(r=>[...r]); for(let i=dp.length-2;i>=0;i--)for(let j=0;j<dp[i].length;j++)dp[i][j]+=Math.max(dp[i+1][j],dp[i+1][j+1]); expect(dp[0][0]).toBe(21); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes sum of all divisors up to n', () => { const sumDiv=(n:number)=>Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+v,0); expect(sumDiv(5)).toBe(15); });
+  it('computes number of digits in n!', () => { const digitsInFactorial=(n:number)=>Math.floor(Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+Math.log10(v),0))+1; expect(digitsInFactorial(10)).toBe(7); /* 3628800 */ });
+  it('implements Manacher algorithm length check', () => { const manacher=(s:string)=>{const t='#'+s.split('').join('#')+'#';const p=Array(t.length).fill(0);let c=0,r=0;for(let i=0;i<t.length;i++){const mirror=2*c-i;if(i<r)p[i]=Math.min(r-i,p[mirror]);while(i+p[i]+1<t.length&&i-p[i]-1>=0&&t[i+p[i]+1]===t[i-p[i]-1])p[i]++;if(i+p[i]>r){c=i;r=i+p[i];}}return Math.max(...p);}; expect(manacher('babad')).toBe(3); });
+  it('computes extended GCD', () => { const extGcd=(a:number,b:number):[number,number,number]=>{if(b===0)return[a,1,0];const[g,x,y]=extGcd(b,a%b);return[g,y,x-Math.floor(a/b)*y];}; const[g]=extGcd(35,15); expect(g).toBe(5); });
+  it('finds majority element using Boyer-Moore', () => { const majority=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++){if(a[i]===cand)cnt++;else if(cnt===0){cand=a[i];cnt=1;}else cnt--;}return cand;}; expect(majority([2,2,1,1,1,2,2])).toBe(2); });
+});

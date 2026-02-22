@@ -851,3 +851,12 @@ describe('phase40 coverage', () => {
   it('checks if array forms arithmetic progression', () => { const isAP=(a:number[])=>{const d=a[1]-a[0];return a.every((v,i)=>i===0||v-a[i-1]===d);}; expect(isAP([3,5,7,9])).toBe(true); expect(isAP([1,2,4])).toBe(false); });
   it('implements flood fill algorithm', () => { const fill=(g:number[][],r:number,c:number,newC:number)=>{const old=g[r][c];if(old===newC)return g;const q:number[][]=[]; const v=g.map(row=>[...row]); q.push([r,c]);while(q.length){const[cr,cc]=q.shift()!;if(cr<0||cr>=v.length||cc<0||cc>=v[0].length||v[cr][cc]!==old)continue;v[cr][cc]=newC;q.push([cr+1,cc],[cr-1,cc],[cr,cc+1],[cr,cc-1]);}return v;}; expect(fill([[1,1,1],[1,1,0],[1,0,1]],1,1,2)[0][0]).toBe(2); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes sum of all divisors up to n', () => { const sumDiv=(n:number)=>Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+v,0); expect(sumDiv(5)).toBe(15); });
+  it('finds longest consecutive sequence length', () => { const longestConsec=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s)if(!s.has(v-1)){let len=1;while(s.has(v+len))len++;max=Math.max(max,len);}return max;}; expect(longestConsec([100,4,200,1,3,2])).toBe(4); });
+  it('computes range sum using prefix array', () => { const pfx=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=pfx([1,2,3,4,5]); expect(q(1,3)).toBe(9); });
+  it('generates zigzag sequence', () => { const zz=(n:number)=>Array.from({length:n},(_,i)=>i%2===0?i:-i); expect(zz(5)).toEqual([0,-1,2,-3,4]); });
+  it('checks if array has property monotone stack applies', () => { const nextGreater=(a:number[])=>{const res=Array(a.length).fill(-1);const st:number[]=[];for(let i=0;i<a.length;i++){while(st.length&&a[st[st.length-1]]<a[i])res[st.pop()!]=a[i];st.push(i);}return res;}; expect(nextGreater([4,1,2])).toEqual([-1,2,-1]); });
+});

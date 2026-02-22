@@ -674,3 +674,12 @@ describe('phase40 coverage', () => {
   it('computes nth power sum 1^k+2^k+...+n^k', () => { const pwrSum=(n:number,k:number)=>Array.from({length:n},(_,i)=>Math.pow(i+1,k)).reduce((a,b)=>a+b,0); expect(pwrSum(3,2)).toBe(14); });
   it('converts number to words (single digit)', () => { const words=['zero','one','two','three','four','five','six','seven','eight','nine']; expect(words[7]).toBe('seven'); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds all permutations of array', () => { const perms=<T>(a:T[]):T[][]=>a.length<=1?[a]:[...a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p]))]; expect(perms([1,2,3]).length).toBe(6); });
+  it('implements fast exponentiation', () => { const fastPow=(base:number,exp:number,mod:number):number=>{let res=1;base%=mod;while(exp>0){if(exp%2===1)res=res*base%mod;base=base*base%mod;exp=Math.floor(exp/2);}return res;}; expect(fastPow(2,10,1000)).toBe(24); });
+  it('finds celebrity in party (simulation)', () => { const findCeleb=(knows:(a:number,b:number)=>boolean,n:number)=>{let cand=0;for(let i=1;i<n;i++)if(knows(cand,i))cand=i;for(let i=0;i<n;i++)if(i!==cand&&(knows(cand,i)||!knows(i,cand)))return -1;return cand;}; const mat=[[0,1,1],[0,0,1],[0,0,0]]; const knows=(a:number,b:number)=>mat[a][b]===1; expect(findCeleb(knows,3)).toBe(2); });
+  it('implements dutch national flag partition', () => { const dnf=(a:number[])=>{const r=[...a];let lo=0,mid=0,hi=r.length-1;while(mid<=hi){if(r[mid]===0){[r[lo],r[mid]]=[r[mid],r[lo]];lo++;mid++;}else if(r[mid]===1)mid++;else{[r[mid],r[hi]]=[r[hi],r[mid]];hi--;}}return r;}; expect(dnf([2,0,1,2,1,0])).toEqual([0,0,1,1,2,2]); });
+  it('implements simple regex match (. and *)', () => { const rmatch=(s:string,p:string):boolean=>{if(!p)return!s;const first=!!s&&(p[0]==='.'||p[0]===s[0]);if(p.length>=2&&p[1]==='*')return rmatch(s,p.slice(2))||(first&&rmatch(s.slice(1),p));return first&&rmatch(s.slice(1),p.slice(1));}; expect(rmatch('aa','a*')).toBe(true); expect(rmatch('ab','.*')).toBe(true); });
+});

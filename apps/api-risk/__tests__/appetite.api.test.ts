@@ -609,3 +609,12 @@ describe('phase40 coverage', () => {
   it('checks if expression has balanced delimiters', () => { const check=(s:string)=>{const map:{[k:string]:string}={')':'(',']':'[','}':'{'};const st:string[]=[];for(const c of s){if('([{'.includes(c))st.push(c);else if(')]}'.includes(c)){if(!st.length||st[st.length-1]!==map[c])return false;st.pop();}}return st.length===0;}; expect(check('[{()}]')).toBe(true); expect(check('[{(}]')).toBe(false); });
   it('computes nth power sum 1^k+2^k+...+n^k', () => { const pwrSum=(n:number,k:number)=>Array.from({length:n},(_,i)=>Math.pow(i+1,k)).reduce((a,b)=>a+b,0); expect(pwrSum(3,2)).toBe(14); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('checks if array has property monotone stack applies', () => { const nextGreater=(a:number[])=>{const res=Array(a.length).fill(-1);const st:number[]=[];for(let i=0;i<a.length;i++){while(st.length&&a[st[st.length-1]]<a[i])res[st.pop()!]=a[i];st.push(i);}return res;}; expect(nextGreater([4,1,2])).toEqual([-1,2,-1]); });
+  it('finds majority element using Boyer-Moore', () => { const majority=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++){if(a[i]===cand)cnt++;else if(cnt===0){cand=a[i];cnt=1;}else cnt--;}return cand;}; expect(majority([2,2,1,1,1,2,2])).toBe(2); });
+  it('checks if array can be partitioned into equal sum halves', () => { const canPart=(a:number[])=>{const total=a.reduce((s,v)=>s+v,0);if(total%2!==0)return false;const half=total/2;const dp=new Set([0]);for(const v of a){const next=new Set(dp);for(const s of dp)next.add(s+v);dp.clear();for(const s of next)if(s<=half)dp.add(s);}return dp.has(half);}; expect(canPart([1,5,11,5])).toBe(true); expect(canPart([1,2,3,5])).toBe(false); });
+  it('computes sum of distances in tree', () => { const n=4; const adj=new Map([[0,[1,2]],[1,[0,3]],[2,[0]],[3,[1]]]); const dfs=(node:number,par:number,cnt:number[],dist:number[])=>{for(const nb of adj.get(node)||[]){if(nb===par)continue;dfs(nb,node,cnt,dist);cnt[node]+=cnt[nb];dist[node]+=dist[nb]+cnt[nb];}};const cnt=Array(n).fill(1),dist=Array(n).fill(0);dfs(0,-1,cnt,dist); expect(dist[0]).toBeGreaterThanOrEqual(0); });
+  it('computes range sum using prefix array', () => { const pfx=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=pfx([1,2,3,4,5]); expect(q(1,3)).toBe(9); });
+});

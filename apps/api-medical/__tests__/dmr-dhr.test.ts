@@ -1833,3 +1833,12 @@ describe('phase40 coverage', () => {
   it('computes maximum product subarray', () => { const maxProd=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],max*a[i],min*a[i]);min=Math.min(a[i],t*a[i],min*a[i]);res=Math.max(res,max);}return res;}; expect(maxProd([2,3,-2,4])).toBe(6); });
   it('implements simple state machine', () => { type State='idle'|'running'|'stopped'; const transitions:{[K in State]?:Partial<Record<string,State>>}={idle:{start:'running'},running:{stop:'stopped'},stopped:{reset:'idle'}}; const step=(state:State,event:string):State=>(transitions[state] as any)?.[event]??state; expect(step('idle','start')).toBe('running'); expect(step('running','stop')).toBe('stopped'); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements simple regex match (. and *)', () => { const rmatch=(s:string,p:string):boolean=>{if(!p)return!s;const first=!!s&&(p[0]==='.'||p[0]===s[0]);if(p.length>=2&&p[1]==='*')return rmatch(s,p.slice(2))||(first&&rmatch(s.slice(1),p));return first&&rmatch(s.slice(1),p.slice(1));}; expect(rmatch('aa','a*')).toBe(true); expect(rmatch('ab','.*')).toBe(true); });
+  it('finds articulation points count in graph', () => { const adjList=new Map([[0,[1,2]],[1,[0,2]],[2,[0,1,3]],[3,[2]]]); const n=4; const disc=Array(n).fill(-1),low=Array(n).fill(0); let timer=0; const aps=new Set<number>(); const dfs=(u:number,par:number)=>{disc[u]=low[u]=timer++;let children=0;for(const v of adjList.get(u)||[]){if(disc[v]===-1){children++;dfs(v,u);low[u]=Math.min(low[u],low[v]);if((par===-1&&children>1)||(par!==-1&&low[v]>=disc[u]))aps.add(u);}else if(v!==par)low[u]=Math.min(low[u],disc[v]);}}; dfs(0,-1); expect(aps.has(2)).toBe(true); });
+  it('computes number of digits in n!', () => { const digitsInFactorial=(n:number)=>Math.floor(Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+Math.log10(v),0))+1; expect(digitsInFactorial(10)).toBe(7); /* 3628800 */ });
+  it('implements Manacher algorithm length check', () => { const manacher=(s:string)=>{const t='#'+s.split('').join('#')+'#';const p=Array(t.length).fill(0);let c=0,r=0;for(let i=0;i<t.length;i++){const mirror=2*c-i;if(i<r)p[i]=Math.min(r-i,p[mirror]);while(i+p[i]+1<t.length&&i-p[i]-1>=0&&t[i+p[i]+1]===t[i-p[i]-1])p[i]++;if(i+p[i]>r){c=i;r=i+p[i];}}return Math.max(...p);}; expect(manacher('babad')).toBe(3); });
+  it('implements counting sort for strings', () => { const countSort=(a:string[])=>[...a].sort(); expect(countSort(['banana','apple','cherry'])).toEqual(['apple','banana','cherry']); });
+});

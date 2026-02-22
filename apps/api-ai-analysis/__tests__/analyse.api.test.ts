@@ -1346,3 +1346,12 @@ describe('phase40 coverage', () => {
   it('checks if queens are non-attacking', () => { const safe=(cols:number[])=>{for(let i=0;i<cols.length;i++)for(let j=i+1;j<cols.length;j++)if(cols[i]===cols[j]||Math.abs(cols[i]-cols[j])===j-i)return false;return true;}; expect(safe([0,2,4,1,3])).toBe(true); expect(safe([0,1,2,3])).toBe(false); });
   it('computes number of set bits sum for range', () => { const rangePopcount=(n:number)=>Array.from({length:n+1},(_,i)=>i).reduce((s,v)=>{let c=0,x=v;while(x){c+=x&1;x>>>=1;}return s+c;},0); expect(rangePopcount(5)).toBe(7); /* 0+1+1+2+1+2 */ });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds longest subarray with equal 0s and 1s', () => { const longestEqual=(a:number[])=>{const map=new Map([[0,-1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(map.has(sum))max=Math.max(max,i-map.get(sum)!);else map.set(sum,i);}return max;}; expect(longestEqual([0,1,0])).toBe(2); });
+  it('computes minimum number of platforms needed', () => { const platforms=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){if(arr[i]<=dep[j]){plat++;i++;}else{plat--;j++;}max=Math.max(max,plat);}return max;}; expect(platforms([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+  it('finds Euler totient for small n', () => { const phi=(n:number)=>{let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}; expect(phi(9)).toBe(6); expect(phi(7)).toBe(6); });
+  it('checks if string is a valid hex color', () => { const isHex=(s:string)=>/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(s); expect(isHex('#fff')).toBe(true); expect(isHex('#aabbcc')).toBe(true); expect(isHex('#xyz')).toBe(false); });
+  it('checks if array is mountain', () => { const isMtn=(a:number[])=>{let i=0;while(i<a.length-1&&a[i]<a[i+1])i++;if(i===0||i===a.length-1)return false;while(i<a.length-1&&a[i]>a[i+1])i++;return i===a.length-1;}; expect(isMtn([0,2,3,4,2,1])).toBe(true); expect(isMtn([1,2,3])).toBe(false); });
+});

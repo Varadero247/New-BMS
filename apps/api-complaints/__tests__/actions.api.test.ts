@@ -590,3 +590,12 @@ describe('phase40 coverage', () => {
   it('finds next permutation', () => { const nextPerm=(a:number[])=>{const r=[...a];let i=r.length-2;while(i>=0&&r[i]>=r[i+1])i--;if(i>=0){let j=r.length-1;while(r[j]<=r[i])j--;[r[i],r[j]]=[r[j],r[i]];}let l=i+1,rt=r.length-1;while(l<rt){[r[l],r[rt]]=[r[rt],r[l]];l++;rt--;}return r;}; expect(nextPerm([1,2,3])).toEqual([1,3,2]); });
   it('computes sum of geometric series', () => { const geoSum=(a:number,r:number,n:number)=>r===1?a*n:a*(1-Math.pow(r,n))/(1-r); expect(geoSum(1,2,4)).toBe(15); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds celebrity in party (simulation)', () => { const findCeleb=(knows:(a:number,b:number)=>boolean,n:number)=>{let cand=0;for(let i=1;i<n;i++)if(knows(cand,i))cand=i;for(let i=0;i<n;i++)if(i!==cand&&(knows(cand,i)||!knows(i,cand)))return -1;return cand;}; const mat=[[0,1,1],[0,0,1],[0,0,0]]; const knows=(a:number,b:number)=>mat[a][b]===1; expect(findCeleb(knows,3)).toBe(2); });
+  it('counts ways to decode string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const dp=Array(s.length+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=s.length;i++){if(s[i-1]!=='0')dp[i]+=dp[i-1];const two=Number(s.slice(i-2,i));if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[s.length];}; expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('implements dutch national flag partition', () => { const dnf=(a:number[])=>{const r=[...a];let lo=0,mid=0,hi=r.length-1;while(mid<=hi){if(r[mid]===0){[r[lo],r[mid]]=[r[mid],r[lo]];lo++;mid++;}else if(r[mid]===1)mid++;else{[r[mid],r[hi]]=[r[hi],r[mid]];hi--;}}return r;}; expect(dnf([2,0,1,2,1,0])).toEqual([0,0,1,1,2,2]); });
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+  it('checks if number is a Fibonacci number', () => { const isPerfSq=(n:number)=>Math.sqrt(n)===Math.floor(Math.sqrt(n)); const isFib=(n:number)=>isPerfSq(5*n*n+4)||isPerfSq(5*n*n-4); expect(isFib(8)).toBe(true); expect(isFib(9)).toBe(false); });
+});

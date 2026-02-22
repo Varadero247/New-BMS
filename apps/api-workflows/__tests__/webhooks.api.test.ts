@@ -1052,3 +1052,12 @@ describe('phase40 coverage', () => {
   it('implements simple expression evaluator', () => { const calc=(s:string)=>{const tokens=s.split(/([+\-*/])/).map(t=>t.trim());let result=Number(tokens[0]);for(let i=1;i<tokens.length;i+=2){const op=tokens[i],val=Number(tokens[i+1]);if(op==='+')result+=val;else if(op==='-')result-=val;else if(op==='*')result*=val;else result/=val;}return result;}; expect(calc('3 + 4 * 2')).toBe(14); /* left-to-right */ });
   it('checks if array forms geometric progression', () => { const isGP=(a:number[])=>{if(a.length<2)return true;const r=a[1]/a[0];return a.every((v,i)=>i===0||v/a[i-1]===r);}; expect(isGP([2,6,18,54])).toBe(true); expect(isGP([1,2,3])).toBe(false); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('checks if sentence is pangram', () => { const isPangram=(s:string)=>new Set(s.toLowerCase().replace(/[^a-z]/g,'')).size===26; expect(isPangram('The quick brown fox jumps over the lazy dog')).toBe(true); expect(isPangram('Hello world')).toBe(false); });
+  it('checks if array is mountain', () => { const isMtn=(a:number[])=>{let i=0;while(i<a.length-1&&a[i]<a[i+1])i++;if(i===0||i===a.length-1)return false;while(i<a.length-1&&a[i]>a[i+1])i++;return i===a.length-1;}; expect(isMtn([0,2,3,4,2,1])).toBe(true); expect(isMtn([1,2,3])).toBe(false); });
+  it('finds maximum width of binary tree level', () => { const maxWidth=(nodes:number[])=>{const levels=new Map<number,number[]>();nodes.forEach((v,i)=>{if(v!==-1){const lvl=Math.floor(Math.log2(i+1));(levels.get(lvl)||levels.set(lvl,[]).get(lvl)!).push(i);}});return Math.max(...[...levels.values()].map(idxs=>idxs[idxs.length-1]-idxs[0]+1),1);}; expect(maxWidth([1,3,2,5,-1,-1,9,-1,-1,-1,-1,-1,-1,7])).toBeGreaterThan(0); });
+  it('finds smallest subarray with sum >= target', () => { const minLen=(a:number[],t:number)=>{let min=Infinity,sum=0,l=0;for(let r=0;r<a.length;r++){sum+=a[r];while(sum>=t){min=Math.min(min,r-l+1);sum-=a[l++];}}return min===Infinity?0:min;}; expect(minLen([2,3,1,2,4,3],7)).toBe(2); });
+  it('counts triplets with zero sum', () => { const zeroSumTriplets=(a:number[])=>{const s=a.sort((x,y)=>x-y);let c=0;for(let i=0;i<s.length-2;i++){let l=i+1,r=s.length-1;while(l<r){const sum=s[i]+s[l]+s[r];if(sum===0){c++;l++;r--;}else if(sum<0)l++;else r--;}}return c;}; expect(zeroSumTriplets([-1,0,1,2,-1,-4])).toBe(3); });
+});

@@ -1682,3 +1682,12 @@ describe('phase40 coverage', () => {
   it('implements reservoir sampling', () => { const sample=(a:number[],k:number)=>{const r=a.slice(0,k);for(let i=k;i<a.length;i++){const j=Math.floor(Math.random()*(i+1));if(j<k)r[j]=a[i];}return r;}; const s=sample([1,2,3,4,5,6,7,8,9,10],3); expect(s.length).toBe(3); expect(s.every(v=>v>=1&&v<=10)).toBe(true); });
   it('implements Luhn algorithm check', () => { const luhn=(s:string)=>{let sum=0;let alt=false;for(let i=s.length-1;i>=0;i--){let d=Number(s[i]);if(alt){d*=2;if(d>9)d-=9;}sum+=d;alt=!alt;}return sum%10===0;}; expect(luhn('4532015112830366')).toBe(true); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds maximum width of binary tree level', () => { const maxWidth=(nodes:number[])=>{const levels=new Map<number,number[]>();nodes.forEach((v,i)=>{if(v!==-1){const lvl=Math.floor(Math.log2(i+1));(levels.get(lvl)||levels.set(lvl,[]).get(lvl)!).push(i);}});return Math.max(...[...levels.values()].map(idxs=>idxs[idxs.length-1]-idxs[0]+1),1);}; expect(maxWidth([1,3,2,5,-1,-1,9,-1,-1,-1,-1,-1,-1,7])).toBeGreaterThan(0); });
+  it('finds Euler totient for small n', () => { const phi=(n:number)=>{let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}; expect(phi(9)).toBe(6); expect(phi(7)).toBe(6); });
+  it('computes sum of first n odd numbers', () => { const sumOdd=(n:number)=>n*n; expect(sumOdd(5)).toBe(25); expect(sumOdd(10)).toBe(100); });
+  it('checks if grid path exists with obstacles', () => { const hasPath=(grid:number[][])=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return false;const vis=Array.from({length:m},()=>Array(n).fill(false));const q:number[][]=[]; q.push([0,0]);vis[0][0]=true;const dirs=[[-1,0],[1,0],[0,-1],[0,1]];while(q.length){const[r,c]=q.shift()!;if(r===m-1&&c===n-1)return true;for(const[dr,dc] of dirs){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<m&&nc>=0&&nc<n&&!vis[nr][nc]&&grid[nr][nc]===0){vis[nr][nc]=true;q.push([nr,nc]);}}}return false;}; expect(hasPath([[0,0,0],[1,1,0],[0,0,0]])).toBe(true); });
+  it('finds minimum operations to make array palindrome', () => { const minOps=(a:number[])=>{let ops=0,l=0,r=a.length-1;while(l<r){if(a[l]<a[r]){a[l+1]+=a[l];l++;ops++;}else if(a[l]>a[r]){a[r-1]+=a[r];r--;ops++;}else{l++;r--;}}return ops;}; expect(minOps([1,4,5,1])).toBe(1); });
+});

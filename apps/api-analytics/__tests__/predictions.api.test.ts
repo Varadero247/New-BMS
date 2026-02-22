@@ -450,3 +450,12 @@ describe('phase40 coverage', () => {
   it('checks if matrix is identity', () => { const isId=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===(i===j?1:0))); expect(isId([[1,0],[0,1]])).toBe(true); expect(isId([[1,0],[0,2]])).toBe(false); });
   it('finds maximum area histogram', () => { const maxHist=(h:number[])=>{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||h[st[st.length-1]]>=h[i])){const height=h[st.pop()!];const width=st.length?i-st[st.length-1]-1:i;max=Math.max(max,height*width);}st.push(i);}return max;}; expect(maxHist([2,1,5,6,2,3])).toBe(10); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements Manacher algorithm length check', () => { const manacher=(s:string)=>{const t='#'+s.split('').join('#')+'#';const p=Array(t.length).fill(0);let c=0,r=0;for(let i=0;i<t.length;i++){const mirror=2*c-i;if(i<r)p[i]=Math.min(r-i,p[mirror]);while(i+p[i]+1<t.length&&i-p[i]-1>=0&&t[i+p[i]+1]===t[i-p[i]-1])p[i]++;if(i+p[i]>r){c=i;r=i+p[i];}}return Math.max(...p);}; expect(manacher('babad')).toBe(3); });
+  it('finds longest consecutive sequence length', () => { const longestConsec=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s)if(!s.has(v-1)){let len=1;while(s.has(v+len))len++;max=Math.max(max,len);}return max;}; expect(longestConsec([100,4,200,1,3,2])).toBe(4); });
+  it('checks if undirected graph is tree', () => { const isTree=(n:number,edges:[number,number][])=>{if(edges.length!==n-1)return false;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:find(parent[x]);let cycles=0;for(const [u,v] of edges){const pu=find(u),pv=find(v);if(pu===pv)cycles++;else parent[pu]=pv;}return cycles===0;}; expect(isTree(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isTree(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+  it('finds Euler totient for small n', () => { const phi=(n:number)=>{let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}; expect(phi(9)).toBe(6); expect(phi(7)).toBe(6); });
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+});

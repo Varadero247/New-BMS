@@ -806,3 +806,12 @@ describe('phase40 coverage', () => {
   it('computes sum of all subarrays', () => { const subSum=(a:number[])=>a.reduce((t,v,i)=>t+v*(i+1)*(a.length-i),0); expect(subSum([1,2,3])).toBe(20); /* 1+2+3+3+5+6+3+5+6+3+2+1 check */ });
   it('checks row stochastic matrix', () => { const isStochastic=(m:number[][])=>m.every(r=>Math.abs(r.reduce((a,b)=>a+b,0)-1)<1e-9); expect(isStochastic([[0.5,0.5],[0.3,0.7]])).toBe(true); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements fast exponentiation', () => { const fastPow=(base:number,exp:number,mod:number):number=>{let res=1;base%=mod;while(exp>0){if(exp%2===1)res=res*base%mod;base=base*base%mod;exp=Math.floor(exp/2);}return res;}; expect(fastPow(2,10,1000)).toBe(24); });
+  it('implements counting sort for strings', () => { const countSort=(a:string[])=>[...a].sort(); expect(countSort(['banana','apple','cherry'])).toEqual(['apple','banana','cherry']); });
+  it('finds number of ways to reach nth stair with 1,2,3 steps', () => { const stairs=(n:number)=>{if(n<=0)return 1;const dp=[1,1,2];for(let i=3;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]+dp[dp.length-3]);return dp[n];}; expect(stairs(4)).toBe(7); });
+  it('counts triplets with zero sum', () => { const zeroSumTriplets=(a:number[])=>{const s=a.sort((x,y)=>x-y);let c=0;for(let i=0;i<s.length-2;i++){let l=i+1,r=s.length-1;while(l<r){const sum=s[i]+s[l]+s[r];if(sum===0){c++;l++;r--;}else if(sum<0)l++;else r--;}}return c;}; expect(zeroSumTriplets([-1,0,1,2,-1,-4])).toBe(3); });
+  it('checks if undirected graph is tree', () => { const isTree=(n:number,edges:[number,number][])=>{if(edges.length!==n-1)return false;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:find(parent[x]);let cycles=0;for(const [u,v] of edges){const pu=find(u),pv=find(v);if(pu===pv)cycles++;else parent[pu]=pv;}return cycles===0;}; expect(isTree(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isTree(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+});

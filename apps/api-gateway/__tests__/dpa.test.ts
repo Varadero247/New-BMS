@@ -686,3 +686,12 @@ describe('phase40 coverage', () => {
   it('computes number of set bits sum for range', () => { const rangePopcount=(n:number)=>Array.from({length:n+1},(_,i)=>i).reduce((s,v)=>{let c=0,x=v;while(x){c+=x&1;x>>>=1;}return s+c;},0); expect(rangePopcount(5)).toBe(7); /* 0+1+1+2+1+2 */ });
   it('checks row stochastic matrix', () => { const isStochastic=(m:number[][])=>m.every(r=>Math.abs(r.reduce((a,b)=>a+b,0)-1)<1e-9); expect(isStochastic([[0.5,0.5],[0.3,0.7]])).toBe(true); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('checks if array can be partitioned into equal sum halves', () => { const canPart=(a:number[])=>{const total=a.reduce((s,v)=>s+v,0);if(total%2!==0)return false;const half=total/2;const dp=new Set([0]);for(const v of a){const next=new Set(dp);for(const s of dp)next.add(s+v);dp.clear();for(const s of next)if(s<=half)dp.add(s);}return dp.has(half);}; expect(canPart([1,5,11,5])).toBe(true); expect(canPart([1,2,3,5])).toBe(false); });
+  it('implements sparse set membership', () => { const set=new Set<number>([1,3,5,7,9]); const query=(v:number)=>set.has(v); expect(query(5)).toBe(true); expect(query(4)).toBe(false); });
+  it('finds longest subarray with equal 0s and 1s', () => { const longestEqual=(a:number[])=>{const map=new Map([[0,-1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(map.has(sum))max=Math.max(max,i-map.get(sum)!);else map.set(sum,i);}return max;}; expect(longestEqual([0,1,0])).toBe(2); });
+  it('finds all permutations of array', () => { const perms=<T>(a:T[]):T[][]=>a.length<=1?[a]:[...a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p]))]; expect(perms([1,2,3]).length).toBe(6); });
+  it('generates zigzag sequence', () => { const zz=(n:number)=>Array.from({length:n},(_,i)=>i%2===0?i:-i); expect(zz(5)).toEqual([0,-1,2,-3,4]); });
+});

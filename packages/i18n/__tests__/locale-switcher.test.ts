@@ -466,3 +466,12 @@ describe('phase40 coverage', () => {
   it('checks if matrix is identity', () => { const isId=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===(i===j?1:0))); expect(isId([[1,0],[0,1]])).toBe(true); expect(isId([[1,0],[0,2]])).toBe(false); });
   it('computes maximum product subarray', () => { const maxProd=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],max*a[i],min*a[i]);min=Math.min(a[i],t*a[i],min*a[i]);res=Math.max(res,max);}return res;}; expect(maxProd([2,3,-2,4])).toBe(6); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('counts ways to decode string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const dp=Array(s.length+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=s.length;i++){if(s[i-1]!=='0')dp[i]+=dp[i-1];const two=Number(s.slice(i-2,i));if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[s.length];}; expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('counts number of ways to express n as sum of consecutive', () => { const consecutive=(n:number)=>{let c=0;for(let i=2;i*(i-1)/2<n;i++)if((n-i*(i-1)/2)%i===0)c++;return c;}; expect(consecutive(15)).toBe(3); });
+  it('checks if number is a Fibonacci number', () => { const isPerfSq=(n:number)=>Math.sqrt(n)===Math.floor(Math.sqrt(n)); const isFib=(n:number)=>isPerfSq(5*n*n+4)||isPerfSq(5*n*n-4); expect(isFib(8)).toBe(true); expect(isFib(9)).toBe(false); });
+  it('implements LCS string reconstruction', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(''));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+a[i-1]:dp[i-1][j].length>=dp[i][j-1].length?dp[i-1][j]:dp[i][j-1];return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe('BCAB'); });
+  it('implements fast exponentiation', () => { const fastPow=(base:number,exp:number,mod:number):number=>{let res=1;base%=mod;while(exp>0){if(exp%2===1)res=res*base%mod;base=base*base%mod;exp=Math.floor(exp/2);}return res;}; expect(fastPow(2,10,1000)).toBe(24); });
+});

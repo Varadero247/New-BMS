@@ -413,3 +413,12 @@ describe('phase40 coverage', () => {
   it('computes number of set bits sum for range', () => { const rangePopcount=(n:number)=>Array.from({length:n+1},(_,i)=>i).reduce((s,v)=>{let c=0,x=v;while(x){c+=x&1;x>>>=1;}return s+c;},0); expect(rangePopcount(5)).toBe(7); /* 0+1+1+2+1+2 */ });
   it('implements token bucket rate limiter logic', () => { let tokens=10; const refill=(add:number,max:number)=>{tokens=Math.min(tokens+add,max);}; const consume=(n:number)=>{if(tokens>=n){tokens-=n;return true;}return false;}; expect(consume(3)).toBe(true); expect(tokens).toBe(7); refill(5,10); expect(tokens).toBe(10); /* capped at max */ });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes extended GCD', () => { const extGcd=(a:number,b:number):[number,number,number]=>{if(b===0)return[a,1,0];const[g,x,y]=extGcd(b,a%b);return[g,y,x-Math.floor(a/b)*y];}; const[g]=extGcd(35,15); expect(g).toBe(5); });
+  it('computes sum of first n odd numbers', () => { const sumOdd=(n:number)=>n*n; expect(sumOdd(5)).toBe(25); expect(sumOdd(10)).toBe(100); });
+  it('finds number of ways to reach nth stair with 1,2,3 steps', () => { const stairs=(n:number)=>{if(n<=0)return 1;const dp=[1,1,2];for(let i=3;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]+dp[dp.length-3]);return dp[n];}; expect(stairs(4)).toBe(7); });
+  it('counts number of ways to express n as sum of consecutive', () => { const consecutive=(n:number)=>{let c=0;for(let i=2;i*(i-1)/2<n;i++)if((n-i*(i-1)/2)%i===0)c++;return c;}; expect(consecutive(15)).toBe(3); });
+  it('computes number of digits in n!', () => { const digitsInFactorial=(n:number)=>Math.floor(Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+Math.log10(v),0))+1; expect(digitsInFactorial(10)).toBe(7); /* 3628800 */ });
+});

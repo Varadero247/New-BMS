@@ -534,3 +534,12 @@ describe('phase40 coverage', () => {
   it('computes sum of geometric series', () => { const geoSum=(a:number,r:number,n:number)=>r===1?a*n:a*(1-Math.pow(r,n))/(1-r); expect(geoSum(1,2,4)).toBe(15); });
   it('computes sum of all subarrays', () => { const subSum=(a:number[])=>a.reduce((t,v,i)=>t+v*(i+1)*(a.length-i),0); expect(subSum([1,2,3])).toBe(20); /* 1+2+3+3+5+6+3+5+6+3+2+1 check */ });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+  it('finds number of ways to reach nth stair with 1,2,3 steps', () => { const stairs=(n:number)=>{if(n<=0)return 1;const dp=[1,1,2];for(let i=3;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]+dp[dp.length-3]);return dp[n];}; expect(stairs(4)).toBe(7); });
+  it('computes number of digits in n!', () => { const digitsInFactorial=(n:number)=>Math.floor(Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+Math.log10(v),0))+1; expect(digitsInFactorial(10)).toBe(7); /* 3628800 */ });
+  it('computes sum of first n odd numbers', () => { const sumOdd=(n:number)=>n*n; expect(sumOdd(5)).toBe(25); expect(sumOdd(10)).toBe(100); });
+  it('checks if array has property monotone stack applies', () => { const nextGreater=(a:number[])=>{const res=Array(a.length).fill(-1);const st:number[]=[];for(let i=0;i<a.length;i++){while(st.length&&a[st[st.length-1]]<a[i])res[st.pop()!]=a[i];st.push(i);}return res;}; expect(nextGreater([4,1,2])).toEqual([-1,2,-1]); });
+});

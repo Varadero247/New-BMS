@@ -711,3 +711,12 @@ describe('phase40 coverage', () => {
   it('computes element-wise matrix addition', () => { const addM=(a:number[][],b:number[][])=>a.map((r,i)=>r.map((v,j)=>v+b[i][j])); expect(addM([[1,2],[3,4]],[[5,6],[7,8]])).toEqual([[6,8],[10,12]]); });
   it('computes sum of all subarrays', () => { const subSum=(a:number[])=>a.reduce((t,v,i)=>t+v*(i+1)*(a.length-i),0); expect(subSum([1,2,3])).toBe(20); /* 1+2+3+3+5+6+3+5+6+3+2+1 check */ });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+  it('checks if string can form palindrome permutation', () => { const canFormPalin=(s:string)=>{const odd=[...s].reduce((cnt,c)=>{cnt.set(c,(cnt.get(c)||0)+1);return cnt;},new Map<string,number>());return[...odd.values()].filter(v=>v%2!==0).length<=1;}; expect(canFormPalin('carrace')).toBe(true); expect(canFormPalin('code')).toBe(false); });
+  it('implements Prim MST weight for small graph', () => { const prim=(n:number,edges:[number,number,number][])=>{const adj=new Map<number,[number,number][]>();for(let i=0;i<n;i++)adj.set(i,[]);for(const [u,v,w] of edges){adj.get(u)!.push([v,w]);adj.get(v)!.push([u,w]);}const vis=new Set([0]);let total=0;while(vis.size<n){let minW=Infinity,minV=-1;for(const u of vis)for(const [v,w] of adj.get(u)||[])if(!vis.has(v)&&w<minW){minW=w;minV=v;}if(minV===-1)break;vis.add(minV);total+=minW;}return total;}; expect(prim(4,[[0,1,1],[1,2,2],[2,3,3],[0,3,10]])).toBe(6); });
+  it('finds minimum operations to make array palindrome', () => { const minOps=(a:number[])=>{let ops=0,l=0,r=a.length-1;while(l<r){if(a[l]<a[r]){a[l+1]+=a[l];l++;ops++;}else if(a[l]>a[r]){a[r-1]+=a[r];r--;ops++;}else{l++;r--;}}return ops;}; expect(minOps([1,4,5,1])).toBe(1); });
+  it('counts triplets with zero sum', () => { const zeroSumTriplets=(a:number[])=>{const s=a.sort((x,y)=>x-y);let c=0;for(let i=0;i<s.length-2;i++){let l=i+1,r=s.length-1;while(l<r){const sum=s[i]+s[l]+s[r];if(sum===0){c++;l++;r--;}else if(sum<0)l++;else r--;}}return c;}; expect(zeroSumTriplets([-1,0,1,2,-1,-4])).toBe(3); });
+});

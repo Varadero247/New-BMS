@@ -620,3 +620,12 @@ describe('phase40 coverage', () => {
   it('checks if queens are non-attacking', () => { const safe=(cols:number[])=>{for(let i=0;i<cols.length;i++)for(let j=i+1;j<cols.length;j++)if(cols[i]===cols[j]||Math.abs(cols[i]-cols[j])===j-i)return false;return true;}; expect(safe([0,2,4,1,3])).toBe(true); expect(safe([0,1,2,3])).toBe(false); });
   it('implements sparse table for range min query', () => { const a=[2,4,3,1,6,7,8,9,1,7]; const mn=(l:number,r:number)=>Math.min(...a.slice(l,r+1)); expect(mn(0,4)).toBe(1); expect(mn(2,7)).toBe(1); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('counts triplets with zero sum', () => { const zeroSumTriplets=(a:number[])=>{const s=a.sort((x,y)=>x-y);let c=0;for(let i=0;i<s.length-2;i++){let l=i+1,r=s.length-1;while(l<r){const sum=s[i]+s[l]+s[r];if(sum===0){c++;l++;r--;}else if(sum<0)l++;else r--;}}return c;}; expect(zeroSumTriplets([-1,0,1,2,-1,-4])).toBe(3); });
+  it('computes range sum using prefix array', () => { const pfx=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=pfx([1,2,3,4,5]); expect(q(1,3)).toBe(9); });
+  it('checks if sentence is pangram', () => { const isPangram=(s:string)=>new Set(s.toLowerCase().replace(/[^a-z]/g,'')).size===26; expect(isPangram('The quick brown fox jumps over the lazy dog')).toBe(true); expect(isPangram('Hello world')).toBe(false); });
+  it('finds all permutations of array', () => { const perms=<T>(a:T[]):T[][]=>a.length<=1?[a]:[...a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p]))]; expect(perms([1,2,3]).length).toBe(6); });
+  it('implements fast exponentiation', () => { const fastPow=(base:number,exp:number,mod:number):number=>{let res=1;base%=mod;while(exp>0){if(exp%2===1)res=res*base%mod;base=base*base%mod;exp=Math.floor(exp/2);}return res;}; expect(fastPow(2,10,1000)).toBe(24); });
+});

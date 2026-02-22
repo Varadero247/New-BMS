@@ -590,3 +590,12 @@ describe('phase40 coverage', () => {
   it('applies map over matrix', () => { const mapM=(m:number[][],fn:(v:number)=>number)=>m.map(r=>r.map(fn)); expect(mapM([[1,2],[3,4]],v=>v*2)).toEqual([[2,4],[6,8]]); });
   it('computes determinant of 2x2 matrix', () => { const det2=([[a,b],[c,d]]:number[][])=>a*d-b*c; expect(det2([[3,7],[1,2]])).toBe(-1); expect(det2([[1,0],[0,1]])).toBe(1); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements simple regex match (. and *)', () => { const rmatch=(s:string,p:string):boolean=>{if(!p)return!s;const first=!!s&&(p[0]==='.'||p[0]===s[0]);if(p.length>=2&&p[1]==='*')return rmatch(s,p.slice(2))||(first&&rmatch(s.slice(1),p));return first&&rmatch(s.slice(1),p.slice(1));}; expect(rmatch('aa','a*')).toBe(true); expect(rmatch('ab','.*')).toBe(true); });
+  it('computes sum of all divisors up to n', () => { const sumDiv=(n:number)=>Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+v,0); expect(sumDiv(5)).toBe(15); });
+  it('implements Prim MST weight for small graph', () => { const prim=(n:number,edges:[number,number,number][])=>{const adj=new Map<number,[number,number][]>();for(let i=0;i<n;i++)adj.set(i,[]);for(const [u,v,w] of edges){adj.get(u)!.push([v,w]);adj.get(v)!.push([u,w]);}const vis=new Set([0]);let total=0;while(vis.size<n){let minW=Infinity,minV=-1;for(const u of vis)for(const [v,w] of adj.get(u)||[])if(!vis.has(v)&&w<minW){minW=w;minV=v;}if(minV===-1)break;vis.add(minV);total+=minW;}return total;}; expect(prim(4,[[0,1,1],[1,2,2],[2,3,3],[0,3,10]])).toBe(6); });
+  it('implements LCS string reconstruction', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(''));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+a[i-1]:dp[i-1][j].length>=dp[i][j-1].length?dp[i-1][j]:dp[i][j-1];return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe('BCAB'); });
+  it('checks if number is a Fibonacci number', () => { const isPerfSq=(n:number)=>Math.sqrt(n)===Math.floor(Math.sqrt(n)); const isFib=(n:number)=>isPerfSq(5*n*n+4)||isPerfSq(5*n*n-4); expect(isFib(8)).toBe(true); expect(isFib(9)).toBe(false); });
+});

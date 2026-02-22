@@ -632,3 +632,12 @@ describe('phase40 coverage', () => {
   it('checks if queens are non-attacking', () => { const safe=(cols:number[])=>{for(let i=0;i<cols.length;i++)for(let j=i+1;j<cols.length;j++)if(cols[i]===cols[j]||Math.abs(cols[i]-cols[j])===j-i)return false;return true;}; expect(safe([0,2,4,1,3])).toBe(true); expect(safe([0,1,2,3])).toBe(false); });
   it('computes element-wise matrix addition', () => { const addM=(a:number[][],b:number[][])=>a.map((r,i)=>r.map((v,j)=>v+b[i][j])); expect(addM([[1,2],[3,4]],[[5,6],[7,8]])).toEqual([[6,8],[10,12]]); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds kth smallest in sorted matrix', () => { const kthSmallest=(matrix:number[][],k:number)=>[...matrix.flat()].sort((a,b)=>a-b)[k-1]; expect(kthSmallest([[1,5,9],[10,11,13],[12,13,15]],8)).toBe(13); });
+  it('computes minimum number of platforms needed', () => { const platforms=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){if(arr[i]<=dep[j]){plat++;i++;}else{plat--;j++;}max=Math.max(max,plat);}return max;}; expect(platforms([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+  it('checks if array is mountain', () => { const isMtn=(a:number[])=>{let i=0;while(i<a.length-1&&a[i]<a[i+1])i++;if(i===0||i===a.length-1)return false;while(i<a.length-1&&a[i]>a[i+1])i++;return i===a.length-1;}; expect(isMtn([0,2,3,4,2,1])).toBe(true); expect(isMtn([1,2,3])).toBe(false); });
+  it('implements simple regex match (. and *)', () => { const rmatch=(s:string,p:string):boolean=>{if(!p)return!s;const first=!!s&&(p[0]==='.'||p[0]===s[0]);if(p.length>=2&&p[1]==='*')return rmatch(s,p.slice(2))||(first&&rmatch(s.slice(1),p));return first&&rmatch(s.slice(1),p.slice(1));}; expect(rmatch('aa','a*')).toBe(true); expect(rmatch('ab','.*')).toBe(true); });
+  it('finds articulation points count in graph', () => { const adjList=new Map([[0,[1,2]],[1,[0,2]],[2,[0,1,3]],[3,[2]]]); const n=4; const disc=Array(n).fill(-1),low=Array(n).fill(0); let timer=0; const aps=new Set<number>(); const dfs=(u:number,par:number)=>{disc[u]=low[u]=timer++;let children=0;for(const v of adjList.get(u)||[]){if(disc[v]===-1){children++;dfs(v,u);low[u]=Math.min(low[u],low[v]);if((par===-1&&children>1)||(par!==-1&&low[v]>=disc[u]))aps.add(u);}else if(v!==par)low[u]=Math.min(low[u],disc[v]);}}; dfs(0,-1); expect(aps.has(2)).toBe(true); });
+});

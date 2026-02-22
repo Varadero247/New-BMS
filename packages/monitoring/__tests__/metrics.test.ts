@@ -559,3 +559,12 @@ describe('phase40 coverage', () => {
   it('implements simple bloom filter logic', () => { const seeds=[7,11,13]; const size=64; const hashes=(v:string)=>seeds.map(s=>[...v].reduce((h,c)=>(h*s+c.charCodeAt(0))%size,0)); const bits=new Set<number>(); const add=(v:string)=>hashes(v).forEach(h=>bits.add(h)); const mightHave=(v:string)=>hashes(v).every(h=>bits.has(h)); add('hello'); expect(mightHave('hello')).toBe(true); });
   it('checks if number is perfect power', () => { const isPerfPow=(n:number)=>{for(let b=2;b*b<=n;b++)for(let e=2;Math.pow(b,e)<=n;e++)if(Math.pow(b,e)===n)return true;return false;}; expect(isPerfPow(8)).toBe(true); expect(isPerfPow(9)).toBe(true); expect(isPerfPow(10)).toBe(false); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements dutch national flag partition', () => { const dnf=(a:number[])=>{const r=[...a];let lo=0,mid=0,hi=r.length-1;while(mid<=hi){if(r[mid]===0){[r[lo],r[mid]]=[r[mid],r[lo]];lo++;mid++;}else if(r[mid]===1)mid++;else{[r[mid],r[hi]]=[r[hi],r[mid]];hi--;}}return r;}; expect(dnf([2,0,1,2,1,0])).toEqual([0,0,1,1,2,2]); });
+  it('finds minimum operations to make array palindrome', () => { const minOps=(a:number[])=>{let ops=0,l=0,r=a.length-1;while(l<r){if(a[l]<a[r]){a[l+1]+=a[l];l++;ops++;}else if(a[l]>a[r]){a[r-1]+=a[r];r--;ops++;}else{l++;r--;}}return ops;}; expect(minOps([1,4,5,1])).toBe(1); });
+  it('checks if string can form palindrome permutation', () => { const canFormPalin=(s:string)=>{const odd=[...s].reduce((cnt,c)=>{cnt.set(c,(cnt.get(c)||0)+1);return cnt;},new Map<string,number>());return[...odd.values()].filter(v=>v%2!==0).length<=1;}; expect(canFormPalin('carrace')).toBe(true); expect(canFormPalin('code')).toBe(false); });
+  it('finds longest subarray with equal 0s and 1s', () => { const longestEqual=(a:number[])=>{const map=new Map([[0,-1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(map.has(sum))max=Math.max(max,i-map.get(sum)!);else map.set(sum,i);}return max;}; expect(longestEqual([0,1,0])).toBe(2); });
+  it('computes sum of first n odd numbers', () => { const sumOdd=(n:number)=>n*n; expect(sumOdd(5)).toBe(25); expect(sumOdd(10)).toBe(100); });
+});

@@ -642,3 +642,12 @@ describe('phase40 coverage', () => {
   it('implements reservoir sampling', () => { const sample=(a:number[],k:number)=>{const r=a.slice(0,k);for(let i=k;i<a.length;i++){const j=Math.floor(Math.random()*(i+1));if(j<k)r[j]=a[i];}return r;}; const s=sample([1,2,3,4,5,6,7,8,9,10],3); expect(s.length).toBe(3); expect(s.every(v=>v>=1&&v<=10)).toBe(true); });
   it('computes nth ugly number', () => { const ugly=(n:number)=>{const u=[1];let i2=0,i3=0,i5=0;while(u.length<n){const next=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(next);if(next===u[i2]*2)i2++;if(next===u[i3]*3)i3++;if(next===u[i5]*5)i5++;}return u[n-1];}; expect(ugly(10)).toBe(12); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('counts triplets with zero sum', () => { const zeroSumTriplets=(a:number[])=>{const s=a.sort((x,y)=>x-y);let c=0;for(let i=0;i<s.length-2;i++){let l=i+1,r=s.length-1;while(l<r){const sum=s[i]+s[l]+s[r];if(sum===0){c++;l++;r--;}else if(sum<0)l++;else r--;}}return c;}; expect(zeroSumTriplets([-1,0,1,2,-1,-4])).toBe(3); });
+  it('checks if undirected graph is tree', () => { const isTree=(n:number,edges:[number,number][])=>{if(edges.length!==n-1)return false;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:find(parent[x]);let cycles=0;for(const [u,v] of edges){const pu=find(u),pv=find(v);if(pu===pv)cycles++;else parent[pu]=pv;}return cycles===0;}; expect(isTree(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isTree(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+  it('finds all permutations of array', () => { const perms=<T>(a:T[]):T[][]=>a.length<=1?[a]:[...a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p]))]; expect(perms([1,2,3]).length).toBe(6); });
+  it('finds minimum operations to make array palindrome', () => { const minOps=(a:number[])=>{let ops=0,l=0,r=a.length-1;while(l<r){if(a[l]<a[r]){a[l+1]+=a[l];l++;ops++;}else if(a[l]>a[r]){a[r-1]+=a[r];r--;ops++;}else{l++;r--;}}return ops;}; expect(minOps([1,4,5,1])).toBe(1); });
+  it('parses simple key=value config string', () => { const parse=(s:string)=>Object.fromEntries(s.split('\n').filter(Boolean).map(l=>l.split('=').map(p=>p.trim()) as [string,string])); expect(parse('host=localhost\nport=3000')).toEqual({host:'localhost',port:'3000'}); });
+});

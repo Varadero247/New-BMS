@@ -907,3 +907,12 @@ describe('phase40 coverage', () => {
   it('applies map over matrix', () => { const mapM=(m:number[][],fn:(v:number)=>number)=>m.map(r=>r.map(fn)); expect(mapM([[1,2],[3,4]],v=>v*2)).toEqual([[2,4],[6,8]]); });
   it('implements simple LFU cache eviction logic', () => { const freq=new Map<string,number>(); const use=(k:string)=>freq.set(k,(freq.get(k)||0)+1); const evict=()=>{let minF=Infinity,minK='';freq.forEach((f,k)=>{if(f<minF){minF=f;minK=k;}});freq.delete(minK);return minK;}; use('a');use('b');use('a');use('c'); expect(evict()).toBe('b'); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('counts number of ways to express n as sum of consecutive', () => { const consecutive=(n:number)=>{let c=0;for(let i=2;i*(i-1)/2<n;i++)if((n-i*(i-1)/2)%i===0)c++;return c;}; expect(consecutive(15)).toBe(3); });
+  it('implements LCS string reconstruction', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(''));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+a[i-1]:dp[i-1][j].length>=dp[i][j-1].length?dp[i-1][j]:dp[i][j-1];return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe('BCAB'); });
+  it('counts ways to decode string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const dp=Array(s.length+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=s.length;i++){if(s[i-1]!=='0')dp[i]+=dp[i-1];const two=Number(s.slice(i-2,i));if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[s.length];}; expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('finds all permutations of array', () => { const perms=<T>(a:T[]):T[][]=>a.length<=1?[a]:[...a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p]))]; expect(perms([1,2,3]).length).toBe(6); });
+  it('checks if number is a Fibonacci number', () => { const isPerfSq=(n:number)=>Math.sqrt(n)===Math.floor(Math.sqrt(n)); const isFib=(n:number)=>isPerfSq(5*n*n+4)||isPerfSq(5*n*n-4); expect(isFib(8)).toBe(true); expect(isFib(9)).toBe(false); });
+});

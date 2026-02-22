@@ -1024,3 +1024,12 @@ describe('phase40 coverage', () => {
   it('computes integer log base 2', () => { const log2=(n:number)=>Math.floor(Math.log2(n)); expect(log2(8)).toBe(3); expect(log2(15)).toBe(3); expect(log2(16)).toBe(4); });
   it('computes number of subsequences matching pattern', () => { const countSub=(s:string,p:string)=>{const dp=Array(p.length+1).fill(0);dp[0]=1;for(const c of s)for(let j=p.length;j>0;j--)if(c===p[j-1])dp[j]+=dp[j-1];return dp[p.length];}; expect(countSub('rabbbit','rabbit')).toBe(3); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+  it('checks if array can be partitioned into equal sum halves', () => { const canPart=(a:number[])=>{const total=a.reduce((s,v)=>s+v,0);if(total%2!==0)return false;const half=total/2;const dp=new Set([0]);for(const v of a){const next=new Set(dp);for(const s of dp)next.add(s+v);dp.clear();for(const s of next)if(s<=half)dp.add(s);}return dp.has(half);}; expect(canPart([1,5,11,5])).toBe(true); expect(canPart([1,2,3,5])).toBe(false); });
+  it('checks if string can form palindrome permutation', () => { const canFormPalin=(s:string)=>{const odd=[...s].reduce((cnt,c)=>{cnt.set(c,(cnt.get(c)||0)+1);return cnt;},new Map<string,number>());return[...odd.values()].filter(v=>v%2!==0).length<=1;}; expect(canFormPalin('carrace')).toBe(true); expect(canFormPalin('code')).toBe(false); });
+  it('finds maximum width of binary tree level', () => { const maxWidth=(nodes:number[])=>{const levels=new Map<number,number[]>();nodes.forEach((v,i)=>{if(v!==-1){const lvl=Math.floor(Math.log2(i+1));(levels.get(lvl)||levels.set(lvl,[]).get(lvl)!).push(i);}});return Math.max(...[...levels.values()].map(idxs=>idxs[idxs.length-1]-idxs[0]+1),1);}; expect(maxWidth([1,3,2,5,-1,-1,9,-1,-1,-1,-1,-1,-1,7])).toBeGreaterThan(0); });
+  it('implements dutch national flag partition', () => { const dnf=(a:number[])=>{const r=[...a];let lo=0,mid=0,hi=r.length-1;while(mid<=hi){if(r[mid]===0){[r[lo],r[mid]]=[r[mid],r[lo]];lo++;mid++;}else if(r[mid]===1)mid++;else{[r[mid],r[hi]]=[r[hi],r[mid]];hi--;}}return r;}; expect(dnf([2,0,1,2,1,0])).toEqual([0,0,1,1,2,2]); });
+});

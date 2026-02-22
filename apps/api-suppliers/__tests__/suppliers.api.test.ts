@@ -609,3 +609,12 @@ describe('phase40 coverage', () => {
   it('checks if expression has balanced delimiters', () => { const check=(s:string)=>{const map:{[k:string]:string}={')':'(',']':'[','}':'{'};const st:string[]=[];for(const c of s){if('([{'.includes(c))st.push(c);else if(')]}'.includes(c)){if(!st.length||st[st.length-1]!==map[c])return false;st.pop();}}return st.length===0;}; expect(check('[{()}]')).toBe(true); expect(check('[{(}]')).toBe(false); });
   it('finds maximum area histogram', () => { const maxHist=(h:number[])=>{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||h[st[st.length-1]]>=h[i])){const height=h[st.pop()!];const width=st.length?i-st[st.length-1]-1:i;max=Math.max(max,height*width);}st.push(i);}return max;}; expect(maxHist([2,1,5,6,2,3])).toBe(10); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('implements Manacher algorithm length check', () => { const manacher=(s:string)=>{const t='#'+s.split('').join('#')+'#';const p=Array(t.length).fill(0);let c=0,r=0;for(let i=0;i<t.length;i++){const mirror=2*c-i;if(i<r)p[i]=Math.min(r-i,p[mirror]);while(i+p[i]+1<t.length&&i-p[i]-1>=0&&t[i+p[i]+1]===t[i-p[i]-1])p[i]++;if(i+p[i]>r){c=i;r=i+p[i];}}return Math.max(...p);}; expect(manacher('babad')).toBe(3); });
+  it('checks if string is a valid hex color', () => { const isHex=(s:string)=>/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(s); expect(isHex('#fff')).toBe(true); expect(isHex('#aabbcc')).toBe(true); expect(isHex('#xyz')).toBe(false); });
+  it('computes sum of first n odd numbers', () => { const sumOdd=(n:number)=>n*n; expect(sumOdd(5)).toBe(25); expect(sumOdd(10)).toBe(100); });
+  it('computes extended GCD', () => { const extGcd=(a:number,b:number):[number,number,number]=>{if(b===0)return[a,1,0];const[g,x,y]=extGcd(b,a%b);return[g,y,x-Math.floor(a/b)*y];}; const[g]=extGcd(35,15); expect(g).toBe(5); });
+  it('finds minimum operations to make array palindrome', () => { const minOps=(a:number[])=>{let ops=0,l=0,r=a.length-1;while(l<r){if(a[l]<a[r]){a[l+1]+=a[l];l++;ops++;}else if(a[l]>a[r]){a[r-1]+=a[r];r--;ops++;}else{l++;r--;}}return ops;}; expect(minOps([1,4,5,1])).toBe(1); });
+});

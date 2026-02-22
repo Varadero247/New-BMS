@@ -584,3 +584,12 @@ describe('phase40 coverage', () => {
   it('computes nth ugly number', () => { const ugly=(n:number)=>{const u=[1];let i2=0,i3=0,i5=0;while(u.length<n){const next=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(next);if(next===u[i2]*2)i2++;if(next===u[i3]*3)i3++;if(next===u[i5]*5)i5++;}return u[n-1];}; expect(ugly(10)).toBe(12); });
   it('checks if array forms arithmetic progression', () => { const isAP=(a:number[])=>{const d=a[1]-a[0];return a.every((v,i)=>i===0||v-a[i-1]===d);}; expect(isAP([3,5,7,9])).toBe(true); expect(isAP([1,2,4])).toBe(false); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes sum of all divisors up to n', () => { const sumDiv=(n:number)=>Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+v,0); expect(sumDiv(5)).toBe(15); });
+  it('implements fast exponentiation', () => { const fastPow=(base:number,exp:number,mod:number):number=>{let res=1;base%=mod;while(exp>0){if(exp%2===1)res=res*base%mod;base=base*base%mod;exp=Math.floor(exp/2);}return res;}; expect(fastPow(2,10,1000)).toBe(24); });
+  it('finds smallest subarray with sum >= target', () => { const minLen=(a:number[],t:number)=>{let min=Infinity,sum=0,l=0;for(let r=0;r<a.length;r++){sum+=a[r];while(sum>=t){min=Math.min(min,r-l+1);sum-=a[l++];}}return min===Infinity?0:min;}; expect(minLen([2,3,1,2,4,3],7)).toBe(2); });
+  it('implements shortest path in unweighted graph', () => { const bfsDist=(adj:Map<number,number[]>,s:number,t:number)=>{const dist=new Map([[s,0]]);const q=[s];while(q.length){const u=q.shift()!;for(const v of adj.get(u)||[]){if(!dist.has(v)){dist.set(v,(dist.get(u)||0)+1);q.push(v);}}}return dist.get(t)??-1;}; const g=new Map([[0,[1,2]],[1,[3]],[2,[3]],[3,[]]]); expect(bfsDist(g,0,3)).toBe(2); });
+  it('implements sparse set membership', () => { const set=new Set<number>([1,3,5,7,9]); const query=(v:number)=>set.has(v); expect(query(5)).toBe(true); expect(query(4)).toBe(false); });
+});

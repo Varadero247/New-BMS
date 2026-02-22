@@ -492,3 +492,12 @@ describe('phase40 coverage', () => {
   it('implements sparse table for range min query', () => { const a=[2,4,3,1,6,7,8,9,1,7]; const mn=(l:number,r:number)=>Math.min(...a.slice(l,r+1)); expect(mn(0,4)).toBe(1); expect(mn(2,7)).toBe(1); });
   it('converts number to words (single digit)', () => { const words=['zero','one','two','three','four','five','six','seven','eight','nine']; expect(words[7]).toBe('seven'); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds number of ways to reach nth stair with 1,2,3 steps', () => { const stairs=(n:number)=>{if(n<=0)return 1;const dp=[1,1,2];for(let i=3;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]+dp[dp.length-3]);return dp[n];}; expect(stairs(4)).toBe(7); });
+  it('computes range sum using prefix array', () => { const pfx=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=pfx([1,2,3,4,5]); expect(q(1,3)).toBe(9); });
+  it('checks if array has property monotone stack applies', () => { const nextGreater=(a:number[])=>{const res=Array(a.length).fill(-1);const st:number[]=[];for(let i=0;i<a.length;i++){while(st.length&&a[st[st.length-1]]<a[i])res[st.pop()!]=a[i];st.push(i);}return res;}; expect(nextGreater([4,1,2])).toEqual([-1,2,-1]); });
+  it('generates zigzag sequence', () => { const zz=(n:number)=>Array.from({length:n},(_,i)=>i%2===0?i:-i); expect(zz(5)).toEqual([0,-1,2,-3,4]); });
+  it('checks if string can form palindrome permutation', () => { const canFormPalin=(s:string)=>{const odd=[...s].reduce((cnt,c)=>{cnt.set(c,(cnt.get(c)||0)+1);return cnt;},new Map<string,number>());return[...odd.values()].filter(v=>v%2!==0).length<=1;}; expect(canFormPalin('carrace')).toBe(true); expect(canFormPalin('code')).toBe(false); });
+});

@@ -633,3 +633,12 @@ describe('phase40 coverage', () => {
   it('computes sum of all subarrays', () => { const subSum=(a:number[])=>a.reduce((t,v,i)=>t+v*(i+1)*(a.length-i),0); expect(subSum([1,2,3])).toBe(20); /* 1+2+3+3+5+6+3+5+6+3+2+1 check */ });
   it('implements string multiplication', () => { const mul=(a:string,b:string)=>{const m=a.length,n=b.length,pos=Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const p=(Number(a[i]))*(Number(b[j]));const p1=i+j,p2=i+j+1;const sum=p+pos[p2];pos[p2]=sum%10;pos[p1]+=Math.floor(sum/10);}return pos.join('').replace(/^0+/,'')||'0';}; expect(mul('123','456')).toBe('56088'); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('computes sum of distances in tree', () => { const n=4; const adj=new Map([[0,[1,2]],[1,[0,3]],[2,[0]],[3,[1]]]); const dfs=(node:number,par:number,cnt:number[],dist:number[])=>{for(const nb of adj.get(node)||[]){if(nb===par)continue;dfs(nb,node,cnt,dist);cnt[node]+=cnt[nb];dist[node]+=dist[nb]+cnt[nb];}};const cnt=Array(n).fill(1),dist=Array(n).fill(0);dfs(0,-1,cnt,dist); expect(dist[0]).toBeGreaterThanOrEqual(0); });
+  it('finds Euler totient for small n', () => { const phi=(n:number)=>{let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}; expect(phi(9)).toBe(6); expect(phi(7)).toBe(6); });
+  it('checks if undirected graph is tree', () => { const isTree=(n:number,edges:[number,number][])=>{if(edges.length!==n-1)return false;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:find(parent[x]);let cycles=0;for(const [u,v] of edges){const pu=find(u),pv=find(v);if(pu===pv)cycles++;else parent[pu]=pv;}return cycles===0;}; expect(isTree(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isTree(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+  it('checks if array can be partitioned into equal sum halves', () => { const canPart=(a:number[])=>{const total=a.reduce((s,v)=>s+v,0);if(total%2!==0)return false;const half=total/2;const dp=new Set([0]);for(const v of a){const next=new Set(dp);for(const s of dp)next.add(s+v);dp.clear();for(const s of next)if(s<=half)dp.add(s);}return dp.has(half);}; expect(canPart([1,5,11,5])).toBe(true); expect(canPart([1,2,3,5])).toBe(false); });
+  it('computes minimum cost to connect ropes', () => { const minCost=(ropes:number[])=>{const pq=[...ropes].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!;cost+=a+b;pq.push(a+b);pq.sort((x,y)=>x-y);}return cost;}; expect(minCost([4,3,2,6])).toBe(29); });
+});

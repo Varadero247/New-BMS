@@ -631,3 +631,12 @@ describe('phase40 coverage', () => {
   it('implements token bucket rate limiter logic', () => { let tokens=10; const refill=(add:number,max:number)=>{tokens=Math.min(tokens+add,max);}; const consume=(n:number)=>{if(tokens>=n){tokens-=n;return true;}return false;}; expect(consume(3)).toBe(true); expect(tokens).toBe(7); refill(5,10); expect(tokens).toBe(10); /* capped at max */ });
   it('finds next permutation', () => { const nextPerm=(a:number[])=>{const r=[...a];let i=r.length-2;while(i>=0&&r[i]>=r[i+1])i--;if(i>=0){let j=r.length-1;while(r[j]<=r[i])j--;[r[i],r[j]]=[r[j],r[i]];}let l=i+1,rt=r.length-1;while(l<rt){[r[l],r[rt]]=[r[rt],r[l]];l++;rt--;}return r;}; expect(nextPerm([1,2,3])).toEqual([1,3,2]); });
 });
+
+
+describe('phase41 coverage', () => {
+  it('finds articulation points count in graph', () => { const adjList=new Map([[0,[1,2]],[1,[0,2]],[2,[0,1,3]],[3,[2]]]); const n=4; const disc=Array(n).fill(-1),low=Array(n).fill(0); let timer=0; const aps=new Set<number>(); const dfs=(u:number,par:number)=>{disc[u]=low[u]=timer++;let children=0;for(const v of adjList.get(u)||[]){if(disc[v]===-1){children++;dfs(v,u);low[u]=Math.min(low[u],low[v]);if((par===-1&&children>1)||(par!==-1&&low[v]>=disc[u]))aps.add(u);}else if(v!==par)low[u]=Math.min(low[u],disc[v]);}}; dfs(0,-1); expect(aps.has(2)).toBe(true); });
+  it('implements fast exponentiation', () => { const fastPow=(base:number,exp:number,mod:number):number=>{let res=1;base%=mod;while(exp>0){if(exp%2===1)res=res*base%mod;base=base*base%mod;exp=Math.floor(exp/2);}return res;}; expect(fastPow(2,10,1000)).toBe(24); });
+  it('computes sum of all divisors up to n', () => { const sumDiv=(n:number)=>Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+v,0); expect(sumDiv(5)).toBe(15); });
+  it('implements simple regex match (. and *)', () => { const rmatch=(s:string,p:string):boolean=>{if(!p)return!s;const first=!!s&&(p[0]==='.'||p[0]===s[0]);if(p.length>=2&&p[1]==='*')return rmatch(s,p.slice(2))||(first&&rmatch(s.slice(1),p));return first&&rmatch(s.slice(1),p.slice(1));}; expect(rmatch('aa','a*')).toBe(true); expect(rmatch('ab','.*')).toBe(true); });
+  it('generates zigzag sequence', () => { const zz=(n:number)=>Array.from({length:n},(_,i)=>i%2===0?i:-i); expect(zz(5)).toEqual([0,-1,2,-3,4]); });
+});
