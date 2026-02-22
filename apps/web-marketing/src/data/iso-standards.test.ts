@@ -196,3 +196,28 @@ describe('isoStandards data integrity', () => {
     }
   });
 });
+
+describe('isoStandards additional integrity checks', () => {
+  it('feature desc strings have no leading or trailing whitespace', () => {
+    for (const std of Object.values(isoStandards)) {
+      for (const feature of std.features) {
+        expect(feature.desc).toBe(feature.desc.trim());
+      }
+    }
+  });
+
+  it('each standard number field is a non-empty string', () => {
+    for (const std of Object.values(isoStandards)) {
+      expect(typeof std.number).toBe('string');
+      expect(std.number.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('ISO 50001 is Energy Management', () => {
+    expect(isoStandards['50001'].name).toMatch(/[Ee]nergy/);
+  });
+
+  it('ISO 22000 is Food Safety', () => {
+    expect(isoStandards['22000'].name).toMatch(/[Ff]ood/);
+  });
+});

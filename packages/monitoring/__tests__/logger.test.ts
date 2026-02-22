@@ -194,3 +194,46 @@ describe('createRequestLogger', () => {
     expect(() => child.info('Request processed')).not.toThrow();
   });
 });
+
+describe('createLogger and createRequestLogger — extended coverage', () => {
+  it('logger has a transports property', () => {
+    const logger = createLogger('transports-svc');
+    expect(logger).toHaveProperty('transports');
+  });
+
+  it('two calls with same service name return separate instances', () => {
+    const a = createLogger('same-name');
+    const b = createLogger('same-name');
+    expect(a).not.toBe(b);
+  });
+
+  it('createLogger with empty string service name does not throw', () => {
+    expect(() => createLogger('')).not.toThrow();
+  });
+
+  it('logger.info accepts an object as first argument without throwing', () => {
+    const logger = createLogger('obj-log-svc');
+    expect(() => logger.info({ event: 'test', value: 42 })).not.toThrow();
+  });
+
+  it('createRequestLogger child can log error without throwing', () => {
+    const parent = createLogger('child-error-svc');
+    const child = createRequestLogger(parent, { correlationId: 'err-id' });
+    expect(() => child.error('Something failed', { code: 500 })).not.toThrow();
+  });
+
+  it('createRequestLogger uses header x-correlation-id when correlationId is absent', () => {
+    const parent = createLogger('header-fallback-svc');
+    const req = { headers: { 'x-correlation-id': 'hdr-777' } };
+    const child = createRequestLogger(parent, req);
+    expect(child).toBeDefined();
+    expect(typeof child.warn).toBe('function');
+  });
+
+  it('createLogger produces a logger whose level property is a non-empty string', () => {
+    delete process.env.LOG_LEVEL;
+    const logger = createLogger('level-prop-svc');
+    expect(typeof logger.level).toBe('string');
+    expect(logger.level.length).toBeGreaterThan(0);
+  });
+});

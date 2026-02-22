@@ -507,3 +507,72 @@ describe('Quality Suppliers API Routes', () => {
     });
   });
 });
+
+// ============================================
+// Extended coverage: pagination totalPages, response shape, filter params
+// ============================================
+
+describe('Quality Suppliers API — extended coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/suppliers returns correct totalPages for multi-page results', async () => {
+    (mockPrisma.qualSupplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(100);
+
+    const response = await request(app)
+      .get('/api/suppliers?page=3&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.total).toBe(100);
+    expect(response.body.data.totalPages).toBe(10);
+    expect(response.body.data.page).toBe(3);
+  });
+
+  it('GET /api/suppliers response shape has success:true and items array', async () => {
+    (mockPrisma.qualSupplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app)
+      .get('/api/suppliers')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('GET /api/suppliers filters by overallRating=PREFERRED correctly', async () => {
+    (mockPrisma.qualSupplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/suppliers?overallRating=PREFERRED')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.qualSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ overallRating: 'PREFERRED' }),
+      })
+    );
+  });
+
+  it('POST /api/suppliers returns error.code VALIDATION_ERROR for invalid scores', async () => {
+    const response = await request(app)
+      .post('/api/suppliers')
+      .set('Authorization', 'Bearer token')
+      .send({ supplierName: 'Test Supplier', category: 'MATERIALS', qualityScore: 150 });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

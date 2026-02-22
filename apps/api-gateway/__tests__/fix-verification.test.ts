@@ -287,3 +287,72 @@ describe('Gateway Fix Verification — additional coverage', () => {
     expect(jsonCall.success).toBe(false);
   });
 });
+
+// ── Final extended coverage ───────────────────────────────────────────────────
+
+describe('Gateway Fix Verification — final extended', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('error.message is a string in the response', () => {
+    const err: AppError = new Error('Some message');
+    err.statusCode = 400;
+    err.code = 'BAD_REQUEST';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+    expect(typeof jsonCall.error.message).toBe('string');
+  });
+
+  it('error.code is a string in the response', () => {
+    const err: AppError = new Error('Something');
+    err.statusCode = 400;
+    err.code = 'SOME_CODE';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+    expect(typeof jsonCall.error.code).toBe('string');
+  });
+
+  it('returns 503 status when provided', () => {
+    const err: AppError = new Error('Service unavailable');
+    err.statusCode = 503;
+    err.code = 'SERVICE_UNAVAILABLE';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledWith(503);
+  });
+
+  it('non-500 errors preserve the provided message', () => {
+    const err: AppError = new Error('Resource not found here');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonCall.error.message).toBe('Resource not found here');
+  });
+
+  it('logger is called with error message string as first arg', () => {
+    const err: AppError = new Error('Logged message');
+    errorHandler(err, mockRequest() as Request, mockResponse() as Response, mockNext);
+    expect(typeof mockLogger.error.mock.calls[0][0]).toBe('string');
+  });
+
+  it('response json is called exactly once per error', () => {
+    const err: AppError = new Error('Single call');
+    err.statusCode = 400;
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    expect(res.json).toHaveBeenCalledTimes(1);
+  });
+
+  it('status is called exactly once per error', () => {
+    const err: AppError = new Error('Once');
+    err.statusCode = 400;
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledTimes(1);
+  });
+});

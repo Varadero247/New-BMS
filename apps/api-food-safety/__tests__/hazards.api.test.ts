@@ -333,3 +333,69 @@ describe('GET /api/hazards/summary', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Food Safety Hazards — extended coverage', () => {
+  it('GET /api/hazards returns pagination.totalPages computed correctly', async () => {
+    mockPrisma.fsHazard.findMany.mockResolvedValue([]);
+    mockPrisma.fsHazard.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/hazards?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(10);
+  });
+
+  it('GET /api/hazards passes skip based on page and limit to findMany', async () => {
+    mockPrisma.fsHazard.findMany.mockResolvedValue([]);
+    mockPrisma.fsHazard.count.mockResolvedValue(0);
+    await request(app).get('/api/hazards?page=3&limit=10');
+    expect(mockPrisma.fsHazard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /api/hazards passes type filter into Prisma where clause', async () => {
+    mockPrisma.fsHazard.findMany.mockResolvedValue([]);
+    mockPrisma.fsHazard.count.mockResolvedValue(0);
+    await request(app).get('/api/hazards?type=CHEMICAL');
+    expect(mockPrisma.fsHazard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'CHEMICAL' }) })
+    );
+  });
+
+  it('GET /api/hazards count 500 error returns 500 with success:false', async () => {
+    mockPrisma.fsHazard.findMany.mockResolvedValue([]);
+    mockPrisma.fsHazard.count.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/hazards');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/hazards returns 400 with error.code VALIDATION_ERROR for missing name', async () => {
+    const res = await request(app).post('/api/hazards').send({ type: 'PHYSICAL', severity: 'LOW', likelihood: 'RARE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/hazards/:id returns 500 when update throws', async () => {
+    mockPrisma.fsHazard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsHazard.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/hazards/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/hazards/:id returns 500 when update throws', async () => {
+    mockPrisma.fsHazard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', severity: 'LOW', likelihood: 'RARE' });
+    mockPrisma.fsHazard.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/api/hazards/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/hazards/summary handles empty hazard list returning zero counts', async () => {
+    mockPrisma.fsHazard.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/hazards/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(0);
+    expect(res.body.data.significantCount).toBe(0);
+  });
+});

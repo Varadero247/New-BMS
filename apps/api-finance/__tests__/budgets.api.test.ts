@@ -477,3 +477,27 @@ describe('DELETE /api/budgets/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Finance Budgets — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/budgets returns correct totalPages for multi-page result', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(60);
+
+    const res = await request(app).get('/api/budgets?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /api/budgets filters by department when provided', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/budgets?department=HR');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

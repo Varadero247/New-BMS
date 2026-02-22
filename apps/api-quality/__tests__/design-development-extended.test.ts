@@ -430,3 +430,42 @@ describe('Design & Development Routes', () => {
     });
   });
 });
+
+describe('Design & Development Routes — additional edge cases', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/design-development — response includes totalPages computed correctly', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValue(50);
+
+    const res = await request(app).get('/api/design-development?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalPages).toBe(5);
+  });
+
+  it('DELETE /api/design-development/:id — returns 500 on database error during update', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.qualDesignProject.update as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app).delete(
+      '/api/design-development/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/design-development/:id — returns 500 on database error during update', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.qualDesignProject.update as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app)
+      .put('/api/design-development/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ACTIVE' });
+    expect(res.status).toBe(500);
+  });
+});

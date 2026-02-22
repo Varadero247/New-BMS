@@ -175,3 +175,50 @@ describe('Tracing — extended', () => {
     expect(next).toHaveBeenCalled();
   });
 });
+
+describe('Tracing — opt-in and helpers extended', () => {
+  beforeEach(() => {
+    delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    delete process.env.OTEL_TRACING_ENABLED;
+  });
+
+  it('initTracing returns null when enabled flag is absent (default opt-in)', () => {
+    const result = initTracing({ serviceName: 'extra-svc-1' });
+    expect(result).toBeNull();
+  });
+
+  it('getTracer with empty string name still returns a valid tracer object', () => {
+    const tracer = getTracer('');
+    expect(tracer).toBeDefined();
+    expect(typeof tracer.startSpan).toBe('function');
+  });
+
+  it('getTraceContext returns null or object (never throws)', () => {
+    expect(() => getTraceContext()).not.toThrow();
+  });
+
+  it('addSpanAttributes handles number values without throwing', () => {
+    expect(() => addSpanAttributes({ 'http.status_code': '500' })).not.toThrow();
+  });
+
+  it('recordException with RangeError does not throw', () => {
+    expect(() => recordException(new RangeError('out of range'))).not.toThrow();
+  });
+
+  it('traceMiddleware sets no headers when tracing is inactive', () => {
+    const middleware = traceMiddleware();
+    const req: any = {};
+    const res: any = { setHeader: jest.fn() };
+    const next = jest.fn();
+
+    middleware(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(res.setHeader).not.toHaveBeenCalled();
+  });
+
+  it('shutdownTracing resolves to undefined when no SDK is active', async () => {
+    const result = await shutdownTracing();
+    expect(result).toBeUndefined();
+  });
+});

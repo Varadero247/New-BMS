@@ -354,3 +354,52 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('GET /api/alerts pagination and response shape', () => {
+  it('should include totalPages in response meta', async () => {
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([
+      { id: 'e4000000-0000-4000-a000-000000000001', type: 'ANOMALY', severity: 'HIGH' },
+    ]);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(50);
+
+    const res = await request(app).get('/api/alerts?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(50);
+  });
+
+  it('should filter by type=THRESHOLD param', async () => {
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/alerts?type=THRESHOLD');
+
+    expect(prisma.energyAlert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'THRESHOLD' }),
+      })
+    );
+  });
+
+  it('POST / should create alert with meterId when meter exists', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010' });
+    (prisma.energyAlert.create as jest.Mock).mockResolvedValue({
+      id: 'new-id',
+      type: 'OVERCONSUMPTION',
+      severity: 'HIGH',
+      message: 'Over limit',
+      meterId: '00000000-0000-0000-0000-000000000010',
+    });
+
+    const res = await request(app).post('/api/alerts').send({
+      type: 'OVERCONSUMPTION',
+      severity: 'HIGH',
+      message: 'Over limit',
+      meterId: '00000000-0000-0000-0000-000000000010',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.meterId).toBe('00000000-0000-0000-0000-000000000010');
+  });
+});

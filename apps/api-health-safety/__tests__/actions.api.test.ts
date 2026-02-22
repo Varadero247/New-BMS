@@ -255,3 +255,73 @@ describe('DELETE /api/actions/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('H&S Actions — extended coverage', () => {
+  it('GET /api/actions returns pagination totalPages computed from count', async () => {
+    (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(50);
+    const res = await request(app).get('/api/actions?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(5);
+  });
+
+  it('GET /api/actions passes skip based on page/limit to findMany', async () => {
+    (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/actions?page=3&limit=5');
+    expect(mockPrisma.hSAction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('GET /api/actions filters by priority wired to Prisma where', async () => {
+    (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/actions?priority=CRITICAL');
+    expect(mockPrisma.hSAction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ priority: 'CRITICAL' }) })
+    );
+  });
+
+  it('POST /api/actions returns 400 with error.code VALIDATION_ERROR on invalid type', async () => {
+    const res = await request(app).post('/api/actions').send({
+      title: 'Test', type: 'INVALID_TYPE', priority: 'HIGH', ownerId: 'u', dueDate: '2026-03-31',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/actions returns 400 when dueDate is missing', async () => {
+    const res = await request(app).post('/api/actions').send({
+      title: 'Fix hazard', type: 'CORRECTIVE', priority: 'HIGH', ownerId: 'John',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/actions/overdue returns success:true with meta.total', async () => {
+    (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([mockAction, mockAction]);
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(2);
+    const res = await request(app).get('/api/actions/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.meta.total).toBe(2);
+  });
+
+  it('GET /api/actions/stats returns byType object', async () => {
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(5);
+    (mockPrisma.hSAction.groupBy as jest.Mock).mockResolvedValue([
+      { type: 'PREVENTIVE', _count: { id: 3 } },
+    ]);
+    const res = await request(app).get('/api/actions/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.byType).toBeDefined();
+  });
+
+  it('PUT /api/actions/:id returns 200 with updated status in response', async () => {
+    (mockPrisma.hSAction.findFirst as jest.Mock).mockResolvedValue(mockAction);
+    (mockPrisma.hSAction.update as jest.Mock).mockResolvedValue({ ...mockAction, status: 'COMPLETED' });
+    const res = await request(app).put(`/api/actions/${ACTION_ID}`).send({ status: 'COMPLETED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLETED');
+  });
+});

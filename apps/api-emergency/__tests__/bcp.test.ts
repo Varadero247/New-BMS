@@ -351,3 +351,84 @@ describe('PUT /api/bcp/:bcpId/exercise/:id', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('BCP Routes — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns correct totalPages for multi-page result', async () => {
+    mockBcp.findMany.mockResolvedValue([]);
+    mockBcp.count.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/bcp?page=3&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('GET / passes correct skip to Prisma for page 2 limit 5', async () => {
+    mockBcp.findMany.mockResolvedValue([]);
+    mockBcp.count.mockResolvedValue(15);
+
+    await request(app).get('/api/bcp?page=2&limit=5');
+
+    expect(mockBcp.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET /:id returns 500 on database error', async () => {
+    mockBcp.findUnique.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).get(`/api/bcp/${BCP_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on database error during update', async () => {
+    mockBcp.findFirst.mockResolvedValue(fakeBcp);
+    mockBcp.update.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).put(`/api/bcp/${BCP_ID}`).send({ title: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 on database error during create', async () => {
+    mockBcp.count.mockResolvedValue(0);
+    mockBcp.create.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).post('/api/bcp').send({
+      title: 'New BCP',
+      reviewDate: '2027-06-01',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/activate returns 500 on database error', async () => {
+    mockBcp.findFirst.mockResolvedValue(fakeBcp);
+    mockBcp.update.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).post(`/api/bcp/${BCP_ID}/activate`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('ACTIVATE_ERROR');
+  });
+
+  it('GET / response shape contains success:true and pagination object', async () => {
+    mockBcp.findMany.mockResolvedValue([fakeBcp]);
+    mockBcp.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/bcp');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination).toHaveProperty('total', 1);
+  });
+});

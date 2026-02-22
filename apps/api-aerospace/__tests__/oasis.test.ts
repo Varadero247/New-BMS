@@ -352,3 +352,51 @@ describe('OASIS Routes', () => {
     });
   });
 });
+
+describe('OASIS Routes — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/oasis/monitor returns correct totalPages for multi-page result', async () => {
+    (mockPrisma.oasisMonitoredSupplier.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisMonitoredSupplier.count as jest.Mock).mockResolvedValue(100);
+
+    const res = await request(app).get('/api/oasis/monitor?page=1&limit=25');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(4);
+  });
+
+  it('GET /api/oasis/alerts returns success:true response shape', async () => {
+    (mockPrisma.oasisAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisAlert.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/oasis/alerts');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('GET /api/oasis/alerts page 2 limit 5 totalPages computed correctly', async () => {
+    (mockPrisma.oasisAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisAlert.count as jest.Mock).mockResolvedValue(15);
+
+    const res = await request(app).get('/api/oasis/alerts?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+    expect(res.body.meta.page).toBe(2);
+  });
+
+  it('POST /api/oasis/monitor sets createdBy to logged-in user email', async () => {
+    const created = { id: 'sup-99', cageCode: 'XY999', companyName: 'SupplierX', createdBy: 'test@test.com' };
+    (mockPrisma.oasisMonitoredSupplier.create as jest.Mock).mockResolvedValue(created);
+
+    const res = await request(app).post('/api/oasis/monitor').send({ cageCode: 'XY999', companyName: 'SupplierX' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.createdBy).toBe('test@test.com');
+  });
+
+  it('GET /api/oasis/lookup returns 400 with error.code VALIDATION_ERROR for missing params', async () => {
+    const res = await request(app).get('/api/oasis/lookup');
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

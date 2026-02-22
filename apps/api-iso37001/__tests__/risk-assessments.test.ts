@@ -517,3 +517,27 @@ describe('ISO 37001 Risk Assessments API', () => {
     });
   });
 });
+
+// ===================================================================
+// ISO 37001 Risk Assessments — additional response shape coverage
+// ===================================================================
+describe('ISO 37001 Risk Assessments — additional response shape coverage', () => {
+  it('GET / response has success:true and pagination keys', async () => {
+    (mockPrisma.abRiskAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abRiskAssessment.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/risk-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('GET /:id returns success:true and data.id when found', async () => {
+    (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
+
+    const res = await request(app).get('/api/risk-assessments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

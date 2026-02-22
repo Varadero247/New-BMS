@@ -392,3 +392,115 @@ describe('Aerospace Counterfeit Parts API', () => {
     });
   });
 });
+
+describe('Aerospace Counterfeit Parts API — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns success:true with empty data', async () => {
+    mockPrisma.aeroCounterfeitReport.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/counterfeit').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET / computes totalPages correctly for multiple pages', async () => {
+    mockPrisma.aeroCounterfeitReport.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(40);
+
+    const res = await request(app)
+      .get('/api/counterfeit?page=1&limit=10')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(4);
+  });
+
+  it('GET / page=2 returns correct page in meta', async () => {
+    mockPrisma.aeroCounterfeitReport.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(50);
+
+    const res = await request(app)
+      .get('/api/counterfeit?page=2&limit=10')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+  });
+
+  it('PUT /:id returns 500 when update throws', async () => {
+    mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'OPEN',
+      deletedAt: null,
+    });
+    mockPrisma.aeroCounterfeitReport.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/counterfeit/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'CONFIRMED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update throws', async () => {
+    mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    mockPrisma.aeroCounterfeitReport.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .delete('/api/counterfeit/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /suspect-parts returns success:true', async () => {
+    mockPrisma.aeroSuspectPart.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroSuspectPart.count.mockResolvedValueOnce(0);
+
+    const res = await request(app)
+      .get('/api/counterfeit/suspect-parts')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /suspect-parts returns 500 on db error', async () => {
+    mockPrisma.aeroSuspectPart.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .get('/api/counterfeit/suspect-parts')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / response shape has refNumber', async () => {
+    mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroCounterfeitReport.create.mockResolvedValueOnce({
+      id: 'cf-shape',
+      refNumber: 'AERO-CF-2026-999',
+      title: 'Shape Test',
+      partNumber: 'PT-1',
+      status: 'OPEN',
+      dateDiscovered: '2026-01-01',
+      discrepancyDescription: 'Test desc',
+    });
+
+    const res = await request(app)
+      .post('/api/counterfeit')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Shape Test',
+        partNumber: 'PT-1',
+        dateDiscovered: '2026-01-01',
+        discrepancyDescription: 'Test desc',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.data.refNumber).toMatch(/^AERO-CF-/);
+  });
+});

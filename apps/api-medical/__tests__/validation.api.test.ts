@@ -313,4 +313,80 @@ describe('Medical Design Validation API Routes', () => {
       expect(res.status).toBe(500);
     });
   });
+
+  describe('Medical Design Validation — extended coverage', () => {
+    it('GET /api/validation returns correct totalPages in meta', async () => {
+      mockPrisma.designValidation.findMany.mockResolvedValue([]);
+      mockPrisma.designValidation.count.mockResolvedValue(20);
+      const res = await request(app).get('/api/validation?page=1&limit=5');
+      expect(res.status).toBe(200);
+      expect(res.body.meta.totalPages).toBe(4);
+    });
+
+    it('GET /api/validation passes skip based on page and limit to findMany', async () => {
+      mockPrisma.designValidation.findMany.mockResolvedValue([]);
+      mockPrisma.designValidation.count.mockResolvedValue(0);
+      await request(app).get('/api/validation?page=3&limit=5');
+      expect(mockPrisma.designValidation.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 10, take: 5 })
+      );
+    });
+
+    it('GET /api/validation filters by projectId wired to Prisma where', async () => {
+      mockPrisma.designValidation.findMany.mockResolvedValue([]);
+      mockPrisma.designValidation.count.mockResolvedValue(0);
+      await request(app).get('/api/validation?projectId=project-uuid-1');
+      expect(mockPrisma.designValidation.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ projectId: 'project-uuid-1' }) })
+      );
+    });
+
+    it('POST /api/validation returns 400 for missing testMethod', async () => {
+      mockPrisma.designProject.findUnique.mockResolvedValue(mockProject);
+      const res = await request(app).post('/api/validation').send({
+        projectId: 'project-uuid-1', title: 'Validation without method',
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('POST /api/validation returns 500 on DB create error with success:false', async () => {
+      mockPrisma.designProject.findUnique.mockResolvedValue(mockProject);
+      mockPrisma.designValidation.create.mockRejectedValue(new Error('DB error'));
+      const res = await request(app).post('/api/validation').send({
+        projectId: 'project-uuid-1', title: 'Test', testMethod: 'Clinical',
+      });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('PUT /api/validation/:id returns updated pass:true in response', async () => {
+      mockPrisma.designValidation.findUnique.mockResolvedValue(mockValidation);
+      mockPrisma.designValidation.update.mockResolvedValue({ ...mockValidation, pass: true });
+      const res = await request(app)
+        .put('/api/validation/00000000-0000-0000-0000-000000000001')
+        .send({ pass: true });
+      expect(res.status).toBe(200);
+      expect(res.body.data.pass).toBe(true);
+    });
+
+    it('GET /api/validation/stats passRate is 100 when all validations pass', async () => {
+      mockPrisma.designValidation.count
+        .mockResolvedValueOnce(5)  // total
+        .mockResolvedValueOnce(5)  // passed
+        .mockResolvedValueOnce(0)  // failed
+        .mockResolvedValueOnce(0)  // pending
+        .mockResolvedValueOnce(0); // with_project
+      const res = await request(app).get('/api/validation/stats');
+      expect(res.status).toBe(200);
+      expect(res.body.data.passRate).toBe(100);
+    });
+
+    it('GET /api/validation/stats returns 500 on DB error with success:false', async () => {
+      mockPrisma.designValidation.count.mockRejectedValue(new Error('DB error'));
+      const res = await request(app).get('/api/validation/stats');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
 });

@@ -557,4 +557,62 @@ describe('Payroll Loans API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('Additional coverage: response shape, 500 paths, and validation', () => {
+    it('GET /api/loans: response contains success and data array', async () => {
+      (mockPrisma.employeeLoan.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      const response = await request(app)
+        .get('/api/loans')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(Array.isArray(response.body.data)).toBe(true);
+    });
+
+    it('POST /api/loans: returns 400 for non-positive termMonths', async () => {
+      const response = await request(app)
+        .post('/api/loans')
+        .set('Authorization', 'Bearer token')
+        .send({
+          employeeId: '11111111-1111-1111-1111-111111111111',
+          loanType: 'PERSONAL_LOAN',
+          principalAmount: 5000,
+          interestRate: 5,
+          termMonths: 0,
+          startDate: '2024-01-01',
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('PUT /api/loans/:id/disburse: returns 500 when update throws', async () => {
+      (mockPrisma.employeeLoan.findUnique as jest.Mock).mockRejectedValueOnce(
+        new Error('Prisma error')
+      );
+      (mockPrisma.employeeLoan.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/loans/39000000-0000-4000-a000-000000000001/disburse')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /api/loans: returns 500 on unexpected error shape', async () => {
+      (mockPrisma.employeeLoan.findMany as jest.Mock).mockRejectedValueOnce(
+        new Error('Unexpected DB failure')
+      );
+
+      const response = await request(app)
+        .get('/api/loans')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+    });
+  });
 });

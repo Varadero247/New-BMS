@@ -266,3 +266,85 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage: pagination, filters, response shapes ────────────────
+
+describe('Social — extended coverage', () => {
+  it('GET /api/social returns correct totalPages for multi-page result', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([mockSocial]);
+    (prisma.esgSocialMetric.count as jest.Mock).mockResolvedValue(25);
+
+    const res = await request(app).get('/api/social?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.totalPages).toBe(3);
+    expect(res.body.pagination.total).toBe(25);
+  });
+
+  it('GET /api/social passes correct skip for page 2', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgSocialMetric.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/social?page=2&limit=10');
+    expect(prisma.esgSocialMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/social returns success:true with empty data array', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgSocialMetric.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/social');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/social/:id returns data with expected fields', async () => {
+    (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(mockSocial);
+
+    const res = await request(app).get('/api/social/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('category');
+    expect(res.body.data).toHaveProperty('metric');
+    expect(res.body.data).toHaveProperty('value');
+  });
+
+  it('GET /api/social/workforce returns 500 on DB error', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/social/workforce');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/social/safety returns 500 on DB error', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/social/safety');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/social returns 400 when value is missing', async () => {
+    const res = await request(app).post('/api/social').send({
+      category: 'DIVERSITY',
+      metric: 'Gender Diversity Ratio',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-03-31',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('PUT /api/social/:id returns 500 on DB error without finding record', async () => {
+    (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(mockSocial);
+    (prisma.esgSocialMetric.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/social/00000000-0000-0000-0000-000000000001')
+      .send({ value: 0.6 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

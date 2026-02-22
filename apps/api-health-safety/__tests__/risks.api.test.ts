@@ -426,3 +426,113 @@ describe('Health & Safety Risks API Routes', () => {
     });
   });
 });
+
+describe('Health & Safety Risks API — additional coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/risks', risksRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns correct totalPages for large dataset', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(100);
+
+    const response = await request(app2)
+      .get('/api/risks?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.totalPages).toBe(5);
+  });
+
+  it('GET / returns success:true in response envelope', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/risks')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when likelihood is out of range', async () => {
+    const response = await request(app2)
+      .post('/api/risks')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Test Risk',
+        description: 'A valid description here',
+        likelihood: 10,
+        severity: 3,
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 when severity is out of range', async () => {
+    const response = await request(app2)
+      .post('/api/risks')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Test Risk',
+        description: 'A valid description here',
+        likelihood: 3,
+        severity: 0,
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /matrix returns 500 on count DB error', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .get('/api/risks/matrix')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 on update DB error', async () => {
+    (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '10000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.risk.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .delete('/api/risks/10000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id returns 500 on update DB error after find', async () => {
+    (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '10000000-0000-4000-a000-000000000001',
+      title: 'Existing Risk',
+      likelihood: 3,
+      severity: 3,
+    });
+    (mockPrisma.risk.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .patch('/api/risks/10000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Updated Title' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

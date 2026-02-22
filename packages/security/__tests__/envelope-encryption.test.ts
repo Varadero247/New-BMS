@@ -213,3 +213,30 @@ describe('large payloads', () => {
     expect(result.equals(large)).toBe(true);
   });
 });
+
+// ── Additional edge cases ───────────────────────────────────────────────────
+
+describe('envelope encryption — additional edge cases', () => {
+  it('encryptEnvelope produces hex-encoded fields by default', () => {
+    const env = encryptEnvelope(TEST_PLAINTEXT, TEST_KEK);
+    expect(env.ciphertext).toMatch(/^[0-9a-f]+$/i);
+    expect(env.ciphertextIv).toMatch(/^[0-9a-f]+$/i);
+  });
+
+  it('deriveKey salt is a Buffer', () => {
+    const { salt } = deriveKey('test-passphrase');
+    expect(Buffer.isBuffer(salt)).toBe(true);
+  });
+
+  it('decryptEnvelopeToString round-trips a single-character string', () => {
+    const env = encryptEnvelope('x', TEST_KEK);
+    expect(decryptEnvelopeToString(env, TEST_KEK)).toBe('x');
+  });
+
+  it('rotateKek updates dekIv as well as encryptedDek', () => {
+    const env = encryptEnvelope(TEST_PLAINTEXT, TEST_KEK);
+    const newKek = randomBytes(32);
+    const rotated = rotateKek(env, TEST_KEK, newKek);
+    expect(rotated.dekIv).not.toBe(env.dekIv);
+  });
+});

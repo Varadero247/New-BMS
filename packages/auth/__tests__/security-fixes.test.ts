@@ -245,3 +245,44 @@ describe('Security Fix Verification', () => {
     });
   });
 });
+
+describe('Security Fix Verification — additional edge cases', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...originalEnv };
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    process.env.JWT_REFRESH_SECRET =
+      'test-refresh-secret-that-is-at-least-64-characters-for-testing';
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  it('generateTokenPair returns both accessToken and refreshToken strings', () => {
+    const pair = generateTokenPair({ userId: 'user-456' });
+    expect(typeof pair.accessToken).toBe('string');
+    expect(typeof pair.refreshToken).toBe('string');
+    expect(pair.accessToken.split('.').length).toBe(3);
+    expect(pair.refreshToken.split('.').length).toBe(3);
+  });
+
+  it('verifyToken returns payload with userId', () => {
+    const token = generateToken({ userId: 'user-789' });
+    const payload = verifyToken(token);
+    expect(payload.userId).toBe('user-789');
+  });
+
+  it('validatePasswordStrength rejects empty string', () => {
+    const result = validatePasswordStrength('');
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  it('validatePasswordStrength returns errors array even for valid password', () => {
+    const result = validatePasswordStrength('StrongP4ssword!');
+    expect(Array.isArray(result.errors)).toBe(true);
+  });
+});

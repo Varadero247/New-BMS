@@ -424,3 +424,55 @@ describe('DELETE /api/suppliers/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// Additional coverage: pagination, response shape, filter params
+// ===================================================================
+
+describe('GET /api/suppliers — extended coverage', () => {
+  it('should return pagination with correct totalPages for multi-page result', async () => {
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(100);
+
+    const res = await request(app).get('/api/suppliers?page=3&limit=20');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(100);
+    expect(res.body.pagination.totalPages).toBe(5);
+    expect(res.body.pagination.page).toBe(3);
+  });
+
+  it('should return success:true in response shape', async () => {
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/suppliers');
+
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('should filter by both search and isActive simultaneously', async () => {
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/suppliers?search=beta&isActive=true');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.finSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ isActive: true }),
+      })
+    );
+  });
+
+  it('should return 500 with success:false when count also fails', async () => {
+    mockPrisma.finSupplier.findMany.mockRejectedValue(new Error('count fail'));
+
+    const res = await request(app).get('/api/suppliers');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -318,4 +318,78 @@ describe('Medical CAPA API Routes', () => {
       expect(res.body.success).toBe(false);
     });
   });
+
+  describe('Medical CAPA — extended coverage', () => {
+    it('GET /api/capa returns correct totalPages in meta', async () => {
+      mockPrisma.medCapa.findMany.mockResolvedValue([]);
+      mockPrisma.medCapa.count.mockResolvedValue(30);
+      const res = await request(app).get('/api/capa?page=1&limit=10');
+      expect(res.status).toBe(200);
+      expect(res.body.meta.totalPages).toBe(3);
+    });
+
+    it('GET /api/capa passes skip based on page and limit to findMany', async () => {
+      mockPrisma.medCapa.findMany.mockResolvedValue([]);
+      mockPrisma.medCapa.count.mockResolvedValue(0);
+      await request(app).get('/api/capa?page=2&limit=10');
+      expect(mockPrisma.medCapa.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 10, take: 10 })
+      );
+    });
+
+    it('GET /api/capa filters by capaType wired to Prisma where', async () => {
+      mockPrisma.medCapa.findMany.mockResolvedValue([]);
+      mockPrisma.medCapa.count.mockResolvedValue(0);
+      await request(app).get('/api/capa?capaType=PREVENTIVE');
+      expect(mockPrisma.medCapa.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ capaType: 'PREVENTIVE' }) })
+      );
+    });
+
+    it('POST /api/capa returns 400 with error.code VALIDATION_ERROR for invalid capaType', async () => {
+      const res = await request(app).post('/api/capa').send({
+        title: 'Test', source: 'COMPLAINT', description: 'desc', capaType: 'INVALID',
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('POST /api/capa returns 400 for missing description', async () => {
+      const res = await request(app).post('/api/capa').send({ title: 'Test', source: 'COMPLAINT' });
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('GET /api/capa/stats returns byType groupBy data in response', async () => {
+      mockPrisma.medCapa.count.mockResolvedValueOnce(10).mockResolvedValueOnce(1);
+      mockPrisma.medCapa.groupBy
+        .mockResolvedValueOnce([{ status: 'OPEN', _count: { id: 5 } }])
+        .mockResolvedValueOnce([{ capaType: 'PREVENTIVE', _count: { id: 4 } }])
+        .mockResolvedValueOnce([{ severity: 'MINOR', _count: { id: 2 } }]);
+      const res = await request(app).get('/api/capa/stats');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('byType');
+    });
+
+    it('PUT /api/capa/:id response contains success:true and updated data', async () => {
+      mockPrisma.medCapa.findUnique.mockResolvedValue(mockCapa);
+      mockPrisma.medCapa.update.mockResolvedValue({ ...mockCapa, title: 'Revised' });
+      const res = await request(app)
+        .put('/api/capa/00000000-0000-0000-0000-000000000001')
+        .send({ title: 'Revised' });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.title).toBe('Revised');
+    });
+
+    it('DELETE /api/capa/:id sets deletedAt via update', async () => {
+      mockPrisma.medCapa.findUnique.mockResolvedValue(mockCapa);
+      mockPrisma.medCapa.update.mockResolvedValue({ ...mockCapa, deletedAt: new Date() });
+      const res = await request(app).delete('/api/capa/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(204);
+      expect(mockPrisma.medCapa.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+      );
+    });
+  });
 });

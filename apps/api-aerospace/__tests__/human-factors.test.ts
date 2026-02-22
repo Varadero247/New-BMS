@@ -646,3 +646,78 @@ describe('Aerospace Human Factors API Routes', () => {
     });
   });
 });
+
+// ── additional coverage ───────────────────────────────────────────────────
+describe('Aerospace Human Factors — additional edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/human-factors', humanFactorsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/human-factors/incidents — additional filters', () => {
+    it('should filter by status query parameter', async () => {
+      (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
+      (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app)
+        .get('/api/human-factors/incidents?status=REPORTED')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should return empty data array when no incidents match', async () => {
+      (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/human-factors/incidents?severity=CRITICAL')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveLength(0);
+      expect(response.body.meta.total).toBe(0);
+    });
+  });
+
+  describe('POST /api/human-factors/incidents — additional validation', () => {
+    it('should return 400 when severity is invalid', async () => {
+      const response = await request(app)
+        .post('/api/human-factors/incidents')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validIncidentPayload, severity: 'SUPER_HIGH' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+  });
+
+  describe('POST /api/human-factors/fatigue — additional coverage', () => {
+    it('should accept fitForDuty as false and persist correctly', async () => {
+      (mockPrisma.fatigueAssessment.create as jest.Mock).mockResolvedValueOnce({
+        ...mockFatigueAssessment,
+        fitForDuty: false,
+        fatigueScore: 9,
+        riskLevel: 'CRITICAL',
+      });
+
+      const response = await request(app)
+        .post('/api/human-factors/fatigue')
+        .set('Authorization', 'Bearer token')
+        .send({ ...validFatiguePayload, fitForDuty: false, fatigueScore: 9, riskLevel: 'CRITICAL' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.fitForDuty).toBe(false);
+    });
+  });
+});

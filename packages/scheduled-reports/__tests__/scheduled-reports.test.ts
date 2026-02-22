@@ -238,3 +238,43 @@ describe('runScheduleNow', () => {
     expect(getSchedule(sched.id)!.updatedAt).not.toBe(originalUpdatedAt);
   });
 });
+
+describe('schedule response shape and additional coverage', () => {
+  it('created schedule has all expected fields', () => {
+    const org = uniqueOrg();
+    const sched = createSchedule({ orgId: org, ...BASE_PARAMS });
+    expect(sched).toHaveProperty('id');
+    expect(sched).toHaveProperty('orgId', org);
+    expect(sched).toHaveProperty('name', 'Test Report');
+    expect(sched).toHaveProperty('reportType', 'quality_kpi');
+    expect(sched).toHaveProperty('schedule', '0 8 1 * *');
+    expect(sched).toHaveProperty('recipients');
+    expect(sched).toHaveProperty('format', 'pdf');
+    expect(sched).toHaveProperty('enabled', true);
+    expect(sched).toHaveProperty('lastRun', null);
+    expect(sched).toHaveProperty('nextRun');
+    expect(sched).toHaveProperty('createdAt');
+    expect(sched).toHaveProperty('updatedAt');
+  });
+
+  it('updateSchedule preserves orgId and reportType when not changed', () => {
+    const org = uniqueOrg();
+    const sched = createSchedule({ orgId: org, ...BASE_PARAMS });
+    const updated = updateSchedule(sched.id, { name: 'Changed Name' });
+    expect(updated!.orgId).toBe(org);
+    expect(updated!.reportType).toBe('quality_kpi');
+  });
+
+  it('listSchedules returns multiple schedules in insertion order or array form', () => {
+    const org = uniqueOrg();
+    createSchedule({ orgId: org, ...BASE_PARAMS, name: 'First' });
+    createSchedule({ orgId: org, ...BASE_PARAMS, name: 'Second' });
+    createSchedule({ orgId: org, ...BASE_PARAMS, name: 'Third' });
+    const list = listSchedules(org);
+    expect(list).toHaveLength(3);
+    const names = list.map((s) => s.name);
+    expect(names).toContain('First');
+    expect(names).toContain('Second');
+    expect(names).toContain('Third');
+  });
+});

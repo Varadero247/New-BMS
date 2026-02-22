@@ -489,3 +489,121 @@ describe('Projects API Routes', () => {
     });
   });
 });
+
+describe('Projects API — extended coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/projects', projectsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns correct totalPages for multi-page result', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+    (mockPrisma.project.count as jest.Mock).mockResolvedValueOnce(45);
+
+    const res = await request(app).get('/api/projects?page=2&limit=20');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.totalPages).toBe(3);
+    expect(res.body.meta.total).toBe(45);
+  });
+
+  it('GET / passes skip/take to Prisma for page 3', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.project.count as jest.Mock).mockResolvedValueOnce(60);
+
+    await request(app).get('/api/projects?page=3&limit=10');
+
+    expect(mockPrisma.project.findMany as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET / filters by methodology wired into where clause', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.project.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app).get('/api/projects?methodology=WATERFALL');
+
+    expect(mockPrisma.project.findMany as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ methodology: 'WATERFALL' }),
+      })
+    );
+  });
+
+  it('GET / filters by priority wired into where clause', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.project.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app).get('/api/projects?priority=LOW');
+
+    expect(mockPrisma.project.findMany as jest.Mock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ priority: 'LOW' }),
+      })
+    );
+  });
+
+  it('POST / returns 400 for invalid projectType enum', async () => {
+    const res = await request(app).post('/api/projects').send({
+      projectName: 'Bad Enum Project',
+      projectType: 'INVALID_TYPE',
+      plannedEndDate: '2025-12-31',
+      methodology: 'AGILE',
+      priority: 'HIGH',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 for invalid priority enum', async () => {
+    const res = await request(app).post('/api/projects').send({
+      projectName: 'Bad Priority Project',
+      projectType: 'INTERNAL',
+      plannedEndDate: '2025-12-31',
+      methodology: 'AGILE',
+      priority: 'NOT_A_PRIORITY',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id/dashboard returns 500 on count/findUnique failure', async () => {
+    (mockPrisma.project.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+
+    const res = await request(app).get(
+      '/api/projects/44000000-0000-4000-a000-000000000001/dashboard'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / response shape contains success:true and meta object', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+    (mockPrisma.project.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/projects');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('limit');
+    expect(res.body.meta).toHaveProperty('total');
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+});

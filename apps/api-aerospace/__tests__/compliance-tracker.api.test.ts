@@ -379,3 +379,110 @@ describe('Aerospace Compliance Tracker API', () => {
     });
   });
 });
+
+// ─── Additional coverage: pagination, filters, error paths ───────────────────
+
+describe('Aerospace Compliance Tracker — extended coverage', () => {
+  it('GET /api/compliance returns correct totalPages for multi-page result', async () => {
+    mockPrisma.aeroComplianceItem.findMany.mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000001', refNumber: 'X', clause: '4.1', complianceStatus: 'COMPLIANT' },
+    ]);
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(110);
+
+    const res = await request(app)
+      .get('/api/compliance?page=1&limit=50')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+    expect(res.body.meta.total).toBe(110);
+  });
+
+  it('GET /api/compliance passes correct skip/take for page 2', async () => {
+    mockPrisma.aeroComplianceItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/compliance?page=2&limit=50')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroComplianceItem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 50, take: 50 })
+    );
+  });
+
+  it('GET /api/compliance filters by standard query param wired into Prisma where clause', async () => {
+    mockPrisma.aeroComplianceItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/compliance?standard=AS9100D')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroComplianceItem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ standard: 'AS9100D' }) })
+    );
+  });
+
+  it('GET /api/compliance returns success:true with empty data array', async () => {
+    mockPrisma.aeroComplianceItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(0);
+
+    const res = await request(app)
+      .get('/api/compliance')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+
+  it('PUT /api/compliance/:id returns 500 on db error', async () => {
+    mockPrisma.aeroComplianceItem.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      targetDate: null,
+      lastReviewDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+    });
+    mockPrisma.aeroComplianceItem.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/compliance/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ complianceStatus: 'COMPLIANT' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/compliance/:id returns 500 on db error', async () => {
+    mockPrisma.aeroComplianceItem.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    mockPrisma.aeroComplianceItem.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .delete('/api/compliance/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/compliance returns 400 when targetDate is not a valid date string', async () => {
+    const res = await request(app)
+      .post('/api/compliance')
+      .set('Authorization', 'Bearer token')
+      .send({ clause: '9.2', targetDate: 'not-a-date' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/compliance/:id returns 500 on db error (count check)', async () => {
+    mockPrisma.aeroComplianceItem.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .get('/api/compliance/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

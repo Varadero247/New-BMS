@@ -335,3 +335,107 @@ describe('Medical Design Verification API Routes', () => {
     });
   });
 });
+
+describe('Medical Design Verification API — additional coverage', () => {
+  const mockVerification = {
+    id: '00000000-0000-0000-0000-000000000001',
+    projectId: 'project-uuid-1',
+    title: 'Electrical Safety Verification',
+    protocol: 'Protocol V1.0',
+    testMethod: 'IEC 60601-1',
+    acceptanceCriteria: 'Pass',
+    results: null,
+    pass: null,
+    completedDate: null,
+    completedBy: null,
+    traceToInput: 'DI-001',
+    traceToOutput: 'DO-001',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns success:true in response body', async () => {
+    mockPrisma.designVerification.findMany.mockResolvedValue([mockVerification]);
+    mockPrisma.designVerification.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/verification');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / computes totalPages for paginated result', async () => {
+    mockPrisma.designVerification.findMany.mockResolvedValue([]);
+    mockPrisma.designVerification.count.mockResolvedValue(45);
+
+    const res = await request(app).get('/api/verification?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(5);
+  });
+
+  it('GET / with page=2&limit=5 has correct page in meta', async () => {
+    mockPrisma.designVerification.findMany.mockResolvedValue([]);
+    mockPrisma.designVerification.count.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/verification?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+  });
+
+  it('GET /stats returns 500 on db error', async () => {
+    mockPrisma.designVerification.count.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/verification/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / returns 500 when create throws', async () => {
+    mockPrisma.designProject.findUnique.mockResolvedValue({
+      id: 'project-uuid-1',
+      status: 'ACTIVE',
+    });
+    mockPrisma.designVerification.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/verification').send({
+      projectId: 'project-uuid-1',
+      title: 'Test',
+      testMethod: 'IEC 60601-1',
+      acceptanceCriteria: 'Pass',
+    });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / returns empty data array when no records', async () => {
+    mockPrisma.designVerification.findMany.mockResolvedValue([]);
+    mockPrisma.designVerification.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/verification');
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('PUT /:id returns success:true on valid update', async () => {
+    mockPrisma.designVerification.findUnique.mockResolvedValue(mockVerification);
+    mockPrisma.designVerification.update.mockResolvedValue({
+      ...mockVerification,
+      title: 'Updated Title',
+    });
+
+    const res = await request(app)
+      .put('/api/verification/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Title' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / filters combined projectId and search query', async () => {
+    mockPrisma.designVerification.findMany.mockResolvedValue([mockVerification]);
+    mockPrisma.designVerification.count.mockResolvedValue(1);
+
+    const res = await request(app).get(
+      '/api/verification?projectId=project-uuid-1&search=electrical'
+    );
+    expect(res.status).toBe(200);
+  });
+});

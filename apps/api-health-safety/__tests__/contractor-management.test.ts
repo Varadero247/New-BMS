@@ -241,4 +241,64 @@ describe('ISO 45001 Contractor Management Routes', () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
   });
+
+  // Extended coverage
+  it('GET / returns correct totalPages when count=30 and limit=10', async () => {
+    prisma.hSContractor.findMany.mockResolvedValue([]);
+    prisma.hSContractor.count.mockResolvedValue(30);
+    const res = await request(app).get('/?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET / passes skip=10 to findMany when page=2 and limit=10', async () => {
+    prisma.hSContractor.findMany.mockResolvedValue([]);
+    prisma.hSContractor.count.mockResolvedValue(0);
+    await request(app).get('/?page=2&limit=10');
+    expect(prisma.hSContractor.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET / filters by workLocation wired into Prisma where', async () => {
+    prisma.hSContractor.findMany.mockResolvedValue([]);
+    prisma.hSContractor.count.mockResolvedValue(0);
+    await request(app).get('/?workLocation=SiteB');
+    expect(prisma.hSContractor.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ workLocation: 'SiteB' }) })
+    );
+  });
+
+  it('POST / returns 500 on DB create error', async () => {
+    prisma.hSContractor.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/').send(contractorPayload);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id returns 500 on DB update error', async () => {
+    prisma.hSContractor.findUnique.mockResolvedValue(mockContractor);
+    prisma.hSContractor.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/cont-1').send({ inductionCompleted: true });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /:id/inspections returns 500 on DB create error', async () => {
+    prisma.hSContractor.findUnique.mockResolvedValue(mockContractor);
+    prisma.hSContractorInspection.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/00000000-0000-0000-0000-000000000001/inspections').send({
+      inspectedBy: 'Officer', inspectionDate: '2026-02-15',
+      findings: 'All good', outcome: 'SATISFACTORY',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /stats returns 500 on DB error', async () => {
+    prisma.hSContractor.count.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
 });

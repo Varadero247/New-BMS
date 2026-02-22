@@ -309,3 +309,109 @@ describe('PMS Routes', () => {
     });
   });
 });
+
+describe('PMS Routes — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /plans returns success:true on the response body', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/pms/plans');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /plans computes totalPages correctly for multiple pages', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(35);
+
+    const res = await request(app).get('/api/pms/plans?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(4);
+  });
+
+  it('GET /plans with page=3&limit=10 returns correct skip in meta', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(100);
+
+    const res = await request(app).get('/api/pms/plans?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(3);
+    expect(res.body.meta.limit).toBe(10);
+  });
+
+  it('GET /plans returns empty data array when count is zero', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/pms/plans');
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('PUT /plans/:id returns 500 when update throws', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.pmsPlan.update as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app)
+      .put('/api/pms/plans/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ACTIVE' });
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /reports/psur returns 500 when pmsReport.create throws', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.pmsReport.create as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app).post('/api/pms/reports/psur').send({
+      planId: 'pms-1',
+      periodStart: '2025-01-01',
+      periodEnd: '2025-12-31',
+    });
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /reports/pmcf returns 500 when pmsReport.create throws', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.pmsReport.create as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app).post('/api/pms/reports/pmcf').send({
+      planId: 'pms-1',
+      periodStart: '2025-01-01',
+      periodEnd: '2025-12-31',
+    });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /plans/:id returns 500 when findUnique throws', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app).get('/api/pms/plans/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /dashboard returns overdueReviews count', async () => {
+    (mockPrisma.pmsPlan.count as jest.Mock)
+      .mockResolvedValueOnce(20)
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(3);
+    (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(7);
+
+    const res = await request(app).get('/api/pms/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overdueReviews).toBe(3);
+    expect(res.body.data.pendingReports).toBe(7);
+  });
+});

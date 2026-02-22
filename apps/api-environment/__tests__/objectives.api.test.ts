@@ -535,3 +535,57 @@ describe('Environment Objectives API Routes', () => {
     });
   });
 });
+
+describe('Environment Objectives — additional coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/objectives', objectivesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/objectives returns totalPages calculated from total and limit', async () => {
+    (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(200);
+
+    const response = await request(app2)
+      .get('/api/objectives?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.totalPages).toBe(10);
+  });
+
+  it('GET /api/objectives response shape contains success, data and meta', async () => {
+    (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/objectives')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body).toHaveProperty('success', true);
+    expect(response.body).toHaveProperty('data');
+    expect(response.body).toHaveProperty('meta');
+  });
+
+  it('PUT /api/objectives/:id returns 500 when update throws', async () => {
+    (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envObjective.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .put('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Updated' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

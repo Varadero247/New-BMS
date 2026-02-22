@@ -219,3 +219,67 @@ describe('notifications', () => {
     });
   });
 });
+
+describe('NotificationService – extended coverage', () => {
+  let service: NotificationService;
+
+  beforeEach(() => {
+    service = new NotificationService();
+  });
+
+  it('markRead is idempotent – second call keeps READ status', async () => {
+    await service.send(createTestNotification({ id: 'idem-1', userId: 'user-x' }));
+    service.markRead('idem-1');
+    service.markRead('idem-1');
+    expect(service.getById('idem-1')!.status).toBe('READ');
+  });
+
+  it('markRead on unknown id does not throw', () => {
+    expect(() => service.markRead('does-not-exist')).not.toThrow();
+  });
+
+  it('sendBulk with empty array does not throw', async () => {
+    await expect(service.sendBulk([])).resolves.not.toThrow();
+  });
+
+  it('getAll returns both sent and read notifications', async () => {
+    await service.send(createTestNotification({ id: 'a-1', userId: 'user-y' }));
+    await service.send(createTestNotification({ id: 'a-2', userId: 'user-y' }));
+    service.markRead('a-1');
+    const all = service.getAll('user-y');
+    const statuses = all.map((n) => n.status);
+    expect(statuses).toContain('READ');
+    expect(statuses).toContain('SENT');
+  });
+
+  it('different users notifications are isolated', async () => {
+    await service.send(createTestNotification({ id: 'iso-1', userId: 'user-a' }));
+    await service.send(createTestNotification({ id: 'iso-2', userId: 'user-b' }));
+    expect(service.getAll('user-a')).toHaveLength(1);
+    expect(service.getAll('user-b')).toHaveLength(1);
+  });
+
+  it('sent notification has a defined id', async () => {
+    const notif = createTestNotification({ id: 'check-id' });
+    await service.send(notif);
+    expect(service.getById('check-id')!.id).toBe('check-id');
+  });
+
+  it('setPreferences overwrites previously stored preferences', () => {
+    service.setPreferences('user-pref', {
+      userId: 'user-pref',
+      channels: { in_app: true, email: true, push: true, sms: true },
+      disabledTypes: [],
+      emailDigest: 'daily',
+    });
+    service.setPreferences('user-pref', {
+      userId: 'user-pref',
+      channels: { in_app: false, email: false, push: false, sms: false },
+      disabledTypes: ['ACTION_ASSIGNED'],
+      emailDigest: 'none',
+    });
+    const prefs = service.getPreferences('user-pref');
+    expect(prefs.channels.in_app).toBe(false);
+    expect(prefs.emailDigest).toBe('none');
+  });
+});

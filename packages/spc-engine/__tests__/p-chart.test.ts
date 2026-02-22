@@ -289,3 +289,49 @@ describe('pChart — comprehensive', () => {
     });
   });
 });
+
+describe('pChart — additional edge cases', () => {
+  it('should compute centerLine of 1 when all samples are 100% defective', () => {
+    const data = makePData([
+      [50, 50],
+      [80, 80],
+      [200, 200],
+    ]);
+    const chart = pChart(data);
+    expect(chart.centerLine).toBeCloseTo(1, 4);
+  });
+
+  it('should have UCL >= centerLine for high defect rate processes', () => {
+    const data = makePData([
+      [90, 100],
+      [95, 100],
+      [92, 100],
+    ]);
+    const chart = pChart(data);
+    expect(chart.ucl).toBeGreaterThanOrEqual(chart.centerLine);
+  });
+
+  it('should produce plotted proportion of 0 for zero-defect samples', () => {
+    const data = makePData([
+      [0, 50],
+      [0, 60],
+      [0, 70],
+    ]);
+    const chart = pChart(data);
+    chart.dataPoints.forEach((dp) => {
+      expect(dp.value).toBeCloseTo(0, 4);
+    });
+  });
+
+  it('should handle samples with varying sizes and correct proportions', () => {
+    const data = makePData([
+      [10, 100],
+      [20, 200],
+      [5, 50],
+    ]);
+    const chart = pChart(data);
+    expect(chart.dataPoints[0].value).toBeCloseTo(0.1, 4);
+    expect(chart.dataPoints[1].value).toBeCloseTo(0.1, 4);
+    expect(chart.dataPoints[2].value).toBeCloseTo(0.1, 4);
+  });
+});

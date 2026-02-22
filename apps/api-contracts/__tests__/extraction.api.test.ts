@@ -242,3 +242,66 @@ describe('POST /api/extraction/analyze', () => {
     expect(res.body.data.wordCount).toBe(10);
   });
 });
+
+describe('POST /api/extraction/analyze — additional coverage', () => {
+  it('should include success:true in response envelope', async () => {
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: 'Simple contract text with no special content.' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('should return error.code VALIDATION_ERROR for non-string text', async () => {
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: 12345 });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('should return error.code VALIDATION_ERROR for whitespace-only text', async () => {
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: '   ' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('should detect Termination clause keyword', async () => {
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: 'Either party may terminate this agreement with 30 days written notice.' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.extracted.keyTerms).toContain('Termination');
+  });
+
+  it('should detect Warranty clause keyword', async () => {
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: 'The supplier provides a 12-month warranty on all delivered goods.' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.extracted.keyTerms).toContain('Warranty');
+  });
+
+  it('should extract EUR amounts with € symbol', async () => {
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: 'The total consideration is €250,000 payable in advance.' });
+    expect(res.status).toBe(200);
+    const values: Array<{ amount: string; currency: string }> = res.body.data.extracted.values;
+    expect(values.some((v) => v.currency === 'EUR')).toBe(true);
+  });
+
+  it('should handle very long contract text without error', async () => {
+    const longText = 'This agreement '.repeat(500) + 'is subject to English law.';
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: longText });
+    expect(res.status).toBe(200);
+    expect(res.body.data.wordCount).toBeGreaterThan(1000);
+  });
+});

@@ -460,3 +460,51 @@ describe('GET /api/integrations/:id/logs', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('GET /api/integrations — additional coverage', () => {
+  it('should include success field in response body', async () => {
+    mockPrisma.finIntegration.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/integrations');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id returns 500 when update throws', async () => {
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
+      id: 'f5000000-0000-4000-a000-000000000001',
+      name: 'Xero',
+    });
+    mockPrisma.finIntegration.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/integrations/f5000000-0000-4000-a000-000000000001')
+      .send({ name: 'Updated' });
+
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /:id/deactivate returns 500 on error', async () => {
+    mockPrisma.finIntegration.findUnique.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post(
+      '/api/integrations/f5000000-0000-4000-a000-000000000001/deactivate'
+    );
+
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /:id/logs totalPages calculation is correct', async () => {
+    mockPrisma.finSyncLog.findMany.mockResolvedValue([]);
+    mockPrisma.finSyncLog.count.mockResolvedValue(100);
+
+    const res = await request(app).get(
+      '/api/integrations/f5000000-0000-4000-a000-000000000001/logs?page=1&limit=25'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+    expect(res.body.pagination.total).toBe(100);
+  });
+});

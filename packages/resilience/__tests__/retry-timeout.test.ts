@@ -268,3 +268,44 @@ describe('Bulkhead — comprehensive', () => {
     expect(results).toEqual(['second', 'third']);
   });
 });
+
+describe('withRetry — additional edge cases', () => {
+  it('should retry exactly maxAttempts - 1 times before throwing', async () => {
+    const fn = jest.fn().mockRejectedValue(new Error('persistent'));
+    await expect(withRetry(fn, { maxAttempts: 5, initialDelay: 10 })).rejects.toThrow('persistent');
+    expect(fn).toHaveBeenCalledTimes(5);
+  });
+
+  it('should succeed on the last allowed attempt', async () => {
+    const fn = jest
+      .fn()
+      .mockRejectedValueOnce(new Error('fail'))
+      .mockRejectedValueOnce(new Error('fail'))
+      .mockResolvedValue('final');
+    const result = await withRetry(fn, { maxAttempts: 3, initialDelay: 10 });
+    expect(result).toBe('final');
+    expect(fn).toHaveBeenCalledTimes(3);
+  });
+
+  it('should pass attempt number correctly to onRetry starting at 1', async () => {
+    const fn = jest
+      .fn()
+      .mockRejectedValueOnce(new Error('e1'))
+      .mockRejectedValueOnce(new Error('e2'))
+      .mockResolvedValue('ok');
+    const attempts: number[] = [];
+    await withRetry(fn, {
+      maxAttempts: 5,
+      initialDelay: 10,
+      onRetry: (attempt) => attempts.push(attempt),
+    });
+    expect(attempts).toEqual([1, 2]);
+  });
+
+  it('should handle a function that resolves with undefined', async () => {
+    const fn = jest.fn().mockResolvedValue(undefined);
+    const result = await withRetry(fn, { maxAttempts: 3, initialDelay: 10 });
+    expect(result).toBeUndefined();
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+});

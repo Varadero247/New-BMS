@@ -266,3 +266,84 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage: pagination, filters, response shapes ────────────────
+
+describe('Governance — extended coverage', () => {
+  it('GET /api/governance returns correct totalPages for multi-page result', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([mockGovernance]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(30);
+
+    const res = await request(app).get('/api/governance?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.totalPages).toBe(3);
+    expect(res.body.pagination.total).toBe(30);
+  });
+
+  it('GET /api/governance passes correct skip for page 4', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/governance?page=4&limit=5');
+    expect(prisma.esgGovernanceMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 15, take: 5 })
+    );
+  });
+
+  it('GET /api/governance filters by category param and wires it into where clause', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/governance?category=ETHICS');
+    expect(prisma.esgGovernanceMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'ETHICS' }) })
+    );
+  });
+
+  it('GET /api/governance returns success:true with empty data array', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/governance');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/governance/:id returns data with expected fields', async () => {
+    (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue(mockGovernance);
+
+    const res = await request(app).get('/api/governance/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('category');
+    expect(res.body.data).toHaveProperty('metric');
+    expect(res.body.data).toHaveProperty('value');
+  });
+
+  it('GET /api/governance/policies returns 500 on DB error', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/governance/policies');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/governance/ethics returns 500 on DB error', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/governance/ethics');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/governance returns 400 when periodEnd is missing', async () => {
+    const res = await request(app).post('/api/governance').send({
+      category: 'BOARD',
+      metric: 'Board Independence',
+      value: '75%',
+      periodStart: '2026-01-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
+});

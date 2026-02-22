@@ -151,3 +151,57 @@ describe('benchmarks', () => {
     });
   });
 });
+
+describe('benchmarks — additional coverage', () => {
+  describe('getBenchmark — edge cases', () => {
+    it('should return data for supplierNCRRate in manufacturing', () => {
+      const result = getBenchmark('supplierNCRRate', 'manufacturing');
+      expect(result).not.toBeNull();
+      expect(typeof result!.average).toBe('number');
+    });
+
+    it('should return data for auditPassRate in services', () => {
+      const result = getBenchmark('auditPassRate', 'services');
+      expect(result).not.toBeNull();
+      expect(result!.lowerIsBetter).toBe(false);
+    });
+
+    it('should return data for genderPayGap in manufacturing', () => {
+      const result = getBenchmark('genderPayGap', 'manufacturing');
+      expect(result).not.toBeNull();
+      expect(typeof result!.bestInClass).toBe('number');
+    });
+  });
+
+  describe('calculatePercentile — additional cases', () => {
+    it('should return a number in 0-100 range for trainingCompliance in services', () => {
+      const p = calculatePercentile(80, 'trainingCompliance', 'services');
+      expect(p).toBeGreaterThanOrEqual(0);
+      expect(p).toBeLessThanOrEqual(100);
+    });
+
+    it('should return 50 for unknown industry', () => {
+      const p = calculatePercentile(5, 'ltifr', 'unknown_industry' as string);
+      expect(p).toBe(50);
+    });
+
+    it('should score 100% firstPassYield higher than 95% in manufacturing', () => {
+      const p100 = calculatePercentile(100, 'firstPassYield', 'manufacturing');
+      const p95 = calculatePercentile(95, 'firstPassYield', 'manufacturing');
+      expect(p100).toBeGreaterThanOrEqual(p95);
+    });
+  });
+
+  describe('generateBenchmarkNarrative — additional cases', () => {
+    it('should mention the KPI name for dpmo in automotive', () => {
+      const narrative = generateBenchmarkNarrative(500, 'dpmo', 'automotive');
+      expect(narrative.toLowerCase()).toContain('dpmo');
+    });
+
+    it('should produce different narratives for better vs worse values', () => {
+      const good = generateBenchmarkNarrative(1.0, 'ltifr', 'construction');
+      const bad = generateBenchmarkNarrative(6.0, 'ltifr', 'construction');
+      expect(good).not.toBe(bad);
+    });
+  });
+});

@@ -336,3 +336,66 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Additional coverage: pagination, filter wiring, validation
+// ===================================================================
+describe('Additional checklists coverage', () => {
+  it('GET /api/checklists pagination returns totalPages', async () => {
+    mockPrisma.fsSvcChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcChecklist.count.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/checklists?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(50);
+    expect(res.body.pagination.totalPages).toBe(5);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('GET /api/checklists response has success:true and pagination object', async () => {
+    mockPrisma.fsSvcChecklist.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Safety', category: 'safety', items: [] },
+    ]);
+    mockPrisma.fsSvcChecklist.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/checklists');
+    expect(res.body).toMatchObject({ success: true, pagination: expect.objectContaining({ total: 1 }) });
+  });
+
+  it('POST /api/checklists returns 400 when name is missing', async () => {
+    const res = await request(app).post('/api/checklists').send({ category: 'Safety' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/checklists filters by isActive=false wired into where', async () => {
+    mockPrisma.fsSvcChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcChecklist.count.mockResolvedValue(0);
+
+    await request(app).get('/api/checklists?isActive=false');
+    expect(mockPrisma.fsSvcChecklist.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('POST /api/checklists/:id/results returns 400 when overallResult is missing', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app)
+      .post('/api/checklists/00000000-0000-0000-0000-000000000001/results')
+      .send({ jobId: '00000000-0000-0000-0000-000000000001', completedAt: '2026-01-01T10:00:00Z' });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/checklists/:id returns 500 when find fails', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/checklists/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

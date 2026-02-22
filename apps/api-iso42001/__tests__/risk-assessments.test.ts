@@ -387,3 +387,82 @@ describe('DELETE /api/risk-assessments/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ── Additional coverage ──────────────────────────────────────────────────────
+
+describe('GET /api/risk-assessments — pagination and filter coverage', () => {
+  it('pagination.totalPages is calculated correctly', async () => {
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([mockRisk]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(30);
+
+    const res = await request(app).get('/api/risk-assessments?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('filter by category is forwarded to Prisma where clause', async () => {
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/risk-assessments?category=PRIVACY_DATA_PROTECTION');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.aiRiskAssessment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ category: 'PRIVACY_DATA_PROTECTION' }),
+      })
+    );
+  });
+
+  it('response body has success:true on empty results', async () => {
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/risk-assessments');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST returns 400 for invalid likelihood enum', async () => {
+    const res = await request(app).post('/api/risk-assessments').send({
+      systemId: UUID1,
+      title: 'Test Risk',
+      description: 'desc',
+      category: 'PRIVACY_DATA_PROTECTION',
+      likelihood: 'NOT_VALID',
+      impact: 'MAJOR',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST returns 400 for invalid impact enum', async () => {
+    const res = await request(app).post('/api/risk-assessments').send({
+      systemId: UUID1,
+      title: 'Test Risk',
+      description: 'desc',
+      category: 'PRIVACY_DATA_PROTECTION',
+      likelihood: 'LIKELY',
+      impact: 'ENORMOUS',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT returns 500 when update throws after find succeeds', async () => {
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockRejectedValue(new Error('write fail'));
+
+    const res = await request(app).put(`/api/risk-assessments/${UUID2}`).send({ title: 'New' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id response shape includes title and category', async () => {
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+
+    const res = await request(app).get(`/api/risk-assessments/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('title');
+    expect(res.body.data).toHaveProperty('category');
+  });
+});

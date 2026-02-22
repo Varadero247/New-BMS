@@ -471,4 +471,56 @@ describe('Environment Legal Obligations API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('GET /api/legal — additional coverage', () => {
+    it('should return correct totalPages when paginating', async () => {
+      (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(75);
+
+      const response = await request(app)
+        .get('/api/legal?page=1&limit=25')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.totalPages).toBe(3);
+      expect(response.body.meta.total).toBe(75);
+    });
+
+    it('should filter by multiple params simultaneously', async () => {
+      (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/legal?complianceStatus=COMPLIANT&obligationType=LEGISLATION')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.envLegal.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            complianceStatus: 'COMPLIANT',
+            obligationType: 'LEGISLATION',
+          }),
+        })
+      );
+    });
+
+    it('GET /:id response should include referenceNumber field', async () => {
+      (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '14000000-0000-4000-a000-000000000001',
+        referenceNumber: 'ENV-LEG-2026-001',
+        obligationType: 'LEGISLATION',
+        title: 'Environmental Protection Act',
+        jurisdiction: 'NATIONAL',
+        complianceStatus: 'COMPLIANT',
+      });
+
+      const response = await request(app)
+        .get('/api/legal/14000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.referenceNumber).toBe('ENV-LEG-2026-001');
+      expect(response.body.data.complianceStatus).toBe('COMPLIANT');
+    });
+  });
 });

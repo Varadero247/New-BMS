@@ -397,3 +397,89 @@ describe('GET /api/reports/customer-health', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// Extended coverage
+// ===================================================================
+
+describe('CRM Reports — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /sales-dashboard returns success:true in response shape', async () => {
+    mockPrisma.crmDeal.count
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(2);
+    mockPrisma.crmDeal.aggregate
+      .mockResolvedValueOnce({ _sum: { value: 100000 } })
+      .mockResolvedValueOnce({ _sum: { value: 50000 } });
+
+    const res = await request(app).get('/api/reports/sales-dashboard');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /pipeline-velocity returns 500 on DB error and success:false', async () => {
+    mockPrisma.crmDeal.findMany.mockRejectedValue(new Error('Connection lost'));
+
+    const res = await request(app).get('/api/reports/pipeline-velocity');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /win-loss correctly classifies 100% win rate', async () => {
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
+      { status: 'WON', source: 'INBOUND', assignedTo: 'user-1' },
+      { status: 'WON', source: 'INBOUND', assignedTo: 'user-1' },
+    ]);
+
+    const res = await request(app).get('/api/reports/win-loss');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.winRate).toBe(100);
+    expect(res.body.data.lossRate).toBe(0);
+  });
+
+  it('GET /forecast returns 500 on DB error and success:false', async () => {
+    mockPrisma.crmDeal.findMany.mockRejectedValue(new Error('Timeout'));
+
+    const res = await request(app).get('/api/reports/forecast');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /partner-performance returns 500 on DB error and success:false', async () => {
+    mockPrisma.crmPartner.findMany.mockRejectedValue(new Error('Network failure'));
+
+    const res = await request(app).get('/api/reports/partner-performance');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /forecast correctly weights deal value by probability', async () => {
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
+      { value: 10000, probability: 100, expectedCloseDate: new Date('2026-06-15') },
+    ]);
+
+    const res = await request(app).get('/api/reports/forecast');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalWeightedForecast).toBe(10000);
+  });
+
+  it('GET /customer-health returns 500 and success:false on DB error', async () => {
+    mockPrisma.crmAccount.findMany.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).get('/api/reports/customer-health');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -352,3 +352,78 @@ describe('Checksum Utilities', () => {
     });
   });
 });
+
+describe('Electronic Signature — additional coverage', () => {
+  const testPassword = 'TestPassword123!';
+  let passwordHash: string;
+
+  beforeAll(async () => {
+    passwordHash = await bcrypt.hash(testPassword, 10);
+  });
+
+  describe('createSignature — additional cases', () => {
+    const baseRequest: SignatureRequest = {
+      userId: 'user-ext-001',
+      userEmail: 'ext@ims.local',
+      userFullName: 'Ext User',
+      password: testPassword,
+      meaning: 'REVIEWED',
+      reason: 'Reviewed for compliance',
+      resourceType: 'RiskAssessment',
+      resourceId: 'ra-001',
+      resourceRef: 'RA-2602-0001',
+      ipAddress: '10.10.10.1',
+      userAgent: 'Test/1.0',
+    };
+
+    it('should set valid:true on newly created signature', async () => {
+      const result = await createSignature(baseRequest, passwordHash);
+      expect(result.signature!.valid).toBe(true);
+    });
+
+    it('should embed userId and userEmail on the signature', async () => {
+      const result = await createSignature(baseRequest, passwordHash);
+      expect(result.signature!.userId).toBe('user-ext-001');
+      expect(result.signature!.userEmail).toBe('ext@ims.local');
+    });
+
+    it('should embed resourceType and resourceId on the signature', async () => {
+      const result = await createSignature(baseRequest, passwordHash);
+      expect(result.signature!.resourceType).toBe('RiskAssessment');
+      expect(result.signature!.resourceId).toBe('ra-001');
+    });
+
+    it('should return null signature and error message for wrong password', async () => {
+      const bad = { ...baseRequest, password: 'WrongPass999!' };
+      const result = await createSignature(bad, passwordHash);
+      expect(result.signature).toBeNull();
+      expect(typeof result.error).toBe('string');
+    });
+  });
+
+  describe('verifySignatureChecksum — mismatch cases', () => {
+    it('should return false when storedChecksum does not match', () => {
+      const result = verifySignatureChecksum({
+        userId: 'user-ext-001',
+        meaning: 'WITNESSED',
+        resourceType: 'Document',
+        resourceId: 'doc-999',
+        timestamp: new Date('2026-01-01T00:00:00Z'),
+        storedChecksum: 'deadbeef_invalid_checksum',
+      });
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('computeChanges — additional edge cases', () => {
+    it('should treat null and undefined as different from a string value', () => {
+      const changes = computeChanges({ field: null } as Record<string, unknown>, { field: 'hello' });
+      expect(changes.length).toBeGreaterThan(0);
+    });
+
+    it('should handle an empty old object and non-empty new object', () => {
+      const changes = computeChanges({}, { a: 1, b: 2 });
+      expect(changes).toHaveLength(2);
+    });
+  });
+});

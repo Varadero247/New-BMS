@@ -431,3 +431,39 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Field Service Jobs — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/jobs returns totalPages in pagination meta', async () => {
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJob.count.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/jobs?page=1&limit=10');
+    expect(res.status).toBe(200);
+    const body = res.body;
+    const totalPages =
+      body.meta?.totalPages ?? body.pagination?.totalPages ?? body.totalPages;
+    expect(totalPages).toBe(5);
+  });
+
+  it('GET /api/jobs response shape has success and data array', async () => {
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJob.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/jobs');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 when update throws', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcJob.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/jobs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

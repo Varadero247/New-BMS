@@ -302,3 +302,74 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('reports — additional coverage', () => {
+  it('GET / pagination totalPages is correct for 11 items with limit 5', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(11);
+
+    const res = await request(app).get('/api/reports?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET / skip is correct for page 3 limit 4', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(20);
+
+    await request(app).get('/api/reports?page=3&limit=4');
+    expect(prisma.esgReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 8, take: 4 })
+    );
+  });
+
+  it('POST / returns 400 for invalid status enum', async () => {
+    const res = await request(app).post('/api/reports').send({
+      title: 'Test Report',
+      reportType: 'ANNUAL',
+      year: 2026,
+      status: 'NOT_A_STATUS',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / returns 400 when year is out of range', async () => {
+    const res = await request(app).post('/api/reports').send({
+      title: 'Old Report',
+      reportType: 'ANNUAL',
+      year: 1990,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / response has success:true', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([mockReport]);
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/reports');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /dashboard returns 500 on DB error', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/reports/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /tcfd returns 500 on DB error', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/reports/tcfd?year=2026');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /csrd returns 500 on DB error', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/reports/csrd?year=2026');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

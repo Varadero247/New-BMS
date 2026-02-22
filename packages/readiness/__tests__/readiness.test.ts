@@ -249,3 +249,110 @@ describe('deleteCertificate', () => {
     expect(result).toBe(false);
   });
 });
+
+describe('readiness — additional coverage', () => {
+  it('calculateReadinessScore returns a Date for lastCalculatedAt', () => {
+    const result = calculateReadinessScore('org-1', 'ISO 9001:2015');
+    expect(result.lastCalculatedAt).toBeInstanceOf(Date);
+  });
+
+  it('calculateReadinessScore grade is one of A B C D F', () => {
+    const grades = ['ISO 9001:2015', 'ISO 14001:2015', 'ISO 45001:2018', 'ISO 99999:9999'];
+    for (const std of grades) {
+      const { grade } = calculateReadinessScore('org-x', std);
+      expect(['A', 'B', 'C', 'D', 'F']).toContain(grade);
+    }
+  });
+
+  it('calculateReadinessScore maxScore is always 100', () => {
+    const result = calculateReadinessScore('org-1', 'ISO 45001:2018');
+    expect(result.maxScore).toBe(100);
+  });
+
+  it('createCertificate generates a UUID id', () => {
+    const cert = createCertificate({
+      orgId: 'org-uuid',
+      standard: 'ISO 9001:2015',
+      scope: 'uuid test',
+      certificationBody: 'BSI',
+      certificateNumber: 'UUID-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    // UUID v4 format
+    expect(cert.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    );
+  });
+
+  it('updateCertificate can update scope field', () => {
+    const cert = createCertificate({
+      orgId: 'org-scope',
+      standard: 'ISO 14001:2015',
+      scope: 'Old scope',
+      certificationBody: 'DNV',
+      certificateNumber: 'SC-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    const updated = updateCertificate(cert.id, { scope: 'New scope' });
+    expect(updated?.scope).toBe('New scope');
+  });
+
+  it('listCertificates for org returns only certs for that org', () => {
+    const cert = createCertificate({
+      orgId: 'org-isolated',
+      standard: 'ISO 45001:2018',
+      scope: 'Isolated',
+      certificationBody: 'BSI',
+      certificateNumber: 'ISO-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    const certs = listCertificates('org-isolated');
+    for (const c of certs) {
+      expect(c.orgId).toBe('org-isolated');
+    }
+    expect(certs.find((c) => c.id === cert.id)).toBeDefined();
+  });
+
+  it('deleteCertificate then getCertificate returns undefined', () => {
+    const cert = createCertificate({
+      orgId: 'org-del2',
+      standard: 'ISO 9001:2015',
+      scope: 'Delete test',
+      certificationBody: 'BSI',
+      certificateNumber: 'DEL2-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    deleteCertificate(cert.id);
+    expect(getCertificate(cert.id)).toBeUndefined();
+  });
+
+  it('calculateReadinessScore blockers each have positive deduction', () => {
+    const result = calculateReadinessScore('org-1', 'ISO 9001:2015');
+    for (const blocker of result.blockers) {
+      expect(blocker.deduction).toBeGreaterThan(0);
+    }
+  });
+
+  it('getCertificate returns correct standard for created cert', () => {
+    const cert = createCertificate({
+      orgId: 'org-get',
+      standard: 'ISO 27001:2022',
+      scope: 'Get test',
+      certificationBody: 'BSI',
+      certificateNumber: 'GET-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    const found = getCertificate(cert.id);
+    expect(found?.standard).toBe('ISO 27001:2022');
+  });
+});

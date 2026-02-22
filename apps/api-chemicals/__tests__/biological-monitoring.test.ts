@@ -252,3 +252,94 @@ describe('PUT /api/biological-monitoring/:id', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ─── Additional coverage: pagination, 500 paths, response shapes ──────────────
+
+describe('Biological Monitoring — extended coverage', () => {
+  it('GET / returns correct totalPages for multi-page result set', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(55);
+
+    const res = await request(app).get('/api/biological-monitoring?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.totalPages).toBe(3);
+    expect(res.body.pagination.total).toBe(55);
+  });
+
+  it('GET / passes correct skip for page 3', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/biological-monitoring?page=3&limit=10');
+    const [call] = (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mock.calls;
+    expect(call[0].skip).toBe(20);
+    expect(call[0].take).toBe(10);
+  });
+
+  it('GET / filters by substanceName and passes it into where clause', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(1);
+
+    await request(app).get('/api/biological-monitoring?substanceName=Mercury');
+    const [call] = (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.substanceName).toBe('Mercury');
+  });
+
+  it('GET / returns success:true with empty data array when no records', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/biological-monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+    (mockPrisma.chemBiologicalMonitoring.update as jest.Mock).mockRejectedValue(new Error('fail'));
+
+    const res = await request(app)
+      .put('/api/biological-monitoring/00000000-0000-0000-0000-000000000001')
+      .send({ correctionActions: 'New action' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /alerts returns 500 on second DB query error', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock)
+      .mockResolvedValueOnce([{ ...mockRecord, exceedsBGV: true }])
+      .mockRejectedValueOnce(new Error('fail'));
+
+    const res = await request(app).get('/api/biological-monitoring/alerts');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /:id returns success:true and correct data shape for existing record', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+
+    const res = await request(app).get('/api/biological-monitoring/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('employeeId');
+    expect(res.body.data).toHaveProperty('substanceName');
+    expect(res.body.data).toHaveProperty('exceedsBGV');
+  });
+
+  it('POST / returns 500 on DB error during create', async () => {
+    (mockPrisma.chemBiologicalMonitoring.create as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).post('/api/biological-monitoring').send({
+      employeeId: 'EMP-002',
+      employeeName: 'Alice',
+      substanceName: 'Mercury',
+      biomarker: 'Urine Mercury',
+      sampleType: 'URINE',
+      collectionDate: '2026-02-01',
+      measuredValue: 10,
+      unit: 'µg/L',
+      collectedBy: 'Nurse B',
+    });
+    expect(res.status).toBe(500);
+  });
+});

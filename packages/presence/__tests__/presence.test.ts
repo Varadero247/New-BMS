@@ -198,3 +198,50 @@ describe('clearAll', () => {
     expect(result.acquired).toBe(true);
   });
 });
+
+describe('presence – extended coverage', () => {
+  beforeEach(() => clearAll());
+
+  it('force flag is false by default (explicit false behaves same as omitting)', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    const result = acquireLock(TYPE, ID, USER_B.userId, USER_B.userName, undefined, false);
+    expect(result.acquired).toBe(false);
+  });
+
+  it('refreshLock extends TTL beyond original expiresAt', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    const original = getPresence(TYPE, ID)[0].expiresAt.getTime();
+    // small delay to ensure time passes
+    const before = Date.now();
+    refreshLock(TYPE, ID, USER_A.userId);
+    const refreshed = getPresence(TYPE, ID)[0].expiresAt.getTime();
+    expect(refreshed).toBeGreaterThanOrEqual(before + 29_000);
+  });
+
+  it('acquiring on two different types does not cross-contaminate', () => {
+    acquireLock('risk', ID, USER_A.userId, USER_A.userName);
+    acquireLock('audit', ID, USER_A.userId, USER_A.userName);
+    expect(getPresence('risk', ID)).toHaveLength(1);
+    expect(getPresence('audit', ID)).toHaveLength(1);
+  });
+
+  it('getPresence returns empty array after force-acquired lock expires', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    acquireLock(TYPE, ID, USER_B.userId, USER_B.userName, undefined, true);
+    const users = getPresence(TYPE, ID);
+    users[0].expiresAt = new Date(Date.now() - 1);
+    expect(getPresence(TYPE, ID)).toHaveLength(0);
+  });
+
+  it('lockedAt timestamp is a Date object', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    const users = getPresence(TYPE, ID);
+    expect(users[0].lockedAt).toBeInstanceOf(Date);
+  });
+
+  it('releaseLock is idempotent – releasing twice does not throw', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    releaseLock(TYPE, ID, USER_A.userId);
+    expect(() => releaseLock(TYPE, ID, USER_A.userId)).not.toThrow();
+  });
+});

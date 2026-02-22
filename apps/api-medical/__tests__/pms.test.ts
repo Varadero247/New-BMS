@@ -456,3 +456,86 @@ describe('PMS Routes', () => {
     });
   });
 });
+
+describe('PMS Routes — extended coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = buildApp();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/pms/plans returns totalPages in meta for multi-page results', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([mockPlan]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(50);
+    const res = await request(app).get('/api/pms/plans?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(50);
+    expect(res.body.meta.totalPages).toBeGreaterThanOrEqual(5);
+  });
+
+  it('GET /api/pms/plans filter by deviceClass', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([mockPlan]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/pms/plans?deviceClass=CLASS_III');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/pms/reports/psur returns 500 on DB create error', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue(mockPlan);
+    (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.pmsReport.create as jest.Mock).mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).post('/api/pms/reports/psur').send({
+      planId: mockPlan.id,
+      periodStart: '2025-01-01',
+      periodEnd: '2025-12-31',
+      complaintCount: 5,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/pms/reports/pmcf returns 500 on DB create error', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue(mockPlan);
+    (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.pmsReport.create as jest.Mock).mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).post('/api/pms/reports/pmcf').send({
+      planId: mockPlan.id,
+      periodStart: '2025-01-01',
+      periodEnd: '2025-12-31',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/pms/plans/:id response shape has success:true and deviceName', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({ ...mockPlan, reports: [] });
+    const res = await request(app).get(`/api/pms/plans/${mockPlan.id}`);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('deviceName');
+  });
+
+  it('PUT /api/pms/plans/:id returns 500 on DB find error', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockRejectedValue(new Error('DB failure'));
+    const res = await request(app)
+      .put(`/api/pms/plans/${mockPlan.id}`)
+      .send({ status: 'ACTIVE' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/pms/dashboard returns success:true with all expected fields', async () => {
+    (mockPrisma.pmsPlan.count as jest.Mock)
+      .mockResolvedValueOnce(8)
+      .mockResolvedValueOnce(4)
+      .mockResolvedValueOnce(1);
+    (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(2);
+    const res = await request(app).get('/api/pms/dashboard');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.totalPlans).toBe(8);
+    expect(res.body.data.activePlans).toBe(4);
+  });
+});

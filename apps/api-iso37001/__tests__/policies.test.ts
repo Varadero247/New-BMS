@@ -383,3 +383,90 @@ describe('ISO 37001 Policies API', () => {
     });
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('ISO 37001 Policies — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / pagination totalPages is computed correctly', async () => {
+    (mockPrisma.abPolicy.findMany as jest.Mock).mockResolvedValueOnce([mockPolicy]);
+    (mockPrisma.abPolicy.count as jest.Mock).mockResolvedValueOnce(18);
+
+    const res = await request(app).get('/api/policies?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+    expect(res.body.pagination.total).toBe(18);
+  });
+
+  it('GET / skip is correct for page 3 limit 3', async () => {
+    (mockPrisma.abPolicy.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abPolicy.count as jest.Mock).mockResolvedValueOnce(9);
+
+    await request(app).get('/api/policies?page=3&limit=3');
+    expect(mockPrisma.abPolicy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 6, take: 3 })
+    );
+  });
+
+  it('POST / returns 400 for invalid policyType enum', async () => {
+    const res = await request(app).post('/api/policies').send({
+      title: 'Some Policy',
+      content: 'Some content',
+      policyType: 'INVALID_TYPE',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE / returns 500 on DB error during soft delete', async () => {
+    (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(mockPolicy);
+    (mockPrisma.abPolicy.update as jest.Mock).mockRejectedValueOnce(new Error('DB fail'));
+
+    const res = await request(app).delete('/api/policies/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /approve returns 500 on DB error', async () => {
+    (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(mockPolicy);
+    (mockPrisma.abPolicy.update as jest.Mock).mockRejectedValueOnce(new Error('DB fail'));
+
+    const res = await request(app).put('/api/policies/00000000-0000-0000-0000-000000000001/approve');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / response body has data array', async () => {
+    (mockPrisma.abPolicy.findMany as jest.Mock).mockResolvedValueOnce([mockPolicy, mockPolicy2]);
+    (mockPrisma.abPolicy.count as jest.Mock).mockResolvedValueOnce(2);
+
+    const res = await request(app).get('/api/policies');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /:id returns policy referenceNumber in response', async () => {
+    (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(mockPolicy);
+
+    const res = await request(app).get('/api/policies/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.referenceNumber).toBe('AB-POL-2602-1234');
+  });
+
+  it('PUT /:id allows updating status field', async () => {
+    (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(mockPolicy);
+    (mockPrisma.abPolicy.update as jest.Mock).mockResolvedValueOnce({
+      ...mockPolicy,
+      status: 'APPROVED',
+    });
+
+    const res = await request(app)
+      .put('/api/policies/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'APPROVED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+});

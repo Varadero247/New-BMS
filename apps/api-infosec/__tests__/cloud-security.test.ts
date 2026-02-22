@@ -290,3 +290,49 @@ describe('PUT /api/cloud-security/ict-readiness/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ── Extended coverage: pagination totalPages, response shape, filter params ──
+
+describe('GET /api/cloud-security/cloud-services — extended', () => {
+  it('returns correct totalPages in pagination', async () => {
+    (mockPrisma.isCloudService.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isCloudService.count as jest.Mock).mockResolvedValue(60);
+    const res = await request(app).get('/api/cloud-security/cloud-services?page=2&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(60);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('response shape has success:true and data array', async () => {
+    (mockPrisma.isCloudService.findMany as jest.Mock).mockResolvedValue([mockService]);
+    (mockPrisma.isCloudService.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/cloud-security/cloud-services');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('filters by status param', async () => {
+    (mockPrisma.isCloudService.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isCloudService.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/cloud-security/cloud-services?status=ACTIVE');
+    const [call] = (mockPrisma.isCloudService.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.status).toBe('ACTIVE');
+  });
+});
+
+describe('GET /api/cloud-security/ict-readiness — extended', () => {
+  it('returns correct totalPages in pagination', async () => {
+    (mockPrisma.isIctReadiness.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isIctReadiness.count as jest.Mock).mockResolvedValue(40);
+    const res = await request(app).get('/api/cloud-security/ict-readiness?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('returns 500 on DB error during count', async () => {
+    (mockPrisma.isIctReadiness.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isIctReadiness.count as jest.Mock).mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/cloud-security/ict-readiness');
+    expect(res.status).toBe(500);
+  });
+});

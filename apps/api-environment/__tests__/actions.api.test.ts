@@ -472,4 +472,59 @@ describe('Environment Actions API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('GET /api/actions — additional coverage', () => {
+    it('should return correct totalPages for large dataset', async () => {
+      (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(200);
+
+      const response = await request(app)
+        .get('/api/actions?page=1&limit=50')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.totalPages).toBe(4);
+      expect(response.body.meta.total).toBe(200);
+    });
+
+    it('should filter by both status and priority simultaneously', async () => {
+      (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/actions?status=OPEN&priority=HIGH')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.envAction.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'OPEN',
+            priority: 'HIGH',
+          }),
+        })
+      );
+    });
+
+    it('response data items should contain referenceNumber field', async () => {
+      (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([
+        {
+          id: '13000000-0000-4000-a000-000000000001',
+          referenceNumber: 'ENV-ACT-2026-001',
+          title: 'Test Action',
+          actionType: 'CORRECTIVE',
+          priority: 'HIGH',
+          source: 'AUDIT',
+          status: 'OPEN',
+        },
+      ]);
+      (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app)
+        .get('/api/actions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data[0].referenceNumber).toBe('ENV-ACT-2026-001');
+    });
+  });
 });

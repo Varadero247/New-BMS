@@ -375,3 +375,68 @@ describe('Quality Training API Routes', () => {
     });
   });
 });
+
+describe('Quality Training API Routes — additional edge cases', () => {
+  const mockTrainingRecord = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-TRN-2026-001',
+    employeeId: 'EMP-001',
+    employeeName: 'Jane Employee',
+    department: 'Quality',
+    position: 'Analyst',
+    courseName: 'ISO 14001 Awareness',
+    trainingType: 'PROCEDURE_TRAINING',
+    assignedDate: new Date('2026-02-01').toISOString(),
+    dueDate: new Date('2026-04-01').toISOString(),
+    deliveryMethod: 'CLASSROOM',
+    status: 'ASSIGNED',
+    passMark: 70,
+    score: null,
+    passed: null,
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/training — supports department filter param', async () => {
+    mockPrisma.qualTraining.findMany.mockResolvedValue([mockTrainingRecord]);
+    mockPrisma.qualTraining.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/training?department=Quality');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/training/stats — completionRate is 0 when total is 0', async () => {
+    mockPrisma.qualTraining.count
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(0);
+    mockPrisma.qualTraining.groupBy.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/training/stats');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(0);
+    expect(res.body.data.completionRate).toBe(0);
+  });
+
+  it('POST /api/training — missing employeeName returns 400', async () => {
+    const res = await request(app).post('/api/training').send({
+      employeeId: 'EMP-002',
+      courseName: 'ISO 45001 Awareness',
+      trainingType: 'QUALITY_AWARENESS',
+      assignedDate: '2026-02-01',
+      dueDate: '2026-03-01',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

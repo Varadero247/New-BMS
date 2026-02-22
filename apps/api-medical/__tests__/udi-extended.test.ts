@@ -390,3 +390,31 @@ describe('UDI Routes', () => {
     });
   });
 });
+
+// ===================================================================
+// UDI Routes — additional response shape coverage
+// ===================================================================
+describe('UDI Routes — additional response shape coverage', () => {
+  it('GET /api/udi/devices returns success:true and data array on success', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/udi/devices');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/udi/devices/:id/pi returns 500 on database error', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.udiPiRecord.create as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app)
+      .post('/api/udi/devices/00000000-0000-0000-0000-000000000001/pi')
+      .send({ lotNumber: 'LOT-999' });
+    expect(res.status).toBe(500);
+  });
+});

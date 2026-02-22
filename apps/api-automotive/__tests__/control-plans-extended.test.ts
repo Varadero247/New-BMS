@@ -333,3 +333,104 @@ describe('Control Plan Routes', () => {
     });
   });
 });
+
+describe('Control Plan Routes — extended coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns correct totalPages for multi-page result', async () => {
+    (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(55);
+
+    const res = await request(app).get('/api/control-plans?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.totalPages).toBe(6);
+  });
+
+  it('GET / passes correct skip to Prisma for page 4 limit 5', async () => {
+    (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(20);
+
+    await request(app).get('/api/control-plans?page=4&limit=5');
+
+    expect(mockPrisma.controlPlan.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 15, take: 5 })
+    );
+  });
+
+  it('GET / filters by status query param wired into where clause', async () => {
+    (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/control-plans?status=APPROVED');
+
+    expect(mockPrisma.controlPlan.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'APPROVED' }),
+      })
+    );
+  });
+
+  it('GET /:id returns 500 on database error', async () => {
+    (mockPrisma.controlPlan.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).get('/api/control-plans/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /:id/characteristics returns 500 on database error', async () => {
+    (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.controlPlanChar.create as jest.Mock).mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app)
+      .post('/api/control-plans/00000000-0000-0000-0000-000000000001/characteristics')
+      .send({
+        processNumber: '10',
+        processName: 'Assembly',
+        characteristicName: 'Torque',
+        characteristicType: 'PRODUCT',
+        evalTechnique: 'Torque wrench',
+        sampleSize: '5',
+        sampleFrequency: 'Every hour',
+        controlMethod: 'Control chart',
+        reactionPlan: 'Stop and adjust',
+      });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /:id/approve returns 500 on database error', async () => {
+    (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      status: 'DRAFT',
+    });
+    (mockPrisma.controlPlan.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app)
+      .post('/api/control-plans/00000000-0000-0000-0000-000000000001/approve')
+      .send({});
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / response shape includes success:true and meta.total', async () => {
+    (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001' },
+    ]);
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/control-plans');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body.meta).toHaveProperty('total', 1);
+  });
+});

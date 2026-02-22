@@ -329,3 +329,83 @@ describe('POST /api/goals/:id/updates', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ── Additional coverage ──────────────────────────────────────────────────────
+
+describe('GET /api/goals — pagination and filter coverage', () => {
+  it('meta.totalPages is calculated correctly for multiple pages', async () => {
+    (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValue([mockGoal]);
+    (mockPrisma.performanceGoal.count as jest.Mock).mockResolvedValue(45);
+
+    const res = await request(app).get('/api/goals?page=1&limit=10');
+    expect(res.status).toBe(200);
+    // 45 records / 10 per page = 5 pages
+    expect(res.body.meta.totalPages).toBe(5);
+  });
+
+  it('filters by status param are forwarded to Prisma where clause', async () => {
+    (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.performanceGoal.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/goals?status=IN_PROGRESS');
+    expect(mockPrisma.performanceGoal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'IN_PROGRESS' }),
+      })
+    );
+  });
+
+  it('returns success:true with empty data array when no goals exist', async () => {
+    (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.performanceGoal.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/goals');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('returns 400 when creating goal with invalid category enum', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue({ id: EMP_ID });
+    (mockPrisma.performanceCycle.findUnique as jest.Mock).mockResolvedValue({ id: CYCLE_ID });
+
+    const res = await request(app).post('/api/goals').send({
+      cycleId: CYCLE_ID,
+      employeeId: EMP_ID,
+      title: 'Test Goal',
+      description: 'desc',
+      category: 'INVALID_CATEGORY_XYZ',
+      measurementCriteria: 'criteria',
+      dueDate: '2026-12-31',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/goals/:id returns error.code NOT_FOUND in response body', async () => {
+    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get(`/api/goals/${GOAL_ID}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/goals/:id with invalid status enum returns 400', async () => {
+    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(mockGoal);
+
+    const res = await request(app)
+      .put(`/api/goals/${GOAL_ID}`)
+      .send({ status: 'INVALID_STATUS' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/goals/:id/updates returns 500 on transaction failure', async () => {
+    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(mockGoal);
+    (mockPrisma.$transaction as jest.Mock).mockRejectedValue(new Error('tx fail'));
+
+    const res = await request(app).post(`/api/goals/${GOAL_ID}/updates`).send({
+      progressAfter: 50,
+      updateNotes: 'Milestone done',
+    });
+    expect(res.status).toBe(500);
+  });
+});

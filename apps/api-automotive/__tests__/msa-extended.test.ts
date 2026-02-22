@@ -340,4 +340,80 @@ describe('MSA Routes', () => {
       expect(res.body.data.statistics.mean).toBeDefined();
     });
   });
+
+  // ===================================================================
+  // Additional coverage: pagination, filters, 500 paths, field validation
+  // ===================================================================
+  describe('Additional MSA coverage', () => {
+    it('GET /api/msa pagination computes totalPages from meta', async () => {
+      (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(50);
+
+      const res = await request(app).get('/api/msa?page=3&limit=10');
+      expect(res.status).toBe(200);
+      expect(res.body.meta.total).toBe(50);
+      expect(res.body.meta.page).toBe(3);
+    });
+
+    it('GET /api/msa filters by status wired into findMany where', async () => {
+      (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
+
+      await request(app).get('/api/msa?status=COMPLETED');
+      expect(mockPrisma.msaStudy.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ status: 'COMPLETED' }) })
+      );
+    });
+
+    it('POST /api/msa returns 400 for negative operatorCount', async () => {
+      const res = await request(app).post('/api/msa').send({
+        title: 'Study',
+        studyType: 'GRR_CROSSED',
+        gageName: 'Caliper',
+        characteristic: 'Length',
+        operatorCount: -1,
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it('GET /api/msa/:id returns 500 on DB error', async () => {
+      (mockPrisma.msaStudy.findUnique as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('POST /api/msa/:id/data returns 500 on transaction error', async () => {
+      (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
+        id: '00000000-0000-0000-0000-000000000001',
+        deletedAt: null,
+      });
+      (mockPrisma.$transaction as jest.Mock).mockRejectedValue(new Error('Transaction failed'));
+
+      const res = await request(app)
+        .post('/api/msa/00000000-0000-0000-0000-000000000001/data')
+        .send({ measurements: [{ operator: 'Op1', partNumber: 1, trial: 1, value: 50.1 }] });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('GET /api/msa/:id/results returns 500 on DB error', async () => {
+      (mockPrisma.msaStudy.findUnique as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000001/results');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('GET /api/msa response shape has success:true and meta.total', async () => {
+      (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([
+        { id: '00000000-0000-0000-0000-000000000001' },
+      ]);
+      (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await request(app).get('/api/msa');
+      expect(res.body).toMatchObject({ success: true, meta: expect.objectContaining({ total: 1 }) });
+    });
+  });
 });

@@ -456,4 +456,61 @@ describe('Quality Legal Obligations API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('Additional coverage: pagination, response shape, and 500 paths', () => {
+    it('should compute totalPages correctly for large datasets', async () => {
+      mockPrisma.qualLegal.findMany.mockResolvedValueOnce([]);
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(60);
+
+      const response = await request(app)
+        .get('/api/legal?page=1&limit=20')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.totalPages).toBe(3);
+    });
+
+    it('GET /api/legal: response has success:true and items array', async () => {
+      mockPrisma.qualLegal.findMany.mockResolvedValueOnce([]);
+      mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/legal')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(Array.isArray(response.body.data.items)).toBe(true);
+    });
+
+    it('PUT /api/legal/:id: returns 500 when update throws', async () => {
+      mockPrisma.qualLegal.findUnique.mockResolvedValueOnce({
+        id: '18000000-0000-4000-a000-000000000001',
+        title: 'Legal Obligation',
+        status: 'ACTIVE',
+        complianceStatus: 'NOT_ASSESSED',
+      });
+      mockPrisma.qualLegal.update.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/legal/18000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'New Title' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('POST /api/legal: returns 400 for missing obligationType', async () => {
+      const response = await request(app)
+        .post('/api/legal')
+        .set('Authorization', 'Bearer token')
+        .send({
+          title: 'Legal Requirement Without Type',
+          description: 'Some description',
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+  });
 });

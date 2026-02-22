@@ -402,3 +402,68 @@ describe('createSessionCleanupJob', () => {
     expect(job.isJobRunning()).toBe(false);
   });
 });
+
+// ===================================================================
+// Extended coverage: error paths, custom inactiveHours edge cases,
+// runCleanup logging, repeated start/stop cycles
+// ===================================================================
+
+describe('cleanup-sessions — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('cleanupExpiredSessions returns a timestamp that is a Date instance', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 2 });
+    const result = await cleanupExpiredSessions(mockPrisma);
+    expect(result.timestamp).toBeInstanceOf(Date);
+    expect(result.deletedCount).toBe(2);
+  });
+
+  it('cleanupInactiveSessions with 1-hour cutoff uses correct window', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 1 });
+    const before = Date.now();
+    const result = await cleanupInactiveSessions(mockPrisma, 1);
+    const after = Date.now();
+
+    const callArgs = mockPrisma.session.deleteMany.mock.calls[0][0];
+    const cutoff = (callArgs.where.lastActivityAt.lt as Date).getTime();
+    expect(cutoff).toBeGreaterThanOrEqual(before - 1 * 60 * 60 * 1000);
+    expect(cutoff).toBeLessThanOrEqual(after - 1 * 60 * 60 * 1000);
+    expect(result.deletedCount).toBe(1);
+  });
+
+  it('SessionCleanupJob can be started again after stop', () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 0 });
+
+    const job = new SessionCleanupJob(mockPrisma, mockLogger);
+    job.start(30000);
+    expect(job.isJobRunning()).toBe(true);
+    job.stop();
+    expect(job.isJobRunning()).toBe(false);
+
+    // Re-start after stop should work
+    job.start(30000);
+    expect(job.isJobRunning()).toBe(true);
+    job.stop();
+  });
+
+  it('SessionCleanupJob start logs the correct intervalMs', () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 3 });
+
+    const job = new SessionCleanupJob(mockPrisma, mockLogger);
+    job.start(15000);
+
+    expect(mockLogger.info).toHaveBeenCalledWith('Starting session cleanup job', {
+      intervalMs: 15000,
+    });
+    expect(job.isJobRunning()).toBe(true);
+
+    job.stop();
+  });
+});

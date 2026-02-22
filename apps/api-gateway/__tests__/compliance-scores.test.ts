@@ -351,3 +351,97 @@ describe('Compliance Scores API Routes', () => {
     });
   });
 });
+
+describe('Compliance Scores API — additional coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/dashboard/compliance-scores', complianceScoresRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / overall score is a number between 0 and 100', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(typeof response.body.data.overall.score).toBe('number');
+    expect(response.body.data.overall.score).toBeGreaterThanOrEqual(0);
+    expect(response.body.data.overall.score).toBeLessThanOrEqual(100);
+  });
+
+  it('GET / response shape has success:true and data.standards array', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data.standards)).toBe(true);
+  });
+
+  it('GET /standard/:code — each factor has a numeric score clamped 0-100', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores/standard/ISO_9001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    for (const factor of response.body.data.factors) {
+      expect(factor.score).toBeGreaterThanOrEqual(0);
+      expect(factor.score).toBeLessThanOrEqual(100);
+    }
+  });
+
+  it('GET /standard/:code — returns 404 for empty-string-equivalent unknown code', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores/standard/XYZ_9999')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(404);
+    expect(response.body.success).toBe(false);
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET / with all ISO 45001 overrides at 100 gives GREEN status', async () => {
+    const response = await request(app2)
+      .get(
+        '/api/dashboard/compliance-scores?override_ISO_45001_objectives_on_track=100&override_ISO_45001_incident_trend=100&override_ISO_45001_legal_compliance=100&override_ISO_45001_capa_closure=100'
+      )
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    const iso45001 = response.body.data.standards.find((s: any) => s.code === 'ISO_45001');
+    expect(iso45001.score).toBe(100);
+    expect(iso45001.status).toBe('GREEN');
+  });
+
+  it('GET / with all ISO 14001 overrides at 0 gives RED status', async () => {
+    const response = await request(app2)
+      .get(
+        '/api/dashboard/compliance-scores?override_ISO_14001_objectives_on_track=0&override_ISO_14001_incident_trend=0&override_ISO_14001_legal_compliance=0&override_ISO_14001_capa_closure=0'
+      )
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    const iso14001 = response.body.data.standards.find((s: any) => s.code === 'ISO_14001');
+    expect(iso14001.score).toBe(0);
+    expect(iso14001.status).toBe('RED');
+  });
+
+  it('GET / all standards have a code property that is a non-empty string', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    for (const std of response.body.data.standards) {
+      expect(typeof std.code).toBe('string');
+      expect(std.code.length).toBeGreaterThan(0);
+    }
+  });
+});

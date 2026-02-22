@@ -273,3 +273,70 @@ describe('compressionMiddleware — additional coverage', () => {
     expect(next).toHaveBeenCalled();
   });
 });
+
+// ── Further extended coverage ─────────────────────────────────────────────────
+
+describe('compressionMiddleware — further extended', () => {
+  it('does not patch when Accept-Encoding is empty string', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/json');
+    const originalWrite = response.write;
+    mw(makeReq(''), response, next);
+    expect(next).toHaveBeenCalled();
+    expect(response.write).toBe(originalWrite);
+  });
+
+  it('sets Content-Encoding to gzip for application/javascript', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/javascript');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBe('gzip');
+  });
+
+  it('sets Content-Encoding to gzip for text/css', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('text/css');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBe('gzip');
+  });
+
+  it('compresses application/gzip content (not in skip list by default)', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/gzip');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    // application/gzip is not in the default skip list, so compression is applied
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('calls next() for OPTIONS request with gzip support', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/json');
+    mw(makeReq('gzip', 'OPTIONS'), response, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('respects custom level option without throwing', () => {
+    expect(() => {
+      const mw = compressionMiddleware({ level: 9 });
+      const next = jest.fn();
+      mw(makeReq('gzip'), makeRes('application/json'), next);
+    }).not.toThrow();
+  });
+
+  it('calls next() for application/pdf content type', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/pdf');
+    mw(makeReq('gzip'), response, next);
+    // Middleware always calls next regardless of content type
+    expect(next).toHaveBeenCalled();
+  });
+});

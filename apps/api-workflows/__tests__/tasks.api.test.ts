@@ -478,3 +478,48 @@ describe('Workflows Tasks API Routes', () => {
     });
   });
 });
+
+describe('Workflows Tasks API Routes — additional edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tasks', tasksRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/tasks — response body has success:true and data array', async () => {
+    (mockPrisma.workflowTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    const response = await request(app).get('/api/tasks');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('PUT /api/tasks/:id/claim — 500 on database error during claim', async () => {
+    (mockPrisma.workflowTask.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app)
+      .put('/api/tasks/3d000000-0000-4000-a000-000000000001/claim')
+      .send({ userId: '20000000-0000-4000-a000-000000000001' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/tasks — missing instanceId returns 400', async () => {
+    const response = await request(app).post('/api/tasks').send({
+      taskType: 'REVIEW',
+      title: 'Task without instance',
+      assignedToId: '22222222-2222-2222-2222-222222222222',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

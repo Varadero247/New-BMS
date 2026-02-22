@@ -414,3 +414,26 @@ describe('InfoSec Controls API', () => {
     });
   });
 });
+
+// ===================================================================
+// InfoSec Controls — additional response shape coverage
+// ===================================================================
+describe('InfoSec Controls — additional response shape coverage', () => {
+  it('GET /api/controls returns success:true with pagination on success', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/controls');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('GET /api/controls/soa returns success:false and 500 on database error', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockRejectedValueOnce(new Error('Connection lost'));
+
+    const res = await request(app).get('/api/controls/soa');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

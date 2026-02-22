@@ -499,3 +499,30 @@ describe('ISO 37001 Training API', () => {
     });
   });
 });
+
+// ===================================================================
+// ISO 37001 Training — additional response shape coverage
+// ===================================================================
+describe('ISO 37001 Training — additional response shape coverage', () => {
+  it('GET /api/training returns success:true and pagination on success', async () => {
+    (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/training');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('PUT /:id returns 500 on database update error', async () => {
+    (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
+    (mockPrisma.abTrainingRecord.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/training/00000000-0000-0000-0000-000000000001')
+      .send({ department: 'Finance' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

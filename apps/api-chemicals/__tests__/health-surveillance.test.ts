@@ -251,3 +251,98 @@ describe('PUT /api/health-surveillance/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ─── Additional coverage: pagination, 500 paths, response shapes ──────────────
+
+describe('Health Surveillance — extended coverage', () => {
+  it('GET / returns correct totalPages for multi-page result set', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(45);
+
+    const res = await request(app).get('/api/health-surveillance?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.totalPages).toBe(3);
+    expect(res.body.pagination.total).toBe(45);
+  });
+
+  it('GET / passes correct skip/take for page 2', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/health-surveillance?page=2&limit=10');
+    const [call] = (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mock.calls;
+    expect(call[0].skip).toBe(10);
+    expect(call[0].take).toBe(10);
+  });
+
+  it('GET / filters by surveillanceType and passes it into where clause', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/health-surveillance?surveillanceType=AUDIOMETRY');
+    const [call] = (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.surveillanceType).toBe('AUDIOMETRY');
+  });
+
+  it('GET / returns success:true with empty data array when no records', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/health-surveillance');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('GET /:id returns correct data shape for existing record', async () => {
+    (mockPrisma.chemHealthSurveillance.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+
+    const res = await request(app).get('/api/health-surveillance/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('employeeId');
+    expect(res.body.data).toHaveProperty('surveillanceType');
+    expect(res.body.data).toHaveProperty('result');
+  });
+
+  it('GET /dashboard returns 500 on DB error during second count', async () => {
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock)
+      .mockResolvedValueOnce(20)
+      .mockRejectedValueOnce(new Error('fail'));
+
+    const res = await request(app).get('/api/health-surveillance/dashboard');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST / returns 400 for invalid surveillanceType enum', async () => {
+    const res = await request(app).post('/api/health-surveillance').send({
+      employeeId: 'EMP-001',
+      employeeName: 'Jane Smith',
+      jobRole: 'Paint Sprayer',
+      substancesExposed: ['Isocyanates'],
+      surveillanceType: 'INVALID_TYPE',
+      examinationDate: '2026-01-15',
+      conductedBy: 'Dr. Jones',
+      result: 'NORMAL',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / returns 500 on DB error during create', async () => {
+    (mockPrisma.chemHealthSurveillance.create as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).post('/api/health-surveillance').send({
+      employeeId: 'EMP-002',
+      employeeName: 'Bob Jones',
+      jobRole: 'Welder',
+      substancesExposed: ['Manganese'],
+      surveillanceType: 'BLOOD_TEST',
+      examinationDate: '2026-01-20',
+      conductedBy: 'Dr. Smith',
+      result: 'NORMAL',
+    });
+    expect(res.status).toBe(500);
+  });
+});

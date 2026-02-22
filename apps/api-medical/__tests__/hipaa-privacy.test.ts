@@ -278,3 +278,62 @@ describe('HIPAA Privacy Routes', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ===================================================================
+// Extended coverage: 500 error paths, pagination totalPages, response shape
+// ===================================================================
+
+describe('HIPAA Privacy — extended coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /disclosures returns correct totalPages for multi-page results', async () => {
+    prisma.hipaaPhiDisclosure.findMany.mockResolvedValue([]);
+    prisma.hipaaPhiDisclosure.count.mockResolvedValue(40);
+    const res = await request(app).get('/disclosures?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(40);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET /disclosures returns 500 on DB error', async () => {
+    prisma.hipaaPhiDisclosure.findMany.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/disclosures');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /disclosures returns 500 on DB error', async () => {
+    prisma.hipaaPhiDisclosure.create.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).post('/disclosures').send({
+      disclosureDate: '2026-01-15',
+      recipient: 'Dr Jones',
+      recipientType: 'TREATMENT_PROVIDER',
+      purpose: 'Referral',
+      phiCategories: ['diagnoses'],
+      recordedBy: 'nurse@clinic.com',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /training returns correct totalPages in pagination', async () => {
+    prisma.hipaaTrainingRecord.findMany.mockResolvedValue([]);
+    prisma.hipaaTrainingRecord.count.mockResolvedValue(50);
+    const res = await request(app).get('/training?page=1&limit=25');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it('POST /training returns 500 on DB error', async () => {
+    prisma.hipaaTrainingRecord.create.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).post('/training').send({
+      employeeId: 'EMP-002',
+      employeeName: 'Bob Smith',
+      trainingType: 'ANNUAL_REFRESHER',
+      completedDate: '2026-02-01',
+      trainingModule: 'HIPAA Refresher 2026',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

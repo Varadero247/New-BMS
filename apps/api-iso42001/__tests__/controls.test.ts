@@ -383,3 +383,80 @@ describe('GET /api/controls/soa', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('ISO 42001 Controls — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / pagination totalPages is correct for 22 items limit 10', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([]);
+    mockPrisma.aiControl.count.mockResolvedValue(22);
+
+    const res = await request(app).get('/api/controls?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+    expect(res.body.pagination.total).toBe(22);
+  });
+
+  it('GET / skip is correct for page 2 limit 10', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([]);
+    mockPrisma.aiControl.count.mockResolvedValue(20);
+
+    await request(app).get('/api/controls?page=2&limit=10');
+    expect(mockPrisma.aiControl.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('PUT /:id/status returns 400 when implementationStatus is missing', async () => {
+    const res = await request(app)
+      .put(`/api/controls/${UUID1}/status`)
+      .send({ justification: 'Some reason' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id response has controlId field', async () => {
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl);
+
+    const res = await request(app).get(`/api/controls/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('controlId');
+  });
+
+  it('GET / filters by INTERNAL_ORGANIZATION domain', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([mockControl2]);
+    mockPrisma.aiControl.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/controls?domain=INTERNAL_ORGANIZATION');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.aiControl.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ domain: 'INTERNAL_ORGANIZATION' }),
+      })
+    );
+  });
+
+  it('PUT /:id/implementation returns 500 on DB error', async () => {
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl2);
+    mockPrisma.aiControl.update.mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app)
+      .put(`/api/controls/${UUID2}/implementation`)
+      .send({ implementationNotes: 'Notes' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / response body has pagination object', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([mockControl]);
+    mockPrisma.aiControl.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/controls');
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination).toHaveProperty('total', 1);
+  });
+});

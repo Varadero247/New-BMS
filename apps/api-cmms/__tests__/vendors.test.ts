@@ -360,3 +360,32 @@ describe('Vendors Routes', () => {
     });
   });
 });
+
+describe('Vendors — additional pagination and response shape tests', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/vendors returns totalPages in pagination meta', async () => {
+    prisma.cmmsVendor.findMany.mockResolvedValue([mockVendor]);
+    prisma.cmmsVendor.count.mockResolvedValue(20);
+
+    const res = await request(app).get('/api/vendors?limit=5&page=1');
+    expect(res.status).toBe(200);
+    // 20 total / 5 per page = 4 pages; meta or pagination field should reflect this
+    const body = res.body;
+    const totalPages =
+      body.meta?.totalPages ?? body.pagination?.totalPages ?? body.totalPages;
+    expect(totalPages).toBe(4);
+  });
+
+  it('GET /api/vendors returns success:true and data array in response shape', async () => {
+    prisma.cmmsVendor.findMany.mockResolvedValue([mockVendor]);
+    prisma.cmmsVendor.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/vendors');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

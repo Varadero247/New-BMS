@@ -417,3 +417,86 @@ describe('DELETE /api/haccp-flow/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('HACCP Flow — extended coverage', () => {
+  it('GET /api/haccp-flow returns success:true on empty list', async () => {
+    (prisma.fsCcp.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/haccp-flow');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /api/haccp-flow maps isActive:false to status INACTIVE', async () => {
+    (prisma.fsCcp.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: TEST_ID, processStep: 'Chilling', criticalLimit: '< 5°C',
+        monitoringMethod: 'Probe', isActive: false, hazard: null,
+        number: 'CCP-005', createdAt: new Date(), updatedAt: new Date(),
+      },
+    ]);
+    const res = await request(app).get('/api/haccp-flow');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].status).toBe('INACTIVE');
+  });
+
+  it('GET /api/haccp-flow queries findMany with deletedAt:null', async () => {
+    (prisma.fsCcp.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/haccp-flow');
+    expect(prisma.fsCcp.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('POST /api/haccp-flow returns error.code INTERNAL_ERROR on create failure', async () => {
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.create as jest.Mock).mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).post('/api/haccp-flow').send({ processStep: 'Cooking' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/haccp-flow count is 0 generates CCP-001', async () => {
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.create as jest.Mock).mockResolvedValue({
+      id: TEST_ID, processStep: 'First', criticalLimit: 'X',
+      monitoringMethod: 'M', isActive: true, hazard: null,
+      number: 'CCP-001', createdAt: new Date(), updatedAt: new Date(),
+    });
+    await request(app).post('/api/haccp-flow').send({ processStep: 'First' });
+    expect(prisma.fsCcp.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ number: 'CCP-001' }) })
+    );
+  });
+
+  it('PUT /api/haccp-flow/:id passes criticalLimit to update data', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({
+      id: TEST_ID, processStep: 'Step', criticalLimit: '100°C',
+      monitoringMethod: 'Sensor', isActive: true, hazard: null,
+      number: 'CCP-001', createdAt: new Date(), updatedAt: new Date(),
+    });
+    await request(app).put(`/api/haccp-flow/${TEST_ID}`).send({ criticalLimit: '100°C' });
+    expect(prisma.fsCcp.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ criticalLimit: '100°C' }) })
+    );
+  });
+
+  it('PUT /api/haccp-flow/:id returns 200 and success:true on valid update', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({
+      id: TEST_ID, processStep: 'Updated', criticalLimit: '70°C',
+      monitoringMethod: 'Sensor', isActive: true, hazard: null,
+      number: 'CCP-001', createdAt: new Date(), updatedAt: new Date(),
+    });
+    const res = await request(app).put(`/api/haccp-flow/${TEST_ID}`).send({ processStep: 'Updated' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/haccp-flow/:id returns success:true and deleted id', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({ id: TEST_ID, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/haccp-flow/${TEST_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(TEST_ID);
+  });
+});

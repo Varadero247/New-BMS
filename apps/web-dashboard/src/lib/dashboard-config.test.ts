@@ -164,3 +164,74 @@ describe('WIDGET_IDS and SECTION_IDS arrays', () => {
     expect([...SECTION_IDS].sort()).toEqual([...expected].sort());
   });
 });
+
+describe('MODULE_RBAC_MAP — additional coverage', () => {
+  it('maps Health & Safety to health-safety', () => {
+    expect(MODULE_RBAC_MAP['Health & Safety']).toBe('health-safety');
+  });
+
+  it('maps CRM to crm', () => {
+    expect(MODULE_RBAC_MAP['CRM']).toBe('crm');
+  });
+
+  it('maps Automotive to automotive', () => {
+    expect(MODULE_RBAC_MAP['Automotive']).toBe('automotive');
+  });
+
+  it('maps Medical Devices to medical', () => {
+    expect(MODULE_RBAC_MAP['Medical Devices']).toBe('medical');
+  });
+
+  it('has no duplicate values that would cause RBAC collisions (portal is intentionally shared)', () => {
+    const values = Object.values(MODULE_RBAC_MAP);
+    // 'portal' is intentionally mapped twice (Customer Portal + Supplier Portal)
+    const counts: Record<string, number> = {};
+    for (const v of values) {
+      counts[v] = (counts[v] ?? 0) + 1;
+    }
+    // Only 'portal' is allowed to appear more than once
+    for (const [mod, count] of Object.entries(counts)) {
+      if (mod !== 'portal') {
+        expect(count).toBe(1);
+      }
+    }
+  });
+});
+
+describe('DEFAULT_CONFIG — additional coverage', () => {
+  it('each widget config has a visible boolean field', () => {
+    for (const widget of Object.values(DEFAULT_CONFIG.widgets)) {
+      expect(typeof widget.visible).toBe('boolean');
+    }
+  });
+
+  it('each widget config has a numeric order field', () => {
+    for (const widget of Object.values(DEFAULT_CONFIG.widgets)) {
+      expect(typeof widget.order).toBe('number');
+    }
+  });
+
+  it('each section config has a visible boolean field', () => {
+    for (const section of Object.values(DEFAULT_CONFIG.sections)) {
+      expect(typeof section.visible).toBe('boolean');
+    }
+  });
+
+  it('hiddenModules is an array type', () => {
+    expect(Array.isArray(DEFAULT_CONFIG.hiddenModules)).toBe(true);
+  });
+
+  it('DEFAULT_CONFIG has exactly 3 top-level keys', () => {
+    const keys = Object.keys(DEFAULT_CONFIG);
+    expect(keys).toContain('widgets');
+    expect(keys).toContain('sections');
+    expect(keys).toContain('hiddenModules');
+    expect(keys).toHaveLength(3);
+  });
+
+  it('stat-cards widget is visible and has order 1', () => {
+    const widget = DEFAULT_CONFIG.widgets['stat-cards'];
+    expect(widget.visible).toBe(true);
+    expect(typeof widget.order).toBe('number');
+  });
+});

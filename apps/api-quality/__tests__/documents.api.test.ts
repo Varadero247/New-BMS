@@ -469,4 +469,61 @@ describe('Quality Documents API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('Additional coverage: pagination, response shape, and 500 paths', () => {
+    it('should compute totalPages correctly for large datasets', async () => {
+      mockPrisma.qualDocument.findMany.mockResolvedValueOnce([]);
+      mockPrisma.qualDocument.count.mockResolvedValueOnce(100);
+
+      const response = await request(app)
+        .get('/api/documents?page=1&limit=20')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.totalPages).toBe(5);
+    });
+
+    it('GET /api/documents: response has success:true and items array', async () => {
+      mockPrisma.qualDocument.findMany.mockResolvedValueOnce([]);
+      mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/documents')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(Array.isArray(response.body.data.items)).toBe(true);
+    });
+
+    it('PUT /api/documents/:id: returns 500 when update throws', async () => {
+      mockPrisma.qualDocument.findUnique.mockResolvedValueOnce({
+        id: '1e000000-0000-4000-a000-000000000001',
+        title: 'Doc',
+        status: 'DRAFT',
+      });
+      mockPrisma.qualDocument.update.mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .put('/api/documents/1e000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'New Title' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('POST /api/documents: returns 400 for missing ownerCustodian', async () => {
+      const response = await request(app)
+        .post('/api/documents')
+        .set('Authorization', 'Bearer token')
+        .send({
+          title: 'Doc Without Custodian',
+          documentType: 'PROCEDURE',
+          author: 'Jane Doe',
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+  });
 });

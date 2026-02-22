@@ -275,3 +275,84 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage: pagination, filters, response shapes ────────────────
+
+describe('Targets — extended coverage', () => {
+  it('GET /api/targets returns correct totalPages for multi-page result', async () => {
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([mockTarget]);
+    (prisma.esgTarget.count as jest.Mock).mockResolvedValue(35);
+
+    const res = await request(app).get('/api/targets?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.totalPages).toBe(4);
+    expect(res.body.pagination.total).toBe(35);
+  });
+
+  it('GET /api/targets passes correct skip for page 3', async () => {
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgTarget.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/targets?page=3&limit=10');
+    expect(prisma.esgTarget.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /api/targets filters by metricId query param', async () => {
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgTarget.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/targets?metricId=00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgTarget.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ metricId: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET /api/targets returns success:true with empty data array', async () => {
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgTarget.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/targets');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/targets/:id returns data with expected fields', async () => {
+    (prisma.esgTarget.findFirst as jest.Mock).mockResolvedValue(mockTarget);
+
+    const res = await request(app).get('/api/targets/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('year');
+    expect(res.body.data).toHaveProperty('targetValue');
+    expect(res.body.data).toHaveProperty('status');
+  });
+
+  it('GET /api/targets/:id/trajectory returns 500 on DB error', async () => {
+    (prisma.esgTarget.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/targets/00000000-0000-0000-0000-000000000001/trajectory');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/targets returns 400 when targetValue is missing', async () => {
+    const res = await request(app).post('/api/targets').send({
+      metricId: '00000000-0000-0000-0000-000000000001',
+      year: 2026,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/targets/:id returns 400 for invalid status enum', async () => {
+    const res = await request(app)
+      .put('/api/targets/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
+});

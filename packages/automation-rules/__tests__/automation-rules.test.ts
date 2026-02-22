@@ -210,3 +210,75 @@ describe('@ims/automation-rules', () => {
     });
   });
 });
+
+// ===================================================================
+// Extended coverage: rule properties, multi-org isolation, log status types
+// ===================================================================
+
+describe('@ims/automation-rules — extended coverage', () => {
+  beforeEach(() => {
+    _resetStores();
+  });
+
+  it('each rule trigger has a valid type', () => {
+    const validTypes = [
+      'record_created',
+      'date_passed',
+      'date_approaching',
+      'score_changed',
+      'field_threshold',
+      'event',
+      'schedule',
+      'threshold',
+      'manual',
+    ];
+    for (const rule of AUTOMATION_RULES) {
+      expect(validTypes).toContain(rule.trigger.type);
+    }
+  });
+
+  it('enableRule and listRules show correct enabled state for multiple orgs', () => {
+    enableRule('org-A', 'rule-003');
+    enableRule('org-B', 'rule-003');
+    enableRule('org-B', 'rule-005');
+
+    const orgARules = listRules('org-A');
+    const orgBRules = listRules('org-B');
+
+    expect(orgARules.find((r) => r.id === 'rule-003')!.enabled).toBe(true);
+    expect(orgARules.filter((r) => r.enabled)).toHaveLength(1);
+    expect(orgBRules.filter((r) => r.enabled)).toHaveLength(2);
+  });
+
+  it('logExecution supports "failed" status and stores correctly', () => {
+    const entry = logExecution('org-1', 'rule-010', 'failed', 'Action timed out');
+    expect(entry.status).toBe('failed');
+    expect(entry.ruleId).toBe('rule-010');
+
+    const logs = getExecutionLog('org-1', 'rule-010');
+    expect(logs).toHaveLength(1);
+    expect(logs[0].status).toBe('failed');
+  });
+
+  it('getExecutionLog returns all statuses when filtering by ruleId across multiple statuses', () => {
+    logExecution('org-1', 'rule-002', 'success', 'OK');
+    logExecution('org-1', 'rule-002', 'failed', 'Error');
+    logExecution('org-1', 'rule-002', 'skipped', 'Condition not met');
+
+    const logs = getExecutionLog('org-1', 'rule-002');
+    expect(logs).toHaveLength(3);
+    const statuses = logs.map((l) => l.status);
+    expect(statuses).toContain('success');
+    expect(statuses).toContain('failed');
+    expect(statuses).toContain('skipped');
+  });
+
+  it('disableRule after re-enabling reflects correct enabled state in listRules', () => {
+    enableRule('org-1', 'rule-007');
+    expect(listRules('org-1').find((r) => r.id === 'rule-007')!.enabled).toBe(true);
+
+    disableRule('org-1', 'rule-007');
+    expect(listRules('org-1').find((r) => r.id === 'rule-007')!.enabled).toBe(false);
+    expect(getEnabledRules('org-1')).toHaveLength(0);
+  });
+});

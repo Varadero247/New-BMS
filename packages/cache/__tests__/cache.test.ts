@@ -244,4 +244,29 @@ describe('Cache enabled (mocked Redis)', () => {
     expect(factory).toHaveBeenCalledTimes(1);
     expect(mockSetex).toHaveBeenCalledWith('test:key', 120, JSON.stringify({ fresh: true }));
   });
+
+  // Additional coverage: error resilience and edge cases
+  it('cacheGetOrSet falls back to factory result when cacheSet throws', async () => {
+    mockGet.mockResolvedValue(null);
+    mockSetex.mockRejectedValue(new Error('write error'));
+    const factory = jest.fn().mockResolvedValue({ fresh: true });
+
+    const result = await cacheGetOrSet('key', factory, { ttl: 60 });
+    expect(result).toEqual({ fresh: true });
+    expect(factory).toHaveBeenCalledTimes(1);
+  });
+
+  it('cacheSet with ttl=0 does not call setex', async () => {
+    mockSet.mockResolvedValue('OK');
+    await cacheSet('no-ttl-key', 42, { ttl: 0 });
+    expect(mockSetex).not.toHaveBeenCalled();
+    expect(mockSet).toHaveBeenCalledWith('test:no-ttl-key', JSON.stringify(42));
+  });
+
+  it('cacheGet correctly prepends prefix before querying Redis', async () => {
+    mockGet.mockResolvedValue(JSON.stringify('hello'));
+    const result = await cacheGet<string>('world');
+    expect(mockGet).toHaveBeenCalledWith('test:world');
+    expect(result).toBe('hello');
+  });
 });

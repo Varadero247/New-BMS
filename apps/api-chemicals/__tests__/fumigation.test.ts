@@ -299,3 +299,49 @@ describe('GET /api/fumigation/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ── Additional coverage ───────────────────────────────────────────────────
+
+describe('Fumigation API — additional coverage', () => {
+  it('GET /api/fumigation returns correct totalPages for multi-page result', async () => {
+    (mockPrisma.chemFumigation.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemFumigation.count as jest.Mock).mockResolvedValue(60);
+
+    const res = await request(app).get('/api/fumigation?page=1&limit=20');
+    expect(res.status).toBe(200);
+    const totalPages = Math.ceil(res.body.pagination.total / 20);
+    expect(totalPages).toBe(3);
+  });
+
+  it('GET /api/fumigation response has success:true and pagination block', async () => {
+    (mockPrisma.chemFumigation.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemFumigation.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/fumigation');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET /api/fumigation/:id returns success:true in response body', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockResolvedValue(mockFumigation);
+    const res = await request(app).get('/api/fumigation/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/fumigation/:id returns 500 on db error during update', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockResolvedValue(mockFumigation);
+    (mockPrisma.chemFumigation.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/fumigation/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/fumigation/:id returns 500 on db error', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/fumigation/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+});

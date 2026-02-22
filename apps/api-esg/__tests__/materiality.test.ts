@@ -295,3 +295,78 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('materiality — additional coverage', () => {
+  it('GET / pagination totalPages is calculated correctly', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(20);
+
+    const res = await request(app).get('/api/materiality?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+    expect(res.body.pagination.total).toBe(20);
+  });
+
+  it('GET / skip is correct for page 2 limit 5', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(10);
+
+    await request(app).get('/api/materiality?page=2&limit=5');
+    expect(prisma.esgMateriality.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST / returns 400 when importanceToBusiness is negative', async () => {
+    const res = await request(app).post('/api/materiality').send({
+      topic: 'Biodiversity',
+      category: 'ENVIRONMENTAL',
+      importanceToStakeholders: 7,
+      importanceToBusiness: -1,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / returns 400 when topic is missing', async () => {
+    const res = await request(app).post('/api/materiality').send({
+      category: 'SOCIAL',
+      importanceToStakeholders: 5,
+      importanceToBusiness: 5,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /matrix returns 500 on DB error', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/materiality/matrix');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / response body has success:true', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([mockMateriality]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/materiality');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id returns 400 for invalid category on update', async () => {
+    const res = await request(app)
+      .put('/api/materiality/00000000-0000-0000-0000-000000000001')
+      .send({ category: 'INVALID_CAT' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / filters by SOCIAL category', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/materiality?category=SOCIAL');
+    expect(prisma.esgMateriality.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'SOCIAL' }) })
+    );
+  });
+});

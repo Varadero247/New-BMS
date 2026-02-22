@@ -507,3 +507,81 @@ describe('Quality Risks API Routes', () => {
     });
   });
 });
+
+describe('Quality Risks API — additional edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', risksRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risks — response shape includes success and items array', async () => {
+    (mockPrisma.qualRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/risks').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('PUT /api/risks/:id — 500 on update database error after successful findUnique', async () => {
+    (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '10000000-0000-4000-a000-000000000001',
+      process: 'OPERATIONS',
+      likelihood: 3,
+      lossOfContracts: 2,
+      harmToUser: 4,
+      unableToMeetTerms: 1,
+      violationOfRegulations: 3,
+      reputationImpact: 2,
+      costOfCorrection: 3,
+      probabilityRating: 3,
+      consequenceRating: 4,
+    });
+    (mockPrisma.qualRisk.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app)
+      .put('/api/risks/10000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ riskDescription: 'Trigger error' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/risks — riskLevel is CRITICAL when riskFactor >= 25', async () => {
+    (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualRisk.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-RSK-2026-001',
+      riskFactor: 25,
+      riskLevel: 'CRITICAL',
+      status: 'OPEN',
+    });
+
+    const response = await request(app)
+      .post('/api/risks')
+      .set('Authorization', 'Bearer token')
+      .send({
+        process: 'OPERATIONS',
+        riskDescription: 'Critical operational risk',
+        likelihood: 5,
+        lossOfContracts: 5,
+        harmToUser: 5,
+        unableToMeetTerms: 5,
+        violationOfRegulations: 5,
+        reputationImpact: 5,
+        costOfCorrection: 5,
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+  });
+});

@@ -285,3 +285,87 @@ describe('createDownstreamRateLimiter', () => {
     expect(typeof limiter).toBe('function');
   });
 });
+
+describe('middleware — extended coverage', () => {
+  const createMocks = (headerValue?: string) => {
+    const mockReq = {
+      get: jest.fn((header: string) => {
+        if (header === CORRELATION_ID_HEADER) return headerValue;
+        return undefined;
+      }),
+      correlationId: undefined as string | undefined,
+    };
+    const mockRes = {
+      setHeader: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    const mockNext = jest.fn();
+    return { mockReq, mockRes, mockNext };
+  };
+
+  it('correlationIdMiddleware sets a unique ID on each call', () => {
+    const middleware = correlationIdMiddleware();
+    const { mockReq: req1, mockRes: res1, mockNext: next1 } = createMocks();
+    const { mockReq: req2, mockRes: res2, mockNext: next2 } = createMocks();
+    middleware(req1 as any, res1 as any, next1);
+    middleware(req2 as any, res2 as any, next2);
+    expect(req1.correlationId).toBeDefined();
+    expect(req2.correlationId).toBeDefined();
+    expect(req1.correlationId).not.toBe(req2.correlationId);
+  });
+
+  it('cacheControl stale-while-revalidate is double the maxAge', () => {
+    const middleware = cacheControl(30);
+    const setHeader = jest.fn();
+    const next = jest.fn();
+    middleware({} as any, { setHeader } as any, next);
+    const [, value] = setHeader.mock.calls[0];
+    expect(value).toContain('max-age=30');
+    expect(value).toContain('stale-while-revalidate=60');
+  });
+
+  it('createHealthCheck includes version in response body', async () => {
+    const handler = createHealthCheck('versioned-svc', undefined, '2.0.0');
+    const mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      setHeader: jest.fn(),
+    };
+    await handler({} as any, mockRes as any);
+    const body = mockRes.json.mock.calls[0][0];
+    expect(body.version).toBe('2.0.0');
+  });
+
+  it('createHealthCheck response has an ISO timestamp string', async () => {
+    const handler = createHealthCheck('ts-svc');
+    const mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      setHeader: jest.fn(),
+    };
+    await handler({} as any, mockRes as any);
+    const body = mockRes.json.mock.calls[0][0];
+    expect(typeof body.timestamp).toBe('string');
+    expect(() => new Date(body.timestamp).toISOString()).not.toThrow();
+  });
+
+  it('requestLogger middleware does not throw for minimal req/res', () => {
+    const middleware = requestLogger();
+    const next = jest.fn();
+    const req = { method: 'DELETE', originalUrl: '/api/items/1', headers: {}, socket: {} } as any;
+    const res = { on: jest.fn(), statusCode: 204, getHeader: jest.fn() } as any;
+    expect(() => middleware(req, res, next)).not.toThrow();
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('createDownstreamRateLimiter with high max still returns a function', () => {
+    const limiter = createDownstreamRateLimiter({ max: 10000, windowMs: 1000 });
+    expect(typeof limiter).toBe('function');
+  });
+
+  it('getCorrelationId returns "unknown" for req without property', () => {
+    const mockReq = { headers: {} };
+    expect(getCorrelationId(mockReq as any)).toBe('unknown');
+  });
+});

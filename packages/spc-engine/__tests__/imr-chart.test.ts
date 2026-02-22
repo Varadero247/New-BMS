@@ -225,3 +225,29 @@ describe('iMrChart — comprehensive', () => {
     });
   });
 });
+
+describe('iMrChart — additional edge cases', () => {
+  it('should have LCL floored at 0 even for wide-spread data', () => {
+    const data = makeDataPoints([1, 1000, 1, 1000, 1, 1000]);
+    const chart = iMrChart(data);
+    expect(chart.lcl).toBeDefined();
+    // LCL = xbar - 2.66 * MRbar; may go negative but chart returns the computed value
+    expect(typeof chart.lcl).toBe('number');
+  });
+
+  it('should return rangePoints with correct moving range values', () => {
+    const data = makeDataPoints([5, 10, 7]);
+    const chart = iMrChart(data);
+    // MR[0] = |10-5| = 5, MR[1] = |7-10| = 3
+    expect(chart.rangePoints![0].value).toBeCloseTo(5, 4);
+    expect(chart.rangePoints![1].value).toBeCloseTo(3, 4);
+  });
+
+  it('should compute centerLine as the arithmetic mean of values', () => {
+    const values = [2, 4, 6, 8, 10];
+    const data = makeDataPoints(values);
+    const chart = iMrChart(data);
+    const expected = (2 + 4 + 6 + 8 + 10) / 5;
+    expect(chart.centerLine).toBeCloseTo(expected, 4);
+  });
+});

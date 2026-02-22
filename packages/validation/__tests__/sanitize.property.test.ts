@@ -359,3 +359,38 @@ describe('containsSqlInjection() — property-based', () => {
     );
   });
 });
+
+// ── Cross-function invariants ───────────────────────────────────────────────
+
+describe('Cross-function invariants', () => {
+  it('sanitizeString output passes through containsXss as false (for non-HTML inputs)', () => {
+    fc.assert(
+      fc.property(fc.stringMatching(/^[a-zA-Z0-9 ,.\-_]+$/), (input) => {
+        const sanitized = sanitizeString(input, { maxLength: 10_000 });
+        // Plain-text-only sanitized output should never be flagged as XSS
+        expect(containsXss(sanitized)).toBe(false);
+      }),
+      { numRuns: 200 }
+    );
+  });
+
+  it('sanitizeEmail output never triggers XSS detection', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const email = sanitizeEmail(input);
+        expect(containsXss(email)).toBe(false);
+      }),
+      { numRuns: 200 }
+    );
+  });
+
+  it('sanitizeFilename output never triggers XSS or SQLi detection', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const filename = sanitizeFilename(input);
+        expect(containsXss(filename)).toBe(false);
+      }),
+      { numRuns: 200 }
+    );
+  });
+});

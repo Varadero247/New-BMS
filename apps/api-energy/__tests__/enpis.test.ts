@@ -382,3 +382,48 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('GET /api/enpis pagination and response shape', () => {
+  it('should include pagination meta in list response', async () => {
+    (prisma.energyEnpi.findMany as jest.Mock).mockResolvedValue([
+      { id: 'e2000000-0000-4000-a000-000000000001', name: 'kWh/m2' },
+    ]);
+    (prisma.energyEnpi.count as jest.Mock).mockResolvedValue(30);
+
+    const res = await request(app).get('/api/enpis?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(30);
+  });
+
+  it('should filter by frequency=WEEKLY param', async () => {
+    (prisma.energyEnpi.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyEnpi.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/enpis?frequency=WEEKLY');
+
+    expect(prisma.energyEnpi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ frequency: 'WEEKLY' }),
+      })
+    );
+  });
+
+  it('GET /:id/data-points should include pagination meta', async () => {
+    (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue({ id: 'e2000000-0000-4000-a000-000000000001' });
+    (prisma.energyEnpiData.findMany as jest.Mock).mockResolvedValue([
+      { id: 'e2100000-0000-4000-a000-000000000001', value: 100 },
+      { id: 'e2100000-0000-4000-a000-000000000002', value: 110 },
+    ]);
+    (prisma.energyEnpiData.count as jest.Mock).mockResolvedValue(20);
+
+    const res = await request(app).get('/api/enpis/e2000000-0000-4000-a000-000000000001/data-points?limit=2');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(20);
+  });
+});

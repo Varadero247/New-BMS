@@ -197,3 +197,64 @@ describe('validateIdParam', () => {
     });
   });
 });
+
+// ── additional isValidId edge cases ───────────────────────────────────────
+
+describe('isValidId — additional edge cases', () => {
+  it('rejects whitespace-only string', () => {
+    expect(isValidId('   ')).toBe(false);
+  });
+
+  it('rejects UUID with extra leading whitespace', () => {
+    expect(isValidId(' 550e8400-e29b-41d4-a716-446655440000')).toBe(false);
+  });
+
+  it('rejects null-like string', () => {
+    expect(isValidId('null')).toBe(false);
+  });
+
+  it('rejects undefined-like string', () => {
+    expect(isValidId('undefined')).toBe(false);
+  });
+});
+
+// ── additional validateIdParam edge cases ────────────────────────────────
+
+describe('validateIdParam — additional edge cases', () => {
+  function makeRes() {
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+    };
+    return res as unknown as { status: jest.Mock; json: jest.Mock };
+  }
+
+  const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
+
+  it('calls next() only once for a valid value arg', () => {
+    const middleware = validateIdParam('itemId');
+    const next = jest.fn();
+    const res = makeRes();
+    middleware({ params: {} }, res, next, VALID_UUID);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('does not call res.status for a passing request', () => {
+    const middleware = validateIdParam();
+    const next = jest.fn();
+    const res = makeRes();
+    middleware({ params: { id: VALID_UUID } }, res, next, undefined);
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('error response has success: false', () => {
+    const middleware = validateIdParam();
+    const next = jest.fn();
+    const res = makeRes();
+    middleware({ params: {} }, res, next, 'bad-id');
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ success: false })
+    );
+  });
+});

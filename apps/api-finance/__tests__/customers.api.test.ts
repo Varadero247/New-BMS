@@ -397,3 +397,74 @@ describe('DELETE /api/customers/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// Additional coverage: pagination totalPages, filter wiring, 500 paths
+// ===================================================================
+describe('Additional customers coverage', () => {
+  it('GET /api/customers pagination computes correct totalPages', async () => {
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(100);
+
+    const res = await request(app).get('/api/customers?page=3&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(100);
+    expect(res.body.pagination.totalPages).toBe(5);
+    expect(res.body.pagination.page).toBe(3);
+  });
+
+  it('GET /api/customers filters by country wired into where clause', async () => {
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customers?country=US');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.finCustomer.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ country: 'US' }) })
+    );
+  });
+
+  it('POST /api/customers returns 400 for invalid email format', async () => {
+    const res = await request(app).post('/api/customers').send({
+      name: 'Test Corp',
+      email: 'not-an-email-at-all',
+      currency: 'USD',
+      paymentTerms: 30,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/customers/:id returns 500 when findFirst fails', async () => {
+    mockPrisma.finCustomer.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/customers/f4000000-0000-4000-a000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /api/customers/:id returns 500 when update fails after check', async () => {
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
+      id: 'f4000000-0000-4000-a000-000000000001',
+      deletedAt: null,
+    });
+    mockPrisma.finInvoice.count.mockResolvedValue(0);
+    mockPrisma.finCustomer.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/customers/f4000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/customers response shape has success:true and pagination', async () => {
+    mockPrisma.finCustomer.findMany.mockResolvedValue([
+      { id: 'f4000000-0000-4000-a000-000000000001', code: 'CUST-001', name: 'Corp', _count: { invoices: 0 } },
+    ]);
+    mockPrisma.finCustomer.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/customers');
+    expect(res.body).toMatchObject({ success: true, pagination: expect.objectContaining({ total: 1 }) });
+  });
+});

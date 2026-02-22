@@ -284,3 +284,95 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage: pagination, filters, response shapes ────────────────
+
+describe('Checklists — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/checklists returns correct totalPages for multi-page result', async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([mockChecklist]);
+    prisma.cmmsChecklist.count.mockResolvedValue(63);
+
+    const res = await request(app).get('/api/checklists?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.totalPages).toBe(4);
+    expect(res.body.pagination.total).toBe(63);
+  });
+
+  it('GET /api/checklists passes correct skip for page 3', async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([]);
+    prisma.cmmsChecklist.count.mockResolvedValue(0);
+
+    await request(app).get('/api/checklists?page=3&limit=10');
+    expect(prisma.cmmsChecklist.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /api/checklists wires isActive filter into Prisma where clause', async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([]);
+    prisma.cmmsChecklist.count.mockResolvedValue(0);
+
+    await request(app).get('/api/checklists?isActive=false');
+    expect(prisma.cmmsChecklist.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('GET /api/checklists returns success:true with empty data array', async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([]);
+    prisma.cmmsChecklist.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/checklists');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST /api/checklists returns 400 when name is missing', async () => {
+    const res = await request(app).post('/api/checklists').send({ items: [{ label: 'Check', type: 'boolean' }] });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('DELETE /api/checklists/:id returns 500 on DB update error', async () => {
+    prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
+    prisma.cmmsChecklist.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/checklists/:id/results returns 500 on DB create error', async () => {
+    prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
+    prisma.cmmsChecklistResult.create.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .post('/api/checklists/00000000-0000-0000-0000-000000000001/results')
+      .send({
+        assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        completedBy: 'John Smith',
+        completedAt: '2026-02-13T10:00:00Z',
+        results: [{ label: 'Check oil level', value: true }],
+        overallResult: 'PASS',
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/checklists/:id returns data with expected fields', async () => {
+    prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
+
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('name');
+    expect(res.body.data).toHaveProperty('items');
+    expect(res.body.data).toHaveProperty('isActive');
+  });
+});

@@ -371,3 +371,26 @@ describe('InfoSec Assets API', () => {
     });
   });
 });
+
+// ===================================================================
+// InfoSec Assets — additional response shape coverage
+// ===================================================================
+describe('InfoSec Assets — additional response shape coverage', () => {
+  it('GET /api/assets returns success:true and data array on success', async () => {
+    (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/assets');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/assets/:id returns 500 and success:false on database error', async () => {
+    (mockPrisma.isAsset.findFirst as jest.Mock).mockRejectedValueOnce(new Error('Timeout'));
+
+    const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

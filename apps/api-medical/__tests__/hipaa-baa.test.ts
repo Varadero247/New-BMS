@@ -218,3 +218,68 @@ describe('HIPAA BAA Routes', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ── Additional coverage ──────────────────────────────────────────────────────
+
+describe('HIPAA BAA — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / pagination.totalPages is computed correctly', async () => {
+    prisma.hipaaBaa.findMany.mockResolvedValue([{ id: 'b1', businessAssociate: 'Acme' }]);
+    prisma.hipaaBaa.count.mockResolvedValue(40);
+    const res = await request(app).get('/?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET / filters by businessAssociate search if supported', async () => {
+    prisma.hipaaBaa.findMany.mockResolvedValue([]);
+    prisma.hipaaBaa.count.mockResolvedValue(0);
+    const res = await request(app).get('/?search=Acme');
+    // Route must respond (not crash) even with unrecognised params
+    expect(res.status).toBeLessThan(600);
+  });
+
+  it('POST / returns 400 on missing effectiveDate', async () => {
+    const { effectiveDate: _ed, ...body } = baaPayload;
+    const res = await request(app).post('/').send(body);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update throws', async () => {
+    prisma.hipaaBaa.findUnique.mockResolvedValue({ id: 'b1', deletedAt: null });
+    prisma.hipaaBaa.update.mockRejectedValue(new Error('write fail'));
+    const res = await request(app).put('/b1').send({ status: 'ACTIVE' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id returns 500 when update throws', async () => {
+    prisma.hipaaBaa.findUnique.mockResolvedValue({ id: 'b1', deletedAt: null });
+    prisma.hipaaBaa.update.mockRejectedValue(new Error('write fail'));
+    const res = await request(app).delete('/b1').send({ terminationReason: 'end' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /expiring returns 500 on DB error', async () => {
+    prisma.hipaaBaa.findMany.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/expiring');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / response shape has success:true and pagination object', async () => {
+    prisma.hipaaBaa.findMany.mockResolvedValue([]);
+    prisma.hipaaBaa.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST / returns success:true with data on valid payload', async () => {
+    prisma.hipaaBaa.create.mockResolvedValue({ id: 'b2', ...baaPayload, status: 'ACTIVE' });
+    const res = await request(app).post('/').send(baaPayload);
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

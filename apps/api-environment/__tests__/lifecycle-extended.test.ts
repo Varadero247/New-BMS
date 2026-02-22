@@ -336,3 +336,94 @@ describe('Life Cycle Assessment Routes', () => {
     });
   });
 });
+
+describe('Life Cycle Assessment Routes — extended coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /assessments returns correct totalPages for multi-page result', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValue(30);
+
+    const res = await request(app).get('/api/lifecycle/assessments?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('GET /assessments passes correct skip to Prisma for page 3 limit 5', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValue(15);
+
+    await request(app).get('/api/lifecycle/assessments?page=3&limit=5');
+
+    expect(mockPrisma.lifeCycleAssessment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('GET /assessments/:id returns 500 on database error', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).get(
+      '/api/lifecycle/assessments/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /assessments returns 400 for invalid status enum', async () => {
+    const res = await request(app).post('/api/lifecycle/assessments').send({
+      title: 'LCA Test',
+      productProcess: 'Widget',
+      status: 'NOT_A_REAL_STATUS',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /assessments response shape includes success:true and meta', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/lifecycle/assessments');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('meta');
+    expect(res.body.meta).toHaveProperty('total', 0);
+  });
+
+  it('PUT /assessments/:id/stages/USE accepts USE stage name', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockResolvedValue({
+      stageName: 'USE',
+      aspects: 'Consumer operation',
+    });
+
+    const res = await request(app)
+      .put('/api/lifecycle/assessments/00000000-0000-0000-0000-000000000001/stages/USE')
+      .send({ aspects: 'Consumer operation', impacts: 'Energy consumption' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /assessments/:id/stages/:stage accepts DISTRIBUTION stage name', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockResolvedValue({
+      stageName: 'DISTRIBUTION',
+      aspects: 'Logistics emissions',
+    });
+
+    const res = await request(app)
+      .put('/api/lifecycle/assessments/00000000-0000-0000-0000-000000000001/stages/DISTRIBUTION')
+      .send({ aspects: 'Logistics emissions' });
+
+    expect(res.status).toBe(200);
+  });
+});

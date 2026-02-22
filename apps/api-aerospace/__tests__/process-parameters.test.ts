@@ -306,3 +306,51 @@ describe('PUT /api/process-parameters/requalification/:id', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('process-parameters – extended coverage', () => {
+  it('GET /records returns totalPages in pagination meta', async () => {
+    (mockPrisma.aeroProcessParameterRecord.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.aeroProcessParameterRecord.count as jest.Mock).mockResolvedValue(40);
+    const res = await request(app).get('/api/process-parameters/records?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it('GET /records response shape has success:true', async () => {
+    (mockPrisma.aeroProcessParameterRecord.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroProcessParameterRecord.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/process-parameters/records');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /requalification returns totalPages in pagination meta', async () => {
+    (mockPrisma.aeroRequalificationTrigger.findMany as jest.Mock).mockResolvedValue([mockTrigger]);
+    (mockPrisma.aeroRequalificationTrigger.count as jest.Mock).mockResolvedValue(30);
+    const res = await request(app).get('/api/process-parameters/requalification?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /requalification filters by status', async () => {
+    (mockPrisma.aeroRequalificationTrigger.findMany as jest.Mock).mockResolvedValue([mockTrigger]);
+    (mockPrisma.aeroRequalificationTrigger.count as jest.Mock).mockResolvedValue(1);
+    await request(app).get('/api/process-parameters/requalification?status=OPEN');
+    const [call] = (mockPrisma.aeroRequalificationTrigger.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.status).toBe('OPEN');
+  });
+
+  it('POST /records returns error.code VALIDATION_ERROR on missing fields', async () => {
+    const res = await request(app).post('/api/process-parameters/records').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /requalification/:id returns 500 on DB update error', async () => {
+    (mockPrisma.aeroRequalificationTrigger.findUnique as jest.Mock).mockResolvedValue(mockTrigger);
+    (mockPrisma.aeroRequalificationTrigger.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/process-parameters/requalification/00000000-0000-0000-0000-000000000010')
+      .send({ status: 'IN_PROGRESS' });
+    expect(res.status).toBe(500);
+  });
+});

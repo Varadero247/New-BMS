@@ -506,4 +506,60 @@ describe('Inventory Warehouses API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('Additional coverage: pagination, shape, and 500 paths', () => {
+    it('should compute totalPages correctly for large result sets', async () => {
+      (mockPrisma.warehouse.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.warehouse.count as jest.Mock).mockResolvedValueOnce(105);
+      (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValueOnce([]);
+
+      const response = await request(app)
+        .get('/api/warehouses?page=1&limit=20')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.totalPages).toBe(6);
+    });
+
+    it('should return success:true and data array in response shape', async () => {
+      (mockPrisma.warehouse.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.warehouse.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValueOnce([]);
+
+      const response = await request(app)
+        .get('/api/warehouses')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body).toHaveProperty('meta');
+    });
+
+    it('should return 500 when warehouse.update fails on delete', async () => {
+      (mockPrisma.warehouse.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '28000000-0000-4000-a000-000000000001',
+        inventoryItems: [],
+      });
+      (mockPrisma.warehouse.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .delete('/api/warehouses/28000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('should filter by search term when provided', async () => {
+      (mockPrisma.warehouse.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.warehouse.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValueOnce([]);
+
+      await request(app)
+        .get('/api/warehouses?search=Main')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.warehouse.findMany).toHaveBeenCalled();
+    });
+  });
 });

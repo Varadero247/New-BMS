@@ -405,3 +405,49 @@ describe('DELETE /api/policies/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ===================================================================
+// Additional coverage: pagination, response shape, filter params
+// ===================================================================
+describe('GET /api/policies — additional pagination and shape tests', () => {
+  it('should compute totalPages correctly for larger datasets', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(30);
+
+    const res = await request(app).get('/api/policies?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('should return response with success, data array, and pagination shape', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/policies');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.pagination).toMatchObject({ page: 1, total: 1 });
+  });
+
+  it('should pass page and limit to findMany as skip/take', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+
+    await request(app).get('/api/policies?page=2&limit=5');
+
+    expect(mockPrisma.aiPolicy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('should return 500 when count query fails', async () => {
+    mockPrisma.aiPolicy.findMany.mockRejectedValue(new Error('network error'));
+
+    const res = await request(app).get('/api/policies');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

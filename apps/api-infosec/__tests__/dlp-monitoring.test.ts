@@ -350,3 +350,53 @@ describe('POST /api/dlp/info-deletion', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('GET /api/dlp/info-deletion', () => {
+  it('returns paginated info deletion records', async () => {
+    const mockDeletion = {
+      id: '00000000-0000-0000-0000-000000000030',
+      assetDescription: 'Old laptop HDD',
+      assetType: 'HDD',
+      dataClassification: 'CONFIDENTIAL',
+      deletionMethod: 'PHYSICAL_DESTRUCTION',
+      deletedAt: null,
+    };
+    (mockPrisma.isInfoDeletion.findMany as jest.Mock).mockResolvedValue([mockDeletion]);
+    (mockPrisma.isInfoDeletion.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/dlp/info-deletion');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.isInfoDeletion.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dlp/info-deletion');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/dlp/monitoring-reviews', () => {
+  it('returns paginated monitoring reviews', async () => {
+    const mockReview = {
+      id: '00000000-0000-0000-0000-000000000040',
+      reviewType: 'WEEKLY',
+      reviewDate: new Date('2026-01-15'),
+      reviewedBy: 'Security Team',
+      findings: 'No anomalies detected',
+      deletedAt: null,
+    };
+    (mockPrisma.isMonitoringReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+    (mockPrisma.isMonitoringReview.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/dlp/monitoring-reviews');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.isMonitoringReview.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dlp/monitoring-reviews');
+    expect(res.status).toBe(500);
+  });
+});

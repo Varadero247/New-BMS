@@ -367,3 +367,55 @@ describe('Human Review Routes', () => {
     });
   });
 });
+
+// ===================================================================
+// Extended coverage: pagination, response shape, filter params
+// ===================================================================
+
+describe('Human Review — extended coverage', () => {
+  it('GET /api/human-review returns correct totalPages in pagination', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.aiHumanReview.count as jest.Mock).mockResolvedValue(50);
+
+    const res = await request(app).get('/api/human-review?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(50);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('GET /api/human-review response shape has success:true and data array', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+    (prisma.aiHumanReview.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/human-review');
+
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('POST /api/human-review returns 500 on DB error during create', async () => {
+    (prisma.aiHumanReview.create as jest.Mock).mockRejectedValue(new Error('DB write fail'));
+
+    const res = await request(app).post('/api/human-review').send({
+      systemId: 'sys-2',
+      title: 'Fraud Detection Review',
+      aiDecision: 'REJECT',
+      aiConfidence: 0.88,
+      aiReasoning: 'Pattern matches known fraud',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/human-review filters by reviewerUserId param', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.aiHumanReview.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/human-review?reviewerUserId=user-456');
+
+    expect(res.status).toBe(200);
+  });
+});

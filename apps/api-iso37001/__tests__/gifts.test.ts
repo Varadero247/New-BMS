@@ -428,3 +428,48 @@ describe('ISO 37001 Gifts API', () => {
     });
   });
 });
+
+describe('ISO 37001 Gifts API — additional coverage', () => {
+  it('GET /api/gifts: totalPages is correct for large dataset', async () => {
+    (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
+    (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(55);
+
+    const res = await request(app).get('/api/gifts?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(6);
+  });
+
+  it('GET /api/gifts: response shape contains success, data, and pagination', async () => {
+    (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/gifts');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('PUT /api/gifts/:id: returns 500 on database error during update', async () => {
+    (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+    (mockPrisma.abGiftRegister.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/gifts/00000000-0000-0000-0000-000000000001')
+      .send({ description: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/gifts: filter by governmentOfficial passes through', async () => {
+    (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/gifts?governmentOfficial=true');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.abGiftRegister.findMany).toHaveBeenCalled();
+  });
+});

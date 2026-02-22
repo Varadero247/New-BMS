@@ -409,3 +409,91 @@ describe('ISO 37001 Due Diligence API', () => {
     });
   });
 });
+
+describe('ISO 37001 Due Diligence API — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns correct totalPages in pagination', async () => {
+    (mockPrisma.abDueDiligence.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abDueDiligence.count as jest.Mock).mockResolvedValueOnce(30);
+
+    const res = await request(app).get('/api/due-diligence?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET / filter by thirdPartyType=CONSULTANT passes WHERE clause', async () => {
+    (mockPrisma.abDueDiligence.findMany as jest.Mock).mockResolvedValueOnce([mockDD]);
+    (mockPrisma.abDueDiligence.count as jest.Mock).mockResolvedValueOnce(1);
+
+    await request(app).get('/api/due-diligence?thirdPartyType=CONSULTANT');
+
+    expect(mockPrisma.abDueDiligence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ thirdPartyType: 'CONSULTANT' }),
+      })
+    );
+  });
+
+  it('PUT /:id returns 500 on update DB error', async () => {
+    (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockResolvedValueOnce(mockDD);
+    (mockPrisma.abDueDiligence.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/due-diligence/00000000-0000-0000-0000-000000000001')
+      .send({ thirdPartyName: 'Updated Name' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id/complete returns 500 on DB update error', async () => {
+    (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockResolvedValueOnce(mockDD);
+    (mockPrisma.abDueDiligence.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/due-diligence/00000000-0000-0000-0000-000000000001/complete')
+      .send({ findings: 'No issues found', riskLevel: 'LOW' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /:id returns 500 on DB update error', async () => {
+    (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockResolvedValueOnce(mockDD);
+    (mockPrisma.abDueDiligence.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).delete(
+      '/api/due-diligence/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id returns 500 on DB findFirst error', async () => {
+    (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).get('/api/due-diligence/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / sets referenceNumber on created record (returned from DB)', async () => {
+    (mockPrisma.abDueDiligence.create as jest.Mock).mockResolvedValueOnce(mockDD);
+
+    const res = await request(app).post('/api/due-diligence').send({
+      thirdPartyName: 'Reference Test Co',
+      thirdPartyType: 'AGENT',
+      level: 'BASIC',
+      country: 'Germany',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toBe('AB-DD-2602-1234');
+  });
+});

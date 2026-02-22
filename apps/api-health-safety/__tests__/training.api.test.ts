@@ -520,4 +520,47 @@ describe('Health & Safety Training API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('additional coverage — response shape and field validation', () => {
+    it('GET /courses returns empty array when no courses exist', async () => {
+      (mockPrisma.trainCourse.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      const response = await request(app)
+        .get('/api/training/courses')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(0);
+    });
+
+    it('GET /records returns empty array when no records exist', async () => {
+      (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+      const response = await request(app)
+        .get('/api/training/records')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(0);
+    });
+
+    it('POST /courses returns 201 with id in response data', async () => {
+      (mockPrisma.trainCourse.create as jest.Mock).mockResolvedValueOnce({
+        id: '30000000-0000-4000-a000-000000000123',
+        title: 'Emergency First Aid',
+        standard: 'ISO_45001',
+        isActive: true,
+      });
+
+      const response = await request(app)
+        .post('/api/training/courses')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Emergency First Aid' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.id).toBe('30000000-0000-4000-a000-000000000123');
+    });
+  });
 });

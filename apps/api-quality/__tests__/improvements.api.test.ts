@@ -558,3 +558,63 @@ describe('Quality Improvements API Routes', () => {
     });
   });
 });
+
+describe('Quality Improvements API — additional edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/improvements', improvementsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/improvements — response body has success:true and items array', async () => {
+    (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/improvements').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('PUT /api/improvements/:id — 500 on update database error', async () => {
+    (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '21000000-0000-4000-a000-000000000001',
+      qualityImpact: 'NONE',
+      customerImpact: 'NONE',
+      processImpact: 'NONE',
+      priorityScore: 0,
+    });
+    (mockPrisma.qualImprovement.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app)
+      .put('/api/improvements/21000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Trigger DB error' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/improvements — missing proposedSolution returns 400', async () => {
+    const response = await request(app)
+      .post('/api/improvements')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Test',
+        category: 'PROCESS_IMPROVEMENT',
+        source: 'AUDIT',
+        submittedBy: 'Test',
+        description: 'Some description',
+        expectedBenefits: 'Some benefits',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

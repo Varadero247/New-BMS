@@ -369,4 +369,97 @@ describe('Marketplace Routes', () => {
       expect(res.body.data.totalDownloads).toBe(5000);
     });
   });
+
+  // ===================================================================
+  // Additional coverage: pagination, 500 errors, filter wiring, validation
+  // ===================================================================
+  describe('Additional marketplace coverage', () => {
+    it('GET /api/marketplace/plugins pagination returns correct page and total in meta', async () => {
+      mockPrisma.mktPlugin.findMany.mockResolvedValue([]);
+      mockPrisma.mktPlugin.count.mockResolvedValue(100);
+
+      const res = await request(app).get('/api/marketplace/plugins?page=2&limit=10');
+      expect(res.status).toBe(200);
+      expect(res.body.meta.total).toBe(100);
+      expect(res.body.meta.page).toBe(2);
+      expect(res.body.meta.limit).toBe(10);
+    });
+
+    it('GET /api/marketplace/plugins filters by isPublic wired into findMany', async () => {
+      mockPrisma.mktPlugin.findMany.mockResolvedValue([]);
+      mockPrisma.mktPlugin.count.mockResolvedValue(0);
+
+      const res = await request(app).get('/api/marketplace/plugins?isPublic=true');
+      expect(res.status).toBe(200);
+      expect(mockPrisma.mktPlugin.findMany).toHaveBeenCalled();
+    });
+
+    it('GET /api/marketplace/plugins returns 500 on DB error', async () => {
+      mockPrisma.mktPlugin.findMany.mockRejectedValue(new Error('DB fail'));
+      mockPrisma.mktPlugin.count.mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app).get('/api/marketplace/plugins');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('POST /api/marketplace/plugins returns 500 on DB error', async () => {
+      mockPrisma.mktPlugin.findUnique.mockResolvedValue(null);
+      mockPrisma.mktPlugin.create.mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app).post('/api/marketplace/plugins').send({
+        name: 'Failing Plugin',
+        slug: 'failing-plugin',
+        description: 'Test',
+        author: 'IMS Team',
+        category: 'OTHER',
+      });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('POST /api/marketplace/plugins/:id/install returns 500 on DB error', async () => {
+      mockPrisma.mktPlugin.findUnique.mockResolvedValue(mockPlugin);
+      mockPrisma.mktPluginInstall.upsert.mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app)
+        .post(`/api/marketplace/plugins/${mockPlugin.id}/install`)
+        .send({});
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('GET /api/marketplace/stats returns 500 on DB error', async () => {
+      mockPrisma.mktPlugin.count.mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app).get('/api/marketplace/stats');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('POST /api/marketplace/plugins/:id/versions returns 500 on DB error', async () => {
+      mockPrisma.mktPluginVersion.updateMany.mockResolvedValue({ count: 0 });
+      mockPrisma.mktPluginVersion.create.mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app)
+        .post(`/api/marketplace/plugins/${mockPlugin.id}/versions`)
+        .send({
+          version: '3.0.0',
+          changelog: 'New version',
+          manifest: { name: 'slack-integration', entry: 'index.js' },
+        });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('PATCH /api/marketplace/plugins/:id returns 500 on DB error', async () => {
+      mockPrisma.mktPlugin.update.mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app)
+        .patch(`/api/marketplace/plugins/${mockPlugin.id}`)
+        .send({ name: 'Failing Update' });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
 });

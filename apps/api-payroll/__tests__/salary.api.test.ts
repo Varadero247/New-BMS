@@ -486,3 +486,94 @@ describe('Payroll Salary API Routes', () => {
     });
   });
 });
+
+describe('Payroll Salary API Routes — extended coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/salary', salaryRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/salary/component-types response has success:true and data array', async () => {
+    (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app)
+      .get('/api/salary/component-types')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('POST /api/salary/component-types returns 400 when name is missing', async () => {
+    const response = await request(app)
+      .post('/api/salary/component-types')
+      .set('Authorization', 'Bearer token')
+      .send({ code: 'X', category: 'EARNING', type: 'ALLOWANCE' });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/salary/employees/:employeeId returns empty array when no records', async () => {
+    (mockPrisma.employeeSalary.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app)
+      .get('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+  });
+
+  it('POST /api/salary/employees/:employeeId returns 400 when effectiveFrom is missing', async () => {
+    const response = await request(app)
+      .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ baseSalary: 5000, changeReason: 'Raise', changeType: 'ANNUAL_INCREMENT' });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/salary/:id/components accepts empty components array', async () => {
+    (mockPrisma.salaryComponent.deleteMany as jest.Mock).mockResolvedValueOnce({ count: 0 });
+    (mockPrisma.employeeSalary.update as jest.Mock).mockResolvedValueOnce({
+      id: '36000000-0000-4000-a000-000000000001',
+      components: [],
+    });
+    const response = await request(app)
+      .put('/api/salary/36000000-0000-4000-a000-000000000001/components')
+      .set('Authorization', 'Bearer token')
+      .send({ components: [] });
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST /api/salary/employees/:employeeId sets previousSalary from existing active record', async () => {
+    (mockPrisma.employeeSalary.updateMany as jest.Mock).mockResolvedValueOnce({ count: 1 });
+    (mockPrisma.employeeSalary.findFirst as jest.Mock).mockResolvedValueOnce({ baseSalary: 4500 });
+    (mockPrisma.employeeSalary.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      baseSalary: 5000,
+      previousSalary: 4500,
+      components: [],
+    });
+    const response = await request(app)
+      .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ baseSalary: 5000, effectiveFrom: '2024-03-01', changeReason: 'Raise', changeType: 'ANNUAL_INCREMENT' });
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/salary/component-types returns 500 with INTERNAL_ERROR code', async () => {
+    (mockPrisma.salaryComponentType.findMany as jest.Mock).mockRejectedValueOnce(new Error('fail'));
+    const response = await request(app)
+      .get('/api/salary/component-types')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

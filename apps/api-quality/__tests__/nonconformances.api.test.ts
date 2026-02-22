@@ -430,3 +430,125 @@ describe('Quality Nonconformances API Routes', () => {
     });
   });
 });
+
+// ── Additional coverage ──────────────────────────────────────────────────────
+
+describe('Quality Nonconformances — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/nonconformances', nonconformancesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / totalPages calculated correctly for multi-page results', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(100);
+
+    const res = await request(app)
+      .get('/api/nonconformances?page=1&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalPages).toBe(10);
+  });
+
+  it('GET / filters by ncType param (wired into where clause)', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/nonconformances?ncType=PRODUCT_DEFECT')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.qualNonConformance.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ ncType: 'PRODUCT_DEFECT' }),
+      })
+    );
+  });
+
+  it('POST / returns 400 for invalid severity enum', async () => {
+    const res = await request(app)
+      .post('/api/nonconformances')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Test NC',
+        description: 'desc',
+        ncType: 'PRODUCT_DEFECT',
+        source: 'INSPECTION',
+        severity: 'CATASTROPHIC_INVALID',
+        reportedBy: 'John',
+        department: 'QA',
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT / returns 500 when update throws after find', async () => {
+    mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce({
+      id: '1c000000-0000-4000-a000-000000000001',
+      title: 'Existing NC',
+      status: 'REPORTED',
+      closureDate: null,
+    });
+    mockPrisma.qualNonConformance.update.mockRejectedValueOnce(new Error('write fail'));
+
+    const res = await request(app)
+      .put('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id response contains referenceNumber field', async () => {
+    mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce({
+      id: '1c000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-NC-2026-001',
+      title: 'Product Defect',
+      description: 'Defect found in batch 123',
+      ncType: 'PRODUCT_DEFECT',
+      status: 'REPORTED',
+    });
+
+    const res = await request(app)
+      .get('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('GET / success:true with data.items array in response', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+
+    const res = await request(app)
+      .get('/api/nonconformances')
+      .set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('items');
+  });
+
+  it('POST / returns 500 when count throws during reference number generation', async () => {
+    mockPrisma.qualNonConformance.count.mockRejectedValueOnce(new Error('count fail'));
+
+    const res = await request(app)
+      .post('/api/nonconformances')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'New NC',
+        description: 'desc',
+        ncType: 'PRODUCT_DEFECT',
+        source: 'INSPECTION',
+        severity: 'MAJOR',
+        reportedBy: 'John',
+        department: 'QA',
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

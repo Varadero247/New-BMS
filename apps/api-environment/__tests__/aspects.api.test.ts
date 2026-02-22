@@ -490,4 +490,81 @@ describe('Environment Aspects API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('aspects – extended coverage', () => {
+    it('GET /api/aspects returns success:true in response body', async () => {
+      (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
+      const response = await request(app).get('/api/aspects').set('Authorization', 'Bearer token');
+      expect(response.body.success).toBe(true);
+    });
+
+    it('GET /api/aspects totalPages rounds up for non-divisible count', async () => {
+      (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(101);
+      const response = await request(app)
+        .get('/api/aspects?page=1&limit=50')
+        .set('Authorization', 'Bearer token');
+      expect(response.body.meta.totalPages).toBe(3);
+    });
+
+    it('GET /api/aspects/:id returns success:true for existing aspect', async () => {
+      (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '16000000-0000-4000-a000-000000000001',
+        referenceNumber: 'ENV-ASP-2026-001',
+      });
+      const response = await request(app)
+        .get('/api/aspects/16000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('PUT /api/aspects/:id returns success:true on successful update', async () => {
+      const existingAspect = {
+        id: '16000000-0000-4000-a000-000000000001',
+        activityProcess: 'Manufacturing',
+        aspect: 'Air emissions',
+        impact: 'Air pollution',
+        scoreSeverity: 3,
+        scoreProbability: 3,
+        scoreDuration: 2,
+        scoreExtent: 2,
+        scoreReversibility: 2,
+        scoreRegulatory: 2,
+        scoreStakeholder: 2,
+        nextReviewDate: null,
+      };
+      (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce(existingAspect);
+      (mockPrisma.envAspect.update as jest.Mock).mockResolvedValueOnce({
+        ...existingAspect,
+        activityProcess: 'Revised Process',
+      });
+      const response = await request(app)
+        .put('/api/aspects/16000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ activityProcess: 'Revised Process' });
+      expect(response.body.success).toBe(true);
+    });
+
+    it('POST /api/aspects returns error.code VALIDATION_ERROR for missing scores when all numeric scores absent', async () => {
+      const response = await request(app)
+        .post('/api/aspects')
+        .set('Authorization', 'Bearer token')
+        .send({});
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('DELETE /api/aspects/:id returns 204 on success', async () => {
+      (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '16000000-0000-4000-a000-000000000001',
+      });
+      (mockPrisma.envAspect.update as jest.Mock).mockResolvedValueOnce({});
+      const response = await request(app)
+        .delete('/api/aspects/16000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+      expect(response.status).toBe(204);
+    });
+  });
 });

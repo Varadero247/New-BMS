@@ -154,3 +154,49 @@ describe('RBAC Permissions', () => {
     });
   });
 });
+
+describe('RBAC – extended coverage', () => {
+  it('resolvePermissions includes all provided roles in result.roles', () => {
+    const resolved = resolvePermissions(['super-admin', 'viewer']);
+    expect(resolved.roles).toContain('super-admin');
+    expect(resolved.roles).toContain('viewer');
+  });
+
+  it('hasPermission returns false for unknown module', () => {
+    const resolved = resolvePermissions(['super-admin']);
+    // super-admin has FULL on known modules; an unregistered module is NONE
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(hasPermission(resolved, 'nonexistent-module' as any, PermissionLevel.VIEW)).toBe(false);
+  });
+
+  it('mergePermissions result.roles contains all unique roles from both sets', () => {
+    const a = resolvePermissions(['hs-officer']);
+    const b = resolvePermissions(['accountant']);
+    const merged = mergePermissions(a, b);
+    expect(merged.roles).toContain('hs-officer');
+    expect(merged.roles).toContain('accountant');
+  });
+
+  it('resolvePermissions with only unknown role gives NONE permissions on all modules', () => {
+    const resolved = resolvePermissions(['completely-unknown-role']);
+    expect(resolved.modules['finance']).toBe(PermissionLevel.NONE);
+    expect(resolved.modules['hr']).toBe(PermissionLevel.NONE);
+  });
+
+  it('NONE permission level is not sufficient for VIEW requirement', () => {
+    const resolved = resolvePermissions(['viewer']);
+    expect(hasPermission(resolved, 'hr', PermissionLevel.VIEW)).toBe(false);
+  });
+
+  it('getRolesByIds returns empty array when all ids are unknown', () => {
+    const roles = getRolesByIds(['fake-role-1', 'fake-role-2']);
+    expect(roles).toHaveLength(0);
+  });
+
+  it('all PLATFORM_ROLES have non-empty name and description', () => {
+    PLATFORM_ROLES.forEach((role) => {
+      expect(role.name.length).toBeGreaterThan(0);
+      expect(role.description.length).toBeGreaterThan(0);
+    });
+  });
+});

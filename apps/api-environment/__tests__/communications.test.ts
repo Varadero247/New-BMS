@@ -547,3 +547,114 @@ describe('Environment Communications API Routes', () => {
     });
   });
 });
+
+describe('Environment Communications API — additional coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/communications', communicationsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns totalPages in pagination metadata', async () => {
+    (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication]);
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(45);
+
+    const response = await request(app2)
+      .get('/api/communications?page=1&limit=15')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(3);
+  });
+
+  it('GET / filters by status=SENT', async () => {
+    (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication2]);
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(1);
+
+    await request(app2)
+      .get('/api/communications?status=SENT')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envCommunication.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'SENT' }),
+      })
+    );
+  });
+
+  it('GET / filters by status=DRAFT', async () => {
+    (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication]);
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(1);
+
+    await request(app2)
+      .get('/api/communications?status=DRAFT')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envCommunication.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'DRAFT' }),
+      })
+    );
+  });
+
+  it('PUT /:id returns 500 on update DB error', async () => {
+    (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+    (mockPrisma.envCommunication.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .put('/api/communications/50000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'SENT' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /participation returns 500 on DB error', async () => {
+    (mockPrisma.envCommunication.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .get('/api/communications/participation')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (mockPrisma.envCommunication.findUnique as jest.Mock).mockRejectedValueOnce(
+      new Error('DB error')
+    );
+
+    const response = await request(app2)
+      .get('/api/communications/50000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns success:true on create', async () => {
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.envCommunication.create as jest.Mock).mockResolvedValueOnce(mockCommunication);
+
+    const response = await request(app2)
+      .post('/api/communications')
+      .set('Authorization', 'Bearer token')
+      .send({
+        subject: 'Another Update',
+        type: 'EXTERNAL_STAKEHOLDER',
+        direction: 'EXTERNAL',
+        content: 'Detailed external update for stakeholders',
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+  });
+});

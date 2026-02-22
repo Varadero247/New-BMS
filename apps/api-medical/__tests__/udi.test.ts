@@ -517,3 +517,40 @@ describe('UDI Routes', () => {
     });
   });
 });
+
+// ===================================================================
+// UDI Routes — additional response shape coverage
+// ===================================================================
+describe('UDI Routes — additional response shape coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/udi', udiRouter);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/udi/devices returns meta.page and meta.total on success', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([mockDevice]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/udi/devices');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('total');
+  });
+
+  it('POST /api/udi/devices/:id/di returns 500 on database error after device lookup', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(mockDevice);
+    (mockPrisma.udiDiRecord.create as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app)
+      .post(`/api/udi/devices/${mockDevice.id}/di`)
+      .send({ issuingAgency: 'GS1', diCode: 'ERR-CODE-001' });
+    expect(res.status).toBe(500);
+  });
+});

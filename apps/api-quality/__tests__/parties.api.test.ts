@@ -471,3 +471,73 @@ describe('Quality Interested Parties API Routes', () => {
     });
   });
 });
+
+describe('Quality Interested Parties API — additional edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/parties', partiesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/parties — returns empty items array when no parties exist', async () => {
+    (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/parties').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.items).toHaveLength(0);
+    expect(response.body.data.total).toBe(0);
+  });
+
+  it('PUT /api/parties/:id — 500 on update database error after successful findUnique', async () => {
+    (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '24000000-0000-4000-a000-000000000001',
+      partyName: 'Existing',
+      partyType: 'EXTERNAL',
+      status: 'ACTIVE',
+    });
+    (mockPrisma.qualInterestedParty.update as jest.Mock).mockRejectedValueOnce(
+      new Error('DB error')
+    );
+
+    const response = await request(app)
+      .put('/api/parties/24000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ partyName: 'Trigger error' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/parties — accepts optional engagementStrategy field', async () => {
+    (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualInterestedParty.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-PTY-2026-001',
+      partyName: 'New Partner',
+      partyType: 'EXTERNAL',
+      reasonForInclusion: 'Strategic partnership',
+      engagementStrategy: 'Quarterly reviews',
+      status: 'ACTIVE',
+    });
+
+    const response = await request(app)
+      .post('/api/parties')
+      .set('Authorization', 'Bearer token')
+      .send({
+        partyName: 'New Partner',
+        partyType: 'EXTERNAL',
+        reasonForInclusion: 'Strategic partnership',
+        engagementStrategy: 'Quarterly reviews',
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+  });
+});

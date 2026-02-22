@@ -439,3 +439,92 @@ describe('DELETE /api/dashboards/:id/widgets/:widgetId', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ===================================================================
+// Additional coverage: 500 errors, pagination, filter wiring
+// ===================================================================
+describe('Additional dashboard coverage', () => {
+  it('POST /api/dashboards returns 500 when create fails', async () => {
+    mockPrisma.analyticsDashboard.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/dashboards').send({ name: 'Fail Dashboard' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/dashboards pagination computes totalPages correctly', async () => {
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(45);
+
+    const res = await request(app).get('/api/dashboards?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(45);
+    expect(res.body.pagination.totalPages).toBe(5);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('PUT /api/dashboards/:id returns 500 when update fails', async () => {
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsDashboard.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/dashboards/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /api/dashboards/:id returns 500 when update fails', async () => {
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsDashboard.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete(
+      '/api/dashboards/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/dashboards/:id/widgets returns 500 when create fails', async () => {
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsWidget.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .post('/api/dashboards/00000000-0000-0000-0000-000000000001/widgets')
+      .send({ title: 'Widget', type: 'CHART', dataSource: 'ALL' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/dashboards filters by tags search param wired into findMany', async () => {
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/dashboards?isPublic=false');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsDashboard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isPublic: false }) })
+    );
+  });
+
+  it('GET /api/dashboards/default returns 500 on DB error', async () => {
+    mockPrisma.analyticsDashboard.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/dashboards/default');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

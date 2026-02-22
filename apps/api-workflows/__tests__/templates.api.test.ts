@@ -381,3 +381,89 @@ describe('Workflows Templates API Routes', () => {
     });
   });
 });
+
+describe('Workflows Templates API — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/templates', templatesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/templates returns success:true with empty array when no templates exist', async () => {
+    (mockPrisma.workflowTemplate.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    const response = await request(app).get('/api/templates');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/templates with no filters calls findMany with deletedAt:null where clause', async () => {
+    (mockPrisma.workflowTemplate.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    await request(app).get('/api/templates');
+
+    expect(mockPrisma.workflowTemplate.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          deletedAt: null,
+        }),
+      })
+    );
+  });
+
+  it('POST /api/templates returns 400 for missing definitionTemplate', async () => {
+    const response = await request(app)
+      .post('/api/templates')
+      .send({ code: 'CODE', name: 'Name', category: 'APPROVAL' });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/templates/:id/publish sets isActive to true in db call', async () => {
+    (mockPrisma.workflowTemplate.update as jest.Mock).mockResolvedValueOnce({
+      id: '41000000-0000-4000-a000-000000000001',
+      isActive: true,
+    });
+
+    await request(app).put('/api/templates/41000000-0000-4000-a000-000000000001/publish');
+
+    expect(mockPrisma.workflowTemplate.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ isActive: true }),
+      })
+    );
+  });
+
+  it('GET /api/templates/categories/list returns category shape with _count field', async () => {
+    (mockPrisma.workflowTemplate.groupBy as jest.Mock).mockResolvedValueOnce([
+      { category: 'APPROVAL', _count: 7 },
+    ]);
+
+    const response = await request(app).get('/api/templates/categories/list');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data[0]).toHaveProperty('category');
+    expect(response.body.data[0]).toHaveProperty('_count');
+  });
+
+  it('PUT /api/templates/:id update 404 when record not found', async () => {
+    (mockPrisma.workflowTemplate.update as jest.Mock).mockRejectedValueOnce(
+      Object.assign(new Error('Record not found'), { code: 'P2025' })
+    );
+
+    const response = await request(app)
+      .put('/api/templates/41000000-0000-4000-a000-000000000001')
+      .send({ name: 'Updated' });
+
+    expect([404, 500]).toContain(response.status);
+  });
+});

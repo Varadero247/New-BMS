@@ -318,3 +318,80 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('frameworks — additional coverage', () => {
+  it('GET / pagination returns correct totalPages', async () => {
+    (prisma.esgFramework.findMany as jest.Mock).mockResolvedValue([mockFramework]);
+    (prisma.esgFramework.count as jest.Mock).mockResolvedValue(25);
+
+    const res = await request(app).get('/api/frameworks?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+    expect(res.body.pagination.total).toBe(25);
+  });
+
+  it('GET / skip is calculated correctly for page 3', async () => {
+    (prisma.esgFramework.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgFramework.count as jest.Mock).mockResolvedValue(30);
+
+    await request(app).get('/api/frameworks?page=3&limit=5');
+    expect(prisma.esgFramework.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('GET / responds with success:true in body', async () => {
+    (prisma.esgFramework.findMany as jest.Mock).mockResolvedValue([mockFramework]);
+    (prisma.esgFramework.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/frameworks');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when code is missing', async () => {
+    const res = await request(app).post('/api/frameworks').send({ name: 'GRI', version: '2021' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / returns 400 when version is missing', async () => {
+    const res = await request(app).post('/api/frameworks').send({ name: 'GRI', code: 'GRI' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /:id/metrics returns 500 on DB error for metrics', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
+    (prisma.esgMetric.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/frameworks/00000000-0000-0000-0000-000000000001/metrics');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/metrics returns 400 for invalid category enum', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
+
+    const res = await request(app)
+      .post('/api/frameworks/00000000-0000-0000-0000-000000000001/metrics')
+      .send({
+        category: 'INVALID_CATEGORY',
+        subcategory: 'Emissions',
+        name: 'Total GHG',
+        code: 'GRI-305-1',
+        unit: 'tCO2e',
+        frequency: 'ANNUALLY',
+      });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / returns pagination object with page and limit fields', async () => {
+    (prisma.esgFramework.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgFramework.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/frameworks?page=2&limit=15');
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(15);
+  });
+});

@@ -313,3 +313,60 @@ describe('scopeToUser', () => {
     expect(next).not.toHaveBeenCalled();
   });
 });
+
+// ── additional edge-case coverage ─────────────────────────────────────────
+describe('requireRole — edge cases', () => {
+  it('rejects when user object exists but role is undefined', () => {
+    const req = mockReq({ user: { id: '1', email: 'a@b.com' } });
+    const { status } = mockRes();
+    requireRole('USER')(req, { status } as unknown as Response, next);
+    expect(status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('VIEWER is allowed access to VIEWER route', () => {
+    const req = mockReq({ user: { id: '1', role: 'VIEWER', email: 'v@b.com' } });
+    const { res } = mockRes();
+    requireRole('VIEWER')(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('MANAGER is allowed access to MANAGER route', () => {
+    const req = mockReq({ user: { id: '1', role: 'MANAGER', email: 'm@b.com' } });
+    const { res } = mockRes();
+    requireRole('MANAGER')(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+});
+
+describe('checkOwnership — edge cases', () => {
+  const mockModel = (record: Record<string, unknown> | null) => ({
+    findUnique: jest.fn().mockResolvedValue(record),
+  });
+
+  it('matches owner when ownerField value equals user id', async () => {
+    const userId = 'user-abc';
+    const req = mockReq({
+      user: { id: userId, role: 'USER', email: 'u@b.com' },
+      params: { id: 'rec-1' },
+    });
+    const { res } = mockRes();
+    const middleware = checkOwnership(mockModel({ createdBy: userId }) as unknown as PrismaModelDelegate);
+    await middleware(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('uses record id from req.params.id', async () => {
+    const req = mockReq({
+      user: { id: 'u-1', role: 'USER', email: 'u@b.com' },
+      params: { id: 'target-record' },
+    });
+    const { res } = mockRes();
+    const model = mockModel({ createdBy: 'u-1' });
+    const middleware = checkOwnership(model as unknown as PrismaModelDelegate);
+    await middleware(req, res, next);
+    expect(model.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'target-record' } })
+    );
+  });
+});

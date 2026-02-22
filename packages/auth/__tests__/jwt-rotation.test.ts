@@ -173,3 +173,72 @@ describe('JwtKeyRotationManager', () => {
     });
   });
 });
+
+describe('JwtKeyRotationManager — extended coverage', () => {
+  let manager: JwtKeyRotationManager;
+
+  beforeEach(() => {
+    manager = new JwtKeyRotationManager(60_000);
+  });
+
+  it('rotateKey() returns a key with algorithm HS256', async () => {
+    const key = await manager.rotateKey();
+    expect(key.algorithm).toBe('HS256');
+  });
+
+  it('verify() falls back to all keys when kid is missing from token', async () => {
+    await manager.rotateKey();
+    const activeKey = manager.getActiveKey();
+    // Sign directly with jsonwebtoken (no kid header)
+    const token = require('jsonwebtoken').sign(
+      { userId: 'u-fallback', role: 'user' },
+      activeKey.secret,
+      { algorithm: 'HS256' }
+    );
+    // Should succeed via fallback loop
+    const decoded = manager.verify(token);
+    expect(decoded.userId).toBe('u-fallback');
+  });
+
+  it('verify() throws JsonWebTokenError for completely unknown kid', async () => {
+    await manager.rotateKey();
+    // Build token with kid that does not exist in manager
+    const fakeToken = require('jsonwebtoken').sign(
+      { userId: 'u-ghost', role: 'user' },
+      'wrong-secret',
+      { algorithm: 'HS256', header: { alg: 'HS256', kid: 'nonexistent-kid-xyz' } } as any
+    );
+    expect(() => manager.verify(fakeToken)).toThrow();
+  });
+
+  it('isKeyValid() returns true for deprecated key within grace period', async () => {
+    const k1 = await manager.rotateKey();
+    await manager.rotateKey(); // deprecates k1 but still within grace period
+    expect(manager.isKeyValid(k1.keyId)).toBe(true);
+  });
+
+  it('keyCount returns 0 after no rotations', () => {
+    expect(manager.keyCount).toBe(0);
+  });
+
+  it('rotateKey() key expiresAt is in the future', async () => {
+    const key = await manager.rotateKey();
+    expect(key.expiresAt.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it('sign() uses 15m expiry by default when expiresIn omitted', async () => {
+    await manager.rotateKey();
+    const token = manager.sign({ userId: 'u-default', role: 'user' });
+    const decoded = require('jsonwebtoken').decode(token) as any;
+    // exp should be within 15 min from now (~900s)
+    expect(decoded.exp - decoded.iat).toBeLessThanOrEqual(900);
+    expect(decoded.exp - decoded.iat).toBeGreaterThan(0);
+  });
+
+  it('multiple rotations keep only the latest key as active', async () => {
+    await manager.rotateKey();
+    await manager.rotateKey();
+    const k3 = await manager.rotateKey();
+    expect(manager.getActiveKey().keyId).toBe(k3.keyId);
+  });
+});

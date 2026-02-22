@@ -391,3 +391,93 @@ describe('500 error handling', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('Template generator — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns success:true in response body', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockCount.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/template-generator');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / returns total count in pagination', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockCount.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/template-generator?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(50);
+  });
+
+  it('GET / returns empty array when no templates exist', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockCount.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/template-generator');
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('GET /:id returns 500 on db error', async () => {
+    mockFindUnique.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get(
+      '/api/template-generator/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id returns 500 when delete throws', async () => {
+    mockDelete.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete(
+      '/api/template-generator/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / filter by isoStandard is passed through', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockCount.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/template-generator?isoStandard=ISO+9001%3A2015');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST / missing prompt field returns 400', async () => {
+    const res = await request(app).post('/api/template-generator').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /categories response contains PROCEDURE category', async () => {
+    const res = await request(app).get('/api/template-generator/categories');
+    expect(res.status).toBe(200);
+    const cats = res.body.data.map((c: any) => c.category);
+    expect(cats).toContain('PROCEDURE');
+  });
+
+  it('POST / success response has docNumber on configJson', async () => {
+    mockCount.mockResolvedValue(0);
+    mockCreate.mockResolvedValue({
+      id: 'tpl-extra',
+      docNumber: 'PRO-999',
+      title: 'Quality Procedure',
+      category: 'PROCEDURE',
+      isoStandard: 'ISO 9001:2015',
+    });
+
+    const res = await request(app)
+      .post('/api/template-generator')
+      .send({ prompt: 'Create a quality control procedure' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.configJson).toHaveProperty('docNumber');
+  });
+});

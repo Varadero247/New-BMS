@@ -225,3 +225,69 @@ describe('portal-auth', () => {
     });
   });
 });
+
+describe('portal-auth — additional coverage', () => {
+  it('signPortalToken produces a token with 3 dot-separated parts for customer', () => {
+    const token = signPortalToken(mockCustomer, 'customer', { secret: TEST_SECRET });
+    expect(token.split('.')).toHaveLength(3);
+  });
+
+  it('verifyPortalToken returns permissions array from token', () => {
+    const token = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+    const decoded = verifyPortalToken(token, { secret: TEST_SECRET });
+    expect(Array.isArray(decoded!.permissions)).toBe(true);
+    expect(decoded!.permissions).toContain('view_orders');
+  });
+
+  it('requirePortalPermission allows when user has the exact permission', () => {
+    const mw = requirePortalPermission('submit_quotes');
+    const req: any = { portalUser: mockUser };
+    const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+    mw(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('requirePortalPermission rejects when user has an empty permissions array', () => {
+    const mw = requirePortalPermission('view_orders');
+    const req: any = { portalUser: { ...mockUser, permissions: [] } };
+    const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+    mw(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(403);
+  });
+
+  it('portalAuthenticate sets portalUser with correct permissions', () => {
+    const mw = portalAuthenticate({ secret: TEST_SECRET });
+    const token = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+    const req: any = { headers: { authorization: `Bearer ${token}` } };
+    const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+    mw(req, res, next);
+    expect(req.portalUser.permissions).toEqual(mockUser.permissions);
+  });
+
+  it('requirePortalType rejects when user has wrong portal type (supplier vs customer)', () => {
+    const mw = requirePortalType('supplier');
+    const req: any = { portalUser: mockCustomer };
+    const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+    mw(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('verifyPortalToken returns id matching the signed user', () => {
+    const token = signPortalToken(mockCustomer, 'customer', { secret: TEST_SECRET });
+    const decoded = verifyPortalToken(token, { secret: TEST_SECRET });
+    expect(decoded!.id).toBe(mockCustomer.id);
+  });
+
+  it('verifyPortalToken returns null for a token signed with a completely different algorithm', () => {
+    // A malformed but structurally valid-looking string
+    const decoded = verifyPortalToken('eyJhbGciOiJub25lIn0.eyJzdWIiOiJ4In0.', {
+      secret: TEST_SECRET,
+    });
+    expect(decoded).toBeNull();
+  });
+});

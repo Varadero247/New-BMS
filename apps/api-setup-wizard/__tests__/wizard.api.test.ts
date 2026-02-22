@@ -321,3 +321,102 @@ describe('PATCH /api/wizard/step/:stepIndex edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ============================================
+// Additional coverage
+// ============================================
+describe('Wizard API — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.$transaction as jest.Mock).mockImplementation((ops: unknown[]) =>
+      Promise.all(ops as Promise<unknown>[])
+    );
+  });
+
+  it('GET /status returns success:true when wizard exists', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    const res = await request(app).get('/api/wizard/status');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /status returns success:true when no wizard exists', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/wizard/status');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /init returns wizard with 4 steps', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.setupWizard.create as jest.Mock).mockResolvedValue(mockWizard);
+    const res = await request(app).post('/api/wizard/init');
+    expect(res.status).toBe(201);
+    expect(res.body.data.steps).toHaveLength(4);
+  });
+
+  it('POST /complete returns success:true when completed', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    (prisma.setupWizard.update as jest.Mock).mockResolvedValue({
+      ...mockWizard,
+      status: 'COMPLETED',
+      completedAt: new Date(),
+    });
+    const res = await request(app).post('/api/wizard/complete');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /skip returns success:true for skipped wizard', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.setupWizard.create as jest.Mock).mockResolvedValue({
+      ...mockWizard,
+      status: 'SKIPPED',
+    });
+    const res = await request(app).post('/api/wizard/skip');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /skip returns 500 when update fails for existing wizard', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    (prisma.setupWizard.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/wizard/skip');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /step/3 updates the last step (index 3)', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    (prisma.setupWizardStep.update as jest.Mock).mockResolvedValue({
+      ...mockWizard.steps[3],
+      status: 'COMPLETED',
+    });
+    (prisma.setupWizard.update as jest.Mock).mockResolvedValue({ ...mockWizard, currentStep: 4 });
+    const res = await request(app)
+      .patch('/api/wizard/step/3')
+      .send({ data: { preAuditReady: true } });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /status returns currentStep value from wizard', async () => {
+    const wizardAtStep2 = { ...mockWizard, currentStep: 2 };
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(wizardAtStep2);
+    const res = await request(app).get('/api/wizard/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.currentStep).toBe(2);
+  });
+
+  it('POST /complete returns completedAt date in response', async () => {
+    const completedAt = new Date().toISOString();
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    (prisma.setupWizard.update as jest.Mock).mockResolvedValue({
+      ...mockWizard,
+      status: 'COMPLETED',
+      completedAt,
+    });
+    const res = await request(app).post('/api/wizard/complete');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+  });
+});

@@ -271,3 +271,101 @@ describe('createPerUserRateLimit()', () => {
     expect(res2.headers['X-RateLimit-Remaining']).toBe(3);
   });
 });
+
+// ── Additional coverage ─────────────────────────────────────────────────────
+
+describe('createPerUserRateLimit() — additional coverage', () => {
+  let store: InMemoryUserRateLimitStore;
+
+  beforeEach(() => { store = new InMemoryUserRateLimitStore(999_999); });
+  afterEach(() => { store.destroy(); });
+
+  it('basic tier is blocked after its own limit is reached', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { basic: { maxRequests: 1, windowMs: 60_000 } } },
+      store
+    );
+    const req = mockReq('userB', 'basic');
+    mw(req, mockRes(), next()); // consume
+    const res = mockRes();
+    const n = next();
+    mw(req, res, n);
+    expect(res.statusCode).toBe(429);
+    expect(n).not.toHaveBeenCalled();
+  });
+
+  it('premium tier is blocked after its own limit is reached', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { premium: { maxRequests: 1, windowMs: 60_000 } } },
+      store
+    );
+    const req = mockReq('userP', 'premium');
+    mw(req, mockRes(), next()); // consume
+    const res = mockRes();
+    const n = next();
+    mw(req, res, n);
+    expect(res.statusCode).toBe(429);
+    expect(n).not.toHaveBeenCalled();
+  });
+
+  it('X-RateLimit-Remaining is 0 when limit is exactly exhausted', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 3, windowMs: 60_000 } } },
+      store
+    );
+    const req = mockReq('user1', 'standard');
+    mw(req, mockRes(), next());
+    mw(req, mockRes(), next());
+    const res = mockRes(); mw(req, res, next());
+    expect(res.headers['X-RateLimit-Remaining']).toBe(0);
+  });
+
+  it('store.size grows with each new user key', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 10, windowMs: 60_000 } } },
+      store
+    );
+    mw(mockReq('a', 'standard'), mockRes(), next());
+    mw(mockReq('b', 'standard'), mockRes(), next());
+    mw(mockReq('c', 'standard'), mockRes(), next());
+    expect(store.size).toBe(3);
+  });
+
+  it('reset() allows a previously-blocked user to pass again', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 1, windowMs: 60_000 } } },
+      store
+    );
+    const req = mockReq('user1', 'standard');
+    mw(req, mockRes(), next()); // consume
+    store.reset('user:user1');   // internal key format is "user:<id>"
+    const n = next();
+    mw(req, mockRes(), n);
+    expect(n).toHaveBeenCalled();
+  });
+
+  it('onLimitReached is NOT called before the limit is hit', () => {
+    const onLimitReached = jest.fn();
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 3, windowMs: 60_000 } }, onLimitReached },
+      store
+    );
+    const req = mockReq('user1', 'standard');
+    mw(req, mockRes(), next());
+    mw(req, mockRes(), next());
+    // still under limit — callback must NOT have fired
+    expect(onLimitReached).not.toHaveBeenCalled();
+  });
+
+  it('skip() returning false still enforces the limit', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 1, windowMs: 60_000 } }, skip: () => false },
+      store
+    );
+    const req = mockReq('user1', 'standard');
+    mw(req, mockRes(), next()); // consume
+    const res = mockRes();
+    mw(req, res, next());
+    expect(res.statusCode).toBe(429);
+  });
+});

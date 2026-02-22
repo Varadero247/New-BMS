@@ -335,3 +335,87 @@ describe('Quality Risk Register API Routes', () => {
     });
   });
 });
+
+describe('Quality Risk Register API Routes — extended coverage', () => {
+  const mockRisk = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-RR-2026-001',
+    title: 'Supplier quality failure',
+    description: 'Key supplier may fail quality requirements',
+    category: 'Supply Chain',
+    likelihood: 'POSSIBLE',
+    impact: 'MAJOR',
+    riskScore: 12,
+    residualScore: null,
+    status: 'OPEN',
+    owner: 'Supply Manager',
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  it('GET /api/risk-register includes totalPages when count > limit', async () => {
+    mockPrisma.qualRiskRegister.findMany.mockResolvedValue([mockRisk]);
+    mockPrisma.qualRiskRegister.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/risk-register?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(50);
+    expect(res.body.pagination.totalPages).toBeGreaterThanOrEqual(5);
+  });
+
+  it('GET /api/risk-register filters by category param', async () => {
+    mockPrisma.qualRiskRegister.findMany.mockResolvedValue([mockRisk]);
+    mockPrisma.qualRiskRegister.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/risk-register?category=Supply+Chain');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/risk-register response has success:true and referenceNumber', async () => {
+    mockPrisma.qualRiskRegister.count.mockResolvedValue(0);
+    mockPrisma.qualRiskRegister.create.mockResolvedValue(mockRisk);
+    const res = await request(app).post('/api/risk-register').send({
+      title: 'New risk',
+      description: 'Risk desc',
+      likelihood: 'POSSIBLE',
+      impact: 'MAJOR',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('GET /api/risk-register/heatmap response has success:true with array', async () => {
+    mockPrisma.qualRiskRegister.findMany.mockResolvedValue([mockRisk]);
+    const res = await request(app).get('/api/risk-register/heatmap');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/risk-register/stats error code is not present on success', async () => {
+    mockPrisma.qualRiskRegister.count
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(1);
+    mockPrisma.qualRiskRegister.groupBy.mockResolvedValue([]);
+    const res = await request(app).get('/api/risk-register/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.error).toBeUndefined();
+  });
+
+  it('DELETE /api/risk-register/:id returns deleted:true in data', async () => {
+    mockPrisma.qualRiskRegister.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.qualRiskRegister.update.mockResolvedValue({ ...mockRisk, deletedAt: new Date() });
+    const res = await request(app).delete('/api/risk-register/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('PUT /api/risk-register/:id returns 400 for invalid likelihood', async () => {
+    mockPrisma.qualRiskRegister.findFirst.mockResolvedValue(mockRisk);
+    const res = await request(app)
+      .put('/api/risk-register/00000000-0000-0000-0000-000000000001')
+      .send({ likelihood: 'INVALID_VALUE' });
+    expect(res.status).toBe(400);
+  });
+});

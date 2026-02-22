@@ -326,3 +326,73 @@ describe('V1 Router — comprehensive coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+// ── V1 router — response shape and edge-case coverage ──────────────────────
+
+describe('V1 Router — response shape and edge-case coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/v1', v1Router);
+  });
+
+  it('GET /api/v1/audit/trail returns data array in body', async () => {
+    const res = await request(app)
+      .get('/api/v1/audit/trail')
+      .set('Authorization', 'Bearer mock-token');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/v1/unified-audit/plans does not return 404', async () => {
+    const res = await request(app)
+      .get('/api/v1/unified-audit/plans')
+      .set('Authorization', 'Bearer mock-token');
+    expect(res.status).not.toBe(404);
+  });
+
+  it('POST /api/v1/auth/logout does not return 404', async () => {
+    const res = await request(app)
+      .post('/api/v1/auth/logout')
+      .set('Authorization', 'Bearer mock-token');
+    expect(res.status).not.toBe(404);
+  });
+
+  it('GET /api/v1/sessions returns non-404 with auth (second call)', async () => {
+    const res = await request(app)
+      .get('/api/v1/sessions')
+      .set('Authorization', 'Bearer mock-token');
+    expect(res.status).not.toBe(404);
+  });
+
+  it('GET /api/v1/gdpr/data-map returns non-404 with auth', async () => {
+    const res = await request(app)
+      .get('/api/v1/gdpr/data-map')
+      .set('Authorization', 'Bearer mock-token');
+    expect(res.status).not.toBe(404);
+  });
+
+  it('GET /api/v1/reports returns non-404 with auth (second call)', async () => {
+    const res = await request(app)
+      .get('/api/v1/reports')
+      .set('Authorization', 'Bearer mock-token');
+    expect(res.status).not.toBe(404);
+  });
+
+  it('GET /api/v1/audit/trail returns success:true on second call', async () => {
+    const res = await request(app)
+      .get('/api/v1/audit/trail')
+      .set('Authorization', 'Bearer mock-token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('completely unknown nested path under v1 returns 404', async () => {
+    const res = await request(app)
+      .get('/api/v1/completely/unknown/path/xyz');
+    expect(res.status).toBe(404);
+  });
+});

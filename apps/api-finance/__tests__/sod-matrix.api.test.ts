@@ -433,3 +433,30 @@ describe('SoD Matrix — extended coverage', () => {
     );
   });
 });
+
+// ===================================================================
+// SoD Matrix — response shape validation
+// ===================================================================
+describe('SoD Matrix — response shape validation', () => {
+  it('GET / response body has both success and data keys', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/sod-matrix');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST / 500 response body has success:false and error.code:INTERNAL_ERROR', async () => {
+    const rule = {
+      role1: 'Auditor',
+      role2: 'Account Manager',
+      conflictType: 'MEDIUM',
+      description: 'Conflict desc',
+      mitigatingControl: 'Control desc',
+    };
+    mockPrisma.finSodRule.create.mockRejectedValue(new Error('Network timeout'));
+    const res = await request(app).post('/api/sod-matrix').send(rule);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

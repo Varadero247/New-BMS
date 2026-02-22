@@ -375,3 +375,99 @@ describe('redactFields', () => {
     expect(result.medicalInfo).toBe('[REDACTED]');
   });
 });
+
+describe('AuditService — additional coverage', () => {
+  let auditService: AuditService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    auditService = createAuditService(
+      mockPrisma as unknown as Parameters<typeof createAuditService>[0]
+    );
+  });
+
+  it('query returns totalPages-equivalent: total/limit', async () => {
+    mockPrisma.auditLog.findMany.mockResolvedValue([]);
+    mockPrisma.auditLog.count.mockResolvedValue(100);
+
+    const result = await auditService.query({ page: 1, limit: 20 });
+
+    expect(result.total).toBe(100);
+    const totalPages = Math.ceil(result.total / 20);
+    expect(totalPages).toBe(5);
+  });
+
+  it('query defaults page to 1 and limit to 50', async () => {
+    mockPrisma.auditLog.findMany.mockResolvedValue([]);
+    mockPrisma.auditLog.count.mockResolvedValue(0);
+
+    await auditService.query({});
+
+    expect(mockPrisma.auditLog.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 50 })
+    );
+  });
+
+  it('logAuth stores success:false when auth fails', async () => {
+    mockPrisma.auditLog.create.mockResolvedValue({ id: 'auth-fail-1' });
+
+    await auditService.logAuth('LOGIN_FAILED', 'user-999', {
+      ipAddress: '10.0.0.5',
+      success: false,
+      reason: 'Invalid password',
+    });
+
+    const call = mockPrisma.auditLog.create.mock.calls[0][0];
+    expect(call.data.newData.success).toBe(false);
+    expect(call.data.newData.reason).toBe('Invalid password');
+  });
+
+  it('createAuditService with redactSensitiveFields:false does NOT redact password', async () => {
+    const noRedact = createAuditService(
+      mockPrisma as unknown as Parameters<typeof createAuditService>[0],
+      { redactSensitiveFields: false }
+    );
+    mockPrisma.auditLog.create.mockResolvedValue({ id: 'log-nr' });
+
+    await noRedact.log({
+      action: AuditAction.UPDATE,
+      entity: AuditEntity.USER,
+      newData: { password: 'plaintext' },
+    });
+
+    const call = mockPrisma.auditLog.create.mock.calls[0][0];
+    expect(call.data.newData.password).toBe('plaintext');
+  });
+
+  it('getUserActivity with date range passes startDate/endDate to query', async () => {
+    mockPrisma.auditLog.findMany.mockResolvedValue([]);
+    mockPrisma.auditLog.count.mockResolvedValue(0);
+
+    const start = new Date('2025-01-01');
+    const end = new Date('2025-12-31');
+    await auditService.getUserActivity('user-555', { startDate: start, endDate: end });
+
+    expect(mockPrisma.auditLog.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          userId: 'user-555',
+          createdAt: { gte: start, lte: end },
+        }),
+      })
+    );
+  });
+
+  it('cleanup uses configurable retentionDays', async () => {
+    const shortRetention = createAuditService(
+      mockPrisma as unknown as Parameters<typeof createAuditService>[0],
+      { retentionDays: 30 }
+    );
+    mockPrisma.auditLog.deleteMany.mockResolvedValue({ count: 5 });
+
+    const deleted = await shortRetention.cleanup();
+
+    expect(deleted).toBe(5);
+    const call = mockPrisma.auditLog.deleteMany.mock.calls[0][0];
+    expect(call.where.createdAt.lt).toBeInstanceOf(Date);
+  });
+});

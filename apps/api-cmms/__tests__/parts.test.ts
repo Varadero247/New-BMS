@@ -274,3 +274,85 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── extended coverage ───────────────────────────────────────────────────────
+
+describe('Parts Routes — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns correct totalPages for multi-page result', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([]);
+    prisma.cmmsPart.count.mockResolvedValue(40);
+
+    const res = await request(app).get('/api/parts?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET / passes correct skip to Prisma for page 3 limit 5', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([]);
+    prisma.cmmsPart.count.mockResolvedValue(20);
+
+    await request(app).get('/api/parts?page=3&limit=5');
+
+    expect(prisma.cmmsPart.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('GET / response shape contains success:true and pagination', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([]);
+    prisma.cmmsPart.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/parts');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination).toHaveProperty('total', 0);
+  });
+
+  it('DELETE /:id returns 500 on DB error during update', async () => {
+    prisma.cmmsPart.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+    prisma.cmmsPart.update.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).delete('/api/parts/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /low-stock returns list with success:true', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', quantity: 3, minStock: 10 }]);
+
+    const res = await request(app).get('/api/parts/low-stock');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /:id/usage returns 500 on DB error during usage create', async () => {
+    prisma.cmmsPart.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', quantity: 50, unitCost: 25.5, deletedAt: null });
+    prisma.cmmsPartUsage.create.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app)
+      .post('/api/parts/00000000-0000-0000-0000-000000000001/usage')
+      .send({ workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', quantity: 2 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on database error', async () => {
+    prisma.cmmsPart.findFirst.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).get('/api/parts/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

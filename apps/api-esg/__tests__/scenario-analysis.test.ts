@@ -269,3 +269,81 @@ describe('PUT /api/scenario-analysis/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ===================================================================
+// Additional coverage: pagination, 500 errors, filter wiring
+// ===================================================================
+describe('Additional scenario-analysis coverage', () => {
+  it('GET /api/scenario-analysis pagination returns correct totalPages', async () => {
+    (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(40);
+
+    const res = await request(app).get('/api/scenario-analysis?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(40);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET /api/scenario-analysis filters by reportingYear wired into where clause', async () => {
+    (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/scenario-analysis?reportingYear=2027');
+    const [call] = (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.reportingYear).toBe(2027);
+  });
+
+  it('POST /api/scenario-analysis returns 400 for invalid timeHorizon enum', async () => {
+    const res = await request(app).post('/api/scenario-analysis').send({
+      title: 'Test',
+      scenarioType: 'TRANSITION_RISK',
+      baselineScenario: '1_5C',
+      timeHorizon: 'INVALID_HORIZON',
+      description: 'desc',
+      assumptions: 'assume',
+      keyVariables: ['carbon'],
+      analysisDate: '2026-01-20',
+      conductedBy: 'Team',
+      reportingYear: 2026,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/scenario-analysis/:id returns 500 when update throws', async () => {
+    (mockPrisma.esgScenarioAnalysis.findUnique as jest.Mock).mockResolvedValue(mockScenario);
+    (mockPrisma.esgScenarioAnalysis.update as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app)
+      .put('/api/scenario-analysis/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'APPROVED' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/scenario-analysis/:id returns 500 on DB error', async () => {
+    (mockPrisma.esgScenarioAnalysis.findUnique as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).get('/api/scenario-analysis/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/scenario-analysis/summary returns 500 on groupBy error', async () => {
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(5);
+    (mockPrisma.esgScenarioAnalysis.groupBy as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).get('/api/scenario-analysis/summary');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/scenario-analysis response has success:true and pagination', async () => {
+    (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([mockScenario]);
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/scenario-analysis');
+    expect(res.body).toMatchObject({ success: true, pagination: expect.objectContaining({ total: 1 }) });
+  });
+});

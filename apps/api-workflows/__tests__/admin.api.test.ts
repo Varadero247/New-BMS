@@ -378,3 +378,69 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ── Additional coverage ──────────────────────────────────────────────────────
+
+describe('Admin Automation Rules — additional coverage', () => {
+  let appExtra: express.Express;
+
+  beforeAll(() => {
+    appExtra = express();
+    appExtra.use(express.json());
+    appExtra.use('/api/admin/automation-rules', adminRouter);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST /:id/disable returns 500 when update throws', async () => {
+    (mockPrisma.automationRule.update as jest.Mock).mockRejectedValueOnce(new Error('DB down'));
+    const res = await request(appExtra).post(`/api/admin/automation-rules/${RULE_ID}/disable`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/execute returns 500 when execution create throws', async () => {
+    (mockPrisma.automationRule.findUnique as jest.Mock).mockResolvedValueOnce(mockRule);
+    (mockPrisma.automationExecution.create as jest.Mock).mockRejectedValueOnce(new Error('write fail'));
+    const res = await request(appExtra).post(`/api/admin/automation-rules/${RULE_ID}/execute`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/test returns 500 when execution create throws', async () => {
+    (mockPrisma.automationRule.findUnique as jest.Mock).mockResolvedValueOnce(mockRule);
+    (mockPrisma.automationExecution.create as jest.Mock).mockRejectedValueOnce(new Error('write fail'));
+    const res = await request(appExtra).post(`/api/admin/automation-rules/${RULE_ID}/test`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id/log response has success:true and data array', async () => {
+    (mockPrisma.automationExecution.findMany as jest.Mock).mockResolvedValueOnce([mockExecution]);
+    const res = await request(appExtra).get(`/api/admin/automation-rules/${RULE_ID}/log`);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / response data items include isActive and priority fields', async () => {
+    (mockPrisma.automationRule.findMany as jest.Mock).mockResolvedValueOnce([mockRule]);
+    const res = await request(appExtra).get('/api/admin/automation-rules');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('isActive');
+    expect(res.body.data[0]).toHaveProperty('priority');
+  });
+
+  it('POST /:id/enable returns success:true on success', async () => {
+    (mockPrisma.automationRule.update as jest.Mock).mockResolvedValueOnce({ ...mockRule, isActive: true });
+    const res = await request(appExtra).post(`/api/admin/automation-rules/${RULE_ID}/enable`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /:id/disable returns success:true with isActive false', async () => {
+    (mockPrisma.automationRule.update as jest.Mock).mockResolvedValueOnce({ ...mockRule, isActive: false });
+    const res = await request(appExtra).post(`/api/admin/automation-rules/${RULE_ID}/disable`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.isActive).toBe(false);
+  });
+});

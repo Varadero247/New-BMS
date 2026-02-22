@@ -394,3 +394,52 @@ describe('DELETE /api/self-declaration/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ===================================================================
+// Extended coverage: pagination totalPages, response shape, field validation
+// ===================================================================
+
+describe('Self-Declaration — extended coverage', () => {
+  it('GET /api/self-declaration returns correct totalPages in pagination', async () => {
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(30);
+
+    const res = await request(app).get('/api/self-declaration?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(30);
+    expect(res.body.pagination.totalPages).toBe(3);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('GET /api/self-declaration response shape has success:true, data, pagination', async () => {
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([mockDeclaration]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/self-declaration');
+
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('POST /api/self-declaration returns error.code VALIDATION_ERROR for missing scope', async () => {
+    const res = await request(app).post('/api/self-declaration').send({
+      title: 'Test',
+      conformanceStatement: 'We conform...',
+      declarationDate: '2026-03-01',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/self-declaration filters by standard param', async () => {
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/self-declaration?standard=ISO%2042001%3A2023');
+
+    expect(res.status).toBe(200);
+  });
+});

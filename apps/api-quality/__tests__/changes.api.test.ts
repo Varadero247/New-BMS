@@ -516,3 +516,63 @@ describe('Quality Changes API Routes', () => {
     });
   });
 });
+
+// ===================================================================
+// Quality Changes — additional response shape coverage
+// ===================================================================
+describe('Quality Changes — additional response shape coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changes', changesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/changes response body has success:true and data.items array', async () => {
+    (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('POST /api/changes with priority field included in create call', async () => {
+    const payload = {
+      title: 'Process Calibration Change',
+      changeType: 'PROCESS_CHANGE',
+      requestedBy: 'Lab Manager',
+      department: 'Quality',
+      currentState: 'Manual calibration',
+      proposedChange: 'Automated calibration system',
+      reasonForChange: 'Reduce human error',
+      priority: 'URGENT',
+    };
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(5);
+    (mockPrisma.qualChange.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-CHG-2026-006',
+      ...payload,
+      status: 'REQUESTED',
+    });
+
+    const response = await request(app)
+      .post('/api/changes')
+      .set('Authorization', 'Bearer token')
+      .send(payload);
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(mockPrisma.qualChange.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ priority: 'URGENT' }),
+      })
+    );
+  });
+});

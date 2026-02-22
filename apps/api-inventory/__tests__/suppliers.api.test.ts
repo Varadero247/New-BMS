@@ -468,4 +468,53 @@ describe('Inventory Suppliers API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('additional coverage — response shape and field validation', () => {
+    it('GET /suppliers returns correct totalPages for large dataset', async () => {
+      (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(60);
+
+      const response = await request(app)
+        .get('/api/suppliers?page=1&limit=20')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.totalPages).toBe(3);
+      expect(response.body.meta.total).toBe(60);
+    });
+
+    it('PATCH /:id returns 500 when update throws', async () => {
+      (mockPrisma.supplier.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '25000000-0000-4000-a000-000000000001',
+        code: 'ACME',
+        name: 'Acme Corp',
+      });
+      (mockPrisma.supplier.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const response = await request(app)
+        .patch('/api/suppliers/25000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ name: 'Updated Acme' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /:id response includes _count field', async () => {
+      (mockPrisma.supplier.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '25000000-0000-4000-a000-000000000001',
+        code: 'ACME',
+        name: 'Acme Corp',
+        products: [],
+        _count: { products: 7 },
+      });
+
+      const response = await request(app)
+        .get('/api/suppliers/25000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data._count.products).toBe(7);
+    });
+  });
 });

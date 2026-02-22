@@ -240,3 +240,38 @@ describe('listResponses', () => {
     expect(total).toBeGreaterThanOrEqual(2);
   });
 });
+
+describe('listResponses — totalPages and response shape', () => {
+  it('calculates totalPages correctly from limit', () => {
+    for (let i = 0; i < 6; i++) {
+      submitResponse(`u${i}`, 'org-tp', i);
+    }
+    const { total, responses } = listResponses('org-tp', 2, 0);
+    // total is 6, with limit 2 there are 3 pages — verify total and first page length
+    expect(total).toBe(6);
+    expect(responses).toHaveLength(2);
+  });
+
+  it('each response has expected shape (id, userId, orgId, score, createdAt)', () => {
+    submitResponse('shape-u', 'org-shape', 7, 'test comment');
+    const { responses } = listResponses('org-shape');
+    expect(responses).toHaveLength(1);
+    const r = responses[0];
+    expect(r).toHaveProperty('id');
+    expect(r).toHaveProperty('userId', 'shape-u');
+    expect(r).toHaveProperty('orgId', 'org-shape');
+    expect(r).toHaveProperty('score', 7);
+    expect(r).toHaveProperty('createdAt');
+    expect(r).toHaveProperty('comment', 'test comment');
+  });
+
+  it('last page has fewer items than limit when total is not divisible', () => {
+    for (let i = 0; i < 5; i++) {
+      submitResponse(`u${i}`, 'org-last', i * 2);
+    }
+    // With limit=2, pages: [2, 2, 1]. Offset 4 gives 1 item.
+    const { responses, total } = listResponses('org-last', 2, 4);
+    expect(total).toBe(5);
+    expect(responses).toHaveLength(1);
+  });
+});

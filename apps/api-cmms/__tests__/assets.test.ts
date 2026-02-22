@@ -339,4 +339,46 @@ describe('Assets Routes', () => {
       expect(res.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  // ─── Extended coverage ───────────────────────────────────────────────────────
+
+  describe('assets – extended coverage', () => {
+    it('GET / returns correct totalPages in pagination', async () => {
+      prisma.cmmsAsset.findMany.mockResolvedValue([mockAsset]);
+      prisma.cmmsAsset.count.mockResolvedValue(50);
+      const res = await request(app).get('/api/assets?page=1&limit=10');
+      expect(res.status).toBe(200);
+      expect(res.body.pagination.totalPages).toBe(5);
+    });
+
+    it('GET / response includes success:true', async () => {
+      prisma.cmmsAsset.findMany.mockResolvedValue([]);
+      prisma.cmmsAsset.count.mockResolvedValue(0);
+      const res = await request(app).get('/api/assets');
+      expect(res.body.success).toBe(true);
+    });
+
+    it('POST / missing name returns 400 with success:false', async () => {
+      const res = await request(app).post('/api/assets').send({ assetType: 'EQUIPMENT' });
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('GET / filters by department when passed as query param', async () => {
+      prisma.cmmsAsset.findMany.mockResolvedValue([]);
+      prisma.cmmsAsset.count.mockResolvedValue(0);
+      const res = await request(app).get('/api/assets?department=Production');
+      expect(res.status).toBe(200);
+    });
+
+    it('PUT /:id updates name field and returns updated data', async () => {
+      prisma.cmmsAsset.findFirst.mockResolvedValue(mockAsset);
+      prisma.cmmsAsset.update.mockResolvedValue({ ...mockAsset, name: 'Lathe Machine' });
+      const res = await request(app)
+        .put('/api/assets/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Lathe Machine' });
+      expect(res.status).toBe(200);
+      expect(res.body.data.name).toBe('Lathe Machine');
+    });
+  });
 });

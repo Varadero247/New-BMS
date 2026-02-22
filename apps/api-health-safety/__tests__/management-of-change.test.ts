@@ -229,3 +229,77 @@ describe('ISO 45001 Management of Change Routes', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('Management of Change — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns pagination with totalPages', async () => {
+    prisma.hSChangeRequest.findMany.mockResolvedValue([mockChange]);
+    prisma.hSChangeRequest.count.mockResolvedValue(15);
+
+    const res = await request(app).get('/?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+    expect(res.body.pagination.total).toBe(15);
+  });
+
+  it('GET / skip is correct for page 2 limit 10', async () => {
+    prisma.hSChangeRequest.findMany.mockResolvedValue([]);
+    prisma.hSChangeRequest.count.mockResolvedValue(30);
+
+    await request(app).get('/?page=2&limit=10');
+    expect(prisma.hSChangeRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('POST / returns 500 on DB error', async () => {
+    prisma.hSChangeRequest.count.mockResolvedValue(0);
+    prisma.hSChangeRequest.create.mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).post('/').send(changePayload);
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id returns 500 on DB error during update', async () => {
+    prisma.hSChangeRequest.findUnique.mockResolvedValue(mockChange);
+    prisma.hSChangeRequest.update.mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).put('/chg-1').send({ status: 'APPROVED' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id returns 500 on DB error during soft delete', async () => {
+    prisma.hSChangeRequest.findUnique.mockResolvedValue(mockChange);
+    prisma.hSChangeRequest.update.mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).delete('/chg-1');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / response body has success:true', async () => {
+    prisma.hSChangeRequest.findMany.mockResolvedValue([mockChange]);
+    prisma.hSChangeRequest.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id/approve returns 500 on DB error', async () => {
+    prisma.hSChangeRequest.findUnique.mockResolvedValue(mockChange);
+    prisma.hSChangeRequest.update.mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).put('/chg-1/approve').send({ approvedBy: 'manager@co.com' });
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id/implement returns 500 on DB error', async () => {
+    prisma.hSChangeRequest.findUnique.mockResolvedValue(mockChange);
+    prisma.hSChangeRequest.update.mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).put('/chg-1/implement');
+    expect(res.status).toBe(500);
+  });
+});

@@ -465,3 +465,38 @@ describe('DELETE /api/purchase-orders/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Finance Purchase Orders — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/purchase-orders returns correct totalPages', async () => {
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(30);
+
+    const res = await request(app).get('/api/purchase-orders?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /api/purchase-orders response shape has success, data and pagination', async () => {
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/purchase-orders');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET /api/purchase-orders filters by search term when provided', async () => {
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/purchase-orders?search=Acme');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

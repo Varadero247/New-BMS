@@ -334,3 +334,83 @@ describe('DELETE /api/fmea/:id/items/:itemId', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// Additional coverage: pagination, filters, 500 paths, field validation
+// ===================================================================
+describe('Additional FMEA coverage', () => {
+  it('GET /api/fmea pagination returns correct totalPages', async () => {
+    (mockPrisma.fmeaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(60);
+
+    const res = await request(app).get('/api/fmea?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(60);
+    expect(res.body.meta.page).toBe(2);
+  });
+
+  it('GET /api/fmea filters by fmeaType wired into Prisma where', async () => {
+    (mockPrisma.fmeaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/fmea?fmeaType=DFMEA');
+
+    expect(mockPrisma.fmeaStudy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ fmeaType: 'DFMEA' }) })
+    );
+  });
+
+  it('POST /api/fmea returns 400 for invalid fmeaType enum', async () => {
+    const res = await request(app).post('/api/fmea').send({
+      title: 'Test Study',
+      preparedBy: 'Engineer',
+      fmeaType: 'INVALID_TYPE',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/fmea/:id returns 500 when update throws', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
+    (mockPrisma.fmeaStudy.update as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).put(`/api/fmea/${STUDY_ID}`).send({ status: 'IN_REVIEW' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /api/fmea/:id returns 500 when update throws', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
+    (mockPrisma.fmeaStudy.update as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).delete(`/api/fmea/${STUDY_ID}`);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/fmea/:id/items returns 500 when create throws', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
+    (mockPrisma.fmeaItem.create as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).post(`/api/fmea/${STUDY_ID}/items`).send({
+      itemNumber: 1,
+      processStep: 'Step',
+      function: 'Func',
+      failureMode: 'Mode',
+      failureEffect: 'Effect',
+      severity: 5,
+      potentialCauses: 'Cause',
+      occurrence: 3,
+      detection: 4,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/fmea response shape includes success:true and meta', async () => {
+    (mockPrisma.fmeaStudy.findMany as jest.Mock).mockResolvedValue([mockStudy]);
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/fmea');
+    expect(res.body).toMatchObject({ success: true, meta: expect.objectContaining({ total: 1 }) });
+  });
+});

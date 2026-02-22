@@ -251,3 +251,58 @@ describe('HIPAA Breach Notification Routes', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('HIPAA Breach Notification Routes — extended coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / includes totalPages in pagination when multiple pages exist', async () => {
+    prisma.hipaaBreachNotification.findMany.mockResolvedValue([mockBreach]);
+    prisma.hipaaBreachNotification.count.mockResolvedValue(45);
+    const res = await request(app).get('/?limit=20&page=1');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(45);
+    expect(res.body.pagination.totalPages).toBeGreaterThanOrEqual(3);
+  });
+
+  it('GET / filters by breachType query param', async () => {
+    prisma.hipaaBreachNotification.findMany.mockResolvedValue([mockBreach]);
+    prisma.hipaaBreachNotification.count.mockResolvedValue(1);
+    const res = await request(app).get('/?breachType=UNAUTHORIZED_ACCESS');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 500 on DB error during reference generation', async () => {
+    prisma.hipaaBreachNotification.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).post('/').send(breachPayload);
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id returns 500 on DB error during update', async () => {
+    prisma.hipaaBreachNotification.findUnique.mockResolvedValue(mockBreach);
+    prisma.hipaaBreachNotification.update.mockRejectedValue(new Error('update fail'));
+    const res = await request(app).put('/breach-1').send({ status: 'CONFIRMED' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /:id response has success:true and referenceNumber field', async () => {
+    prisma.hipaaBreachNotification.findUnique.mockResolvedValue(mockBreach);
+    const res = await request(app).get('/breach-1');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('PUT /:id/notify-individuals returns 500 on DB error', async () => {
+    prisma.hipaaBreachNotification.findUnique.mockResolvedValue(mockBreach);
+    prisma.hipaaBreachNotification.update.mockRejectedValue(new Error('notify fail'));
+    const res = await request(app).put('/breach-1/notify-individuals');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id/notify-hhs returns 500 on DB error', async () => {
+    prisma.hipaaBreachNotification.findUnique.mockResolvedValue(mockBreach);
+    prisma.hipaaBreachNotification.update.mockRejectedValue(new Error('hhs fail'));
+    const res = await request(app).put('/breach-1/notify-hhs');
+    expect(res.status).toBe(500);
+  });
+});

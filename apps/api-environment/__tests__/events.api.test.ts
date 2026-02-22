@@ -451,3 +451,133 @@ describe('Environment Events API Routes', () => {
     });
   });
 });
+
+describe('Environment Events API — additional coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/events', eventsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns correct totalPages for large dataset', async () => {
+    (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(200);
+
+    const response = await request(app2)
+      .get('/api/events?page=1&limit=50')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.totalPages).toBe(4);
+  });
+
+  it('GET / returns success:true in response envelope', async () => {
+    (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/events')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 for missing reportedBy field', async () => {
+    const response = await request(app2)
+      .post('/api/events')
+      .set('Authorization', 'Bearer token')
+      .send({
+        eventType: 'SPILL',
+        severity: 'MAJOR',
+        dateOfEvent: '2026-01-15',
+        location: 'Warehouse B',
+        department: 'Operations',
+        description: 'Chemical spill in warehouse area near dock',
+        // reportedBy intentionally omitted
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns 500 on update DB error', async () => {
+    (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '17000000-0000-4000-a000-000000000001',
+      status: 'REPORTED',
+    });
+    (mockPrisma.envEvent.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .put('/api/events/17000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ description: 'Updated description for the event' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 on update DB error', async () => {
+    (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '17000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envEvent.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .delete('/api/events/17000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 400 for missing location field', async () => {
+    const response = await request(app2)
+      .post('/api/events')
+      .set('Authorization', 'Bearer token')
+      .send({
+        eventType: 'SPILL',
+        severity: 'MAJOR',
+        dateOfEvent: '2026-01-15',
+        department: 'Operations',
+        reportedBy: 'John Doe',
+        description: 'Chemical spill in warehouse area near dock',
+        // location intentionally omitted
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / count call includes correct year in reference number', async () => {
+    (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(4);
+    (mockPrisma.envEvent.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'ENV-EVT-2026-005',
+      eventType: 'EMISSION',
+      severity: 'MINOR',
+    });
+
+    await request(app2)
+      .post('/api/events')
+      .set('Authorization', 'Bearer token')
+      .send({
+        eventType: 'EMISSION',
+        severity: 'MINOR',
+        dateOfEvent: '2026-02-01',
+        location: 'Plant A',
+        department: 'Operations',
+        reportedBy: 'Jane Doe',
+        description: 'Excessive stack emissions detected at Plant A',
+      });
+
+    const createCall = (mockPrisma.envEvent.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.referenceNumber).toMatch(/ENV-EVT-\d{4}-\d{3}/);
+  });
+});

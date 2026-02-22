@@ -332,3 +332,79 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Additional coverage: pagination, filter wiring, field validation
+// ===================================================================
+describe('Additional meters coverage', () => {
+  it('GET /api/meters pagination returns totalPages', async () => {
+    (prisma.energyMeter.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(30);
+
+    const res = await request(app).get('/api/meters?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(30);
+    expect(res.body.pagination.totalPages).toBe(3);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('GET /api/meters filters by facility wired into where clause (insensitive contains)', async () => {
+    (prisma.energyMeter.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/meters?facility=Building+B');
+    expect(prisma.energyMeter.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          facility: expect.objectContaining({ contains: 'Building B' }),
+        }),
+      })
+    );
+  });
+
+  it('POST /api/meters returns 400 for invalid type enum', async () => {
+    const res = await request(app).post('/api/meters').send({
+      name: 'Bad Meter',
+      code: 'BAD-001',
+      type: 'INVALID_TYPE',
+      unit: 'kWh',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/meters/:id/readings supports pagination wired into query', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyReading.count as jest.Mock).mockResolvedValue(20);
+
+    const res = await request(app).get(
+      '/api/meters/e1000000-0000-4000-a000-000000000001/readings?page=1&limit=5'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(20);
+  });
+
+  it('PUT /api/meters/:id returns 400 for invalid status enum', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      deletedAt: null,
+    });
+
+    const res = await request(app)
+      .put('/api/meters/e1000000-0000-4000-a000-000000000001')
+      .send({ status: 'INVALID_STATUS' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/meters response has success:true and pagination object', async () => {
+    (prisma.energyMeter.findMany as jest.Mock).mockResolvedValue([
+      { id: 'e1000000-0000-4000-a000-000000000001', name: 'Main', code: 'M001', type: 'ELECTRICITY' },
+    ]);
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/meters');
+    expect(res.body).toMatchObject({ success: true, pagination: expect.objectContaining({ total: 1 }) });
+  });
+});

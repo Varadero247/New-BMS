@@ -261,3 +261,109 @@ describe('DEFAULT_RULES', () => {
     expect(DEFAULT_RULES.every((r) => validTypes.has(r.ruleType))).toBe(true);
   });
 });
+
+describe('SiemEngine – extended coverage', () => {
+  it('getAlerts() without actorId returns all alerts across all actors', () => {
+    const rule: SiemRule = {
+      id: 'MULTI_ACTOR',
+      name: 'Multi Actor',
+      description: '1 event',
+      ruleType: 'threshold',
+      severity: 'low',
+      eventTypes: ['AUTH_FAILURE'],
+      windowMs: 60_000,
+      threshold: 1,
+    };
+    const engine = new SiemEngine([rule], { cleanupIntervalMs: 999_999 });
+    engine.ingest(authFailure('alice'));
+    engine.ingest(authFailure('bob'));
+    expect(engine.getAlerts().length).toBeGreaterThanOrEqual(2);
+    engine.destroy();
+  });
+
+  it('ingest does not fire on event types not in the rule eventTypes list', () => {
+    const rule: SiemRule = {
+      id: 'ONLY_PERM',
+      name: 'Only Perm',
+      description: '1 perm denied',
+      ruleType: 'threshold',
+      severity: 'medium',
+      eventTypes: ['PERMISSION_DENIED'],
+      windowMs: 60_000,
+      threshold: 1,
+    };
+    const engine = new SiemEngine([rule], { cleanupIntervalMs: 999_999 });
+    engine.ingest(authFailure('alice')); // AUTH_FAILURE is not in eventTypes
+    expect(engine.getAlerts('alice')).toHaveLength(0);
+    engine.destroy();
+  });
+
+  it('alert has a triggeredAt field set to a recent timestamp', () => {
+    const rule: SiemRule = {
+      id: 'TS_RULE',
+      name: 'TS Rule',
+      description: '1 event',
+      ruleType: 'threshold',
+      severity: 'info',
+      eventTypes: ['AUTH_FAILURE'],
+      windowMs: 60_000,
+      threshold: 1,
+    };
+    const engine = new SiemEngine([rule], { cleanupIntervalMs: 999_999 });
+    const before = Date.now();
+    engine.ingest(authFailure('alice'));
+    const alerts = engine.getAlerts('alice');
+    expect(alerts[0].triggeredAt).toBeGreaterThanOrEqual(before);
+    engine.destroy();
+  });
+
+  it('reset() allows new alerts to be generated after clearing', () => {
+    const rule: SiemRule = {
+      id: 'RST2',
+      name: 'R2',
+      description: 'r',
+      ruleType: 'threshold',
+      severity: 'info',
+      eventTypes: ['AUTH_FAILURE'],
+      windowMs: 60_000,
+      threshold: 2,
+    };
+    const engine = new SiemEngine([rule], { cleanupIntervalMs: 999_999 });
+    engine.ingest(authFailure('alice'));
+    engine.ingest(authFailure('alice'));
+    engine.reset();
+    engine.ingest(authFailure('alice'));
+    engine.ingest(authFailure('alice'));
+    expect(engine.getAlerts('alice').length).toBeGreaterThanOrEqual(1);
+    engine.destroy();
+  });
+
+  it('actorCount increments correctly with multiple unique actors', () => {
+    const engine = new SiemEngine([], { cleanupIntervalMs: 999_999 });
+    engine.ingest(authFailure('u1'));
+    engine.ingest(authFailure('u2'));
+    engine.ingest(authFailure('u3'));
+    expect(engine.actorCount).toBe(3);
+    engine.destroy();
+  });
+
+  it('sequence rule does not fire when sequence is complete but out of window', () => {
+    const rule: SiemRule = {
+      id: 'SEQ_WIN',
+      name: 'Seq Win',
+      description: 'perm→priv in 1s',
+      ruleType: 'sequence',
+      severity: 'high',
+      eventTypes: ['PERMISSION_DENIED', 'PRIVILEGE_ESCALATION'],
+      windowMs: 1_000,
+      sequence: ['PERMISSION_DENIED', 'PRIVILEGE_ESCALATION'],
+    };
+    const engine = new SiemEngine([rule], { cleanupIntervalMs: 999_999 });
+    const old = Date.now() - 5_000;
+    engine.ingest({ type: 'PERMISSION_DENIED', actorId: 'alice', timestamp: old });
+    // PRIVILEGE_ESCALATION comes 5 seconds later (outside 1s window)
+    const alerts = engine.ingest({ type: 'PRIVILEGE_ESCALATION', actorId: 'alice' });
+    expect(alerts).toHaveLength(0);
+    engine.destroy();
+  });
+});

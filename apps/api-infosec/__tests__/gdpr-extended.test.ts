@@ -220,3 +220,59 @@ describe('GDPR Extended Routes', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('GDPR Extended Routes — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /dpa returns correct pagination totalPages', async () => {
+    prisma.isDpa.findMany.mockResolvedValue([]);
+    prisma.isDpa.count.mockResolvedValue(40);
+    const res = await request(app).get('/dpa?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET /transfers returns correct pagination totalPages', async () => {
+    prisma.isInternationalTransfer.findMany.mockResolvedValue([]);
+    prisma.isInternationalTransfer.count.mockResolvedValue(30);
+    const res = await request(app).get('/transfers?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /sa-complaints returns correct pagination totalPages', async () => {
+    prisma.isSaComplaint.findMany.mockResolvedValue([]);
+    prisma.isSaComplaint.count.mockResolvedValue(25);
+    const res = await request(app).get('/sa-complaints?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('POST /dpo returns 500 on DB create error', async () => {
+    prisma.isDpo.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/dpo').send(dpoPayload);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /dpa returns 500 on DB create error', async () => {
+    prisma.isDpa.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/dpa').send(dpaPayload);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /transfers returns 500 on DB create error', async () => {
+    prisma.isInternationalTransfer.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/transfers').send(transferPayload);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /dpo returns 500 on DB findMany error', async () => {
+    prisma.isDpo.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/dpo');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

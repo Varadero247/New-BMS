@@ -401,3 +401,84 @@ describe('Aerospace Configuration Baselines API', () => {
     });
   });
 });
+
+describe('Aerospace Baselines API — additional coverage', () => {
+  it('GET /api/baselines returns correct totalPages for multi-page result', async () => {
+    mockPrisma.aeroConfigBaseline.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(60);
+
+    const res = await request(app)
+      .get('/api/baselines?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+    expect(res.body.meta.total).toBe(60);
+  });
+
+  it('GET /api/baselines response shape has success:true and meta block', async () => {
+    mockPrisma.aeroConfigBaseline.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/baselines').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('POST /api/baselines with baselineType defaulting to FUNCTIONAL still creates successfully', async () => {
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(5);
+    mockPrisma.aeroConfigBaseline.create.mockResolvedValueOnce({
+      id: 'b-default',
+      refNumber: 'AERO-BL-2026-006',
+      title: 'No Type Baseline',
+      baselineType: 'FUNCTIONAL',
+      status: 'DRAFT',
+    });
+
+    const res = await request(app)
+      .post('/api/baselines')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'No Type Baseline', program: 'TEST' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.baselineType).toBe('FUNCTIONAL');
+  });
+
+  it('DELETE /api/baselines/:id returns 500 on db error during update', async () => {
+    mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    mockPrisma.aeroConfigBaseline.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .delete('/api/baselines/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/baselines/:id/approve response data contains updated fields', async () => {
+    const existing = {
+      id: '00000000-0000-0000-0000-000000000002',
+      status: 'UNDER_REVIEW',
+      notes: null,
+      deletedAt: null,
+    };
+    mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(existing);
+    mockPrisma.aeroConfigBaseline.update.mockResolvedValueOnce({
+      ...existing,
+      status: 'APPROVED',
+      approvedBy: 'Jane',
+      approvedDate: new Date(),
+    });
+
+    const res = await request(app)
+      .put('/api/baselines/00000000-0000-0000-0000-000000000002/approve')
+      .set('Authorization', 'Bearer token')
+      .send({ approvedBy: 'Jane', approvalNotes: 'All good' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+});

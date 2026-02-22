@@ -439,3 +439,49 @@ describe('DELETE /api/impact-assessments/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ===================================================================
+// Additional coverage: pagination, response shape, filter params
+// ===================================================================
+describe('GET /api/impact-assessments — additional pagination and shape tests', () => {
+  it('should compute totalPages correctly for larger datasets', async () => {
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(45);
+
+    const res = await request(app).get('/api/impact-assessments?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('should return response with success, data array, and pagination shape', async () => {
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([mockAssessment]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/impact-assessments');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.pagination).toMatchObject({ page: 1, total: 1 });
+  });
+
+  it('should filter by assessmentType when provided', async () => {
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/impact-assessments?assessmentType=INITIAL');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.aiImpactAssessment.findMany).toHaveBeenCalled();
+  });
+
+  it('should return 500 when count query also fails', async () => {
+    mockPrisma.aiImpactAssessment.findMany.mockRejectedValue(new Error('timeout'));
+    mockPrisma.aiImpactAssessment.count.mockRejectedValue(new Error('timeout'));
+
+    const res = await request(app).get('/api/impact-assessments');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

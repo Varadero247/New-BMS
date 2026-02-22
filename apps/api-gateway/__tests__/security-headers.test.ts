@@ -226,4 +226,60 @@ describe('Security Headers Middleware', () => {
       expect(mockRes.setHeader).toHaveBeenCalledWith('Surrogate-Control', 'no-store');
     });
   });
+
+  describe('Security Headers — extended coverage', () => {
+    it('should set Pragma: no-cache for API paths', () => {
+      mockReq.path = '/api/health-safety';
+      additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+      expect(mockRes.setHeader).toHaveBeenCalledWith('Pragma', 'no-cache');
+    });
+
+    it('should set Expires: 0 for API paths', () => {
+      mockReq.path = '/api/quality';
+      additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+      expect(mockRes.setHeader).toHaveBeenCalledWith('Expires', '0');
+    });
+
+    it('should not set Pragma for non-API paths', () => {
+      mockReq.path = '/static/logo.png';
+      additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+      expect(mockRes.setHeader).not.toHaveBeenCalledWith('Pragma', expect.any(String));
+    });
+
+    it('should not set Expires for non-API paths', () => {
+      mockReq.path = '/favicon.ico';
+      additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+      expect(mockRes.setHeader).not.toHaveBeenCalledWith('Expires', expect.any(String));
+    });
+
+    it('createSecurityMiddleware result[0] calls next when invoked', () => {
+      const middleware = createSecurityMiddleware();
+      // middleware[0] is securityHeaders (helmet); calling it should not throw
+      expect(() => middleware[0](mockReq as Request, mockRes as Response, mockNext)).not.toThrow();
+    });
+
+    it('additionalSecurityHeaders restricts cross-origin-isolated feature', () => {
+      additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+      const call = (mockRes.setHeader as jest.Mock).mock.calls.find(
+        (c) => c[0] === 'Permissions-Policy'
+      );
+      expect(call[1]).toContain('cross-origin-isolated=()');
+    });
+
+    it('additionalSecurityHeaders restricts screen-wake-lock feature', () => {
+      additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+      const call = (mockRes.setHeader as jest.Mock).mock.calls.find(
+        (c) => c[0] === 'Permissions-Policy'
+      );
+      expect(call[1]).toContain('screen-wake-lock=()');
+    });
+
+    it('additionalSecurityHeaders restricts sync-xhr feature', () => {
+      additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+      const call = (mockRes.setHeader as jest.Mock).mock.calls.find(
+        (c) => c[0] === 'Permissions-Policy'
+      );
+      expect(call[1]).toContain('sync-xhr=()');
+    });
+  });
 });

@@ -513,3 +513,109 @@ describe('500 error handling', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Users API — additional coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/users', usersRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+  });
+
+  it('GET / returns totalPages in meta for large dataset', async () => {
+    (mockPrisma.user.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.user.count as jest.Mock).mockResolvedValueOnce(50);
+
+    const response = await request(app2)
+      .get('/api/users?page=1&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.totalPages).toBe(5);
+  });
+
+  it('GET / response shape has success:true and data array', async () => {
+    (mockPrisma.user.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.user.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/users')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('POST / returns 500 on DB create error', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.user.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .post('/api/users')
+      .set('Authorization', 'Bearer token')
+      .send({
+        email: 'new@test.com',
+        password: 'Password123!',
+        firstName: 'New',
+        lastName: 'User',
+      });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH / returns 500 on DB update error', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '51000000-0000-4000-a000-000000000123',
+    });
+    (mockPrisma.user.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .patch('/api/users/51000000-0000-4000-a000-000000000123')
+      .set('Authorization', 'Bearer token')
+      .send({ firstName: 'Updated' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE / returns 500 on DB update (soft-delete) error', async () => {
+    (mockPrisma.user.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .delete('/api/users/55000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB findUnique error for admin', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .get('/api/users/20000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / supports isActive filter', async () => {
+    (mockPrisma.user.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.user.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/users?isActive=true')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(mockPrisma.user.findMany).toHaveBeenCalled();
+  });
+});

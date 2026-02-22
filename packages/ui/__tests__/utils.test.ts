@@ -147,3 +147,47 @@ describe('formatCurrency', () => {
     expect(usd).not.toBe(eur);
   });
 });
+
+// ── additional edge cases ────────────────────────────────────────
+
+describe('cn — additional edge cases', () => {
+  it('handles nested arrays of class strings', () => {
+    const result = cn(['foo', ['bar', 'baz']]);
+    expect(result).toContain('foo');
+    expect(result).toContain('bar');
+    expect(result).toContain('baz');
+  });
+
+  it('handles a single string argument unchanged', () => {
+    expect(cn('only-class')).toBe('only-class');
+  });
+
+  it('deduplicates text color utilities (last wins)', () => {
+    const result = cn('text-red-500', 'text-blue-500');
+    expect(result).toBe('text-blue-500');
+  });
+});
+
+describe('formatNumber — additional edge cases', () => {
+  it('formats a float with default precision', () => {
+    const result = formatNumber(3.14159);
+    expect(result).toContain('3');
+  });
+
+  it('formats a very large number with commas', () => {
+    const result = formatNumber(1000000000);
+    expect(result.split(',').length).toBeGreaterThan(1);
+  });
+});
+
+describe('formatCurrency — additional edge cases', () => {
+  it('formats large amounts with comma separators', () => {
+    const result = formatCurrency(1000000);
+    expect(result).toContain(',');
+  });
+
+  it('includes currency symbol for USD', () => {
+    const result = formatCurrency(10, 'USD');
+    expect(result).toContain('$');
+  });
+});

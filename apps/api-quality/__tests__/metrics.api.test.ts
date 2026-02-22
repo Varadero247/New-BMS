@@ -292,3 +292,111 @@ describe('Quality Metrics API Routes', () => {
     });
   });
 });
+
+describe('Quality Metrics API — extended coverage', () => {
+  const mockMetric = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-MET-2026-001',
+    name: 'Customer Satisfaction Score',
+    description: 'NPS score tracking',
+    category: 'CUSTOMER_SATISFACTION',
+    unit: 'score',
+    targetValue: 80,
+    actualValue: 75,
+    status: 'AT_RISK',
+    frequency: 'MONTHLY',
+    owner: 'Jane Quality',
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns correct totalPages for multi-page result', async () => {
+    mockPrisma.qualMetric.findMany.mockResolvedValue([mockMetric]);
+    mockPrisma.qualMetric.count.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/metrics?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('GET / passes correct skip to Prisma for page 3', async () => {
+    mockPrisma.qualMetric.findMany.mockResolvedValue([]);
+    mockPrisma.qualMetric.count.mockResolvedValue(30);
+
+    await request(app).get('/api/metrics?page=3&limit=10');
+
+    expect(mockPrisma.qualMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET / filters by frequency query param', async () => {
+    mockPrisma.qualMetric.findMany.mockResolvedValue([mockMetric]);
+    mockPrisma.qualMetric.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/metrics?frequency=MONTHLY');
+
+    expect(res.status).toBe(200);
+  });
+
+  it('POST / returns 400 when name is empty string', async () => {
+    const res = await request(app)
+      .post('/api/metrics')
+      .send({ name: '', category: 'CUSTOMER_SATISFACTION' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /summary returns 500 and error shape on DB error', async () => {
+    mockPrisma.qualMetric.count.mockRejectedValue(new Error('Timeout'));
+
+    const res = await request(app).get('/api/metrics/summary');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /:id response shape contains deleted:true on success', async () => {
+    mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
+    mockPrisma.qualMetric.update.mockResolvedValue({ ...mockMetric, deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/metrics/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('PUT /:id returns 500 on DB error during update', async () => {
+    mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
+    mockPrisma.qualMetric.update.mockRejectedValue(new Error('Write failure'));
+
+    const res = await request(app)
+      .put('/api/metrics/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Metric' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / response always includes pagination object', async () => {
+    mockPrisma.qualMetric.findMany.mockResolvedValue([]);
+    mockPrisma.qualMetric.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/metrics');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination).toHaveProperty('total', 0);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+});

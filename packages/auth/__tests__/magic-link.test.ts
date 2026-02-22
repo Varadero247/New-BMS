@@ -215,3 +215,69 @@ describe('InMemoryMagicLinkStore', () => {
     expect(store.purgeExpired()).toBe(0);
   });
 });
+
+describe('magic-link — extended coverage', () => {
+  it('hashMagicLinkToken produces SHA-256 (64 hex chars) output', () => {
+    const hash = hashMagicLinkToken('test-token-value');
+    expect(hash).toHaveLength(64);
+    expect(hash).toMatch(/^[0-9a-f]+$/);
+  });
+
+  it('generateMagicLink magicLink contains token query param', () => {
+    const { magicLink, rawToken } = generateMagicLink('a@b.com');
+    expect(magicLink).toContain('token=');
+    expect(magicLink).toContain(encodeURIComponent(rawToken));
+  });
+
+  it('generateMagicLink rawToken is at least 32 chars (sufficient entropy)', () => {
+    const { rawToken } = generateMagicLink('a@b.com');
+    expect(rawToken.length).toBeGreaterThanOrEqual(32);
+  });
+
+  it('verifyMagicLinkToken returns "invalid" for empty string token', () => {
+    const rec: MagicLinkRecord = {
+      hashedToken: hashMagicLinkToken('raw-token-123'),
+      email: 'u@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+    };
+    expect(verifyMagicLinkToken('', rec)).toBe('invalid');
+  });
+
+  it('InMemoryMagicLinkStore.size increments with each save', () => {
+    const store = new InMemoryMagicLinkStore();
+    const makeRec = (key: string): MagicLinkRecord => ({
+      hashedToken: key,
+      email: 'u@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+    });
+    store.save('k1', makeRec('k1'));
+    store.save('k2', makeRec('k2'));
+    expect(store.size).toBe(2);
+  });
+
+  it('InMemoryMagicLinkStore.delete on missing key does not throw', () => {
+    const store = new InMemoryMagicLinkStore();
+    expect(() => store.delete('does-not-exist')).not.toThrow();
+  });
+
+  it('purgeExpired() removes multiple expired records in one call', () => {
+    const store = new InMemoryMagicLinkStore();
+    const makeExpired = (key: string): MagicLinkRecord => ({
+      hashedToken: key,
+      email: 'x@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() - 5_000),
+      usedAt: null,
+    });
+    store.save('e1', makeExpired('e1'));
+    store.save('e2', makeExpired('e2'));
+    store.save('e3', makeExpired('e3'));
+    const purged = store.purgeExpired();
+    expect(purged).toBe(3);
+    expect(store.size).toBe(0);
+  });
+});

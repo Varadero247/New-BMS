@@ -258,3 +258,90 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage: pagination, filters, response shapes ────────────────
+
+describe('Requests — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/requests returns correct totalPages for multi-page result', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([mockRequest]);
+    prisma.cmmsRequest.count.mockResolvedValue(42);
+
+    const res = await request(app).get('/api/requests?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.totalPages).toBe(5);
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('GET /api/requests passes correct skip for page 2', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([]);
+    prisma.cmmsRequest.count.mockResolvedValue(0);
+
+    await request(app).get('/api/requests?page=2&limit=10');
+    expect(prisma.cmmsRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/requests wires status filter into Prisma where clause', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([]);
+    prisma.cmmsRequest.count.mockResolvedValue(0);
+
+    await request(app).get('/api/requests?status=IN_PROGRESS');
+    expect(prisma.cmmsRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'IN_PROGRESS' }) })
+    );
+  });
+
+  it('GET /api/requests wires priority filter into Prisma where clause', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([]);
+    prisma.cmmsRequest.count.mockResolvedValue(0);
+
+    await request(app).get('/api/requests?priority=CRITICAL');
+    expect(prisma.cmmsRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ priority: 'CRITICAL' }) })
+    );
+  });
+
+  it('GET /api/requests returns success:true with empty data array', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([]);
+    prisma.cmmsRequest.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/requests');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('DELETE /api/requests/:id returns 500 on DB update error', async () => {
+    prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
+    prisma.cmmsRequest.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/requests/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/requests/:id returns 500 on DB error', async () => {
+    prisma.cmmsRequest.findFirst.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/requests/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/requests/:id returns data with expected response shape', async () => {
+    prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
+
+    const res = await request(app).get('/api/requests/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('title');
+    expect(res.body.data).toHaveProperty('priority');
+    expect(res.body.data).toHaveProperty('status');
+  });
+});

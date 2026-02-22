@@ -233,4 +233,65 @@ describe('ISO 45001 Worker Consultation Routes', () => {
     const res = await request(app).put('/unknown').send({ outcomeSummary: 'test' });
     expect(res.status).toBe(404);
   });
+
+  // Extended coverage
+  it('GET / returns correct totalPages when count=40 and limit=20', async () => {
+    prisma.hSWorkerConsultation.findMany.mockResolvedValue([]);
+    prisma.hSWorkerConsultation.count.mockResolvedValue(40);
+    const res = await request(app).get('/?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it('GET / passes skip=20 to findMany when page=2 and limit=20', async () => {
+    prisma.hSWorkerConsultation.findMany.mockResolvedValue([]);
+    prisma.hSWorkerConsultation.count.mockResolvedValue(0);
+    await request(app).get('/?page=2&limit=20');
+    expect(prisma.hSWorkerConsultation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 20 })
+    );
+  });
+
+  it('GET / filters by topic wired into Prisma where clause', async () => {
+    prisma.hSWorkerConsultation.findMany.mockResolvedValue([]);
+    prisma.hSWorkerConsultation.count.mockResolvedValue(0);
+    await request(app).get('/?topic=HAZARD_IDENTIFICATION');
+    expect(prisma.hSWorkerConsultation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ topic: 'HAZARD_IDENTIFICATION' }) })
+    );
+  });
+
+  it('POST / returns 500 on DB create error', async () => {
+    prisma.hSWorkerConsultation.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/').send(consultationPayload);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id returns 500 on DB update error', async () => {
+    prisma.hSWorkerConsultation.findUnique.mockResolvedValue(mockConsultation);
+    prisma.hSWorkerConsultation.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/cons-1').send({ outcomeSummary: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /dashboard returns 500 on DB error', async () => {
+    prisma.hSWorkerConsultation.count.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /barriers returns 500 on DB create error', async () => {
+    prisma.hSWorkerConsultation.findUnique.mockResolvedValue(mockConsultation);
+    prisma.hSParticipationBarrier.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/barriers').send({
+      consultationId: '00000000-0000-0000-0000-000000000001',
+      barrierType: 'LANGUAGE',
+      description: 'Limited English',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
 });

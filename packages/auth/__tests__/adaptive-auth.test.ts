@@ -205,3 +205,59 @@ describe('riskScoreToAction()', () => {
   it('returns BLOCK for score 60', () => expect(riskScoreToAction(60)).toBe('BLOCK'));
   it('returns BLOCK for score 100', () => expect(riskScoreToAction(100)).toBe('BLOCK'));
 });
+
+describe('assessLoginRisk() — extended coverage', () => {
+  it('accumulates points from multiple independent risk factors', () => {
+    const ctx: LoginContext = {
+      ...BASE_CTX,
+      isKnownDevice: false,
+      isKnownLocation: false,
+      mfaEnabled: false,
+    };
+    const { score } = assessLoginRisk(ctx);
+    // unknown_device(25) + unknown_location(20) + no_mfa(10) = 55
+    expect(score).toBe(55);
+  });
+
+  it('action is STEP_UP_MFA for score exactly 30 (boundary)', () => {
+    // unknown_device(25) + no_mfa(10) = 35 → STEP_UP_MFA
+    const ctx: LoginContext = { ...BASE_CTX, isKnownDevice: false, mfaEnabled: false };
+    const { score, action } = assessLoginRisk(ctx);
+    expect(score).toBe(35);
+    expect(action).toBe('STEP_UP_MFA');
+  });
+
+  it('result always contains score, action, and factors keys', () => {
+    const result = assessLoginRisk(BASE_CTX);
+    expect(result).toHaveProperty('score');
+    expect(result).toHaveProperty('action');
+    expect(result).toHaveProperty('factors');
+  });
+
+  it('factors array is empty for a perfectly trusted context', () => {
+    const { factors } = assessLoginRisk(BASE_CTX);
+    expect(factors).toHaveLength(0);
+  });
+
+  it('brute_force factor takes precedence over failed_attempts for 5+ failures', () => {
+    const { factors } = assessLoginRisk({ ...BASE_CTX, recentFailedAttempts: 7 });
+    const names = factors.map((f) => f.name);
+    expect(names).toContain('brute_force');
+    expect(names).not.toContain('failed_attempts');
+  });
+
+  it('Tor + brute_force alone is enough to BLOCK', () => {
+    const ctx: LoginContext = {
+      ...BASE_CTX,
+      isTorOrProxy: true,
+      recentFailedAttempts: 5,
+    };
+    // Tor(30) + brute_force(40) = 70 → capped at ≤100 → BLOCK
+    const { action } = assessLoginRisk(ctx);
+    expect(action).toBe('BLOCK');
+  });
+
+  it('riskScoreToAction returns ALLOW for negative score (edge)', () => {
+    expect(riskScoreToAction(-5)).toBe('ALLOW');
+  });
+});
