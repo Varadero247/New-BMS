@@ -1,5 +1,39 @@
 # IMS — Fixes Log
 
+## Phase 18 — Frontend Gap Closure (February 22, 2026)
+
+Systematic audit of all 42 API services against frontend page directories. Identified and built 17 missing pages across 3 apps.
+
+**New pages — web-analytics (14):**
+- `/executive` — Executive KPI summary (My Actions, Platform Health, Risk Summary, Compliance Activity)
+- `/board-packs` — Board pack management with DRAFT→FINAL→DISTRIBUTED workflow
+- `/cashflow` — Cash flow forecasts with current position + weekly projection table
+- `/monthly-review` — Monthly snapshot history with regenerate action
+- `/meetings` — Meeting notes CRUD (BOARD/MANAGEMENT_REVIEW/DEPARTMENT/OTHER)
+- `/expenses` — Expense approval workflow (PENDING→APPROVED/REJECTED/REIMBURSED)
+- `/certifications` — Certification deadline tracker with days-to-expiry colour coding
+- `/competitors` — Competitor intelligence with per-competitor intel entry feed
+- `/contracts` — Contract portfolio with expiry alerts and total annual value
+- `/dsars` — GDPR data subject requests (6 request types, status progression buttons)
+- `/gdpr` — GDPR data categories + data processing agreements (tabbed)
+- `/feature-requests` — Feature voting board sorted by votes, status pipeline
+- `/release-notes` — Platform changelog (FEATURE/BUGFIX/IMPROVEMENT/BREAKING/SECURITY)
+- `/uptime` — Uptime monitoring dashboard with expandable incident history
+
+**New pages — web-risk (3):**
+- `/controls` — Risk controls with per-risk selector dropdown
+- `/categories` — Risk category breakdown
+- `/treatments` — Risk treatment breakdown
+
+**New pages — web-medical (1):**
+- `/dmr-dhr` — FDA 21 CFR 820.181/820.184 DMR & DHR management (tabbed, full CRUD)
+
+**Sidebar updates:** web-analytics (4 new sections: Business, Finance, Compliance, Platform), web-risk (Controls added to Controls & KRIs; new Register Breakdown section), web-medical (DMR/DHR added to Production section).
+
+**Result:** 0 TypeScript errors | 17,853/674 tests passing | Commit: `eb210fde`
+
+---
+
 ## Date: February 10, 2026
 
 All 5 H&S modules (Risks, Incidents, Legal, Objectives, CAPA) were implemented and tested. During end-to-end testing, 6 critical bugs were discovered and fixed.
