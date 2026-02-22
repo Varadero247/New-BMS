@@ -17,6 +17,20 @@ import {
   ShieldAlert,
   BrainCircuit,
   AlertTriangle,
+  Briefcase,
+  ClipboardList,
+  RefreshCw,
+  Users,
+  DollarSign,
+  CreditCard,
+  ScrollText,
+  Shield,
+  Lock,
+  BadgeCheck,
+  Target,
+  Lightbulb,
+  Tag,
+  Activity,
 } from 'lucide-react';
 
 const mainNav = [
@@ -40,6 +54,28 @@ const monitorNav = [
   { name: 'Exports', href: '/exports', icon: Download },
   { name: 'Schedules', href: '/schedules', icon: Calendar },
   { name: 'Benchmarks', href: '/benchmarks', icon: GitCompare },
+];
+const businessNav = [
+  { name: 'Executive Summary', href: '/executive', icon: Briefcase },
+  { name: 'Board Packs', href: '/board-packs', icon: ClipboardList },
+  { name: 'Monthly Review', href: '/monthly-review', icon: RefreshCw },
+  { name: 'Meetings', href: '/meetings', icon: Users },
+];
+const financeNav = [
+  { name: 'Cash Flow', href: '/cashflow', icon: DollarSign },
+  { name: 'Expenses', href: '/expenses', icon: CreditCard },
+  { name: 'Contracts', href: '/contracts', icon: ScrollText },
+];
+const complianceNav = [
+  { name: 'GDPR Data Protection', href: '/gdpr', icon: Lock },
+  { name: 'Data Subject Requests', href: '/dsars', icon: Shield },
+  { name: 'Certifications', href: '/certifications', icon: BadgeCheck },
+];
+const platformNav = [
+  { name: 'Competitors', href: '/competitors', icon: Target },
+  { name: 'Feature Requests', href: '/feature-requests', icon: Lightbulb },
+  { name: 'Release Notes', href: '/release-notes', icon: Tag },
+  { name: 'Uptime Monitoring', href: '/uptime', icon: Activity },
 ];
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
 const extLinks = [
@@ -102,6 +138,10 @@ export function Sidebar() {
         <NavSection title="Intelligence" items={intelligenceNav} pathname={pathname} />
         <NavSection title="Reports" items={reportsNav} pathname={pathname} />
         <NavSection title="Monitoring" items={monitorNav} pathname={pathname} />
+        <NavSection title="Business" items={businessNav} pathname={pathname} />
+        <NavSection title="Finance" items={financeNav} pathname={pathname} />
+        <NavSection title="Compliance" items={complianceNav} pathname={pathname} />
+        <NavSection title="Platform" items={platformNav} pathname={pathname} />
         <div className="mt-4 pt-4 border-t border-border">
           <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
             Quick Links

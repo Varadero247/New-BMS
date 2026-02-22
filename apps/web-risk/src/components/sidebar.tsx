@@ -19,6 +19,9 @@ import {
   GitBranch,
   BarChart3,
   ListChecks,
+  Lock,
+  Layers,
+  Wrench,
 } from 'lucide-react';
 
 interface NavItem {
@@ -58,6 +61,16 @@ const navGroups: NavGroup[] = [
       { name: 'Bow-Tie Analysis', href: '/bowtie', icon: GitBranch },
       { name: 'KRI Dashboard', href: '/kri', icon: Activity },
       { name: 'Risk Actions', href: '/actions', icon: ListChecks },
+      { name: 'Controls', href: '/controls', icon: Lock },
+    ],
+  },
+  {
+    title: 'Register Breakdown',
+    clause: 'breakdown',
+    collapsible: true,
+    items: [
+      { name: 'Categories', href: '/categories', icon: Layers },
+      { name: 'Treatments', href: '/treatments', icon: Wrench },
     ],
   },
   {

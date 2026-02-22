@@ -70,6 +70,7 @@ const navGroups: NavGroup[] = [
     collapsible: true,
     items: [
       { name: 'Device Records (DMR/DHR)', href: '/device-records', icon: FileText },
+      { name: 'DMR / DHR (FDA 820)', href: '/dmr-dhr', icon: FileCheck },
       { name: 'Traceability', href: '/traceability', icon: GitBranch },
       { name: 'UDI Management', href: '/udi', icon: Barcode },
     ],
