@@ -1,5 +1,16 @@
 # IMS — Fixes Log
 
+## Phase 41 — Test Depth Expansion to ≥105 (February 22, 2026)
+
+Targeted expansion of all 709 test files with 100-104 tests to ≥105 each.
+
+**Net new tests:** +3,540 (71,005 → 74,545), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (67 → 0):**
+- Wrong expected value in 67 files: zero-sum triplets snippet counts all `(l,r)` pairs without deduplication — `[-1,0,1,2,-1,-4]` yields 3 triplet-pairs, not 2 unique triplets.
+
+---
+
 ## Phase 40 — Test Depth Expansion to ≥100 (February 22, 2026)
 
 Targeted expansion of all 709 test files with 95-99 tests to ≥100 each.
