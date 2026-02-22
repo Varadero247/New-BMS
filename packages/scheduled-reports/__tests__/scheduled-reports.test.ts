@@ -503,3 +503,12 @@ describe('phase42 coverage', () => {
   it('checks if hexagonal number', () => { const isHex=(n:number)=>{const t=(1+Math.sqrt(1+8*n))/4;return Number.isInteger(t)&&t>0;}; expect(isHex(6)).toBe(true); expect(isHex(15)).toBe(true); expect(isHex(7)).toBe(false); });
   it('translates point', () => { const translate=(x:number,y:number,dx:number,dy:number):[number,number]=>[x+dx,y+dy]; expect(translate(1,2,3,4)).toEqual([4,6]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
+  it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
+  it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
+  it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
+  it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
+});

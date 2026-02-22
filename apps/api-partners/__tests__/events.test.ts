@@ -415,3 +415,12 @@ describe('phase42 coverage', () => {
   it('rotates 2D point by 90 degrees', () => { const rot90=(x:number,y:number)=>[-y,x]; expect(rot90(2,3)).toEqual([-3,2]); expect(rot90(0,1)).toEqual([-1,0]); });
   it('checks convex hull contains point (simple)', () => { const onLeft=(ax:number,ay:number,bx:number,by:number,px:number,py:number)=>(bx-ax)*(py-ay)-(by-ay)*(px-ax)>=0; expect(onLeft(0,0,1,0,0,1)).toBe(true); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
+  it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+  it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+});

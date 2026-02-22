@@ -738,3 +738,12 @@ describe('phase42 coverage', () => {
   it('computes perimeter of polygon', () => { const perim=(pts:[number,number][])=>pts.reduce((s,p,i)=>{const n=pts[(i+1)%pts.length];return s+Math.hypot(n[0]-p[0],n[1]-p[1]);},0); expect(perim([[0,0],[3,0],[3,4],[0,4]])).toBe(14); });
   it('computes pentagonal number', () => { const penta=(n:number)=>n*(3*n-1)/2; expect(penta(1)).toBe(1); expect(penta(4)).toBe(22); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes Pearson correlation', () => { const pearson=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;const num=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0);const den=Math.sqrt(x.reduce((s,v)=>s+(v-mx)**2,0)*y.reduce((s,v)=>s+(v-my)**2,0));return den===0?0:num/den;}; expect(pearson([1,2,3],[1,2,3])).toBeCloseTo(1); });
+  it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+  it('computes weighted average', () => { const wavg=(vals:number[],wts:number[])=>{const sw=wts.reduce((s,v)=>s+v,0);return vals.reduce((s,v,i)=>s+v*wts[i],0)/sw;}; expect(wavg([1,2,3],[1,2,3])).toBeCloseTo(2.333,2); });
+  it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
+});

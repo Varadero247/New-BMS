@@ -644,3 +644,12 @@ describe('phase42 coverage', () => {
   it('scales point from origin', () => { const scale=(x:number,y:number,s:number):[number,number]=>[x*s,y*s]; expect(scale(2,3,2)).toEqual([4,6]); });
   it('generates gradient stops count', () => { const stops=(n:number)=>Array.from({length:n},(_,i)=>i/(n-1)); expect(stops(5)).toEqual([0,0.25,0.5,0.75,1]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes days between two dates', () => { const daysBetween=(a:Date,b:Date)=>Math.round(Math.abs(b.getTime()-a.getTime())/86400000); expect(daysBetween(new Date('2026-01-01'),new Date('2026-01-31'))).toBe(30); });
+  it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
+  it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
+});

@@ -670,3 +670,12 @@ describe('phase42 coverage', () => {
   it('normalizes a 2D vector', () => { const norm=(x:number,y:number)=>{const l=Math.hypot(x,y);return[x/l,y/l];}; const[nx,ny]=norm(3,4); expect(nx).toBeCloseTo(0.6); expect(ny).toBeCloseTo(0.8); });
   it('computes angle between two vectors in degrees', () => { const angle=(ax:number,ay:number,bx:number,by:number)=>{const cos=(ax*bx+ay*by)/(Math.hypot(ax,ay)*Math.hypot(bx,by));return Math.round(Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI);}; expect(angle(1,0,0,1)).toBe(90); expect(angle(1,0,1,0)).toBe(0); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
+  it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
+  it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
+  it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+});

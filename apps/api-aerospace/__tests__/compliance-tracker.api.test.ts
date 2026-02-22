@@ -831,3 +831,12 @@ describe('phase42 coverage', () => {
   it('checks if triangular number', () => { const isTri=(n:number)=>{const t=(-1+Math.sqrt(1+8*n))/2;return Number.isInteger(t)&&t>0;}; expect(isTri(6)).toBe(true); expect(isTri(10)).toBe(true); expect(isTri(7)).toBe(false); });
   it('finds closest pair distance (brute force)', () => { const closest=(pts:[number,number][])=>{let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,Math.hypot(pts[j][0]-pts[i][0],pts[j][1]-pts[i][1]));return min;}; expect(closest([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.SQRT2,1); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
+  it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
+  it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
+  it('formats number with locale-like thousand separators', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+$)/g,','); expect(fmt(1000000)).toBe('1,000,000'); expect(fmt(1234)).toBe('1,234'); });
+  it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
+});

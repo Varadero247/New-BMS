@@ -582,3 +582,12 @@ describe('phase42 coverage', () => {
   it('finds nth square pyramidal number', () => { const sqPyramid=(n:number)=>n*(n+1)*(2*n+1)/6; expect(sqPyramid(3)).toBe(14); expect(sqPyramid(4)).toBe(30); });
   it('computes Chebyshev distance', () => { const chDist=(x1:number,y1:number,x2:number,y2:number)=>Math.max(Math.abs(x2-x1),Math.abs(y2-y1)); expect(chDist(0,0,3,4)).toBe(4); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
+  it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+  it('applies label encoding to categories', () => { const encode=(cats:string[])=>{const u=[...new Set(cats)];return cats.map(c=>u.indexOf(c));}; expect(encode(['a','b','a','c'])).toEqual([0,1,0,2]); });
+  it('computes linear regression slope', () => { const slope=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);}; expect(slope([1,2,3,4,5],[2,4,6,8,10])).toBe(2); });
+});

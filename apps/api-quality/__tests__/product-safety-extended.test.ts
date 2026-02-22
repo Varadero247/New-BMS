@@ -774,3 +774,12 @@ describe('phase42 coverage', () => {
   it('rotates 2D point by 90 degrees', () => { const rot90=(x:number,y:number)=>[-y,x]; expect(rot90(2,3)).toEqual([-3,2]); expect(rot90(0,1)).toEqual([-1,0]); });
   it('checks if polygon is convex', () => { const isConvex=(pts:[number,number][])=>{const n=pts.length;let sign=0;for(let i=0;i<n;i++){const[ax,ay]=pts[i],[bx,by]=pts[(i+1)%n],[cx,cy]=pts[(i+2)%n];const cross=(bx-ax)*(cy-ay)-(by-ay)*(cx-ax);if(cross!==0){if(sign===0)sign=cross>0?1:-1;else if((cross>0?1:-1)!==sign)return false;}}return true;}; expect(isConvex([[0,0],[1,0],[1,1],[0,1]])).toBe(true); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+  it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+  it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
+});

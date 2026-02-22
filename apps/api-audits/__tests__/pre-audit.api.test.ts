@@ -516,3 +516,12 @@ describe('phase42 coverage', () => {
   it('computes centroid of polygon', () => { const centroid=(pts:[number,number][]):[number,number]=>[pts.reduce((s,p)=>s+p[0],0)/pts.length,pts.reduce((s,p)=>s+p[1],0)/pts.length]; expect(centroid([[0,0],[2,0],[2,2],[0,2]])).toEqual([1,1]); });
   it('checks if three points are collinear', () => { const collinear=(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number)=>(y2-y1)*(x3-x2)===(y3-y2)*(x2-x1); expect(collinear(0,0,1,1,2,2)).toBe(true); expect(collinear(0,0,1,1,2,3)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
+  it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
+  it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
+});

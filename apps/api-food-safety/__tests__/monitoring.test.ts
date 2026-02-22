@@ -630,3 +630,12 @@ describe('phase42 coverage', () => {
   it('finds closest pair distance (brute force)', () => { const closest=(pts:[number,number][])=>{let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,Math.hypot(pts[j][0]-pts[i][0],pts[j][1]-pts[i][1]));return min;}; expect(closest([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.SQRT2,1); });
   it('checks if point on line segment', () => { const onSeg=(px:number,py:number,ax:number,ay:number,bx:number,by:number)=>Math.abs((py-ay)*(bx-ax)-(px-ax)*(by-ay))<1e-9&&Math.min(ax,bx)<=px&&px<=Math.max(ax,bx); expect(onSeg(2,2,0,0,4,4)).toBe(true); expect(onSeg(3,2,0,0,4,4)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
+  it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+  it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+});

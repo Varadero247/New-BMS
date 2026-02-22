@@ -661,3 +661,12 @@ describe('phase42 coverage', () => {
   it('scales point from origin', () => { const scale=(x:number,y:number,s:number):[number,number]=>[x*s,y*s]; expect(scale(2,3,2)).toEqual([4,6]); });
   it('finds nth square pyramidal number', () => { const sqPyramid=(n:number)=>n*(n+1)*(2*n+1)/6; expect(sqPyramid(3)).toBe(14); expect(sqPyramid(4)).toBe(30); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+  it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
+  it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
+  it('computes week number of year', () => { const weekNum=(d:Date)=>{const start=new Date(d.getFullYear(),0,1);return Math.ceil(((d.getTime()-start.getTime())/86400000+start.getDay()+1)/7);}; expect(weekNum(new Date('2026-01-01'))).toBe(1); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+});

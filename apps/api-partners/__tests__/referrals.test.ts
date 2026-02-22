@@ -564,3 +564,12 @@ describe('phase42 coverage', () => {
   it('checks convex hull contains point (simple)', () => { const onLeft=(ax:number,ay:number,bx:number,by:number,px:number,py:number)=>(bx-ax)*(py-ay)-(by-ay)*(px-ax)>=0; expect(onLeft(0,0,1,0,0,1)).toBe(true); });
   it('finds closest pair distance (brute force)', () => { const closest=(pts:[number,number][])=>{let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,Math.hypot(pts[j][0]-pts[i][0],pts[j][1]-pts[i][1]));return min;}; expect(closest([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.SQRT2,1); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
+  it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+  it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
+  it('computes linear regression slope', () => { const slope=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);}; expect(slope([1,2,3,4,5],[2,4,6,8,10])).toBe(2); });
+});

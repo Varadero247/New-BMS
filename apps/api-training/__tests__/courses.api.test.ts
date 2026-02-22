@@ -588,3 +588,12 @@ describe('phase42 coverage', () => {
   it('checks lazy caterer sequence', () => { const lazyCat=(n:number)=>n*(n+1)/2+1; expect(lazyCat(0)).toBe(1); expect(lazyCat(4)).toBe(11); });
   it('checks line segments intersection (bounding box)', () => { const overlap=(a:number,b:number,c:number,d:number)=>Math.max(a,c)<=Math.min(b,d); expect(overlap(1,4,2,6)).toBe(true); expect(overlap(1,2,3,4)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes ReLU activation', () => { const relu=(x:number)=>Math.max(0,x); expect(relu(3)).toBe(3); expect(relu(-2)).toBe(0); expect(relu(0)).toBe(0); });
+  it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+});

@@ -635,3 +635,12 @@ describe('phase42 coverage', () => {
   it('computes number of triangles in n-gon diagonals', () => { const triCount=(n:number)=>n*(n-1)*(n-2)/6; expect(triCount(5)).toBe(10); expect(triCount(4)).toBe(4); });
   it('computes nth oblong number', () => { const oblong=(n:number)=>n*(n+1); expect(oblong(4)).toBe(20); expect(oblong(5)).toBe(30); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
+  it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
+  it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
+  it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
+  it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
+});

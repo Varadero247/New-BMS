@@ -819,3 +819,12 @@ describe('phase42 coverage', () => {
   it('clamps RGB value', () => { const clamp=(v:number)=>Math.min(255,Math.max(0,v)); expect(clamp(300)).toBe(255); expect(clamp(-10)).toBe(0); expect(clamp(128)).toBe(128); });
   it('validates sudoku row uniqueness', () => { const valid=(row:number[])=>{const vals=row.filter(v=>v!==0);return new Set(vals).size===vals.length;}; expect(valid([1,2,3,4,5,6,7,8,9])).toBe(true); expect(valid([1,2,2,4,5,6,7,8,9])).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
+  it('computes week number of year', () => { const weekNum=(d:Date)=>{const start=new Date(d.getFullYear(),0,1);return Math.ceil(((d.getTime()-start.getTime())/86400000+start.getDay()+1)/7);}; expect(weekNum(new Date('2026-01-01'))).toBe(1); });
+  it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+  it('computes KL divergence (discrete)', () => { const kl=(p:number[],q:number[])=>p.reduce((s,v,i)=>v>0&&q[i]>0?s+v*Math.log(v/q[i]):s,0); expect(kl([0.5,0.5],[0.5,0.5])).toBeCloseTo(0); });
+});

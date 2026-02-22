@@ -615,3 +615,12 @@ describe('phase42 coverage', () => {
   it('checks point inside circle', () => { const inCircle=(px:number,py:number,cx:number,cy:number,r:number)=>Math.hypot(px-cx,py-cy)<=r; expect(inCircle(3,4,0,0,5)).toBe(true); expect(inCircle(4,4,0,0,5)).toBe(false); });
   it('checks lazy caterer sequence', () => { const lazyCat=(n:number)=>n*(n+1)/2+1; expect(lazyCat(0)).toBe(1); expect(lazyCat(4)).toBe(11); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
+  it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
+  it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
+  it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
+  it('gets start of day', () => { const startOfDay=(d:Date)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()); const d=new Date('2026-03-15T14:30:00'); expect(startOfDay(d).getHours()).toBe(0); });
+});

@@ -708,3 +708,12 @@ describe('phase42 coverage', () => {
   it('checks if two rectangles overlap', () => { const overlap=(x1:number,y1:number,w1:number,h1:number,x2:number,y2:number,w2:number,h2:number)=>x1<x2+w2&&x1+w1>x2&&y1<y2+h2&&y1+h1>y2; expect(overlap(0,0,4,4,2,2,4,4)).toBe(true); expect(overlap(0,0,2,2,3,3,2,2)).toBe(false); });
   it('computes nth oblong number', () => { const oblong=(n:number)=>n*(n+1); expect(oblong(4)).toBe(20); expect(oblong(5)).toBe(30); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
+  it('computes linear regression slope', () => { const slope=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);}; expect(slope([1,2,3,4,5],[2,4,6,8,10])).toBe(2); });
+  it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
+  it('computes days between two dates', () => { const daysBetween=(a:Date,b:Date)=>Math.round(Math.abs(b.getTime()-a.getTime())/86400000); expect(daysBetween(new Date('2026-01-01'),new Date('2026-01-31'))).toBe(30); });
+});

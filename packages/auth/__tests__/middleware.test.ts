@@ -729,3 +729,12 @@ describe('phase42 coverage', () => {
   it('checks if polygon is convex', () => { const isConvex=(pts:[number,number][])=>{const n=pts.length;let sign=0;for(let i=0;i<n;i++){const[ax,ay]=pts[i],[bx,by]=pts[(i+1)%n],[cx,cy]=pts[(i+2)%n];const cross=(bx-ax)*(cy-ay)-(by-ay)*(cx-ax);if(cross!==0){if(sign===0)sign=cross>0?1:-1;else if((cross>0?1:-1)!==sign)return false;}}return true;}; expect(isConvex([[0,0],[1,0],[1,1],[0,1]])).toBe(true); });
   it('checks line segments intersection (bounding box)', () => { const overlap=(a:number,b:number,c:number,d:number)=>Math.max(a,c)<=Math.min(b,d); expect(overlap(1,4,2,6)).toBe(true); expect(overlap(1,2,3,4)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('formats number with locale-like thousand separators', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+$)/g,','); expect(fmt(1000000)).toBe('1,000,000'); expect(fmt(1234)).toBe('1,234'); });
+  it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
+  it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
+});

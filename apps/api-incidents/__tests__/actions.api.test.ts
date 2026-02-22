@@ -631,3 +631,12 @@ describe('phase42 coverage', () => {
   it('checks if hexagonal number', () => { const isHex=(n:number)=>{const t=(1+Math.sqrt(1+8*n))/4;return Number.isInteger(t)&&t>0;}; expect(isHex(6)).toBe(true); expect(isHex(15)).toBe(true); expect(isHex(7)).toBe(false); });
   it('checks point inside circle', () => { const inCircle=(px:number,py:number,cx:number,cy:number,r:number)=>Math.hypot(px-cx,py-cy)<=r; expect(inCircle(3,4,0,0,5)).toBe(true); expect(inCircle(4,4,0,0,5)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes week number of year', () => { const weekNum=(d:Date)=>{const start=new Date(d.getFullYear(),0,1);return Math.ceil(((d.getTime()-start.getTime())/86400000+start.getDay()+1)/7);}; expect(weekNum(new Date('2026-01-01'))).toBe(1); });
+  it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
+  it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
+  it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
+  it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
+});

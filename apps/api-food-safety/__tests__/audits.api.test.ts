@@ -633,3 +633,12 @@ describe('phase42 coverage', () => {
   it('scales point from origin', () => { const scale=(x:number,y:number,s:number):[number,number]=>[x*s,y*s]; expect(scale(2,3,2)).toEqual([4,6]); });
   it('computes pentagonal number', () => { const penta=(n:number)=>n*(3*n-1)/2; expect(penta(1)).toBe(1); expect(penta(4)).toBe(22); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+  it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
+});

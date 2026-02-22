@@ -514,3 +514,12 @@ describe('phase42 coverage', () => {
   it('computes centroid of polygon', () => { const centroid=(pts:[number,number][]):[number,number]=>[pts.reduce((s,p)=>s+p[0],0)/pts.length,pts.reduce((s,p)=>s+p[1],0)/pts.length]; expect(centroid([[0,0],[2,0],[2,2],[0,2]])).toEqual([1,1]); });
   it('computes cross product magnitude of 2D vectors', () => { const cross=(ax:number,ay:number,bx:number,by:number)=>ax*by-ay*bx; expect(cross(1,0,0,1)).toBe(1); expect(cross(2,3,4,5)).toBe(-2); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+  it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
+  it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
+});

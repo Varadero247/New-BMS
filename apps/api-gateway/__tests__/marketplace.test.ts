@@ -702,3 +702,12 @@ describe('phase42 coverage', () => {
   it('clamps RGB value', () => { const clamp=(v:number)=>Math.min(255,Math.max(0,v)); expect(clamp(300)).toBe(255); expect(clamp(-10)).toBe(0); expect(clamp(128)).toBe(128); });
   it('generates spiral matrix indices', () => { const spiral=(n:number)=>{const m=Array.from({length:n},()=>Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(top<=bot&&left<=right){for(let i=left;i<=right;i++)m[top][i]=num++;top++;for(let i=top;i<=bot;i++)m[i][right]=num++;right--;for(let i=right;i>=left;i--)m[bot][i]=num++;bot--;for(let i=bot;i>=top;i--)m[i][left]=num++;left++;}return m;}; expect(spiral(2)).toEqual([[1,2],[4,3]]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
+  it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
+  it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
+});

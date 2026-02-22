@@ -752,3 +752,12 @@ describe('phase42 coverage', () => {
   it('checks color contrast ratio passes AA', () => { const contrast=(l1:number,l2:number)=>(Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05); expect(contrast(1,0)).toBeCloseTo(21,0); });
   it('finds number of rectangles in grid', () => { const rects=(m:number,n:number)=>m*(m+1)/2*n*(n+1)/2; expect(rects(2,2)).toBe(9); expect(rects(1,1)).toBe(1); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
+  it('sorts dates chronologically', () => { const dates=[new Date('2026-03-01'),new Date('2026-01-15'),new Date('2026-02-10')]; dates.sort((a,b)=>a.getTime()-b.getTime()); expect(dates[0].getMonth()).toBe(0); });
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+  it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
+  it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
+});

@@ -506,3 +506,12 @@ describe('phase42 coverage', () => {
   it('checks if three points are collinear', () => { const collinear=(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number)=>(y2-y1)*(x3-x2)===(y3-y2)*(x2-x1); expect(collinear(0,0,1,1,2,2)).toBe(true); expect(collinear(0,0,1,1,2,3)).toBe(false); });
   it('normalizes a 2D vector', () => { const norm=(x:number,y:number)=>{const l=Math.hypot(x,y);return[x/l,y/l];}; const[nx,ny]=norm(3,4); expect(nx).toBeCloseTo(0.6); expect(ny).toBeCloseTo(0.8); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
+  it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
+  it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
+  it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
+  it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
+});

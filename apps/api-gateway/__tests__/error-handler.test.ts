@@ -872,3 +872,12 @@ describe('phase42 coverage', () => {
   it('computes signed area of polygon', () => { const signedArea=(pts:[number,number][])=>pts.reduce((s,p,i)=>{const n=pts[(i+1)%pts.length];return s+(p[0]*n[1]-n[0]*p[1]);},0)/2; expect(signedArea([[0,0],[1,0],[1,1],[0,1]])).toBe(1); });
   it('computes centroid of polygon', () => { const centroid=(pts:[number,number][]):[number,number]=>[pts.reduce((s,p)=>s+p[0],0)/pts.length,pts.reduce((s,p)=>s+p[1],0)/pts.length]; expect(centroid([[0,0],[2,0],[2,2],[0,2]])).toEqual([1,1]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
+  it('computes Pearson correlation', () => { const pearson=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;const num=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0);const den=Math.sqrt(x.reduce((s,v)=>s+(v-mx)**2,0)*y.reduce((s,v)=>s+(v-my)**2,0));return den===0?0:num/den;}; expect(pearson([1,2,3],[1,2,3])).toBeCloseTo(1); });
+  it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
+  it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
+  it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
+});

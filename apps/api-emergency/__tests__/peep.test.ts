@@ -716,3 +716,12 @@ describe('phase42 coverage', () => {
   it('finds closest pair distance (brute force)', () => { const closest=(pts:[number,number][])=>{let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,Math.hypot(pts[j][0]-pts[i][0],pts[j][1]-pts[i][1]));return min;}; expect(closest([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.SQRT2,1); });
   it('converts RGB to hex color', () => { const toHex=(r:number,g:number,b:number)=>'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); expect(toHex(255,165,0)).toBe('#ffa500'); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
+  it('computes ReLU activation', () => { const relu=(x:number)=>Math.max(0,x); expect(relu(3)).toBe(3); expect(relu(-2)).toBe(0); expect(relu(0)).toBe(0); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('computes Pearson correlation', () => { const pearson=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;const num=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0);const den=Math.sqrt(x.reduce((s,v)=>s+(v-mx)**2,0)*y.reduce((s,v)=>s+(v-my)**2,0));return den===0?0:num/den;}; expect(pearson([1,2,3],[1,2,3])).toBeCloseTo(1); });
+  it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
+});

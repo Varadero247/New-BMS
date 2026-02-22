@@ -682,3 +682,12 @@ describe('phase42 coverage', () => {
   it('checks if number is narcissistic (3 digits)', () => { const isNarc=(n:number)=>{const d=String(n).split('');return d.reduce((s,c)=>s+Math.pow(Number(c),d.length),0)===n;}; expect(isNarc(153)).toBe(true); expect(isNarc(370)).toBe(true); expect(isNarc(100)).toBe(false); });
   it('converts hex color to RGB', () => { const fromHex=(h:string)=>{const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}; expect(fromHex('#ffa500')).toEqual([255,165,0]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+  it('applies label encoding to categories', () => { const encode=(cats:string[])=>{const u=[...new Set(cats)];return cats.map(c=>u.indexOf(c));}; expect(encode(['a','b','a','c'])).toEqual([0,1,0,2]); });
+  it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
+});

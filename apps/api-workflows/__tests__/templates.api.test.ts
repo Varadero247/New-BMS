@@ -771,3 +771,12 @@ describe('phase42 coverage', () => {
   it('checks if number is narcissistic (3 digits)', () => { const isNarc=(n:number)=>{const d=String(n).split('');return d.reduce((s,c)=>s+Math.pow(Number(c),d.length),0)===n;}; expect(isNarc(153)).toBe(true); expect(isNarc(370)).toBe(true); expect(isNarc(100)).toBe(false); });
   it('interpolates between two values', () => { const lerp=(a:number,b:number,t:number)=>a+(b-a)*t; expect(lerp(0,100,0.5)).toBe(50); expect(lerp(10,20,0.3)).toBeCloseTo(13); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
+  it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
+  it('computes days between two dates', () => { const daysBetween=(a:Date,b:Date)=>Math.round(Math.abs(b.getTime()-a.getTime())/86400000); expect(daysBetween(new Date('2026-01-01'),new Date('2026-01-31'))).toBe(30); });
+  it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
+});

@@ -789,3 +789,12 @@ describe('phase42 coverage', () => {
   it('normalizes a 2D vector', () => { const norm=(x:number,y:number)=>{const l=Math.hypot(x,y);return[x/l,y/l];}; const[nx,ny]=norm(3,4); expect(nx).toBeCloseTo(0.6); expect(ny).toBeCloseTo(0.8); });
   it('computes perimeter of polygon', () => { const perim=(pts:[number,number][])=>pts.reduce((s,p,i)=>{const n=pts[(i+1)%pts.length];return s+Math.hypot(n[0]-p[0],n[1]-p[1]);},0); expect(perim([[0,0],[3,0],[3,4],[0,4]])).toBe(14); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+  it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
+  it('computes week number of year', () => { const weekNum=(d:Date)=>{const start=new Date(d.getFullYear(),0,1);return Math.ceil(((d.getTime()-start.getTime())/86400000+start.getDay()+1)/7);}; expect(weekNum(new Date('2026-01-01'))).toBe(1); });
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+});

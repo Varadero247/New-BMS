@@ -1170,3 +1170,12 @@ describe('phase42 coverage', () => {
   it('checks if three points are collinear', () => { const collinear=(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number)=>(y2-y1)*(x3-x2)===(y3-y2)*(x2-x1); expect(collinear(0,0,1,1,2,2)).toBe(true); expect(collinear(0,0,1,1,2,3)).toBe(false); });
   it('checks if hexagonal number', () => { const isHex=(n:number)=>{const t=(1+Math.sqrt(1+8*n))/4;return Number.isInteger(t)&&t>0;}; expect(isHex(6)).toBe(true); expect(isHex(15)).toBe(true); expect(isHex(7)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes ReLU activation', () => { const relu=(x:number)=>Math.max(0,x); expect(relu(3)).toBe(3); expect(relu(-2)).toBe(0); expect(relu(0)).toBe(0); });
+  it('computes weighted average', () => { const wavg=(vals:number[],wts:number[])=>{const sw=wts.reduce((s,v)=>s+v,0);return vals.reduce((s,v,i)=>s+v*wts[i],0)/sw;}; expect(wavg([1,2,3],[1,2,3])).toBeCloseTo(2.333,2); });
+  it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
+  it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
+  it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
+});

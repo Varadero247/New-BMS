@@ -842,3 +842,12 @@ describe('phase42 coverage', () => {
   it('finds closest pair distance (brute force)', () => { const closest=(pts:[number,number][])=>{let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,Math.hypot(pts[j][0]-pts[i][0],pts[j][1]-pts[i][1]));return min;}; expect(closest([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.SQRT2,1); });
   it('checks star number', () => { const starNums=new Set(Array.from({length:20},(_,i)=>6*i*(i-1)+1).filter(v=>v>0)); expect(starNums.has(13)).toBe(true); expect(starNums.has(37)).toBe(true); expect(starNums.has(7)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
+  it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+  it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
+});

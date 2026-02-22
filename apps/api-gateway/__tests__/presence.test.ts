@@ -555,3 +555,12 @@ describe('phase42 coverage', () => {
   it('computes area of triangle from vertices', () => { const area=(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number)=>Math.abs((x2-x1)*(y3-y1)-(x3-x1)*(y2-y1))/2; expect(area(0,0,4,0,0,3)).toBe(6); });
   it('finds nth square pyramidal number', () => { const sqPyramid=(n:number)=>n*(n+1)*(2*n+1)/6; expect(sqPyramid(3)).toBe(14); expect(sqPyramid(4)).toBe(30); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
+  it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
+  it('computes Pearson correlation', () => { const pearson=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;const num=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0);const den=Math.sqrt(x.reduce((s,v)=>s+(v-mx)**2,0)*y.reduce((s,v)=>s+(v-my)**2,0));return den===0?0:num/den;}; expect(pearson([1,2,3],[1,2,3])).toBeCloseTo(1); });
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+  it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
+});

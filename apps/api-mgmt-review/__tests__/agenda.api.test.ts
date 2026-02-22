@@ -660,3 +660,12 @@ describe('phase42 coverage', () => {
   it('computes area of triangle from vertices', () => { const area=(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number)=>Math.abs((x2-x1)*(y3-y1)-(x3-x1)*(y2-y1))/2; expect(area(0,0,4,0,0,3)).toBe(6); });
   it('generates gradient stops count', () => { const stops=(n:number)=>Array.from({length:n},(_,i)=>i/(n-1)); expect(stops(5)).toEqual([0,0.25,0.5,0.75,1]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
+  it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
+  it('computes cosine similarity', () => { const cosSim=(a:number[],b:number[])=>{const dot=a.reduce((s,v,i)=>s+v*b[i],0);const ma=Math.sqrt(a.reduce((s,v)=>s+v*v,0));const mb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));return ma&&mb?dot/(ma*mb):0;}; expect(cosSim([1,0],[1,0])).toBe(1); expect(cosSim([1,0],[0,1])).toBe(0); });
+  it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
+  it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
+});

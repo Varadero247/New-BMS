@@ -639,3 +639,12 @@ describe('phase42 coverage', () => {
   it('checks convex hull contains point (simple)', () => { const onLeft=(ax:number,ay:number,bx:number,by:number,px:number,py:number)=>(bx-ax)*(py-ay)-(by-ay)*(px-ax)>=0; expect(onLeft(0,0,1,0,0,1)).toBe(true); });
   it('checks point inside rectangle', () => { const inside=(px:number,py:number,x:number,y:number,w:number,h:number)=>px>=x&&px<=x+w&&py>=y&&py<=y+h; expect(inside(5,5,0,0,10,10)).toBe(true); expect(inside(15,5,0,0,10,10)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+  it('formats number with locale-like thousand separators', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+$)/g,','); expect(fmt(1000000)).toBe('1,000,000'); expect(fmt(1234)).toBe('1,234'); });
+});

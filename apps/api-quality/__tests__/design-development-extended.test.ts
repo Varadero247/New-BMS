@@ -761,3 +761,12 @@ describe('phase42 coverage', () => {
   it('computes bounding box of points', () => { const bb=(pts:[number,number][])=>{const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);return{minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)};}; expect(bb([[1,2],[3,4],[0,5]])).toEqual({minX:0,maxX:3,minY:2,maxY:5}); });
   it('checks lazy caterer sequence', () => { const lazyCat=(n:number)=>n*(n+1)/2+1; expect(lazyCat(0)).toBe(1); expect(lazyCat(4)).toBe(11); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+  it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
+  it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
+  it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
+});

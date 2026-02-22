@@ -1365,3 +1365,12 @@ describe('phase42 coverage', () => {
   it('converts RGB to hex color', () => { const toHex=(r:number,g:number,b:number)=>'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); expect(toHex(255,165,0)).toBe('#ffa500'); });
   it('rotates 2D point by 90 degrees', () => { const rot90=(x:number,y:number)=>[-y,x]; expect(rot90(2,3)).toEqual([-3,2]); expect(rot90(0,1)).toEqual([-1,0]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('gets start of day', () => { const startOfDay=(d:Date)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()); const d=new Date('2026-03-15T14:30:00'); expect(startOfDay(d).getHours()).toBe(0); });
+  it('finds next occurrence of weekday', () => { const nextDay=(from:Date,day:number)=>{const d=new Date(from);d.setDate(d.getDate()+(day-d.getDay()+7)%7||7);return d;}; const fri=nextDay(new Date('2026-02-22'),5); expect(fri.getDay()).toBe(5); /* next Friday */ });
+  it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
+  it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+});

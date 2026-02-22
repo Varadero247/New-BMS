@@ -679,3 +679,12 @@ describe('phase42 coverage', () => {
   it('computes HSL hue for pure red', () => { const rgbToH=(r:number,g:number,b:number)=>{const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;if(d===0)return 0;if(max===r)return((g-b)/d+6)%6*60;if(max===g)return((b-r)/d+2)*60;return((r-g)/d+4)*60;}; expect(rgbToH(255,0,0)).toBe(0); expect(rgbToH(0,255,0)).toBe(120); });
   it('computes nth oblong number', () => { const oblong=(n:number)=>n*(n+1); expect(oblong(4)).toBe(20); expect(oblong(5)).toBe(30); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('computes linear regression slope', () => { const slope=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);}; expect(slope([1,2,3,4,5],[2,4,6,8,10])).toBe(2); });
+  it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
+  it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
+  it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
+});

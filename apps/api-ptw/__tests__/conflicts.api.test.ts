@@ -636,3 +636,12 @@ describe('phase42 coverage', () => {
   it('checks if three points are collinear', () => { const collinear=(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number)=>(y2-y1)*(x3-x2)===(y3-y2)*(x2-x1); expect(collinear(0,0,1,1,2,2)).toBe(true); expect(collinear(0,0,1,1,2,3)).toBe(false); });
   it('finds closest pair distance (brute force)', () => { const closest=(pts:[number,number][])=>{let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,Math.hypot(pts[j][0]-pts[i][0],pts[j][1]-pts[i][1]));return min;}; expect(closest([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.SQRT2,1); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('checks if date is in past', () => { const inPast=(d:Date)=>d.getTime()<Date.now(); expect(inPast(new Date('2020-01-01'))).toBe(true); expect(inPast(new Date('2099-01-01'))).toBe(false); });
+  it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
+});

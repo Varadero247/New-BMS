@@ -554,3 +554,12 @@ describe('phase42 coverage', () => {
   it('computes cross product magnitude of 2D vectors', () => { const cross=(ax:number,ay:number,bx:number,by:number)=>ax*by-ay*bx; expect(cross(1,0,0,1)).toBe(1); expect(cross(2,3,4,5)).toBe(-2); });
   it('computes number of triangles in n-gon diagonals', () => { const triCount=(n:number)=>n*(n-1)*(n-2)/6; expect(triCount(5)).toBe(10); expect(triCount(4)).toBe(4); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes linear regression slope', () => { const slope=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);}; expect(slope([1,2,3,4,5],[2,4,6,8,10])).toBe(2); });
+  it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
+  it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
+  it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
+  it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
+});

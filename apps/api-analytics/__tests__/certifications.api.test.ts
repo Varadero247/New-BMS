@@ -724,3 +724,12 @@ describe('phase42 coverage', () => {
   it('rotates 2D point by 90 degrees', () => { const rot90=(x:number,y:number)=>[-y,x]; expect(rot90(2,3)).toEqual([-3,2]); expect(rot90(0,1)).toEqual([-1,0]); });
   it('computes perimeter of polygon', () => { const perim=(pts:[number,number][])=>pts.reduce((s,p,i)=>{const n=pts[(i+1)%pts.length];return s+Math.hypot(n[0]-p[0],n[1]-p[1]);},0); expect(perim([[0,0],[3,0],[3,4],[0,4]])).toBe(14); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
+  it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
+  it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
+});

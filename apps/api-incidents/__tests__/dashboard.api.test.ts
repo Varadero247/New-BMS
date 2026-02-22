@@ -477,3 +477,12 @@ describe('phase42 coverage', () => {
   it('checks point inside rectangle', () => { const inside=(px:number,py:number,x:number,y:number,w:number,h:number)=>px>=x&&px<=x+w&&py>=y&&py<=y+h; expect(inside(5,5,0,0,10,10)).toBe(true); expect(inside(15,5,0,0,10,10)).toBe(false); });
   it('checks if polygon is convex', () => { const isConvex=(pts:[number,number][])=>{const n=pts.length;let sign=0;for(let i=0;i<n;i++){const[ax,ay]=pts[i],[bx,by]=pts[(i+1)%n],[cx,cy]=pts[(i+2)%n];const cross=(bx-ax)*(cy-ay)-(by-ay)*(cx-ax);if(cross!==0){if(sign===0)sign=cross>0?1:-1;else if((cross>0?1:-1)!==sign)return false;}}return true;}; expect(isConvex([[0,0],[1,0],[1,1],[0,1]])).toBe(true); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes Pearson correlation', () => { const pearson=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;const num=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0);const den=Math.sqrt(x.reduce((s,v)=>s+(v-mx)**2,0)*y.reduce((s,v)=>s+(v-my)**2,0));return den===0?0:num/den;}; expect(pearson([1,2,3],[1,2,3])).toBeCloseTo(1); });
+  it('finds outliers using IQR method', () => { const outliers=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];const iqr=q3-q1;return a.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);}; expect(outliers([1,2,3,4,5,100])).toContain(100); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+});

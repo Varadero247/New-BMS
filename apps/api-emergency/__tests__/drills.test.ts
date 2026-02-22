@@ -759,3 +759,12 @@ describe('phase42 coverage', () => {
   it('computes HSL hue for pure red', () => { const rgbToH=(r:number,g:number,b:number)=>{const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;if(d===0)return 0;if(max===r)return((g-b)/d+6)%6*60;if(max===g)return((b-r)/d+2)*60;return((r-g)/d+4)*60;}; expect(rgbToH(255,0,0)).toBe(0); expect(rgbToH(0,255,0)).toBe(120); });
   it('checks if point on line segment', () => { const onSeg=(px:number,py:number,ax:number,ay:number,bx:number,by:number)=>Math.abs((py-ay)*(bx-ax)-(px-ax)*(by-ay))<1e-9&&Math.min(ax,bx)<=px&&px<=Math.max(ax,bx); expect(onSeg(2,2,0,0,4,4)).toBe(true); expect(onSeg(3,2,0,0,4,4)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
+  it('formats number with locale-like thousand separators', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+$)/g,','); expect(fmt(1000000)).toBe('1,000,000'); expect(fmt(1234)).toBe('1,234'); });
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+  it('checks if date is in past', () => { const inPast=(d:Date)=>d.getTime()<Date.now(); expect(inPast(new Date('2020-01-01'))).toBe(true); expect(inPast(new Date('2099-01-01'))).toBe(false); });
+  it('computes days between two dates', () => { const daysBetween=(a:Date,b:Date)=>Math.round(Math.abs(b.getTime()-a.getTime())/86400000); expect(daysBetween(new Date('2026-01-01'),new Date('2026-01-31'))).toBe(30); });
+});

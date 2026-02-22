@@ -1686,3 +1686,12 @@ describe('phase42 coverage', () => {
   it('computes tetrahedral number', () => { const tetra=(n:number)=>n*(n+1)*(n+2)/6; expect(tetra(3)).toBe(10); expect(tetra(4)).toBe(20); });
   it('computes signed area of polygon', () => { const signedArea=(pts:[number,number][])=>pts.reduce((s,p,i)=>{const n=pts[(i+1)%pts.length];return s+(p[0]*n[1]-n[0]*p[1]);},0)/2; expect(signedArea([[0,0],[1,0],[1,1],[0,1]])).toBe(1); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+  it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
+  it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
+  it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
+  it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
+});

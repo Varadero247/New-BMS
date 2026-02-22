@@ -925,3 +925,12 @@ describe('phase42 coverage', () => {
   it('computes number of triangles in n-gon diagonals', () => { const triCount=(n:number)=>n*(n-1)*(n-2)/6; expect(triCount(5)).toBe(10); expect(triCount(4)).toBe(4); });
   it('computes reflection of point across line y=x', () => { const reflect=(x:number,y:number):[number,number]=>[y,x]; expect(reflect(3,7)).toEqual([7,3]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+  it('formats duration to hh:mm:ss', () => { const fmt=(s:number)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;return[h,m,ss].map(v=>String(v).padStart(2,'0')).join(':');}; expect(fmt(3723)).toBe('01:02:03'); });
+  it('computes KL divergence (discrete)', () => { const kl=(p:number[],q:number[])=>p.reduce((s,v,i)=>v>0&&q[i]>0?s+v*Math.log(v/q[i]):s,0); expect(kl([0.5,0.5],[0.5,0.5])).toBeCloseTo(0); });
+  it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
+});

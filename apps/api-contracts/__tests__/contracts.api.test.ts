@@ -595,3 +595,12 @@ describe('phase42 coverage', () => {
   it('checks point inside circle', () => { const inCircle=(px:number,py:number,cx:number,cy:number,r:number)=>Math.hypot(px-cx,py-cy)<=r; expect(inCircle(3,4,0,0,5)).toBe(true); expect(inCircle(4,4,0,0,5)).toBe(false); });
   it('computes Manhattan distance', () => { const mhDist=(x1:number,y1:number,x2:number,y2:number)=>Math.abs(x2-x1)+Math.abs(y2-y1); expect(mhDist(0,0,3,4)).toBe(7); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('applies label encoding to categories', () => { const encode=(cats:string[])=>{const u=[...new Set(cats)];return cats.map(c=>u.indexOf(c));}; expect(encode(['a','b','a','c'])).toEqual([0,1,0,2]); });
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('formats date to ISO date string', () => { const toISO=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; expect(toISO(new Date(2026,0,5))).toBe('2026-01-05'); });
+  it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
+  it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
+});

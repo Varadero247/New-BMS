@@ -552,3 +552,12 @@ describe('phase42 coverage', () => {
   it('computes HSL hue for pure red', () => { const rgbToH=(r:number,g:number,b:number)=>{const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;if(d===0)return 0;if(max===r)return((g-b)/d+6)%6*60;if(max===g)return((b-r)/d+2)*60;return((r-g)/d+4)*60;}; expect(rgbToH(255,0,0)).toBe(0); expect(rgbToH(0,255,0)).toBe(120); });
   it('eases in-out cubic', () => { const ease=(t:number)=>t<0.5?4*t*t*t:(t-1)*(2*t-2)*(2*t-2)+1; expect(ease(0)).toBe(0); expect(ease(1)).toBe(1); expect(ease(0.5)).toBe(0.5); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
+  it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
+});

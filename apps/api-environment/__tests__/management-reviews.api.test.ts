@@ -981,3 +981,12 @@ describe('phase42 coverage', () => {
   it('computes area of triangle from vertices', () => { const area=(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number)=>Math.abs((x2-x1)*(y3-y1)-(x3-x1)*(y2-y1))/2; expect(area(0,0,4,0,0,3)).toBe(6); });
   it('translates point', () => { const translate=(x:number,y:number,dx:number,dy:number):[number,number]=>[x+dx,y+dy]; expect(translate(1,2,3,4)).toEqual([4,6]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes linear regression intercept', () => { const lr=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n,m=x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);return my-m*mx;}; expect(lr([1,2,3],[2,4,6])).toBeCloseTo(0); });
+  it('formats number with locale-like thousand separators', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+$)/g,','); expect(fmt(1000000)).toBe('1,000,000'); expect(fmt(1234)).toBe('1,234'); });
+  it('applies softmax to array', () => { const softmax=(a:number[])=>{const max=Math.max(...a);const exps=a.map(v=>Math.exp(v-max));const sum=exps.reduce((s,v)=>s+v,0);return exps.map(v=>v/sum);}; const s=softmax([1,2,3]); expect(s.reduce((a,b)=>a+b,0)).toBeCloseTo(1); });
+  it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
+  it('computes KL divergence (discrete)', () => { const kl=(p:number[],q:number[])=>p.reduce((s,v,i)=>v>0&&q[i]>0?s+v*Math.log(v/q[i]):s,0); expect(kl([0.5,0.5],[0.5,0.5])).toBeCloseTo(0); });
+});

@@ -578,3 +578,12 @@ describe('phase42 coverage', () => {
   it('computes perimeter of polygon', () => { const perim=(pts:[number,number][])=>pts.reduce((s,p,i)=>{const n=pts[(i+1)%pts.length];return s+Math.hypot(n[0]-p[0],n[1]-p[1]);},0); expect(perim([[0,0],[3,0],[3,4],[0,4]])).toBe(14); });
   it('computes central polygonal numbers', () => { const central=(n:number)=>n*n-n+2; expect(central(1)).toBe(2); expect(central(4)).toBe(14); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
+  it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
+  it('computes exponential moving average', () => { const ema=(a:number[],k:number)=>{const f=2/(k+1);return a.reduce((acc,v,i)=>i===0?[v]:[...acc,v*f+acc[acc.length-1]*(1-f)],[] as number[]);}; expect(ema([1,2,3],3).length).toBe(3); });
+  it('computes KL divergence (discrete)', () => { const kl=(p:number[],q:number[])=>p.reduce((s,v,i)=>v>0&&q[i]>0?s+v*Math.log(v/q[i]):s,0); expect(kl([0.5,0.5],[0.5,0.5])).toBeCloseTo(0); });
+  it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
+});

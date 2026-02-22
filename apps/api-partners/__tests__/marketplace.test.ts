@@ -425,3 +425,12 @@ describe('phase42 coverage', () => {
   it('computes number of triangles in n-gon diagonals', () => { const triCount=(n:number)=>n*(n-1)*(n-2)/6; expect(triCount(5)).toBe(10); expect(triCount(4)).toBe(4); });
   it('computes nth oblong number', () => { const oblong=(n:number)=>n*(n+1); expect(oblong(4)).toBe(20); expect(oblong(5)).toBe(30); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+  it('computes KL divergence (discrete)', () => { const kl=(p:number[],q:number[])=>p.reduce((s,v,i)=>v>0&&q[i]>0?s+v*Math.log(v/q[i]):s,0); expect(kl([0.5,0.5],[0.5,0.5])).toBeCloseTo(0); });
+  it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
+  it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
+});

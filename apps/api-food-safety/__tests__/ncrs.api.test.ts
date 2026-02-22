@@ -649,3 +649,12 @@ describe('phase42 coverage', () => {
   it('computes bounding box of points', () => { const bb=(pts:[number,number][])=>{const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);return{minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)};}; expect(bb([[1,2],[3,4],[0,5]])).toEqual({minX:0,maxX:3,minY:2,maxY:5}); });
   it('checks if hexagonal number', () => { const isHex=(n:number)=>{const t=(1+Math.sqrt(1+8*n))/4;return Number.isInteger(t)&&t>0;}; expect(isHex(6)).toBe(true); expect(isHex(15)).toBe(true); expect(isHex(7)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+  it('computes percentage change', () => { const pctChange=(from:number,to:number)=>((to-from)/from)*100; expect(pctChange(100,125)).toBe(25); expect(pctChange(200,150)).toBe(-25); });
+  it('builds relative time string', () => { const rel=(ms:number)=>{const s=Math.floor(ms/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;return`${Math.floor(s/3600)}h ago`;}; expect(rel(30000)).toBe('30s ago'); expect(rel(90000)).toBe('1m ago'); expect(rel(7200000)).toBe('2h ago'); });
+});

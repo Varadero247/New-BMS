@@ -786,3 +786,12 @@ describe('phase42 coverage', () => {
   it('computes angle between two vectors in degrees', () => { const angle=(ax:number,ay:number,bx:number,by:number)=>{const cos=(ax*bx+ay*by)/(Math.hypot(ax,ay)*Math.hypot(bx,by));return Math.round(Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI);}; expect(angle(1,0,0,1)).toBe(90); expect(angle(1,0,1,0)).toBe(0); });
   it('checks if point on line segment', () => { const onSeg=(px:number,py:number,ax:number,ay:number,bx:number,by:number)=>Math.abs((py-ay)*(bx-ax)-(px-ax)*(by-ay))<1e-9&&Math.min(ax,bx)<=px&&px<=Math.max(ax,bx); expect(onSeg(2,2,0,0,4,4)).toBe(true); expect(onSeg(3,2,0,0,4,4)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
+  it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
+  it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
+  it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
+  it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
+});

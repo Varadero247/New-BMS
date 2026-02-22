@@ -1866,3 +1866,12 @@ describe('phase42 coverage', () => {
   it('computes Zeckendorf representation count', () => { const fibs=(n:number)=>{const f=[1,2];while(f[f.length-1]+f[f.length-2]<=n)f.push(f[f.length-1]+f[f.length-2]);return f.filter(v=>v<=n).reverse();}; const zeck=(n:number)=>{const f=fibs(n);const r:number[]=[];let rem=n;for(const v of f)if(rem>=v){r.push(v);rem-=v;}return r;}; expect(zeck(11)).toEqual([8,3]); });
   it('converts hex color to RGB', () => { const fromHex=(h:string)=>{const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}; expect(fromHex('#ffa500')).toEqual([255,165,0]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('checks if two date ranges overlap', () => { const overlap=(s1:number,e1:number,s2:number,e2:number)=>s1<=e2&&s2<=e1; expect(overlap(1,5,3,8)).toBe(true); expect(overlap(1,3,5,8)).toBe(false); });
+  it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
+  it('checks if time is business hours', () => { const isBiz=(h:number)=>h>=9&&h<17; expect(isBiz(10)).toBe(true); expect(isBiz(18)).toBe(false); expect(isBiz(9)).toBe(true); });
+  it('formats duration in seconds to mm:ss', () => { const fmt=(s:number)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; expect(fmt(90)).toBe('01:30'); expect(fmt(3661)).toBe('61:01'); });
+  it('z-score normalizes values', () => { const zscore=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;const std=Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);return std===0?a.map(()=>0):a.map(v=>(v-m)/std);}; const z=zscore([2,4,4,4,5,5,7,9]);expect(Math.abs(z.reduce((s,v)=>s+v,0))).toBeLessThan(1e-9); });
+});

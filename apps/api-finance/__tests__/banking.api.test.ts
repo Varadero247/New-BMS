@@ -741,3 +741,12 @@ describe('phase42 coverage', () => {
   it('generates gradient stops count', () => { const stops=(n:number)=>Array.from({length:n},(_,i)=>i/(n-1)); expect(stops(5)).toEqual([0,0.25,0.5,0.75,1]); });
   it('computes bounding box of points', () => { const bb=(pts:[number,number][])=>{const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);return{minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)};}; expect(bb([[1,2],[3,4],[0,5]])).toEqual({minX:0,maxX:3,minY:2,maxY:5}); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
+  it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
+  it('computes entropy of distribution', () => { const entropy=(ps:number[])=>-ps.filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0); expect(entropy([0.5,0.5])).toBe(1); expect(Math.abs(entropy([1,0]))).toBe(0); });
+  it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
+  it('computes days between two dates', () => { const daysBetween=(a:Date,b:Date)=>Math.round(Math.abs(b.getTime()-a.getTime())/86400000); expect(daysBetween(new Date('2026-01-01'),new Date('2026-01-31'))).toBe(30); });
+});

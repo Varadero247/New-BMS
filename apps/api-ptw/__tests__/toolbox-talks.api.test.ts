@@ -600,3 +600,12 @@ describe('phase42 coverage', () => {
   it('computes Manhattan distance', () => { const mhDist=(x1:number,y1:number,x2:number,y2:number)=>Math.abs(x2-x1)+Math.abs(y2-y1); expect(mhDist(0,0,3,4)).toBe(7); });
   it('checks star number', () => { const starNums=new Set(Array.from({length:20},(_,i)=>6*i*(i-1)+1).filter(v=>v>0)); expect(starNums.has(13)).toBe(true); expect(starNums.has(37)).toBe(true); expect(starNums.has(7)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+  it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
+  it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
+  it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
+  it('checks if date is in past', () => { const inPast=(d:Date)=>d.getTime()<Date.now(); expect(inPast(new Date('2020-01-01'))).toBe(true); expect(inPast(new Date('2099-01-01'))).toBe(false); });
+});

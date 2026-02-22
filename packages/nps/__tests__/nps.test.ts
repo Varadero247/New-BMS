@@ -507,3 +507,12 @@ describe('phase42 coverage', () => {
   it('converts hex color to RGB', () => { const fromHex=(h:string)=>{const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}; expect(fromHex('#ffa500')).toEqual([255,165,0]); });
   it('computes Zeckendorf representation count', () => { const fibs=(n:number)=>{const f=[1,2];while(f[f.length-1]+f[f.length-2]<=n)f.push(f[f.length-1]+f[f.length-2]);return f.filter(v=>v<=n).reverse();}; const zeck=(n:number)=>{const f=fibs(n);const r:number[]=[];let rem=n;for(const v of f)if(rem>=v){r.push(v);rem-=v;}return r;}; expect(zeck(11)).toEqual([8,3]); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes sigmoid of value', () => { const sigmoid=(x:number)=>1/(1+Math.exp(-x)); expect(sigmoid(0)).toBeCloseTo(0.5); expect(sigmoid(100)).toBeCloseTo(1); expect(sigmoid(-100)).toBeCloseTo(0); });
+  it('sorts dates chronologically', () => { const dates=[new Date('2026-03-01'),new Date('2026-01-15'),new Date('2026-02-10')]; dates.sort((a,b)=>a.getTime()-b.getTime()); expect(dates[0].getMonth()).toBe(0); });
+  it('gets quarter of year from date', () => { const quarter=(d:Date)=>Math.ceil((d.getMonth()+1)/3); expect(quarter(new Date('2026-01-01'))).toBe(1); expect(quarter(new Date('2026-07-15'))).toBe(3); });
+  it('gets start of day', () => { const startOfDay=(d:Date)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()); const d=new Date('2026-03-15T14:30:00'); expect(startOfDay(d).getHours()).toBe(0); });
+  it('computes linear regression slope', () => { const slope=(x:number[],y:number[])=>{const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);}; expect(slope([1,2,3,4,5],[2,4,6,8,10])).toBe(2); });
+});

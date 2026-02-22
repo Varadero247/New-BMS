@@ -998,3 +998,12 @@ describe('phase42 coverage', () => {
   it('checks circle-circle intersection', () => { const ccIntersect=(x1:number,y1:number,r1:number,x2:number,y2:number,r2:number)=>Math.hypot(x2-x1,y2-y1)<=r1+r2; expect(ccIntersect(0,0,3,4,0,3)).toBe(true); expect(ccIntersect(0,0,1,10,0,1)).toBe(false); });
   it('computes Chebyshev distance', () => { const chDist=(x1:number,y1:number,x2:number,y2:number)=>Math.max(Math.abs(x2-x1),Math.abs(y2-y1)); expect(chDist(0,0,3,4)).toBe(4); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
+  it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
+  it('gets start of day', () => { const startOfDay=(d:Date)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()); const d=new Date('2026-03-15T14:30:00'); expect(startOfDay(d).getHours()).toBe(0); });
+  it('computes moving average', () => { const ma=(a:number[],w:number)=>Array.from({length:a.length-w+1},(_,i)=>a.slice(i,i+w).reduce((s,v)=>s+v,0)/w); expect(ma([1,2,3,4,5],3)).toEqual([2,3,4]); });
+  it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
+});

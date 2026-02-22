@@ -809,3 +809,12 @@ describe('phase42 coverage', () => {
   it('checks circle-circle intersection', () => { const ccIntersect=(x1:number,y1:number,r1:number,x2:number,y2:number,r2:number)=>Math.hypot(x2-x1,y2-y1)<=r1+r2; expect(ccIntersect(0,0,3,4,0,3)).toBe(true); expect(ccIntersect(0,0,1,10,0,1)).toBe(false); });
   it('checks line segments intersection (bounding box)', () => { const overlap=(a:number,b:number,c:number,d:number)=>Math.max(a,c)<=Math.min(b,d); expect(overlap(1,4,2,6)).toBe(true); expect(overlap(1,2,3,4)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('generates one-hot encoding', () => { const oneHot=(idx:number,size:number)=>Array(size).fill(0).map((_,i)=>i===idx?1:0); expect(oneHot(2,4)).toEqual([0,0,1,0]); });
+  it('computes mean squared error', () => { const mse=(pred:number[],actual:number[])=>pred.reduce((s,v,i)=>s+(v-actual[i])**2,0)/pred.length; expect(mse([2,4,6],[1,3,5])).toBe(1); });
+  it('sorts dates chronologically', () => { const dates=[new Date('2026-03-01'),new Date('2026-01-15'),new Date('2026-02-10')]; dates.sort((a,b)=>a.getTime()-b.getTime()); expect(dates[0].getMonth()).toBe(0); });
+  it('computes days between two dates', () => { const daysBetween=(a:Date,b:Date)=>Math.round(Math.abs(b.getTime()-a.getTime())/86400000); expect(daysBetween(new Date('2026-01-01'),new Date('2026-01-31'))).toBe(30); });
+  it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
+});

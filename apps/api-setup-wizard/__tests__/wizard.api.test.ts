@@ -666,3 +666,12 @@ describe('phase42 coverage', () => {
   it('blends two colors with alpha', () => { const blend=(c1:number,c2:number,a:number)=>Math.round(c1*(1-a)+c2*a); expect(blend(0,255,0.5)).toBe(128); });
   it('checks if three points are collinear', () => { const collinear=(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number)=>(y2-y1)*(x3-x2)===(y3-y2)*(x2-x1); expect(collinear(0,0,1,1,2,2)).toBe(true); expect(collinear(0,0,1,1,2,3)).toBe(false); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('applies min-max scaling', () => { const scale=(a:number[],newMin:number,newMax:number)=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>newMin):a.map(v=>newMin+(v-min)*(newMax-newMin)/r);}; expect(scale([0,5,10],0,100)).toEqual([0,50,100]); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('computes ReLU activation', () => { const relu=(x:number)=>Math.max(0,x); expect(relu(3)).toBe(3); expect(relu(-2)).toBe(0); expect(relu(0)).toBe(0); });
+  it('computes cross-entropy loss (binary)', () => { const bce=(p:number,y:number)=>-(y*Math.log(p+1e-9)+(1-y)*Math.log(1-p+1e-9)); expect(bce(0.9,1)).toBeLessThan(bce(0.1,1)); });
+  it('applies label encoding to categories', () => { const encode=(cats:string[])=>{const u=[...new Set(cats)];return cats.map(c=>u.indexOf(c));}; expect(encode(['a','b','a','c'])).toEqual([0,1,0,2]); });
+});

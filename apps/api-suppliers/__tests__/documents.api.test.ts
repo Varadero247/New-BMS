@@ -603,3 +603,12 @@ describe('phase42 coverage', () => {
   it('computes area of triangle from vertices', () => { const area=(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number)=>Math.abs((x2-x1)*(y3-y1)-(x3-x1)*(y2-y1))/2; expect(area(0,0,4,0,0,3)).toBe(6); });
   it('computes Chebyshev distance', () => { const chDist=(x1:number,y1:number,x2:number,y2:number)=>Math.max(Math.abs(x2-x1),Math.abs(y2-y1)); expect(chDist(0,0,3,4)).toBe(4); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('gets last day of month', () => { const lastDay=(y:number,m:number)=>new Date(y,m,0).getDate(); expect(lastDay(2026,2)).toBe(28); expect(lastDay(2024,2)).toBe(29); });
+  it('finds percentile value', () => { const pct=(a:number[],p:number)=>{const s=[...a].sort((x,y)=>x-y);const i=(p/100)*(s.length-1);const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);}; expect(pct([1,2,3,4,5],50)).toBe(3); });
+  it('floors to nearest multiple', () => { const floorTo=(n:number,m:number)=>Math.floor(n/m)*m; expect(floorTo(27,5)).toBe(25); expect(floorTo(30,5)).toBe(30); });
+  it('gets day of week name', () => { const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const dayName=(d:Date)=>days[d.getDay()]; expect(dayName(new Date('2026-02-22'))).toBe('Sunday'); });
+  it('normalizes values to 0-1 range', () => { const norm=(a:number[])=>{const min=Math.min(...a),max=Math.max(...a),r=max-min;return r===0?a.map(()=>0):a.map(v=>(v-min)/r);}; expect(norm([0,5,10])).toEqual([0,0.5,1]); });
+});

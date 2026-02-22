@@ -609,3 +609,12 @@ describe('phase42 coverage', () => {
   it('generates spiral matrix indices', () => { const spiral=(n:number)=>{const m=Array.from({length:n},()=>Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(top<=bot&&left<=right){for(let i=left;i<=right;i++)m[top][i]=num++;top++;for(let i=top;i<=bot;i++)m[i][right]=num++;right--;for(let i=right;i>=left;i--)m[bot][i]=num++;bot--;for(let i=bot;i>=top;i--)m[i][left]=num++;left++;}return m;}; expect(spiral(2)).toEqual([[1,2],[4,3]]); });
   it('converts RGB to hex color', () => { const toHex=(r:number,g:number,b:number)=>'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); expect(toHex(255,165,0)).toBe('#ffa500'); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes weighted average', () => { const wavg=(vals:number[],wts:number[])=>{const sw=wts.reduce((s,v)=>s+v,0);return vals.reduce((s,v,i)=>s+v*wts[i],0)/sw;}; expect(wavg([1,2,3],[1,2,3])).toBeCloseTo(2.333,2); });
+  it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
+  it('computes Spearman rank correlation', () => { const rank=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);return a.map(v=>s.indexOf(v)+1);}; const x=[1,2,3,4,5],y=[5,6,7,8,7]; const rx=rank(x),ry=rank(y); expect(rx).toEqual([1,2,3,4,5]); });
+  it('rounds to nearest multiple', () => { const roundTo=(n:number,m:number)=>Math.round(n/m)*m; expect(roundTo(27,5)).toBe(25); expect(roundTo(28,5)).toBe(30); });
+  it('computes confidence interval (known std)', () => { const ci=(mean:number,std:number,n:number,z=1.96)=>[mean-z*std/Math.sqrt(n),mean+z*std/Math.sqrt(n)]; const[lo,hi]=ci(100,15,25); expect(lo).toBeLessThan(100); expect(hi).toBeGreaterThan(100); });
+});

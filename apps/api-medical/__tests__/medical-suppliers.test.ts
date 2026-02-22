@@ -794,3 +794,12 @@ describe('phase42 coverage', () => {
   it('generates spiral matrix indices', () => { const spiral=(n:number)=>{const m=Array.from({length:n},()=>Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(top<=bot&&left<=right){for(let i=left;i<=right;i++)m[top][i]=num++;top++;for(let i=top;i<=bot;i++)m[i][right]=num++;right--;for(let i=right;i>=left;i--)m[bot][i]=num++;bot--;for(let i=bot;i>=top;i--)m[i][left]=num++;left++;}return m;}; expect(spiral(2)).toEqual([[1,2],[4,3]]); });
   it('computes Chebyshev distance', () => { const chDist=(x1:number,y1:number,x2:number,y2:number)=>Math.max(Math.abs(x2-x1),Math.abs(y2-y1)); expect(chDist(0,0,3,4)).toBe(4); });
 });
+
+
+describe('phase43 coverage', () => {
+  it('computes KL divergence (discrete)', () => { const kl=(p:number[],q:number[])=>p.reduce((s,v,i)=>v>0&&q[i]>0?s+v*Math.log(v/q[i]):s,0); expect(kl([0.5,0.5],[0.5,0.5])).toBeCloseTo(0); });
+  it('adds days to date', () => { const addDays=(d:Date,n:number)=>new Date(d.getTime()+n*86400000); const d=new Date('2026-01-01'); expect(addDays(d,10).getDate()).toBe(11); });
+  it('counts business days between dates', () => { const bizDays=(start:Date,end:Date)=>{let count=0;const d=new Date(start);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d.setDate(d.getDate()+1);}return count;}; expect(bizDays(new Date('2026-02-23'),new Date('2026-02-27'))).toBe(5); });
+  it('parses duration string to seconds', () => { const parse=(s:string)=>{const[h,m,sec]=s.split(':').map(Number);return h*3600+m*60+sec;}; expect(parse('01:02:03')).toBe(3723); });
+  it('computes tanh activation', () => { expect(Math.tanh(0)).toBe(0); expect(Math.tanh(Infinity)).toBe(1); expect(Math.tanh(-Infinity)).toBe(-1); });
+});
