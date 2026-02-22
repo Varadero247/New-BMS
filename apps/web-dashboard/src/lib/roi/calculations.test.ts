@@ -202,7 +202,7 @@ describe('calculateRoi — additional edge cases', () => {
   });
 
   it('auditRiskValue is always numberOfAudits * (8000 / 3)', () => {
-    const inputs = { ...DEFAULT_INPUTS, numberOfAudits: 3 };
+    const inputs: RoiInputs = { ...DEFAULT_INPUTS, numberOfAudits: 3 };
     const results = calculateRoi(inputs);
     expect(results.auditRiskValue).toBeCloseTo(3 * (8000 / 3), 5);
   });
