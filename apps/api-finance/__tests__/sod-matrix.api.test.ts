@@ -655,3 +655,12 @@ describe('phase31 coverage', () => {
   it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
   it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+});

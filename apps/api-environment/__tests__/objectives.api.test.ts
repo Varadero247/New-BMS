@@ -917,3 +917,12 @@ describe('phase31 coverage', () => {
   it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
   it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+});

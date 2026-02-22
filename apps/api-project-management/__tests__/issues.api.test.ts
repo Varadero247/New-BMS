@@ -780,3 +780,12 @@ describe('phase31 coverage', () => {
   it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
   it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+});

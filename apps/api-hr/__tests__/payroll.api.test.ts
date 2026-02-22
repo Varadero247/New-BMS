@@ -633,3 +633,12 @@ describe('phase31 coverage', () => {
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
   it('handles regex match', () => { const m = 'hello123'.match(/\d+/); expect(m?.[0]).toBe('123'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+  it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
+  it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+});

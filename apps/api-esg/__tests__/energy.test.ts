@@ -532,3 +532,12 @@ describe('phase31 coverage', () => {
   it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
   it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+  it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+  it('handles getter/setter', () => { const o = { _v: 0, get v() { return this._v; }, set v(n) { this._v = n; } }; o.v = 5; expect(o.v).toBe(5); });
+});

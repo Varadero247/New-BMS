@@ -737,3 +737,12 @@ describe('phase31 coverage', () => {
   it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
   it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+});

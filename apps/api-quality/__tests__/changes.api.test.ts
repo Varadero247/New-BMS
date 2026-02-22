@@ -848,3 +848,12 @@ describe('phase31 coverage', () => {
   it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
   it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+});

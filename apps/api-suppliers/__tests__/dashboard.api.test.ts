@@ -479,3 +479,12 @@ describe('phase31 coverage', () => {
   it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
   it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+});

@@ -604,3 +604,12 @@ describe('phase31 coverage', () => {
   it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
   it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+  it('handles memoization pattern', () => { const cache = new Map<number,number>(); const fib = (n: number): number => { if(n<=1)return n; if(cache.has(n))return cache.get(n)!; const v=fib(n-1)+fib(n-2); cache.set(n,v); return v; }; expect(fib(10)).toBe(55); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+});

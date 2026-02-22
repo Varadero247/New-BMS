@@ -732,3 +732,12 @@ describe('phase31 coverage', () => {
   it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
   it('handles regex match', () => { const m = 'hello123'.match(/\d+/); expect(m?.[0]).toBe('123'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
+});

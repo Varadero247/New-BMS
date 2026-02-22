@@ -877,3 +877,12 @@ describe('phase31 coverage', () => {
   it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
   it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+  it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+});

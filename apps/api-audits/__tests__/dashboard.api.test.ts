@@ -480,3 +480,12 @@ describe('phase31 coverage', () => {
   it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
   it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+});

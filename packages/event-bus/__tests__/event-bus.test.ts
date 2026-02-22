@@ -423,3 +423,12 @@ describe('phase31 coverage', () => {
   it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
   it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+});

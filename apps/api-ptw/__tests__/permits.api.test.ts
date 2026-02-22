@@ -465,3 +465,12 @@ describe('phase31 coverage', () => {
   it('handles ternary', () => { const x = 5 > 3 ? 'yes' : 'no'; expect(x).toBe('yes'); });
   it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+});

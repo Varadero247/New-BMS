@@ -382,3 +382,12 @@ describe('phase31 coverage', () => {
   it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
   it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+});

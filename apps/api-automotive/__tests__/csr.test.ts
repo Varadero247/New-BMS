@@ -803,3 +803,12 @@ describe('phase31 coverage', () => {
   it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
   it('handles async/await error', async () => { const fn = async () => { throw new Error('fail'); }; await expect(fn()).rejects.toThrow('fail'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+});

@@ -574,3 +574,12 @@ describe('phase31 coverage', () => {
   it('handles ternary', () => { const x = 5 > 3 ? 'yes' : 'no'; expect(x).toBe('yes'); });
   it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+});

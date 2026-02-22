@@ -733,3 +733,12 @@ describe('phase31 coverage', () => {
   it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
   it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+});

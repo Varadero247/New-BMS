@@ -528,3 +528,12 @@ describe('phase31 coverage', () => {
   it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
   it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+});

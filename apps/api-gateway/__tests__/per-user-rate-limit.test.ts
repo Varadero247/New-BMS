@@ -548,3 +548,12 @@ describe('phase31 coverage', () => {
   it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
   it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+});

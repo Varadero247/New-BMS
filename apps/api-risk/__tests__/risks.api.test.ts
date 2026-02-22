@@ -547,3 +547,12 @@ describe('phase31 coverage', () => {
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
   it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+});

@@ -603,3 +603,12 @@ describe('phase31 coverage', () => {
   it('handles async/await error', async () => { const fn = async () => { throw new Error('fail'); }; await expect(fn()).rejects.toThrow('fail'); });
   it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+});

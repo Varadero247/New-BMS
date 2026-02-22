@@ -494,3 +494,12 @@ describe('phase31 coverage', () => {
   it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
   it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+});

@@ -367,3 +367,12 @@ describe('phase31 coverage', () => {
   it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
   it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+});

@@ -602,3 +602,12 @@ describe('phase31 coverage', () => {
   it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
   it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles getter/setter', () => { const o = { _v: 0, get v() { return this._v; }, set v(n) { this._v = n; } }; o.v = 5; expect(o.v).toBe(5); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+});

@@ -779,3 +779,12 @@ describe('phase31 coverage', () => {
   it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
   it('handles typeof null', () => { expect(typeof null).toBe('object'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
+  it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+});

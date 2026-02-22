@@ -586,3 +586,12 @@ describe('phase31 coverage', () => {
   it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
   it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+});

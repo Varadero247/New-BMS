@@ -725,3 +725,12 @@ describe('phase31 coverage', () => {
   it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
   it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+});

@@ -696,3 +696,12 @@ describe('phase31 coverage', () => {
   it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
   it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+});

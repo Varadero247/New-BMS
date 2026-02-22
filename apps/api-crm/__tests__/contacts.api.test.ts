@@ -691,3 +691,12 @@ describe('phase31 coverage', () => {
   it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
   it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+});

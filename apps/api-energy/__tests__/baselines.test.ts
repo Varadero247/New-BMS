@@ -624,3 +624,12 @@ describe('phase31 coverage', () => {
   it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
   it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+});

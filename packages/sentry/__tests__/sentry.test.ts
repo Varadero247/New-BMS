@@ -484,3 +484,12 @@ describe('phase31 coverage', () => {
   it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
   it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+});

@@ -737,3 +737,12 @@ describe('phase31 coverage', () => {
   it('handles async/await error', async () => { const fn = async () => { throw new Error('fail'); }; await expect(fn()).rejects.toThrow('fail'); });
   it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+});

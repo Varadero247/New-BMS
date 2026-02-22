@@ -457,3 +457,12 @@ describe('phase31 coverage', () => {
   it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
   it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+});

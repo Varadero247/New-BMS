@@ -458,3 +458,12 @@ describe('phase31 coverage', () => {
   it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
   it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+});

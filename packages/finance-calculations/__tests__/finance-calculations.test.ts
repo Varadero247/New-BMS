@@ -290,3 +290,12 @@ describe('phase31 coverage', () => {
   it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
   it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+});

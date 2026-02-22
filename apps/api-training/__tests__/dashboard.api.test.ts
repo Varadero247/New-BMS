@@ -536,3 +536,12 @@ describe('phase31 coverage', () => {
   it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+});

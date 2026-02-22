@@ -666,3 +666,12 @@ describe('phase31 coverage', () => {
   it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
   it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+});

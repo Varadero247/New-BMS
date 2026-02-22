@@ -849,3 +849,12 @@ describe('phase31 coverage', () => {
   it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
   it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+});

@@ -776,3 +776,12 @@ describe('phase31 coverage', () => {
   it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
   it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+});

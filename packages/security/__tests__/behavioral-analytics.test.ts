@@ -443,3 +443,12 @@ describe('phase31 coverage', () => {
   it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+});

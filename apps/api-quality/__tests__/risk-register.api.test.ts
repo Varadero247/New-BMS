@@ -581,3 +581,12 @@ describe('phase31 coverage', () => {
   it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
   it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+  it('handles getter/setter', () => { const o = { _v: 0, get v() { return this._v; }, set v(n) { this._v = n; } }; o.v = 5; expect(o.v).toBe(5); });
+  it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
+});

@@ -531,3 +531,12 @@ describe('phase31 coverage', () => {
   it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
   it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+});

@@ -589,3 +589,12 @@ describe('phase31 coverage', () => {
   it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
   it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+});

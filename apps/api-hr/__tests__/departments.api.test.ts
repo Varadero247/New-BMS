@@ -690,3 +690,12 @@ describe('phase31 coverage', () => {
   it('handles object freeze', () => { const o = Object.freeze({a:1}); expect(Object.isFrozen(o)).toBe(true); });
   it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
+});

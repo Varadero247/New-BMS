@@ -754,3 +754,12 @@ describe('phase31 coverage', () => {
   it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
   it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+});

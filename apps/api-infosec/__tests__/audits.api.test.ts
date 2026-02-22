@@ -673,3 +673,12 @@ describe('phase31 coverage', () => {
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
   it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+});

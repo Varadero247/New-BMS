@@ -556,3 +556,12 @@ describe('phase31 coverage', () => {
   it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
   it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+});

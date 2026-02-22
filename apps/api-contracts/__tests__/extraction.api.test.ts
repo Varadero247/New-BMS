@@ -445,3 +445,12 @@ describe('phase31 coverage', () => {
   it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
   it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+});

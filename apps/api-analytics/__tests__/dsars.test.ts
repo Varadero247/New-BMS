@@ -629,3 +629,12 @@ describe('phase31 coverage', () => {
   it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
   it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+});

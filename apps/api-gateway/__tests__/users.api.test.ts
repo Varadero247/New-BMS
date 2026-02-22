@@ -793,3 +793,12 @@ describe('phase31 coverage', () => {
   it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
   it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+});

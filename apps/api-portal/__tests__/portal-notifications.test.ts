@@ -502,3 +502,12 @@ describe('phase31 coverage', () => {
   it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
   it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
+});

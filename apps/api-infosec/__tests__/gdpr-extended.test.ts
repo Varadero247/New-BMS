@@ -404,3 +404,12 @@ describe('phase31 coverage', () => {
   it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+});

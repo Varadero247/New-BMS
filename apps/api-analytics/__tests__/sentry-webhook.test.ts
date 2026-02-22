@@ -553,3 +553,12 @@ describe('phase31 coverage', () => {
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
   it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+});

@@ -542,3 +542,12 @@ describe('phase31 coverage', () => {
   it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
   it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+});

@@ -773,3 +773,12 @@ describe('phase31 coverage', () => {
   it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
   it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+});

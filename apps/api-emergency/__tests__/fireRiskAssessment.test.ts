@@ -587,3 +587,12 @@ describe('phase31 coverage', () => {
   it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
   it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+});

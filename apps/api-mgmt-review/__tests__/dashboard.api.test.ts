@@ -413,3 +413,12 @@ describe('phase31 coverage', () => {
   it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
   it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
+  it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+});

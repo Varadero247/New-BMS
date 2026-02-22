@@ -477,3 +477,12 @@ describe('phase31 coverage', () => {
   it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
   it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
+});

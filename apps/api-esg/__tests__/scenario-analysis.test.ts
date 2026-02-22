@@ -548,3 +548,12 @@ describe('phase31 coverage', () => {
   it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
   it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+  it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+});

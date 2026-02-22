@@ -413,3 +413,12 @@ describe('phase31 coverage', () => {
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
   it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+});

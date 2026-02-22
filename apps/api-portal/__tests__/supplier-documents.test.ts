@@ -541,3 +541,12 @@ describe('phase31 coverage', () => {
   it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
   it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+});

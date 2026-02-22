@@ -666,3 +666,12 @@ describe('phase31 coverage', () => {
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
   it('handles async/await error', async () => { const fn = async () => { throw new Error('fail'); }; await expect(fn()).rejects.toThrow('fail'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
+});

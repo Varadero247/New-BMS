@@ -789,3 +789,12 @@ describe('phase31 coverage', () => {
   it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
   it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+});

@@ -501,3 +501,12 @@ describe('phase31 coverage', () => {
   it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
   it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+});

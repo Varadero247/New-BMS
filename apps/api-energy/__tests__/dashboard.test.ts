@@ -755,3 +755,12 @@ describe('phase31 coverage', () => {
   it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
   it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+});

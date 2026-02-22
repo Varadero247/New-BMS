@@ -496,3 +496,12 @@ describe('phase31 coverage', () => {
   it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
   it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+});

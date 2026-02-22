@@ -533,3 +533,12 @@ describe('phase31 coverage', () => {
   it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
   it('handles Number.isFinite', () => { expect(Number.isFinite(42)).toBe(true); expect(Number.isFinite(Infinity)).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+});

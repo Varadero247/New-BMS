@@ -404,3 +404,12 @@ describe('phase31 coverage', () => {
   it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
   it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+});

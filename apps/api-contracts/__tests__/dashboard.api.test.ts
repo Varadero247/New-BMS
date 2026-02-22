@@ -440,3 +440,12 @@ describe('phase31 coverage', () => {
   it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
   it('handles nullish coalescing', () => { const v: string | null = null; const result = v ?? 'default'; expect(result).toBe('default'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+});

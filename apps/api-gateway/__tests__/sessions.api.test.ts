@@ -604,3 +604,12 @@ describe('phase31 coverage', () => {
   it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
   it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
+});

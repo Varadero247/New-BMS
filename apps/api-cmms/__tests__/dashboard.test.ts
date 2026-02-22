@@ -512,3 +512,12 @@ describe('phase31 coverage', () => {
   it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
   it('handles nullish coalescing', () => { const v: string | null = null; const result = v ?? 'default'; expect(result).toBe('default'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+});

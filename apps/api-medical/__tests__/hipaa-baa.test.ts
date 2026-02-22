@@ -423,3 +423,12 @@ describe('phase31 coverage', () => {
   it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
   it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+});

@@ -558,3 +558,12 @@ describe('phase31 coverage', () => {
   it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
   it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+});

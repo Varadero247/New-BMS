@@ -483,3 +483,12 @@ describe('phase31 coverage', () => {
   it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
   it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+  it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+});

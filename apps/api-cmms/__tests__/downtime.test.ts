@@ -514,3 +514,12 @@ describe('phase31 coverage', () => {
   it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
   it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+});

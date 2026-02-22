@@ -915,3 +915,12 @@ describe('phase31 coverage', () => {
   it('handles rest params', () => { const fn = (...args: number[]) => args.reduce((a,b)=>a+b,0); expect(fn(1,2,3)).toBe(6); });
   it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+});

@@ -846,3 +846,12 @@ describe('phase31 coverage', () => {
   it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
   it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+});

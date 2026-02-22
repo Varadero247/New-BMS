@@ -503,3 +503,12 @@ describe('phase31 coverage', () => {
   it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
   it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+});

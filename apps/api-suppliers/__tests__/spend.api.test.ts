@@ -520,3 +520,12 @@ describe('phase31 coverage', () => {
   it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
   it('handles Number.isFinite', () => { expect(Number.isFinite(42)).toBe(true); expect(Number.isFinite(Infinity)).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+});

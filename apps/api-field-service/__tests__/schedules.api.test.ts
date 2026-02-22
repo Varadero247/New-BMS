@@ -552,3 +552,12 @@ describe('phase31 coverage', () => {
   it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
   it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+});

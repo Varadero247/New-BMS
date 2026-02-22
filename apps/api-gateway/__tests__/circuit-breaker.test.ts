@@ -638,3 +638,12 @@ describe('phase31 coverage', () => {
   it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
   it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+});

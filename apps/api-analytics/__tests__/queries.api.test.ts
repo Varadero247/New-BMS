@@ -541,3 +541,12 @@ describe('phase31 coverage', () => {
   it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
   it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+});

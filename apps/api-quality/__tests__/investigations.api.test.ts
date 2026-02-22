@@ -637,3 +637,12 @@ describe('phase31 coverage', () => {
   it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
   it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+});

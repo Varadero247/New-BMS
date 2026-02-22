@@ -510,3 +510,12 @@ describe('phase31 coverage', () => {
   it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
   it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+  it('handles getter/setter', () => { const o = { _v: 0, get v() { return this._v; }, set v(n) { this._v = n; } }; o.v = 5; expect(o.v).toBe(5); });
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+});

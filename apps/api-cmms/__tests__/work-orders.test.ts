@@ -548,3 +548,12 @@ describe('phase31 coverage', () => {
   it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
   it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+});

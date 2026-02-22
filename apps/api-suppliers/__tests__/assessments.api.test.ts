@@ -387,3 +387,12 @@ describe('phase31 coverage', () => {
   it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
   it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+});

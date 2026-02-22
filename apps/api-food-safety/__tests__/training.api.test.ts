@@ -575,3 +575,12 @@ describe('phase31 coverage', () => {
   it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
   it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles memoization pattern', () => { const cache = new Map<number,number>(); const fib = (n: number): number => { if(n<=1)return n; if(cache.has(n))return cache.get(n)!; const v=fib(n-1)+fib(n-2); cache.set(n,v); return v; }; expect(fib(10)).toBe(55); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+});

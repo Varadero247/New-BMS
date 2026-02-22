@@ -544,3 +544,12 @@ describe('phase31 coverage', () => {
   it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
   it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+});

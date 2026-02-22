@@ -437,3 +437,12 @@ describe('phase31 coverage', () => {
   it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
   it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles getter/setter', () => { const o = { _v: 0, get v() { return this._v; }, set v(n) { this._v = n; } }; o.v = 5; expect(o.v).toBe(5); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+});

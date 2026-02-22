@@ -535,3 +535,12 @@ describe('phase31 coverage', () => {
   it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
   it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+});

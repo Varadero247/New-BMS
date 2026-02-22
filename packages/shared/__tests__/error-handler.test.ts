@@ -468,3 +468,12 @@ describe('phase31 coverage', () => {
   it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
   it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
+});

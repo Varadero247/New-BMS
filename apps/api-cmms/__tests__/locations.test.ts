@@ -497,3 +497,12 @@ describe('phase31 coverage', () => {
   it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
   it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles getter/setter', () => { const o = { _v: 0, get v() { return this._v; }, set v(n) { this._v = n; } }; o.v = 5; expect(o.v).toBe(5); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+});

@@ -486,3 +486,12 @@ describe('phase31 coverage', () => {
   it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
   it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+});

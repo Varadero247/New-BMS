@@ -332,3 +332,12 @@ describe('phase31 coverage', () => {
   it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
   it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+});

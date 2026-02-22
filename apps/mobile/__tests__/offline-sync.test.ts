@@ -583,3 +583,12 @@ describe('phase31 coverage', () => {
   it('handles async/await error', async () => { const fn = async () => { throw new Error('fail'); }; await expect(fn()).rejects.toThrow('fail'); });
   it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+});

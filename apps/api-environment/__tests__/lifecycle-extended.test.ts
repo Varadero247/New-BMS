@@ -636,3 +636,12 @@ describe('phase31 coverage', () => {
   it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
   it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+});

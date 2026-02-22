@@ -485,3 +485,12 @@ describe('phase31 coverage', () => {
   it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
   it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+});

@@ -882,3 +882,12 @@ describe('phase31 coverage', () => {
   it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
   it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+});

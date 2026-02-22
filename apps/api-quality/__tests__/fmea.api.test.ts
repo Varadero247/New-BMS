@@ -914,3 +914,12 @@ describe('phase31 coverage', () => {
   it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
   it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+});

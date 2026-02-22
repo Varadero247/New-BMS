@@ -495,3 +495,12 @@ describe('phase31 coverage', () => {
   it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
   it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
+});

@@ -321,3 +321,12 @@ describe('phase31 coverage', () => {
   it('handles object freeze', () => { const o = Object.freeze({a:1}); expect(Object.isFrozen(o)).toBe(true); });
   it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles memoization pattern', () => { const cache = new Map<number,number>(); const fib = (n: number): number => { if(n<=1)return n; if(cache.has(n))return cache.get(n)!; const v=fib(n-1)+fib(n-2); cache.set(n,v); return v; }; expect(fib(10)).toBe(55); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+});

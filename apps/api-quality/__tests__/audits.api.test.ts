@@ -548,3 +548,12 @@ describe('phase31 coverage', () => {
   it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
   it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+});

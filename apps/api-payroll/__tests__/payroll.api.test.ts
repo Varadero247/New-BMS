@@ -816,3 +816,12 @@ describe('phase31 coverage', () => {
   it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
   it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+});

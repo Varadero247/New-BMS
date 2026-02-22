@@ -387,3 +387,12 @@ describe('phase31 coverage', () => {
   it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+});

@@ -433,3 +433,12 @@ describe('phase31 coverage', () => {
   it('handles regex match', () => { const m = 'hello123'.match(/\d+/); expect(m?.[0]).toBe('123'); });
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+});

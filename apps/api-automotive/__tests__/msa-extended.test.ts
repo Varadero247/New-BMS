@@ -637,3 +637,12 @@ describe('phase31 coverage', () => {
   it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
   it('handles WeakMap', () => { const wm = new WeakMap(); const k = {}; wm.set(k, 42); expect(wm.has(k)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+});

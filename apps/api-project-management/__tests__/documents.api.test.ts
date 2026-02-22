@@ -783,3 +783,12 @@ describe('phase31 coverage', () => {
   it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
   it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
+  it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+});

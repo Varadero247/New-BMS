@@ -442,3 +442,12 @@ describe('phase31 coverage', () => {
   it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
   it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+});

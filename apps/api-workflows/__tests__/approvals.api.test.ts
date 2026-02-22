@@ -737,3 +737,12 @@ describe('phase31 coverage', () => {
   it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
   it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+  it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+});

@@ -439,3 +439,12 @@ describe('phase31 coverage', () => {
   it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
   it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+});

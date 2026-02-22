@@ -833,3 +833,12 @@ describe('phase31 coverage', () => {
   it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
   it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+});

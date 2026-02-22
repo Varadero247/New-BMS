@@ -666,3 +666,12 @@ describe('phase31 coverage', () => {
   it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
   it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+});

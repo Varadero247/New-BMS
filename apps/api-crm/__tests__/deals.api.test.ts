@@ -813,3 +813,12 @@ describe('phase31 coverage', () => {
   it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
   it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+});

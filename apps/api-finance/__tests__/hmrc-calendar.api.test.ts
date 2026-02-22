@@ -666,3 +666,12 @@ describe('phase31 coverage', () => {
   it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
   it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+});

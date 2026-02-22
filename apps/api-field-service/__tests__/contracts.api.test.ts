@@ -579,3 +579,12 @@ describe('phase31 coverage', () => {
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
   it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+});

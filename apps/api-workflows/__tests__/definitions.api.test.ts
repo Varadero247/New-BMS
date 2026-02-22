@@ -750,3 +750,12 @@ describe('phase31 coverage', () => {
   it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
   it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+});

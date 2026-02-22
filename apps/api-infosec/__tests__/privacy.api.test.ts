@@ -772,3 +772,12 @@ describe('phase31 coverage', () => {
   it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+});

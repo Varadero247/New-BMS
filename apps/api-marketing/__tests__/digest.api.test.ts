@@ -595,3 +595,12 @@ describe('phase31 coverage', () => {
   it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
   it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+});

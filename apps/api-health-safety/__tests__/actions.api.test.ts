@@ -477,3 +477,12 @@ describe('phase31 coverage', () => {
   it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
   it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+});

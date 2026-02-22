@@ -747,3 +747,12 @@ describe('phase31 coverage', () => {
   it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
   it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+});

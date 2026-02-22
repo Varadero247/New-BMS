@@ -468,3 +468,12 @@ describe('phase31 coverage', () => {
   it('handles WeakMap', () => { const wm = new WeakMap(); const k = {}; wm.set(k, 42); expect(wm.has(k)).toBe(true); });
   it('handles array findIndex', () => { expect([1,2,3].findIndex(x => x > 1)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+});

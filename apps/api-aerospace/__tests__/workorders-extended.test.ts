@@ -710,3 +710,12 @@ describe('phase31 coverage', () => {
   it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
   it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+});

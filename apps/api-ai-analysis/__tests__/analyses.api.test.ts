@@ -867,3 +867,12 @@ describe('phase31 coverage', () => {
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
   it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+});

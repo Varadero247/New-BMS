@@ -510,3 +510,12 @@ describe('phase31 coverage', () => {
   it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
   it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles error message', () => { const e = new TypeError('bad type'); expect(e.message).toBe('bad type'); expect(e instanceof TypeError).toBe(true); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+});

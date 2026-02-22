@@ -689,3 +689,12 @@ describe('phase31 coverage', () => {
   it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
   it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+});

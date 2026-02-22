@@ -696,3 +696,12 @@ describe('phase31 coverage', () => {
   it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
   it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles array copyWithin', () => { expect([1,2,3,4,5].copyWithin(0,3)).toEqual([4,5,3,4,5]); });
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+});

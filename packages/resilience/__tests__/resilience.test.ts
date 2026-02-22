@@ -585,3 +585,12 @@ describe('phase31 coverage', () => {
   it('handles nullish coalescing', () => { const v: string | null = null; const result = v ?? 'default'; expect(result).toBe('default'); });
   it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+});

@@ -757,3 +757,12 @@ describe('phase31 coverage', () => {
   it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
   it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+});

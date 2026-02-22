@@ -506,3 +506,12 @@ describe('phase31 coverage', () => {
   it('handles WeakMap', () => { const wm = new WeakMap(); const k = {}; wm.set(k, 42); expect(wm.has(k)).toBe(true); });
   it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+});

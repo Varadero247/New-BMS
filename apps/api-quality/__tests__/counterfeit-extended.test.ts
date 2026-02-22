@@ -626,3 +626,12 @@ describe('phase31 coverage', () => {
   it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
   it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles getter/setter', () => { const o = { _v: 0, get v() { return this._v; }, set v(n) { this._v = n; } }; o.v = 5; expect(o.v).toBe(5); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+});

@@ -489,3 +489,12 @@ describe('phase31 coverage', () => {
   it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
   it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+});

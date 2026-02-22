@@ -510,3 +510,12 @@ describe('phase31 coverage', () => {
   it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
   it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+});

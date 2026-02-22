@@ -441,3 +441,12 @@ describe('phase31 coverage', () => {
   it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
   it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+});

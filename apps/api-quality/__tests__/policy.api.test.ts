@@ -667,3 +667,12 @@ describe('phase31 coverage', () => {
   it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
   it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+});

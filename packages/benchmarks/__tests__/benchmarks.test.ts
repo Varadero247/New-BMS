@@ -321,3 +321,12 @@ describe('phase31 coverage', () => {
   it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
   it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+});

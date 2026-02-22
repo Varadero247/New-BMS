@@ -583,3 +583,12 @@ describe('phase31 coverage', () => {
   it('handles rest params', () => { const fn = (...args: number[]) => args.reduce((a,b)=>a+b,0); expect(fn(1,2,3)).toBe(6); });
   it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+});

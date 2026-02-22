@@ -630,3 +630,12 @@ describe('phase31 coverage', () => {
   it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
   it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+});

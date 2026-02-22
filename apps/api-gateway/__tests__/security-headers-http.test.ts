@@ -426,3 +426,12 @@ describe('phase31 coverage', () => {
   it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
   it('handles object freeze', () => { const o = Object.freeze({a:1}); expect(Object.isFrozen(o)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+});

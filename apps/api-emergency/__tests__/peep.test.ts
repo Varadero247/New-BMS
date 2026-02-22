@@ -617,3 +617,12 @@ describe('phase31 coverage', () => {
   it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
   it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+});

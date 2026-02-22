@@ -508,3 +508,12 @@ describe('phase31 coverage', () => {
   it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
   it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+});

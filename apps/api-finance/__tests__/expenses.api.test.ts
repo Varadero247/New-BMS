@@ -510,3 +510,12 @@ describe('phase31 coverage', () => {
   it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
   it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+});

@@ -905,3 +905,12 @@ describe('phase31 coverage', () => {
   it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
   it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+});

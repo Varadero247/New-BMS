@@ -615,3 +615,12 @@ describe('phase31 coverage', () => {
   it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
   it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+});

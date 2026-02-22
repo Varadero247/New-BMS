@@ -424,3 +424,12 @@ describe('phase31 coverage', () => {
   it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
   it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+});

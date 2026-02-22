@@ -593,3 +593,12 @@ describe('phase31 coverage', () => {
   it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
   it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+});

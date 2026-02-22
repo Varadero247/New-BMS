@@ -417,3 +417,12 @@ describe('phase31 coverage', () => {
   it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
   it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+});

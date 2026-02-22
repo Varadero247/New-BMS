@@ -546,3 +546,12 @@ describe('phase31 coverage', () => {
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
   it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+});

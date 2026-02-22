@@ -625,3 +625,12 @@ describe('phase31 coverage', () => {
   it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
   it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+});

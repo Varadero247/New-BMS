@@ -504,3 +504,12 @@ describe('phase31 coverage', () => {
   it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
   it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+});

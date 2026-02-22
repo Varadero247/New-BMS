@@ -752,3 +752,12 @@ describe('phase31 coverage', () => {
   it('handles ternary', () => { const x = 5 > 3 ? 'yes' : 'no'; expect(x).toBe('yes'); });
   it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+});

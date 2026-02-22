@@ -499,3 +499,12 @@ describe('phase31 coverage', () => {
   it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
   it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+});

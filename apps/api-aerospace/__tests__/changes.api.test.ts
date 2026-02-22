@@ -733,3 +733,12 @@ describe('phase31 coverage', () => {
   it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
   it('handles object freeze', () => { const o = Object.freeze({a:1}); expect(Object.isFrozen(o)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+});

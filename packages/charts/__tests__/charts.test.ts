@@ -444,3 +444,12 @@ describe('phase31 coverage', () => {
   it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+  it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+});

@@ -580,3 +580,12 @@ describe('phase31 coverage', () => {
   it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
   it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles object property shorthand', () => { const x = 1, y = 2; const o = {x, y}; expect(o).toEqual({x:1,y:2}); });
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+});

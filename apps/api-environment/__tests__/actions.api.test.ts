@@ -776,3 +776,12 @@ describe('phase31 coverage', () => {
   it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
   it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+});

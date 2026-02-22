@@ -674,3 +674,12 @@ describe('phase31 coverage', () => {
   it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
   it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+});

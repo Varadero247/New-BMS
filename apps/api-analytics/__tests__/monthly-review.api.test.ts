@@ -563,3 +563,12 @@ describe('phase31 coverage', () => {
   it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
   it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+});

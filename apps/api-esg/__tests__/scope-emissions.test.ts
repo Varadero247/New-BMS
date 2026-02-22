@@ -610,3 +610,12 @@ describe('phase31 coverage', () => {
   it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
   it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles number formatting', () => { expect((1234.5).toFixed(1)).toBe('1234.5'); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+});

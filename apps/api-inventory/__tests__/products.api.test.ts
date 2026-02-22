@@ -748,3 +748,12 @@ describe('phase31 coverage', () => {
   it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
   it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+});

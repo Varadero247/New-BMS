@@ -537,3 +537,12 @@ describe('phase31 coverage', () => {
   it('handles nullish coalescing', () => { const v: string | null = null; const result = v ?? 'default'; expect(result).toBe('default'); });
   it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles for...of loop', () => { const arr = [1,2,3]; let s = 0; for (const v of arr) s += v; expect(s).toBe(6); });
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+});

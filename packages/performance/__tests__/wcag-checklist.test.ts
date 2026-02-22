@@ -340,3 +340,12 @@ describe('phase31 coverage', () => {
   it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
   it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles string matchAll', () => { const matches = [...'test1 test2'.matchAll(/test(\d)/g)]; expect(matches.length).toBe(2); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+});

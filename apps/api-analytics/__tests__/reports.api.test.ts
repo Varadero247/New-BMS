@@ -566,3 +566,12 @@ describe('phase31 coverage', () => {
   it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
   it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+});

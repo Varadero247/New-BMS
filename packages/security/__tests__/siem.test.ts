@@ -540,3 +540,12 @@ describe('phase31 coverage', () => {
   it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
   it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+});

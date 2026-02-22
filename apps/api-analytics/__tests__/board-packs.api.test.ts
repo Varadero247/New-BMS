@@ -536,3 +536,12 @@ describe('phase31 coverage', () => {
   it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
   it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+});

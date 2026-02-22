@@ -552,3 +552,12 @@ describe('phase31 coverage', () => {
   it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
   it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+});

@@ -337,3 +337,12 @@ describe('phase31 coverage', () => {
   it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
   it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+});

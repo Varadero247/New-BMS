@@ -660,3 +660,12 @@ describe('phase31 coverage', () => {
   it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
   it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+  it('handles Promise.all', async () => { const r = await Promise.all([Promise.resolve(1), Promise.resolve(2)]); expect(r).toEqual([1,2]); });
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+});

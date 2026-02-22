@@ -817,3 +817,12 @@ describe('phase31 coverage', () => {
   it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
   it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+});

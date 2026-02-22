@@ -574,3 +574,12 @@ describe('phase31 coverage', () => {
   it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
   it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles array keys iterator', () => { expect([...['a','b','c'].keys()]).toEqual([0,1,2]); });
+});

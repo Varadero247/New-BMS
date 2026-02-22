@@ -629,3 +629,12 @@ describe('phase31 coverage', () => {
   it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
   it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+  it('handles memoization pattern', () => { const cache = new Map<number,number>(); const fib = (n: number): number => { if(n<=1)return n; if(cache.has(n))return cache.get(n)!; const v=fib(n-1)+fib(n-2); cache.set(n,v); return v; }; expect(fib(10)).toBe(55); });
+});

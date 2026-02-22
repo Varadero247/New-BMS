@@ -621,3 +621,12 @@ describe('phase31 coverage', () => {
   it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
   it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+});

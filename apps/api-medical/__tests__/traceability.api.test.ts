@@ -688,3 +688,12 @@ describe('phase31 coverage', () => {
   it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
   it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+});

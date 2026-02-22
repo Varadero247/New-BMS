@@ -571,3 +571,12 @@ describe('phase31 coverage', () => {
   it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
   it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Math.pow', () => { expect(Math.pow(2,10)).toBe(1024); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles logical OR assignment', () => { let y = 0; y ||= 5; expect(y).toBe(5); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+});

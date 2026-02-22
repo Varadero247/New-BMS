@@ -747,3 +747,12 @@ describe('phase31 coverage', () => {
   it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
   it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+});

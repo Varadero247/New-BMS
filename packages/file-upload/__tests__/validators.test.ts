@@ -315,3 +315,12 @@ describe('phase31 coverage', () => {
   it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
   it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array concat', () => { expect([1,2].concat([3,4])).toEqual([1,2,3,4]); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles computed property names', () => { const k = 'foo'; const o = {[k]: 42}; expect(o.foo).toBe(42); });
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+});

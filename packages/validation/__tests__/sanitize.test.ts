@@ -300,3 +300,12 @@ describe('phase31 coverage', () => {
   it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+});

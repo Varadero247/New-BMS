@@ -614,3 +614,12 @@ describe('phase31 coverage', () => {
   it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
   it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+});

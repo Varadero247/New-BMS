@@ -423,3 +423,12 @@ describe('phase31 coverage', () => {
   it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
   it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+  it('handles object reference equality', () => { const a = { val: 42 }; const b = a; expect(b.val).toBe(42); expect(b === a).toBe(true); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+});

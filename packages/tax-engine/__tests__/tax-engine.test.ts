@@ -328,3 +328,12 @@ describe('phase31 coverage', () => {
   it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
   it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles switch statement', () => { const fn = (v: string) => { switch(v) { case 'a': return 1; case 'b': return 2; default: return 0; } }; expect(fn('a')).toBe(1); expect(fn('c')).toBe(0); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+});

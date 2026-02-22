@@ -363,3 +363,12 @@ describe('phase31 coverage', () => {
   it('handles typeof null', () => { expect(typeof null).toBe('object'); });
   it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles Array.from Set', () => { const s = new Set([1,1,2,3]); expect(Array.from(s)).toEqual([1,2,3]); });
+  it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+});

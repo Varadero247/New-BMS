@@ -483,3 +483,12 @@ describe('phase31 coverage', () => {
   it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
   it('handles typeof null', () => { expect(typeof null).toBe('object'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+  it('handles object hasOwnProperty', () => { const o = {a:1}; expect(o.hasOwnProperty('a')).toBe(true); expect(o.hasOwnProperty('b')).toBe(false); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+});

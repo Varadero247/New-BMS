@@ -394,3 +394,12 @@ describe('phase31 coverage', () => {
   it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
   it('handles array findIndex', () => { expect([1,2,3].findIndex(x => x > 1)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+});

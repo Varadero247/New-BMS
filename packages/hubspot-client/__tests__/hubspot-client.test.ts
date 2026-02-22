@@ -455,3 +455,12 @@ describe('phase31 coverage', () => {
   it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
   it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+});

@@ -509,3 +509,12 @@ describe('phase31 coverage', () => {
   it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
   it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+});

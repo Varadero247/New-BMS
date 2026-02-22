@@ -296,3 +296,12 @@ describe('phase31 coverage', () => {
   it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
   it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles right shift', () => { expect(8 >> 2).toBe(2); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+});

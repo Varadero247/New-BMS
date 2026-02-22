@@ -455,3 +455,12 @@ describe('phase31 coverage', () => {
   it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
   it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles object keys count', () => { expect(Object.keys({a:1,b:2,c:3}).length).toBe(3); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+});

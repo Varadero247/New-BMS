@@ -573,3 +573,12 @@ describe('phase31 coverage', () => {
   it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
   it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+});

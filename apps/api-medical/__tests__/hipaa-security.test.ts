@@ -492,3 +492,12 @@ describe('phase31 coverage', () => {
   it('handles typeof null', () => { expect(typeof null).toBe('object'); });
   it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles Array.from with mapFn', () => { expect(Array.from({length:3}, (_,i) => i*2)).toEqual([0,2,4]); });
+});

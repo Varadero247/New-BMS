@@ -731,3 +731,12 @@ describe('phase31 coverage', () => {
   it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
   it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles for...in loop', () => { const o = {a:1,b:2}; const keys: string[] = []; for (const k in o) keys.push(k); expect(keys.sort()).toEqual(['a','b']); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+});

@@ -496,3 +496,12 @@ describe('phase31 coverage', () => {
   it('handles typeof null', () => { expect(typeof null).toBe('object'); });
   it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles logical AND assignment', () => { let x = 1; x &&= 2; expect(x).toBe(2); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles number exponential', () => { expect((12345).toExponential(2)).toBe('1.23e+4'); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+});

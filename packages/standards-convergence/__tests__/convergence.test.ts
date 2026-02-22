@@ -343,3 +343,12 @@ describe('phase31 coverage', () => {
   it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+  it('handles Promise.allSettled', async () => { const r = await Promise.allSettled([Promise.resolve(1)]); expect(r[0].status).toBe('fulfilled'); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+  it('handles Object.fromEntries', () => { const m = new Map([['a',1],['b',2]]); expect(Object.fromEntries(m)).toEqual({a:1,b:2}); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+});

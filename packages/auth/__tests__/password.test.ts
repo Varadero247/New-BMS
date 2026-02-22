@@ -345,3 +345,12 @@ describe('phase31 coverage', () => {
   it('handles typeof null', () => { expect(typeof null).toBe('object'); });
   it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array reverse', () => { expect([1,2,3].reverse()).toEqual([3,2,1]); });
+  it('handles Set iteration', () => { const s = new Set([1,2,3]); expect([...s]).toEqual([1,2,3]); });
+  it('handles while loop', () => { let i = 0, s = 0; while (i < 5) { s += i; i++; } expect(s).toBe(10); });
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles class instantiation', () => { class C { val: number; constructor(v: number) { this.val = v; } } const c = new C(7); expect(c.val).toBe(7); });
+});

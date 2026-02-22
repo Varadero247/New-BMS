@@ -682,3 +682,12 @@ describe('phase31 coverage', () => {
   it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
   it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+});

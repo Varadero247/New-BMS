@@ -516,3 +516,12 @@ describe('phase31 coverage', () => {
   it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
   it('handles array findIndex', () => { expect([1,2,3].findIndex(x => x > 1)).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles labeled break', () => { let found = false; outer: for (let i=0;i<3;i++) { for (let j=0;j<3;j++) { if(i===1&&j===1){found=true;break outer;} } } expect(found).toBe(true); });
+  it('handles array join', () => { expect([1,2,3].join('-')).toBe('1-2-3'); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+});

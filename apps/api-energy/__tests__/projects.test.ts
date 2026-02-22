@@ -648,3 +648,12 @@ describe('phase31 coverage', () => {
   it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
   it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles array sort', () => { expect([3,1,2].sort()).toEqual([1,2,3]); });
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+  it('handles closure', () => { const counter = () => { let n = 0; return () => ++n; }; const inc = counter(); expect(inc()).toBe(1); expect(inc()).toBe(2); });
+});

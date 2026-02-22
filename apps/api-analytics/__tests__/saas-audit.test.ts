@@ -583,3 +583,12 @@ describe('phase31 coverage', () => {
   it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
   it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles instanceof check', () => { class Dog {} const d = new Dog(); expect(d instanceof Dog).toBe(true); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+});

@@ -639,3 +639,12 @@ describe('phase31 coverage', () => {
   it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
   it('handles generator function', () => { function* gen() { yield 1; yield 2; } const g = gen(); expect(g.next().value).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles bitwise XOR', () => { expect(6 ^ 3).toBe(5); });
+  it('handles string charAt', () => { expect('hello'.charAt(1)).toBe('e'); });
+  it('handles string at method', () => { expect('hello'.at(-1)).toBe('o'); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+});

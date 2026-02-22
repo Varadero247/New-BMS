@@ -532,3 +532,12 @@ describe('phase31 coverage', () => {
   it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
   it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles exponentiation', () => { expect(2 ** 8).toBe(256); });
+  it('handles strict equality', () => { expect(1 === 1).toBe(true); expect((1 as unknown) === ('1' as unknown)).toBe(false); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+});

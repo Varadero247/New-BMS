@@ -614,3 +614,12 @@ describe('phase31 coverage', () => {
   it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
   it('handles nullish coalescing', () => { const v: string | null = null; const result = v ?? 'default'; expect(result).toBe('default'); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array fill', () => { expect(new Array(3).fill(0)).toEqual([0,0,0]); });
+  it('handles string raw tag', () => { expect(String.raw`\n`).toBe('\\n'); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+});

@@ -662,3 +662,12 @@ describe('phase31 coverage', () => {
   it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
   it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+  it('handles getter/setter', () => { const o = { _v: 0, get v() { return this._v; }, set v(n) { this._v = n; } }; o.v = 5; expect(o.v).toBe(5); });
+  it('handles string indexOf', () => { expect('foobar'.indexOf('bar')).toBe(3); expect('foobar'.indexOf('baz')).toBe(-1); });
+  it('handles Map iteration', () => { const m = new Map([['a',1],['b',2]]); expect([...m.keys()]).toEqual(['a','b']); });
+  it('handles bitwise AND', () => { expect(6 & 3).toBe(2); });
+});

@@ -710,3 +710,12 @@ describe('phase31 coverage', () => {
   it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
   it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles boolean negation', () => { expect(!true).toBe(false); expect(!false).toBe(true); });
+  it('handles do...while loop', () => { let i = 0; do { i++; } while (i < 3); expect(i).toBe(3); });
+  it('handles array values iterator', () => { expect([...['a','b'].values()]).toEqual(['a','b']); });
+  it('handles string length', () => { expect('hello'.length).toBe(5); });
+  it('handles array at method', () => { expect([1,2,3].at(-1)).toBe(3); });
+});

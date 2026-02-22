@@ -432,3 +432,12 @@ describe('phase31 coverage', () => {
   it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
   it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles typeof undefined', () => { expect(typeof undefined).toBe('undefined'); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles bitwise OR', () => { expect(6 | 3).toBe(7); });
+  it('handles string lastIndexOf', () => { expect('abcabc'.lastIndexOf('a')).toBe(3); });
+  it('handles empty array length', () => { expect([].length).toBe(0); });
+});

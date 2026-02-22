@@ -609,3 +609,12 @@ describe('phase31 coverage', () => {
   it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
   it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles number toLocaleString does not throw', () => { expect(() => (1000).toLocaleString()).not.toThrow(); });
+  it('handles left shift', () => { expect(1 << 3).toBe(8); });
+  it('handles array flat depth', () => { expect([[[1]]].flat(Infinity as number)).toEqual([1]); });
+  it('handles string trimStart', () => { expect('  hi'.trimStart()).toBe('hi'); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+});

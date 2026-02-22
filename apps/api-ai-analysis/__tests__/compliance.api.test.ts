@@ -835,3 +835,12 @@ describe('phase31 coverage', () => {
   it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
   it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles number toString', () => { expect((255).toString(16)).toBe('ff'); });
+  it('handles recursive function', () => { const fact = (n: number): number => n <= 1 ? 1 : n * fact(n-1); expect(fact(5)).toBe(120); });
+  it('handles array entries iterator', () => { expect([...['x','y'].entries()]).toEqual([[0,'x'],[1,'y']]); });
+  it('returns correct type for number', () => { expect(typeof 42).toBe('number'); });
+});

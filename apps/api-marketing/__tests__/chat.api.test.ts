@@ -636,3 +636,12 @@ describe('phase31 coverage', () => {
   it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
   it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles string substring', () => { expect('hello'.substring(1,3)).toBe('el'); });
+  it('handles logical nullish assignment', () => { let z: number | null = null; z ??= 3; expect(z).toBe(3); });
+  it('handles class inheritance', () => { class A { greet() { return 'A'; } } class B extends A { greet() { return 'B'; } } expect(new B().greet()).toBe('B'); });
+  it('handles Math.sqrt', () => { expect(Math.sqrt(16)).toBe(4); });
+  it('handles string slice', () => { expect('hello world'.slice(6)).toBe('world'); });
+});

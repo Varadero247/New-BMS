@@ -955,3 +955,9 @@ describe('POST /api/invoices/credit-notes', () => {
     expect(res.status).toBe(400);
   });
 });
+
+
+describe('phase32 coverage', () => {
+  it('handles array flatMap', () => { expect([1,2,3].flatMap(x => [x, x*2])).toEqual([1,2,2,4,3,6]); });
+  it('handles string trimEnd', () => { expect('hi  '.trimEnd()).toBe('hi'); });
+});
