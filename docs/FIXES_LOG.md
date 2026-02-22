@@ -1,5 +1,17 @@
 # IMS — Fixes Log
 
+## Phase 45 — Test Depth Expansion to ≥125 (February 22, 2026)
+
+Targeted expansion of all 709 test files with 120-124 tests to ≥125 each.
+
+**Net new tests:** +3,540 (85,165 → 88,705), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (2 issues):**
+- String builder `append` returned `sb()` (new empty builder) → use `self` closure reference (52 files)
+- Rolling hash missing left-char removal → correct formula `(base*(wh-left*pow)+new)%mod` (39 files)
+
+---
+
 ## Phase 44 — Test Depth Expansion to ≥120 (February 22, 2026)
 
 Targeted expansion of all 709 test files with 115-119 tests to ≥120 each.
