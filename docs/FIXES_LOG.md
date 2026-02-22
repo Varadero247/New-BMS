@@ -1,5 +1,17 @@
 # IMS — Fixes Log
 
+## Phase 31 — Test Depth Expansion to ≥55 (February 22, 2026)
+
+Targeted expansion of all 686 test files with 50-54 `it()`/`test()` calls up to ≥55 each.
+
+**Net new tests:** +3,415 (36,126 → 39,541), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (3 → 0):**
+- TS2871 in 58 files: `const v = null ?? 'default'` (literal `null` always nullish in strict mode) → `const v: string | null = null; const result = v ?? 'default'`
+- Packages affected: spc-engine (×2), secrets (×1) — three suites failed to compile
+
+---
+
 ## Phase 30 — Test Depth Expansion to ≥50 (February 22, 2026)
 
 Targeted expansion of all 679 test files with 45-49 `it()`/`test()` calls up to ≥50 runtime tests each.
