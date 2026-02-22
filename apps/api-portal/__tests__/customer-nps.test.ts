@@ -213,3 +213,106 @@ describe('customer-nps — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('customer-nps — edge cases', () => {
+  it('POST: missing score field → 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/customer/nps').send({ comment: 'Good service' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST: score=1 (detractor boundary) is accepted', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: 'nps-1',
+      reportType: 'INSPECTION',
+      description: 'NPS Score: 1',
+    });
+
+    const res = await request(app).post('/api/customer/nps').send({ score: 1 });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST: score=7 (passive boundary) is accepted', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: 'nps-7',
+      reportType: 'INSPECTION',
+      description: 'NPS Score: 7',
+    });
+
+    const res = await request(app).post('/api/customer/nps').send({ score: 7 });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('POST: score=9 with comment stores comment in description', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: 'nps-9',
+      reportType: 'INSPECTION',
+      description: 'NPS Score: 9 - Outstanding service',
+    });
+
+    await request(app).post('/api/customer/nps').send({ score: 9, comment: 'Outstanding service' });
+
+    expect(mockPrisma.portalQualityReport.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          reportType: 'INSPECTION',
+          status: 'CLOSED',
+        }),
+      })
+    );
+  });
+
+  it('POST: non-integer score → 400', async () => {
+    const res = await request(app).post('/api/customer/nps').send({ score: 7.5 });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET list: pagination page/limit params are applied', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/nps?page=2&limit=5');
+
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET list: where clause always includes reportType=INSPECTION', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/nps');
+
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ reportType: 'INSPECTION' }),
+      })
+    );
+  });
+
+  it('GET list: pagination has page and limit fields from request', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/nps?page=3&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(10);
+  });
+
+  it('GET list: 500 returns INTERNAL_ERROR code', async () => {
+    mockPrisma.portalQualityReport.findMany.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/customer/nps');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

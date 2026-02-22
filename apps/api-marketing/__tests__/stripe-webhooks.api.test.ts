@@ -307,3 +307,106 @@ describe('stripe-webhooks.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Stripe Webhooks — new edge cases', () => {
+  it('handles customer.subscription.deleted with no orgId without creating win-back', async () => {
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-1' });
+
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.deleted',
+        data: { object: { metadata: {} } },
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+    expect(prisma.mktWinBackSequence.create).not.toHaveBeenCalled();
+  });
+
+  it('handles customer.subscription.updated with status inactive — no renewal update', async () => {
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.updated',
+        data: { object: { metadata: { orgId: 'org-2' }, status: 'past_due' } },
+      });
+
+    expect(res.status).toBe(200);
+    expect(prisma.mktRenewalSequence.update).not.toHaveBeenCalled();
+  });
+
+  it('handles invoice.payment_failed with orgId logs warning but returns 200', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'invoice.payment_failed',
+        data: { object: { metadata: { orgId: 'org-3' } } },
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+
+  it('handles invoice.paid with invoice id returns 200', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'invoice.paid',
+        data: { object: { id: 'inv-xyz' } },
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+
+  it('handles missing data field gracefully without throwing', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'some.event' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+
+  it('win-back create called with orgId from subscription metadata', async () => {
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-org5' });
+
+    await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.deleted',
+        data: { object: { metadata: { orgId: 'org-5' } } },
+      });
+
+    expect(prisma.mktWinBackSequence.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ orgId: 'org-5' }),
+      })
+    );
+  });
+
+  it('mktRenewalSequence.update rejection is caught and still returns 200', async () => {
+    (prisma.mktRenewalSequence.update as jest.Mock).mockRejectedValue(new Error('not found'));
+
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.updated',
+        data: { object: { metadata: { orgId: 'org-6' }, status: 'active' } },
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+
+  it('returns 400 when type field is an empty string', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: '', data: {} });
+
+    expect(res.status).toBe(400);
+  });
+});

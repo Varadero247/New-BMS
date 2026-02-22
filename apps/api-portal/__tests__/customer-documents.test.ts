@@ -242,3 +242,111 @@ describe('customer-documents — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('customer-documents — edge cases', () => {
+  it('GET list: filter by category passes category in where clause', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/documents?category=SPECIFICATION');
+
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'SPECIFICATION' }) })
+    );
+  });
+
+  it('GET list: where clause always includes portalType=CUSTOMER', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/documents');
+
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ portalType: 'CUSTOMER' }) })
+    );
+  });
+
+  it('GET list: pagination skip is (page-1)*limit — page=2 limit=10 → skip=10', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/documents?page=2&limit=10');
+
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET list: totalPages rounds up for uneven division', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(7);
+
+    const res = await request(app).get('/api/customer/documents?limit=3');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /:id: returns error code NOT_FOUND when document missing', async () => {
+    mockPrisma.portalDocument.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get(
+      '/api/customer/documents/00000000-0000-0000-0000-000000000099'
+    );
+
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET list: 500 error on findMany returns success:false with INTERNAL_ERROR code', async () => {
+    mockPrisma.portalDocument.findMany.mockRejectedValue(new Error('Connection failed'));
+
+    const res = await request(app).get('/api/customer/documents');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET list: without category filter, category is not in where clause', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/documents');
+
+    const call = (mockPrisma.portalDocument.findMany as jest.Mock).mock.calls[0][0];
+    expect(call.where).not.toHaveProperty('category');
+  });
+
+  it('GET list: findMany and count are both called once per request', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/documents');
+
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.portalDocument.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id: returns INTERNAL_ERROR code on DB error', async () => {
+    mockPrisma.portalDocument.findFirst.mockRejectedValue(new Error('DB timeout'));
+
+    const res = await request(app).get(
+      '/api/customer/documents/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET list: limit is capped at 100', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/documents?limit=500');
+
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 100 })
+    );
+  });
+});

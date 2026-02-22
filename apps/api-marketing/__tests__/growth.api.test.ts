@@ -309,3 +309,127 @@ describe('Growth — additional coverage', () => {
     expect(res.body.data.partners.totalDeals).toBe(7);
   });
 });
+
+describe('Growth — new edge cases and paths', () => {
+  it('metrics: renewals.upcoming30Days reflects mktRenewalSequence.count', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(8);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/growth/metrics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.renewals.upcoming30Days).toBe(8);
+  });
+
+  it('metrics: winBacks.active reflects mktWinBackSequence.count', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(4);
+
+    const res = await request(app).get('/api/growth/metrics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.winBacks.active).toBe(4);
+  });
+
+  it('metrics: leads.thisMonth and leads.lastMonth are numbers', async () => {
+    (prisma.mktLead.count as jest.Mock)
+      .mockResolvedValueOnce(50)  // total
+      .mockResolvedValueOnce(10)  // thisMonth
+      .mockResolvedValueOnce(15); // lastMonth
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/growth/metrics');
+
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.leads.thisMonth).toBe('number');
+    expect(typeof res.body.data.leads.lastMonth).toBe('number');
+  });
+
+  it('metrics: leads.bySource is an array', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([
+      { source: 'ROI_CALCULATOR', _count: 5 },
+    ]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/growth/metrics');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.leads.bySource)).toBe(true);
+    expect(res.body.data.leads.bySource[0].source).toBe('ROI_CALCULATOR');
+    expect(res.body.data.leads.bySource[0].count).toBe(5);
+  });
+
+  it('snapshot: returns 500 when mktEmailLog.count throws', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktEmailLog.count as jest.Mock).mockRejectedValue(new Error('email log fail'));
+
+    const res = await request(app).get('/api/growth/snapshot/2026-02-15');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('metrics: health.total is 0 when no health scores', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/growth/metrics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.health.total).toBe(0);
+    expect(res.body.data.health.healthy).toBe(0);
+    expect(res.body.data.health.atRisk).toBe(0);
+    expect(res.body.data.health.critical).toBe(0);
+  });
+
+  it('snapshot: success is true on valid date', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(1);
+    (prisma.mktEmailLog.count as jest.Mock).mockResolvedValue(2);
+
+    const res = await request(app).get('/api/growth/snapshot/2026-01-10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('metrics: mktLead.groupBy is called with by: ["source"]', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/growth/metrics');
+
+    expect(prisma.mktLead.groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({ by: ['source'] })
+    );
+  });
+});

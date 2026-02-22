@@ -1,4 +1,6 @@
 process.env.JWT_SECRET = 'test-secret';
+process.env.MAX_LOGIN_ATTEMPTS = '200';
+process.env.MAX_REGISTER_ATTEMPTS = '200';
 
 import express from 'express';
 import request from 'supertest';
@@ -309,5 +311,119 @@ describe('Partners Auth — additional coverage', () => {
     expect(res.status).toBe(200);
     expect(res.body.data.partner.id).toBe('partner-1');
     expect(res.body.data.partner.referralCode).toBe('ref-123');
+  });
+});
+
+describe('Partners Auth — new edge cases', () => {
+  it('POST /register requires password of at least 12 characters', async () => {
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'new@partner.com',
+      password: 'short11',
+      name: 'New Partner',
+      company: 'NewCo',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /register stores createdBy with correct user via transaction', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'new@partner.com',
+      password: 'securepass123',
+      name: 'New Partner',
+      company: 'NewCo',
+    });
+
+    expect(res.status).toBe(201);
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /login response includes partner.name field', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'partner@test.com', password: 'securepass123' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.partner.name).toBe('John Partner');
+  });
+
+  it('POST /login response includes partner.company field', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'partner@test.com', password: 'securepass123' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.partner.company).toBe('PartnerCo');
+  });
+
+  it('POST /register does not expose passwordHash in response', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'new@partner.com',
+      password: 'securepass123',
+      name: 'New Partner',
+      company: 'NewCo',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.partner.passwordHash).toBeUndefined();
+  });
+
+  it('POST /login does not expose passwordHash in response', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'partner@test.com', password: 'securepass123' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.partner.passwordHash).toBeUndefined();
+  });
+
+  it('POST /login with missing email returns 400', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ password: 'securepass123' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /register with missing company field returns 400', async () => {
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'new@partner.com',
+      password: 'securepass123',
+      name: 'New Partner',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /login returns 401 with INVALID_CREDENTIALS code for wrong password', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'partner@test.com', password: 'wrongpassword' });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
   });
 });

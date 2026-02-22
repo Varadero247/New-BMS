@@ -280,3 +280,153 @@ describe('linkedin-tracker.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('LinkedIn Tracker — new edge cases', () => {
+  it('GET /outreach filters by status when status query param is provided', async () => {
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/linkedin/outreach?status=SENT');
+
+    expect(prisma.mktLinkedInOutreach.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { status: 'SENT' } })
+    );
+  });
+
+  it('GET /outreach with no status query param uses empty where clause', async () => {
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/linkedin/outreach');
+
+    expect(prisma.mktLinkedInOutreach.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: {} })
+    );
+  });
+
+  it('PATCH /outreach/:id with CONNECTED status sets connectedAt timestamp', async () => {
+    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SENT',
+    });
+    (prisma.mktLinkedInOutreach.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'CONNECTED',
+    });
+
+    const res = await request(app)
+      .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CONNECTED' });
+
+    expect(res.status).toBe(200);
+    expect(prisma.mktLinkedInOutreach.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'CONNECTED', connectedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('PATCH /outreach/:id with REPLIED status sets repliedAt timestamp', async () => {
+    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'CONNECTED',
+    });
+    (prisma.mktLinkedInOutreach.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'REPLIED',
+    });
+
+    const res = await request(app)
+      .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'REPLIED' });
+
+    expect(res.status).toBe(200);
+    expect(prisma.mktLinkedInOutreach.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ repliedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('PATCH /outreach/:id with CLOSED_WON status sets closedAt timestamp', async () => {
+    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'MEETING',
+    });
+    (prisma.mktLinkedInOutreach.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'CLOSED_WON',
+    });
+
+    const res = await request(app)
+      .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED_WON' });
+
+    expect(res.status).toBe(200);
+    expect(prisma.mktLinkedInOutreach.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ closedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('POST /outreach with all optional fields (prospectTitle, customContext) succeeds', async () => {
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLinkedInOutreach.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+    });
+
+    const res = await request(app).post('/api/linkedin/outreach').send({
+      prospectName: 'Alice Smith',
+      prospectTitle: 'Quality Manager',
+      company: 'ManufactureCo',
+      linkedinUrl: 'https://linkedin.com/in/alicesmith',
+      template: 'QUALITY_MANAGER',
+      customContext: 'She recently published an article on ISO 9001.',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /outreach response data includes dailyCount and dailyLimit', async () => {
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(3);
+    (prisma.mktLinkedInOutreach.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+    });
+
+    const res = await request(app).post('/api/linkedin/outreach').send({
+      prospectName: 'Bob Jones',
+      company: 'BobCo',
+      linkedinUrl: 'https://linkedin.com/in/bobjones',
+      template: 'EHS_MANAGER',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.dailyCount).toBe(4);
+    expect(res.body.data.dailyLimit).toBe(20);
+  });
+
+  it('PATCH /outreach/:id with notes includes notes in update data', async () => {
+    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PENDING',
+    });
+    (prisma.mktLinkedInOutreach.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SENT',
+      notes: 'Sent via LinkedIn Sales Navigator',
+    });
+
+    const res = await request(app)
+      .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'SENT', notes: 'Sent via LinkedIn Sales Navigator' });
+
+    expect(res.status).toBe(200);
+    expect(prisma.mktLinkedInOutreach.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ notes: 'Sent via LinkedIn Sales Navigator' }),
+      })
+    );
+  });
+});

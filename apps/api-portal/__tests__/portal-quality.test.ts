@@ -271,3 +271,110 @@ describe('portal-quality — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('portal-quality — edge cases', () => {
+  it('POST: missing severity → 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/portal/quality-reports').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      reportType: 'NCR',
+      description: 'Defect found',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST: missing portalUserId → 400', async () => {
+    const res = await request(app).post('/api/portal/quality-reports').send({
+      reportType: 'NCR',
+      description: 'Defect found',
+      severity: 'MAJOR',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST: DB error → 500 INTERNAL_ERROR', async () => {
+    mockPrisma.portalQualityReport.create.mockRejectedValue(new Error('DB timeout'));
+
+    const res = await request(app).post('/api/portal/quality-reports').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      reportType: 'NCR',
+      description: 'Material defect',
+      severity: 'MAJOR',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET list: filter by severity passes severity in where clause', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/quality-reports?severity=MAJOR');
+
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ severity: 'MAJOR' }) })
+    );
+  });
+
+  it('GET list: pagination totalPages rounds up correctly', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(11);
+
+    const res = await request(app).get('/api/portal/quality-reports?limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /:id: 500 on DB error returns INTERNAL_ERROR code', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockRejectedValue(new Error('Connection failed'));
+
+    const res = await request(app).get(
+      '/api/portal/quality-reports/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id: update to RESOLVED status succeeds', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalQualityReport.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'RESOLVED',
+      resolution: 'Issue fixed',
+    });
+
+    const res = await request(app)
+      .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'RESOLVED', resolution: 'Issue fixed' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('RESOLVED');
+  });
+
+  it('PUT /:id: invalid status value → 400', async () => {
+    const res = await request(app)
+      .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'PENDING' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id: 500 on DB error returns INTERNAL_ERROR code', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

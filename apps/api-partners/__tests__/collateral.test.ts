@@ -321,3 +321,131 @@ describe('Collateral — additional coverage', () => {
     );
   });
 });
+
+describe('Collateral — tier boundary and filter tests', () => {
+  it('GET / with type=CASE_STUDY filters by type for REFERRAL partner', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([mockCollateral]);
+
+    const res = await request(app).get('/api/collateral?type=CASE_STUDY');
+
+    expect(res.status).toBe(200);
+    expect(portalPrisma.mktPartnerCollateral.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'CASE_STUDY', accessTier: { in: ['ALL'] } }),
+      })
+    );
+  });
+
+  it('GET / RESELLER tier can also filter by type', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'RESELLER' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/collateral?type=WHITEPAPER');
+
+    expect(portalPrisma.mktPartnerCollateral.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          type: 'WHITEPAPER',
+          accessTier: { in: ['ALL', 'CO_SELL', 'RESELLER'] },
+        }),
+      })
+    );
+  });
+
+  it('GET /:id/download: CO_SELL partner can download CO_SELL tier item', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'CO_SELL' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      accessTier: 'CO_SELL',
+    });
+    (portalPrisma.mktPartnerCollateral.update as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      downloadCount: 5,
+    });
+
+    const res = await request(app).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000001/download'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.fileUrl).toBeDefined();
+  });
+
+  it('GET /:id/download: GCC_SPECIALIST partner can download GCC_SPECIALIST tier item', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'GCC_SPECIALIST' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      accessTier: 'GCC_SPECIALIST',
+    });
+    (portalPrisma.mktPartnerCollateral.update as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      downloadCount: 3,
+    });
+
+    const res = await request(app).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000001/download'
+    );
+
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /:id/download: CO_SELL partner cannot download RESELLER tier item (403)', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'CO_SELL' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      accessTier: 'RESELLER',
+    });
+
+    const res = await request(app).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000001/download'
+    );
+
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe('FORBIDDEN');
+  });
+
+  it('GET /:id/download: 401 when no partner on request', async () => {
+    const noAuthApp = express();
+    noAuthApp.use(express.json());
+    noAuthApp.use('/api/collateral', collateralRouter);
+
+    const res = await request(noAuthApp).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000001/download'
+    );
+
+    expect(res.status).toBe(401);
+  });
+
+  it('GET / response body has success:true and data array', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([mockCollateral]);
+
+    const res = await request(app).get('/api/collateral');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id/download: update is called with where:{id} matching the route param', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      accessTier: 'ALL',
+    });
+    (portalPrisma.mktPartnerCollateral.update as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      downloadCount: 43,
+    });
+
+    await request(app).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000001/download'
+    );
+
+    expect(portalPrisma.mktPartnerCollateral.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});

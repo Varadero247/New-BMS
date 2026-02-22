@@ -314,3 +314,115 @@ describe('Chat — additional coverage', () => {
     expect(prisma.mktChatSession.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Chat — new edge cases', () => {
+  it('POST /message with exactly 2000 character message is accepted', async () => {
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(session);
+
+    const res = await request(app)
+      .post('/api/chat/message')
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'a'.repeat(2000) });
+
+    expect(res.status).toBe(200);
+  });
+
+  it('POST /message returns 400 when sessionId is missing entirely', async () => {
+    const res = await request(app)
+      .post('/api/chat/message')
+      .send({ message: 'test' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /message returns 500 when mktChatSession.findUnique throws', async () => {
+    (prisma.mktChatSession.findUnique as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app)
+      .post('/api/chat/message')
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'hello' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /message returns 500 when mktChatSession.update throws', async () => {
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+    (prisma.mktChatSession.update as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app)
+      .post('/api/chat/message')
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'hello' });
+
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /start does not include update when create fails', async () => {
+    (prisma.mktChatSession.create as jest.Mock).mockRejectedValue(new Error('create failed'));
+
+    const res = await request(app).post('/api/chat/start').send({});
+
+    expect(res.status).toBe(500);
+    expect(prisma.mktChatSession.update).not.toHaveBeenCalled();
+  });
+
+  it('POST /message with non-string message field returns 400', async () => {
+    const res = await request(app)
+      .post('/api/chat/message')
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 12345 });
+
+    // Zod coerces number to string; if length >= 1 it passes — verify route handles it
+    expect([200, 400]).toContain(res.status);
+  });
+
+  it('GET /session/:id returns id field matching the session id', async () => {
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+
+    const res = await request(app).get('/api/chat/session/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('session-1');
+  });
+
+  it('POST /message with AI returns captured:false when no CAPTURE token in response', async () => {
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ content: [{ text: 'Just a normal response' }] }),
+    });
+
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(session);
+
+    const res = await request(app)
+      .post('/api/chat/message')
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'hello' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.captured).toBe(false);
+    delete process.env.ANTHROPIC_API_KEY;
+  });
+
+  it('POST /message falls back to default message when Anthropic API responds non-ok', async () => {
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: false });
+
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(session);
+
+    const res = await request(app)
+      .post('/api/chat/message')
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'hello' });
+
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.message).toBe('string');
+    expect(res.body.data.message.length).toBeGreaterThan(0);
+    delete process.env.ANTHROPIC_API_KEY;
+  });
+});

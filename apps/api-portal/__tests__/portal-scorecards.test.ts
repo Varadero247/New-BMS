@@ -276,3 +276,125 @@ describe('portal-scorecards — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('portal-scorecards — edge cases', () => {
+  it('POST: missing period → 400', async () => {
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      overallScore: 80,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST: missing portalUserId → 400', async () => {
+    const res = await request(app).post('/api/portal/scorecards').send({
+      period: '2026-Q1',
+      overallScore: 80,
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST: invalid portalUserId (not a UUID) → 400', async () => {
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: 'not-a-uuid',
+      period: '2026-Q1',
+      overallScore: 80,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST: overallScore=0 boundary value is accepted', async () => {
+    mockPrisma.portalScorecard.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 0,
+    });
+
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 0,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: filter by period passes period in where clause', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/scorecards?period=2026-Q2');
+
+    expect(mockPrisma.portalScorecard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ period: '2026-Q2' }) })
+    );
+  });
+
+  it('GET list: pagination skip is computed from page and limit', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/scorecards?page=4&limit=5');
+
+    expect(mockPrisma.portalScorecard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 15, take: 5 })
+    );
+  });
+
+  it('GET /:id: success is true and data.id matches', async () => {
+    mockPrisma.portalScorecard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      period: '2026-Q3',
+      overallScore: 92,
+    });
+
+    const res = await request(app).get(
+      '/api/portal/scorecards/00000000-0000-0000-0000-000000000002'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000002');
+  });
+
+  it('GET /:id: 500 on DB error returns INTERNAL_ERROR code', async () => {
+    mockPrisma.portalScorecard.findFirst.mockRejectedValue(new Error('Connection lost'));
+
+    const res = await request(app).get(
+      '/api/portal/scorecards/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST: optional responseScore and complianceScore are accepted', async () => {
+    mockPrisma.portalScorecard.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 88,
+      responseScore: 90,
+      complianceScore: 95,
+    });
+
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 88,
+      responseScore: 90,
+      complianceScore: 95,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.responseScore).toBe(90);
+    expect(res.body.data.complianceScore).toBe(95);
+  });
+});

@@ -297,3 +297,120 @@ describe('portal-tickets — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('portal-tickets — edge cases', () => {
+  it('GET list: filter by category passes category in where clause', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/tickets?category=BILLING');
+
+    expect(mockPrisma.portalTicket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'BILLING' }) })
+    );
+  });
+
+  it('GET list: filter by portalType passes portalType in where clause', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/tickets?portalType=CUSTOMER');
+
+    expect(mockPrisma.portalTicket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ portalType: 'CUSTOMER' }) })
+    );
+  });
+
+  it('GET list: 500 returns INTERNAL_ERROR code', async () => {
+    mockPrisma.portalTicket.findMany.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/portal/tickets');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST: missing description → 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/portal/tickets').send({
+      subject: 'Help needed',
+      category: 'TECHNICAL',
+      priority: 'HIGH',
+      portalType: 'CUSTOMER',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST: invalid category → 400', async () => {
+    const res = await request(app).post('/api/portal/tickets').send({
+      subject: 'Issue',
+      description: 'Cannot login',
+      category: 'INVALID_CATEGORY',
+      priority: 'HIGH',
+      portalType: 'CUSTOMER',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /:id: 500 on DB error returns INTERNAL_ERROR code', async () => {
+    mockPrisma.portalTicket.findFirst.mockRejectedValue(new Error('Connection lost'));
+
+    const res = await request(app).get(
+      '/api/portal/tickets/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/messages: missing message → 400 VALIDATION_ERROR', async () => {
+    const res = await request(app)
+      .post('/api/portal/tickets/00000000-0000-0000-0000-000000000001/messages')
+      .send({ authorType: 'PORTAL_USER' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /:id/messages: 500 on DB error returns INTERNAL_ERROR', async () => {
+    mockPrisma.portalTicket.findFirst.mockRejectedValue(new Error('DB timeout'));
+
+    const res = await request(app)
+      .post('/api/portal/tickets/00000000-0000-0000-0000-000000000001/messages')
+      .send({ message: 'Help please' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET list: pagination skip is computed correctly — page=2 limit=15 → skip=15', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/tickets?page=2&limit=15');
+
+    expect(mockPrisma.portalTicket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 15, take: 15 })
+    );
+  });
+
+  it('PUT /:id/resolve: RESOLVED ticket can still be resolved (not CLOSED)', async () => {
+    mockPrisma.portalTicket.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'RESOLVED',
+    });
+    mockPrisma.portalTicket.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'RESOLVED',
+      resolvedAt: new Date(),
+    });
+
+    const res = await request(app)
+      .put('/api/portal/tickets/00000000-0000-0000-0000-000000000001/resolve')
+      .send({ resolution: 'Re-resolved' });
+
+    expect(res.status).toBe(200);
+  });
+});

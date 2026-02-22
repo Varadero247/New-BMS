@@ -260,3 +260,139 @@ describe('customer-invoices — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('customer-invoices — edge cases', () => {
+  it('GET list: where clause always includes type=SALES', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/invoices');
+
+    expect(mockPrisma.portalOrder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'SALES' }) })
+    );
+  });
+
+  it('GET list: totalPages rounds up correctly', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(13);
+
+    const res = await request(app).get('/api/customer/invoices?limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /:id: 500 on DB error returns INTERNAL_ERROR code', async () => {
+    mockPrisma.portalOrder.findFirst.mockRejectedValue(new Error('DB timeout'));
+
+    const res = await request(app).get(
+      '/api/customer/invoices/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id: NOT_FOUND error code when invoice not found', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get(
+      '/api/customer/invoices/00000000-0000-0000-0000-000000000099'
+    );
+
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST pay: invalid paymentMethod → 400 VALIDATION_ERROR', async () => {
+    const res = await request(app)
+      .post('/api/customer/invoices/00000000-0000-0000-0000-000000000001/pay')
+      .send({ paymentMethod: 'CRYPTO' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST pay: notes appended to payment intent string', async () => {
+    const invoice = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      notes: null,
+    };
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(invoice);
+    mockPrisma.portalOrder.update.mockResolvedValue({
+      ...invoice,
+      notes: 'Payment intent: CHECK - Wire transfer pending',
+    });
+
+    const res = await request(app)
+      .post('/api/customer/invoices/00000000-0000-0000-0000-000000000001/pay')
+      .send({ paymentMethod: 'CHECK', notes: 'Wire transfer pending' });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.portalOrder.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          notes: expect.stringContaining('Wire transfer pending'),
+        }),
+      })
+    );
+  });
+
+  it('POST pay: omitting paymentMethod defaults to BANK_TRANSFER and succeeds', async () => {
+    const invoice = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      notes: null,
+    };
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(invoice);
+    mockPrisma.portalOrder.update.mockResolvedValue({
+      ...invoice,
+      notes: 'Payment intent: BANK_TRANSFER',
+    });
+
+    const res = await request(app)
+      .post('/api/customer/invoices/00000000-0000-0000-0000-000000000001/pay')
+      .send({});
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.portalOrder.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          notes: expect.stringContaining('BANK_TRANSFER'),
+        }),
+      })
+    );
+  });
+
+  it('POST pay: CREDIT_CARD is accepted and records update', async () => {
+    const invoice = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      notes: null,
+    };
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(invoice);
+    mockPrisma.portalOrder.update.mockResolvedValue({
+      ...invoice,
+      notes: 'Payment intent: CREDIT_CARD',
+    });
+
+    const res = await request(app)
+      .post('/api/customer/invoices/00000000-0000-0000-0000-000000000001/pay')
+      .send({ paymentMethod: 'CREDIT_CARD' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: 500 error on count propagates as 500 response', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/customer/invoices');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

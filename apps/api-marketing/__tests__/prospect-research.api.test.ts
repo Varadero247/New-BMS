@@ -241,3 +241,118 @@ describe('prospect-research.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Prospect Research — new edge cases', () => {
+  it('POST /research with invalid website URL returns 400', async () => {
+    const res = await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'TechCo', website: 'not-a-url' });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /research with invalid linkedinUrl returns 400', async () => {
+    const res = await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'TechCo', linkedinUrl: 'not-a-url' });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /research with valid website URL returns 201', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'TechCo',
+    });
+
+    const res = await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'TechCo', website: 'https://techco.com' });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('POST /research with sourceContext included calls create with that value', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'TechCo',
+    });
+
+    await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'TechCo', sourceContext: 'Found via LinkedIn post' });
+
+    expect(prisma.mktProspectResearch.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ sourceContext: 'Found via LinkedIn post' }),
+      })
+    );
+  });
+
+  it('POST /research stores companyName from request body', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'BuilderInc',
+    });
+
+    await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'BuilderInc' });
+
+    expect(prisma.mktProspectResearch.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ companyName: 'BuilderInc' }),
+      })
+    );
+  });
+
+  it('POST /:id/save-to-hubspot returns saved:false when no HUBSPOT_API_KEY', async () => {
+    delete process.env.HUBSPOT_API_KEY;
+    (prisma.mktProspectResearch.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'TechCo',
+    });
+
+    const res = await request(app).post(
+      '/api/prospects/00000000-0000-0000-0000-000000000001/save-to-hubspot'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.saved).toBe(false);
+    expect(res.body.data.hubspotDealId).toBeNull();
+  });
+
+  it('POST /:id/save-to-hubspot does not call update when hubspotDealId is null', async () => {
+    delete process.env.HUBSPOT_API_KEY;
+    (prisma.mktProspectResearch.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'TechCo',
+    });
+
+    await request(app).post(
+      '/api/prospects/00000000-0000-0000-0000-000000000001/save-to-hubspot'
+    );
+
+    expect(prisma.mktProspectResearch.update).not.toHaveBeenCalled();
+  });
+
+  it('GET / returns max 50 prospects (uses take:50)', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/prospects');
+
+    expect(prisma.mktProspectResearch.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 50 })
+    );
+  });
+
+  it('GET / orders by createdAt desc', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/prospects');
+
+    expect(prisma.mktProspectResearch.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: 'desc' } })
+    );
+  });
+});

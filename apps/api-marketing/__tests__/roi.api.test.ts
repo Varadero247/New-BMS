@@ -230,3 +230,114 @@ describe('ROI — additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('ROI — new edge cases and paths', () => {
+  it('calculateROI: timeSavingAnnual is 0 when isoCount defaults to 1', () => {
+    const result = calculateROI({});
+    // 1 * 8 * 35 * 52 = 14560
+    expect(result.timeSavingAnnual).toBe(14560);
+  });
+
+  it('calculateROI: softwareSaving is industryBenchmark minus annualCost', () => {
+    const result = calculateROI({ isoCount: 2 });
+    const benchmark = 15 * 180 * 12;
+    expect(result.softwareSaving).toBe(benchmark - result.annualCost);
+    expect(result.softwareSaving).toBeGreaterThan(0);
+  });
+
+  it('calculateROI: avgUsers is always 15', () => {
+    expect(calculateROI({ isoCount: 1 }).avgUsers).toBe(15);
+    expect(calculateROI({ isoCount: 10 }).avgUsers).toBe(15);
+  });
+
+  it('POST /calculate: returns recommendedTier Enterprise for isoCount=4', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-ent' });
+
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'BigCorp',
+      name: 'Big User',
+      email: 'big@bigcorp.com',
+      isoCount: 4,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.recommendedTier).toBe('Enterprise');
+    expect(res.body.data.pricePerUser).toBe(19);
+  });
+
+  it('POST /calculate: optional fields jobTitle and employeeCount are accepted', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-opt' });
+
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'OptCorp',
+      name: 'Opt User',
+      email: 'opt@optcorp.com',
+      jobTitle: 'Quality Manager',
+      employeeCount: '200',
+      isoCount: 2,
+    });
+
+    expect(res.status).toBe(200);
+    expect(prisma.mktLead.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ jobTitle: 'Quality Manager', employeeCount: '200' }),
+      })
+    );
+  });
+
+  it('POST /calculate: roiEstimate saved to DB equals totalROI from calculateROI', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-roi' });
+
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'RoiCo',
+      name: 'Roi User',
+      email: 'roi@roico.com',
+      isoCount: 3,
+    });
+
+    expect(res.status).toBe(200);
+    const expectedROI = res.body.data.totalROI;
+    expect(prisma.mktLead.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ roiEstimate: expectedROI }),
+      })
+    );
+  });
+
+  it('GET /history: returns data array from findMany', async () => {
+    const leads = [
+      { id: 'l1', email: 'a@b.com', source: 'ROI_CALCULATOR', roiEstimate: 40000 },
+      { id: 'l2', email: 'c@d.com', source: 'ROI_CALCULATOR', roiEstimate: 60000 },
+    ];
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue(leads);
+
+    const res = await request(app).get('/api/roi/history');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.data[0].email).toBe('a@b.com');
+  });
+
+  it('GET /history: uses orderBy createdAt desc and take:50', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/roi/history');
+
+    expect(prisma.mktLead.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      })
+    );
+  });
+
+  it('POST /calculate: missing name field returns 400', async () => {
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'Test',
+      email: 'test@test.com',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+});

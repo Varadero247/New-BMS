@@ -255,3 +255,117 @@ describe('customer-complaints — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('customer-complaints — edge cases', () => {
+  it('GET list: pagination skip is (page-1)*limit — page=3 limit=5 → skip=10', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/complaints?page=3&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('GET list: filter by status=RESOLVED passes status in where clause', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/complaints?status=RESOLVED');
+
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'RESOLVED' }) })
+    );
+  });
+
+  it('GET list: without status filter, where clause has reportType=COMPLAINT', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/complaints');
+
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ reportType: 'COMPLAINT' }) })
+    );
+  });
+
+  it('POST: empty description string → 400 validation error', async () => {
+    const res = await request(app)
+      .post('/api/customer/complaints')
+      .send({ description: '   ', severity: 'MINOR' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST: invalid severity value → 400', async () => {
+    const res = await request(app)
+      .post('/api/customer/complaints')
+      .send({ description: 'Problem', severity: 'CATASTROPHIC' });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /:id: 500 error returns INTERNAL_ERROR code', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockRejectedValue(new Error('DB timeout'));
+
+    const res = await request(app).get(
+      '/api/customer/complaints/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST: CRITICAL severity is accepted and returns 201', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      reportType: 'COMPLAINT',
+      severity: 'CRITICAL',
+      status: 'OPEN',
+    });
+
+    const res = await request(app)
+      .post('/api/customer/complaints')
+      .send({ description: 'Critical issue', severity: 'CRITICAL' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: pagination totalPages rounds up correctly', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(11);
+
+    const res = await request(app).get('/api/customer/complaints?limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('POST: count is not called on create', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      reportType: 'COMPLAINT',
+      severity: 'MINOR',
+      status: 'OPEN',
+    });
+
+    await request(app)
+      .post('/api/customer/complaints')
+      .send({ description: 'Test complaint', severity: 'MINOR' });
+
+    expect(mockPrisma.portalQualityReport.count).not.toHaveBeenCalled();
+  });
+
+  it('GET list: 500 error returns success:false', async () => {
+    mockPrisma.portalQualityReport.findMany.mockRejectedValue(new Error('Connection refused'));
+
+    const res = await request(app).get('/api/customer/complaints');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
