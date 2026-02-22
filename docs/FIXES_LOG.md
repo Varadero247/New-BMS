@@ -1,5 +1,26 @@
 # IMS — Fixes Log
 
+## Phase 46 — Test Depth Expansion to ≥130 (February 22, 2026)
+
+Targeted expansion of all 709 test files with 125-129 tests to ≥130 each.
+
+**Net new tests:** +3,540 (88,705 → 92,245), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (13 issues across 9 snippet types):**
+- `modpow(3,100,1e9+7)` float overflow → use `modpow(3,10,1000)=49`
+- RMQ sparse table self-referential `t` → TS7022/7024, rewrite with explicit precomputed loop
+- LPS `i===j?1:0` infers `(0|1)[][]` → TS2322 on `dp[i][j]=number`, add `as number[][]`
+- Subsets: infinite recursion when `k > a.length` → add `a.length<k?[]` guard
+- Tokenizer: `tok('(1+2)*3').length` is 7 not 6 (7 tokens)
+- Saddle point `[[1,2],[4,3]]`: correct saddle is `[1,1]` not `[1,0]`
+- `rotCCW` formula wrong → use `m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c]))`
+- Path sum target 27 is valid (5+4+11+7=27) → changed to target 28
+- Job scheduling result is 8 not 7 (off-by-one in p search)
+- Reconstruct tree: return `pre.length` directly
+- Level-order BFS: unused `q` cast caused TS2352 → removed vestigial `q`
+
+---
+
 ## Phase 45 — Test Depth Expansion to ≥125 (February 22, 2026)
 
 Targeted expansion of all 709 test files with 120-124 tests to ≥125 each.
