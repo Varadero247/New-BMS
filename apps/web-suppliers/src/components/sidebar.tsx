@@ -11,6 +11,7 @@ import {
   DollarSign,
   ShieldCheck,
   Tag,
+  Globe,
   Home,
   Settings,
   ChevronDown,
@@ -52,6 +53,7 @@ const navGroups: NavGroup[] = [
       { name: 'Scorecards', href: '/scorecards', icon: ClipboardCheck },
       { name: 'Spend Analysis', href: '/spend', icon: DollarSign },
       { name: 'Documents', href: '/documents', icon: FileText },
+      { name: 'Supplier Portal', href: '/portal', icon: Globe },
     ],
   },
 ];

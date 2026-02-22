@@ -12,6 +12,7 @@ import {
   Warehouse,
   Trash2,
   AlertTriangle,
+  BarChart3,
   Home,
   Settings,
   LogOut,
@@ -81,6 +82,14 @@ const navGroups: NavGroup[] = [
       { name: 'Health Surveillance', href: '/health-surveillance', icon: Stethoscope },
       { name: 'Biological Monitoring', href: '/biological-monitoring', icon: Microscope },
       { name: 'Fumigation', href: '/fumigation', icon: Wind },
+    ],
+  },
+  {
+    title: 'Insights',
+    clause: '12',
+    collapsible: true,
+    items: [
+      { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     ],
   },
 ];

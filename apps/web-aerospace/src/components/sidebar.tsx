@@ -38,6 +38,8 @@ const modulesNavigation = [
   { name: 'First Article Inspection', href: '/fai', icon: FileCheck },
   { name: 'Special Processes', href: '/special-processes', icon: Zap },
   { name: 'Nadcap Scope', href: '/nadcap', icon: Medal },
+  { name: 'Nadcap Scope Verification', href: '/nadcap-scope', icon: Medal },
+  { name: 'OASIS Database', href: '/oasis', icon: Database },
   { name: 'Process Parameters', href: '/process-parameters', icon: Gauge },
   { name: 'Counterfeit Parts', href: '/counterfeit', icon: AlertOctagon },
   { name: 'FOD Prevention', href: '/fod', icon: Eye },

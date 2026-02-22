@@ -10,6 +10,7 @@ import {
   MessagesSquare,
   Clock,
   Scale,
+  Globe,
   Home,
   Settings,
   ChevronDown,
@@ -42,6 +43,7 @@ const navGroups: NavGroup[] = [
       { name: 'Complaints', href: '/complaints', icon: MessageSquareWarning },
       { name: 'Actions', href: '/actions', icon: ListChecks },
       { name: 'Communications', href: '/communications', icon: MessagesSquare },
+      { name: 'Public Submission', href: '/public', icon: Globe },
     ],
   },
   {

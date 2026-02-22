@@ -82,6 +82,8 @@ const navGroups: NavGroup[] = [
       { name: 'CAPA', href: '/capa', icon: ShieldCheck },
       { name: 'Management of Change', href: '/management-of-change', icon: RefreshCw },
       { name: 'Contractors', href: '/contractors', icon: HardHat },
+      { name: 'Contractor Management', href: '/contractor-management', icon: HardHat },
+      { name: 'Management Reviews', href: '/management-reviews', icon: ClipboardList },
     ],
   },
   {

@@ -12,6 +12,7 @@ import {
   Users,
   CalendarCheck,
   Wrench,
+  BarChart3,
   Home,
   Settings,
   ChevronDown,
@@ -67,6 +68,15 @@ const navGroups: NavGroup[] = [
       { name: 'PEEPs', href: '/peep', icon: Users },
       { name: 'Drills', href: '/drills', icon: CalendarCheck },
       { name: 'Equipment', href: '/equipment', icon: Wrench },
+      { name: 'Wardens', href: '/wardens', icon: Users },
+    ],
+  },
+  {
+    title: 'Insights',
+    clause: '4',
+    collapsible: true,
+    items: [
+      { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     ],
   },
 ];
