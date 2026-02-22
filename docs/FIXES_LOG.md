@@ -1,5 +1,16 @@
 # IMS — Fixes Log
 
+## Phase 37 — Test Depth Expansion to ≥85 (February 22, 2026)
+
+Targeted expansion of all 707 test files with 80-84 tests to ≥85 each.
+
+**Net new tests:** +3,520 (56,891 → 60,411), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (136 → 0):**
+- ReferenceError in 136 files: two snippets (cartesian product, combinations) referenced arrow function parameters `a`/`b` outside their function scope in a subsequent `const r=a.flatMap(...)` expression. Fixed by inlining the array literals directly.
+
+---
+
 ## Phase 36 — Test Depth Expansion to ≥80 (February 22, 2026)
 
 Targeted expansion of all 703 test files with 75-79 tests to ≥80 each.
