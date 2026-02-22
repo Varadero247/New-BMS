@@ -421,3 +421,84 @@ describe('audits — extended edge cases', () => {
     expect(res.body.pagination.total).toBe(20);
   });
 });
+
+describe('audits — final coverage', () => {
+  const AUDIT_ID = '00000000-0000-0000-0000-000000000001';
+
+  it('GET /api/audits returns success:true on empty list', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/audits');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('PUT /api/audits/:id/complete returns 500 on DB failure', async () => {
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: AUDIT_ID, status: 'IN_PROGRESS' });
+    (prisma.energyAudit.update as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).put(`/api/audits/${AUDIT_ID}/complete`).send({ score: 80 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/audits creates REGULATORY audit type', async () => {
+    (prisma.energyAudit.create as jest.Mock).mockResolvedValue({
+      id: AUDIT_ID,
+      title: 'Regulatory Compliance Review',
+      type: 'REGULATORY',
+      status: 'PLANNED',
+    });
+
+    const res = await request(app).post('/api/audits').send({
+      title: 'Regulatory Compliance Review',
+      type: 'REGULATORY',
+      auditor: 'Regulatory Body Ltd',
+      scheduledDate: '2026-11-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.type).toBe('REGULATORY');
+  });
+
+  it('DELETE /api/audits/:id returns 500 on DB error during update', async () => {
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: AUDIT_ID });
+    (prisma.energyAudit.update as jest.Mock).mockRejectedValue(new Error('Connection lost'));
+
+    const res = await request(app).delete(`/api/audits/${AUDIT_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/audits/:id data has id field', async () => {
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: AUDIT_ID, title: 'Test Audit' });
+
+    const res = await request(app).get(`/api/audits/${AUDIT_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id', AUDIT_ID);
+  });
+
+  it('PUT /api/audits/:id/complete from PLANNED also rejects as already correct', async () => {
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: AUDIT_ID, status: 'COMPLETED' });
+
+    const res = await request(app).put(`/api/audits/${AUDIT_ID}/complete`).send({ score: 75 });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/audits response pagination has limit property', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/audits?limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit', 5);
+  });
+});

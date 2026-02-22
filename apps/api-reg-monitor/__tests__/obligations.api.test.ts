@@ -345,3 +345,61 @@ describe('Obligations — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Obligations — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/obligations data is an array', async () => {
+    mockPrisma.regObligation.findMany.mockResolvedValue([]);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/obligations');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/obligations/:id success:true when found', async () => {
+    mockPrisma.regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Test Obligation' });
+    const res = await request(app).get('/api/obligations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/obligations referenceNumber created by server', async () => {
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    mockPrisma.regObligation.create.mockResolvedValue({ id: '1', title: 'Filing', referenceNumber: 'ROB-2026-0001' });
+    await request(app).post('/api/obligations').send({ title: 'Filing' });
+    expect(mockPrisma.regObligation.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ referenceNumber: expect.any(String) }) })
+    );
+  });
+
+  it('PUT /api/obligations/:id calls update on correct id', async () => {
+    mockPrisma.regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old' });
+    mockPrisma.regObligation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New' });
+    await request(app)
+      .put('/api/obligations/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New' });
+    expect(mockPrisma.regObligation.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('DELETE /api/obligations/:id calls update with deletedAt', async () => {
+    mockPrisma.regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Annual Report' });
+    mockPrisma.regObligation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/obligations/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.regObligation.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/obligations pagination.page reflects query param', async () => {
+    mockPrisma.regObligation.findMany.mockResolvedValue([]);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/obligations?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+  });
+});

@@ -360,3 +360,50 @@ describe('Competences — extended edge cases', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Competences — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / findMany called once per request', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/competences');
+    expect(prisma.qualCompetence.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / generates a reference number', async () => {
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(2);
+    (prisma.qualCompetence.create as jest.Mock).mockResolvedValue({ ...mockCompetence, referenceNumber: 'COMP-2026-003' });
+    const res = await request(app).post('/api/competences').send({
+      employeeName: 'Third Person',
+      competencyArea: 'Machining',
+      status: 'IN_TRAINING',
+      assessmentDate: '2026-02-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toBe('COMP-2026-003');
+  });
+
+  it('GET / returns success:true on valid list', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([mockCompetence]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/competences');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id calls update once on success', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
+    (prisma.qualCompetence.update as jest.Mock).mockResolvedValue({ ...mockCompetence, status: 'COMPETENT' });
+    await request(app).put('/api/competences/00000000-0000-0000-0000-000000000001').send({ status: 'COMPETENT' });
+    expect(prisma.qualCompetence.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / pagination total matches count mock value', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(12);
+    const res = await request(app).get('/api/competences');
+    expect(res.body.pagination.total).toBe(12);
+  });
+});

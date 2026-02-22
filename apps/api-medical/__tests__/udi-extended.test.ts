@@ -418,3 +418,71 @@ describe('UDI Routes — additional response shape coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// UDI Routes — extended edge-case coverage
+// ===================================================================
+describe('UDI Routes — extended edge-case coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/udi/devices includes meta.page in response', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/udi/devices');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('page');
+  });
+
+  it('POST /api/udi/devices returns 400 for missing manufacturer', async () => {
+    const res = await request(app).post('/api/udi/devices').send({
+      deviceName: 'Pacemaker X1',
+      modelNumber: 'PM-X1-100',
+      deviceClass: 'CLASS_III',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/udi/devices/:id returns 500 on database error', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).get('/api/udi/devices/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/udi/devices/:id/submissions/:sid returns 500 on DB update error', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.udiSubmission.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (mockPrisma.udiSubmission.update as jest.Mock).mockRejectedValue(new Error('DB failure'));
+    const res = await request(app)
+      .put(
+        '/api/udi/devices/00000000-0000-0000-0000-000000000001/submissions/00000000-0000-0000-0000-000000000001'
+      )
+      .send({ status: 'SUBMITTED' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/udi/devices/:id/submissions returns 500 on DB error', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.udiSubmission.findMany as jest.Mock).mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).get(
+      '/api/udi/devices/00000000-0000-0000-0000-000000000001/submissions'
+    );
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/udi/devices with manufacturer filter returns filtered results', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/udi/devices?manufacturer=CardioTech');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+});

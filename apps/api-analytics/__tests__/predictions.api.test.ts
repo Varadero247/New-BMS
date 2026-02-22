@@ -244,3 +244,49 @@ describe('Predictions — edge cases and extended coverage', () => {
     expect(res.body.pagination).toHaveProperty('total');
   });
 });
+
+describe('Predictions — final coverage', () => {
+  it('GET /api/predictions/capa-overrun aiDisclosure has model field', async () => {
+    const res = await request(app).get('/api/predictions/capa-overrun');
+    expect(res.status).toBe(200);
+    expect(res.body.data.aiDisclosure).toHaveProperty('model');
+  });
+
+  it('GET /api/predictions/audit-forecast aiDisclosure has model field', async () => {
+    const res = await request(app).get('/api/predictions/audit-forecast');
+    expect(res.status).toBe(200);
+    expect(res.body.data.aiDisclosure).toHaveProperty('model');
+  });
+
+  it('GET /api/predictions/ncr-forecast aiDisclosure has model field', async () => {
+    const res = await request(app).get('/api/predictions/ncr-forecast');
+    expect(res.status).toBe(200);
+    expect(res.body.data.aiDisclosure).toHaveProperty('model');
+  });
+
+  it('GET /api/predictions/capa-overrun predictions each have overrunProbability field', async () => {
+    const res = await request(app).get('/api/predictions/capa-overrun');
+    expect(res.status).toBe(200);
+    if (res.body.data.predictions.length > 0) {
+      expect(res.body.data.predictions[0]).toHaveProperty('overrunProbability');
+    }
+  });
+
+  it('POST /api/predictions/generate with type returns type in data', async () => {
+    const res = await request(app)
+      .post('/api/predictions/generate')
+      .send({ type: 'capa_overrun' });
+    expect(res.status).toBe(202);
+    expect(res.body.data.type).toBe('capa_overrun');
+  });
+
+  it('GET /api/predictions body is an object', async () => {
+    const res = await request(app).get('/api/predictions');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/predictions returns correct content-type', async () => {
+    const res = await request(app).get('/api/predictions');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

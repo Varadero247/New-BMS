@@ -359,3 +359,63 @@ describe('supplier-orders — edge cases and validation', () => {
     expect(mockPrisma.portalOrder.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Supplier Orders — final coverage', () => {
+  it('GET list: response body has success and data fields', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/purchase-orders');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET list: pagination has page, limit, total, totalPages fields', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/purchase-orders');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET list: returns empty array when no orders exist', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/purchase-orders');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST confirm: findFirst called with correct order id', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(null);
+    await request(app)
+      .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')
+      .send({});
+    expect(mockPrisma.portalOrder.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET list: filter by CANCELLED status returns 200', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/purchase-orders?status=CANCELLED');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST confirm: success true when SUBMITTED order is confirmed', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      type: 'PURCHASE',
+      status: 'SUBMITTED',
+      notes: null,
+      expectedDelivery: null,
+    });
+    mockPrisma.portalOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'CONFIRMED' });
+    const res = await request(app)
+      .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')
+      .send({});
+    expect(res.body.success).toBe(true);
+  });
+});

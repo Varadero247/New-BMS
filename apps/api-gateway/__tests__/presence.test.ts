@@ -318,3 +318,42 @@ describe('Presence — edge cases and error paths', () => {
     expect(mockAcquireLock).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Presence — final coverage batch', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/presence', presenceRouter);
+    jest.clearAllMocks();
+    mockGetPresence.mockReturnValue([]);
+    mockAcquireLock.mockReturnValue({ acquired: true });
+  });
+
+  it('GET /api/presence response is JSON content-type', async () => {
+    const res = await request(app).get('/api/presence?recordType=ncr&recordId=r1');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/presence/lock response is JSON content-type', async () => {
+    const res = await request(app).post('/api/presence/lock').send({ recordType: 'capa', recordId: 'c1' });
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('DELETE /api/presence/lock response is JSON content-type', async () => {
+    const res = await request(app).delete('/api/presence/lock').send({ recordType: 'ncr', recordId: 'r1' });
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('PUT /api/presence/refresh response is JSON content-type', async () => {
+    const res = await request(app).put('/api/presence/refresh').send({ recordType: 'ncr', recordId: 'r1' });
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/presence data has viewers property', async () => {
+    const res = await request(app).get('/api/presence?recordType=ncr&recordId=r9');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('viewers');
+  });
+});

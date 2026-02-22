@@ -337,3 +337,59 @@ describe('locations — extended coverage', () => {
     expect(res.body.pagination.limit).toBe(5);
   });
 });
+
+describe('locations — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST / sets createdBy from the authenticated user', async () => {
+    prisma.cmmsLocation.create.mockResolvedValue(mockLocation);
+    await request(app).post('/api/locations').send({
+      name: 'Warehouse B',
+      code: 'LOC-002',
+      type: 'BUILDING',
+    });
+    expect(prisma.cmmsLocation.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('GET / search filter passes OR clause to findMany', async () => {
+    prisma.cmmsLocation.findMany.mockResolvedValue([]);
+    prisma.cmmsLocation.count.mockResolvedValue(0);
+    await request(app).get('/api/locations?search=Factory');
+    expect(prisma.cmmsLocation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
+    );
+  });
+
+  it('PUT / updates address field and returns success', async () => {
+    prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
+    prisma.cmmsLocation.update.mockResolvedValue({ ...mockLocation, address: '456 New Street' });
+    const res = await request(app)
+      .put('/api/locations/00000000-0000-0000-0000-000000000001')
+      .send({ address: '456 New Street' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.address).toBe('456 New Street');
+  });
+
+  it('DELETE / soft-deletes by setting deletedAt via update', async () => {
+    prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
+    prisma.cmmsLocation.update.mockResolvedValue({ ...mockLocation, deletedAt: new Date() });
+    const res = await request(app).delete('/api/locations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(prisma.cmmsLocation.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns success:true and data is an array', async () => {
+    prisma.cmmsLocation.findMany.mockResolvedValue([mockLocation]);
+    prisma.cmmsLocation.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

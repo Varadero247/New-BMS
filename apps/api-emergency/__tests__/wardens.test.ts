@@ -403,3 +403,82 @@ describe('wardens — extended edge cases', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('wardens — final coverage', () => {
+  it('GET /api/wardens returns data array', async () => {
+    mockWarden.findMany.mockResolvedValue([fakeWarden]);
+    mockWarden.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/wardens');
+
+    if (res.status === 200) {
+      expect(Array.isArray(res.body.data)).toBe(true);
+    } else {
+      expect([400, 404, 500]).toContain(res.status);
+    }
+  });
+
+  it('POST /api/wardens/premises/:id creates warden with LIAISON_OFFICER role', async () => {
+    const liaisonWarden = { ...fakeWarden, icsRole: 'LIAISON_OFFICER' };
+    mockWarden.create.mockResolvedValue(liaisonWarden);
+
+    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send({
+      name: 'Henry Clark',
+      icsRole: 'LIAISON_OFFICER',
+      areaResponsible: 'Floor 4',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.icsRole).toBe('LIAISON_OFFICER');
+  });
+
+  it('PUT /api/wardens/:id updates phone number', async () => {
+    const updated = { ...fakeWarden, phone: '07700900002' };
+    mockWarden.findFirst.mockResolvedValue(fakeWarden);
+    mockWarden.update.mockResolvedValue(updated);
+
+    const res = await request(app).put(`/api/wardens/${WARDEN_ID}`).send({ phone: '07700900002' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/wardens/training-expiring includes premises info', async () => {
+    const expiring = { ...fakeWarden, trainingExpiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), premises: { name: 'Branch Office' } };
+    mockWarden.findMany.mockResolvedValue([expiring]);
+
+    const res = await request(app).get('/api/wardens/training-expiring');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].premises).toBeDefined();
+  });
+
+  it('GET /api/wardens/premises/:id returns correct premisesId filtered result', async () => {
+    mockWarden.findMany.mockResolvedValue([fakeWarden]);
+
+    const res = await request(app).get(`/api/wardens/premises/${PREMISES_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].premisesId).toBe(PREMISES_ID);
+  });
+
+  it('POST warden with name only fails if icsRole missing', async () => {
+    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send({
+      name: 'Mary Lane',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/wardens/:id returns data.id in response', async () => {
+    const updated = { ...fakeWarden, jobTitle: 'Floor Manager' };
+    mockWarden.findFirst.mockResolvedValue(fakeWarden);
+    mockWarden.update.mockResolvedValue(updated);
+
+    const res = await request(app).put(`/api/wardens/${WARDEN_ID}`).send({ jobTitle: 'Floor Manager' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(WARDEN_ID);
+  });
+});

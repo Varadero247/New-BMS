@@ -323,6 +323,7 @@ describe('Medical Design Validation API Routes', () => {
       expect(res.body.meta.totalPages).toBe(4);
     });
 
+
     it('GET /api/validation passes skip based on page and limit to findMany', async () => {
       mockPrisma.designValidation.findMany.mockResolvedValue([]);
       mockPrisma.designValidation.count.mockResolvedValue(0);
@@ -387,6 +388,65 @@ describe('Medical Design Validation API Routes', () => {
       const res = await request(app).get('/api/validation/stats');
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
+    });
+
+    it('DELETE /api/validation/:id returns 500 on DB error', async () => {
+      mockPrisma.designValidation.findUnique.mockResolvedValue(mockValidation);
+      mockPrisma.designValidation.delete.mockRejectedValue(new Error('DB error'));
+      const res = await request(app).delete('/api/validation/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('POST /api/validation returns created item in data field', async () => {
+      mockPrisma.designProject.findUnique.mockResolvedValue(mockProject);
+      mockPrisma.designValidation.create.mockResolvedValue(mockValidation);
+      const res = await request(app).post('/api/validation').send({
+        projectId: 'project-uuid-1',
+        title: 'Clinical Performance Validation',
+        testMethod: 'Clinical trial phase II',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+    });
+
+    it('GET /api/validation/stats returns passRate as a number', async () => {
+      mockPrisma.designValidation.count
+        .mockResolvedValueOnce(4)
+        .mockResolvedValueOnce(3)
+        .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(4);
+      const res = await request(app).get('/api/validation/stats');
+      expect(res.status).toBe(200);
+      expect(typeof res.body.data.passRate).toBe('number');
+    });
+
+    it('GET /api/validation with page=2&limit=10 returns meta.page=2', async () => {
+      mockPrisma.designValidation.findMany.mockResolvedValue([]);
+      mockPrisma.designValidation.count.mockResolvedValue(100);
+      const res = await request(app).get('/api/validation?page=2&limit=10');
+      expect(res.status).toBe(200);
+      expect(res.body.meta.page).toBe(2);
+    });
+
+    it('PUT /api/validation/:id returns 500 on DB update error with success:false', async () => {
+      mockPrisma.designValidation.findUnique.mockResolvedValue(mockValidation);
+      mockPrisma.designValidation.update.mockRejectedValue(new Error('DB error'));
+      const res = await request(app)
+        .put('/api/validation/00000000-0000-0000-0000-000000000001')
+        .send({ title: 'Updated' });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('GET /api/validation returns data array even when empty', async () => {
+      mockPrisma.designValidation.findMany.mockResolvedValue([]);
+      mockPrisma.designValidation.count.mockResolvedValue(0);
+      const res = await request(app).get('/api/validation');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data).toEqual([]);
     });
   });
 });

@@ -458,3 +458,108 @@ describe('Dashboard API Routes — extended edge cases', () => {
     expect(typeof res.body.data.incidents.thisMonth).toBe('number');
   });
 });
+
+describe('Dashboard API Routes — final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/dashboard', dashboardRoutes);
+    jest.clearAllMocks();
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.risk.count as jest.Mock).mockResolvedValue(0);
+    mockPrisma.risk.groupBy.mockResolvedValue([]);
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.incident.count as jest.Mock).mockResolvedValue(0);
+    mockPrisma.incident.groupBy.mockResolvedValue([]);
+    (mockPrisma.action.count as jest.Mock).mockResolvedValue(0);
+    mockPrisma.action.findMany.mockResolvedValue([]);
+    (mockPrisma.aIAnalysis.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValue([]);
+  });
+
+  it('GET /api/dashboard/stats returns success true', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([
+      { standard: 'ISO_45001', overallScore: 70 },
+      { standard: 'ISO_14001', overallScore: 70 },
+      { standard: 'ISO_9001', overallScore: 70 },
+    ]);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/dashboard/stats risks.byStandard is an object', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([
+      { standard: 'ISO_45001', overallScore: 75 },
+      { standard: 'ISO_14001', overallScore: 75 },
+      { standard: 'ISO_9001', overallScore: 75 },
+    ]);
+    mockPrisma.risk.groupBy.mockResolvedValue([
+      { standard: 'ISO_45001', _count: { id: 2 } },
+    ]);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.risks.byStandard).toBe('object');
+  });
+
+  it('GET /api/dashboard/stats incidents.byStandard is an object', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([
+      { standard: 'ISO_45001', overallScore: 80 },
+      { standard: 'ISO_14001', overallScore: 80 },
+      { standard: 'ISO_9001', overallScore: 80 },
+    ]);
+    mockPrisma.incident.groupBy.mockResolvedValue([
+      { standard: 'ISO_45001', _count: { id: 1 } },
+    ]);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.incidents.byStandard).toBe('object');
+  });
+
+  it('GET /api/dashboard/compliance returns data with standard field', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValueOnce([
+      { standard: 'ISO_9001', overallScore: 92 },
+    ]);
+    const res = await request(app)
+      .get('/api/dashboard/compliance')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('standard');
+  });
+
+  it('GET /api/dashboard/trends with no filters returns 200', async () => {
+    (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app)
+      .get('/api/dashboard/trends')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/dashboard/stats recentAIInsights is an array', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([
+      { standard: 'ISO_45001', overallScore: 85 },
+      { standard: 'ISO_14001', overallScore: 85 },
+      { standard: 'ISO_9001', overallScore: 85 },
+    ]);
+    (mockPrisma.aIAnalysis.findMany as jest.Mock).mockResolvedValue([
+      { id: 'ai-2', sourceType: 'RISK', suggestedRootCause: 'Equipment failure' },
+    ]);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.recentAIInsights)).toBe(true);
+  });
+
+  it('GET /api/dashboard/trends returns data as array', async () => {
+    (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValueOnce([
+      { standard: 'ISO_9001', metric: 'RISKS', month: 3, value: 5, year: 2026 },
+    ]);
+    const res = await request(app)
+      .get('/api/dashboard/trends')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

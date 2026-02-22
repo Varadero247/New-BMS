@@ -498,3 +498,42 @@ describe('Circuit Breaker — extended coverage', () => {
     expect(headRes.status).toHaveBeenCalledWith(503);
   });
 });
+
+describe('Circuit Breaker — final additional coverage', () => {
+  it('getState returns string CLOSED|OPEN|HALF_OPEN', () => {
+    const cb = createProxyCircuitBreaker({ name: 'FinalTest1' });
+    const state = cb.getState();
+    expect(['CLOSED', 'OPEN', 'HALF_OPEN']).toContain(state);
+  });
+
+  it('onSuccess does not throw when circuit is CLOSED', () => {
+    const cb = createProxyCircuitBreaker({ name: 'FinalTest2' });
+    expect(() => cb.onSuccess()).not.toThrow();
+  });
+
+  it('middleware calls next for CLOSED circuit on PATCH', () => {
+    const cb = createProxyCircuitBreaker({ name: 'FinalTest3' });
+    const { req, res, next } = makeReqRes('PATCH', '/api/data');
+    cb.middleware(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('OPEN circuit json body has service name in error message', () => {
+    const cb = createProxyCircuitBreaker({ name: 'MySpecialService', failureThreshold: 1 });
+    cb.onFailure();
+    const { req, res, next } = makeReqRes('GET', '/api/test');
+    cb.middleware(req, res, next);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(JSON.stringify(jsonArg)).toContain('MySpecialService');
+  });
+
+  it('captureMiddleware is a function', () => {
+    const cb = createProxyCircuitBreaker({ name: 'FinalTest5' });
+    expect(typeof cb.captureMiddleware).toBe('function');
+  });
+
+  it('middleware is a function', () => {
+    const cb = createProxyCircuitBreaker({ name: 'FinalTest6' });
+    expect(typeof cb.middleware).toBe('function');
+  });
+});

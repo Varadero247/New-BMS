@@ -539,3 +539,76 @@ describe('sprints.api — edge cases and extended coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('sprints.api — final extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/sprints', sprintsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /api/sprints/:id does not call update when not found', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/sprints/00000000-0000-4000-a000-ffffffffffff');
+    expect(mockPrisma.projectSprint.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/sprints returns data as array', async () => {
+    (mockPrisma.projectSprint.findMany as jest.Mock).mockResolvedValueOnce([mockSprint]);
+    (mockPrisma.projectSprint.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app)
+      .get('/api/sprints')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/sprints meta.page defaults to 1', async () => {
+    (mockPrisma.projectSprint.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectSprint.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app)
+      .get('/api/sprints')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(res.body.meta.page).toBe(1);
+  });
+
+  it('PUT /api/sprints/:id does not call update when not found', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .put('/api/sprints/00000000-0000-4000-a000-ffffffffffff')
+      .send({ sprintGoal: 'Never updated' });
+    expect(mockPrisma.projectSprint.update).not.toHaveBeenCalled();
+  });
+
+  it('POST /api/sprints returns 201 with created sprint id', async () => {
+    (mockPrisma.projectSprint.create as jest.Mock).mockResolvedValueOnce({
+      ...mockSprint,
+      id: '45000000-0000-4000-a000-000000000099',
+      sprintNumber: 10,
+      sprintName: 'Sprint 10',
+    });
+    const res = await request(app).post('/api/sprints').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      sprintNumber: 10,
+      sprintName: 'Sprint 10',
+      startDate: '2025-10-01',
+      endDate: '2025-10-15',
+      duration: 14,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('45000000-0000-4000-a000-000000000099');
+  });
+
+  it('GET /api/sprints/:id/stories returns stories array', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValueOnce(mockSprint);
+    (mockPrisma.projectUserStory.findMany as jest.Mock).mockResolvedValueOnce([mockUserStory]);
+    const res = await request(app).get(
+      '/api/sprints/45000000-0000-4000-a000-000000000001/stories'
+    );
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+});

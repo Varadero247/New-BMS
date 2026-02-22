@@ -434,3 +434,88 @@ describe('projects — extended coverage', () => {
     expect(res.body.data.overallROI).toBeGreaterThan(0);
   });
 });
+
+describe('projects — further edge cases', () => {
+  it('POST /api/projects returns 400 for missing title', async () => {
+    const res = await request(app).post('/api/projects').send({
+      type: 'EFFICIENCY',
+      estimatedSavings: 5000,
+      investmentCost: 10000,
+      paybackMonths: 24,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/projects/:id/complete returns 404 when project not found', async () => {
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app)
+      .put('/api/projects/00000000-0000-0000-0000-000000000099/complete')
+      .send({ actualSavings: 5000 });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/projects response success field is true', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/projects');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/projects/:id marks deleted flag as true in response', async () => {
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({
+      id: 'eb000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyProject.update as jest.Mock).mockResolvedValue({
+      id: 'eb000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/projects/eb000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('GET /api/projects/roi-summary completedProjects and inProgressProjects fields present', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([
+      { id: '1', status: 'COMPLETED', investmentCost: 5000, estimatedSavings: 8000, actualSavings: 7000, paybackMonths: 10 },
+      { id: '2', status: 'IN_PROGRESS', investmentCost: 3000, estimatedSavings: 5000, actualSavings: 1000, paybackMonths: 18 },
+    ]);
+
+    const res = await request(app).get('/api/projects/roi-summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('completedProjects');
+    expect(res.body.data).toHaveProperty('inProgressProjects');
+    expect(res.body.data.completedProjects).toBe(1);
+    expect(res.body.data.inProgressProjects).toBe(1);
+  });
+
+  it('POST /api/projects sets default status to PROPOSED', async () => {
+    (prisma.energyProject.create as jest.Mock).mockResolvedValue({
+      id: 'eb000000-0000-4000-a000-000000000010',
+      title: 'Solar Panels',
+      type: 'RENEWABLE',
+      status: 'PROPOSED',
+      estimatedSavings: 20000,
+      investmentCost: 40000,
+      paybackMonths: 24,
+    });
+
+    const res = await request(app).post('/api/projects').send({
+      title: 'Solar Panels',
+      type: 'RENEWABLE',
+      estimatedSavings: 20000,
+      investmentCost: 40000,
+      paybackMonths: 24,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('PROPOSED');
+  });
+});

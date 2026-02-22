@@ -380,3 +380,67 @@ describe('Food Safety CCPs — edge cases and error paths', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ===================================================================
+// Food Safety CCPs — final coverage block
+// ===================================================================
+describe('Food Safety CCPs — final coverage', () => {
+  it('GET /ccps count is called once per list request', async () => {
+    mockPrisma.fsCcp.findMany.mockResolvedValue([]);
+    mockPrisma.fsCcp.count.mockResolvedValue(0);
+    await request(app).get('/api/ccps');
+    expect(mockPrisma.fsCcp.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /ccps/:id returns success:true on found record', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000040',
+      name: 'Metal Detection',
+      hazard: null,
+      monitoringRecords: [],
+    });
+    const res = await request(app).get('/api/ccps/00000000-0000-0000-0000-000000000040');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /ccps/:id calls update with deletedAt field', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000041' });
+    mockPrisma.fsCcp.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000041' });
+    await request(app).delete('/api/ccps/00000000-0000-0000-0000-000000000041');
+    expect(mockPrisma.fsCcp.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.anything() }) })
+    );
+  });
+
+  it('POST /ccps count is called before create to generate CCP number', async () => {
+    mockPrisma.fsCcp.count.mockResolvedValue(3);
+    mockPrisma.fsCcp.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000042',
+      name: 'Pasteurisation',
+      number: 'CCP-004',
+      processStep: 'Heating',
+      criticalLimit: '72C for 15 seconds',
+      monitoringMethod: 'Thermocouple',
+      monitoringFrequency: 'CONTINUOUS',
+    });
+    await request(app).post('/api/ccps').send({
+      name: 'Pasteurisation',
+      processStep: 'Heating',
+      criticalLimit: '72C for 15 seconds',
+      monitoringMethod: 'Thermocouple',
+      monitoringFrequency: 'CONTINUOUS',
+    });
+    expect(mockPrisma.fsCcp.count).toHaveBeenCalled();
+    expect(mockPrisma.fsCcp.create).toHaveBeenCalled();
+  });
+
+  it('GET /ccps/:id/monitoring-records pagination total reflects mock count', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000043' });
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/ccps/00000000-0000-0000-0000-000000000043/monitoring-records');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(15);
+  });
+});

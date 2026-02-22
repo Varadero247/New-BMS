@@ -361,3 +361,83 @@ describe('Uptime Monitor — comprehensive edge cases', () => {
     expect(updateCall.where.id).toBe('open-inc-99');
   });
 });
+
+describe('Uptime Monitor — final coverage block', () => {
+  it('incident create is not called when service status matches expected', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'fin-chk-1', url: 'https://fin1.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    expect(prisma.uptimeIncident.create).not.toHaveBeenCalled();
+  });
+
+  it('does not call uptimeIncident.update when no open incident and service is UP', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'fin-chk-2', url: 'https://fin2.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    expect(prisma.uptimeIncident.update).not.toHaveBeenCalled();
+  });
+
+  it('resolves gracefully when findFirst throws during UP check', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'fin-chk-3', url: 'https://fin3.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockRejectedValue(new Error('findFirst error'));
+    await expect(runUptimeMonitorJob()).resolves.toBeUndefined();
+  });
+
+  it('uptimeCheck.update where clause has id equal to check id', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'fin-chk-4', url: 'https://fin4.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    const call = (prisma.uptimeCheck.update as jest.Mock).mock.calls[0][0];
+    expect(call.where).toEqual({ id: 'fin-chk-4' });
+  });
+
+  it('incident update resolvedAt data field is a Date', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'fin-chk-5', url: 'https://fin5.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue({ id: 'open-fin-1', resolvedAt: null });
+    (prisma.uptimeIncident.update as jest.Mock).mockResolvedValue({});
+    await runUptimeMonitorJob();
+    const call = (prisma.uptimeIncident.update as jest.Mock).mock.calls[0][0];
+    expect(call.data.resolvedAt).toBeInstanceOf(Date);
+  });
+
+  it('handles five checks and calls findMany once', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'f1', url: 'https://f1.com', active: true, expectedStatus: 200 },
+      { id: 'f2', url: 'https://f2.com', active: true, expectedStatus: 200 },
+      { id: 'f3', url: 'https://f3.com', active: true, expectedStatus: 200 },
+      { id: 'f4', url: 'https://f4.com', active: true, expectedStatus: 200 },
+      { id: 'f5', url: 'https://f5.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    expect(prisma.uptimeCheck.findMany).toHaveBeenCalledTimes(1);
+    expect(prisma.uptimeCheck.update).toHaveBeenCalledTimes(5);
+  });
+
+  it('incident create statusCode field is a number', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'fin-chk-6', url: 'https://fin6.com', active: true, expectedStatus: 201 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.create as jest.Mock).mockResolvedValue({ id: 'fin-inc-6' });
+    await runUptimeMonitorJob();
+    const call = (prisma.uptimeIncident.create as jest.Mock).mock.calls[0][0];
+    expect(typeof call.data.statusCode).toBe('number');
+  });
+});

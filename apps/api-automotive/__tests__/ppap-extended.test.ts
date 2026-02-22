@@ -430,3 +430,74 @@ describe('PPAP Routes', () => {
     });
   });
 });
+
+describe('PPAP Routes — final coverage block', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/ppap returns empty data array when no projects exist', async () => {
+    (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/ppap');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/ppap meta.totalPages is 0 when count is 0', async () => {
+    (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/ppap');
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+
+  it('GET /api/ppap/:id returns 500 on DB error', async () => {
+    (mockPrisma.ppapProject.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/ppap/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/ppap/:id/readiness returns percentage=100 when all elements complete', async () => {
+    (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      elements: [
+        { elementNumber: 1, elementName: 'Design Records', status: 'COMPLETED' },
+        { elementNumber: 2, elementName: 'Auth Changes', status: 'COMPLETED' },
+      ],
+    });
+    const res = await request(app).get('/api/ppap/00000000-0000-0000-0000-000000000001/readiness');
+    expect(res.status).toBe(200);
+    expect(res.body.data.percentage).toBe(100);
+    expect(res.body.data.missingElements).toHaveLength(0);
+  });
+
+  it('PUT /api/ppap/:id/elements/:elementNumber returns 500 on DB error', async () => {
+    (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.ppapElement.findFirst as jest.Mock).mockResolvedValue({ id: 'el-1', elementNumber: 1 });
+    (mockPrisma.ppapElement.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/ppap/00000000-0000-0000-0000-000000000001/elements/1')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/ppap/:id/psw returns 500 on DB error', async () => {
+    (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      submissionLevel: 3,
+    });
+    (mockPrisma.ppapSubmission.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.ppapSubmission.create as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .post('/api/ppap/00000000-0000-0000-0000-000000000001/psw')
+      .send({});
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

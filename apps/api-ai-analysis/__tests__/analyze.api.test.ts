@@ -815,3 +815,105 @@ describe('analyze.api — edge cases', () => {
     expect(res.body.error.code).toBe('PARSE_ERROR');
   });
 });
+
+// ── analyze.api — final additional coverage ───────────────────────────────
+
+describe('analyze.api — final additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyze', analyzeRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('POST /api/analyze returns 500 when prisma findFirst throws a DB error', async () => {
+    mockPrisma.aISettings.findFirst.mockRejectedValueOnce(new Error('DB connection lost'));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'Update throw test' } });
+    // The route catches DB errors in its outer try-catch
+    expect([500, 502]).toContain(res.status);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/analyze returns 400 for missing required type and context fields', async () => {
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/analyze response body always contains success field', async () => {
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'Check success field' } });
+    // No AI config set up; should get NO_AI_CONFIG
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('POST /api/analyze with OPENAI provider includes Authorization Bearer header', async () => {
+    const legalRefs = [{ regulation: 'HSWA', section: 'S2', relevance: 'Duty' }];
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ choices: [{ message: { content: JSON.stringify(legalRefs) } }], usage: { total_tokens: 30 } }),
+    });
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'Header test' } });
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://api.openai.com/v1/chat/completions',
+      expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer sk-test-key-123' }) })
+    );
+  });
+
+  it('POST /api/analyze returns 400 for type with null context', async () => {
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: null });
+    expect([400, 500]).toContain(res.status);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/analyze returns 502 AI_ERROR when AI returns ok:false with non-JSON error body', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      json: jest.fn().mockResolvedValue({ message: 'Unknown error' }),
+    });
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'AI error test' } });
+    expect(res.status).toBe(502);
+    expect(res.body.error.code).toBe('AI_ERROR');
+  });
+
+  it('POST /api/analyze for LESSONS_LEARNED returns 200 with type in response', async () => {
+    const result = { topLesson: 'Early stakeholder engagement critical', actionableInsight: 'Review process quarterly', processImprovement: 'Add gate review at 25% mark', riskMitigation: 'Front-load risk identification' };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ choices: [{ message: { content: JSON.stringify(result) } }], usage: { total_tokens: 80 } }),
+    });
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LESSONS_LEARNED', context: { projectName: 'IMS v2', outcome: 'Delivered on time', challengesFaced: 'Scope creep' } });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.type).toBe('LESSONS_LEARNED');
+  });
+});

@@ -399,3 +399,120 @@ describe('File Upload Middleware', () => {
     });
   });
 });
+
+describe('File Upload Middleware — additional coverage', () => {
+  describe('generateSecureFilename edge cases', () => {
+    it('handles files with no extension', () => {
+      const filename = generateSecureFilename('README');
+      expect(filename).toMatch(/^[a-z0-9]+-[a-f0-9]{32}$/);
+    });
+
+    it('handles files with multiple dots', () => {
+      const filename = generateSecureFilename('archive.tar.gz');
+      expect(filename).toMatch(/\.gz$/);
+    });
+
+    it('generates filenames of consistent format', () => {
+      const filename = generateSecureFilename('test.pdf');
+      const parts = filename.split('-');
+      // timestamp-randomhex.ext
+      expect(parts.length).toBe(2);
+    });
+
+    it('produces different filenames on successive calls', () => {
+      const results = new Set<string>();
+      for (let i = 0; i < 5; i++) {
+        results.add(generateSecureFilename('doc.pdf'));
+      }
+      expect(results.size).toBe(5);
+    });
+  });
+
+  describe('getFileInfo additional cases', () => {
+    it('returns correct mimeType field', () => {
+      const mockFile: Express.Multer.File = {
+        fieldname: 'file',
+        originalname: 'photo.jpg',
+        encoding: '7bit',
+        mimetype: 'image/jpeg',
+        destination: '/uploads',
+        filename: 'xyz789.jpg',
+        path: '/uploads/xyz789.jpg',
+        size: 2048,
+        stream: null as unknown as import('stream').Readable,
+        buffer: Buffer.alloc(0),
+      };
+      const info = getFileInfo(mockFile);
+      expect(info.mimeType).toBe('image/jpeg');
+    });
+
+    it('returns correct size field', () => {
+      const mockFile: Express.Multer.File = {
+        fieldname: 'file',
+        originalname: 'report.pdf',
+        encoding: '7bit',
+        mimetype: 'application/pdf',
+        destination: '/uploads',
+        filename: 'rep001.pdf',
+        path: '/uploads/rep001.pdf',
+        size: 99999,
+        stream: null as unknown as import('stream').Readable,
+        buffer: Buffer.alloc(0),
+      };
+      const info = getFileInfo(mockFile);
+      expect(info.size).toBe(99999);
+    });
+
+    it('url defaults to /uploads/ prefix when FILE_BASE_URL not set', () => {
+      const originalEnv = process.env.FILE_BASE_URL;
+      delete process.env.FILE_BASE_URL;
+
+      const mockFile: Express.Multer.File = {
+        fieldname: 'file',
+        originalname: 'test.png',
+        encoding: '7bit',
+        mimetype: 'image/png',
+        destination: '/uploads',
+        filename: 'test123.png',
+        path: '/uploads/test123.png',
+        size: 512,
+        stream: null as unknown as import('stream').Readable,
+        buffer: Buffer.alloc(0),
+      };
+      const info = getFileInfo(mockFile);
+      expect(info.url).toBe('/uploads/test123.png');
+
+      process.env.FILE_BASE_URL = originalEnv;
+    });
+  });
+
+  describe('handleUploadError additional MulterError codes', () => {
+    let mockReq: Partial<Request>;
+    let mockRes: Partial<Response>;
+    let mockNext: NextFunction;
+
+    beforeEach(() => {
+      mockReq = {};
+      mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+      };
+      mockNext = jest.fn();
+    });
+
+    it('handles an error message containing "not allowed" at the word boundary', () => {
+      const err = new Error("Extension '.exe' is not allowed");
+      handleUploadError(err, mockReq as Request, mockRes as Response, mockNext);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect((mockRes.json as jest.Mock).mock.calls[0][0].error.code).toBe('INVALID_FILE');
+    });
+
+    it('responds with 400 and UPLOAD_ERROR code for unknown MulterError code', () => {
+      const err = new multer.MulterError('LIMIT_PART_COUNT');
+      handleUploadError(err, mockReq as Request, mockRes as Response, mockNext);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      const body = (mockRes.json as jest.Mock).mock.calls[0][0];
+      expect(body.error.code).toBe('UPLOAD_ERROR');
+    });
+  });
+});

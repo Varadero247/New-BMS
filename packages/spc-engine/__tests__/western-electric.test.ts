@@ -255,3 +255,49 @@ describe('detectWesternElectricRules — comprehensive', () => {
     });
   });
 });
+
+// ─── Return structure and additional rules coverage ────────────────────────────
+
+describe('detectWesternElectricRules — return structure coverage', () => {
+  it('each violation has rule, pointIndex, and description fields', () => {
+    const chart = makeChart([10, 10, 10, 14, 10], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart);
+    expect(violations.length).toBeGreaterThan(0);
+    for (const v of violations) {
+      expect(v).toHaveProperty('rule');
+      expect(v).toHaveProperty('pointIndex');
+      expect(v).toHaveProperty('description');
+    }
+  });
+
+  it('pointIndex is always a valid index into dataPoints', () => {
+    const chart = makeChart([14, 10, 6, 10, 14, 10, 14], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart);
+    for (const v of violations) {
+      expect(v.pointIndex).toBeGreaterThanOrEqual(0);
+      expect(v.pointIndex).toBeLessThan(chart.dataPoints.length);
+    }
+  });
+
+  it('rule field is one of RULE_1, RULE_2, RULE_3, RULE_4', () => {
+    const chart = makeChart([14, 12.5, 11.5, 11.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart);
+    const validRules = new Set(['RULE_1', 'RULE_2', 'RULE_3', 'RULE_4']);
+    for (const v of violations) {
+      expect(validRules.has(v.rule)).toBe(true);
+    }
+  });
+
+  it('returns empty array for 2 perfectly in-control points', () => {
+    const chart = makeChart([10, 10], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart);
+    expect(violations).toHaveLength(0);
+  });
+
+  it('Rule 4 triggers at exactly the 8th consecutive point on the same side', () => {
+    const chart = makeChart([10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5], 10, 13, 7);
+    const rule4 = detectWesternElectricRules(chart).filter((v) => v.rule === 'RULE_4');
+    expect(rule4.length).toBeGreaterThan(0);
+    expect(rule4[0].pointIndex).toBe(7); // 8th index = 7
+  });
+});

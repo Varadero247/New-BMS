@@ -323,3 +323,71 @@ describe('Documents — additional field-validation and pagination coverage', ()
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Documents — method call argument and shape coverage', () => {
+  it('POST / calls create with orgId from authenticated user', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docDocument.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      title: 'Org Doc',
+      referenceNumber: 'DOC-2026-0001',
+    });
+    await request(app).post('/api/documents').send({ title: 'Org Doc' });
+    expect(mockPrisma.docDocument.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ orgId: 'org-1' }) }),
+    );
+  });
+
+  it('PUT /:id calls update with where.id matching the param', async () => {
+    mockPrisma.docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).put('/api/documents/00000000-0000-0000-0000-000000000001').send({ title: 'X' });
+    expect(mockPrisma.docDocument.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } }),
+    );
+  });
+
+  it('DELETE /:id calls update with deletedAt in data', async () => {
+    mockPrisma.docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.docDocument.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }),
+    );
+  });
+
+  it('GET / returns content-type application/json', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET /:id returns 500 with INTERNAL_ERROR on DB error', async () => {
+    mockPrisma.docDocument.findFirst.mockRejectedValue(new Error('Crash'));
+    const res = await request(app).get('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / with type filter passes type to findMany where clause', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    await request(app).get('/api/documents?type=POLICY');
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.any(Object) }),
+    );
+  });
+
+  it('POST / returns the created document with its id in data', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docDocument.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000021',
+      title: 'Check ID',
+      referenceNumber: 'DOC-2026-0002',
+    });
+    const res = await request(app).post('/api/documents').send({ title: 'Check ID' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000021');
+  });
+});

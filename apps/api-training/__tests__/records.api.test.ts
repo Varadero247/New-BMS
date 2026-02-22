@@ -334,3 +334,73 @@ describe('Training Records — extended edge cases', () => {
     expect(mockPrisma.trainRecord.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('records.api — final coverage expansion', () => {
+  it('GET /api/records response content-type contains json', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/records');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/records pagination totalPages is computed correctly', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/records?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('POST /api/records with completedDate creates successfully', async () => {
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    mockPrisma.trainRecord.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      courseId: 'course-1',
+      employeeId: 'emp-1',
+      completedDate: '2026-01-15T00:00:00.000Z',
+    });
+    const res = await request(app).post('/api/records').send({
+      courseId: 'course-1',
+      employeeId: 'emp-1',
+      completedDate: '2026-01-15T00:00:00.000Z',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/records/:id returns 404 with NOT_FOUND code', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/records/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/records/:id with score field succeeds', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainRecord.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      score: 88,
+    });
+    const res = await request(app)
+      .put('/api/records/00000000-0000-0000-0000-000000000001')
+      .send({ score: 88 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/records/:id returns message in data', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainRecord.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/records/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('GET /api/records data is array type', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/records');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

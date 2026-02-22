@@ -439,3 +439,77 @@ describe('Medical Design Verification API — additional coverage', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('Medical Design Verification API — final coverage', () => {
+  const mockVerification = {
+    id: '00000000-0000-0000-0000-000000000001',
+    projectId: 'project-uuid-1',
+    title: 'Electrical Safety Verification',
+    protocol: 'Protocol V1.0',
+    testMethod: 'IEC 60601-1',
+    acceptanceCriteria: 'Pass at 1500V',
+    results: null,
+    pass: null,
+    completedDate: null,
+    completedBy: null,
+    traceToInput: 'DI-001',
+    traceToOutput: 'DO-001',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST / returns 400 for missing acceptanceCriteria', async () => {
+    mockPrisma.designProject.findUnique.mockResolvedValue({
+      id: 'project-uuid-1',
+      status: 'ACTIVE',
+    });
+    const res = await request(app).post('/api/verification').send({
+      projectId: 'project-uuid-1',
+      title: 'Test',
+      testMethod: 'IEC 60601-1',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / returns data array even when empty', async () => {
+    mockPrisma.designVerification.findMany.mockResolvedValue([]);
+    mockPrisma.designVerification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/verification');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id returns 404 when not found with NOT_FOUND code', async () => {
+    mockPrisma.designVerification.findUnique.mockResolvedValue(null);
+    const res = await request(app).get('/api/verification/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE /:id returns 500 on DB error', async () => {
+    mockPrisma.designVerification.findUnique.mockResolvedValue(mockVerification);
+    mockPrisma.designVerification.delete.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/verification/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / returns created verification item in data field', async () => {
+    mockPrisma.designProject.findUnique.mockResolvedValue({
+      id: 'project-uuid-1',
+      status: 'ACTIVE',
+    });
+    mockPrisma.designVerification.create.mockResolvedValue(mockVerification);
+    const res = await request(app).post('/api/verification').send({
+      projectId: 'project-uuid-1',
+      title: 'Electrical Safety Verification',
+      testMethod: 'IEC 60601-1',
+      acceptanceCriteria: 'Pass at 1500V',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

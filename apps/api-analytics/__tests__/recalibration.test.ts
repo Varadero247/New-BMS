@@ -264,3 +264,53 @@ describe('Recalibration — edge cases and further coverage', () => {
     );
   });
 });
+
+describe('Recalibration — final coverage', () => {
+  it('calculateRollingAverages avgMrrGrowth is a number', () => {
+    const result = calculateRollingAverages([{ mrrGrowthPct: 5, revenueChurnPct: 1, newCustomers: 2 }]);
+    expect(typeof result.avgMrrGrowth).toBe('number');
+  });
+
+  it('calculateRollingAverages avgChurnPct is non-negative', () => {
+    const result = calculateRollingAverages([{ mrrGrowthPct: 10, revenueChurnPct: 3, newCustomers: 5 }]);
+    expect(result.avgChurnPct).toBeGreaterThanOrEqual(0);
+  });
+
+  it('calculateRollingAverages avgNewCustomers is non-negative for positive inputs', () => {
+    const result = calculateRollingAverages([{ mrrGrowthPct: 10, revenueChurnPct: 2, newCustomers: 7 }]);
+    expect(result.avgNewCustomers).toBeGreaterThanOrEqual(0);
+  });
+
+  it('classifyTrajectory returns string result', () => {
+    const result = classifyTrajectory([10000], [10000]);
+    expect(typeof result).toBe('string');
+  });
+
+  it('projectForward with 6 months returns array of length 6', () => {
+    const result = projectForward(10000, 5, 6);
+    expect(result).toHaveLength(6);
+  });
+
+  it('blendTargets is commutative when weight=0.5', () => {
+    const r1 = blendTargets(8000, 10000, 0.5);
+    const r2 = blendTargets(10000, 8000, 0.5);
+    expect(r1).toBe(r2);
+  });
+
+  it('runRecalibration does not throw when planTarget.findMany returns empty', async () => {
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
+      id: 'snap-y',
+      monthNumber: 4,
+      mrr: 2000,
+      aiRecommendations: [],
+    });
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { monthNumber: 2, mrrGrowthPct: 10, revenueChurnPct: 2, newCustomers: 3 },
+      { monthNumber: 3, mrrGrowthPct: 12, revenueChurnPct: 1, newCustomers: 4 },
+      { monthNumber: 4, mrrGrowthPct: 11, revenueChurnPct: 2, newCustomers: 5 },
+    ]);
+    (prisma.planTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({});
+    await expect(runRecalibration('snap-y')).resolves.not.toThrow();
+  });
+});

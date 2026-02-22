@@ -432,3 +432,111 @@ describe('Medical Traceability API Routes', () => {
     });
   });
 });
+
+describe('Medical Traceability API — additional coverage', () => {
+  const mockMatrix = {
+    id: '00000000-0000-0000-0000-000000000001',
+    refNumber: 'TRC-2601-0001',
+    title: 'Device A Traceability Matrix',
+    deviceId: 'DEV-001',
+    deviceName: 'Device A',
+    version: '1.0',
+    status: 'DRAFT',
+    scope: 'Full design lifecycle',
+    preparedBy: 'John Engineer',
+    reviewedBy: null,
+    notes: null,
+    createdBy: 'user-1',
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    _count: { links: 0 },
+  };
+
+  const mockLink = {
+    id: '00000000-0000-0000-0000-000000000001',
+    matrixId: '00000000-0000-0000-0000-000000000001',
+    userNeedRef: 'UN-001',
+    userNeedDesc: 'Device must operate at 37°C',
+    designInputRef: 'DI-001',
+    designInputDesc: 'Thermal specification',
+    status: 'OPEN',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns success:true in the response body', async () => {
+    mockPrisma.traceabilityMatrix.findMany.mockResolvedValue([mockMatrix]);
+    mockPrisma.traceabilityMatrix.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/traceability');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / returns correct meta.total', async () => {
+    mockPrisma.traceabilityMatrix.findMany.mockResolvedValue([mockMatrix, mockMatrix]);
+    mockPrisma.traceabilityMatrix.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/traceability');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(2);
+  });
+
+  it('POST / with optional fields returns 201', async () => {
+    mockPrisma.traceabilityMatrix.count.mockResolvedValue(0);
+    mockPrisma.traceabilityMatrix.create.mockResolvedValue(mockMatrix);
+    const res = await request(app).post('/api/traceability').send({
+      title: 'Matrix with optional fields',
+      deviceName: 'Device C',
+      preparedBy: 'Alice Engineer',
+      deviceId: 'DEV-003',
+      version: '2.0',
+      scope: 'Partial lifecycle',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id sets status to APPROVED correctly', async () => {
+    mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(mockMatrix);
+    mockPrisma.traceabilityMatrix.update.mockResolvedValue({ ...mockMatrix, status: 'APPROVED' });
+    const res = await request(app)
+      .put('/api/traceability/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'APPROVED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+
+  it('POST /:id/links returns 201 with link data', async () => {
+    mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(mockMatrix);
+    mockPrisma.traceabilityLink.create.mockResolvedValue(mockLink);
+    const res = await request(app)
+      .post('/api/traceability/00000000-0000-0000-0000-000000000001/links')
+      .send({ userNeedRef: 'UN-002', userNeedDesc: 'Device must be sterile' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id/links/:linkId returns 500 on DB error', async () => {
+    mockPrisma.traceabilityLink.findUnique.mockResolvedValue(mockLink);
+    mockPrisma.traceabilityLink.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put(
+        '/api/traceability/00000000-0000-0000-0000-000000000001/links/00000000-0000-0000-0000-000000000001'
+      )
+      .send({ status: 'VERIFIED' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / returns empty data array when no matrices exist', async () => {
+    mockPrisma.traceabilityMatrix.findMany.mockResolvedValue([]);
+    mockPrisma.traceabilityMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/traceability');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+  });
+});

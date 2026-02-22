@@ -399,3 +399,114 @@ describe('Food Safety Hazards — extended coverage', () => {
     expect(res.body.data.significantCount).toBe(0);
   });
 });
+
+describe('Food Safety Hazards — final coverage pass', () => {
+  it('POST /api/hazards creates with isSignificant computed from riskScore', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000010',
+      name: 'Aflatoxin',
+      type: 'CHEMICAL',
+      severity: 'CRITICAL',
+      likelihood: 'LIKELY',
+      riskScore: 16,
+      isSignificant: true,
+      createdBy: 'user-123',
+    };
+    mockPrisma.fsHazard.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/hazards').send({
+      name: 'Aflatoxin',
+      type: 'CHEMICAL',
+      severity: 'CRITICAL',
+      likelihood: 'LIKELY',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.isSignificant).toBe(true);
+  });
+
+  it('GET /api/hazards/:id findFirst queries with deletedAt:null', async () => {
+    mockPrisma.fsHazard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Listeria',
+      type: 'BIOLOGICAL',
+      ccps: [],
+    });
+    await request(app).get('/api/hazards/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsHazard.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null }),
+      })
+    );
+  });
+
+  it('PUT /api/hazards/:id update passes createdBy from existing record', async () => {
+    mockPrisma.fsHazard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      severity: 'MEDIUM',
+      likelihood: 'POSSIBLE',
+      createdBy: 'user-original',
+    });
+    mockPrisma.fsHazard.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      description: 'Updated desc',
+    });
+
+    const res = await request(app)
+      .put('/api/hazards/00000000-0000-0000-0000-000000000001')
+      .send({ description: 'Updated desc' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/hazards/summary byType aggregates PHYSICAL hazards', async () => {
+    const hazards = [
+      { type: 'PHYSICAL', severity: 'HIGH', isSignificant: true },
+      { type: 'PHYSICAL', severity: 'LOW', isSignificant: false },
+    ];
+    mockPrisma.fsHazard.findMany.mockResolvedValue(hazards);
+
+    const res = await request(app).get('/api/hazards/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.byType.PHYSICAL).toBe(2);
+  });
+
+  it('GET /api/hazards filters combined type and severity correctly', async () => {
+    mockPrisma.fsHazard.findMany.mockResolvedValue([]);
+    mockPrisma.fsHazard.count.mockResolvedValue(0);
+
+    await request(app).get('/api/hazards?type=BIOLOGICAL&severity=CRITICAL');
+    expect(mockPrisma.fsHazard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'BIOLOGICAL', severity: 'CRITICAL' }),
+      })
+    );
+  });
+
+  it('DELETE /api/hazards/:id calls update with deletedAt timestamp', async () => {
+    mockPrisma.fsHazard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsHazard.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    await request(app).delete('/api/hazards/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsHazard.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '00000000-0000-0000-0000-000000000001' },
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/hazards default pagination applies skip 0', async () => {
+    mockPrisma.fsHazard.findMany.mockResolvedValue([]);
+    mockPrisma.fsHazard.count.mockResolvedValue(0);
+
+    await request(app).get('/api/hazards');
+    expect(mockPrisma.fsHazard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+});

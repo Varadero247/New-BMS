@@ -444,3 +444,66 @@ describe('GET /api/chemicals/alerts/incompatible', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Chemicals — additional coverage 2', () => {
+  it('GET /chemicals returns pagination object with total field', async () => {
+    mockPrisma.chemRegister.findMany.mockResolvedValue([]);
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/chemicals');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total', 0);
+  });
+
+  it('GET /chemicals count is called once per list request', async () => {
+    mockPrisma.chemRegister.findMany.mockResolvedValue([]);
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    await request(app).get('/api/chemicals');
+    expect(mockPrisma.chemRegister.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /chemicals passes orgId from authenticated user', async () => {
+    mockPrisma.chemRegister.create.mockResolvedValue({ ...mockChemical });
+    await request(app).post('/api/chemicals').send({
+      productName: 'TestChem',
+      chemicalName: 'TestChem',
+    });
+    expect(mockPrisma.chemRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('DELETE /chemicals/:id calls update with isActive: false and a deletedAt date', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemRegister.update.mockResolvedValue({ ...mockChemical, isActive: false, deletedAt: new Date() });
+    await request(app).delete('/api/chemicals/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.chemRegister.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('PUT /chemicals/:id calls findFirst before updating', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemRegister.update.mockResolvedValue({ ...mockChemical, productName: 'New Name' });
+    await request(app).put('/api/chemicals/00000000-0000-0000-0000-000000000001').send({ productName: 'New Name' });
+    expect(mockPrisma.chemRegister.findFirst).toHaveBeenCalled();
+    expect(mockPrisma.chemRegister.update).toHaveBeenCalled();
+  });
+
+  it('GET /chemicals/alerts/expiry returns both sdsExpiring and stockExpiring arrays', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/chemicals/alerts/expiry');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('sdsExpiring');
+    expect(res.body.data).toHaveProperty('stockExpiring');
+    expect(Array.isArray(res.body.data.sdsExpiring)).toBe(true);
+    expect(Array.isArray(res.body.data.stockExpiring)).toBe(true);
+  });
+
+  it('GET /chemicals/:id includes _count relation fields when present', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    const res = await request(app).get('/api/chemicals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('_count');
+  });
+});

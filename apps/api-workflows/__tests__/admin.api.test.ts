@@ -444,3 +444,68 @@ describe('Admin Automation Rules — additional coverage', () => {
     expect(res.body.data.isActive).toBe(false);
   });
 });
+
+// ── Further coverage ──────────────────────────────────────────────────────────
+
+describe('Admin Automation Rules — further coverage', () => {
+  let appFurther: express.Express;
+
+  beforeAll(() => {
+    appFurther = express();
+    appFurther.use(express.json());
+    appFurther.use('/api/admin/automation-rules', adminRouter);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / response includes triggerType field on each rule', async () => {
+    (mockPrisma.automationRule.findMany as jest.Mock).mockResolvedValueOnce([mockRule]);
+    const res = await request(appFurther).get('/api/admin/automation-rules');
+    expect(res.body.data[0]).toHaveProperty('triggerType');
+  });
+
+  it('POST /:id/execute — stores triggerType from found rule in execution', async () => {
+    const ruleWithTrigger = { ...mockRule, triggerType: 'SCHEDULE' };
+    (mockPrisma.automationRule.findUnique as jest.Mock).mockResolvedValueOnce(ruleWithTrigger);
+    (mockPrisma.automationExecution.create as jest.Mock).mockResolvedValueOnce({
+      ...mockExecution,
+      triggerType: 'SCHEDULE',
+    });
+
+    await request(appFurther).post(`/api/admin/automation-rules/${RULE_ID}/execute`);
+
+    expect(mockPrisma.automationExecution.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ triggerType: 'SCHEDULE' }),
+      })
+    );
+  });
+
+  it('POST /:id/test — result contains mock:true in execution result', async () => {
+    (mockPrisma.automationRule.findUnique as jest.Mock).mockResolvedValueOnce(mockRule);
+    (mockPrisma.automationExecution.create as jest.Mock).mockResolvedValueOnce({
+      ...mockExecution,
+      result: { message: 'Rule testd successfully', mock: true },
+    });
+
+    const res = await request(appFurther).post(`/api/admin/automation-rules/${RULE_ID}/test`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.result.mock).toBe(true);
+  });
+
+  it('GET /:id/log respects limit=1 returning only one execution', async () => {
+    (mockPrisma.automationExecution.findMany as jest.Mock).mockResolvedValueOnce([mockExecution]);
+
+    await request(appFurther).get(`/api/admin/automation-rules/${RULE_ID}/log?limit=1`);
+
+    expect(mockPrisma.automationExecution.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 1 })
+    );
+  });
+
+  it('POST /:id/unknown-action returns error.code INVALID_ACTION', async () => {
+    const res = await request(appFurther).post(`/api/admin/automation-rules/${RULE_ID}/restart`);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_ACTION');
+  });
+});

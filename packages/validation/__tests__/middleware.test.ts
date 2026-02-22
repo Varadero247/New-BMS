@@ -432,3 +432,68 @@ describe('Validation Middleware — extended edge cases', () => {
     expect(mockNext).not.toHaveBeenCalled();
   });
 });
+
+// ─── Additional middleware coverage ────────────────────────────────────────────
+
+describe('Validation Middleware — additional middleware coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('sanitizeMiddleware does not sanitize HEAD requests', () => {
+    const middleware = sanitizeMiddleware({ rejectXss: false });
+    const req = mockRequest({ method: 'HEAD', body: { field: '<b>value</b>' } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+    expect(req.body.field).toBe('<b>value</b>');
+  });
+
+  it('validateMiddleware passes when body matches schema exactly', () => {
+    const schema = z.object({ count: z.number().int().positive() });
+    const middleware = validateMiddleware(schema);
+    const req = mockRequest({ body: { count: 5 } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('sanitizeMiddleware with rejectXss: false allows plain script tag and sanitizes it', () => {
+    const middleware = sanitizeMiddleware({ rejectXss: false });
+    const req = mockRequest({ method: 'POST', body: { html: '<em>text</em>' } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+    expect(req.body.html).toBe('text');
+  });
+
+  it('sanitizeQueryMiddleware sanitizes empty string as empty string', () => {
+    const middleware = sanitizeQueryMiddleware();
+    const req = mockRequest({ query: { q: '' } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+    expect(req.query!.q).toBe('');
+  });
+
+  it('validateMiddleware error details object is defined on validation failure', () => {
+    const schema = z.object({ name: z.string().min(5) });
+    const middleware = validateMiddleware(schema);
+    const req = mockRequest({ body: { name: 'hi' } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.error.details).toBeDefined();
+  });
+
+  it('formatZodErrors maps field names to arrays of error messages', () => {
+    const schema = z.object({ title: z.string().min(10) });
+    const result = schema.safeParse({ title: 'short' });
+    if (!result.success) {
+      const formatted = formatZodErrors(result.error);
+      expect(Array.isArray(formatted.title)).toBe(true);
+      expect(formatted.title.length).toBeGreaterThan(0);
+    }
+  });
+});

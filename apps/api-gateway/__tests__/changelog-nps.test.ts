@@ -366,3 +366,63 @@ describe('Changelog and NPS — extended edge cases', () => {
     expect(res.body.data.category).toBe('improvement');
   });
 });
+
+describe('Changelog and NPS — final additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    const cl = require('../src/routes/changelog').default;
+    const nps = require('../src/routes/nps').default;
+    app.use('/api/changelog', cl);
+    app.use('/api/nps', nps);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    mockGetUnreadCount.mockReturnValue(0);
+    mockSubmitResponse.mockReturnValue({ id: 'nps-1', score: 9, category: 'promoter' });
+    mockGetAnalytics.mockReturnValue({ npsScore: 42, total: 10, promoters: 6, passives: 2, detractors: 2 });
+    mockListResponses.mockReturnValue({ responses: [], total: 0 });
+  });
+
+  it('GET /api/changelog returns success true when entries empty', async () => {
+    const res = await request(app).get('/api/changelog');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/nps/analytics returns detractors count', async () => {
+    mockGetAnalytics.mockReturnValue({ npsScore: 10, total: 10, promoters: 3, passives: 2, detractors: 5 });
+    const res = await request(app).get('/api/nps/analytics');
+    expect(res.status).toBe(200);
+    expect(res.body.data.detractors).toBe(5);
+  });
+
+  it('POST /api/nps missing score returns 400', async () => {
+    const res = await request(app).post('/api/nps').send({ comment: 'no score' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/changelog/all returns success true', async () => {
+    mockListAllEntries.mockReturnValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/changelog/all');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/nps/analytics passives field is a number', async () => {
+    const res = await request(app).get('/api/nps/analytics');
+    expect(typeof res.body.data.passives).toBe('number');
+  });
+
+  it('POST /api/changelog returns 401 when auth middleware rejects', async () => {
+    mockAuthenticate.mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED' } });
+    });
+    const res = await request(app).post('/api/changelog').send({ title: 'T', description: 'D', category: 'new_feature', modules: ['hr'] });
+    expect(res.status).toBe(401);
+  });
+});

@@ -507,3 +507,92 @@ describe('ai-variance — edge cases and extended coverage', () => {
     expect(prompt).toContain('120,000');
   });
 });
+
+// ── ai-variance — final additional coverage ──────────────────────────────────
+
+describe('ai-variance — final additional coverage', () => {
+  const snap = {
+    id: 'snap-final',
+    month: '2026-09',
+    monthNumber: 7,
+    mrr: 5000,
+    arr: 60000,
+    customers: 15,
+    newCustomers: 3,
+    churnedCustomers: 1,
+    mrrGrowthPct: 10,
+    revenueChurnPct: 2,
+    pipelineValue: 50000,
+    wonDeals: 5,
+    winRate: 55,
+    newLeads: 30,
+    activeTrials: 6,
+    trialConversionPct: 50,
+    avgHealthScore: 88,
+  };
+  const plan = {
+    plannedMrr: 4500,
+    plannedCustomers: 14,
+    plannedNewCustomers: 3,
+    plannedChurnPct: 1,
+    plannedArpu: 330,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('buildVariancePrompt returns a string containing planned MRR value', () => {
+    const prompt = buildVariancePrompt(snap, plan);
+    expect(typeof prompt).toBe('string');
+    expect(prompt).toContain('4,500');
+  });
+
+  it('parseAIResponse handles JSON with extra whitespace around code fence', () => {
+    const text = '  ```json\n{"summary":"ws","alerts":[],"recommendations":[],"trajectory":"AHEAD"}\n```  ';
+    const result = parseAIResponse(text);
+    expect(result.summary).toBe('ws');
+    expect(result.trajectory).toBe('AHEAD');
+  });
+
+  it('buildVariancePrompt includes trialConversionPct in prompt text', () => {
+    const prompt = buildVariancePrompt(snap, plan);
+    expect(prompt.toLowerCase()).toContain('trial');
+  });
+
+  it('parseAIResponse preserves non-empty alerts array', () => {
+    const json = JSON.stringify({
+      summary: 'Alert test',
+      alerts: ['Alert one', 'Alert two', 'Alert three'],
+      recommendations: [],
+      trajectory: 'BEHIND',
+    });
+    const result = parseAIResponse(json);
+    expect(result.alerts).toHaveLength(3);
+    expect(result.alerts[0]).toBe('Alert one');
+  });
+
+  it('runVarianceAnalysis returns null when ANTHROPIC_API_KEY is explicitly undefined', async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+    const result = await runVarianceAnalysis(snap, plan);
+    expect(result).toBeNull();
+    expect(prisma.monthlySnapshot.update).not.toHaveBeenCalled();
+  });
+
+  it('buildVariancePrompt contains pipelineValue in output', () => {
+    const prompt = buildVariancePrompt(snap, plan);
+    expect(prompt).toContain('50,000');
+  });
+
+  it('parseAIResponse with valid full structure preserves recommendations metric field', () => {
+    const json = JSON.stringify({
+      summary: 'Rec metric test',
+      alerts: [],
+      recommendations: [{ metric: 'Pipeline', current: 50000, suggested: 75000, rationale: 'Expand outbound' }],
+      trajectory: 'ON_TRACK',
+    });
+    const result = parseAIResponse(json);
+    expect(result.recommendations[0].metric).toBe('Pipeline');
+    expect(result.recommendations[0].current).toBe(50000);
+  });
+});

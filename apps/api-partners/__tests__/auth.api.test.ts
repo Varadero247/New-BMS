@@ -427,3 +427,83 @@ describe('Partners Auth — new edge cases', () => {
     expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
   });
 });
+
+describe('Partners Auth — exhaustive coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /register success is true on 201', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'new@partner.com',
+      password: 'securepass123',
+      name: 'New Partner',
+      company: 'NewCo',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /login success is true on 200', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /login response token is the mocked token value', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.data.token).toBe('mock-token');
+  });
+
+  it('POST /register 409 when email already taken, success is false', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+      name: 'Partner',
+      company: 'Co',
+    });
+    expect(res.status).toBe(409);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /register with tier=GCC_SPECIALIST returns 201', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'gcc@partner.com',
+      password: 'securepass123',
+      name: 'GCC Partner',
+      company: 'GCC Co',
+      tier: 'GCC_SPECIALIST',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('POST /login findUnique called with email', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    await request(app).post('/api/auth/login').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+    });
+    expect(prisma.mktPartner.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { email: 'partner@test.com' } })
+    );
+  });
+});

@@ -358,3 +358,51 @@ describe('Scheduled Reports — error paths and edge cases', () => {
     expect(res.status).toBe(201);
   });
 });
+
+describe('Scheduled Reports — final coverage batch', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/reports', scheduledReportsRouter);
+    jest.clearAllMocks();
+    mockListSchedules.mockReturnValue([]);
+    mockGetSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
+    mockUpdateSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    mockDeleteSchedule.mockReturnValue(true);
+    mockRunScheduleNow.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', lastRunAt: new Date().toISOString() });
+    mockCreateSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test', reportType: 'quality_objectives', schedule: '0 8 * * 1' });
+  });
+
+  it('GET /types response is JSON content-type', async () => {
+    const res = await request(app).get('/api/admin/reports/types');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /schedules response is JSON content-type', async () => {
+    const res = await request(app).get('/api/admin/reports/schedules');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /schedules rejects missing schedule cron expression', async () => {
+    const res = await request(app)
+      .post('/api/admin/reports/schedules')
+      .send({ name: 'No Cron', reportType: 'quality_objectives', recipients: ['a@b.com'], format: 'pdf' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /schedules/:id response body has success true', async () => {
+    const res = await request(app).get('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('createSchedule is called once per POST request', async () => {
+    await request(app)
+      .post('/api/admin/reports/schedules')
+      .send({ name: 'Call Count Test', reportType: 'quality_objectives', schedule: '0 8 * * 1', recipients: ['x@y.com'], format: 'pdf' });
+    expect(mockCreateSchedule).toHaveBeenCalledTimes(1);
+  });
+});

@@ -388,3 +388,84 @@ describe('kri.api — edge cases and extended paths', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('kri.api — final coverage', () => {
+  it('GET /kri/breaches returns data array on success', async () => {
+    mockPrisma.riskKri.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', currentStatus: 'RED' },
+      { id: '00000000-0000-0000-0000-000000000002', currentStatus: 'AMBER' },
+    ]);
+    const res = await request(app).get('/api/risks/kri/breaches');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /kri/due returns success:true on populated list', async () => {
+    mockPrisma.riskKri.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', nextMeasurementDue: new Date() },
+      { id: '00000000-0000-0000-0000-000000000002', nextMeasurementDue: new Date() },
+    ]);
+    const res = await request(app).get('/api/risks/kri/due');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /:id/kri returns 400 when name is empty string', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri')
+      .send({ name: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id/kri findMany called with isActive true filter', async () => {
+    mockPrisma.riskKri.findMany.mockResolvedValue([]);
+    await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/kri');
+    expect(mockPrisma.riskKri.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ isActive: true }),
+      })
+    );
+  });
+
+  it('POST /:riskId/kri/:id/reading records reading with kriId', async () => {
+    mockPrisma.riskKri.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      greenThreshold: 5,
+      amberThreshold: 10,
+      redThreshold: 15,
+      thresholdDirection: 'INCREASING_IS_WORSE',
+    });
+    mockPrisma.riskKriReading.create.mockResolvedValue({
+      id: 'rd-x',
+      value: 7,
+      status: 'AMBER',
+    });
+    mockPrisma.riskKri.update.mockResolvedValue({});
+    await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000001/reading')
+      .send({ value: 7 });
+    expect(mockPrisma.riskKriReading.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ kriId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('PUT /:riskId/kri/:id updates kri with parsed data', async () => {
+    mockPrisma.riskKri.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskKri.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated KRI',
+      unit: 'percent',
+    });
+    const res = await request(app)
+      .put('/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated KRI', unit: 'percent' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Updated KRI');
+  });
+});

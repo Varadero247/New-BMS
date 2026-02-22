@@ -346,3 +346,65 @@ describe('competencies.api — edge cases and extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('competencies.api — final coverage expansion', () => {
+  it('GET /api/competencies with department filter returns 200', async () => {
+    mockPrisma.trainCompetency.findMany.mockResolvedValue([]);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/competencies?department=Operations');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/competencies count called exactly once', async () => {
+    mockPrisma.trainCompetency.findMany.mockResolvedValue([]);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    await request(app).get('/api/competencies');
+    expect(mockPrisma.trainCompetency.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/competencies/:id with isActive false succeeds', async () => {
+    mockPrisma.trainCompetency.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainCompetency.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      isActive: false,
+    });
+    const res = await request(app)
+      .put('/api/competencies/00000000-0000-0000-0000-000000000001')
+      .send({ isActive: false });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/competencies/:id returns 500 on DB error', async () => {
+    mockPrisma.trainCompetency.findFirst.mockRejectedValue(new Error('db fail'));
+    const res = await request(app).get('/api/competencies/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/competencies/:id success message contains deleted', async () => {
+    mockPrisma.trainCompetency.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainCompetency.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/competencies/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted');
+  });
+
+  it('POST /api/competencies with department and role creates successfully', async () => {
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Advanced Safety',
+      department: 'H&S',
+      role: 'Safety Officer',
+    });
+    const res = await request(app).post('/api/competencies').send({
+      name: 'Advanced Safety',
+      department: 'H&S',
+      role: 'Safety Officer',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

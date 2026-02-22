@@ -216,3 +216,41 @@ describe('Password utilities — extended edge cases', () => {
     expect(result).toBe(false);
   });
 });
+
+describe('Password utilities — boundary and comprehensive checks', () => {
+  it('validatePasswordStrength returns an object with valid and errors keys', () => {
+    const result = validatePasswordStrength('GoodPass1!xx');
+    expect(result).toHaveProperty('valid');
+    expect(result).toHaveProperty('errors');
+  });
+
+  it('validatePasswordStrength rejects password of exactly 11 characters with correct structure', () => {
+    // 11 chars, all requirements except length
+    const result = validatePasswordStrength('GoodPass1!x');
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Password must be at least 12 characters long');
+  });
+
+  it('validatePasswordStrength rejects password of exactly 73 characters', () => {
+    const result = validatePasswordStrength('Aa1!' + 'x'.repeat(69));
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Password must be at most 72 characters long');
+  });
+
+  it('validatePasswordStrength does not include length error for 12-char valid password', () => {
+    const result = validatePasswordStrength('ValidPass1!A');
+    expect(result.errors).not.toContain('Password must be at least 12 characters long');
+  });
+
+  it('hashPassword with empty string produces a bcrypt hash', async () => {
+    const hash = await hashPassword('');
+    expect(hash).toMatch(/^\$2[ab]\$/);
+  });
+
+  it('comparePassword returns true for special-only password when matched', async () => {
+    const password = '!!!@@@###$$$';
+    const hash = await hashPassword(password);
+    const result = await comparePassword(password, hash);
+    expect(result).toBe(true);
+  });
+});

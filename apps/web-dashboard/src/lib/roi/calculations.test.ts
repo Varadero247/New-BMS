@@ -207,3 +207,53 @@ describe('calculateRoi — additional edge cases', () => {
     expect(results.auditRiskValue).toBeCloseTo(3 * (8000 / 3), 5);
   });
 });
+
+describe('calculateRoi — boundary and formula checks', () => {
+  it('PLAN_PRICES export has Starter, Growth, Scale, Enterprise', () => {
+    const { PLAN_PRICES } = require('./calculations');
+    expect(PLAN_PRICES).toHaveProperty('Starter');
+    expect(PLAN_PRICES).toHaveProperty('Growth');
+    expect(PLAN_PRICES).toHaveProperty('Scale');
+    expect(PLAN_PRICES).toHaveProperty('Enterprise');
+  });
+
+  it('paybackMonths rounds to one decimal place', () => {
+    const r = calculateRoi(DEFAULT_INPUTS);
+    const str = r.paybackMonths.toString();
+    const decimalParts = str.split('.');
+    if (decimalParts.length > 1) {
+      expect(decimalParts[1].length).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it('roiPercent is an integer (Math.round result)', () => {
+    const r = calculateRoi(DEFAULT_INPUTS);
+    expect(Number.isInteger(r.roiPercent)).toBe(true);
+  });
+
+  it('adminValueSaved with dailyRateOverride uses override not salary', () => {
+    const withOverride = calculateRoi({ ...DEFAULT_INPUTS, dailyRateOverride: 1000, annualSalary: 10000 });
+    const withoutOverride = calculateRoi({ ...DEFAULT_INPUTS, dailyRateOverride: undefined, annualSalary: 10000 });
+    expect(withOverride.adminValueSaved).not.toBe(withoutOverride.adminValueSaved);
+  });
+
+  it('auditPrepValueSaved is 0 when auditPrepDays equals AUDIT_PREP_DAYS_WITH_NEXARA (2)', () => {
+    const r = calculateRoi({ ...DEFAULT_INPUTS, auditPrepDays: 2 });
+    expect(r.auditPrepValueSaved).toBe(0);
+  });
+
+  it('totalValue equals zero when all value drivers are zero', () => {
+    const zeroInputs: RoiInputs = {
+      employees: 25,
+      adminHoursPerWeek: 0,
+      annualSalary: 0,
+      numberOfAudits: 0,
+      auditPrepDays: 2,
+      activeSuppliers: 0,
+      enterpriseContractPursuit: false,
+      dailyRateOverride: 0,
+    };
+    const r = calculateRoi(zeroInputs);
+    expect(r.totalValue).toBe(0);
+  });
+});

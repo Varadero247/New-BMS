@@ -330,3 +330,57 @@ describe('Security Controls API Routes', () => {
     });
   });
 });
+
+describe('Security Controls — final coverage batch', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    app = express();
+    app.use(express.json());
+    (authenticate as jest.Mock).mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN' };
+      next();
+    });
+    app.use('/api/v1/security-controls', securityControlsRoutes);
+  });
+
+  it('GET / returns 200 with JSON content-type', async () => {
+    const res = await request(app).get('/api/v1/security-controls');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /rbac-matrix returns 200 with JSON content-type', async () => {
+    const res = await request(app).get('/api/v1/security-controls/rbac-matrix');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /status returns 200 with JSON content-type', async () => {
+    const res = await request(app).get('/api/v1/security-controls/status');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / data.domains each entry has compliancePercent between 0 and 100', async () => {
+    const res = await request(app).get('/api/v1/security-controls');
+    expect(res.status).toBe(200);
+    for (const domain of res.body.data.domains) {
+      expect(domain.compliancePercent).toBeGreaterThanOrEqual(0);
+      expect(domain.compliancePercent).toBeLessThanOrEqual(100);
+    }
+  });
+
+  it('GET /rbac-matrix data.permissions array is non-empty', async () => {
+    const res = await request(app).get('/api/v1/security-controls/rbac-matrix');
+    expect(res.status).toBe(200);
+    expect(res.body.data.permissions.length).toBeGreaterThan(0);
+  });
+
+  it('GET /status data has monitoring field', async () => {
+    const res = await request(app).get('/api/v1/security-controls/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('monitoring');
+  });
+});

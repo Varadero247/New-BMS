@@ -370,3 +370,49 @@ describe('materiality — additional coverage', () => {
     );
   });
 });
+
+describe('materiality — final coverage', () => {
+  it('GET / returns JSON content-type header', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/materiality');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / creates GOVERNANCE category topic', async () => {
+    (prisma.esgMateriality.create as jest.Mock).mockResolvedValue({ ...mockMateriality, category: 'GOVERNANCE' });
+    const res = await request(app).post('/api/materiality').send({
+      topic: 'Anti-Corruption',
+      category: 'GOVERNANCE',
+      importanceToStakeholders: 8.0,
+      importanceToBusiness: 7.5,
+      isMaterial: true,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /matrix summary has byCategory object', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([mockMateriality]);
+    const res = await request(app).get('/api/materiality/matrix');
+    expect(res.body.data.summary).toHaveProperty('byCategory');
+  });
+
+  it('DELETE /:id calls update with deletedAt', async () => {
+    (prisma.esgMateriality.findFirst as jest.Mock).mockResolvedValue(mockMateriality);
+    (prisma.esgMateriality.update as jest.Mock).mockResolvedValue({ ...mockMateriality, deletedAt: new Date() });
+    await request(app).delete('/api/materiality/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgMateriality.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / isMaterial=false filter passes false to where clause', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/materiality?isMaterial=false');
+    expect(prisma.esgMateriality.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isMaterial: false }) })
+    );
+  });
+});

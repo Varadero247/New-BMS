@@ -222,3 +222,38 @@ describe('AbortSignal', () => {
     ).rejects.toThrow(/cancelled/i);
   });
 });
+
+describe('withHedging — further edge cases', () => {
+  it('resolves with boolean true result', async () => {
+    const result = await withHedging(() => Promise.resolve(true));
+    expect(result).toBe(true);
+  });
+
+  it('resolves with number 0 correctly', async () => {
+    const result = await withHedging(() => Promise.resolve(0));
+    expect(result).toBe(0);
+  });
+
+  it('resolves with null correctly', async () => {
+    const result = await withHedging(() => Promise.resolve(null));
+    expect(result).toBeNull();
+  });
+
+  it('calls the function at least once', async () => {
+    const fn = jest.fn().mockResolvedValue('called');
+    await withHedging(fn, { maxAttempts: 1 });
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('withHedgingDetailed attemptsIssued is 1 for single maxAttempts', async () => {
+    const result = await withHedgingDetailed(() => Promise.resolve('x'), { maxAttempts: 1 });
+    expect(result.attemptsIssued).toBe(1);
+  });
+
+  it('createHedger with no options returns a RequestHedger instance', () => {
+    const h = createHedger();
+    expect(h).toBeInstanceOf(RequestHedger);
+    expect(h.hedgesIssued).toBe(0);
+    expect(h.hedgeWins).toBe(0);
+  });
+});

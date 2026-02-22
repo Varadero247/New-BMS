@@ -511,3 +511,112 @@ describe('Error Handler — response shape and logging extended coverage', () =>
     expect(payload.error.message).toBe('An unexpected error occurred');
   });
 });
+
+describe('Error Handler — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('handles 429 Too Many Requests and exposes the message', () => {
+    const err: AppError = new Error('Too many requests');
+    err.statusCode = 429;
+    err.code = 'RATE_LIMIT_EXCEEDED';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(429);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Too many requests');
+  });
+
+  it('handles 413 Payload Too Large and exposes the message', () => {
+    const err: AppError = new Error('Payload too large');
+    err.statusCode = 413;
+    err.code = 'PAYLOAD_TOO_LARGE';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(413);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.code).toBe('PAYLOAD_TOO_LARGE');
+  });
+
+  it('handles 501 Not Implemented masking message', () => {
+    const err: AppError = new Error('Feature not yet implemented internally');
+    err.statusCode = 501;
+    err.code = 'NOT_IMPLEMENTED';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(501);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Internal server error');
+  });
+
+  it('always has exactly two top-level keys: success and error', () => {
+    const err: AppError = new Error('Shape test');
+    err.statusCode = 400;
+    err.code = 'BAD_REQUEST';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(Object.keys(payload).sort()).toEqual(['error', 'success'].sort());
+  });
+
+  it('logger called with statusCode field matching the error statusCode', () => {
+    const err: AppError = new Error('Test log field');
+    err.statusCode = 418;
+    err.code = 'IM_A_TEAPOT';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(mockLogger.error).toHaveBeenCalledWith('Unhandled error', {
+      error: 'Test log field',
+      code: 'IM_A_TEAPOT',
+      statusCode: 418,
+    });
+  });
+
+  it('does not call next() for any status code', () => {
+    for (const statusCode of [400, 401, 403, 404, 500]) {
+      const err: AppError = new Error('Error');
+      err.statusCode = statusCode;
+
+      const req = mockRequest();
+      const res = mockResponse();
+
+      errorHandler(err, req as Request, res as Response, mockNext);
+    }
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+
+  it('handles errors with no statusCode or code (pure default path)', () => {
+    const err = new Error('Unknown') as AppError;
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.success).toBe(false);
+    expect(payload.error.code).toBe('INTERNAL_ERROR');
+  });
+});

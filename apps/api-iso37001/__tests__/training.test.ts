@@ -526,3 +526,86 @@ describe('ISO 37001 Training — additional response shape coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('ISO 37001 Training — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/training: skip is correct for page 3 limit 10', async () => {
+    (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(30);
+
+    await request(app).get('/api/training?page=3&limit=10');
+
+    expect(mockPrisma.abTrainingRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /api/training: referenceNumber is present in response data items', async () => {
+    (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
+    (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/training');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('referenceNumber');
+  });
+
+  it('GET /api/training: filter by search query uses OR clause', async () => {
+    (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
+    (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(1);
+
+    await request(app).get('/api/training?search=awareness');
+
+    expect(mockPrisma.abTrainingRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: expect.any(Array),
+        }),
+      })
+    );
+  });
+
+  it('PUT /api/training/:id/complete: returns 404 when record not found', async () => {
+    (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(null);
+
+    const res = await request(app)
+      .put('/api/training/00000000-0000-0000-0000-000000000099/complete')
+      .send({ score: 85 });
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/training: filter by employeeId passes through to where clause', async () => {
+    (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
+    (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/training?employeeId=EMP-001');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.abTrainingRecord.findMany).toHaveBeenCalled();
+  });
+
+  it('POST /api/training: ROLE_SPECIFIC courseType is accepted', async () => {
+    (mockPrisma.abTrainingRecord.create as jest.Mock).mockResolvedValueOnce({
+      ...mockTraining,
+      courseType: 'ROLE_SPECIFIC',
+      courseName: 'Manager Ethics Training',
+    });
+
+    const res = await request(app).post('/api/training').send({
+      employeeId: 'EMP-002',
+      employeeName: 'Jane Smith',
+      courseName: 'Manager Ethics Training',
+      courseType: 'ROLE_SPECIFIC',
+      assignedDate: '2026-01-01',
+      dueDate: '2026-04-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

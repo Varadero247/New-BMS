@@ -376,3 +376,97 @@ describe('products.api — edge cases and extended coverage', () => {
     expect(res.body.data).toHaveProperty('shelfLifeDays', 180);
   });
 });
+
+describe('products.api — final coverage pass', () => {
+  it('GET /api/products default pagination applies skip 0', async () => {
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(0);
+
+    await request(app).get('/api/products');
+    expect(mockPrisma.fsProduct.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('GET /api/products/:id queries with deletedAt null', async () => {
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Butter',
+    });
+    await request(app).get('/api/products/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsProduct.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null }),
+      })
+    );
+  });
+
+  it('POST /api/products creates with createdBy from auth user', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000020',
+      name: 'Organic Oats',
+      code: 'OATS-001',
+      createdBy: 'user-123',
+    };
+    mockPrisma.fsProduct.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/products').send({
+      name: 'Organic Oats',
+      code: 'OATS-001',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('createdBy', 'user-123');
+  });
+
+  it('PUT /api/products/:id update calls update with where id', async () => {
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsProduct.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated Oats',
+    });
+
+    await request(app)
+      .put('/api/products/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Oats' });
+    expect(mockPrisma.fsProduct.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '00000000-0000-0000-0000-000000000001' },
+      })
+    );
+  });
+
+  it('DELETE /api/products/:id calls update with deletedAt', async () => {
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsProduct.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    await request(app).delete('/api/products/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsProduct.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/products page 2 limit 10 applies skip 10 take 10', async () => {
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(0);
+
+    await request(app).get('/api/products?page=2&limit=10');
+    expect(mockPrisma.fsProduct.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/products returns success:true with totalPages', async () => {
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(100);
+
+    const res = await request(app).get('/api/products?limit=25');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+});

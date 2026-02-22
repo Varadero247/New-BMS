@@ -405,3 +405,57 @@ describe('emissions — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('emissions — final coverage', () => {
+  it('GET / returns JSON content-type header', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEmission.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/emissions');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / filters by scope=SCOPE_2 in where clause', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEmission.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/emissions?scope=SCOPE_2');
+    expect(prisma.esgEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ scope: 'SCOPE_2' }) })
+    );
+  });
+
+  it('POST / missing co2Equivalent returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/emissions').send({
+      scope: 'SCOPE_1',
+      category: 'Combustion',
+      source: 'Boiler',
+      quantity: 100,
+      unit: 'kg',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id response has success:true when found', async () => {
+    (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(mockEmission);
+    const res = await request(app).get('/api/emissions/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id calls update with deletedAt', async () => {
+    (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(mockEmission);
+    (prisma.esgEmission.update as jest.Mock).mockResolvedValue({ ...mockEmission, deletedAt: new Date() });
+    await request(app).delete('/api/emissions/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgEmission.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /trend without year param still returns 200 with 12 months', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/emissions/trend');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(12);
+  });
+});

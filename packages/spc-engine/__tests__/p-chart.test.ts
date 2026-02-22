@@ -335,3 +335,51 @@ describe('pChart — additional edge cases', () => {
     expect(chart.dataPoints[2].value).toBeCloseTo(0.1, 4);
   });
 });
+
+// ─── Further structural and type coverage ─────────────────────────────────────
+
+describe('pChart — structural and type coverage', () => {
+  it('outOfControl is always an array', () => {
+    const data = makePData([[5, 100], [3, 100]]);
+    const chart = pChart(data);
+    expect(Array.isArray(chart.outOfControl)).toBe(true);
+  });
+
+  it('dataPoints are all in [0,1] range for valid proportion data', () => {
+    const data = makePData([[10, 100], [20, 100], [5, 100], [15, 100], [8, 100]]);
+    const chart = pChart(data);
+    chart.dataPoints.forEach((dp) => {
+      expect(dp.value).toBeGreaterThanOrEqual(0);
+      expect(dp.value).toBeLessThanOrEqual(1);
+    });
+  });
+
+  it('ucl is always a finite positive number', () => {
+    const data = makePData([[99, 100], [98, 100], [97, 100]]);
+    const chart = pChart(data);
+    expect(isFinite(chart.ucl)).toBe(true);
+    expect(chart.ucl).toBeGreaterThan(0);
+  });
+
+  it('lcl is never less than 0', () => {
+    const data = makePData([[1, 100], [0, 100], [2, 100]]);
+    const chart = pChart(data);
+    expect(chart.lcl).toBeGreaterThanOrEqual(0);
+  });
+
+  it('timestamps are preserved correctly for all data points', () => {
+    const data = makePData([[5, 100], [3, 100], [7, 100], [4, 100]]);
+    const chart = pChart(data);
+    chart.dataPoints.forEach((dp, i) => {
+      expect(dp.timestamp).toEqual(data[i].timestamp);
+    });
+  });
+
+  it('dataPoints indices start at 0 and increment by 1', () => {
+    const data = makePData([[5, 100], [3, 100], [7, 100], [4, 100]]);
+    const chart = pChart(data);
+    chart.dataPoints.forEach((dp, i) => {
+      expect(dp.index).toBe(i);
+    });
+  });
+});

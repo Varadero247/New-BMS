@@ -430,3 +430,70 @@ describe('Quality Context Factors — additional coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Quality Context Factors — final coverage', () => {
+  const mockIssue = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-CTX-2601-001',
+    issueOfConcern: 'Market competition increasing',
+    bias: 'OPPORTUNITY',
+    processesAffected: 'Sales',
+    treatmentMethod: 'Market analysis',
+    priority: 'HIGH',
+    status: 'OPEN',
+    notes: null,
+    deletedAt: null,
+  };
+
+  it('GET / findMany and count each called once per request', async () => {
+    mockPrisma.qualIssue.findMany.mockResolvedValue([]);
+    mockPrisma.qualIssue.count.mockResolvedValue(0);
+    await request(app).get('/api/context-factors');
+    expect(mockPrisma.qualIssue.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.qualIssue.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id returns success:true on successful soft delete', async () => {
+    mockPrisma.qualIssue.findFirst.mockResolvedValue(mockIssue);
+    mockPrisma.qualIssue.update.mockResolvedValue({ ...mockIssue, deletedAt: new Date() });
+    const res = await request(app).delete('/api/context-factors/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / returns success:true on valid list response', async () => {
+    mockPrisma.qualIssue.findMany.mockResolvedValue([mockIssue]);
+    mockPrisma.qualIssue.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/context-factors');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('POST / maps factorType INTERNAL to RISK bias in create data', async () => {
+    mockPrisma.qualIssue.count.mockResolvedValue(0);
+    mockPrisma.qualIssue.create.mockResolvedValue({ ...mockIssue, bias: 'RISK' });
+    const res = await request(app).post('/api/context-factors').send({
+      factorName: 'Staff shortage',
+      factorType: 'INTERNAL',
+      impact: 'MEDIUM',
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.qualIssue.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ bias: 'RISK' }) })
+    );
+  });
+
+  it('GET /:id returns success:true and factorName in response', async () => {
+    mockPrisma.qualIssue.findFirst.mockResolvedValue(mockIssue);
+    const res = await request(app).get('/api/context-factors/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.factorName).toBe('Market competition increasing');
+  });
+
+  it('PUT /:id returns updated factorName in response', async () => {
+    mockPrisma.qualIssue.findFirst.mockResolvedValue(mockIssue);
+    mockPrisma.qualIssue.update.mockResolvedValue({ ...mockIssue, issueOfConcern: 'Updated factor' });
+    const res = await request(app).put('/api/context-factors/00000000-0000-0000-0000-000000000001').send({ factorName: 'Updated factor' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -320,3 +320,65 @@ describe('reviews.api — extended error and field coverage', () => {
     );
   });
 });
+
+describe('reviews.api — exhaustive coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns success:true when findMany resolves', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reviews');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / create is called exactly once for valid payload', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    mockPrisma.mgmtReview.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Review' });
+    await request(app).post('/api/reviews').send({ title: 'Review' });
+    expect(mockPrisma.mgmtReview.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id returns success:true for found record', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Rev' });
+    const res = await request(app).get('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id update is called with correct id in where clause', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.mgmtReview.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    await request(app)
+      .put('/api/reviews/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(mockPrisma.mgmtReview.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('DELETE /:id findFirst is called with correct id', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.mgmtReview.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.mgmtReview.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / returns data as an array', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/reviews');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / returns the created item in data', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    mockPrisma.mgmtReview.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New Review' });
+    const res = await request(app).post('/api/reviews').send({ title: 'New Review' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.title).toBe('New Review');
+  });
+});

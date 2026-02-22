@@ -341,3 +341,73 @@ describe('Not Found Handler — further edge cases', () => {
     expect(jsonArg.error.message).toMatch(/Route DELETE \/api\/items\/99 not found/);
   });
 });
+
+describe('Not Found Handler — absolute final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('does not throw when called with an empty path', () => {
+    expect(() => {
+      const req = mockRequest({ method: 'GET', path: '' });
+      const res = mockResponse();
+      notFoundHandler(req as Request, res as Response);
+    }).not.toThrow();
+  });
+
+  it('res.status is called before res.json (chaining order)', () => {
+    const req = mockRequest({ method: 'POST', path: '/api/missing' });
+    const res = mockResponse();
+    const statusOrder: string[] = [];
+    (res.status as jest.Mock).mockImplementation(() => {
+      statusOrder.push('status');
+      return res;
+    });
+    (res.json as jest.Mock).mockImplementation(() => {
+      statusOrder.push('json');
+      return res;
+    });
+    notFoundHandler(req as Request, res as Response);
+    expect(statusOrder[0]).toBe('status');
+    expect(statusOrder[1]).toBe('json');
+  });
+
+  it('returns NOT_FOUND code for TRACE method', () => {
+    const req = mockRequest({ method: 'TRACE', path: '/api/trace-path' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 404 for a path that starts with /v1', () => {
+    const req = mockRequest({ method: 'GET', path: '/v1/resource' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    expect((res.status as jest.Mock).mock.calls[0][0]).toBe(404);
+  });
+
+  it('message includes forward slash at start of path', () => {
+    const req = mockRequest({ method: 'GET', path: '/api/check' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toContain('/api/check');
+  });
+
+  it('error object does not have a stack property', () => {
+    const req = mockRequest({ method: 'GET', path: '/api/no-stack' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error).not.toHaveProperty('stack');
+  });
+
+  it('response json does not have a data property', () => {
+    const req = mockRequest({ method: 'GET', path: '/api/no-data' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg).not.toHaveProperty('data');
+  });
+});

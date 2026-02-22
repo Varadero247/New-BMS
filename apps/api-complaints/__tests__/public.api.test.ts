@@ -293,3 +293,63 @@ describe('public.api — extended coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('public.api — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /submit response content-type is application/json', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'cid-1', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Content-type check' });
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST /submit returns 201 with SERVICE category', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'cid-2', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Service issue', category: 'SERVICE' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /submit returns 201 with MEDIUM priority', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'cid-3', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Medium prio', priority: 'MEDIUM' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /submit create called with correct orgId when provided', async () => {
+    const orgId = '00000000-0000-4000-a000-000000000001';
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'cid-4', referenceNumber: 'CMP-2026-0001' });
+    await request(app).post('/api/public/submit').send({ title: 'OrgId test', orgId });
+    expect(mockPrisma.compComplaint.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ orgId }) })
+    );
+  });
+
+  it('POST /submit returns 500 on count rejection', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).post('/api/public/submit').send({ title: 'Count failure test' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /submit response data referenceNumber is a string', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'cid-5', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'String ref test' });
+    expect(res.status).toBe(201);
+    expect(typeof res.body.data.referenceNumber).toBe('string');
+  });
+
+  it('POST /submit returns 400 when description alone provided without title', async () => {
+    const res = await request(app).post('/api/public/submit').send({ description: 'No title here' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

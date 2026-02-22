@@ -396,3 +396,77 @@ describe('customer-invoices — edge cases', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('customer-invoices — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: response has pagination object', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/invoices');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('GET list: page defaults to 1', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/invoices');
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /:id: success:false on 404', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/customer/invoices/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id: findFirst queries with correct id', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      orderNumber: 'ORD-001',
+      portalUserId: 'user-123',
+    });
+
+    await request(app).get('/api/customer/invoices/00000000-0000-0000-0000-000000000001');
+
+    expect(mockPrisma.portalOrder.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET list: totalPages is 1 when count equals limit', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(5);
+
+    const res = await request(app).get('/api/customer/invoices?limit=5');
+    expect(res.body.pagination.totalPages).toBe(1);
+  });
+
+  it('POST pay: findFirst is called before update', async () => {
+    const invoice = { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', notes: null };
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(invoice);
+    mockPrisma.portalOrder.update.mockResolvedValue({ ...invoice, notes: 'Payment intent: BANK_TRANSFER' });
+
+    await request(app)
+      .post('/api/customer/invoices/00000000-0000-0000-0000-000000000001/pay')
+      .send({ paymentMethod: 'BANK_TRANSFER' });
+
+    expect(mockPrisma.portalOrder.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.portalOrder.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: 500 on findMany returns INTERNAL_ERROR', async () => {
+    mockPrisma.portalOrder.findMany.mockRejectedValue(new Error('Timeout'));
+
+    const res = await request(app).get('/api/customer/invoices');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

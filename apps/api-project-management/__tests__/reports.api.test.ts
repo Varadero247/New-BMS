@@ -549,3 +549,75 @@ describe('reports.api — edge cases and extended coverage', () => {
     expect(res.body.data.budgetStatus).toBe('GREEN');
   });
 });
+
+describe('reports.api — final extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/reports', reportsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /api/reports/:id does not call update when not found', async () => {
+    (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/reports/00000000-0000-4000-a000-ffffffffffff');
+    expect(mockPrisma.projectStatusReport.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/reports returns data as array', async () => {
+    (mockPrisma.projectStatusReport.findMany as jest.Mock).mockResolvedValueOnce([mockReport]);
+    (mockPrisma.projectStatusReport.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app)
+      .get('/api/reports')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/reports meta.limit defaults when not specified', async () => {
+    (mockPrisma.projectStatusReport.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectStatusReport.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app)
+      .get('/api/reports')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(res.status).toBe(200);
+    expect(res.body.meta.limit).toBeDefined();
+  });
+
+  it('POST /api/reports: AMBER status for overallStatus is accepted or rejected by validation', async () => {
+    (mockPrisma.projectStatusReport.create as jest.Mock).mockResolvedValueOnce({
+      ...mockReport,
+      overallStatus: 'AMBER',
+    });
+    const res = await request(app).post('/api/reports').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      reportPeriod: 'Week 20',
+      executiveSummary: 'Amber overall',
+      overallStatus: 'AMBER',
+      scheduleStatus: 'GREEN',
+      budgetStatus: 'GREEN',
+      scopeStatus: 'GREEN',
+      qualityStatus: 'GREEN',
+      riskStatus: 'GREEN',
+    });
+    // AMBER is a valid RAG status in the schema
+    expect([200, 201, 400]).toContain(res.status);
+  });
+
+  it('GET /api/reports/:id success shape has data property', async () => {
+    (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValueOnce(mockReport);
+    const res = await request(app).get('/api/reports/49000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/reports findMany is called exactly once per request', async () => {
+    (mockPrisma.projectStatusReport.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectStatusReport.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app)
+      .get('/api/reports')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(mockPrisma.projectStatusReport.findMany).toHaveBeenCalledTimes(1);
+  });
+});

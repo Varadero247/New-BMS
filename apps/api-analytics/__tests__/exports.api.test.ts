@@ -441,3 +441,72 @@ describe('Analytics Exports — edge cases, pagination and field validation', ()
     expect(res.body.data.fileName).toBe('Quality Report.excel');
   });
 });
+
+// ===================================================================
+// Analytics Exports — response integrity and remaining edge cases
+// ===================================================================
+describe('Analytics Exports — response integrity and remaining edge cases', () => {
+  it('GET /exports response success is true when data present', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Health Export', status: 'COMPLETED', format: 'CSV' },
+    ]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/exports');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /exports pagination default page is 1', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/exports');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST /exports creates record with createdBy from user id', async () => {
+    const created = { id: 'exp-user', name: 'User Export', type: 'FULL', format: 'CSV', status: 'QUEUED' };
+    mockPrisma.analyticsExport.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/exports').send({
+      name: 'User Export',
+      type: 'FULL',
+      format: 'CSV',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('exp-user');
+  });
+
+  it('DELETE /exports/:id returns success message in data', async () => {
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsExport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/exports/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET /exports filters by both status and format simultaneously', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/exports?status=COMPLETED&format=CSV');
+
+    expect(mockPrisma.analyticsExport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'COMPLETED', format: 'CSV' }),
+      })
+    );
+  });
+
+  it('GET /exports response data is an array', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/exports');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

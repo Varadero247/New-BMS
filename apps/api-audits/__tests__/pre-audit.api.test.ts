@@ -280,3 +280,50 @@ describe('POST /api/pre-audit/:id/generate — additional edge cases', () => {
     expect(new Date(res.body.data.generatedAt).toISOString()).toBe(res.body.data.generatedAt);
   });
 });
+
+describe('POST /api/pre-audit/:id/generate — further coverage', () => {
+  it('recommendations array is non-empty for any supported standard', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ standard: 'ISO 9001:2015' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.recommendations.length).toBeGreaterThan(0);
+  });
+
+  it('checklist is an array for every audit type', async () => {
+    for (const type of ['INTERNAL', 'EXTERNAL', 'CERTIFICATION', 'SUPPLIER']) {
+      mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type }));
+      const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+      expect(Array.isArray(res.body.data.checklist)).toBe(true);
+    }
+  });
+
+  it('response contains auditRef matching referenceNumber from DB record', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ referenceNumber: 'AUD-2026-0042' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.auditRef).toBe('AUD-2026-0042');
+  });
+
+  it('DB error returns 500 with error.code INTERNAL_ERROR', async () => {
+    mockPrisma.audAudit.findFirst.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('null findFirst returns 404 with NOT_FOUND code', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(null);
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('estimatedDurationHours is a positive integer for all audit types', async () => {
+    for (const type of ['INTERNAL', 'EXTERNAL', 'CERTIFICATION', 'SUPPLIER', 'SURVEILLANCE']) {
+      mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type }));
+      const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+      expect(res.body.data.estimatedDurationHours).toBeGreaterThan(0);
+      expect(Number.isInteger(res.body.data.estimatedDurationHours)).toBe(true);
+    }
+  });
+});

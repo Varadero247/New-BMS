@@ -397,3 +397,61 @@ describe('Schedules — edge cases and extended coverage', () => {
     expect(res.body.data.name).toBe('Morning Report');
   });
 });
+
+describe('Schedules — final coverage', () => {
+  it('GET /api/schedules success is true when data returned', async () => {
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'S1', type: 'REPORT', isActive: true },
+    ]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/schedules');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/schedules returns JSON content-type', async () => {
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/schedules');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/schedules create is called once on success', async () => {
+    const created = { id: 'sch-x', name: 'Test Schedule', type: 'REPORT', cronExpression: '0 9 * * *', isActive: true };
+    mockPrisma.analyticsSchedule.create.mockResolvedValue(created);
+    await request(app).post('/api/schedules').send({
+      name: 'Test Schedule',
+      type: 'REPORT',
+      referenceId: '550e8400-e29b-41d4-a716-446655440000',
+      cronExpression: '0 9 * * *',
+    });
+    expect(mockPrisma.analyticsSchedule.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/schedules pagination has page field', async () => {
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/schedules');
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('PUT /api/schedules/:id update returns success true', async () => {
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'New Name' });
+    const res = await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000001').send({ name: 'New Name' });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/schedules/:id returns message Schedule deleted on success', async () => {
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data.message).toBe('Schedule deleted');
+  });
+
+  it('GET /api/schedules/:id 404 returns error body', async () => {
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/schedules/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBeDefined();
+  });
+});

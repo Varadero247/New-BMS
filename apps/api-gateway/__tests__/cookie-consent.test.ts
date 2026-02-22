@@ -345,3 +345,66 @@ describe('Cookie Consent Handler — boundary and field validation', () => {
     expect((res.json as jest.Mock).mock.calls).toHaveLength(1);
   });
 });
+
+describe('Cookie Consent Handler — final additional coverage', () => {
+  it('accepts analytics=true and functional=true simultaneously', () => {
+    const req = mockRequest({ essential: true, analytics: true, functional: true });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.data.analytics).toBe(true);
+    expect(call.data.functional).toBe(true);
+  });
+
+  it('rejects null body with 400 (second assertion)', () => {
+    const req = mockRequest(null);
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('success response has exactly data.essential, data.analytics, data.functional, data.message, data.savedAt', () => {
+    const req = mockRequest({ essential: true, analytics: false, functional: false });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    const keys = Object.keys(call.data).sort();
+    expect(keys).toEqual(['analytics', 'essential', 'functional', 'message', 'savedAt']);
+  });
+
+  it('error code is VALIDATION_ERROR for array body', () => {
+    const req = mockRequest([1, 2, 3]);
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('savedAt is recent (within 5 seconds)', () => {
+    const before = Date.now();
+    const req = mockRequest({ essential: true, analytics: false, functional: false });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    const savedAt = new Date(call.data.savedAt).getTime();
+    expect(savedAt).toBeGreaterThanOrEqual(before);
+    expect(savedAt).toBeLessThanOrEqual(Date.now() + 1000);
+  });
+
+  it('analytics=true is preserved in response when functional=false', () => {
+    const req = mockRequest({ essential: true, analytics: true, functional: false });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.data.analytics).toBe(true);
+    expect(call.data.functional).toBe(false);
+  });
+
+  it('ignores extra body properties and returns only 5 data keys', () => {
+    const req = mockRequest({ essential: true, analytics: false, functional: false, extra: 'should-be-ignored', xss: '<script>' });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(Object.keys(call.data)).toHaveLength(5);
+  });
+});

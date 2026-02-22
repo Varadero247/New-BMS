@@ -283,3 +283,59 @@ describe('Automotive Templates — extended edge cases', () => {
     expect(res.body.data.format).toBe('DOCX');
   });
 });
+
+describe('Automotive Templates — additional coverage 2', () => {
+  it('GET / returns at least 10 templates in total', async () => {
+    const res = await request(app).get('/api/templates');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(10);
+  });
+
+  it('GET / each template has a description field', async () => {
+    const res = await request(app).get('/api/templates');
+    expect(res.status).toBe(200);
+    for (const tpl of res.body.data) {
+      expect(tpl).toHaveProperty('description');
+    }
+  });
+
+  it('GET /:id for FMEA template tpl-fmea-01 returns FMEA category', async () => {
+    const res = await request(app).get('/api/templates/tpl-fmea-01');
+    expect(res.status).toBe(200);
+    expect(res.body.data.category).toBe('FMEA');
+  });
+
+  it('GET / returns at least one APQP template with XLSX format', async () => {
+    const res = await request(app).get('/api/templates?category=APQP');
+    expect(res.status).toBe(200);
+    const hasXlsx = res.body.data.some((t: { format: string }) => t.format === 'XLSX');
+    expect(hasXlsx).toBe(true);
+  });
+
+  it('GET /:id for tpl-ppap-02 returns 200 or 404 (valid format check)', async () => {
+    const res = await request(app).get('/api/templates/tpl-ppap-02');
+    expect([200, 404]).toContain(res.status);
+    if (res.status === 200) {
+      expect(res.body.data.category).toBe('PPAP');
+    }
+  });
+
+  it('GET / search for "control" returns matching templates', async () => {
+    const res = await request(app).get('/api/templates?search=control');
+    expect(res.status).toBe(200);
+    if (res.body.data.length > 0) {
+      for (const tpl of res.body.data) {
+        const matches = tpl.name.toLowerCase().includes('control') || tpl.description.toLowerCase().includes('control');
+        expect(matches).toBe(true);
+      }
+    }
+  });
+
+  it('GET / returns templates with unique ids', async () => {
+    const res = await request(app).get('/api/templates');
+    expect(res.status).toBe(200);
+    const ids = res.body.data.map((t: { id: string }) => t.id);
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(ids.length);
+  });
+});

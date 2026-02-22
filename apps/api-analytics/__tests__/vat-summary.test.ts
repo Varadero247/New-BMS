@@ -288,3 +288,65 @@ describe('VAT Summary — further edge cases', () => {
     });
   });
 });
+
+describe('VAT Summary — final coverage block', () => {
+  it('GCC revenue is 10% of totalRevenue', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'fin-vat-1' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    const gccItem = upsertCall.create.breakdown.find((b: any) => b.region === 'GCC');
+    expect(gccItem.revenue).toBe(1000);
+  });
+
+  it('update block has euVat field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 5000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'fin-vat-2' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.update).toHaveProperty('euVat');
+  });
+
+  it('monthlySnapshot.findMany is called once per job run', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'fin-vat-3' });
+    await runVatSummaryJob();
+    expect(prisma.monthlySnapshot.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('upsert create block has a breakdown that is an array', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'fin-vat-4' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(Array.isArray(upsertCall.create.breakdown)).toBe(true);
+  });
+
+  it('UK VAT rate is 0.20 (20%)', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'fin-vat-5' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    const ukItem = upsertCall.create.breakdown.find((b: any) => b.region === 'UK');
+    expect(ukItem.vatRate).toBe(0.20);
+  });
+
+  it('GCC VAT rate is 0.05 (5%)', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'fin-vat-6' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    const gccItem = upsertCall.create.breakdown.find((b: any) => b.region === 'GCC');
+    expect(gccItem.vatRate).toBe(0.05);
+  });
+
+  it('Rest of World revenue is a positive number', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'fin-vat-7' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    const rowItem = upsertCall.create.breakdown.find((b: any) => b.region === 'Rest of World');
+    expect(typeof rowItem.revenue).toBe('number');
+    expect(rowItem.revenue).toBeGreaterThan(0);
+  });
+});

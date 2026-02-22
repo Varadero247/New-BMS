@@ -445,3 +445,84 @@ describe('Software Validation Routes (IEC 62304)', () => {
     });
   });
 });
+
+describe('Software Validation — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/software/projects filters by safetyClass', async () => {
+    (mockPrisma.softwareProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/software/projects?safetyClass=CLASS_C');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.softwareProject.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ safetyClass: 'CLASS_C' }) })
+    );
+  });
+
+  it('GET /api/software/projects filters by status', async () => {
+    (mockPrisma.softwareProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/software/projects?status=ACTIVE');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.softwareProject.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('POST /api/software/projects count is called before create to generate refNumber', async () => {
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(2);
+    (mockPrisma.softwareProject.create as jest.Mock).mockResolvedValue({ id: 'sw-count-test' });
+
+    await request(app).post('/api/software/projects').send({ title: 'Count Test', safetyClass: 'CLASS_A' });
+
+    expect(mockPrisma.softwareProject.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.softwareProject.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/software/projects/:id/phase/DETAILED_DESIGN updates successfully', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.softwarePhaseDoc.upsert as jest.Mock).mockResolvedValue({
+      phase: 'DETAILED_DESIGN',
+      status: 'IN_PROGRESS',
+    });
+
+    const res = await request(app)
+      .put('/api/software/projects/00000000-0000-0000-0000-000000000001/phase/DETAILED_DESIGN')
+      .send({ content: 'Detailed design document', status: 'IN_PROGRESS' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/software/projects/:id/anomalies MAJOR severity is accepted', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.softwareAnomaly.create as jest.Mock).mockResolvedValue({ id: 'anm-major' });
+
+    const res = await request(app)
+      .post('/api/software/projects/00000000-0000-0000-0000-000000000001/anomalies')
+      .send({ title: 'Critical Alarm Failure', description: 'Alarm does not activate', severity: 'MAJOR' });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/software/projects meta.total matches count', async () => {
+    (mockPrisma.softwareProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(17);
+
+    const res = await request(app).get('/api/software/projects');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(17);
+  });
+});

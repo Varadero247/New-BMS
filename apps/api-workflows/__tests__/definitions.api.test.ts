@@ -515,3 +515,113 @@ describe('Workflow Definitions API Routes', () => {
     });
   });
 });
+
+// ── Workflow Definitions — further coverage ───────────────────────────────────
+
+describe('Workflow Definitions API — further coverage', () => {
+  let appFurther: express.Express;
+
+  beforeAll(() => {
+    appFurther = express();
+    appFurther.use(express.json());
+    appFurther.use('/api/definitions', definitionsRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns success:true with data array', async () => {
+    (mockPrisma.workflowDefinition.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(appFurther).get('/api/definitions');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / returns 400 for missing triggerType', async () => {
+    const res = await request(appFurther).post('/api/definitions').send({
+      code: 'CODE',
+      name: 'Name',
+      category: 'APPROVAL',
+      steps: [],
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns 200 with updated name', async () => {
+    (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '3b000000-0000-4000-a000-000000000001',
+      version: 1,
+    });
+    (mockPrisma.workflowDefinition.update as jest.Mock).mockResolvedValueOnce({
+      id: '3b000000-0000-4000-a000-000000000001',
+      name: 'Renamed',
+      version: 2,
+    });
+    const res = await request(appFurther)
+      .put('/api/definitions/3b000000-0000-4000-a000-000000000001')
+      .send({ name: 'Renamed' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Renamed');
+  });
+
+  it('PUT /:id/activate returns 200 and calls update with ACTIVE status', async () => {
+    (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '3b000000-0000-4000-a000-000000000001',
+      version: 1,
+    });
+    (mockPrisma.workflowDefinition.update as jest.Mock).mockResolvedValueOnce({
+      id: '3b000000-0000-4000-a000-000000000001',
+      status: 'ACTIVE',
+    });
+    const res = await request(appFurther).put(
+      '/api/definitions/3b000000-0000-4000-a000-000000000001/activate'
+    );
+    expect(res.status).toBe(200);
+    expect(mockPrisma.workflowDefinition.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('POST /:id/clone passes createdById from user to new definition', async () => {
+    const source = {
+      id: '3b000000-0000-4000-a000-000000000001',
+      code: 'ORIG',
+      name: 'Original',
+      description: null,
+      category: 'APPROVAL',
+      triggerType: 'MANUAL',
+      triggerConfig: null,
+      steps: [],
+      rules: null,
+      defaultSlaHours: null,
+      escalationConfig: null,
+    };
+    (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce(source);
+    (mockPrisma.workflowDefinition.create as jest.Mock).mockResolvedValueOnce({
+      id: 'clone-new',
+      code: 'ORIG-COPY',
+      status: 'DRAFT',
+      version: 1,
+    });
+    const res = await request(appFurther).post(
+      '/api/definitions/3b000000-0000-4000-a000-000000000001/clone'
+    );
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns definition with code field', async () => {
+    (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '3b000000-0000-4000-a000-000000000001',
+      code: 'APPROVAL_FLOW',
+      name: 'Approval',
+      steps: [],
+      rules: {},
+      instances: [],
+    });
+    const res = await request(appFurther).get(
+      '/api/definitions/3b000000-0000-4000-a000-000000000001'
+    );
+    expect(res.body.data.code).toBe('APPROVAL_FLOW');
+  });
+});

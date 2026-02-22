@@ -344,3 +344,56 @@ describe('inspections.api — additional coverage', () => {
     }
   });
 });
+
+describe('Inspections API — final coverage block', () => {
+  it('POST / count is called to generate reference number', async () => {
+    mockPrisma.assetInspection.count.mockResolvedValue(3);
+    mockPrisma.assetInspection.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', referenceNumber: 'AIN-2026-0004' });
+    await request(app).post('/api/inspections').send({ assetId: 'asset-y', condition: 'GOOD' });
+    expect(mockPrisma.assetInspection.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id update is called with deletedAt data', async () => {
+    mockPrisma.assetInspection.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetInspection.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/inspections/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.assetInspection.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /:id data has referenceNumber field', async () => {
+    mockPrisma.assetInspection.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      referenceNumber: 'AIN-2026-0001',
+    });
+    const res = await request(app).get('/api/inspections/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('GET / findMany is called once per list request', async () => {
+    mockPrisma.assetInspection.findMany.mockResolvedValue([]);
+    mockPrisma.assetInspection.count.mockResolvedValue(0);
+    await request(app).get('/api/inspections');
+    expect(mockPrisma.assetInspection.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / create is called with assetId in data', async () => {
+    mockPrisma.assetInspection.count.mockResolvedValue(0);
+    mockPrisma.assetInspection.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', referenceNumber: 'AIN-2026-0001' });
+    await request(app).post('/api/inspections').send({ assetId: 'asset-abc', condition: 'GOOD' });
+    expect(mockPrisma.assetInspection.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ assetId: 'asset-abc' }) })
+    );
+  });
+
+  it('PUT /:id update is called with correct where.id', async () => {
+    mockPrisma.assetInspection.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetInspection.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', condition: 'EXCELLENT' });
+    await request(app).put('/api/inspections/00000000-0000-0000-0000-000000000001').send({ condition: 'EXCELLENT' });
+    expect(mockPrisma.assetInspection.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});

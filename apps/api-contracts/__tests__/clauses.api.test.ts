@@ -341,3 +341,67 @@ describe('clauses.api — pagination, filter and field validation', () => {
     expect(res.headers['content-type']).toMatch(/application\/json/);
   });
 });
+
+describe('clauses.api — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.contClause.findMany.mockResolvedValue([]);
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/clauses');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / data contains the correct clause id', async () => {
+    mockPrisma.contClause.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Indemnity' }]);
+    mockPrisma.contClause.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/clauses');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST / count called before create to generate referenceNumber', async () => {
+    mockPrisma.contClause.count.mockResolvedValue(5);
+    mockPrisma.contClause.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005', contractId: 'c-1', title: 'Clause 5' });
+    await request(app).post('/api/clauses').send({ contractId: 'c-1', title: 'Clause 5' });
+    expect(mockPrisma.contClause.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.contClause.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id calls update with provided title field', async () => {
+    mockPrisma.contClause.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contClause.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Force Majeure' });
+    const res = await request(app).put('/api/clauses/00000000-0000-0000-0000-000000000001').send({ title: 'Force Majeure' });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contClause.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ title: 'Force Majeure' }) })
+    );
+  });
+
+  it('DELETE /:id calls update with deletedAt set', async () => {
+    mockPrisma.contClause.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contClause.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    await request(app).delete('/api/clauses/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.contClause.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns 200 with arbitrary unknown query params ignored', async () => {
+    mockPrisma.contClause.findMany.mockResolvedValue([]);
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/clauses?unknownParam=somevalue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns data with title field when found', async () => {
+    mockPrisma.contClause.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Arbitration' });
+    const res = await request(app).get('/api/clauses/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Arbitration');
+  });
+});

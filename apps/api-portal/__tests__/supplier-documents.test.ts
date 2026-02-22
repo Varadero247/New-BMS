@@ -356,3 +356,57 @@ describe('supplier-documents — edge cases and validation', () => {
     );
   });
 });
+
+describe('Supplier Documents — final coverage', () => {
+  it('GET list: response body has success and data fields', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/documents');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET list: pagination has page, limit, total, totalPages', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/documents');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('POST upload: returns 201 with success true on valid SPECIFICATION category', async () => {
+    mockPrisma.portalDocument.create.mockResolvedValue({
+      id: 'd-spec',
+      title: 'Product Specification',
+      category: 'SPECIFICATION',
+      portalType: 'SUPPLIER',
+    });
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'Product Specification',
+      fileName: 'spec.pdf',
+      fileSize: 3000,
+      mimeType: 'application/pdf',
+      category: 'SPECIFICATION',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: findMany called once per list request', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    await request(app).get('/api/supplier/documents');
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: page=1 limit=10 uses skip=0', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    await request(app).get('/api/supplier/documents?page=1&limit=10');
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 10 })
+    );
+  });
+});

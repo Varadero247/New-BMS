@@ -362,3 +362,71 @@ describe('benchmarks.api — extended edge cases', () => {
     expect(res.body.data.industry).toHaveLength(3);
   });
 });
+
+// ── benchmarks.api — final additional coverage ──────────────────────────────
+
+describe('benchmarks.api — final additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/benchmarks response always has success property', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('GET /api/benchmarks/:module response always has success property', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/QUALITY');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('POST /api/benchmarks create is called exactly once on valid request', async () => {
+    mockPrisma.analyticsKpi.create.mockResolvedValue({ id: 'k-once', name: 'Test', trend: 'UP' });
+    await request(app).post('/api/benchmarks').send({
+      name: 'Unique Metric',
+      module: 'ENVIRONMENT',
+      metric: 'Unique Metric',
+      industryAverage: 50,
+      topPerformer: 90,
+      currentValue: 70,
+    });
+    expect(mockPrisma.analyticsKpi.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/benchmarks industry HR has exactly 3 items', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry.HR).toHaveLength(3);
+  });
+
+  it('GET /api/benchmarks/:module with lowercase hr returns 3 industry items', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/hr');
+    expect(res.status).toBe(200);
+    expect(res.body.data.module).toBe('HR');
+    expect(res.body.data.industry).toHaveLength(3);
+  });
+
+  it('POST /api/benchmarks returns 500 on DB error with success:false', async () => {
+    mockPrisma.analyticsKpi.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/benchmarks').send({
+      name: 'Fail Test',
+      module: 'QUALITY',
+      metric: 'Fail Test',
+      industryAverage: 60,
+      topPerformer: 95,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/benchmarks data.industry.FINANCE has exactly 3 items', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry.FINANCE).toHaveLength(3);
+  });
+});

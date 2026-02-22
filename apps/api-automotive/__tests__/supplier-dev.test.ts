@@ -397,3 +397,68 @@ describe('supplier-dev — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('supplier-dev — additional coverage 2', () => {
+  it('GET /api/supplier-dev returns all records when no filters are applied', async () => {
+    const records = [
+      makeRecord(),
+      makeRecord({ id: ID2, supplierName: 'Beta Parts', tier: 'TIER_2' }),
+    ];
+    (mockPrisma.supplierDevelopment.findMany as jest.Mock).mockResolvedValue(records);
+    const res = await request(app).get('/api/supplier-dev');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /api/supplier-dev search is case-insensitive for uppercase input', async () => {
+    const records = [makeRecord({ supplierName: 'acme automotive' })];
+    (mockPrisma.supplierDevelopment.findMany as jest.Mock).mockResolvedValue(records);
+    const res = await request(app).get('/api/supplier-dev?search=ACME');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('POST /api/supplier-dev increments devNumber based on count result', async () => {
+    (mockPrisma.supplierDevelopment.count as jest.Mock).mockResolvedValue(5);
+    (mockPrisma.supplierDevelopment.create as jest.Mock).mockResolvedValue(
+      makeRecord({ devNumber: 'SD-2602-0006' })
+    );
+    const res = await request(app).post('/api/supplier-dev').send({ supplierName: 'New Supplier' });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.supplierDevelopment.count).toHaveBeenCalled();
+  });
+
+  it('PUT /api/supplier-dev/:id passes data fields to update call', async () => {
+    (mockPrisma.supplierDevelopment.update as jest.Mock).mockResolvedValue(makeRecord({ sqa: 'New SQA' }));
+    await request(app).put(`/api/supplier-dev/${ID1}`).send({ sqa: 'New SQA' });
+    expect(mockPrisma.supplierDevelopment.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ sqa: 'New SQA' }) })
+    );
+  });
+
+  it('GET /api/supplier-dev/:id returns success true with full record', async () => {
+    (mockPrisma.supplierDevelopment.findFirst as jest.Mock).mockResolvedValue(makeRecord());
+    const res = await request(app).get(`/api/supplier-dev/${ID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('supplierName');
+    expect(res.body.data).toHaveProperty('devNumber');
+  });
+
+  it('DELETE /api/supplier-dev/:id calls update with where id matching the URL param', async () => {
+    (mockPrisma.supplierDevelopment.update as jest.Mock).mockResolvedValue({ id: ID2, deletedAt: new Date() });
+    await request(app).delete(`/api/supplier-dev/${ID2}`);
+    expect(mockPrisma.supplierDevelopment.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: ID2 } })
+    );
+  });
+
+  it('GET /api/supplier-dev returns data array (not null) even when DB returns empty', async () => {
+    (mockPrisma.supplierDevelopment.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/supplier-dev');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

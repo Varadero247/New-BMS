@@ -262,3 +262,59 @@ describe('Mgmt Review Dashboard — final coverage', () => {
     expect(mockPrisma.mgmtReview.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Mgmt Review Dashboard — exhaustive coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /stats success field is boolean true, not truthy', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.success).toBe(true);
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('GET /stats error.code is string INTERNAL_ERROR on failure', async () => {
+    mockPrisma.mgmtReview.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.error.code).toBe('string');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /stats returns totalReviews 50 when count returns 50', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalReviews).toBe(50);
+  });
+
+  it('GET /stats response body does not contain error on success', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.error).toBeUndefined();
+  });
+
+  it('GET /stats count called with correct where shape', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.mgmtReview.count).toHaveBeenCalledWith({
+      where: { orgId: 'org-1', deletedAt: null },
+    });
+  });
+
+  it('GET /stats totalReviews is integer type', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(7);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(Number.isInteger(res.body.data.totalReviews)).toBe(true);
+  });
+
+  it('GET /stats returns 200 for multiple sequential calls', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(2);
+    const r1 = await request(app).get('/api/dashboard/stats');
+    const r2 = await request(app).get('/api/dashboard/stats');
+    expect(r1.status).toBe(200);
+    expect(r2.status).toBe(200);
+  });
+});

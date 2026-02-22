@@ -427,3 +427,63 @@ describe('Electronic Signature — additional coverage', () => {
     });
   });
 });
+
+describe('Electronic Signature — final coverage additions', () => {
+  const testPassword = 'TestPassword123!';
+  let passwordHash: string;
+
+  beforeAll(async () => {
+    passwordHash = await bcrypt.hash(testPassword, 10);
+  });
+
+  it('isValidMeaning returns false for lowercase meaning strings', () => {
+    expect(isValidMeaning('approved')).toBe(false);
+    expect(isValidMeaning('released')).toBe(false);
+  });
+
+  it('getValidMeanings returns an array', () => {
+    expect(Array.isArray(getValidMeanings())).toBe(true);
+  });
+
+  it('computeAuditChecksum produces a 64-character hex string', () => {
+    const hash = computeAuditChecksum({
+      userId: 'u1',
+      action: 'UPDATE',
+      resourceId: 'r1',
+      timestamp: new Date(),
+      changes: [],
+    });
+    expect(hash).toHaveLength(64);
+    expect(hash).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it('computeSignatureChecksum produces a 64-character hex string', () => {
+    const hash = computeSignatureChecksum({
+      userId: 'u1',
+      meaning: 'APPROVED',
+      resourceType: 'Doc',
+      resourceId: 'doc-1',
+      timestamp: new Date(),
+    });
+    expect(hash).toHaveLength(64);
+  });
+
+  it('createSignature result has no error property when successful', async () => {
+    const req = {
+      userId: 'u-final',
+      userEmail: 'final@ims.local',
+      userFullName: 'Final User',
+      password: testPassword,
+      meaning: 'ACKNOWLEDGED' as import('../src/types').SignatureMeaning,
+      reason: 'Acknowledged',
+      resourceType: 'SOP',
+      resourceId: 'sop-001',
+      resourceRef: 'SOP-001',
+      ipAddress: '127.0.0.1',
+      userAgent: 'Test',
+    };
+    const result = await createSignature(req, passwordHash);
+    expect(result.error).toBeUndefined();
+    expect(result.signature).not.toBeNull();
+  });
+});

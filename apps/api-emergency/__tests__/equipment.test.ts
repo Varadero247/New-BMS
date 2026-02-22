@@ -435,3 +435,85 @@ describe('equipment — extended edge cases', () => {
     expect(res.body.data[0].premises.name).toBe('Head Office');
   });
 });
+
+describe('equipment — final coverage', () => {
+  it('creates equipment of type FIRE_ALARM_PANEL', async () => {
+    const panelEquip = { ...fakeEquipment, equipmentType: 'FIRE_ALARM_PANEL' };
+    mockEquipment.create.mockResolvedValue(panelEquip);
+
+    const res = await request(app).post(`/api/equipment/premises/${PREMISES_ID}`).send({
+      equipmentType: 'FIRE_ALARM_PANEL',
+      location: 'Reception Desk',
+      nextServiceDue: '2027-03-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.equipmentType).toBe('FIRE_ALARM_PANEL');
+  });
+
+  it('PUT /api/equipment/:id serialNumber update succeeds', async () => {
+    const updated = { ...fakeEquipment, serialNumber: 'EXT-999' };
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
+    mockEquipment.update.mockResolvedValue(updated);
+
+    const res = await request(app).put(`/api/equipment/${EQUIPMENT_ID}`).send({
+      serialNumber: 'EXT-999',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.serialNumber).toBe('EXT-999');
+  });
+
+  it('POST inspect with ADVISORY result sets correct response', async () => {
+    const advisoryResult = { ...fakeEquipment, inspectionResult: 'ADVISORY', isOperational: true };
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
+    mockEquipment.update.mockResolvedValue(advisoryResult);
+
+    const res = await request(app).post(`/api/equipment/${EQUIPMENT_ID}/inspect`).send({
+      inspectionResult: 'ADVISORY',
+      isOperational: true,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/equipment/premises/:id returns success true for non-empty result', async () => {
+    mockEquipment.findMany.mockResolvedValue([fakeEquipment, { ...fakeEquipment, id: '00000000-0000-0000-0000-000000000007' }]);
+
+    const res = await request(app).get(`/api/equipment/premises/${PREMISES_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /api/equipment/service-due returns equipment serialNumber', async () => {
+    const overdue = { ...fakeEquipment, nextServiceDue: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), premises: { name: 'Site C' } };
+    mockEquipment.findMany.mockResolvedValue([overdue]);
+
+    const res = await request(app).get('/api/equipment/service-due');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].serialNumber).toBe('EXT-001');
+  });
+
+  it('response body has data array for GET /api/equipment', async () => {
+    mockEquipment.findMany.mockResolvedValue([fakeEquipment]);
+    mockEquipment.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/equipment');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/equipment/premises/:id returns data.isOperational as true by default', async () => {
+    mockEquipment.create.mockResolvedValue({ ...fakeEquipment, isOperational: true });
+
+    const res = await request(app).post(`/api/equipment/premises/${PREMISES_ID}`).send(validCreateBody);
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.isOperational).toBe(true);
+  });
+});

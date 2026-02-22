@@ -313,3 +313,59 @@ describe('GET /api/locations — additional coverage', () => {
     expect(plantA.count).toBe(2);
   });
 });
+
+describe('Locations API — final coverage block', () => {
+  it('response content-type contains json', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/locations');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST is not supported — returns 404', async () => {
+    const res = await request(app).post('/api/locations').send({});
+    expect(res.status).toBe(404);
+  });
+
+  it('findMany is called with select containing location field', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/locations');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ select: expect.objectContaining({ location: true }) })
+    );
+  });
+
+  it('data has no duplicate location names in output', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Same' },
+      { location: 'Same' },
+      { location: 'Same' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    const names = res.body.data.map((d: any) => d.location);
+    const uniqueNames = [...new Set(names)];
+    expect(names.length).toBe(uniqueNames.length);
+    expect(names.length).toBe(1);
+  });
+
+  it('success is true on empty result set', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/locations');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('count for location is 1 when only one asset at that location', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([{ location: 'Unique Place' }]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].count).toBe(1);
+  });
+
+  it('findMany is called with orgId filter matching authenticated user', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/locations');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+});

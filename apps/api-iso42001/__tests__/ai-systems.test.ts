@@ -447,3 +447,93 @@ describe('DELETE /api/ai-systems/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ===================================================================
+// ISO 42001 AI Systems — extended coverage
+// ===================================================================
+describe('ISO 42001 AI Systems — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/ai-systems: skip is correct for page 2 limit 5', async () => {
+    mockPrisma.aiSystem.findMany.mockResolvedValue([]);
+    mockPrisma.aiSystem.count.mockResolvedValue(10);
+
+    await request(app).get('/api/ai-systems?page=2&limit=5');
+
+    expect(mockPrisma.aiSystem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET /api/ai-systems: response has success:true and data array', async () => {
+    mockPrisma.aiSystem.findMany.mockResolvedValue([mockSystem]);
+    mockPrisma.aiSystem.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/ai-systems');
+
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('GET /api/ai-systems/:id: response contains reference field', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+
+    const res = await request(app).get(`/api/ai-systems/${UUID1}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('reference');
+  });
+
+  it('POST /api/ai-systems: UNSTRUCTURED category is accepted', async () => {
+    mockPrisma.aiSystem.create.mockResolvedValue({
+      ...mockSystem,
+      category: 'NATURAL_LANGUAGE_PROCESSING',
+      name: 'Sentiment Analyser',
+    });
+
+    const res = await request(app).post('/api/ai-systems').send({
+      name: 'Sentiment Analyser',
+      description: 'Analyse customer feedback sentiment',
+      category: 'NATURAL_LANGUAGE_PROCESSING',
+      riskTier: 'LIMITED',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/ai-systems/:id/risks: returns empty array when system has no risks', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get(`/api/ai-systems/${UUID1}/risks`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/ai-systems/:id/incidents: returns empty array when system has no incidents', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiIncident.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get(`/api/ai-systems/${UUID1}/incidents`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('PUT /api/ai-systems/:id: riskTier can be updated to UNACCEPTABLE', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiSystem.update.mockResolvedValue({ ...mockSystem, riskTier: 'UNACCEPTABLE' });
+
+    const res = await request(app)
+      .put(`/api/ai-systems/${UUID1}`)
+      .send({ riskTier: 'UNACCEPTABLE' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

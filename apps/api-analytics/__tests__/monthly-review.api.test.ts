@@ -383,3 +383,86 @@ describe('Monthly Review — further edge cases', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// Monthly Review — remaining coverage
+// ===================================================================
+describe('Monthly Review — remaining coverage', () => {
+  it('GET /api/monthly-review response success is true', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/monthly-review');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/monthly-review/:snapshotId snapshot has month field', async () => {
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      month: '2026-06',
+      monthNumber: 4,
+      mrr: 0,
+    });
+    (prisma.planTarget.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get('/api/monthly-review/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.snapshot).toHaveProperty('month');
+  });
+
+  it('POST /api/monthly-review/trigger response has message field', async () => {
+    const res = await request(app).post('/api/monthly-review/trigger').send({});
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('POST /api/monthly-review/seed-targets response data.created is a number', async () => {
+    (prisma.planTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.planTarget.createMany as jest.Mock).mockResolvedValue({ count: 36 });
+
+    const res = await request(app).post('/api/monthly-review/seed-targets').send({});
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.created).toBe('number');
+  });
+
+  it('GET /api/monthly-review response snapshots is an array', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', month: '2026-03', monthNumber: 1, mrr: 0, trajectory: null },
+    ]);
+    (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/monthly-review');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.snapshots)).toBe(true);
+    expect(res.body.data.snapshots).toHaveLength(1);
+  });
+
+  it('POST /api/monthly-review/:snapshotId/approve with keep-original does not call planTarget.update', async () => {
+    const snap = {
+      id: '00000000-0000-0000-0000-000000000001',
+      month: '2026-05',
+      monthNumber: 3,
+      targetsApproved: false,
+      aiRecommendations: [],
+    };
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue(snap);
+    (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({ ...snap, targetsApproved: true });
+
+    const res = await request(app)
+      .post('/api/monthly-review/00000000-0000-0000-0000-000000000001/approve')
+      .send({ action: 'keep-original' });
+
+    expect(res.status).toBe(200);
+    expect(prisma.planTarget.update).not.toHaveBeenCalled();
+  });
+
+  it('POST /api/monthly-review/seed-targets response has skipped field', async () => {
+    (prisma.planTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.planTarget.createMany as jest.Mock).mockResolvedValue({ count: 36 });
+
+    const res = await request(app).post('/api/monthly-review/seed-targets').send({});
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('skipped');
+  });
+});

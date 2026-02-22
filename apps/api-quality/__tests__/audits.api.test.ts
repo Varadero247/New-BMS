@@ -373,3 +373,66 @@ describe('Quality Audits API — extended edge cases', () => {
     expect(res.body.data.referenceNumber).toBe('QMS-AUD-2026-001');
   });
 });
+
+describe('Quality Audits API — final coverage', () => {
+  const mockAudit = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-AUD-2026-001',
+    title: 'Internal QMS Audit',
+    auditType: 'INTERNAL',
+    scope: 'Full QMS scope review',
+    leadAuditor: 'Jane Auditor',
+    status: 'PLANNED',
+    deletedAt: null,
+  };
+
+  it('GET / success is true on empty result', async () => {
+    mockPrisma.qualAudit.findMany.mockResolvedValue([]);
+    mockPrisma.qualAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST / creates audit with scope and lead auditor', async () => {
+    mockPrisma.qualAudit.count.mockResolvedValue(2);
+    mockPrisma.qualAudit.create.mockResolvedValue(mockAudit);
+    const res = await request(app).post('/api/audits').send({
+      title: 'Scope Audit',
+      auditType: 'INTERNAL',
+      scope: 'ISO 9001 clause 8',
+      leadAuditor: 'Alice',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toBe('QMS-AUD-2026-001');
+  });
+
+  it('PUT /:id returns success:false on 404 (error code NOT_FOUND)', async () => {
+    mockPrisma.qualAudit.findFirst.mockResolvedValue(null);
+    const res = await request(app).put('/api/audits/00000000-0000-0000-0000-000000000099').send({ status: 'COMPLETED' });
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /:id soft-deletes and sets deletedAt', async () => {
+    mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
+    mockPrisma.qualAudit.update.mockResolvedValue({ ...mockAudit, deletedAt: new Date() });
+    await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.qualAudit.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns 500 success:false on DB error', async () => {
+    mockPrisma.qualAudit.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/audits');
+    expect(res.body.success).toBe(false);
+    expect(res.status).toBe(500);
+  });
+
+  it('POST / returns 400 when required fields missing entirely', async () => {
+    const res = await request(app).post('/api/audits').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

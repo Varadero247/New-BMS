@@ -393,3 +393,69 @@ describe('DSAR Routes — 500 paths and extended edge cases', () => {
     );
   });
 });
+
+describe('DSAR Routes — final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/privacy/dsar', dsarRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListRequests.mockReturnValue([]);
+    mockGetRequest.mockReturnValue({ id: 'dsar-1', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com' });
+    mockCreateRequest.mockReturnValue({ id: 'dsar-1', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com', orgId: 'org-1', requestedById: 'user-1' });
+    mockProcessExportRequest.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'COMPLETE', downloadUrl: '/downloads/dsar-1.zip' });
+    mockProcessErasureRequest.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', type: 'ERASURE', status: 'COMPLETE' });
+  });
+
+  it('GET /api/admin/privacy/dsar response body has success property', async () => {
+    const res = await request(app).get('/api/admin/privacy/dsar');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('POST /api/admin/privacy/dsar response has data property', async () => {
+    const res = await request(app)
+      .post('/api/admin/privacy/dsar')
+      .send({ type: 'EXPORT', subjectEmail: 'user@example.com' });
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/admin/privacy/dsar/:id type EXPORT in response', async () => {
+    const res = await request(app).get('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.type).toBe('EXPORT');
+  });
+
+  it('POST /api/admin/privacy/dsar/:id/process calls processExportRequest for EXPORT type', async () => {
+    const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+    expect(res.status).toBe(200);
+    expect(mockProcessExportRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/admin/privacy/dsar rejects type RECTIFICATION as invalid', async () => {
+    const res = await request(app)
+      .post('/api/admin/privacy/dsar')
+      .send({ type: 'RECTIFICATION', subjectEmail: 'user@example.com' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/admin/privacy/dsar response data is an array', async () => {
+    const res = await request(app).get('/api/admin/privacy/dsar');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/admin/privacy/dsar data.orgId is set from authenticated user', async () => {
+    const res = await request(app)
+      .post('/api/admin/privacy/dsar')
+      .send({ type: 'EXPORT', subjectEmail: 'user@example.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.orgId).toBe('org-1');
+  });
+});

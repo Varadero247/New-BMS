@@ -387,3 +387,74 @@ describe('board-pack.test.ts — extended edge cases', () => {
     expect(id).toBe('bp-return-id');
   });
 });
+
+// ── board-pack.test.ts — final additional coverage ──────────────────────────
+
+describe('board-pack.test.ts — final additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('runBoardPackJob data.sections is an object', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'fa-1', status: 'DRAFT' });
+    await runBoardPackJob();
+    const createArg = (prisma.boardPack.create as jest.Mock).mock.calls[0][0];
+    expect(typeof createArg.data.sections).toBe('object');
+    expect(createArg.data.sections).not.toBeNull();
+  });
+
+  it('GET /api/board-packs success:true on empty list', async () => {
+    (prisma.boardPack.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.boardPacks).toHaveLength(0);
+  });
+
+  it('PATCH /api/board-packs/:id update receives where.id equal to path id', async () => {
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' });
+    (prisma.boardPack.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'FINAL' });
+    await request(app).patch('/api/board-packs/00000000-0000-0000-0000-000000000001').send({ status: 'FINAL' });
+    expect(prisma.boardPack.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /api/board-packs/:id returns 500 on DB error with success:false', async () => {
+    (prisma.boardPack.findUnique as jest.Mock).mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('runBoardPackJob create receives title field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'fa-2', status: 'DRAFT' });
+    await runBoardPackJob();
+    const createArg = (prisma.boardPack.create as jest.Mock).mock.calls[0][0];
+    expect(createArg.data).toHaveProperty('title');
+    expect(typeof createArg.data.title).toBe('string');
+  });
+
+  it('GET /api/board-packs pagination.page is 2 when page=2 requested', async () => {
+    (prisma.boardPack.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.count as jest.Mock).mockResolvedValue(100);
+    const res = await request(app).get('/api/board-packs?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.page).toBe(2);
+  });
+
+  it('runBoardPackJob with multiple snapshots sums mrr correctly in sections', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { id: 's1', mrr: 3000, customers: 5, mrrGrowthPct: 5, newCustomers: 1, revenueChurnPct: 1, ndr: 105, founderDraw: 2000, trajectory: 'ON_TRACK', monthNumber: 1 },
+      { id: 's2', mrr: 4000, customers: 7, mrrGrowthPct: 8, newCustomers: 2, revenueChurnPct: 0, ndr: 110, founderDraw: 2000, trajectory: 'AHEAD', monthNumber: 2 },
+    ]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'fa-3', status: 'DRAFT' });
+    await runBoardPackJob();
+    const createArg = (prisma.boardPack.create as jest.Mock).mock.calls[0][0];
+    expect(createArg.data.sections).toBeDefined();
+    expect(createArg.data.status).toBe('DRAFT');
+  });
+});

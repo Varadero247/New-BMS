@@ -382,3 +382,77 @@ describe('Assets Routes', () => {
     });
   });
 });
+
+describe('Assets — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / filters by location query param', async () => {
+    prisma.cmmsAsset.findMany.mockResolvedValue([]);
+    prisma.cmmsAsset.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assets?location=Building%20A');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / sets createdBy from the authenticated user', async () => {
+    prisma.cmmsAsset.create.mockResolvedValue(mockAsset);
+    await request(app).post('/api/assets').send({ name: 'New Asset', assetType: 'EQUIPMENT' });
+    expect(prisma.cmmsAsset.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('GET /:id/history returns workOrders, inspections, meterReadings, downtimes keys', async () => {
+    prisma.cmmsAsset.findFirst.mockResolvedValue(mockAsset);
+    prisma.cmmsWorkOrder.findMany.mockResolvedValue([{ id: 'wo-1' }]);
+    prisma.cmmsInspection.findMany.mockResolvedValue([]);
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([]);
+    prisma.cmmsDowntime.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001/history');
+    expect(res.status).toBe(200);
+    expect(res.body.data.workOrders).toHaveLength(1);
+  });
+
+  it('GET /:id/qr-code returns name in QR data payload', async () => {
+    prisma.cmmsAsset.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      code: 'ASSET-1001',
+      name: 'CNC Machine',
+      assetType: 'EQUIPMENT',
+      location: 'Building A',
+      serialNumber: 'SN-12345',
+    });
+    const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001/qr-code');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('CNC Machine');
+  });
+
+  it('DELETE /:id soft-deletes by setting deletedAt via update', async () => {
+    prisma.cmmsAsset.findFirst.mockResolvedValue(mockAsset);
+    prisma.cmmsAsset.update.mockResolvedValue({ ...mockAsset, deletedAt: new Date() });
+    const res = await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(prisma.cmmsAsset.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns pagination.page and pagination.limit matching query', async () => {
+    prisma.cmmsAsset.findMany.mockResolvedValue([]);
+    prisma.cmmsAsset.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assets?page=3&limit=15');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(15);
+  });
+
+  it('GET / returns 500 with INTERNAL_ERROR when count rejects', async () => {
+    prisma.cmmsAsset.findMany.mockResolvedValue([]);
+    prisma.cmmsAsset.count.mockRejectedValue(new Error('count failed'));
+    const res = await request(app).get('/api/assets');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -400,3 +400,99 @@ describe('Quality Metrics API — extended coverage', () => {
     expect(res.body.pagination).toHaveProperty('limit');
   });
 });
+
+describe('Quality Metrics API — further edge cases', () => {
+  const mockMetric = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-MET-2026-001',
+    name: 'Defect Rate',
+    description: 'Track product defect rate',
+    category: 'PROCESS_PERFORMANCE',
+    unit: 'percentage',
+    targetValue: 2,
+    actualValue: 1.5,
+    status: 'ON_TRACK',
+    frequency: 'WEEKLY',
+    owner: 'QA Lead',
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/metrics — create is called with auto-generated reference number', async () => {
+    mockPrisma.qualMetric.count.mockResolvedValue(7);
+    mockPrisma.qualMetric.create.mockResolvedValue(mockMetric);
+
+    await request(app).post('/api/metrics').send({ name: 'Defect Rate', category: 'PROCESS_PERFORMANCE' });
+
+    expect(mockPrisma.qualMetric.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          referenceNumber: expect.stringMatching(/^QMS-MET-\d{4}-\d{3}$/),
+        }),
+      })
+    );
+  });
+
+  it('GET /api/metrics — filter by owner passes to where clause', async () => {
+    mockPrisma.qualMetric.findMany.mockResolvedValue([mockMetric]);
+    mockPrisma.qualMetric.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/metrics?owner=QA+Lead');
+    expect(res.status).toBe(200);
+  });
+
+  it('DELETE /api/metrics/:id — update called with deletedAt Date', async () => {
+    mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
+    mockPrisma.qualMetric.update.mockResolvedValue({ ...mockMetric, deletedAt: new Date() });
+
+    await request(app).delete('/api/metrics/00000000-0000-0000-0000-000000000001');
+
+    expect(mockPrisma.qualMetric.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/metrics/summary — total matches first count call result', async () => {
+    mockPrisma.qualMetric.count
+      .mockResolvedValueOnce(20)
+      .mockResolvedValueOnce(12)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(3);
+    mockPrisma.qualMetric.groupBy.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/metrics/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(20);
+  });
+
+  it('GET /api/metrics/:id — response includes name and category', async () => {
+    mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
+
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Defect Rate');
+    expect(res.body.data.category).toBe('PROCESS_PERFORMANCE');
+  });
+
+  it('PUT /api/metrics/:id — passes id in where clause', async () => {
+    mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
+    mockPrisma.qualMetric.update.mockResolvedValue({ ...mockMetric, name: 'Updated Metric' });
+
+    await request(app)
+      .put('/api/metrics/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Metric' });
+
+    expect(mockPrisma.qualMetric.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+});

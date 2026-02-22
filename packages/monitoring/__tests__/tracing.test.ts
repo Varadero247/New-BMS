@@ -222,3 +222,39 @@ describe('Tracing — opt-in and helpers extended', () => {
     expect(result).toBeUndefined();
   });
 });
+
+describe('Tracing — comprehensive edge cases', () => {
+  beforeEach(() => {
+    delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    delete process.env.OTEL_TRACING_ENABLED;
+  });
+
+  it('getTracer returns a tracer with a startActiveSpan method', () => {
+    const tracer = getTracer('active-span-tracer');
+    expect(typeof tracer.startActiveSpan).toBe('function');
+  });
+
+  it('addSpanAttributes with boolean-like string values does not throw', () => {
+    expect(() => addSpanAttributes({ 'feature.enabled': 'true', 'user.isAdmin': 'false' })).not.toThrow();
+  });
+
+  it('recordException with SyntaxError does not throw', () => {
+    expect(() => recordException(new SyntaxError('syntax problem'))).not.toThrow();
+  });
+
+  it('traceMiddleware passes req and res unmodified to next', () => {
+    const middleware = traceMiddleware();
+    const req: any = { method: 'GET', path: '/api/test' };
+    const res: any = { setHeader: jest.fn() };
+    const next = jest.fn();
+    middleware(req, res, next);
+    expect(req.method).toBe('GET');
+    expect(req.path).toBe('/api/test');
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('initTracing with only serviceName and no env returns null', () => {
+    const result = initTracing({ serviceName: 'my-service' });
+    expect(result).toBeNull();
+  });
+});

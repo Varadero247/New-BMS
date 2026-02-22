@@ -270,3 +270,56 @@ describe('Cache enabled (mocked Redis)', () => {
     expect(result).toBe('hello');
   });
 });
+
+describe('Cache enabled — additional edge cases', () => {
+  beforeAll(async () => {
+    await closeCache();
+    initCache({ url: 'redis://localhost:6379', prefix: 'edge', defaultTtl: 30 });
+  });
+
+  beforeEach(() => resetMocks());
+
+  afterAll(async () => {
+    mockQuit.mockResolvedValue('OK');
+    await closeCache();
+  });
+
+  it('cacheGet returns null when stored value is not valid JSON', async () => {
+    mockGet.mockResolvedValue('not-json-{{{');
+    const result = await cacheGet('bad-json-key');
+    expect(result).toBeNull();
+  });
+
+  it('cacheSet with a boolean value serializes correctly', async () => {
+    mockSetex.mockResolvedValue('OK');
+    await cacheSet('bool-key', true, { ttl: 10 });
+    expect(mockSetex).toHaveBeenCalledWith('edge:bool-key', 10, JSON.stringify(true));
+  });
+
+  it('cacheSet with an array value serializes correctly', async () => {
+    mockSetex.mockResolvedValue('OK');
+    await cacheSet('arr-key', [1, 2, 3], { ttl: 5 });
+    expect(mockSetex).toHaveBeenCalledWith('edge:arr-key', 5, JSON.stringify([1, 2, 3]));
+  });
+
+  it('cacheHas calls exists with the prefixed key', async () => {
+    mockExists.mockResolvedValue(1);
+    await cacheHas('check-key');
+    expect(mockExists).toHaveBeenCalledWith('edge:check-key');
+  });
+
+  it('cacheGetOrSet with ttl=0 falls back to set (no expiry)', async () => {
+    mockGet.mockResolvedValue(null);
+    mockSet.mockResolvedValue('OK');
+    const factory = jest.fn().mockResolvedValue('no-ttl-value');
+    const result = await cacheGetOrSet('perm', factory, { ttl: 0 });
+    expect(result).toBe('no-ttl-value');
+    expect(mockSet).toHaveBeenCalledWith('edge:perm', JSON.stringify('no-ttl-value'));
+  });
+
+  it('cacheDel calls del with the prefixed key', async () => {
+    mockDel.mockResolvedValue(1);
+    await cacheDel('remove-me');
+    expect(mockDel).toHaveBeenCalledWith('edge:remove-me');
+  });
+});

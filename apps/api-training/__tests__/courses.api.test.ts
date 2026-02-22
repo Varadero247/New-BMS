@@ -310,3 +310,60 @@ describe('courses.api — edge cases and extended coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('courses.api — final coverage expansion', () => {
+  it('GET /api/courses with search filter returns 200', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([]);
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/courses?search=fire+safety');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/courses count called exactly once', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([]);
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    await request(app).get('/api/courses');
+    expect(mockPrisma.trainCourse.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/courses/:id returns 500 on DB error', async () => {
+    mockPrisma.trainCourse.findFirst.mockRejectedValue(new Error('db fail'));
+    const res = await request(app).get('/api/courses/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/courses with OPTIONAL type creates successfully', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainCourse.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Optional Module',
+      type: 'OPTIONAL',
+    });
+    const res = await request(app).post('/api/courses').send({
+      title: 'Optional Module',
+      type: 'OPTIONAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/courses/:id returns correct id in data', async () => {
+    mockPrisma.trainCourse.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000008',
+      title: 'Advanced Course',
+    });
+    const res = await request(app).get('/api/courses/00000000-0000-0000-0000-000000000008');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000008');
+  });
+
+  it('DELETE /api/courses/:id returns message containing deleted', async () => {
+    mockPrisma.trainCourse.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainCourse.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/courses/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted');
+  });
+});

@@ -275,3 +275,62 @@ describe('Monthly Snapshot — edge cases and extended validation', () => {
     expect(typeof metrics.trialConversionPct).toBe('number');
   });
 });
+
+describe('Monthly Snapshot — final coverage', () => {
+  it('calculateFounderIncome month 12 salary is 5000', () => {
+    const result = calculateFounderIncome(12);
+    expect(result.salary).toBe(5000);
+  });
+
+  it('calculateFounderIncome month 11 salary is 5000', () => {
+    const result = calculateFounderIncome(11);
+    expect(result.salary).toBe(5000);
+  });
+
+  it('calculateFounderIncome with ARR just below 500k cap has salary 5000', () => {
+    const result = calculateFounderIncome(13, 499000);
+    expect(result.salary).toBe(5000);
+  });
+
+  it('collectHubSpotMetrics returns newLeads as number', async () => {
+    const metrics = await collectHubSpotMetrics();
+    expect(typeof metrics.newLeads).toBe('number');
+  });
+
+  it('collectStripeMetrics returns object with mrr, arr and customers', async () => {
+    const metrics = await collectStripeMetrics();
+    expect(metrics).toHaveProperty('mrr');
+    expect(metrics).toHaveProperty('arr');
+    expect(metrics).toHaveProperty('customers');
+  });
+
+  it('runMonthlySnapshot calls monthlySnapshot.upsert once', async () => {
+    (prisma.planTarget.findUnique as jest.Mock).mockResolvedValue({
+      monthNumber: 1,
+      month: '2026-03',
+      plannedMrr: 0,
+      plannedCustomers: 0,
+      plannedNewCustomers: 0,
+      plannedChurnPct: 0,
+      plannedArpu: 0,
+    });
+    (prisma.monthlySnapshot.upsert as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000099',
+      month: '2026-02',
+    });
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000099',
+      month: '2026-02',
+      mrr: 0,
+      arr: 0,
+    });
+
+    await runMonthlySnapshot();
+    expect(prisma.monthlySnapshot.upsert).toHaveBeenCalledTimes(1);
+  });
+
+  it('calculateFounderIncome month 9 salary is 3500', () => {
+    const result = calculateFounderIncome(9);
+    expect(result.salary).toBe(3500);
+  });
+});

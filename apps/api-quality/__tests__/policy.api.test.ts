@@ -393,3 +393,116 @@ describe('Quality Policy — edge cases and validation', () => {
     expect(res.body.data).toHaveProperty('nextReviewDate');
   });
 });
+
+describe('Quality Policy — additional scenarios', () => {
+  const mockPolicyDoc = {
+    id: 'doc-uuid-extra',
+    referenceNumber: 'QMS-POL-2601-010',
+    title: 'Quality Policy',
+    documentType: 'POLICY',
+    scope: 'Quality is our top priority.',
+    purpose: 'Define our commitment.',
+    keyChanges: JSON.stringify({
+      commitments: 'Customer first',
+      objectives: '100% satisfaction',
+      applicability: 'All regions',
+    }),
+    version: '5.0',
+    status: 'APPROVED',
+    author: 'user-1',
+    approvedBy: 'CEO',
+    effectiveDate: new Date('2026-01-01').toISOString(),
+    nextReviewDate: new Date('2027-01-01').toISOString(),
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/policy — returns approvedBy field', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('approvedBy');
+    expect(res.body.data.approvedBy).toBe('CEO');
+  });
+
+  it('GET /api/policy — returns version from document', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data.version).toBe('5.0');
+  });
+
+  it('GET /api/policy — returns APPROVED status', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+
+  it('PUT /api/policy — create is called with POLICY document type', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.qualDocument.count.mockResolvedValue(0);
+    mockPrisma.qualDocument.create.mockResolvedValue(mockPolicyDoc);
+
+    await request(app).put('/api/policy').send({
+      policyStatement: 'New quality statement.',
+      purpose: 'Ensure excellence',
+      commitments: 'Total quality',
+      objectives: '99% uptime',
+      applicability: 'Group-wide',
+      version: '1.0',
+      status: 'DRAFT',
+    });
+
+    expect(mockPrisma.qualDocument.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ documentType: 'POLICY' }),
+      })
+    );
+  });
+
+  it('PUT /api/policy — update is called with correct doc id when existing', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    mockPrisma.qualDocument.update.mockResolvedValue({ ...mockPolicyDoc, scope: 'Updated statement.' });
+
+    await request(app).put('/api/policy').send({
+      policyStatement: 'Updated statement.',
+      purpose: 'Keep improving',
+      commitments: 'Customer focus',
+      objectives: 'Zero defects',
+      applicability: 'All sites',
+      version: '5.1',
+      status: 'APPROVED',
+    });
+
+    expect(mockPrisma.qualDocument.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'doc-uuid-extra' },
+      })
+    );
+  });
+
+  it('GET /api/policy — response body has success property', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).get('/api/policy');
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('PUT /api/policy — returns 400 when policyStatement is whitespace only', async () => {
+    const res = await request(app).put('/api/policy').send({
+      policyStatement: '   ',
+      purpose: 'Something',
+      commitments: 'Commitment',
+      objectives: 'Objectives',
+      applicability: 'All',
+      version: '1.0',
+      status: 'DRAFT',
+    });
+    expect(res.status).toBe(400);
+  });
+});

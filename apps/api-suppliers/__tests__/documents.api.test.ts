@@ -325,3 +325,75 @@ describe('documents.api — pagination and extended paths', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('documents.api — final coverage expansion', () => {
+  it('GET /api/documents with supplierId filter returns 200', async () => {
+    mockPrisma.suppDocument.findMany.mockResolvedValue([]);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents?supplierId=sup-1');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/documents with type filter returns 200', async () => {
+    mockPrisma.suppDocument.findMany.mockResolvedValue([]);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents?type=CERTIFICATE');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/documents/:id returns 500 on DB error', async () => {
+    mockPrisma.suppDocument.findFirst.mockRejectedValue(new Error('db fail'));
+    const res = await request(app).get('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/documents with LICENSE type returns 201', async () => {
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Operating Licence',
+      supplierId: 'sup-1',
+      type: 'LICENSE',
+    });
+    const res = await request(app).post('/api/documents').send({
+      supplierId: 'sup-1',
+      title: 'Operating Licence',
+      type: 'LICENSE',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/documents/:id response data contains id', async () => {
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppDocument.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'New Title',
+    });
+    const res = await request(app)
+      .put('/api/documents/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New Title' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('DELETE /api/documents/:id success is true', async () => {
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002' });
+    mockPrisma.suppDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002' });
+    const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000002');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/documents missing supplierId returns 400', async () => {
+    const res = await request(app).post('/api/documents').send({
+      title: 'Doc Without Supplier',
+      type: 'CERTIFICATE',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

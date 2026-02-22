@@ -449,3 +449,55 @@ describe('Competitors API — extended coverage', () => {
     expect(res.body.data.website).toBe('https://competitor.com');
   });
 });
+
+describe('Competitors API — final coverage', () => {
+  it('GET /api/competitors response body has success:true on success', async () => {
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/competitors');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/competitors/:id 500 returns error.code INTERNAL_ERROR', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/competitors create is called once', async () => {
+    mockPrisma.competitorMonitor.create.mockResolvedValue({
+      id: 'once-c',
+      name: 'Single',
+      category: 'GENERAL',
+      intel: [],
+    });
+    await request(app).post('/api/competitors').send({ name: 'Single' });
+    expect(mockPrisma.competitorMonitor.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PATCH /api/competitors/:id returns 500 on findUnique DB error', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockRejectedValue(new Error('db error'));
+    const res = await request(app)
+      .patch('/api/competitors/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'X' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/competitors/:id/intel returns 404 with NOT_FOUND code', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/competitors/00000000-0000-0000-0000-000000000099/intel')
+      .send({ type: 'PRICING', detail: 'Price drop' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/competitors count called once per list request', async () => {
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(0);
+    await request(app).get('/api/competitors');
+    expect(mockPrisma.competitorMonitor.count).toHaveBeenCalledTimes(1);
+  });
+});

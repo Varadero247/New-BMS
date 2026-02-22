@@ -335,3 +335,67 @@ describe('contracts.api — extended field and edge case coverage', () => {
     expect(res.body.pagination.total).toBe(0);
   });
 });
+
+describe('contracts.api — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / data contains the correct contract id', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Main Contract' }]);
+    mockPrisma.contContract.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST / count called before create to generate referenceNumber', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(2);
+    mockPrisma.contContract.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', title: 'New Contract' });
+    await request(app).post('/api/contracts').send({ title: 'New Contract' });
+    expect(mockPrisma.contContract.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.contContract.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id calls update with the correct title', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contContract.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Renamed' });
+    const res = await request(app).put('/api/contracts/00000000-0000-0000-0000-000000000001').send({ title: 'Renamed' });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contContract.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ title: 'Renamed' }) })
+    );
+  });
+
+  it('DELETE /:id calls update with deletedAt set', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contContract.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.contContract.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns 200 with arbitrary unknown query params ignored', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts?unknownParam=somevalue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns data with title field when found', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Service Level Agreement' });
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Service Level Agreement');
+  });
+});

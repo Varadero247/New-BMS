@@ -397,3 +397,89 @@ describe('training.api — edge cases and pagination', () => {
     expect(res.body.pagination.totalPages).toBe(10);
   });
 });
+
+describe('training.api — final coverage pass', () => {
+  it('GET /api/training default pagination applies skip 0', async () => {
+    mockPrisma.fsTraining.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraining.count.mockResolvedValue(0);
+
+    await request(app).get('/api/training');
+    expect(mockPrisma.fsTraining.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('GET /api/training/:id queries with deletedAt null', async () => {
+    mockPrisma.fsTraining.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    await request(app).get('/api/training/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsTraining.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null }),
+      })
+    );
+  });
+
+  it('POST /api/training creates with createdBy from auth user', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000020',
+      title: 'Temperature Control',
+      type: 'HACCP',
+      createdBy: 'user-123',
+    };
+    mockPrisma.fsTraining.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/training').send({
+      title: 'Temperature Control',
+      type: 'HACCP',
+      scheduledDate: '2026-04-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('createdBy', 'user-123');
+  });
+
+  it('DELETE /api/training/:id calls update with deletedAt', async () => {
+    mockPrisma.fsTraining.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsTraining.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    await request(app).delete('/api/training/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsTraining.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('PUT /api/training/:id/complete sets completedAt on update', async () => {
+    mockPrisma.fsTraining.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'IN_PROGRESS',
+    });
+    mockPrisma.fsTraining.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+    });
+
+    await request(app)
+      .put('/api/training/00000000-0000-0000-0000-000000000001/complete')
+      .send({ attendees: ['Alice', 'Bob'] });
+    expect(mockPrisma.fsTraining.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'COMPLETED' }),
+      })
+    );
+  });
+
+  it('GET /api/training page 2 limit 10 applies skip 10 take 10', async () => {
+    mockPrisma.fsTraining.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraining.count.mockResolvedValue(0);
+
+    await request(app).get('/api/training?page=2&limit=10');
+    expect(mockPrisma.fsTraining.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+});

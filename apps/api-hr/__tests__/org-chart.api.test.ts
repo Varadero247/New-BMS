@@ -420,3 +420,56 @@ describe('HR Org Chart — error and filter paths', () => {
     expect(res.body.data[0].headCount).toBe(0);
   });
 });
+
+describe('HR Org Chart — final coverage block', () => {
+  it('GET / response body is JSON content-type', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/org-chart');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /flat response body is JSON content-type', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/org-chart/flat');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /by-department response body is JSON content-type', async () => {
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/org-chart/by-department');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / chart array contains the child employee under the root node', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue(mockEmployees);
+    const res = await request(app).get('/api/org-chart');
+    expect(res.status).toBe(200);
+    expect(res.body.data.chart[0].children).toHaveLength(1);
+    expect(res.body.data.chart[0].children[0].fullName).toBe('Bob Jones');
+  });
+
+  it('GET /reporting-chain returns 200 with success:true for known employee', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: EMP_ID_1,
+      employeeNumber: 'EMP-001',
+      firstName: 'Alice',
+      lastName: 'Smith',
+      jobTitle: 'CEO',
+      managerId: null,
+      department: { id: DEPT_ID, name: 'Executive' },
+    });
+    const res = await request(app).get(`/api/org-chart/reporting-chain/${EMP_ID_1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /by-department returns departments in data array', async () => {
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValue([
+      { id: DEPT_ID, name: 'HR', code: 'HR', isActive: true, employees: [], manager: null },
+      { id: EMP_ID_1, name: 'Legal', code: 'LEG', isActive: true, employees: [], manager: null },
+    ]);
+    const res = await request(app).get('/api/org-chart/by-department');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

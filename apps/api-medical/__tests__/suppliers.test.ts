@@ -434,3 +434,98 @@ describe('suppliers — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('suppliers — final boundary coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / with qualificationStatus and riskLevel filters both applied', async () => {
+    mockPrisma.medicalSupplier.findMany.mockResolvedValue([mockSupplier]);
+
+    const res = await request(app).get('/api/suppliers?qualificationStatus=APPROVED&riskLevel=HIGH');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.medicalSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ qualificationStatus: 'APPROVED', riskLevel: 'HIGH' }),
+      })
+    );
+  });
+
+  it('POST / sets referenceNumber from count in create data', async () => {
+    mockPrisma.medicalSupplier.count.mockResolvedValue(10);
+    mockPrisma.medicalSupplier.create.mockResolvedValue({ ...mockSupplier, referenceNumber: 'SUP-2602-0011' });
+
+    const res = await request(app).post('/api/suppliers').send({ name: 'RefNum Test' });
+
+    expect(res.status).toBe(201);
+    const createCall = (mockPrisma.medicalSupplier.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.referenceNumber).toMatch(/SUP-\d{4}-\d+/);
+  });
+
+  it('GET / returns total field in response matching count', async () => {
+    mockPrisma.medicalSupplier.findMany.mockResolvedValue([mockSupplier]);
+
+    const res = await request(app).get('/api/suppliers');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('PUT / multiple fields can be updated in one request', async () => {
+    mockPrisma.medicalSupplier.update.mockResolvedValue({
+      ...mockSupplier,
+      name: 'New Name',
+      riskLevel: 'HIGH',
+      iso13485Certified: false,
+    });
+
+    const res = await request(app).put(`/api/suppliers/${SUPPLIER_ID}`).send({
+      name: 'New Name',
+      riskLevel: 'HIGH',
+      iso13485Certified: false,
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.medicalSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          name: 'New Name',
+          riskLevel: 'HIGH',
+          iso13485Certified: false,
+        }),
+      })
+    );
+  });
+
+  it('GET / search returns only matching suppliers from all results', async () => {
+    mockPrisma.medicalSupplier.findMany.mockResolvedValue([
+      mockSupplier,
+      { ...mockSupplier, id: '00000000-0000-0000-0000-000000000099', name: 'Completely Different Co' },
+    ]);
+
+    const res = await request(app).get('/api/suppliers?search=MedTech');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].name).toBe('MedTech Components Ltd');
+  });
+
+  it('DELETE / findMany is NOT called on soft delete', async () => {
+    mockPrisma.medicalSupplier.update.mockResolvedValue({ ...mockSupplier, deletedAt: new Date() });
+
+    await request(app).delete(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(mockPrisma.medicalSupplier.findMany).not.toHaveBeenCalled();
+  });
+
+  it('POST / create is called exactly once', async () => {
+    mockPrisma.medicalSupplier.count.mockResolvedValue(0);
+    mockPrisma.medicalSupplier.create.mockResolvedValue(mockSupplier);
+
+    await request(app).post('/api/suppliers').send({ name: 'Once Only' });
+
+    expect(mockPrisma.medicalSupplier.create).toHaveBeenCalledTimes(1);
+  });
+});

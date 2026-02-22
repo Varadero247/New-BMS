@@ -442,3 +442,63 @@ describe('POST /api/inventory/:id/inspect', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Chemicals Inventory — additional coverage 2', () => {
+  it('GET /inventory returns pagination.total matching count mock', async () => {
+    mockPrisma.chemInventory.findMany.mockResolvedValue([mockInventory]);
+    mockPrisma.chemInventory.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/inventory');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(5);
+  });
+
+  it('GET /inventory count is called once per list request', async () => {
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    await request(app).get('/api/inventory');
+    expect(mockPrisma.chemInventory.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /inventory/:id/inspect sets inspectedBy from authenticated user', async () => {
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(mockInventory);
+    mockPrisma.chemInventory.update.mockResolvedValue({ ...mockInventory, inspectedBy: 'user-1' });
+    await request(app)
+      .post('/api/inventory/00000000-0000-0000-0000-000000000030/inspect')
+      .send({ meetsStorageReqs: true });
+    expect(mockPrisma.chemInventory.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ inspectedBy: 'user-1' }) })
+    );
+  });
+
+  it('GET /inventory/low-stock returns 500 with INTERNAL_ERROR code on db failure', async () => {
+    mockPrisma.chemInventory.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/inventory/low-stock');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /inventory/expiring with default days param returns all expiring items', async () => {
+    const expiringItem = { ...mockInventory, expiryDate: '2026-03-01T00:00:00.000Z' };
+    mockPrisma.chemInventory.findMany.mockResolvedValue([expiringItem]);
+    const res = await request(app).get('/api/inventory/expiring');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('PUT /inventory/:id updates location and returns new value', async () => {
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(mockInventory);
+    mockPrisma.chemInventory.update.mockResolvedValue({ ...mockInventory, location: 'Lab B - Shelf 1' });
+    const res = await request(app)
+      .put('/api/inventory/00000000-0000-0000-0000-000000000030')
+      .send({ location: 'Lab B - Shelf 1' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.location).toBe('Lab B - Shelf 1');
+  });
+
+  it('POST /inventory calls chemRegister.findFirst to validate chemical exists', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemInventory.create.mockResolvedValue(mockInventory);
+    await request(app).post('/api/inventory').send(validInventoryBody);
+    expect(mockPrisma.chemRegister.findFirst).toHaveBeenCalled();
+  });
+});

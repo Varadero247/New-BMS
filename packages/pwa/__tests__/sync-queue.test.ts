@@ -444,3 +444,55 @@ describe('SyncQueue — extended edge cases', () => {
     expect(result).toHaveProperty('dropped');
   });
 });
+
+describe('SyncQueue — additional method coverage', () => {
+  const makeReq = (id: string, timestamp: number, retryCount = 0): QueuedRequest => ({
+    id,
+    url: `https://example.com/api/extra/${id}`,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ extra: id }),
+    timestamp,
+    retryCount,
+  });
+
+  beforeEach(() => {
+    sharedStore.data.clear();
+    mockFetch.mockReset();
+  });
+
+  test('enqueue stores method PATCH correctly', async () => {
+    const q = new SyncQueue();
+    await q.enqueue(makeReq('patch-1', 100));
+    expect(sharedStore.data.get('patch-1').method).toBe('PATCH');
+  });
+
+  test('getAll with single entry returns array of length 1', async () => {
+    const q = new SyncQueue();
+    await q.enqueue(makeReq('solo', 500));
+    const all = await q.getAll();
+    expect(all).toHaveLength(1);
+  });
+
+  test('flush sends PATCH request with correct method', async () => {
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+    const q = new SyncQueue();
+    await q.enqueue(makeReq('mp', 100));
+    await q.flush();
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ method: 'PATCH' })
+    );
+  });
+
+  test('remove after flush does not throw on missing id', async () => {
+    const q = new SyncQueue();
+    await expect(q.remove('already-gone')).resolves.not.toThrow();
+  });
+
+  test('enqueue with high retryCount stores it correctly', async () => {
+    const q = new SyncQueue();
+    await q.enqueue(makeReq('highRetry', 100, 2));
+    expect(sharedStore.data.get('highRetry').retryCount).toBe(2);
+  });
+});

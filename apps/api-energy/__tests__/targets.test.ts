@@ -442,3 +442,94 @@ describe('targets — extended coverage', () => {
     );
   });
 });
+
+describe('targets — final coverage', () => {
+  it('POST /api/targets returns 400 for missing name', async () => {
+    const res = await request(app).post('/api/targets').send({
+      metricType: 'CONSUMPTION',
+      year: 2025,
+      targetValue: 50000,
+      unit: 'kWh',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/targets/:id/progress onTrack field is boolean', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+      targetValue: 60000,
+      actualValue: 55000,
+      status: 'AT_RISK',
+      baseline: null,
+    });
+
+    const res = await request(app).get(
+      '/api/targets/e3000000-0000-4000-a000-000000000001/progress'
+    );
+
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.onTrack).toBe('boolean');
+  });
+
+  it('GET /api/targets response has success:true', async () => {
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/targets');
+
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/targets/:id calls update with deletedAt', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyTarget.update as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/targets/e3000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(prisma.energyTarget.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('PUT /api/targets/:id updates actualValue field', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyTarget.update as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+      actualValue: 42000,
+    });
+
+    const res = await request(app)
+      .put('/api/targets/e3000000-0000-4000-a000-000000000001')
+      .send({ actualValue: 42000 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.actualValue).toBe(42000);
+  });
+
+  it('GET /api/targets/:id returns target field values', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+      name: 'Test Target',
+      metricType: 'CONSUMPTION',
+      year: 2026,
+      targetValue: 40000,
+      unit: 'kWh',
+    });
+
+    const res = await request(app).get('/api/targets/e3000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.metricType).toBe('CONSUMPTION');
+    expect(res.body.data.year).toBe(2026);
+  });
+});

@@ -525,3 +525,66 @@ describe('Auth API Routes', () => {
     });
   });
 });
+
+describe('Auth API Routes — additional coverage', () => {
+  let app: express.Express;
+
+  const mockUser = {
+    id: '20000000-0000-4000-a000-000000000123',
+    email: 'test@example.com',
+    password: 'hashed-password',
+    firstName: 'Test',
+    lastName: 'User',
+    role: 'USER',
+    department: 'IT',
+    jobTitle: 'Developer',
+    isActive: true,
+  };
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/auth', authRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/auth/login response includes user.role field', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUser);
+    mockComparePassword.mockResolvedValueOnce(true);
+    (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
+    const res = await request(app).post('/api/auth/login').send({ email: 'test@example.com', password: 'password123' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.user).toHaveProperty('role');
+  });
+
+  it('POST /api/auth/login response does not expose password hash', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUser);
+    mockComparePassword.mockResolvedValueOnce(true);
+    (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
+    const res = await request(app).post('/api/auth/login').send({ email: 'test@example.com', password: 'password123' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.user).not.toHaveProperty('password');
+  });
+
+  it('POST /api/auth/refresh calls verifyRefreshToken', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUser);
+    (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
+    await request(app).post('/api/auth/refresh').send({ refreshToken: 'valid-token' });
+    expect(mockVerifyRefreshToken).toHaveBeenCalledWith('valid-token');
+  });
+
+  it('POST /api/auth/logout returns 200 even if no session existed', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValueOnce({ count: 0 });
+    const res = await request(app).post('/api/auth/logout').set('Authorization', 'Bearer some-token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/auth/me returns content-type JSON', async () => {
+    const res = await request(app).get('/api/auth/me').set('Authorization', 'Bearer mock-token');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

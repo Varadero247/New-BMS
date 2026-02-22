@@ -343,3 +343,53 @@ describe('programmes.api — extended edge cases', () => {
     expect(res.body.data.title).toBe('Audit Programme 2027');
   });
 });
+
+describe('programmes.api — final coverage', () => {
+  it('GET /api/programmes default page is 1', async () => {
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/programmes');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /api/programmes/:id returns success:true', async () => {
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'P', year: 2026 });
+    const res = await request(app).get('/api/programmes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/programmes/:id returns updated data', async () => {
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old', year: 2025 });
+    mockPrisma.audProgramme.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New Title', year: 2026 });
+    const res = await request(app)
+      .put('/api/programmes/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New Title', year: 2026 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('New Title');
+  });
+
+  it('DELETE /api/programmes/:id calls update once', async () => {
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audProgramme.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    await request(app).delete('/api/programmes/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.audProgramme.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/programmes pagination.limit reflects query param', async () => {
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/programmes?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('POST /api/programmes returns data with id field', async () => {
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    mockPrisma.audProgramme.create.mockResolvedValue({ id: 'new-id', title: 'Prog', year: 2026, referenceNumber: 'APR-2026-0001' });
+    const res = await request(app).post('/api/programmes').send({ title: 'Prog', year: 2026 });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id', 'new-id');
+  });
+});

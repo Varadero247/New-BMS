@@ -486,3 +486,77 @@ describe('Aerospace Compliance Tracker — extended coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Aerospace Compliance Tracker — additional coverage 2', () => {
+  it('GET /api/compliance page 3 limit 50 computes skip=100', async () => {
+    mockPrisma.aeroComplianceItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/compliance?page=3&limit=50')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroComplianceItem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 100, take: 50 })
+    );
+  });
+
+  it('GET /api/compliance response shape has success:true and meta block', async () => {
+    mockPrisma.aeroComplianceItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/compliance').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('GET /api/compliance/dashboard/summary returns complianceScore as number', async () => {
+    mockPrisma.aeroComplianceItem.count
+      .mockResolvedValueOnce(10) // total
+      .mockResolvedValueOnce(8) // compliant
+      .mockResolvedValueOnce(1) // partiallyCompliant
+      .mockResolvedValueOnce(1) // nonCompliant
+      .mockResolvedValueOnce(0) // notApplicable
+      .mockResolvedValueOnce(0); // underReview
+
+    const res = await request(app)
+      .get('/api/compliance/dashboard/summary')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.complianceScore).toBe('number');
+    expect(res.body.data.byStatus.compliant).toBe(8);
+    expect(res.body.data.byStatus.nonCompliant).toBe(1);
+  });
+
+  it('POST /api/compliance returns 400 when clause is empty string', async () => {
+    const res = await request(app)
+      .post('/api/compliance')
+      .set('Authorization', 'Bearer token')
+      .send({ clause: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/compliance filters by standard and status together', async () => {
+    mockPrisma.aeroComplianceItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/compliance?standard=AS9100D&status=COMPLIANT')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroComplianceItem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ standard: 'AS9100D', complianceStatus: 'COMPLIANT' }),
+      })
+    );
+  });
+
+  it('GET /api/compliance totalPages=1 for exactly defaultLimit=50 records', async () => {
+    mockPrisma.aeroComplianceItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(50);
+
+    const res = await request(app).get('/api/compliance').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(1);
+  });
+});

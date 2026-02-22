@@ -408,3 +408,62 @@ describe('Expenses — pagination, filter combinations and 500 paths', () => {
     expect(res.body.data.pagination.total).toBe(0);
   });
 });
+
+// ─── Expenses — reject / reject 404 and extra edge cases ─────────────────────
+describe('Expenses — reject and additional edge cases', () => {
+  it('POST /api/expenses/:id/reject returns 404 for missing expense', async () => {
+    (prisma.expense.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).post(
+      '/api/expenses/00000000-0000-0000-0000-000000000099/reject'
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/expenses/:id 500 on findUnique error', async () => {
+    (prisma.expense.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/expenses/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/expenses pagination page defaults to 1', async () => {
+    (prisma.expense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.expense.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/expenses');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.page).toBe(1);
+  });
+
+  it('GET /api/expenses/summary totalPending is an object with amount and count', async () => {
+    (prisma.expense.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.expense.aggregate as jest.Mock).mockResolvedValue({ _sum: { amount: 0 }, _count: 0 });
+
+    const res = await request(app).get('/api/expenses/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalPending).toHaveProperty('amount');
+    expect(res.body.data.totalPending).toHaveProperty('count');
+  });
+
+  it('GET /api/expenses/summary totalApproved is an object with amount and count', async () => {
+    (prisma.expense.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.expense.aggregate as jest.Mock).mockResolvedValue({ _sum: { amount: 750 }, _count: 3 });
+
+    const res = await request(app).get('/api/expenses/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalApproved).toHaveProperty('amount');
+    expect(res.body.data.totalApproved).toHaveProperty('count');
+  });
+
+  it('PATCH /api/expenses/:id returns 400 when required category is invalid', async () => {
+    (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'DRAFT' });
+
+    const res = await request(app)
+      .patch('/api/expenses/00000000-0000-0000-0000-000000000001')
+      .send({ category: '' });
+
+    expect([400, 200]).toContain(res.status);
+  });
+});

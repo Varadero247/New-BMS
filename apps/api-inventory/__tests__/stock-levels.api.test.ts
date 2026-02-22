@@ -399,3 +399,61 @@ describe('Stock Levels — further boundary and business logic', () => {
     expect(res.body.data.totalProducts).toBe(42);
   });
 });
+
+// ── Stock Levels — final tests ─────────────────────────────────────────────────
+
+describe('Stock Levels — final tests', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/stock-levels responds with JSON content-type', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/stock-levels');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/stock-levels/summary returns 500 when aggregate throws', async () => {
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(10);
+    (mockPrisma.inventory.aggregate as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/stock-levels/summary');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/stock-levels data items have warehouseId field', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([mockInventoryItem]);
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/stock-levels');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('warehouseId', WAREHOUSE_ID);
+  });
+
+  it('GET /api/stock-levels 500 has success false', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockRejectedValue(new Error('db fail'));
+    const res = await request(app).get('/api/stock-levels');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/stock-levels/low-stock accepts warehouseId filter', async () => {
+    (mockPrisma.$queryRaw as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ count: BigInt(0) }]);
+    const res = await request(app).get(`/api/stock-levels/low-stock?warehouseId=${WAREHOUSE_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/stock-levels/summary success is true', async () => {
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(5);
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { inventoryValue: 2500 },
+    });
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/stock-levels/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

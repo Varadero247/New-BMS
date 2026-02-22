@@ -309,3 +309,72 @@ describe('Approvals — pagination and filter coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Approvals — response shape and call-argument coverage', () => {
+  it('GET / response content-type is application/json', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([]);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / calls create with documentId in data', async () => {
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    mockPrisma.docApproval.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    await request(app).post('/api/approvals').send({ documentId: 'doc-1', approver: 'user-1' });
+    expect(mockPrisma.docApproval.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ documentId: 'doc-1' }) }),
+    );
+  });
+
+  it('PUT /:id calls update with id in where clause', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docApproval.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).put('/api/approvals/00000000-0000-0000-0000-000000000001').send({ approver: 'u2' });
+    expect(mockPrisma.docApproval.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } }),
+    );
+  });
+
+  it('GET / with search param passes search to findMany where clause', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([]);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    await request(app).get('/api/approvals?search=review');
+    expect(mockPrisma.docApproval.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.any(Object) }),
+    );
+  });
+
+  it('POST / with PENDING status creates and returns 201', async () => {
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    mockPrisma.docApproval.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000009',
+      documentId: 'doc-9',
+      approver: 'manager@example.com',
+      status: 'PENDING',
+    });
+    const res = await request(app)
+      .post('/api/approvals')
+      .send({ documentId: 'doc-9', approver: 'manager@example.com', status: 'PENDING' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe('PENDING');
+  });
+
+  it('GET /:id calls findFirst exactly once', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).get('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.docApproval.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id calls update with deletedAt in data', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docApproval.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.docApproval.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }),
+    );
+  });
+});

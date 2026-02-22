@@ -417,3 +417,80 @@ describe('MSA Routes', () => {
     });
   });
 });
+
+describe('MSA Routes — final coverage block', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/msa returns empty data array when no studies exist', async () => {
+    (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/msa');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/msa meta.totalPages is 0 when count is 0', async () => {
+    (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/msa');
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+
+  it('POST /api/msa returns created study with refNumber', async () => {
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.msaStudy.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      refNumber: 'MSA-2602-0001',
+      title: 'Caliper GR&R Study',
+      studyType: 'GRR_CROSSED',
+    });
+    const res = await request(app).post('/api/msa').send({
+      title: 'Caliper GR&R Study',
+      studyType: 'GRR_CROSSED',
+      gageName: 'Digital Caliper #5',
+      characteristic: 'Length',
+      operatorCount: 3,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.refNumber).toBe('MSA-2602-0001');
+  });
+
+  it('GET /api/msa/:id returns success:true with study data', async () => {
+    (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      measurements: [],
+    });
+    const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('id', '00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST /api/msa/:id/data returns 201 with success:true on valid data', async () => {
+    (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
+      cb({
+        msaMeasurement: { create: jest.fn().mockResolvedValue({}) },
+        msaStudy: { update: jest.fn().mockResolvedValue({}) },
+      })
+    );
+    const res = await request(app)
+      .post('/api/msa/00000000-0000-0000-0000-000000000001/data')
+      .send({ measurements: [{ operator: 'OpA', partNumber: 1, trial: 1, value: 49.8 }] });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/msa filters by studyType wired into findMany where', async () => {
+    (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/msa?studyType=LINEARITY');
+    expect(mockPrisma.msaStudy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ studyType: 'LINEARITY' }) })
+    );
+  });
+});

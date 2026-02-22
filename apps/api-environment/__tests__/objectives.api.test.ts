@@ -589,3 +589,106 @@ describe('Environment Objectives — additional coverage', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Environment Objectives — final coverage', () => {
+  let app3: express.Express;
+
+  beforeAll(() => {
+    app3 = express();
+    app3.use(express.json());
+    app3.use('/api/objectives', objectivesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /api/objectives/:id calls update with deletedAt', async () => {
+    (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envObjective.update as jest.Mock).mockResolvedValueOnce({});
+
+    await request(app3)
+      .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envObjective.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/objectives filters by both status and category simultaneously', async () => {
+    (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app3)
+      .get('/api/objectives?status=COMPLETED&category=WASTE')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envObjective.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          status: 'COMPLETED',
+          category: 'WASTE',
+        }),
+      })
+    );
+  });
+
+  it('POST /api/objectives returns 400 for missing owner field', async () => {
+    const response = await request(app3)
+      .post('/api/objectives')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Test Objective',
+        objectiveStatement: 'Test statement',
+        category: 'EMISSIONS',
+        targetDate: '2027-12-31',
+        // owner missing
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/objectives returns data as array', async () => {
+    (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([
+      {
+        id: '15000000-0000-4000-a000-000000000001',
+        referenceNumber: 'ENV-OBJ-2026-001',
+        title: 'Objective 1',
+        milestones: [],
+      },
+    ]);
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const response = await request(app3)
+      .get('/api/objectives')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.data)).toBe(true);
+    expect(response.body.data).toHaveLength(1);
+  });
+
+  it('GET /api/objectives/:id includes milestones in response data', async () => {
+    (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+      title: 'Carbon Reduction',
+      milestones: [
+        { id: 'ms-1', title: 'Phase 1', completed: false },
+        { id: 'ms-2', title: 'Phase 2', completed: true },
+      ],
+    });
+
+    const response = await request(app3)
+      .get('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.milestones).toHaveLength(2);
+  });
+});

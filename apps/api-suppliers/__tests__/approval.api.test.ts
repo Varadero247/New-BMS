@@ -284,3 +284,72 @@ describe('approval.api — status field and update payload', () => {
     expect(res.body).not.toBeNull();
   });
 });
+
+describe('approval.api — final coverage', () => {
+  it('approve sets approvedDate in update call', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
+    await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    const call = mockPrisma.suppSupplier.update.mock.calls[0][0];
+    expect(call.data.approvedDate).toBeDefined();
+  });
+
+  it('approve approvedDate is a Date instance', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
+    await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    const call = mockPrisma.suppSupplier.update.mock.calls[0][0];
+    expect(call.data.approvedDate).toBeInstanceOf(Date);
+  });
+
+  it('suspend does not set approvedDate', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUSPENDED',
+    });
+    await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/suspend');
+    const call = mockPrisma.suppSupplier.update.mock.calls[0][0];
+    expect(call.data.status).toBe('SUSPENDED');
+    expect(call.data.approvedDate).toBeUndefined();
+  });
+
+  it('response body has success:true on approve', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('response body has success:true on suspend', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUSPENDED',
+    });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/suspend');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('approve: response content-type is JSON', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('suspend: response content-type is JSON', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUSPENDED',
+    });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/suspend');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

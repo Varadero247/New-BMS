@@ -416,3 +416,80 @@ describe('invoices.api — extended edge cases', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('invoices.api — further coverage', () => {
+  it('GET / returns success:true on empty result set', async () => {
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/invoices');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET / pagination.page defaults to 1 when not supplied', async () => {
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/invoices');
+
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST / create is called with jobId and customerId', async () => {
+    mockPrisma.fsSvcInvoice.create.mockResolvedValue({
+      id: 'inv-x',
+      number: 'FSI-2026-0001',
+      status: 'DRAFT',
+    });
+
+    await request(app).post('/api/invoices').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      lineItems: [{ description: 'Labour', amount: 100 }],
+      laborTotal: 100,
+      partsTotal: 0,
+      total: 100,
+      dueDate: '2026-04-01',
+    });
+
+    expect(mockPrisma.fsSvcInvoice.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+          customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        }),
+      })
+    );
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/invoices/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id/pay returns success:true when status updated to PAID', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      status: 'SENT',
+    });
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      status: 'PAID',
+      paidDate: new Date(),
+    });
+
+    const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000010/pay');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

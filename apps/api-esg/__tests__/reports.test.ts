@@ -373,3 +373,55 @@ describe('reports — additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('reports — final coverage', () => {
+  it('GET / returns JSON content-type header', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/reports');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / creates QUARTERLY report with quarter field', async () => {
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue({ ...mockReport, reportType: 'QUARTERLY', quarter: 1 });
+    const res = await request(app).post('/api/reports').send({
+      title: 'Q1 2026 ESG Report',
+      reportType: 'QUARTERLY',
+      year: 2026,
+      quarter: 1,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data items have reportType and year fields', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([mockReport]);
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/reports');
+    expect(res.body.data[0]).toHaveProperty('reportType');
+    expect(res.body.data[0]).toHaveProperty('year');
+  });
+
+  it('DELETE /:id sets deletedAt on soft delete', async () => {
+    (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(mockReport);
+    (prisma.esgReport.update as jest.Mock).mockResolvedValue({ ...mockReport, deletedAt: new Date() });
+    await request(app).delete('/api/reports/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgReport.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /dashboard totalEmissions sums co2Equivalent values', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([
+      { co2Equivalent: 300 }, { co2Equivalent: 700 },
+    ]);
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalEmissions).toBe(1000);
+  });
+});

@@ -316,3 +316,64 @@ describe('Assets Dashboard — boundary and stress tests', () => {
     );
   });
 });
+
+describe('Assets Dashboard — final coverage block', () => {
+  it('POST /stats is not a supported method — returns 404', async () => {
+    const res = await request(app).post('/api/dashboard/stats').send({});
+    expect(res.status).toBe(404);
+  });
+
+  it('success flag is boolean on success response', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(5);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(3);
+    mockPrisma.assetCalibration.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('assetWorkOrder count called with orgId filter', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.assetWorkOrder.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('assetCalibration count called with orgId filter', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.assetCalibration.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('error response body has an error object with code property', async () => {
+    mockPrisma.assetRegister.count.mockRejectedValue(new Error('fatal'));
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body).toHaveProperty('error');
+    expect(res.body.error).toHaveProperty('code');
+  });
+
+  it('totalWorkOrders plus totalCalibrations sum is correct', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(7);
+    mockPrisma.assetCalibration.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalWorkOrders + res.body.data.totalCalibrations).toBe(10);
+  });
+
+  it('response content-type is json', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(1);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(1);
+    mockPrisma.assetCalibration.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

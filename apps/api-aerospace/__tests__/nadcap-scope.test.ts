@@ -369,3 +369,78 @@ describe('nadcap-scope — additional coverage', () => {
     expect(call[0].data.scopeGaps).toEqual([]);
   });
 });
+
+describe('nadcap-scope — extended coverage 2', () => {
+  it('GET / returns totalPages=4 for 39 records with limit=10', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroNadcapScope.count as jest.Mock).mockResolvedValue(39);
+    const res = await request(app).get('/api/nadcap-scope?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+    expect(res.body.pagination.total).toBe(39);
+  });
+
+  it('GET / response shape has success:true and pagination block', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroNadcapScope.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/nadcap-scope');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST / returns 400 when verifiedBy is missing', async () => {
+    const res = await request(app).post('/api/nadcap-scope').send({
+      supplierName: 'Acme Heat Treat',
+      nadcapCertRef: 'NADCAP-2026-12345',
+      certExpiryDate: '2027-03-01',
+      commodityCodes: ['AC7102'],
+      commodityCodesRequired: ['AC7102'],
+      processDescription: 'Heat treatment',
+      verificationDate: '2026-02-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns success:true and refNumber field', async () => {
+    (mockPrisma.aeroNadcapScope.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+    const res = await request(app).get('/api/nadcap-scope/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.nadcapCertRef).toBe('NADCAP-2026-12345');
+  });
+
+  it('GET / page 2 limit 5 computes skip=5 in findMany call', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroNadcapScope.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/nadcap-scope?page=2&limit=5');
+    const [call] = (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mock.calls;
+    expect(call[0].skip).toBe(5);
+    expect(call[0].take).toBe(5);
+  });
+
+  it('GET /gaps returns 500 when first findMany fails', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB'));
+    const res = await request(app).get('/api/nadcap-scope/gaps');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST / sets status VERIFIED_COMPLIANT when all required codes are present', async () => {
+    (mockPrisma.aeroNadcapScope.create as jest.Mock).mockResolvedValue({ ...mockRecord, scopeGaps: [], status: 'VERIFIED_COMPLIANT' });
+    const res = await request(app).post('/api/nadcap-scope').send({
+      supplierName: 'Acme',
+      nadcapCertRef: 'NADCAP-2026-99999',
+      certExpiryDate: '2027-01-01',
+      commodityCodes: ['AC7102', 'AC7004'],
+      commodityCodesRequired: ['AC7102', 'AC7004'],
+      processDescription: 'NDT inspection',
+      verifiedBy: 'John Smith',
+      verificationDate: '2026-03-01',
+    });
+    expect(res.status).toBe(201);
+    const [call] = (mockPrisma.aeroNadcapScope.create as jest.Mock).mock.calls;
+    expect(call[0].data.status).toBe('VERIFIED_COMPLIANT');
+    expect(call[0].data.scopeGaps).toEqual([]);
+  });
+});

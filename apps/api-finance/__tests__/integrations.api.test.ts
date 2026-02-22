@@ -508,3 +508,65 @@ describe('GET /api/integrations — additional coverage', () => {
     expect(res.body.pagination.total).toBe(100);
   });
 });
+
+// ===================================================================
+// Integrations — final coverage block
+// ===================================================================
+describe('Integrations — final coverage', () => {
+  it('GET /api/integrations data is always an array', async () => {
+    mockPrisma.finIntegration.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/integrations');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/integrations create is called once per request', async () => {
+    mockPrisma.finIntegration.create.mockResolvedValue({
+      id: 'int-final-1',
+      provider: 'XERO',
+      name: 'Xero Final',
+      direction: 'BIDIRECTIONAL',
+      isActive: false,
+    });
+    await request(app).post('/api/integrations').send({ provider: 'XERO', name: 'Xero Final' });
+    expect(mockPrisma.finIntegration.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/integrations/:id/activate update sets isActive:true', async () => {
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
+      id: 'f5000000-0000-4000-a000-000000000001',
+      isActive: false,
+    });
+    mockPrisma.finIntegration.update.mockResolvedValue({
+      id: 'f5000000-0000-4000-a000-000000000001',
+      isActive: true,
+    });
+
+    await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/activate');
+    expect(mockPrisma.finIntegration.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isActive: true }) })
+    );
+  });
+
+  it('POST /api/integrations/:id/deactivate update sets isActive:false', async () => {
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
+      id: 'f5000000-0000-4000-a000-000000000001',
+      isActive: true,
+    });
+    mockPrisma.finIntegration.update.mockResolvedValue({
+      id: 'f5000000-0000-4000-a000-000000000001',
+      isActive: false,
+    });
+
+    await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/deactivate');
+    expect(mockPrisma.finIntegration.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('GET /api/integrations/:id/logs data is an array', async () => {
+    mockPrisma.finSyncLog.findMany.mockResolvedValue([]);
+    mockPrisma.finSyncLog.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/integrations/f5000000-0000-4000-a000-000000000001/logs');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

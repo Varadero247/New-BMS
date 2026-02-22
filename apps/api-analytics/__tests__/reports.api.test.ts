@@ -414,3 +414,59 @@ describe('Reports — edge cases and extended coverage', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('Reports — final coverage', () => {
+  it('GET /api/reports success is true when findMany returns data', async () => {
+    mockPrisma.analyticsReport.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'R1', type: 'AD_HOC', format: 'PDF' },
+    ]);
+    mockPrisma.analyticsReport.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/reports');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/reports returns JSON content-type', async () => {
+    mockPrisma.analyticsReport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reports');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/reports create called once on success', async () => {
+    const created = { id: 'new-r', name: 'Created', type: 'AD_HOC', format: 'PDF' };
+    mockPrisma.analyticsReport.create.mockResolvedValue(created);
+    await request(app).post('/api/reports').send({ name: 'Created', type: 'AD_HOC', format: 'PDF', query: { table: 'test' } });
+    expect(mockPrisma.analyticsReport.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/reports/:id/run creates a run with QUEUED status', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsReportRun.create.mockResolvedValue({ id: 'run-new', status: 'QUEUED', reportId: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsReport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).post('/api/reports/00000000-0000-0000-0000-000000000001/run');
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('QUEUED');
+  });
+
+  it('GET /api/reports/:id/runs pagination has total', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsReportRun.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReportRun.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001/runs');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination.total).toBe(5);
+  });
+
+  it('GET /api/reports/:id returns success true on found report', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test', runs: [] });
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/reports/:id 404 has NOT_FOUND error code', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

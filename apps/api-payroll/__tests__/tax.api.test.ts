@@ -590,3 +590,73 @@ describe('Payroll Tax API Routes', () => {
     });
   });
 });
+
+describe('Payroll Tax — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tax', taxRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /filings: response body has success:true and data array', async () => {
+    (mockPrisma.taxFiling.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app).get('/api/tax/filings').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('GET /brackets: response body has success:true and data array', async () => {
+    (mockPrisma.taxBracket.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app).get('/api/tax/brackets').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('POST /filings: returns 400 for missing taxYear', async () => {
+    const response = await request(app)
+      .post('/api/tax/filings')
+      .set('Authorization', 'Bearer token')
+      .send({
+        filingType: 'QUARTERLY',
+        taxPeriod: 'Q1-2024',
+        grossWages: 100000,
+        taxableWages: 90000,
+        taxWithheld: 18000,
+        employerTax: 2000,
+        filingDeadline: '2024-04-30',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /filings/:id/file: update called with correct id from URL param', async () => {
+    (mockPrisma.taxFiling.update as jest.Mock).mockResolvedValueOnce({ id: '3a000000-0000-4000-a000-000000000001', status: 'FILED' });
+    await request(app)
+      .put('/api/tax/filings/3a000000-0000-4000-a000-000000000001/file')
+      .set('Authorization', 'Bearer token')
+      .send({ filedById: 'admin-1', confirmationNumber: 'CONF-XYZ' });
+    expect(mockPrisma.taxFiling.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '3a000000-0000-4000-a000-000000000001' } })
+    );
+  });
+
+  it('GET /summary: response has byStatus, totalTax, totalDue, upcomingDeadlines', async () => {
+    (mockPrisma.taxFiling.groupBy as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.taxFiling.aggregate as jest.Mock).mockResolvedValueOnce({ _sum: { totalTax: 0, paymentDue: 0 } });
+    (mockPrisma.taxFiling.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app).get('/api/tax/summary').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('byStatus');
+    expect(response.body.data).toHaveProperty('totalTax');
+    expect(response.body.data).toHaveProperty('totalDue');
+    expect(response.body.data).toHaveProperty('upcomingDeadlines');
+  });
+});

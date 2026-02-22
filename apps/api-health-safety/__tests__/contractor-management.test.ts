@@ -302,3 +302,67 @@ describe('ISO 45001 Contractor Management Routes', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Contractor Management — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / response data array contains inspections field', async () => {
+    prisma.hSContractor.findMany.mockResolvedValue([{ ...mockContractor, inspections: [] }]);
+    prisma.hSContractor.count.mockResolvedValue(1);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('inspections');
+  });
+
+  it('POST / calls create with ACTIVE status', async () => {
+    prisma.hSContractor.create.mockResolvedValue({ ...mockContractor, status: 'ACTIVE' });
+    await request(app).post('/').send(contractorPayload);
+    expect(prisma.hSContractor.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('GET /stats returns total field in data', async () => {
+    prisma.hSContractor.count
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(1);
+    const res = await request(app).get('/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total', 5);
+  });
+
+  it('GET /:id calls findUnique with correct id', async () => {
+    prisma.hSContractor.findUnique.mockResolvedValue({ ...mockContractor, inspections: [] });
+    await request(app).get('/cont-1');
+    expect(prisma.hSContractor.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'cont-1' } })
+    );
+  });
+
+  it('PUT /:id calls update with correct where clause', async () => {
+    prisma.hSContractor.findUnique.mockResolvedValue(mockContractor);
+    prisma.hSContractor.update.mockResolvedValue({ ...mockContractor, inductionCompleted: true });
+    await request(app).put('/cont-1').send({ inductionCompleted: true });
+    expect(prisma.hSContractor.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'cont-1' } })
+    );
+  });
+
+  it('GET /:id/inspections returns 500 on DB error', async () => {
+    prisma.hSContractorInspection.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/cont-1/inspections');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / pagination.page is 1 for first page', async () => {
+    prisma.hSContractor.findMany.mockResolvedValue([]);
+    prisma.hSContractor.count.mockResolvedValue(0);
+    const res = await request(app).get('/?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+});

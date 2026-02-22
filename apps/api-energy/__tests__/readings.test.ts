@@ -414,3 +414,95 @@ describe('readings — extended coverage', () => {
     expect(res.body.data.totalConsumption).toBe(1000);
   });
 });
+
+describe('readings — further edge cases', () => {
+  it('POST /api/readings returns 400 for negative value', async () => {
+    const res = await request(app).post('/api/readings').send({
+      meterId: '00000000-0000-0000-0000-000000000001',
+      value: -5,
+      readingDate: '2025-06-01',
+      source: 'MANUAL',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/readings pagination response includes page number', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyReading.count as jest.Mock).mockResolvedValue(100);
+
+    const res = await request(app).get('/api/readings?page=3&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+  });
+
+  it('GET /api/readings/:id returns data id in body', async () => {
+    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+      value: 999,
+      meterId: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).get('/api/readings/ea000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.value).toBe(999);
+  });
+
+  it('PUT /api/readings/:id update stores new value in response', async () => {
+    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyReading.update as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+      value: 750,
+    });
+
+    const res = await request(app)
+      .put('/api/readings/ea000000-0000-4000-a000-000000000001')
+      .send({ value: 750 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.value).toBe(750);
+  });
+
+  it('DELETE /api/readings/:id response data.deleted is true', async () => {
+    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyReading.update as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/readings/ea000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('POST /api/readings create passes meterId in data', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyReading.create as jest.Mock).mockResolvedValue({
+      id: 'ea000000-0000-4000-a000-000000000005',
+      meterId: '00000000-0000-0000-0000-000000000001',
+      value: 500,
+    });
+
+    const res = await request(app).post('/api/readings').send({
+      meterId: '00000000-0000-0000-0000-000000000001',
+      value: 500,
+      readingDate: '2026-01-15',
+      source: 'AUTOMATIC',
+    });
+
+    expect(res.status).toBe(201);
+    expect(prisma.energyReading.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ meterId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+});

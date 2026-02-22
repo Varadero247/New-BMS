@@ -344,3 +344,66 @@ describe('suppliers.api — edge cases and extended coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000003');
   });
 });
+
+describe('suppliers.api — final coverage expansion', () => {
+  it('GET /api/suppliers with category filter returns 200', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/suppliers?category=IT');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/suppliers with email creates successfully', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppSupplier.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Email Supplier',
+      email: 'contact@supplier.com',
+    });
+    const res = await request(app).post('/api/suppliers').send({
+      name: 'Email Supplier',
+      email: 'contact@supplier.com',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/suppliers/:id response data.name is defined', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      name: 'Named Supplier',
+    });
+    const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000005');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBeDefined();
+  });
+
+  it('GET /api/suppliers count is called exactly once per list request', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    await request(app).get('/api/suppliers');
+    expect(mockPrisma.suppSupplier.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/suppliers/:id success message contains supplier', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('supplier');
+  });
+
+  it('PUT /api/suppliers/:id response data.id matches path param', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000009' });
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000009',
+      name: 'Updated Name',
+    });
+    const res = await request(app)
+      .put('/api/suppliers/00000000-0000-0000-0000-000000000009')
+      .send({ name: 'Updated Name' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000009');
+  });
+});

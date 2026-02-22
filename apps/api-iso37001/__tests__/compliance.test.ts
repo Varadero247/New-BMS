@@ -459,3 +459,94 @@ describe('ISO 37001 Compliance API', () => {
     });
   });
 });
+
+// =========================================================================
+// ISO 37001 Compliance — extended coverage
+// =========================================================================
+describe('ISO 37001 Compliance — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/compliance responds with JSON content-type', async () => {
+    (mockPrisma.abCompliance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abCompliance.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/compliance');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/compliance pagination has totalPages field', async () => {
+    (mockPrisma.abCompliance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abCompliance.count as jest.Mock).mockResolvedValueOnce(50);
+    const res = await request(app).get('/api/compliance?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('POST /api/compliance with all optional fields succeeds', async () => {
+    (mockPrisma.abCompliance.create as jest.Mock).mockResolvedValueOnce(mockCompliance);
+    const res = await request(app).post('/api/compliance').send({
+      title: 'Full Record',
+      category: 'CONTROL',
+      isoClause: '8.2',
+      owner: 'Compliance Team',
+      department: 'Risk',
+      description: 'Full compliance assessment',
+      evidence: 'Evidence doc',
+      assessmentDate: '2026-01-15',
+      nextReviewDate: '2027-01-15',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/compliance/:id updates evidence field', async () => {
+    (mockPrisma.abCompliance.findFirst as jest.Mock).mockResolvedValueOnce(mockCompliance);
+    (mockPrisma.abCompliance.update as jest.Mock).mockResolvedValueOnce({
+      ...mockCompliance,
+      evidence: 'New evidence v2',
+    });
+    const res = await request(app)
+      .put(`/api/compliance/${UUID1}`)
+      .send({ evidence: 'New evidence v2' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/compliance data items have referenceNumber field', async () => {
+    (mockPrisma.abCompliance.findMany as jest.Mock).mockResolvedValueOnce([mockCompliance]);
+    (mockPrisma.abCompliance.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/compliance');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('referenceNumber');
+  });
+
+  it('GET /api/compliance/stats byCategory is an array', async () => {
+    (mockPrisma.abCompliance.count as jest.Mock)
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(2);
+    (mockPrisma.abCompliance.groupBy as jest.Mock).mockResolvedValueOnce([
+      { category: 'TRAINING', _count: { id: 10 } },
+    ]);
+    const res = await request(app).get('/api/compliance/stats');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.byCategory)).toBe(true);
+  });
+
+  it('PUT /api/compliance/:id sets closedBy and closedDate as optional fields', async () => {
+    (mockPrisma.abCompliance.findFirst as jest.Mock).mockResolvedValueOnce(mockCompliance);
+    (mockPrisma.abCompliance.update as jest.Mock).mockResolvedValueOnce({
+      ...mockCompliance,
+      status: 'COMPLIANT',
+      closedDate: new Date(),
+      closedBy: 'user-123',
+    });
+    const res = await request(app)
+      .put(`/api/compliance/${UUID1}`)
+      .send({ status: 'COMPLIANT', closedBy: 'user-123', closureNotes: 'All items resolved', closedDate: '2026-01-31' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

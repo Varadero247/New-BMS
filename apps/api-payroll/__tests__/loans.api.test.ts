@@ -616,3 +616,92 @@ describe('Payroll Loans API Routes', () => {
     });
   });
 });
+
+describe('Payroll Loans — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/loans', loansRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /: response body has success:true', async () => {
+    (mockPrisma.employeeLoan.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app).get('/api/loans').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST /: returns 400 for negative interestRate', async () => {
+    const response = await request(app)
+      .post('/api/loans')
+      .set('Authorization', 'Bearer token')
+      .send({
+        employeeId: '11111111-1111-1111-1111-111111111111',
+        loanType: 'PERSONAL_LOAN',
+        principalAmount: 1000,
+        interestRate: -5,
+        termMonths: 6,
+        startDate: '2024-01-01',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id: returns 200 with correct loan data', async () => {
+    (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '39000000-0000-4000-a000-000000000001',
+      loanNumber: 'LN-2024-00001',
+      status: 'ACTIVE',
+      repayments: [],
+    });
+    const response = await request(app)
+      .get('/api/loans/39000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('PUT /approve: loanRepayment.createMany called with correct count of schedules', async () => {
+    (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '39000000-0000-4000-a000-000000000001',
+      principalAmount: 600,
+      interestRate: 0,
+      totalAmount: 600,
+      installmentAmount: 300,
+      termMonths: 2,
+      startDate: new Date('2024-01-01'),
+    });
+    (mockPrisma.loanRepayment.createMany as jest.Mock).mockResolvedValueOnce({ count: 2 });
+    (mockPrisma.employeeLoan.update as jest.Mock).mockResolvedValueOnce({ id: '39000000-0000-4000-a000-000000000001', status: 'APPROVED', repayments: [] });
+
+    await request(app)
+      .put('/api/loans/39000000-0000-4000-a000-000000000001/approve')
+      .set('Authorization', 'Bearer token')
+      .send({ approvedById: 'admin-1' });
+
+    expect(mockPrisma.loanRepayment.createMany).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.arrayContaining([expect.objectContaining({ loanId: '39000000-0000-4000-a000-000000000001' })]) })
+    );
+  });
+
+  it('POST /repayments/.../pay: loanRepayment.update called with PAID status', async () => {
+    (mockPrisma.loanRepayment.update as jest.Mock).mockResolvedValueOnce({ id: '4a000000-0000-4000-a000-000000000001', status: 'PAID', paidAmount: 200 });
+    (mockPrisma.employeeLoan.findUnique as jest.Mock).mockResolvedValueOnce({ id: '39000000-0000-4000-a000-000000000001', remainingBalance: 800, repaidAmount: 200 });
+    (mockPrisma.employeeLoan.update as jest.Mock).mockResolvedValueOnce({ id: '39000000-0000-4000-a000-000000000001', remainingBalance: 600 });
+
+    await request(app)
+      .post('/api/loans/39000000-0000-4000-a000-000000000001/repayments/4a000000-0000-4000-a000-000000000001/pay')
+      .set('Authorization', 'Bearer token')
+      .send({ paidAmount: 200, paymentMethod: 'PAYROLL_DEDUCTION' });
+
+    expect(mockPrisma.loanRepayment.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'PAID' }) })
+    );
+  });
+});

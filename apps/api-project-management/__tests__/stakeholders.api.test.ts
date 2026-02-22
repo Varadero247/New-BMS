@@ -570,3 +570,82 @@ describe('stakeholders.api — edge cases and extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('stakeholders.api — final extended coverage', () => {
+  let app: express.Express;
+
+  const mockStakeholder = {
+    id: '46000000-0000-4000-a000-000000000001',
+    projectId: 'project-1',
+    stakeholderName: 'Alice Johnson',
+    stakeholderRole: 'Project Sponsor',
+    stakeholderType: 'SPONSOR',
+    powerLevel: 5,
+    interestLevel: 5,
+    stakeholderCategory: 'MANAGE_CLOSELY',
+    status: 'ACTIVE',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/stakeholders', stakeholdersRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /api/stakeholders/:id does not call update when not found', async () => {
+    (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/stakeholders/00000000-0000-4000-a000-ffffffffffff');
+    expect(mockPrisma.projectStakeholder.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/stakeholders returns data as array', async () => {
+    (mockPrisma.projectStakeholder.findMany as jest.Mock).mockResolvedValueOnce([mockStakeholder]);
+    (mockPrisma.projectStakeholder.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/stakeholders?projectId=project-1');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/stakeholders/:id does not call update when not found', async () => {
+    (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .put('/api/stakeholders/00000000-0000-4000-a000-ffffffffffff')
+      .send({ stakeholderName: 'Never updated' });
+    expect(mockPrisma.projectStakeholder.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/stakeholders meta.page defaults to 1', async () => {
+    (mockPrisma.projectStakeholder.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectStakeholder.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/stakeholders?projectId=project-1');
+    expect(res.body.meta.page).toBe(1);
+  });
+
+  it('POST /api/stakeholders returns 201 with created stakeholder id', async () => {
+    (mockPrisma.projectStakeholder.create as jest.Mock).mockResolvedValueOnce({
+      ...mockStakeholder,
+      id: '46000000-0000-4000-a000-000000000099',
+      stakeholderName: 'New Stakeholder',
+      stakeholderCategory: 'MANAGE_CLOSELY',
+    });
+    const res = await request(app).post('/api/stakeholders').send({
+      projectId: 'project-1',
+      stakeholderName: 'New Stakeholder',
+      stakeholderRole: 'Manager',
+      stakeholderType: 'INTERNAL',
+      powerLevel: 5,
+      interestLevel: 5,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('46000000-0000-4000-a000-000000000099');
+  });
+
+  it('GET /api/stakeholders findMany called once per request', async () => {
+    (mockPrisma.projectStakeholder.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectStakeholder.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/stakeholders?projectId=project-1');
+    expect(mockPrisma.projectStakeholder.findMany).toHaveBeenCalledTimes(1);
+  });
+});

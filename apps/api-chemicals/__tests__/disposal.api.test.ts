@@ -431,3 +431,67 @@ describe('Chemicals Disposal — extended edge cases', () => {
     expect(res.body.pagination).toHaveProperty('total');
   });
 });
+
+describe('Chemicals Disposal — additional coverage 2', () => {
+  it('POST /disposal sets disposedBy and createdBy from authenticated user', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemDisposal.create.mockResolvedValue(mockDisposal);
+    await request(app).post('/api/disposal').send(validDisposalBody);
+    expect(mockPrisma.chemDisposal.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ disposedBy: 'user-1', createdBy: 'user-1' }),
+      })
+    );
+  });
+
+  it('GET /disposal count is called once per list request', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    await request(app).get('/api/disposal');
+    expect(mockPrisma.chemDisposal.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /disposal/:id calls findFirst with correct id before updating', async () => {
+    mockPrisma.chemDisposal.findFirst.mockResolvedValue(mockDisposal);
+    mockPrisma.chemDisposal.update.mockResolvedValue({ ...mockDisposal, certificateRef: 'X' });
+    await request(app).put('/api/disposal/00000000-0000-0000-0000-000000000060').send({ certificateRef: 'X' });
+    expect(mockPrisma.chemDisposal.findFirst).toHaveBeenCalled();
+  });
+
+  it('GET /disposal with chemicalId filter passes it to where clause', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    await request(app).get('/api/disposal?chemicalId=00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.chemDisposal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ chemicalId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('POST /disposal returns 201 with success:true for valid body', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemDisposal.create.mockResolvedValue(mockDisposal);
+    const res = await request(app).post('/api/disposal').send(validDisposalBody);
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /disposal first item has expected disposalMethod field', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([mockDisposal]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].disposalMethod).toBe('Licensed waste contractor');
+  });
+
+  it('PUT /disposal/:id returns 200 with success:true on valid update', async () => {
+    mockPrisma.chemDisposal.findFirst.mockResolvedValue(mockDisposal);
+    mockPrisma.chemDisposal.update.mockResolvedValue({ ...mockDisposal, ewcCode: '07 02 04' });
+    const res = await request(app)
+      .put('/api/disposal/00000000-0000-0000-0000-000000000060')
+      .send({ ewcCode: '07 02 04' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

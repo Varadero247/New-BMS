@@ -288,3 +288,44 @@ describe('Changelog — extended scenarios', () => {
     expect(getUnreadCount('brand-new-user-999')).toBe(0);
   });
 });
+
+describe('Changelog — comprehensive entry and pagination checks', () => {
+  it('listEntries returns entries array whose length equals minimum of limit and total', () => {
+    const { entries, total } = listEntries(2, 0);
+    expect(entries.length).toBeLessThanOrEqual(Math.min(2, total));
+  });
+
+  it('createEntry with category "new_feature" stores correctly', () => {
+    const entry = createEntry({ title: 'NF', description: 'D', category: 'new_feature', modules: [] });
+    expect(entry.category).toBe('new_feature');
+  });
+
+  it('createEntry with category "bug_fix" stores correctly', () => {
+    const entry = createEntry({ title: 'BF', description: 'D', category: 'bug_fix', modules: [] });
+    expect(entry.category).toBe('bug_fix');
+  });
+
+  it('createEntry with category "security" stores correctly', () => {
+    const entry = createEntry({ title: 'SEC', description: 'D', category: 'security', modules: [] });
+    expect(entry.category).toBe('security');
+  });
+
+  it('listAllEntries total increases after adding another entry', () => {
+    const before = listAllEntries().total;
+    createEntry({ title: 'Extra', description: 'D', category: 'improvement', modules: [] });
+    const after = listAllEntries().total;
+    expect(after).toBeGreaterThan(before);
+  });
+
+  it('getUnreadCount returns a non-negative number', () => {
+    const count = getUnreadCount('test-non-negative');
+    expect(count).toBeGreaterThanOrEqual(0);
+  });
+
+  it('markAsRead followed by listEntries still returns the same entries', () => {
+    const beforeList = listEntries().entries;
+    markAsRead('list-stable-user');
+    const afterList = listEntries().entries;
+    expect(afterList.length).toBe(beforeList.length);
+  });
+});

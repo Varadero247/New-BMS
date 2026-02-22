@@ -361,3 +361,49 @@ describe('Uptime API — edge cases and field validation', () => {
     expect(res.body.data.checks).toHaveLength(3);
   });
 });
+
+describe('Uptime API — final coverage block', () => {
+  it('GET / check with DOWN status is included in results', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000007', serviceName: 'Gateway', status: 'DOWN', uptimePercent: 88 },
+    ]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.status).toBe(200);
+    expect(res.body.data.checks[0].status).toBe('DOWN');
+  });
+
+  it('GET /:id findUnique is called once per request', async () => {
+    mockPrisma.uptimeCheck.findUnique.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', serviceName: 'X', status: 'UP', uptimePercent: 100 });
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.uptimeCheck.findUnique).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id/history count query is called with correct uptimeCheckId', async () => {
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    mockPrisma.uptimeIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000008/history');
+    expect(mockPrisma.uptimeIncident.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { uptimeCheckId: '00000000-0000-0000-0000-000000000008' } })
+    );
+  });
+
+  it('GET / response body is not null', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('GET /:id 404 error code is NOT_FOUND', async () => {
+    mockPrisma.uptimeCheck.findUnique.mockResolvedValue(null);
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET / success is false on error response', async () => {
+    mockPrisma.uptimeCheck.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/uptime');
+    expect(res.body.success).toBe(false);
+  });
+});

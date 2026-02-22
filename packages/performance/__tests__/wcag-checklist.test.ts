@@ -211,3 +211,45 @@ describe('WCAG 2.2 AA Checklist — deeper validation', () => {
     expect(Array.isArray(WCAG_22_AA_CHECKLIST)).toBe(true);
   });
 });
+
+describe('WCAG 2.2 AA Checklist — final coverage', () => {
+  it('criterion 2.1.1 Keyboard is present and Level A', () => {
+    const criterion = WCAG_22_AA_CHECKLIST.find((c) => c.id === '2.1.1');
+    expect(criterion).toBeDefined();
+    expect(criterion!.level).toBe('A');
+  });
+
+  it('criterion 1.4.1 Use of Color is Level A', () => {
+    const criterion = WCAG_22_AA_CHECKLIST.find((c) => c.id === '1.4.1');
+    expect(criterion).toBeDefined();
+    expect(criterion!.level).toBe('A');
+  });
+
+  it('each id part is a positive integer', () => {
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      const parts = criterion.id.split('.').map(Number);
+      parts.forEach((part) => {
+        expect(part).toBeGreaterThan(0);
+      });
+    }
+  });
+
+  it('all descriptions contain at least one space (are sentences)', () => {
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      expect(criterion.description).toContain(' ');
+    }
+  });
+
+  it('automated field is strictly boolean (not truthy/falsy)', () => {
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      expect(criterion.automated === true || criterion.automated === false).toBe(true);
+    }
+  });
+
+  it('principle 1 has at least 4 guidelines', () => {
+    const guidelines = new Set(
+      WCAG_22_AA_CHECKLIST.filter((c) => c.id.startsWith('1.')).map((c) => c.id.split('.')[1])
+    );
+    expect(guidelines.size).toBeGreaterThanOrEqual(4);
+  });
+});

@@ -343,3 +343,68 @@ describe('findings.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('findings.api — final coverage block', () => {
+  it('GET returns pagination.page = 1 by default', async () => {
+    mockPrisma.audFinding.findMany.mockResolvedValue([]);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/findings');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET pagination.totalPages is 0 when count is 0', async () => {
+    mockPrisma.audFinding.findMany.mockResolvedValue([]);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/findings');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(0);
+  });
+
+  it('POST with severity OBSERVATION creates finding', async () => {
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audFinding.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      title: 'Observation',
+      severity: 'OBSERVATION',
+    });
+    const res = await request(app)
+      .post('/api/findings')
+      .send({ title: 'Observation', auditId: '00000000-0000-0000-0000-000000000001', severity: 'OBSERVATION' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns success:true with the found record', async () => {
+    mockPrisma.audFinding.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Found' });
+    const res = await request(app).get('/api/findings/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.title).toBe('Found');
+  });
+
+  it('PUT returns success:true on successful update', async () => {
+    mockPrisma.audFinding.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audFinding.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Done' });
+    const res = await request(app)
+      .put('/api/findings/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Done' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('findMany called once per GET / request', async () => {
+    mockPrisma.audFinding.findMany.mockResolvedValue([]);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    await request(app).get('/api/findings');
+    expect(mockPrisma.audFinding.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE returns data.message on success', async () => {
+    mockPrisma.audFinding.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audFinding.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/findings/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+});

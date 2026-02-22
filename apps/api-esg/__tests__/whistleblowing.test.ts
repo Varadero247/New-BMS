@@ -346,3 +346,78 @@ describe('whistleblowing — extended coverage', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+describe('whistleblowing — additional coverage 2', () => {
+  it('GET / response includes pagination with total', async () => {
+    (mockPrisma.esgWhistleblow.findMany as jest.Mock).mockResolvedValue([mockReport]);
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(12);
+    const res = await request(app).get('/api/whistleblowing');
+    expect(res.body.pagination.total).toBe(12);
+  });
+
+  it('POST / stores category in create call data', async () => {
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.esgWhistleblow.create as jest.Mock).mockResolvedValue(mockReport);
+    await request(app).post('/api/whistleblowing').send({
+      category: 'CORRUPTION',
+      summary: 'Bribery observed',
+      reportedDate: '2026-02-15',
+      channel: 'EMAIL',
+      anonymous: true,
+    });
+    const [call] = (mockPrisma.esgWhistleblow.create as jest.Mock).mock.calls;
+    expect(call[0].data.category).toBe('CORRUPTION');
+  });
+
+  it('GET /:id returns referenceNumber and category', async () => {
+    (mockPrisma.esgWhistleblow.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    const res = await request(app).get('/api/whistleblowing/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('referenceNumber', 'WB-2026-0001');
+    expect(res.body.data).toHaveProperty('category', 'FINANCIAL_MISCONDUCT');
+  });
+
+  it('PUT /:id updates status to CLOSED', async () => {
+    (mockPrisma.esgWhistleblow.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    (mockPrisma.esgWhistleblow.update as jest.Mock).mockResolvedValue({ ...mockReport, status: 'CLOSED' });
+    const res = await request(app)
+      .put('/api/whistleblowing/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('CLOSED');
+  });
+
+  it('GET /stats byStatus contains RECEIVED count', async () => {
+    (mockPrisma.esgWhistleblow.count as jest.Mock)
+      .mockResolvedValueOnce(20)
+      .mockResolvedValueOnce(6);
+    (mockPrisma.esgWhistleblow.groupBy as jest.Mock)
+      .mockResolvedValueOnce([{ status: 'RECEIVED', _count: { id: 8 } }])
+      .mockResolvedValueOnce([{ category: 'CORRUPTION', _count: { id: 4 } }]);
+    const res = await request(app).get('/api/whistleblowing/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.byStatus).toHaveProperty('RECEIVED', 8);
+  });
+
+  it('POST / auto-increments ref number based on count=3', async () => {
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.esgWhistleblow.create as jest.Mock).mockResolvedValue({ ...mockReport, referenceNumber: 'WB-2026-0004' });
+    await request(app).post('/api/whistleblowing').send({
+      category: 'SAFETY',
+      summary: 'Equipment not maintained',
+      reportedDate: '2026-03-01',
+      channel: 'WEB_FORM',
+      anonymous: false,
+    });
+    const [call] = (mockPrisma.esgWhistleblow.create as jest.Mock).mock.calls;
+    expect(call[0].data.referenceNumber).toContain('WB-');
+  });
+
+  it('GET / page 2 limit 5 passes skip 5', async () => {
+    (mockPrisma.esgWhistleblow.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/whistleblowing?page=2&limit=5');
+    const [call] = (mockPrisma.esgWhistleblow.findMany as jest.Mock).mock.calls;
+    expect(call[0].skip).toBe(5);
+    expect(call[0].take).toBe(5);
+  });
+});

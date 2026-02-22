@@ -306,3 +306,51 @@ describe('method-statements.api — extended edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('method-statements.api — final coverage', () => {
+  it('GET / returns success:true with data array', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([{ id: '1', title: 'A' }]);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/method-statements');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / pagination.totalPages rounds up correctly', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([]);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(21);
+    const res = await request(app).get('/api/method-statements?limit=10');
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /:id returns 404 error code NOT_FOUND', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/method-statements/00000000-0000-0000-0000-000000000099');
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST / with approvedBy field succeeds', async () => {
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(5);
+    mockPrisma.ptwMethodStatement.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000006', title: 'Approved MS' });
+    const res = await request(app).post('/api/method-statements').send({ title: 'Approved MS', approvedBy: 'manager@ims.local' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id returns success:false on DB error', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwMethodStatement.update.mockRejectedValue(new Error('db error'));
+    const res = await request(app).put('/api/method-statements/00000000-0000-0000-0000-000000000001').send({ title: 'X' });
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /:id calls update with deletedAt', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwMethodStatement.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/method-statements/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.ptwMethodStatement.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

@@ -512,3 +512,83 @@ describe('GET /api/analytics/dashboard — edge cases and field validation', () 
     expect(res.body.data.riskLevelBreakdown.LOW).toBe(14);
   });
 });
+
+describe('GET /api/analytics/dashboard — additional coverage 2', () => {
+  const setupZeroMocks = () => {
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncompatAlert.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([]);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+  };
+
+  it('returns 200 status code on success', async () => {
+    setupZeroMocks();
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+  });
+
+  it('totalChemicals reflects chemRegister first count call', async () => {
+    mockPrisma.chemRegister.count.mockResolvedValueOnce(42).mockResolvedValueOnce(0);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncompatAlert.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([]);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalChemicals).toBe(42);
+  });
+
+  it('VERY_LOW risk level appears in breakdown', async () => {
+    setupZeroMocks();
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([
+      { residualRiskLevel: 'VERY_LOW', _count: 20 },
+    ]);
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.riskLevelBreakdown.VERY_LOW).toBe(20);
+  });
+
+  it('chemIncident.findMany is called once per dashboard request', async () => {
+    setupZeroMocks();
+    await request(app).get('/api/analytics/dashboard');
+    expect(mockPrisma.chemIncident.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('response data has all required top-level keys', async () => {
+    setupZeroMocks();
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    const d = res.body.data;
+    expect(d).toHaveProperty('totalChemicals');
+    expect(d).toHaveProperty('cmrCount');
+    expect(d).toHaveProperty('highRiskCount');
+    expect(d).toHaveProperty('sdsOverdueCount');
+    expect(d).toHaveProperty('incompatibilityAlerts');
+    expect(d).toHaveProperty('recentIncidents');
+    expect(d).toHaveProperty('riskLevelBreakdown');
+  });
+
+  it('returns 500 when chemInventory.count rejects', async () => {
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemInventory.count.mockRejectedValue(new Error('inventory fail'));
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncompatAlert.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([]);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -409,3 +409,56 @@ describe('GET /api/goals — pagination and filter coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('GET /api/goals — further pagination and filter coverage', () => {
+  it('GET / with cycleId filter forwards it to Prisma where clause', async () => {
+    (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.performanceGoal.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get(`/api/goals?cycleId=${CYCLE_ID}`);
+    expect(mockPrisma.performanceGoal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ cycleId: CYCLE_ID }),
+      })
+    );
+  });
+
+  it('GET / response meta has page and limit fields', async () => {
+    (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.performanceGoal.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/goals');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('limit');
+  });
+
+  it('DELETE /api/goals/:id success response body has no data field', async () => {
+    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(mockGoal);
+    (mockPrisma.performanceGoal.delete as jest.Mock).mockResolvedValue(mockGoal);
+    const res = await request(app).delete(`/api/goals/${GOAL_ID}`);
+    expect(res.status).toBe(204);
+  });
+
+  it('GET /api/goals/stats avgProgress is a number', async () => {
+    (mockPrisma.performanceGoal.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.performanceGoal.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.performanceGoal.aggregate as jest.Mock).mockResolvedValue({ _avg: { progress: 75 } });
+    const res = await request(app).get('/api/goals/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.avgProgress).toBe('number');
+  });
+
+  it('POST /api/goals/:id/updates returns 201 and success:true on success', async () => {
+    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(mockGoal);
+    (mockPrisma.$transaction as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-4000-a000-000000000010',
+      goalId: GOAL_ID,
+      progressBefore: 0,
+      progressAfter: 25,
+    });
+    const res = await request(app)
+      .post(`/api/goals/${GOAL_ID}/updates`)
+      .send({ progressAfter: 25, updateNotes: 'Quarter done' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

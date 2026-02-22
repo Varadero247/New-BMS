@@ -347,3 +347,60 @@ describe('Governance — extended coverage', () => {
     expect(res.body.error).toBeDefined();
   });
 });
+
+describe('governance — final coverage', () => {
+  it('GET / returns JSON content-type', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/governance');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / creates ANTI_CORRUPTION category metric successfully', async () => {
+    (prisma.esgGovernanceMetric.create as jest.Mock).mockResolvedValue({ ...mockGovernance, category: 'ANTI_CORRUPTION' });
+    const res = await request(app).post('/api/governance').send({
+      category: 'ANTI_CORRUPTION',
+      metric: 'Anti-Bribery Training Completion',
+      value: '95%',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-12-31',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data items have metric and value fields', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([mockGovernance]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/governance');
+    expect(res.body.data[0]).toHaveProperty('metric');
+    expect(res.body.data[0]).toHaveProperty('value');
+  });
+
+  it('PUT /:id with notes field updates successfully', async () => {
+    (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue(mockGovernance);
+    (prisma.esgGovernanceMetric.update as jest.Mock).mockResolvedValue({ ...mockGovernance, notes: 'Updated note' });
+    const res = await request(app)
+      .put('/api/governance/00000000-0000-0000-0000-000000000001')
+      .send({ notes: 'Updated note' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.notes).toBe('Updated note');
+  });
+
+  it('GET /policies data items have category and metric fields', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([
+      { ...mockGovernance, category: 'COMPLIANCE', metric: 'Anti-Bribery Policy' },
+    ]);
+    const res = await request(app).get('/api/governance/policies');
+    expect(res.body.data[0]).toHaveProperty('category');
+    expect(res.body.data[0]).toHaveProperty('metric');
+  });
+
+  it('DELETE /:id response data has message field', async () => {
+    (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue(mockGovernance);
+    (prisma.esgGovernanceMetric.update as jest.Mock).mockResolvedValue({ ...mockGovernance, deletedAt: new Date() });
+    const res = await request(app).delete('/api/governance/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+});

@@ -381,3 +381,71 @@ describe('Releases Routes — extended edge cases', () => {
     expect(res.body.data.decision).toBe('REJECTED');
   });
 });
+
+describe('Releases Routes — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/releases returns success:true with empty data array', async () => {
+    (prisma.qualRelease.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/releases');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/releases pagination total is 0 when no releases', async () => {
+    (prisma.qualRelease.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/releases');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST /api/releases returns referenceNumber in response', async () => {
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(0);
+    (prisma.qualRelease.create as jest.Mock).mockResolvedValue(mockRelease);
+    const res = await request(app).post('/api/releases').send({
+      productName: 'Widget Assembly A',
+      batchNumber: 'BATCH-2026-0042',
+      decision: 'ON_HOLD',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toBe('REL-2026-001');
+  });
+
+  it('PUT /api/releases/:id updates inspectionCriteria field', async () => {
+    (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
+    (prisma.qualRelease.update as jest.Mock).mockResolvedValue({
+      ...mockRelease,
+      inspectionCriteria: 'Check all dimensions',
+    });
+    const res = await request(app)
+      .put('/api/releases/00000000-0000-0000-0000-000000000001')
+      .send({ inspectionCriteria: 'Check all dimensions' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/releases filters by REJECTED decision', async () => {
+    (prisma.qualRelease.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/releases?decision=REJECTED');
+    expect(res.status).toBe(200);
+    expect(prisma.qualRelease.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ decision: 'REJECTED' }) })
+    );
+  });
+
+  it('DELETE /api/releases/:id calls update with deletedAt', async () => {
+    (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
+    (prisma.qualRelease.update as jest.Mock).mockResolvedValue({ ...mockRelease, deletedAt: new Date() });
+    const res = await request(app).delete('/api/releases/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(prisma.qualRelease.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

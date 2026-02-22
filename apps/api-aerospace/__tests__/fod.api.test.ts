@@ -462,3 +462,106 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
     });
   });
 });
+
+describe('Aerospace FOD API — additional coverage', () => {
+  it('GET /api/fod returns correct totalPages for multi-page result', async () => {
+    mockPrisma.aeroFodIncident.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroFodIncident.count.mockResolvedValueOnce(45);
+
+    const res = await request(app)
+      .get('/api/fod?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+    expect(res.body.meta.total).toBe(45);
+  });
+
+  it('GET /api/fod page 2 limit 10 computes skip=10', async () => {
+    mockPrisma.aeroFodIncident.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroFodIncident.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/fod?page=2&limit=10')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroFodIncident.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/fod response shape has success:true and meta block', async () => {
+    mockPrisma.aeroFodIncident.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroFodIncident.count.mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/fod').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('PUT /api/fod/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      closedDate: null,
+      deletedAt: null,
+    });
+    mockPrisma.aeroFodIncident.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/fod/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'INVESTIGATING' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/fod/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    mockPrisma.aeroFodIncident.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .delete('/api/fod/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/fod/:id returns 500 on db error', async () => {
+    mockPrisma.aeroFodIncident.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .get('/api/fod/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/fod/inspections returns 500 on db error', async () => {
+    mockPrisma.aeroFodInspection.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .get('/api/fod/inspections')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/fod/inspections returns 500 on db error', async () => {
+    mockPrisma.aeroFodInspection.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroFodInspection.create.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .post('/api/fod/inspections')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Morning Walk',
+        area: 'Bay 3',
+        scheduledDate: '2026-02-15',
+        inspector: 'Mike Johnson',
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

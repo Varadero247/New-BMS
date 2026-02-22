@@ -285,3 +285,48 @@ describe('API Versioning Middleware — extended edge cases', () => {
     expect((mockReq as any).apiVersion).toBe('v3');
   });
 });
+
+describe('API Versioning Middleware — final additional coverage', () => {
+  let mockReq: Partial<Request> & { apiVersion?: string };
+  let mockRes: Partial<Response>;
+  let mockNext: jest.Mock;
+
+  beforeEach(() => {
+    mockReq = { path: '/api/v1/test', method: 'GET', ip: '127.0.0.1', headers: {} };
+    mockRes = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), json: jest.fn() };
+    mockNext = jest.fn();
+  });
+
+  it('API_VERSION.CURRENT is a non-empty string', () => {
+    expect(typeof API_VERSION.CURRENT).toBe('string');
+    expect(API_VERSION.CURRENT.length).toBeGreaterThan(0);
+  });
+
+  it('addVersionHeader middleware calls next exactly once', () => {
+    const mw = addVersionHeader('v1');
+    mw(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('extractApiVersion called twice on same req sets apiVersion each time', () => {
+    mockReq.path = '/api/v1/foo';
+    extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    expect((mockReq as any).apiVersion).toBe('v1');
+    mockReq.path = '/api/v2/foo';
+    extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    expect((mockReq as any).apiVersion).toBe('v2');
+  });
+
+  it('validateApiVersion does not call json for valid version', () => {
+    mockReq.apiVersion = 'v1';
+    validateApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.json).not.toHaveBeenCalled();
+  });
+
+  it('validateApiVersion json error includes supported versions list', () => {
+    mockReq.apiVersion = 'v999';
+    validateApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    const jsonArg = (mockRes.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toContain('v999');
+  });
+});

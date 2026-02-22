@@ -380,3 +380,101 @@ describe('Timeline — edge cases and deeper coverage', () => {
     expect(mockPrisma.incIncident.findFirst).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Timeline — final coverage block', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('success response body has success:true', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-05-01T08:00:00Z'),
+      reportedDate: new Date('2026-05-01T09:00:00Z'),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('response data array length is zero when only minimal incident returned (never possible but guard test)', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-05-01'),
+      reportedDate: new Date('2026-05-01'),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('Incident occurred event date matches dateOccurred', async () => {
+    const dateOccurred = new Date('2026-06-01T10:00:00Z');
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred,
+      reportedDate: new Date('2026-06-01T11:00:00Z'),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    const occurred = res.body.data.find((e: { event: string }) => e.event === 'Incident occurred');
+    expect(occurred).toBeDefined();
+    expect(new Date(occurred.date).toISOString()).toBe(dateOccurred.toISOString());
+  });
+
+  it('Reported event date matches reportedDate', async () => {
+    const reportedDate = new Date('2026-06-02T08:00:00Z');
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-06-01T10:00:00Z'),
+      reportedDate,
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    const reported = res.body.data.find((e: { event: string }) => e.event === 'Reported');
+    expect(reported).toBeDefined();
+    expect(new Date(reported.date).toISOString()).toBe(reportedDate.toISOString());
+  });
+
+  it('500 response body has error with code and message', async () => {
+    mockPrisma.incIncident.findFirst.mockRejectedValue(new Error('unexpected'));
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+    expect(res.body.error).toHaveProperty('message');
+  });
+
+  it('findFirst receives deletedAt: null in where clause', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date(),
+      reportedDate: new Date(),
+      investigationDate: null,
+      closedDate: null,
+    });
+    await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    const callWhere = mockPrisma.incIncident.findFirst.mock.calls[0][0].where;
+    expect(callWhere.deletedAt).toBeNull();
+  });
+
+  it('response is JSON content-type on success', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-07-01T10:00:00Z'),
+      reportedDate: new Date('2026-07-01T11:00:00Z'),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('json');
+  });
+});

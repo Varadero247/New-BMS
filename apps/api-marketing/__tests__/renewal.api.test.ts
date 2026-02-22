@@ -316,3 +316,84 @@ describe('Renewal — boundary and sorting', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ===================================================================
+// Additional coverage to reach 35 tests
+// ===================================================================
+
+describe('Renewal — final coverage', () => {
+  it('GET /upcoming response body has success:true and data as array', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/renewal/upcoming');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /send-reminder day30 creates email job with renewal_day30 template', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day30' });
+
+    expect(prisma.mktEmailJob.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ template: 'renewal_day30' }) })
+    );
+  });
+
+  it('GET /upcoming findMany is called with renewedAt:null in where clause', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/renewal/upcoming');
+    expect(prisma.mktRenewalSequence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ renewedAt: null }) })
+    );
+  });
+
+  it('POST /send-reminder day90 update sets day90Sent:true flag', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day90' });
+
+    expect(prisma.mktRenewalSequence.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { day90Sent: true } })
+    );
+  });
+
+  it('POST /send-reminder mktEmailJob.create is called once on success', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day60' });
+
+    expect(prisma.mktEmailJob.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /upcoming returns 500 on DB error with error code INTERNAL_ERROR', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockRejectedValue(new Error('DB gone'));
+    const res = await request(app).get('/api/renewal/upcoming');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /send-reminder response data has message field', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day7' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+});

@@ -403,3 +403,61 @@ describe('Queries — edge cases and extended coverage', () => {
     expect(res.body.pagination.total).toBe(99);
   });
 });
+
+describe('Queries — final coverage', () => {
+  it('GET /api/queries success is true when queries exist', async () => {
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Q1', ownerId: 'user-123', isPublic: false },
+    ]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/queries');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/queries response is JSON content-type', async () => {
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/queries');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/queries create called with correct ownerId', async () => {
+    const created = { id: 'q-new', name: 'My Q', sql: 'SELECT 1', ownerId: 'user-123' };
+    mockPrisma.analyticsQuery.create.mockResolvedValue(created);
+    await request(app).post('/api/queries').send({ name: 'My Q', sql: 'SELECT 1' });
+    expect(mockPrisma.analyticsQuery.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ ownerId: 'user-123' }) })
+    );
+  });
+
+  it('GET /api/queries pagination has page field', async () => {
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/queries');
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('DELETE /api/queries/:id marks deletedAt field on update', async () => {
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsQuery.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    await request(app).delete('/api/queries/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.analyticsQuery.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/queries/:id returns 200 for existing query', async () => {
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
+    const res = await request(app).get('/api/queries/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/queries/:id returns success true on update', async () => {
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsQuery.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    const res = await request(app).put('/api/queries/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -375,3 +375,59 @@ describe('Food Safety Environmental Monitoring — edge cases and error paths', 
     expect(res.status).toBe(400);
   });
 });
+
+// ===================================================================
+// Food Safety Environmental Monitoring — final coverage block
+// ===================================================================
+describe('Food Safety Environmental Monitoring — final coverage', () => {
+  it('GET / count is called once per list request', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(0);
+    await request(app).get('/api/environmental-monitoring');
+    expect(mockPrisma.fsEnvironmentalMonitoring.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /out-of-spec data is always an array', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/environmental-monitoring/out-of-spec');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id returns success:true when record found', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000050',
+      location: 'Zone D',
+      testType: 'WATER',
+    });
+    const res = await request(app).get('/api/environmental-monitoring/00000000-0000-0000-0000-000000000050');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id calls update with deletedAt field', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000051' });
+    mockPrisma.fsEnvironmentalMonitoring.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000051' });
+    await request(app).delete('/api/environmental-monitoring/00000000-0000-0000-0000-000000000051');
+    expect(mockPrisma.fsEnvironmentalMonitoring.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.anything() }) })
+    );
+  });
+
+  it('POST / create is called once per valid POST', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000052',
+      location: 'Zone E',
+      testType: 'SURFACE',
+    });
+    await request(app).post('/api/environmental-monitoring').send({
+      location: 'Zone E',
+      testType: 'SURFACE',
+      parameter: 'E.coli',
+      result: 'Absent',
+      withinSpec: true,
+      testedAt: '2026-03-01T09:00:00Z',
+    });
+    expect(mockPrisma.fsEnvironmentalMonitoring.create).toHaveBeenCalledTimes(1);
+  });
+});

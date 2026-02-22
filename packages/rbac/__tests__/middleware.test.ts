@@ -310,3 +310,46 @@ describe('RBAC Middleware — permission levels and module coverage', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('RBAC Middleware — further coverage', () => {
+  it('attachPermissions works without any role headers (no user set)', async () => {
+    const app = createTestApp([attachPermissions()], (req: any, res: any) => {
+      res.json({ hasPerms: !!req.permissions });
+    });
+    const res = await request(app).get('/test');
+    expect(res.status).toBe(200);
+    expect(res.body.hasPerms).toBe(false);
+  });
+
+  it('requirePermission allows ADMIN for VIEW on any module', async () => {
+    const app = createTestApp([requirePermission('esg', PermissionLevel.VIEW)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'ADMIN');
+    expect(res.status).toBe(200);
+  });
+
+  it('requirePermission returns 403 body with error.message', async () => {
+    const app = createTestApp([requirePermission('finance', PermissionLevel.FULL)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
+    expect(res.body.error).toHaveProperty('message');
+  });
+
+  it('ownershipFilter returns defined filter for VIEWER role', async () => {
+    const app = createTestApp([attachPermissions(), ownershipFilter()], (req: any, res: any) => {
+      res.json({ filter: req.ownerFilter });
+    });
+    const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
+    expect(res.status).toBe(200);
+    expect(res.body.filter).toBeDefined();
+  });
+
+  it('requireOwnership with no field argument defaults to createdBy', async () => {
+    const app = createTestApp(
+      [attachPermissions(), requireOwnership()],
+      (req: any, res: any) => {
+        res.json({ field: req.ownershipCheck?.field });
+      }
+    );
+    const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
+    expect(res.body.field).toBe('createdBy');
+  });
+});

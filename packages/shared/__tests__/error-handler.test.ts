@@ -308,3 +308,60 @@ describe('errorHandler — further edge cases', () => {
     expect(nextFn2).toHaveBeenCalledWith(err);
   });
 });
+
+// ─── Boundary and type coverage ───────────────────────────────────────────────
+
+describe('errorHandler — boundary and type coverage', () => {
+  it('handles an Error subclass (TypeError) as a generic 500', () => {
+    const err = new TypeError('type mismatch');
+    const { res, status, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(status).toHaveBeenCalledWith(500);
+    expect(json.mock.calls[0][0].error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('handles an Error subclass (RangeError) as a generic 500', () => {
+    const err = new RangeError('out of range');
+    const { res, status } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(status).toHaveBeenCalledWith(500);
+  });
+
+  it('handles statusCode 401 with custom code UNAUTHORIZED', () => {
+    const err = Object.assign(new Error('Unauthorized'), { statusCode: 401, code: 'UNAUTHORIZED' });
+    const { res, status, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(status).toHaveBeenCalledWith(401);
+    expect(json.mock.calls[0][0].error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('ZodError with multiple path segments is passed through', () => {
+    const issues = [{ message: 'Invalid', path: ['user', 'address', 'city'] }];
+    const zodErr = Object.assign(new Error('Zod'), { issues });
+    const { res, json } = makeRes();
+    errorHandler(zodErr as any, req, res, next);
+    expect(json.mock.calls[0][0].error.details[0].path).toEqual(['user', 'address', 'city']);
+  });
+
+  it('asyncHandler wraps a handler that returns undefined without error', async () => {
+    const nextFn = jest.fn();
+    const handler = asyncHandler(async () => undefined);
+    await handler(req, {} as any, nextFn);
+    expect(nextFn).not.toHaveBeenCalled();
+  });
+
+  it('Prisma P2002 error message is not exposed in response body', () => {
+    const err = Object.assign(new Error('Unique constraint on: email'), { code: 'P2002' });
+    const { res, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    const body = json.mock.calls[0][0];
+    expect(body.error.message).not.toContain('Unique constraint');
+  });
+
+  it('response body from 409 has success: false', () => {
+    const err = Object.assign(new Error('Dup'), { code: 'P2002' });
+    const { res, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(json.mock.calls[0][0].success).toBe(false);
+  });
+});

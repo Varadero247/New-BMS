@@ -228,3 +228,42 @@ describe('Unified Risks — edge cases and field validation', () => {
     expect(typeof res.body.data.score).toBe('number');
   });
 });
+
+describe('Unified Risks — final coverage', () => {
+  it('GET /api/unified-risks returns JSON content-type', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/unified-risks risks array length is a number', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(typeof res.body.data.risks.length).toBe('number');
+  });
+
+  it('GET /api/unified-risks summary has total field', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(res.body.data.summary).toHaveProperty('total');
+  });
+
+  it('GET /api/unified-risks pagination has page field', async () => {
+    const res = await request(app).get('/api/unified-risks?page=1&limit=10');
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('GET /api/unified-risks heatmap length is at most 25 (5x5)', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(res.body.data.heatmap.length).toBeLessThanOrEqual(25);
+  });
+
+  it('GET /api/unified-risks/:id returns data object', async () => {
+    const res = await request(app).get('/api/unified-risks/ur-001');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+  });
+
+  it('GET /api/unified-risks with limit=5 returns at most 5 risks', async () => {
+    const res = await request(app).get('/api/unified-risks?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.data.risks.length).toBeLessThanOrEqual(5);
+  });
+});

@@ -414,3 +414,52 @@ describe('portal-tickets — edge cases', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('Portal Tickets — final coverage', () => {
+  it('GET list: response body has success and data fields', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/tickets');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET list: returns empty array when no tickets exist', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/tickets');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST ticket: create called once on success', async () => {
+    mockPrisma.portalTicket.create.mockResolvedValue({ id: 'tkt-1', subject: 'Issue', status: 'OPEN' });
+    await request(app).post('/api/portal/tickets').send({
+      subject: 'Issue',
+      description: 'Details here',
+      category: 'TECHNICAL',
+      priority: 'MEDIUM',
+      portalType: 'CUSTOMER',
+    });
+    expect(mockPrisma.portalTicket.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id/resolve: update sets status to RESOLVED', async () => {
+    mockPrisma.portalTicket.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS' });
+    mockPrisma.portalTicket.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'RESOLVED', resolvedAt: new Date() });
+    await request(app)
+      .put('/api/portal/tickets/00000000-0000-0000-0000-000000000001/resolve')
+      .send({ resolution: 'All done' });
+    expect(mockPrisma.portalTicket.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'RESOLVED' }) })
+    );
+  });
+
+  it('GET list: findMany called with status filter when provided', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/tickets?status=OPEN');
+    expect(mockPrisma.portalTicket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'OPEN' }) })
+    );
+  });
+});

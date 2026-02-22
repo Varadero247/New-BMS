@@ -356,3 +356,63 @@ describe('Gateway Fix Verification — final extended', () => {
     expect(res.status).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Gateway Fix Verification — absolute final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns 500 for unknown error (no statusCode)', () => {
+    const err: AppError = new Error('Unclassified error');
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+
+  it('response has both success and error top-level keys', () => {
+    const err: AppError = new Error('Shape check');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload).toHaveProperty('success');
+    expect(payload).toHaveProperty('error');
+  });
+
+  it('error.code defaults to INTERNAL_ERROR when no code property set', () => {
+    const err: AppError = new Error('No code set');
+    err.statusCode = 500;
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('handles 408 Request Timeout and exposes the client-safe message', () => {
+    const err: AppError = new Error('Request timed out');
+    err.statusCode = 408;
+    err.code = 'REQUEST_TIMEOUT';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledWith(408);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Request timed out');
+  });
+
+  it('does not expose internal error details in 5xx responses', () => {
+    const err: AppError = new Error('Postgres: relation "users" does not exist');
+    err.statusCode = 500;
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const jsonStr = JSON.stringify((res.json as jest.Mock).mock.calls[0][0]);
+    expect(jsonStr).not.toContain('Postgres');
+    expect(jsonStr).not.toContain('relation');
+  });
+
+  it('mockLogger.error is called with the string "Unhandled error" as first arg', () => {
+    const err: AppError = new Error('Something');
+    errorHandler(err, mockRequest() as Request, mockResponse() as Response, mockNext);
+    expect(mockLogger.error.mock.calls[0][0]).toBe('Unhandled error');
+  });
+});

@@ -459,3 +459,85 @@ describe('HMRC Calendar — validation and field coverage', () => {
     expect(res.body.data[0]).toHaveProperty('dueDate', '2026-09-30');
   });
 });
+
+// ===================================================================
+// HMRC Calendar — final coverage block
+// ===================================================================
+describe('HMRC Calendar — final coverage', () => {
+  const validDeadline = {
+    title: 'RTI Monthly Filing',
+    dueDate: '2026-08-19',
+    type: 'RTI',
+    description: 'Real Time Information monthly filing',
+    status: 'PENDING',
+  };
+
+  it('GET / data array length matches number of items returned by findMany', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000030', title: 'A', dueDate: '2026-01-07' },
+      { id: '00000000-0000-0000-0000-000000000031', title: 'B', dueDate: '2026-02-07' },
+      { id: '00000000-0000-0000-0000-000000000032', title: 'C', dueDate: '2026-03-07' },
+    ]);
+    const res = await request(app).get('/api/hmrc-calendar');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('POST / response data.id is defined on successful creation', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000033',
+      ...validDeadline,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    const res = await request(app).post('/api/hmrc-calendar').send(validDeadline);
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET / findMany is called with orgId from authenticated user', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+    await request(app).get('/api/hmrc-calendar');
+    expect(mockPrisma.finHmrcDeadline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100' }),
+      })
+    );
+  });
+
+  it('POST / create includes type field from request body', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000034',
+      ...validDeadline,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/hmrc-calendar').send(validDeadline);
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ type: 'RTI' }) })
+    );
+  });
+
+  it('GET / success:true and data is an array', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/hmrc-calendar');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create called once per POST request', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000035',
+      ...validDeadline,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/hmrc-calendar').send(validDeadline);
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / 500 response has success:false and INTERNAL_ERROR code', async () => {
+    mockPrisma.finHmrcDeadline.create.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).post('/api/hmrc-calendar').send(validDeadline);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

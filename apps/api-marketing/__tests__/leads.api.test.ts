@@ -375,3 +375,77 @@ describe('Marketing Leads — edge cases', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+// ===================================================================
+// Additional coverage to reach 35 tests
+// ===================================================================
+
+describe('Marketing Leads — final coverage', () => {
+  it('POST /leads/capture returns 201 with captured:true for ORGANIC_SEARCH', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      source: 'ORGANIC_SEARCH',
+    });
+
+    const res = await request(app)
+      .post('/api/leads/capture')
+      .send({ email: 'organic@test.com', name: 'Organic User', source: 'ORGANIC_SEARCH' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.captured).toBe(true);
+  });
+
+  it('GET /leads data.total reflects count mock value', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(42);
+
+    const res = await request(app).get('/api/leads');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(42);
+  });
+
+  it('GET /leads/:id response has success:true', async () => {
+    (prisma.mktLead.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'x@y.com',
+    });
+
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /leads/capture create is called once per request', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    await request(app)
+      .post('/api/leads/capture')
+      .send({ email: 'once@test.com', name: 'Once', source: 'DIRECT' });
+
+    expect(prisma.mktLead.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /leads with no query params uses default page 1 and limit 25', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/leads');
+
+    expect(prisma.mktLead.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 25 })
+    );
+  });
+
+  it('GET /leads 404 for unknown id returns success:false', async () => {
+    (prisma.mktLead.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000099');
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});

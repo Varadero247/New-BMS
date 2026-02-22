@@ -439,3 +439,74 @@ describe('Auth Middleware — extended edge cases', () => {
     expect(mockPrisma.session.delete).toHaveBeenCalledWith({ where: { id: 'session-inactive' } });
   });
 });
+
+// ── Auth Middleware — final coverage ──────────────────────────────────────────
+
+describe('Auth Middleware — final coverage', () => {
+  let localReq: Partial<AuthRequest>;
+  let localRes: any;
+  let localNext: jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    localReq = { headers: {} };
+    localRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+    };
+    localNext = jest.fn();
+  });
+
+  it('authenticate returns 401 SESSION_EXPIRED when session.findFirst returns null', async () => {
+    const token = generateToken({ userId: 'user-ses', email: 'ses@test.com', role: 'USER' });
+    localReq.headers = { authorization: `Bearer ${token}` };
+    (mockPrisma.session.findFirst as jest.Mock).mockResolvedValue(null);
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(localRes.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({ code: 'SESSION_EXPIRED' }),
+      })
+    );
+  });
+
+  it('requireRole returns 401 when user is undefined', () => {
+    localReq.user = undefined;
+    const middleware = requireRole('ADMIN');
+    middleware(localReq as AuthRequest, localRes, localNext);
+    expect(localRes.status).toHaveBeenCalledWith(401);
+    expect(localRes.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({ code: 'UNAUTHORIZED' }),
+      })
+    );
+  });
+
+  it('optionalAuth calls next() and leaves user undefined when header is missing', () => {
+    localReq.headers = {};
+    optionalAuth(localReq as AuthRequest, localRes, localNext);
+    expect(localNext).toHaveBeenCalled();
+    expect(localReq.user).toBeUndefined();
+  });
+
+  it('authenticate response body has error.message field', async () => {
+    localReq.headers = { authorization: 'Bearer invalid-tok' };
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    const jsonArg = localRes.json.mock.calls[0][0];
+    expect(jsonArg.error).toHaveProperty('message');
+  });
+
+  it('requireRole with three allowed roles allows first in list', () => {
+    localReq.user = { id: 'u', role: 'ADMIN' } as unknown;
+    const middleware = requireRole('ADMIN', 'MANAGER', 'VIEWER');
+    middleware(localReq as AuthRequest, localRes, localNext);
+    expect(localNext).toHaveBeenCalled();
+  });
+
+  it('requireRole with three allowed roles allows last in list', () => {
+    localReq.user = { id: 'u', role: 'VIEWER' } as unknown;
+    const middleware = requireRole('ADMIN', 'MANAGER', 'VIEWER');
+    middleware(localReq as AuthRequest, localRes, localNext);
+    expect(localNext).toHaveBeenCalled();
+  });
+});

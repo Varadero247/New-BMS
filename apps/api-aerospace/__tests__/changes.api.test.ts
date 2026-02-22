@@ -494,3 +494,110 @@ describe('Aerospace Change Requests API', () => {
     });
   });
 });
+
+describe('Aerospace Change Requests API — additional coverage', () => {
+  it('GET /api/changes returns correct totalPages for multi-page result', async () => {
+    mockPrisma.aeroChangeRequest.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroChangeRequest.count.mockResolvedValueOnce(40);
+
+    const res = await request(app)
+      .get('/api/changes?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(2);
+    expect(res.body.meta.total).toBe(40);
+  });
+
+  it('GET /api/changes page 2 limit 10 computes skip=10', async () => {
+    mockPrisma.aeroChangeRequest.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroChangeRequest.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/changes?page=2&limit=10')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroChangeRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/changes response shape has success:true and meta block', async () => {
+    mockPrisma.aeroChangeRequest.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroChangeRequest.count.mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('GET /api/changes?search=design applies OR filter', async () => {
+    mockPrisma.aeroChangeRequest.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroChangeRequest.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/changes?search=design')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroChangeRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
+    );
+  });
+
+  it('PUT /api/changes/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroChangeRequest.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DRAFT',
+      deletedAt: null,
+    });
+    mockPrisma.aeroChangeRequest.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/changes/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'SUBMITTED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/changes/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroChangeRequest.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    mockPrisma.aeroChangeRequest.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .delete('/api/changes/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/changes/:id/review returns 500 on update db error', async () => {
+    mockPrisma.aeroChangeRequest.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUBMITTED',
+      deletedAt: null,
+    });
+    mockPrisma.aeroChangeRequest.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/changes/00000000-0000-0000-0000-000000000001/review')
+      .set('Authorization', 'Bearer token')
+      .send({ decision: 'APPROVE' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/changes/:id returns 404 when already deleted', async () => {
+    mockPrisma.aeroChangeRequest.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app)
+      .delete('/api/changes/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

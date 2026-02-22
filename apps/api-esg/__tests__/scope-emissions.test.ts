@@ -392,3 +392,77 @@ describe('scope-emissions — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('scope-emissions — additional coverage 2', () => {
+  it('GET / returns items with co2Equivalent field', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('co2Equivalent', 925);
+  });
+
+  it('GET / response has success:true and data array', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / creates scope=1 emission and returns 201', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(10);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue({ ...mockScopeEmission, referenceNumber: 'EMI-2026-0011' });
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Stationary Combustion',
+      quantity: 1000,
+      unit: 'kWh',
+      period: '2026-04',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toMatch(/^EMI-\d{4}-\d{4}$/);
+  });
+
+  it('POST / missing category still succeeds (category is optional)', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue({ ...mockScopeEmission, category: null });
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      quantity: 100,
+      unit: 'kWh',
+      period: '2026-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / filter by scope=1 returns items where scope is 1', async () => {
+    const scope1Item = { ...mockScopeEmission, scope: 1 };
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([scope1Item]);
+    const res = await request(app).get('/api/scope-emissions?scope=1');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].scope).toBe(1);
+  });
+
+  it('POST / emissionFactor is stored in the create call', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue(mockScopeEmission);
+    await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Fuel Combustion',
+      quantity: 200,
+      unit: 'L',
+      emissionFactor: 2.31,
+      period: '2026-05',
+    });
+    const [call] = (prisma.esgScopeEmission.create as jest.Mock).mock.calls;
+    expect(call[0].data.emissionFactor).toBe(2.31);
+  });
+
+  it('GET / findMany called with deletedAt null filter', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/scope-emissions');
+    expect(prisma.esgScopeEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+});

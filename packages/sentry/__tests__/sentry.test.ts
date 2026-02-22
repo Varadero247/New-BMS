@@ -329,3 +329,55 @@ describe('sentry — extended coverage', () => {
     expect(mockInit.mock.calls[0][0].serverName).toBe('api-crm');
   });
 });
+
+describe('sentry — final coverage', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env = { ...originalEnv };
+    delete process.env.SENTRY_DSN;
+    delete process.env.NODE_ENV;
+    delete process.env.npm_package_version;
+    delete process.env.SENTRY_TRACES_SAMPLE_RATE;
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  it('initSentry with staging NODE_ENV passes staging as environment', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    process.env.NODE_ENV = 'staging';
+    initSentry('svc');
+    expect(mockInit.mock.calls[0][0].environment).toBe('staging');
+  });
+
+  it('tracesSampleRate defaults to 0.1 when env var is absent', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    initSentry('api-env');
+    expect(mockInit.mock.calls[0][0].tracesSampleRate).toBe(0.1);
+  });
+
+  it('initSentry is a function', () => {
+    expect(typeof initSentry).toBe('function');
+  });
+
+  it('sentryErrorHandler is a function', () => {
+    expect(typeof sentryErrorHandler).toBe('function');
+  });
+
+  it('Sentry.init is a function', () => {
+    expect(typeof Sentry.init).toBe('function');
+  });
+
+  it('beforeSend preserves non-sensitive headers', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    initSentry('svc');
+    const beforeSend = mockInit.mock.calls[0][0].beforeSend;
+    const event = { request: { headers: { 'x-request-id': 'abc123', 'content-type': 'application/json' } } };
+    const result = beforeSend(event);
+    expect(result.request.headers['x-request-id']).toBe('abc123');
+    expect(result.request.headers['content-type']).toBe('application/json');
+  });
+});

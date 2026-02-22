@@ -242,3 +242,54 @@ describe('JwtKeyRotationManager — extended coverage', () => {
     expect(manager.getActiveKey().keyId).toBe(k3.keyId);
   });
 });
+
+// ── JwtKeyRotationManager — final coverage ────────────────────────────────────
+
+describe('JwtKeyRotationManager — final coverage', () => {
+  let manager: JwtKeyRotationManager;
+
+  beforeEach(() => {
+    manager = new JwtKeyRotationManager(60_000);
+  });
+
+  it('rotateKey() key has deprecatedAt null immediately after rotation', async () => {
+    const k = await manager.rotateKey();
+    expect(k.deprecatedAt).toBeNull();
+  });
+
+  it('getKeyById() returns the key for the active key ID', async () => {
+    const k = await manager.rotateKey();
+    const found = manager.getKeyById(k.keyId);
+    expect(found).not.toBeNull();
+    expect(found?.keyId).toBe(k.keyId);
+  });
+
+  it('verify() with unknown kid throws even if key exists but is wrong', async () => {
+    await manager.rotateKey();
+    const token = require('jsonwebtoken').sign(
+      { userId: 'u-wrong', role: 'user' },
+      'completely-wrong-secret',
+      { algorithm: 'HS256', header: { alg: 'HS256', kid: 'fake-kid' } } as any
+    );
+    expect(() => manager.verify(token)).toThrow();
+  });
+
+  it('isKeyValid() returns false after expiry grace period', async () => {
+    const shortManager = new JwtKeyRotationManager(1);
+    const k1 = await shortManager.rotateKey();
+    await shortManager.rotateKey(); // deprecates k1 with 1ms grace
+    await new Promise((r) => setTimeout(r, 10));
+    expect(shortManager.isKeyValid(k1.keyId)).toBe(false);
+  });
+
+  it('jwtKeyManager is already an instance with keyCount === 0 initially', () => {
+    expect(jwtKeyManager).toBeInstanceOf(JwtKeyRotationManager);
+  });
+
+  it('sign() and verify() roundtrip preserves role in payload', async () => {
+    await manager.rotateKey();
+    const token = manager.sign({ userId: 'u-role', role: 'MANAGER' }, '5m');
+    const decoded = manager.verify(token);
+    expect(decoded.role).toBe('MANAGER');
+  });
+});

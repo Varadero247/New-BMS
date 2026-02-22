@@ -427,3 +427,63 @@ describe('incidents.api — edge cases and field validation', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('incidents.api — additional coverage 2', () => {
+  it('GET /incidents pagination has totalPages when count > 0', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/incidents?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET /incidents?severity=CRITICAL filters by severity', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/incidents?severity=CRITICAL');
+    expect(mockPrisma.chemIncident.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ severity: 'CRITICAL' }) })
+    );
+  });
+
+  it('GET /incidents returns success:true with empty array', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('PUT /incidents/:id with where clause matching URL id', async () => {
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.chemIncident.update.mockResolvedValue({ ...mockIncident, location: 'Lab B' });
+    await request(app).put('/api/incidents/00000000-0000-0000-0000-000000000050').send({ location: 'Lab B' });
+    expect(mockPrisma.chemIncident.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000050' } })
+    );
+  });
+
+  it('GET /incidents/:id returns 404 with NOT_FOUND code when missing', async () => {
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /incidents count is not called (no sequence generation needed)', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemIncident.create.mockResolvedValue(mockIncident);
+    await request(app).post('/api/incidents').send(validIncidentBody);
+    expect(mockPrisma.chemIncident.count).not.toHaveBeenCalled();
+  });
+
+  it('GET /incidents data items include severity field', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([mockIncident]);
+    mockPrisma.chemIncident.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('severity', 'MINOR');
+  });
+});

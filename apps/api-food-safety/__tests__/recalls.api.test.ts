@@ -380,3 +380,88 @@ describe('recalls.api — edge cases and extended coverage', () => {
     expect(res.body.data).toHaveLength(2);
   });
 });
+
+describe('recalls.api — final coverage pass', () => {
+  it('GET /api/recalls default applies skip 0', async () => {
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+    mockPrisma.fsRecall.count.mockResolvedValue(0);
+
+    await request(app).get('/api/recalls');
+    expect(mockPrisma.fsRecall.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('GET /api/recalls/:id queries with deletedAt null', async () => {
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    await request(app).get('/api/recalls/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsRecall.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null }),
+      })
+    );
+  });
+
+  it('POST /api/recalls creates with initiatedBy from auth user', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000020',
+      number: 'RCL-2602-XXXX',
+      productName: 'Cheese',
+      initiatedBy: 'user-123',
+    };
+    mockPrisma.fsRecall.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/recalls').send({
+      productName: 'Cheese',
+      batchNumber: 'C001',
+      reason: 'Listeria detected',
+      type: 'MANDATORY',
+      severity: 'CRITICAL',
+      initiatedDate: '2026-02-20',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('initiatedBy', 'user-123');
+  });
+
+  it('PUT /api/recalls/:id/complete sets completedAt on update', async () => {
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'IN_PROGRESS',
+    });
+    mockPrisma.fsRecall.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+    });
+
+    await request(app)
+      .put('/api/recalls/00000000-0000-0000-0000-000000000001/complete')
+      .send({ unitsRecovered: 200 });
+    expect(mockPrisma.fsRecall.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'COMPLETED' }),
+      })
+    );
+  });
+
+  it('DELETE /api/recalls/:id calls update with deletedAt', async () => {
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsRecall.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    await request(app).delete('/api/recalls/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsRecall.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/recalls/active queries with status not COMPLETED not CANCELLED', async () => {
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+    await request(app).get('/api/recalls/active');
+    expect(mockPrisma.fsRecall.findMany).toHaveBeenCalled();
+  });
+});

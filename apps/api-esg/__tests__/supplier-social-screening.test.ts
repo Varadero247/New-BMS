@@ -346,3 +346,75 @@ describe('supplier-social-screening — extended coverage', () => {
     expect(res.body.pagination.total).toBe(0);
   });
 });
+
+describe('supplier-social-screening — additional coverage 2', () => {
+  it('GET / response has success:true with data array', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mockResolvedValue([mockScreening]);
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/supplier-social-screening');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / stores supplierName in create call data', async () => {
+    (mockPrisma.esgSupplierSocialScreen.create as jest.Mock).mockResolvedValue(mockScreening);
+    await request(app).post('/api/supplier-social-screening').send({
+      supplierName: 'Gamma Ltd',
+      screeningDate: '2026-03-01',
+      screenedBy: 'Supply Chain',
+      criteriaUsed: ['wages'],
+      result: 'PASSED',
+    });
+    const [call] = (mockPrisma.esgSupplierSocialScreen.create as jest.Mock).mock.calls;
+    expect(call[0].data.supplierName).toBe('Gamma Ltd');
+  });
+
+  it('GET /:id returns supplierName and riskRating', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findUnique as jest.Mock).mockResolvedValue(mockScreening);
+    const res = await request(app).get('/api/supplier-social-screening/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('supplierName', 'Acme Corp');
+    expect(res.body.data).toHaveProperty('riskRating', 'MEDIUM');
+  });
+
+  it('POST / returns 400 when supplierName is missing', async () => {
+    const res = await request(app).post('/api/supplier-social-screening').send({
+      screeningDate: '2026-01-15',
+      screenedBy: 'Team',
+      criteriaUsed: ['wages'],
+      result: 'PASSED',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /stats returns passRate percentage', async () => {
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock)
+      .mockResolvedValueOnce(100)
+      .mockResolvedValueOnce(80)
+      .mockResolvedValueOnce(75)
+      .mockResolvedValueOnce(5);
+    (mockPrisma.esgSupplierSocialScreen.groupBy as jest.Mock).mockResolvedValue([
+      { riskRating: 'LOW', _count: { id: 60 } },
+    ]);
+    const res = await request(app).get('/api/supplier-social-screening/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total', 100);
+  });
+
+  it('PUT /:id updates notes field', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findUnique as jest.Mock).mockResolvedValue(mockScreening);
+    (mockPrisma.esgSupplierSocialScreen.update as jest.Mock).mockResolvedValue({ ...mockScreening, notes: 'Reviewed' });
+    const res = await request(app)
+      .put('/api/supplier-social-screening/00000000-0000-0000-0000-000000000001')
+      .send({ notes: 'Reviewed' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / page 2 passes correct skip value', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/supplier-social-screening?page=2&limit=20');
+    const [call] = (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mock.calls;
+    expect(call[0].skip).toBe(20);
+  });
+});

@@ -267,3 +267,54 @@ describe('categories.api — extended edge cases', () => {
     expect(env.count).toBe(1);
   });
 });
+
+describe('categories.api (risk) — final coverage', () => {
+  it('response body is not null', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('two entries when exactly two distinct categories exist', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { category: 'TECHNOLOGY' },
+      { category: 'TECHNOLOGY' },
+      { category: 'CYBER' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('findMany called with take: 500', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/categories');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 500 })
+    );
+  });
+
+  it('HTTP POST returns 404 for unregistered route', async () => {
+    const res = await request(app).post('/api/categories').send({});
+    expect([404, 405]).toContain(res.status);
+  });
+
+  it('data has length 0 for empty DB result', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('error body success is false on 500', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/categories');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('count for single-entry category is exactly 1', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ category: 'CYBER' }]);
+    const res = await request(app).get('/api/categories');
+    const cyber = res.body.data.find((d: any) => d.category === 'CYBER');
+    expect(cyber).toBeDefined();
+    expect(cyber.count).toBe(1);
+  });
+});

@@ -523,4 +523,102 @@ describe('Environment Legal Obligations API Routes', () => {
       expect(response.body.data.complianceStatus).toBe('COMPLIANT');
     });
   });
+
+  describe('Environment Legal — further coverage', () => {
+    it('GET /api/legal response body has success:true', async () => {
+      (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/legal')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.body.success).toBe(true);
+    });
+
+    it('PUT /api/legal/:id returns updated complianceStatus in body', async () => {
+      (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '14000000-0000-4000-a000-000000000001',
+        complianceStatus: 'NOT_ASSESSED',
+      });
+      (mockPrisma.envLegal.update as jest.Mock).mockResolvedValueOnce({
+        id: '14000000-0000-4000-a000-000000000001',
+        complianceStatus: 'NON_COMPLIANT',
+      });
+
+      const response = await request(app)
+        .put('/api/legal/14000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ complianceStatus: 'NON_COMPLIANT' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.complianceStatus).toBe('NON_COMPLIANT');
+    });
+
+    it('DELETE /api/legal/:id calls update with updatedBy from user id', async () => {
+      (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '14000000-0000-4000-a000-000000000001',
+      });
+      (mockPrisma.envLegal.update as jest.Mock).mockResolvedValueOnce({});
+
+      await request(app)
+        .delete('/api/legal/14000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.envLegal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            deletedAt: expect.any(Date),
+            updatedBy: '20000000-0000-4000-a000-000000000123',
+          }),
+        })
+      );
+    });
+
+    it('GET /api/legal filters by status=SUPERSEDED', async () => {
+      (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/legal?status=SUPERSEDED')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.envLegal.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: 'SUPERSEDED' }),
+        })
+      );
+    });
+
+    it('POST /api/legal returns 400 for missing responsiblePerson field', async () => {
+      const response = await request(app)
+        .post('/api/legal')
+        .set('Authorization', 'Bearer token')
+        .send({
+          obligationType: 'LEGISLATION',
+          title: 'Test Law',
+          jurisdiction: 'NATIONAL',
+          regulatoryBody: 'EPA',
+          legislationReference: 'TEST-001',
+          description: 'Test',
+          applicableActivities: 'All',
+          // responsiblePerson missing
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('GET /api/legal meta totalPages correct for page=1 limit=25 total=75', async () => {
+      (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(75);
+
+      const response = await request(app)
+        .get('/api/legal?page=1&limit=25')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.totalPages).toBe(3);
+    });
+  });
 });

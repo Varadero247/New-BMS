@@ -332,3 +332,106 @@ describe('Market Monitor — further edge cases', () => {
     expect(res.body.data.pagination.total).toBe(3);
   });
 });
+
+// ===================================================================
+// Market Monitor — remaining coverage
+// ===================================================================
+describe('Market Monitor — remaining coverage', () => {
+  it('PATCH /api/competitors/:id returns 200 on successful update', async () => {
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'OldName',
+    });
+    (prisma.competitorMonitor.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'NewName',
+    });
+
+    const res = await request(app)
+      .patch('/api/competitors/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'NewName' });
+
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/competitors/:id returns competitor with name field', async () => {
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'CompanyXYZ',
+      intel: [],
+    });
+
+    const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('name', 'CompanyXYZ');
+  });
+
+  it('POST /api/competitors returns data with id field', async () => {
+    (prisma.competitorMonitor.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      name: 'TechCorp',
+      website: 'https://techcorp.io',
+      category: 'DIRECT',
+      intel: [],
+    });
+
+    const res = await request(app)
+      .post('/api/competitors')
+      .send({ name: 'TechCorp', website: 'https://techcorp.io', category: 'DIRECT' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('runMarketMonitorJob updates lastCheckedAt for each competitor', async () => {
+    const competitors = [
+      { id: '00000000-0000-0000-0000-000000000001', name: 'CompA', category: 'DIRECT', intel: [], createdAt: new Date() },
+      { id: '00000000-0000-0000-0000-000000000002', name: 'CompB', category: 'INDIRECT', intel: [], createdAt: new Date() },
+    ];
+    (prisma.competitorMonitor.findMany as jest.Mock).mockResolvedValue(competitors);
+    (prisma.competitorMonitor.update as jest.Mock).mockResolvedValue({});
+
+    await runMarketMonitorJob();
+
+    expect(prisma.competitorMonitor.update).toHaveBeenCalledTimes(2);
+  });
+
+  it('GET /api/competitors response success is true', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/competitors/:id/intel appends to existing intel array', async () => {
+    const existingIntel = [{ date: new Date().toISOString(), type: 'PRICING', detail: 'Old entry' }];
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      intel: existingIntel,
+    });
+    (prisma.competitorMonitor.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      intel: [...existingIntel, { date: new Date().toISOString(), type: 'FEATURE', detail: 'New entry' }],
+    });
+
+    const res = await request(app)
+      .post('/api/competitors/00000000-0000-0000-0000-000000000001/intel')
+      .send({ type: 'FEATURE', detail: 'New entry' });
+
+    expect(res.status).toBe(201);
+    const updateArg = (prisma.competitorMonitor.update as jest.Mock).mock.calls[0][0];
+    expect(updateArg.data.intel).toHaveLength(2);
+  });
+
+  it('PATCH /api/competitors/:id returns 404 when competitor not found', async () => {
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app)
+      .patch('/api/competitors/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Ghost Corp' });
+
+    expect(res.status).toBe(404);
+  });
+});

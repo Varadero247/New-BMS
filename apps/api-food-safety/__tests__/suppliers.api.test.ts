@@ -339,3 +339,96 @@ describe('suppliers.api — edge cases and extended coverage', () => {
     expect(res.body.data).toHaveLength(2);
   });
 });
+
+describe('suppliers.api — final coverage pass', () => {
+  it('GET /api/suppliers default pagination applies skip 0', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(0);
+
+    await request(app).get('/api/suppliers');
+    expect(mockPrisma.fsSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('GET /api/suppliers/:id queries with deletedAt null', async () => {
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Supplier A',
+    });
+    await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsSupplier.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null }),
+      })
+    );
+  });
+
+  it('POST /api/suppliers creates with createdBy from auth user', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000030',
+      name: 'Fresh Farms',
+      code: 'FS-SUP-5678',
+      category: 'RAW_MATERIAL',
+      createdBy: 'user-123',
+    };
+    mockPrisma.fsSupplier.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/suppliers').send({
+      name: 'Fresh Farms',
+      category: 'RAW_MATERIAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('createdBy', 'user-123');
+  });
+
+  it('PUT /api/suppliers/:id update calls update with where id', async () => {
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Fresh Farms Renamed',
+    });
+
+    await request(app)
+      .put('/api/suppliers/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Fresh Farms Renamed' });
+    expect(mockPrisma.fsSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '00000000-0000-0000-0000-000000000001' },
+      })
+    );
+  });
+
+  it('DELETE /api/suppliers/:id calls update with deletedAt', async () => {
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/suppliers page 4 limit 10 applies skip 30 take 10', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(0);
+
+    await request(app).get('/api/suppliers?page=4&limit=10');
+    expect(mockPrisma.fsSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 30, take: 10 })
+    );
+  });
+
+  it('GET /api/suppliers/due-audit with days=30 calls findMany once', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/suppliers/due-audit?days=30');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.fsSupplier.findMany).toHaveBeenCalledTimes(1);
+  });
+});

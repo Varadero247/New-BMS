@@ -391,3 +391,98 @@ describe('Human Factors Routes', () => {
     });
   });
 });
+
+describe('Human Factors Extended — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/human-factors/incidents returns correct totalPages for multi-page result', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(50);
+
+    const res = await request(app).get('/api/human-factors/incidents?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(5);
+    expect(res.body.meta.total).toBe(50);
+  });
+
+  it('GET /api/human-factors/incidents response has success:true and meta', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/human-factors/incidents');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('POST /api/human-factors/incidents with all optional fields returns 201', async () => {
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValue({ id: 'hf-opt' });
+
+    const res = await request(app).post('/api/human-factors/incidents').send({
+      title: 'Pressure-based incident',
+      description: 'Management pressure led to shortcut',
+      category: 'PRESSURE',
+      incidentDate: '2026-01-20T08:00:00Z',
+      severity: 'MEDIUM',
+      location: 'Line 3',
+      shift: 'Evening',
+      personnelInvolved: ['tech-A'],
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/human-factors/fatigue returns 500 on db error', async () => {
+    (mockPrisma.fatigueAssessment.create as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app).post('/api/human-factors/fatigue').send({
+      personnelId: 'P-002',
+      personnelName: 'Jane Doe',
+      assessmentDate: '2026-02-10T08:00:00Z',
+      hoursWorked: 10,
+      restHours: 7,
+      fatigueScore: 6,
+      riskLevel: 'MODERATE',
+      fitForDuty: true,
+    });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/human-factors/dirty-dozen returns 500 on error', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app).get('/api/human-factors/dirty-dozen');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/human-factors/incidents filters by category=STRESS', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/human-factors/incidents?category=STRESS');
+    expect(mockPrisma.humanFactorIncident.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'STRESS' }) })
+    );
+  });
+
+  it('GET /api/human-factors/incidents page 2 limit 5 computes skip=5', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/human-factors/incidents?page=2&limit=5');
+    expect(mockPrisma.humanFactorIncident.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST /api/human-factors/incidents returns 400 for empty title string', async () => {
+    const res = await request(app).post('/api/human-factors/incidents').send({
+      title: '',
+      description: 'Something happened',
+      category: 'FATIGUE',
+      incidentDate: '2026-01-15T10:00:00Z',
+    });
+    expect(res.status).toBe(400);
+  });
+});

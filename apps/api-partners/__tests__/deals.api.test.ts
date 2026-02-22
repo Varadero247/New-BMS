@@ -467,3 +467,79 @@ describe('deals.api — partner auth and edge cases', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('deals.api — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/deals success is true on 201', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ id: 'partner-1', tier: 'REFERRAL' });
+    (prisma.mktPartnerDeal.create as jest.Mock).mockResolvedValue(mockDeal);
+    const res = await request(app).post('/api/deals').send({
+      companyName: 'ClientCo',
+      contactName: 'Jane',
+      contactEmail: 'jane@client.com',
+      estimatedUsers: 10,
+      isoStandards: ['9001'],
+      estimatedACV: 5000,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/deals success is true on 200', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([mockDeal]);
+    const res = await request(app).get('/api/deals');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/deals findMany called with partnerId from req.partner', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/deals');
+    expect(prisma.mktPartnerDeal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ partnerId: 'partner-1' }) })
+    );
+  });
+
+  it('PATCH /:id/status update called once on valid transition', async () => {
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'SUBMITTED' });
+    (prisma.mktPartnerDeal.update as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'IN_DEMO' });
+    await request(app)
+      .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'IN_DEMO' });
+    expect(prisma.mktPartnerDeal.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/deals GCC_SPECIALIST commission rate is 0.3', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ id: 'partner-1', tier: 'GCC_SPECIALIST' });
+    (prisma.mktPartnerDeal.create as jest.Mock).mockResolvedValue(mockDeal);
+    await request(app).post('/api/deals').send({
+      companyName: 'Co',
+      contactName: 'Jane',
+      contactEmail: 'jane@co.com',
+      estimatedUsers: 10,
+      isoStandards: ['9001'],
+    });
+    expect(prisma.mktPartnerDeal.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ commissionRate: 0.3 }) })
+    );
+  });
+
+  it('NEGOTIATING → CLOSED_WON sets commissionValue to actualACV * commissionRate', async () => {
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'NEGOTIATING',
+      estimatedACV: 8000,
+      commissionRate: 0.25,
+    });
+    (prisma.mktPartnerDeal.update as jest.Mock).mockResolvedValue({ ...mockDeal, status: 'CLOSED_WON' });
+    await request(app)
+      .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'CLOSED_WON', actualACV: 8000 });
+    expect(prisma.mktPartnerDeal.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ commissionValue: 2000 }) })
+    );
+  });
+});

@@ -303,3 +303,73 @@ describe('Management of Change — additional coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Management of Change — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / response has correct pagination.limit', async () => {
+    prisma.hSChangeRequest.findMany.mockResolvedValue([]);
+    prisma.hSChangeRequest.count.mockResolvedValue(0);
+    const res = await request(app).get('/?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('POST / response data has referenceNumber', async () => {
+    prisma.hSChangeRequest.count.mockResolvedValue(2);
+    prisma.hSChangeRequest.create.mockResolvedValue({ ...mockChange, referenceNumber: 'MOC-2026-003' });
+    const res = await request(app).post('/').send(changePayload);
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('GET /dashboard returns pending_review or pendingReview field', async () => {
+    prisma.hSChangeRequest.count
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(0);
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(200);
+    const data = res.body.data;
+    const hasPendingField = 'pending_review' in data || 'pendingReview' in data;
+    expect(hasPendingField).toBe(true);
+  });
+
+  it('GET / filters by changeType wired to Prisma where', async () => {
+    prisma.hSChangeRequest.findMany.mockResolvedValue([]);
+    prisma.hSChangeRequest.count.mockResolvedValue(0);
+    await request(app).get('/?changeType=PROCESS');
+    expect(prisma.hSChangeRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ changeType: 'PROCESS' }) })
+    );
+  });
+
+  it('PUT /:id/approve calls update with APPROVED status', async () => {
+    prisma.hSChangeRequest.findUnique.mockResolvedValue(mockChange);
+    prisma.hSChangeRequest.update.mockResolvedValue({ ...mockChange, status: 'APPROVED' });
+    await request(app).put('/chg-1/approve').send({ approvedBy: 'safety@co.com' });
+    expect(prisma.hSChangeRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'APPROVED' }) })
+    );
+  });
+
+  it('PUT /:id/implement calls update with IMPLEMENTED status', async () => {
+    prisma.hSChangeRequest.findUnique.mockResolvedValue(mockChange);
+    prisma.hSChangeRequest.update.mockResolvedValue({ ...mockChange, status: 'IMPLEMENTED' });
+    await request(app).put('/chg-1/implement');
+    expect(prisma.hSChangeRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'IMPLEMENTED' }) })
+    );
+  });
+
+  it('DELETE /:id returns 500 on count DB error', async () => {
+    prisma.hSChangeRequest.findUnique.mockResolvedValue(mockChange);
+    prisma.hSChangeRequest.update.mockRejectedValue(new Error('soft delete fail'));
+    const res = await request(app).delete('/chg-1');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -343,3 +343,77 @@ describe('downtime — edge cases and field validation', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('downtime — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /downtime?impact=REDUCED_OUTPUT filters findMany by impact', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([]);
+    prisma.cmmsDowntime.count.mockResolvedValue(0);
+    await request(app).get('/api/downtime?impact=REDUCED_OUTPUT');
+    expect(prisma.cmmsDowntime.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ impact: 'REDUCED_OUTPUT' }) })
+    );
+  });
+
+  it('GET /downtime pagination has correct totalPages', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([]);
+    prisma.cmmsDowntime.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/downtime?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /downtime/pareto groups records by reason and sums duration', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([
+      { reason: 'Motor fault', duration: 3, impact: 'PRODUCTION_STOP' },
+      { reason: 'Motor fault', duration: 5, impact: 'PRODUCTION_STOP' },
+    ]);
+    const res = await request(app).get('/api/downtime/pareto');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].totalDuration).toBe(8);
+    expect(res.body.data[0].reason).toBe('Motor fault');
+  });
+
+  it('POST /downtime with endTime includes endTime in create data', async () => {
+    prisma.cmmsDowntime.create.mockResolvedValue(mockDowntime);
+    const res = await request(app).post('/api/downtime').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      startTime: '2026-02-13T08:00:00Z',
+      endTime: '2026-02-13T10:00:00Z',
+      reason: 'Power failure',
+    });
+    expect(res.status).toBe(201);
+    expect(prisma.cmmsDowntime.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ reason: 'Power failure' }) })
+    );
+  });
+
+  it('PUT /downtime/:id returns 404 with NOT_FOUND code when missing', async () => {
+    prisma.cmmsDowntime.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/downtime/00000000-0000-0000-0000-000000000088')
+      .send({ reason: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /downtime returns 500 with INTERNAL_ERROR when count rejects', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([]);
+    prisma.cmmsDowntime.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/downtime');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /downtime returns success:true and has data array', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([mockDowntime]);
+    prisma.cmmsDowntime.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/downtime');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

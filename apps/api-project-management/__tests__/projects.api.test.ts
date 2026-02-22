@@ -607,3 +607,75 @@ describe('Projects API — extended coverage', () => {
     expect(res.body.meta).toHaveProperty('totalPages');
   });
 });
+
+describe('projects.api — final extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/projects', projectsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /api/projects/:id does not call update when not found', async () => {
+    (mockPrisma.project.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/projects/00000000-0000-4000-a000-ffffffffffff');
+    expect(mockPrisma.project.update).not.toHaveBeenCalled();
+  });
+
+  it('PUT /api/projects/:id does not call update when not found', async () => {
+    (mockPrisma.project.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .put('/api/projects/00000000-0000-4000-a000-ffffffffffff')
+      .send({ projectName: 'Never updated' });
+    expect(mockPrisma.project.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/projects returns data as array', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+    (mockPrisma.project.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/projects');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/projects/:id returns 200 when project exists', async () => {
+    (mockPrisma.project.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+    const res = await request(app).get('/api/projects/44000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.projectCode).toBe('PRJ0001');
+  });
+
+  it('POST /api/projects generates PRJ0001 when no previous project exists', async () => {
+    (mockPrisma.project.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.project.create as jest.Mock).mockResolvedValueOnce({
+      ...mockProject,
+      projectCode: 'PRJ0001',
+    });
+    const res = await request(app).post('/api/projects').send({
+      projectName: 'First Project',
+      projectType: 'INTERNAL',
+      plannedEndDate: '2025-12-31',
+      methodology: 'AGILE',
+      priority: 'HIGH',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.projectCode).toBe('PRJ0001');
+  });
+
+  it('DELETE /api/projects/:id performs soft-delete with deletedAt', async () => {
+    (mockPrisma.project.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+    (mockPrisma.project.update as jest.Mock).mockResolvedValueOnce({
+      ...mockProject,
+      deletedAt: new Date(),
+    });
+    const res = await request(app).delete('/api/projects/44000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(204);
+    expect(mockPrisma.project.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '44000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+});

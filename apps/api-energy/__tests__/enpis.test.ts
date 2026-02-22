@@ -427,3 +427,131 @@ describe('GET /api/enpis pagination and response shape', () => {
     expect(res.body.pagination.total).toBe(20);
   });
 });
+
+describe('enpis — additional edge cases', () => {
+  it('POST /api/enpis creates EnPI with all optional fields', async () => {
+    (prisma.energyEnpi.create as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000010',
+      name: 'Full EnPI',
+      formula: 'kWh/tonne',
+      unit: 'kWh/tonne',
+      frequency: 'QUARTERLY',
+      baselineValue: 200,
+      targetValue: 150,
+    });
+
+    const res = await request(app).post('/api/enpis').send({
+      name: 'Full EnPI',
+      formula: 'kWh/tonne',
+      unit: 'kWh/tonne',
+      frequency: 'QUARTERLY',
+      baselineValue: 200,
+      targetValue: 150,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.name).toBe('Full EnPI');
+  });
+
+  it('GET /api/enpis success is true on empty result', async () => {
+    (prisma.energyEnpi.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyEnpi.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/enpis');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/enpis/:id/trend returns IMPROVING when values decrease (lower is better)', async () => {
+    (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000001',
+      name: 'Intensity',
+      unit: 'kWh/m2',
+      baselineValue: 200,
+      currentValue: 100,
+      targetValue: 80,
+    });
+    (prisma.energyEnpiData.findMany as jest.Mock).mockResolvedValue([
+      { id: 'e2000000-0000-4000-a000-000000000001', value: 150, periodStart: new Date('2025-01-01'), periodEnd: new Date('2025-01-31') },
+      { id: 'e2000000-0000-4000-a000-000000000002', value: 100, periodStart: new Date('2025-02-01'), periodEnd: new Date('2025-02-28') },
+    ]);
+
+    const res = await request(app).get('/api/enpis/e2000000-0000-4000-a000-000000000001/trend');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.statistics.min).toBe(100);
+    expect(res.body.data.statistics.max).toBe(150);
+  });
+
+  it('PUT /api/enpis/:id allows partial update without all required create fields', async () => {
+    (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyEnpi.update as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000001',
+      targetValue: 90,
+    });
+
+    const res = await request(app)
+      .put('/api/enpis/e2000000-0000-4000-a000-000000000001')
+      .send({ targetValue: 90 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.targetValue).toBe(90);
+  });
+
+  it('GET /api/enpis pagination totalPages calculated correctly', async () => {
+    (prisma.energyEnpi.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyEnpi.count as jest.Mock).mockResolvedValue(25);
+
+    const res = await request(app).get('/api/enpis?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(25);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('DELETE /api/enpis/:id soft-deletes: update is called with deletedAt', async () => {
+    (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyEnpi.update as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/enpis/e2000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(prisma.energyEnpi.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('POST /:id/data-points passes enpiId in create data', async () => {
+    (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyEnpiData.create as jest.Mock).mockResolvedValue({
+      id: 'e2100000-0000-4000-a000-000000000001',
+      value: 75,
+      enpiId: 'e2000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyEnpi.update as jest.Mock).mockResolvedValue({ id: 'e2000000-0000-4000-a000-000000000001', currentValue: 75 });
+
+    const res = await request(app)
+      .post('/api/enpis/e2000000-0000-4000-a000-000000000001/data-points')
+      .send({ value: 75, periodStart: '2026-01-01', periodEnd: '2026-01-31' });
+
+    expect(res.status).toBe(201);
+    expect(prisma.energyEnpiData.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ enpiId: 'e2000000-0000-4000-a000-000000000001' }),
+      })
+    );
+  });
+});

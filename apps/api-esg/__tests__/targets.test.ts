@@ -356,3 +356,65 @@ describe('Targets — extended coverage', () => {
     expect(res.body.error).toBeDefined();
   });
 });
+
+describe('targets — additional coverage 2', () => {
+  it('GET / response has success:true and pagination', async () => {
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([mockTarget]);
+    (prisma.esgTarget.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/targets');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST / stores createdBy from authenticated user', async () => {
+    (prisma.esgTarget.create as jest.Mock).mockResolvedValue(mockTarget);
+    await request(app).post('/api/targets').send({
+      metricId: '00000000-0000-0000-0000-000000000001',
+      year: 2026,
+      targetValue: 3000,
+    });
+    const [call] = (prisma.esgTarget.create as jest.Mock).mock.calls;
+    expect(call[0].data.createdBy).toBe('user-123');
+  });
+
+  it('DELETE /:id calls update with deletedAt set', async () => {
+    (prisma.esgTarget.findFirst as jest.Mock).mockResolvedValue(mockTarget);
+    (prisma.esgTarget.update as jest.Mock).mockResolvedValue({ ...mockTarget, deletedAt: new Date() });
+    await request(app).delete('/api/targets/00000000-0000-0000-0000-000000000001');
+    const [call] = (prisma.esgTarget.update as jest.Mock).mock.calls;
+    expect(call[0].data).toHaveProperty('deletedAt');
+  });
+
+  it('GET /:id returns metric subobject', async () => {
+    (prisma.esgTarget.findFirst as jest.Mock).mockResolvedValue(mockTarget);
+    const res = await request(app).get('/api/targets/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('metric');
+  });
+
+  it('GET / filters by both year and status simultaneously', async () => {
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgTarget.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/targets?year=2026&status=AT_RISK');
+    expect(prisma.esgTarget.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ year: 2026, status: 'AT_RISK' }) })
+    );
+  });
+
+  it('PUT /:id updates actualValue field', async () => {
+    (prisma.esgTarget.findFirst as jest.Mock).mockResolvedValue(mockTarget);
+    (prisma.esgTarget.update as jest.Mock).mockResolvedValue({ ...mockTarget, actualValue: 4500 });
+    const res = await request(app)
+      .put('/api/targets/00000000-0000-0000-0000-000000000001')
+      .send({ actualValue: 4500 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.actualValue).toBe(4500);
+  });
+
+  it('GET /trajectory returns 500 when DB fails', async () => {
+    (prisma.esgTarget.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/targets/00000000-0000-0000-0000-000000000001/trajectory');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

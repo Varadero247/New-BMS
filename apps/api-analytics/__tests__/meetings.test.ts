@@ -348,3 +348,110 @@ describe('Meetings — further edge cases and validation', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ===================================================================
+// Meetings — remaining coverage
+// ===================================================================
+describe('Meetings — remaining coverage', () => {
+  it('GET /api/meetings response success is true', async () => {
+    (prisma.meetingNote.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.meetingNote.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/meetings');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/meetings created meeting has id field', async () => {
+    (prisma.meetingNote.create as jest.Mock).mockResolvedValue({
+      ...sampleMeeting,
+      id: 'meeting-new-id',
+    });
+
+    const res = await request(app).post('/api/meetings').send({
+      title: 'New Meeting',
+      type: 'TEAM',
+      date: '2026-03-01',
+      attendees: ['Alice'],
+      summary: 'First meeting',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('DELETE /api/meetings/:id 500 error on delete throw', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
+    (prisma.meetingNote.delete as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/meetings/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/meetings?type=CLIENT filters by CLIENT type', async () => {
+    (prisma.meetingNote.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.meetingNote.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/meetings?type=CLIENT');
+
+    expect(prisma.meetingNote.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { type: 'CLIENT' } })
+    );
+  });
+
+  it('PATCH /api/meetings/:id returns updated meeting data', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
+    (prisma.meetingNote.update as jest.Mock).mockResolvedValue({
+      ...sampleMeeting,
+      title: 'Updated Title',
+    });
+
+    const res = await request(app)
+      .patch('/api/meetings/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Title' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Updated Title');
+  });
+
+  it('GET /api/meetings/:id returns meeting with actionItems array', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
+
+    const res = await request(app).get('/api/meetings/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.actionItems)).toBe(true);
+  });
+
+  it('PATCH /api/meetings/:id/actions/0 toggles first action to completed', async () => {
+    const meetingWithActions = {
+      ...sampleMeeting,
+      actionItems: [
+        { text: 'Action One', completed: false },
+        { text: 'Action Two', completed: false },
+      ],
+    };
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(meetingWithActions);
+    (prisma.meetingNote.update as jest.Mock).mockResolvedValue({
+      ...meetingWithActions,
+      actionItems: [
+        { text: 'Action One', completed: true },
+        { text: 'Action Two', completed: false },
+      ],
+    });
+
+    const res = await request(app).patch(
+      '/api/meetings/00000000-0000-0000-0000-000000000001/actions/0'
+    );
+    expect(res.status).toBe(200);
+    expect(prisma.meetingNote.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          actionItems: expect.arrayContaining([
+            expect.objectContaining({ text: 'Action One', completed: true }),
+          ]),
+        },
+      })
+    );
+  });
+});

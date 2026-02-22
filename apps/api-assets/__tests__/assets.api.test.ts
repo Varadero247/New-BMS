@@ -332,3 +332,56 @@ describe('Assets API — extended field validation and edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Assets API — final coverage block', () => {
+  it('GET / count is called once per list request', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    await request(app).get('/api/assets');
+    expect(mockPrisma.assetRegister.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / generated referenceNumber starts with AST-', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetRegister.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      name: 'New Machine',
+      referenceNumber: 'AST-2026-0001',
+    });
+    const res = await request(app).post('/api/assets').send({ name: 'New Machine' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toMatch(/^AST-/);
+  });
+
+  it('GET /:id returns 500 when findFirst rejects', async () => {
+    mockPrisma.assetRegister.findFirst.mockRejectedValue(new Error('network error'));
+    const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id update is called with deletedAt data', async () => {
+    mockPrisma.assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.assetRegister.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / with category filter returns 200', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assets?category=Heavy Equipment');
+    expect(res.status).toBe(200);
+  });
+
+  it('PUT /:id update is called with correct where.id', async () => {
+    mockPrisma.assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    await request(app).put('/api/assets/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+    expect(mockPrisma.assetRegister.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});

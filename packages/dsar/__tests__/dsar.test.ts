@@ -278,3 +278,48 @@ describe('dsar — extended scenarios', () => {
     jest.useRealTimers();
   });
 });
+
+describe('dsar — additional validation scenarios', () => {
+  it('createRequest with CORRECTION type stores type correctly', () => {
+    const req = createRequest({ orgId: uniqueOrg(), type: 'CORRECTION' as 'EXPORT', subjectEmail: 'a@b.com', requestedById: 'u' });
+    expect(req.type).toBe('CORRECTION');
+  });
+
+  it('listRequests returns requests in descending createdAt order', async () => {
+    const org = uniqueOrg();
+    createRequest({ orgId: org, ...BASE });
+    await new Promise((r) => setTimeout(r, 5));
+    createRequest({ orgId: org, ...BASE });
+    const list = listRequests(org);
+    const d0 = new Date(list[0].createdAt).getTime();
+    const d1 = new Date(list[1].createdAt).getTime();
+    expect(d0).toBeGreaterThanOrEqual(d1);
+  });
+
+  it('updateRequest with no changes still returns the request', () => {
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    const result = updateRequest(req.id, {});
+    expect(result).not.toBeNull();
+    expect(result!.id).toBe(req.id);
+  });
+
+  it('getRequest returns undefined for a random non-existent id string', () => {
+    expect(getRequest('00000000-dead-beef-0000-000000000000')).toBeUndefined();
+  });
+
+  it('createRequest subjectEmail is stored as-is', () => {
+    const email = 'Complex.Email+tag@Example.COM';
+    const req = createRequest({ orgId: uniqueOrg(), type: 'EXPORT', subjectEmail: email, requestedById: 'u' });
+    expect(req.subjectEmail).toBe(email);
+  });
+
+  it('processExportRequest completedAt is a valid ISO 8601 string', async () => {
+    jest.useFakeTimers();
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    const promise = processExportRequest(req.id);
+    jest.runAllTimers();
+    const result = await promise;
+    expect(new Date(result!.completedAt!).toISOString()).toBe(result!.completedAt);
+    jest.useRealTimers();
+  });
+});

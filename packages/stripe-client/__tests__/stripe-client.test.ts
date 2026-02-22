@@ -288,3 +288,61 @@ describe('StripeClient — further edge cases', () => {
     expect(params.get('return_url')).toBe('https://myapp.com/billing');
   });
 });
+
+// ─── Request structure validation ─────────────────────────────────────────────
+
+describe('StripeClient — request structure validation', () => {
+  it('getSubscriptions does not specify POST method (defaults to GET)', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ data: [] }));
+    await client.getSubscriptions();
+    // method is not explicitly set for GET requests; POST would be 'POST'
+    expect(mockFetch.mock.calls[0][1].method).not.toBe('POST');
+  });
+
+  it('createCoupon sends Authorization header with Bearer prefix', async () => {
+    const client = new StripeClient('sk_secret_xyz');
+    mockFetch.mockReturnValueOnce(ok({ id: 'coup_x' }));
+    await client.createCoupon({ percent_off: 10, duration: 'once' });
+    expect(mockFetch.mock.calls[0][1].headers['Authorization']).toBe('Bearer sk_secret_xyz');
+  });
+
+  it('createTransfer includes amount currency and destination in encoded body', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ id: 'tr_y' }));
+    await client.createTransfer({ amount: 999, currency: 'gbp', destination: 'acct_z' });
+    const params = new URLSearchParams(mockFetch.mock.calls[0][1].body as string);
+    expect(params.get('amount')).toBe('999');
+    expect(params.get('currency')).toBe('gbp');
+    expect(params.get('destination')).toBe('acct_z');
+  });
+
+  it('getSubscriptions status=active is always included in URL', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ data: [] }));
+    await client.getSubscriptions(50);
+    expect(mockFetch.mock.calls[0][0]).toContain('status=active');
+  });
+
+  it('createCoupon sends to /v1/coupons endpoint', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ id: 'c1' }));
+    await client.createCoupon({ percent_off: 5, duration: 'forever' });
+    expect(mockFetch.mock.calls[0][0]).toBe('https://api.stripe.com/v1/coupons');
+  });
+
+  it('createTransfer sends to /v1/transfers endpoint', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ id: 't1' }));
+    await client.createTransfer({ amount: 1, currency: 'usd', destination: 'acct_1' });
+    expect(mockFetch.mock.calls[0][0]).toBe('https://api.stripe.com/v1/transfers');
+  });
+
+  it('getBillingPortalUrl sends customer in POST body', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ url: 'https://billing.stripe.com/s' }));
+    await client.getBillingPortalUrl('cus_abc', 'https://example.com');
+    const params = new URLSearchParams(mockFetch.mock.calls[0][1].body as string);
+    expect(params.get('customer')).toBe('cus_abc');
+  });
+});

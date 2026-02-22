@@ -295,3 +295,66 @@ describe('Incidents — search and pagination', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Incidents — final coverage block', () => {
+  it('GET / response content-type is JSON', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /:id response content-type is JSON', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000001');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / includes orgId in count query where clause', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/incidents');
+    const countCall = (mockPrisma.incIncident.count as jest.Mock).mock.calls[0][0];
+    expect(countCall.where.orgId).toBe('org-1');
+  });
+
+  it('POST / create data includes title and dateOccurred', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    mockPrisma.incIncident.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Slip',
+      dateOccurred: '2026-02-01T10:00:00Z',
+    });
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({ title: 'Slip', dateOccurred: '2026-02-01T10:00:00Z' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('title', 'Slip');
+  });
+
+  it('PUT /:id response data has id field', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Fixed' });
+    const res = await request(app)
+      .put('/api/incidents/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Fixed' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('DELETE /:id soft-delete update includes deletedAt', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/incidents/00000000-0000-0000-0000-000000000001');
+    const updateCall = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data).toHaveProperty('deletedAt');
+  });
+
+  it('GET / pagination totalPages is 1 when count equals limit', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/incidents?limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(1);
+  });
+});

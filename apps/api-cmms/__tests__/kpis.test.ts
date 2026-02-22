@@ -353,3 +353,78 @@ describe('kpis — edge cases and field validation', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('kpis — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /kpis?metricType=MTTR filters findMany by metricType', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([]);
+    prisma.cmmsKpi.count.mockResolvedValue(0);
+    await request(app).get('/api/kpis?metricType=MTTR');
+    expect(prisma.cmmsKpi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ metricType: 'MTTR' }) })
+    );
+  });
+
+  it('GET /kpis returns correct totalPages for multi-page set', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([]);
+    prisma.cmmsKpi.count.mockResolvedValue(60);
+    const res = await request(app).get('/api/kpis?page=1&limit=15');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET /kpis/dashboard returns summary with openWorkOrders key', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([mockKpi]);
+    prisma.cmmsAsset.count.mockResolvedValue(20);
+    prisma.cmmsWorkOrder.count.mockResolvedValue(5);
+    prisma.cmmsPart.count.mockResolvedValue(80);
+    const res = await request(app).get('/api/kpis/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary).toHaveProperty('openWorkOrders');
+  });
+
+  it('DELETE /kpis/:id calls soft delete via update with deletedAt', async () => {
+    prisma.cmmsKpi.findFirst.mockResolvedValue(mockKpi);
+    prisma.cmmsKpi.update.mockResolvedValue({ ...mockKpi, deletedAt: new Date() });
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(prisma.cmmsKpi.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST /kpis sets createdBy from authenticated user', async () => {
+    prisma.cmmsKpi.create.mockResolvedValue(mockKpi);
+    await request(app).post('/api/kpis').send({
+      name: 'MTTR - Press',
+      metricType: 'MTTR',
+      value: 2.0,
+      unit: 'hours',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(prisma.cmmsKpi.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('GET /kpis returns 500 with INTERNAL_ERROR when count rejects', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([]);
+    prisma.cmmsKpi.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /kpis returns success:true and data is an array', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([mockKpi]);
+    prisma.cmmsKpi.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

@@ -316,3 +316,56 @@ describe('OpenAPI — further coverage and 500 path', () => {
     expect(res.body.error).toHaveProperty('message');
   });
 });
+
+describe('OpenAPI — final coverage batch', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/docs', openapiRouter);
+    jest.clearAllMocks();
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: '3.0.3',
+      info: { title: 'Nexara IMS API', version: '2.0.0', description: 'IMS' },
+      paths: { '/api/health': { get: { summary: 'Health' } } },
+      components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } } },
+    });
+  });
+
+  it('spec version field is 2.0.0 when mock returns it', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.info.version).toBe('2.0.0');
+  });
+
+  it('spec paths contains /api/health key', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.paths).toHaveProperty('/api/health');
+  });
+
+  it('bearerAuth bearerFormat is JWT', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.components.securitySchemes.bearerAuth.bearerFormat).toBe('JWT');
+  });
+
+  it('calling /openapi.json twice triggers generateOpenApiSpec twice', async () => {
+    await request(app).get('/api/docs/openapi.json');
+    await request(app).get('/api/docs/openapi.json');
+    expect(mockGenerateOpenApiSpec).toHaveBeenCalledTimes(2);
+  });
+
+  it('500 response success is false', async () => {
+    mockGenerateOpenApiSpec.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/docs HTML body is non-empty', async () => {
+    const res = await request(app).get('/api/docs');
+    expect(res.status).toBe(200);
+    expect(res.text.length).toBeGreaterThan(0);
+  });
+});

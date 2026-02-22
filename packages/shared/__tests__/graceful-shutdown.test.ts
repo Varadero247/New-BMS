@@ -365,3 +365,108 @@ describe('createGracefulShutdown — further edge cases', () => {
     gs.destroy();
   });
 });
+
+// ─── Shutdown options coverage ─────────────────────────────────────────────────
+
+describe('createGracefulShutdown — shutdown options coverage', () => {
+  let server: import('http').Server;
+
+  beforeEach(async () => {
+    const { createServer } = await import('http');
+    server = await new Promise<import('http').Server>((resolve) => {
+      const s = createServer((_req, res) => res.end('ok'));
+      s.listen(0, () => resolve(s));
+    });
+  });
+
+  afterEach((done) => {
+    if (server.listening) server.close(done); else done();
+  });
+
+  function makeRes() {
+    const obj: {
+      statusCode: number; body: unknown; headers: Record<string, unknown>;
+      setHeader(k: string, v: unknown): void;
+      status(code: number): typeof obj;
+      json(body: unknown): typeof obj;
+      on(ev: string, cb: () => void): typeof obj;
+      _finishCb?: () => void;
+    } = {
+      statusCode: 200,
+      body: null as unknown,
+      headers: {},
+      setHeader(k, v) { this.headers[k] = v; },
+      status(code) { this.statusCode = code; return this; },
+      json(body) { this.body = body; return this; },
+      on(ev, cb) { if (ev === 'finish') this._finishCb = cb; return this; },
+    };
+    return obj;
+  }
+
+  it('middleware 503 response sets Connection: close header', async () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false, drainTimeoutMs: 30 });
+    const p = gs.trigger('SIGTERM');
+    const res = makeRes();
+    gs.middleware({} as any, res as any, jest.fn());
+    expect(res.headers['Connection']).toBe('close');
+    await p;
+    gs.destroy();
+  });
+
+  it('middleware sets Retry-After header based on drainTimeoutMs', async () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false, drainTimeoutMs: 5000 });
+    const p = gs.trigger('SIGTERM');
+    const res = makeRes();
+    gs.middleware({} as any, res as any, jest.fn());
+    expect(Number(res.headers['Retry-After'])).toBe(5);
+    await p;
+    gs.destroy();
+  });
+
+  it('destroy() is idempotent (no throw on repeated calls)', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    expect(() => { gs.destroy(); gs.destroy(); gs.destroy(); }).not.toThrow();
+  });
+
+  it('hook that returns void (synchronously) is still awaited without error', async () => {
+    const syncHook = jest.fn(() => { /* sync void */ });
+    const gs = createGracefulShutdown(server, {
+      exitAfterShutdown: false,
+      drainTimeoutMs: 30,
+      hooks: [syncHook as any],
+    });
+    await expect(gs.trigger('SIGTERM')).resolves.toBeUndefined();
+    expect(syncHook).toHaveBeenCalled();
+    gs.destroy();
+  });
+
+  it('inFlightRequests is still 0 after destroy()', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    gs.destroy();
+    expect(gs.inFlightRequests).toBe(0);
+  });
+
+  it('middleware 503 body has error.code SERVICE_SHUTTING_DOWN', async () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false, drainTimeoutMs: 30 });
+    const p = gs.trigger('SIGTERM');
+    const res = makeRes();
+    gs.middleware({} as any, res as any, jest.fn());
+    expect((res.body as any).error.code).toBe('SERVICE_SHUTTING_DOWN');
+    await p;
+    gs.destroy();
+  });
+
+  it('second trigger call (double trigger) is a no-op and resolves', async () => {
+    const onShutdown = jest.fn();
+    const gs = createGracefulShutdown(server, {
+      exitAfterShutdown: false,
+      drainTimeoutMs: 30,
+      onShutdown,
+    });
+    await gs.trigger('SIGTERM');
+    await gs.trigger('SIGTERM'); // second call should be no-op
+    // onShutdown should only have been called once
+    expect(onShutdown).toHaveBeenCalledTimes(1);
+    gs.destroy();
+  });
+});

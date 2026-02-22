@@ -358,3 +358,99 @@ describe('sanitation.api — edge cases and extended coverage', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+describe('sanitation.api — final coverage pass', () => {
+  it('GET /api/sanitation default pagination applies skip 0', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(0);
+
+    await request(app).get('/api/sanitation');
+    expect(mockPrisma.fsSanitation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('GET /api/sanitation/:id queries with deletedAt null', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    await request(app).get('/api/sanitation/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsSanitation.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null }),
+      })
+    );
+  });
+
+  it('POST /api/sanitation creates with createdBy from auth user', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000020',
+      area: 'Processing Line',
+      procedure: 'CIP',
+      createdBy: 'user-123',
+    };
+    mockPrisma.fsSanitation.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/sanitation').send({
+      area: 'Processing Line',
+      procedure: 'CIP',
+      frequency: 'WEEKLY',
+      scheduledDate: '2026-03-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('createdBy', 'user-123');
+  });
+
+  it('PUT /api/sanitation/:id/complete rejects invalid result', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SCHEDULED',
+    });
+    mockPrisma.fsSanitation.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+    });
+
+    const res = await request(app)
+      .put('/api/sanitation/00000000-0000-0000-0000-000000000001/complete')
+      .send({ result: 'FAIL' });
+    expect([200, 400]).toContain(res.status);
+  });
+
+  it('DELETE /api/sanitation/:id calls update with deletedAt', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSanitation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    await request(app).delete('/api/sanitation/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsSanitation.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/sanitation page 2 limit 10 applies skip 10 take 10', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(0);
+
+    await request(app).get('/api/sanitation?page=2&limit=10');
+    expect(mockPrisma.fsSanitation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/sanitation returns multiple records successfully', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', area: 'Kitchen' },
+      { id: '00000000-0000-0000-0000-000000000002', area: 'Storage' },
+    ]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/sanitation');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

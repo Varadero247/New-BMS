@@ -261,3 +261,59 @@ describe('categories.api — query and filter edge cases', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('categories.api (suppliers) — final coverage', () => {
+  it('findMany called with take: 500', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    await request(app).get('/api/categories');
+    expect(mockPrisma.suppSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 500 })
+    );
+  });
+
+  it('response body is not null', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('five distinct categories return five entries', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
+      { category: 'A' },
+      { category: 'B' },
+      { category: 'C' },
+      { category: 'D' },
+      { category: 'E' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body.data).toHaveLength(5);
+  });
+
+  it('data array is empty when all categories are null', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
+      { category: null },
+      { category: null },
+      { category: null },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('HTTP POST returns 404 for unregistered route', async () => {
+    const res = await request(app).post('/api/categories').send({});
+    expect([404, 405]).toContain(res.status);
+  });
+
+  it('error code is INTERNAL_ERROR on DB error', async () => {
+    mockPrisma.suppSupplier.findMany.mockRejectedValue(new Error('db down'));
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('response content-type is JSON', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

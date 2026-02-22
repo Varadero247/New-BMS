@@ -333,3 +333,72 @@ describe('controls.api — extended edge cases', () => {
     expect(mockPrisma.riskRegister.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('controls.api — final coverage', () => {
+  it('GET /:id/controls findMany called with riskId filter', async () => {
+    mockPrisma.riskControl.findMany.mockResolvedValue([]);
+    await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/controls');
+    expect(mockPrisma.riskControl.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ riskId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('DELETE /:riskId/controls/:id calls update with isActive: false', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockResolvedValue({ id: 'c1', isActive: false });
+    await request(app).delete(
+      '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002'
+    );
+    expect(mockPrisma.riskControl.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('POST /:riskId/controls/:id/test with NONE_EFFECTIVE updates control', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockResolvedValue({ id: 'c1', effectiveness: 'NONE_EFFECTIVE' });
+    const res = await request(app)
+      .post(
+        '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002/test'
+      )
+      .send({ testingNotes: 'Failed badly', effectiveness: 'NONE_EFFECTIVE' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:riskId/controls/:id calls findFirst before update', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockResolvedValue({ id: 'c1', effectiveness: 'ADEQUATE' });
+    mockPrisma.riskControl.findMany.mockResolvedValue([]);
+    mockPrisma.riskRegister.update.mockResolvedValue({});
+    await request(app)
+      .put(
+        '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002'
+      )
+      .send({ effectiveness: 'ADEQUATE' });
+    expect(mockPrisma.riskControl.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /:id/controls with empty description returns 400', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/controls')
+      .send({ controlType: 'PREVENTIVE', description: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /:id/controls returns data.id on success', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
+    mockPrisma.riskControl.create.mockResolvedValue({ id: 'ctrl-new', controlType: 'PREVENTIVE' });
+    mockPrisma.riskControl.findMany.mockResolvedValue([]);
+    mockPrisma.riskRegister.update.mockResolvedValue({});
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/controls')
+      .send({ controlType: 'PREVENTIVE', description: 'Valid control' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('ctrl-new');
+  });
+});

@@ -822,3 +822,180 @@ describe('analyse.api — edge cases', () => {
     expect(res.body.error.code).toBe('AI_ERROR');
   });
 });
+
+// ── analyse.api — further coverage ────────────────────────────────────────
+
+describe('analyse.api — further coverage', () => {
+  let app: express.Express;
+
+  const settings = {
+    id: 'settings-fc-1',
+    provider: 'OPENAI',
+    apiKey: 'sk-fc-key',
+    model: 'gpt-4',
+    defaultPrompt: null,
+    totalTokensUsed: 200,
+    lastUsedAt: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const riskSource = {
+    id: 'source-fc-1',
+    title: 'Noise exposure',
+    description: 'Prolonged exposure to high noise levels',
+    likelihood: 4,
+    severity: 3,
+    riskScore: 12,
+    riskLevel: 'HIGH',
+    status: 'ACTIVE',
+  };
+
+  const analysis = {
+    id: '52000000-0000-4000-a000-000000000088',
+    userId: '20000000-0000-4000-a000-000000000001',
+    sourceType: 'risk',
+    sourceId: 'source-fc-1',
+    sourceData: riskSource,
+    prompt: 'fc prompt',
+    provider: 'OPENAI',
+    model: 'gpt-4',
+    response: { content: 'FC AI response' },
+    suggestedRootCause: 'Noise hazard.',
+    suggestedActions: [],
+    complianceGaps: [],
+    highlights: [],
+    status: 'COMPLETED',
+    createdAt: new Date(),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyse', analyseRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('returns 500 when aIAnalysis.create throws after successful fetch', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(riskSource);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: noise.' } }],
+        usage: { total_tokens: 80 },
+      }),
+    });
+    mockPrisma.aIAnalysis.create.mockRejectedValueOnce(new Error('Insert failed'));
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-fc-1' });
+    expect([500]).toContain(res.status);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('response body has data.id when analysis succeeds', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(riskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(analysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(settings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: noise.' } }],
+        usage: { total_tokens: 80 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-fc-1' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+    expect(typeof res.body.data.id).toBe('string');
+  });
+
+  it('response body has success:true on 201', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(riskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(analysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(settings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: noise.' } }],
+        usage: { total_tokens: 50 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-fc-1' });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('token update uses additive math: existing + new tokens', async () => {
+    const settingsWithTokens = { ...settings, totalTokensUsed: 1000 };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settingsWithTokens);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(riskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(analysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(settingsWithTokens);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: noise.' } }],
+        usage: { total_tokens: 200 },
+      }),
+    });
+    await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-fc-1' });
+    expect(mockPrisma.aISettings.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ totalTokensUsed: 1200 }),
+      })
+    );
+  });
+
+  it('returns 400 when sourceType is valid string but empty sourceId', async () => {
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns 500 when aISettings.findFirst throws unexpectedly', async () => {
+    mockPrisma.aISettings.findFirst.mockRejectedValueOnce(new Error('Unexpected DB crash'));
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-fc-1' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('stored prompt contains source title from riskSource', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(riskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(analysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(settings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: noise.' } }],
+        usage: { total_tokens: 60 },
+      }),
+    });
+    await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-fc-1' });
+    const createCall = (mockPrisma.aIAnalysis.create as jest.Mock).mock.calls[0];
+    expect(createCall[0].data.prompt).toContain('Noise exposure');
+  });
+});

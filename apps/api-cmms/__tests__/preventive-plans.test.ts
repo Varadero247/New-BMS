@@ -352,3 +352,58 @@ describe('preventive-plans — extended coverage', () => {
     expect(res.body.pagination.limit).toBe(5);
   });
 });
+
+describe('preventive-plans — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST / sets createdBy from authenticated user', async () => {
+    prisma.cmmsPreventivePlan.create.mockResolvedValue(mockPlan);
+    await request(app).post('/api/preventive-plans').send({
+      name: 'Quarterly Check',
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      frequency: 'QUARTERLY',
+    });
+    expect(prisma.cmmsPreventivePlan.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('GET /preventive-plans?frequency=QUARTERLY filters findMany', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([]);
+    prisma.cmmsPreventivePlan.count.mockResolvedValue(0);
+    await request(app).get('/api/preventive-plans?frequency=QUARTERLY');
+    expect(prisma.cmmsPreventivePlan.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ frequency: 'QUARTERLY' }) })
+    );
+  });
+
+  it('PUT /:id updates frequency and returns updated data', async () => {
+    prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
+    prisma.cmmsPreventivePlan.update.mockResolvedValue({ ...mockPlan, frequency: 'QUARTERLY' });
+    const res = await request(app)
+      .put('/api/preventive-plans/00000000-0000-0000-0000-000000000001')
+      .send({ frequency: 'QUARTERLY' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.frequency).toBe('QUARTERLY');
+  });
+
+  it('DELETE /:id soft-deletes by setting deletedAt via update', async () => {
+    prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
+    prisma.cmmsPreventivePlan.update.mockResolvedValue({ ...mockPlan, deletedAt: new Date() });
+    await request(app).delete('/api/preventive-plans/00000000-0000-0000-0000-000000000001');
+    expect(prisma.cmmsPreventivePlan.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns success:true and data is an array', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([mockPlan]);
+    prisma.cmmsPreventivePlan.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/preventive-plans');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

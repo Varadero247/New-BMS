@@ -399,3 +399,84 @@ describe('InfoSec Scope — edge cases and deeper coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// InfoSec Scope — final boundary tests
+// ===================================================================
+describe('InfoSec Scope — final boundary tests', () => {
+  const scopeRecord = {
+    id: 'd1000000-0000-4000-a000-000000000010',
+    name: 'Final Scope',
+    description: 'Final test scope',
+    boundaries: 'Global',
+    inclusions: 'All assets',
+    exclusions: 'None',
+    justification: 'Regulatory',
+    interestedParties: ['Board'],
+    applicableRequirements: ['ISO 27001'],
+    interfaces: ['AD'],
+    status: 'ACTIVE',
+    createdBy: '00000000-0000-4000-a000-000000000123',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('PUT /api/scope create sets status to DRAFT by default', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce({ ...scopeRecord, status: 'DRAFT' });
+
+    await request(app).put('/api/scope').send({ name: 'New Scope' });
+
+    const createCall = (mockPrisma.isScope.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.status).toBe('DRAFT');
+  });
+
+  it('GET /api/scope returns 200 when scope has boundaries field', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(scopeRecord);
+
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('boundaries', 'Global');
+  });
+
+  it('PUT /api/scope with boundaries field is persisted in update call', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(scopeRecord);
+    (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce({ ...scopeRecord, boundaries: 'EU offices only' });
+
+    await request(app).put('/api/scope').send({ boundaries: 'EU offices only' });
+
+    const updateCall = (mockPrisma.isScope.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data.boundaries).toBe('EU offices only');
+  });
+
+  it('PUT /api/scope update is not called when create succeeds (new scope)', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce(scopeRecord);
+
+    await request(app).put('/api/scope').send({ name: 'Brand New' });
+
+    expect(mockPrisma.isScope.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/scope data is null and success is true when DB returns null', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toBeNull();
+  });
+
+  it('PUT /api/scope create DB error returns 500 with success false', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.isScope.create as jest.Mock).mockRejectedValueOnce(new Error('constraint violation'));
+
+    const res = await request(app).put('/api/scope').send({ name: 'Failing Scope' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

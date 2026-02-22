@@ -326,3 +326,59 @@ describe('IP Allowlist — edge cases and 500 paths', () => {
     expect(res.body.data.cidr).toBe('10.20.0.0/16');
   });
 });
+
+describe('IP Allowlist — final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/ip-allowlist', ipAllowlistRouter);
+    jest.clearAllMocks();
+    mockGetOrgAllowlist.mockReturnValue([]);
+    mockRemoveOrgAllowlistEntry.mockReturnValue(true);
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+  });
+
+  it('GET list response body has success: true', async () => {
+    const res = await request(app).get('/api/admin/ip-allowlist');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/admin/ip-allowlist stores the label provided', async () => {
+    const res = await request(app)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: '10.50.0.0/24', label: 'My Label' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.label).toBe('My Label');
+  });
+
+  it('GET /api/admin/ip-allowlist/my-ip responds with 200', async () => {
+    const res = await request(app).get('/api/admin/ip-allowlist/my-ip');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST returns createdAt in response data', async () => {
+    const res = await request(app)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: '10.60.0.0/24', label: 'OrgNet' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('createdAt');
+  });
+
+  it('DELETE returns 200 and success: true for valid id', async () => {
+    const res = await request(app).delete('/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list returns meta with total 0 for empty list', async () => {
+    mockGetOrgAllowlist.mockReturnValue([]);
+    const res = await request(app).get('/api/admin/ip-allowlist');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(0);
+  });
+});

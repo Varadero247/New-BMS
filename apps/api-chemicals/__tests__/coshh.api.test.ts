@@ -509,3 +509,73 @@ describe('POST /api/coshh/:id/sign-off', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('COSHH — additional coverage 2', () => {
+  it('GET /coshh returns pagination with total field', async () => {
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([mockCoshh]);
+    mockPrisma.chemCoshh.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/coshh');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total', 1);
+  });
+
+  it('POST /coshh sets orgId and createdBy from authenticated user', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.create.mockResolvedValue(mockCoshh);
+    await request(app).post('/api/coshh').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      activityDescription: 'Test activity',
+      inherentLikelihood: 2,
+      inherentSeverity: 3,
+      residualLikelihood: 1,
+      residualSeverity: 2,
+      controlMeasures: {},
+      assessmentDate: '2026-02-01T00:00:00.000Z',
+      reviewDate: '2027-02-01T00:00:00.000Z',
+    });
+    expect(mockPrisma.chemCoshh.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ orgId: 'org-1', createdBy: 'user-1' }) })
+    );
+  });
+
+  it('GET /coshh/:id includes chemical relation in response', async () => {
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue({ ...mockCoshh, exposureMonitoring: [] });
+    const res = await request(app).get('/api/coshh/00000000-0000-0000-0000-000000000020');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('chemical');
+  });
+
+  it('GET /coshh/due-review returns array even when empty', async () => {
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/coshh/due-review');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /coshh/:id calls update with correct id in where clause', async () => {
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.update.mockResolvedValue({ ...mockCoshh, activityDescription: 'Updated' });
+    await request(app).put('/api/coshh/00000000-0000-0000-0000-000000000020').send({ activityDescription: 'Updated' });
+    expect(mockPrisma.chemCoshh.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000020' } })
+    );
+  });
+
+  it('POST /coshh/:id/sign-off returns 200 with success:true on valid supervisor sign-off', async () => {
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.update.mockResolvedValue({ ...mockCoshh, supervisorName: 'Supervisor A', supervisorSignedAt: new Date() });
+    const res = await request(app)
+      .post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off')
+      .send({ role: 'supervisor', name: 'Supervisor A' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /coshh count is called once per list request', async () => {
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([]);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    await request(app).get('/api/coshh');
+    expect(mockPrisma.chemCoshh.count).toHaveBeenCalledTimes(1);
+  });
+});

@@ -314,3 +314,69 @@ describe('Versions — extended error and field coverage', () => {
     expect(mockPrisma.docVersion.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Versions — call argument and response shape coverage', () => {
+  it('POST / calls create with documentId in data', async () => {
+    mockPrisma.docVersion.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      documentId: 'doc-10',
+      version: 3,
+    });
+    await request(app).post('/api/versions').send({ documentId: 'doc-10', version: 3 });
+    expect(mockPrisma.docVersion.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ documentId: 'doc-10' }) }),
+    );
+  });
+
+  it('PUT /:id calls update with correct id in where clause', async () => {
+    mockPrisma.docVersion.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docVersion.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).put('/api/versions/00000000-0000-0000-0000-000000000001').send({ version: 2 });
+    expect(mockPrisma.docVersion.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } }),
+    );
+  });
+
+  it('GET / response content-type is application/json', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([]);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/versions');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('DELETE /:id calls update with deletedAt in data', async () => {
+    mockPrisma.docVersion.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docVersion.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/versions/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.docVersion.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }),
+    );
+  });
+
+  it('GET / response data is an array', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([]);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/versions');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / calls findMany and count once each', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([]);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    await request(app).get('/api/versions');
+    expect(mockPrisma.docVersion.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.docVersion.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id data.version matches mock version number', async () => {
+    mockPrisma.docVersion.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      documentId: 'doc-1',
+      version: 5,
+    });
+    const res = await request(app).get('/api/versions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.version).toBe(5);
+  });
+});

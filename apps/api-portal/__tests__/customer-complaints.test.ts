@@ -369,3 +369,109 @@ describe('customer-complaints — edge cases', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('customer-complaints — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST: severity CRITICAL is also returned in create response data', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      reportType: 'COMPLAINT',
+      severity: 'CRITICAL',
+      status: 'OPEN',
+    });
+
+    const res = await request(app)
+      .post('/api/customer/complaints')
+      .send({ description: 'Critical issue reported', severity: 'CRITICAL' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.severity).toBe('CRITICAL');
+  });
+
+  it('POST: severity MAJOR is accepted and returns 201', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      reportType: 'COMPLAINT',
+      severity: 'MAJOR',
+      status: 'OPEN',
+    });
+
+    const res = await request(app)
+      .post('/api/customer/complaints')
+      .send({ description: 'Major issue', severity: 'MAJOR' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id: findFirst called with correct id in where clause', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      description: 'Issue',
+      status: 'OPEN',
+      portalUserId: 'user-123',
+    });
+
+    await request(app).get('/api/customer/complaints/00000000-0000-0000-0000-000000000001');
+
+    expect(mockPrisma.portalQualityReport.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('POST: create called with reportType=COMPLAINT', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      reportType: 'COMPLAINT',
+      severity: 'MINOR',
+      status: 'OPEN',
+    });
+
+    await request(app)
+      .post('/api/customer/complaints')
+      .send({ description: 'A valid complaint', severity: 'MINOR' });
+
+    expect(mockPrisma.portalQualityReport.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ reportType: 'COMPLAINT' }),
+      })
+    );
+  });
+
+  it('GET list: where clause includes reportType=COMPLAINT even with status filter', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/complaints?status=CLOSED');
+
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ reportType: 'COMPLAINT', status: 'CLOSED' }),
+      })
+    );
+  });
+
+  it('POST: create sets status to OPEN by default', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      reportType: 'COMPLAINT',
+      severity: 'MINOR',
+      status: 'OPEN',
+    });
+
+    await request(app)
+      .post('/api/customer/complaints')
+      .send({ description: 'Status check complaint', severity: 'MINOR' });
+
+    expect(mockPrisma.portalQualityReport.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'OPEN' }),
+      })
+    );
+  });
+});

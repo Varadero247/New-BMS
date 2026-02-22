@@ -336,3 +336,54 @@ describe('Portal Notifications — edge cases', () => {
     );
   });
 });
+
+describe('Portal Notifications — final coverage', () => {
+  it('GET list: returns empty array when no notifications exist', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET list: filter by isRead=true passes isRead true in where clause', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/notifications?isRead=true');
+    expect(mockPrisma.portalNotification.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isRead: true }) })
+    );
+  });
+
+  it('PUT read-all returns message in response body', async () => {
+    mockPrisma.portalNotification.updateMany.mockResolvedValue({ count: 2 });
+    const res = await request(app).put('/api/portal/notifications/read-all');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('GET list: pagination total is 0 when count returns 0', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('PUT /:id/read: update called with isRead: true', async () => {
+    const notification = { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', isRead: false };
+    mockPrisma.portalNotification.findFirst.mockResolvedValue(notification);
+    mockPrisma.portalNotification.update.mockResolvedValue({ ...notification, isRead: true });
+    await request(app).put('/api/portal/notifications/00000000-0000-0000-0000-000000000001/read');
+    expect(mockPrisma.portalNotification.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isRead: true }) })
+    );
+  });
+
+  it('GET list: response body is JSON with success and data fields', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+});

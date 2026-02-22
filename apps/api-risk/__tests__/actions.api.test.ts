@@ -328,3 +328,74 @@ describe('Risk Actions — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Risk Actions — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /:id/actions returns success:true with data array', async () => {
+    mockPrisma.riskAction.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', actionTitle: 'Inspect equipment', status: 'OPEN' },
+    ]);
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /:id/actions created action has actionTitle in response', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      actionTitle: 'Replace faulty valve',
+      status: 'OPEN',
+    });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions')
+      .send({
+        actionTitle: 'Replace faulty valve',
+        description: 'Replace the valve in section C',
+        actionType: 'MITIGATIVE',
+        targetDate: '2026-06-01T00:00:00Z',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.data.actionTitle).toBe('Replace faulty valve');
+  });
+
+  it('PUT /:riskId/actions/:id returns success:true', async () => {
+    mockPrisma.riskAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', priority: 'CRITICAL' });
+    const res = await request(app)
+      .put('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001')
+      .send({ priority: 'CRITICAL' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /actions/due-soon returns data array', async () => {
+    mockPrisma.riskAction.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', status: 'OPEN', targetDate: new Date(Date.now() + 3 * 86400000).toISOString() },
+    ]);
+    const res = await request(app).get('/api/risks/actions/due-soon');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /complete returns 200 with COMPLETED status', async () => {
+    mockPrisma.riskAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001/complete')
+      .send({ evidenceOfCompletion: 'Signed off', effectiveness: 'Effective' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLETED');
+  });
+
+  it('GET /actions/overdue success:true', async () => {
+    mockPrisma.riskAction.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/actions/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -313,3 +313,59 @@ describe('Continuous Verification — extended edge cases', () => {
     expect(isTokenRevoked).toHaveBeenCalledWith('tok', 'sub-007');
   });
 });
+
+// ── Continuous Verification — final coverage ──────────────────────────────────
+
+describe('Continuous Verification — final coverage', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('continuousVerification() called with empty options object still returns middleware', () => {
+    const mw = continuousVerification({});
+    expect(typeof mw).toBe('function');
+  });
+
+  it('calls next() when Authorization header is empty string', async () => {
+    const mw = continuousVerification();
+    const next = jest.fn();
+    const req = { headers: { authorization: '' } } as unknown as Request;
+    await mw(req, makeRes(), next as unknown as NextFunction);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('InMemoryRevocationList: revoking empty string token works', () => {
+    const list = new InMemoryRevocationList();
+    list.revoke('');
+    expect(list.isRevoked('')).toBe(true);
+    expect(list.size).toBe(1);
+  });
+
+  it('continuousVerification with both callbacks: next() called when both pass', async () => {
+    mockVerifyToken.mockReturnValueOnce({ userId: 'u-both', role: 'user' } as never);
+    const isUserActive = jest.fn().mockResolvedValue(true);
+    const isTokenRevoked = jest.fn().mockResolvedValue(false);
+    const mw = continuousVerification({ isUserActive, isTokenRevoked });
+    const next = jest.fn();
+    await mw(makeReq('Bearer valid-tok'), makeRes(), next as unknown as NextFunction);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('InMemoryRevocationList: isRevoked returns false after clear', () => {
+    const list = new InMemoryRevocationList();
+    list.revoke('tmp');
+    list.clear('tmp');
+    expect(list.isRevoked('tmp')).toBe(false);
+  });
+
+  it('responds 401 with JSON body when token is revoked', async () => {
+    mockVerifyToken.mockReturnValueOnce({ userId: 'u-rvk', role: 'user' } as never);
+    const isTokenRevoked = jest.fn().mockResolvedValue(true);
+    const mw = continuousVerification({ isTokenRevoked });
+    const res = makeRes();
+    const next = jest.fn();
+    await mw(makeReq('Bearer some-tok'), res, next as unknown as NextFunction);
+    expect(res.statusCode).toBe(401);
+    expect((res.body as any).error).toBe('TOKEN_REVOKED');
+  });
+});

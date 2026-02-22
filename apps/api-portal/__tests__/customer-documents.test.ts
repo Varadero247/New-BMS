@@ -350,3 +350,77 @@ describe('customer-documents — edge cases', () => {
     );
   });
 });
+
+describe('customer-documents — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: response has pagination object', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/documents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('GET list: totalPages is 1 when count equals limit', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(10);
+
+    const res = await request(app).get('/api/customer/documents?limit=10');
+    expect(res.body.pagination.totalPages).toBe(1);
+  });
+
+  it('GET /:id: success is false on 404', async () => {
+    mockPrisma.portalDocument.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/customer/documents/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET list: 500 findMany error returns success:false', async () => {
+    mockPrisma.portalDocument.findMany.mockRejectedValue(new Error('Query timeout'));
+
+    const res = await request(app).get('/api/customer/documents');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET list: filter by CERTIFICATE category passes to findMany', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/documents?category=CERTIFICATE');
+
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'CERTIFICATE' }) })
+    );
+  });
+
+  it('GET /:id: findFirst queries by document id', async () => {
+    mockPrisma.portalDocument.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Test',
+      visibility: 'PUBLIC',
+      portalType: 'CUSTOMER',
+    });
+
+    await request(app).get('/api/customer/documents/00000000-0000-0000-0000-000000000001');
+
+    expect(mockPrisma.portalDocument.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET list: page defaults to 1 when not provided', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/documents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+});

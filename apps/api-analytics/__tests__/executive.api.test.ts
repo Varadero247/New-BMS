@@ -244,3 +244,54 @@ describe('Executive Summary — field-level and pagination edge cases', () => {
     expect(typeof res.body.data.health.csatScore).toBe('number');
   });
 });
+
+// ===================================================================
+// Executive Summary — response structure integrity
+// ===================================================================
+describe('Executive Summary — response structure integrity', () => {
+  it('GET /executive-summary returns success:true with 200 status', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /executive-summary data has exactly the expected top-level keys', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const keys = Object.keys(res.body.data);
+    expect(keys).toContain('myActions');
+    expect(keys).toContain('health');
+    expect(keys).toContain('moduleCounts');
+    expect(keys).toContain('certifications');
+    expect(keys).toContain('recentActivity');
+    expect(keys).toContain('generatedAt');
+  });
+
+  it('GET /executive-summary moduleCounts includes environment section', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.moduleCounts).toHaveProperty('environment');
+    expect(typeof res.body.data.moduleCounts.environment).toBe('object');
+  });
+
+  it('GET /executive-summary health.isoReadiness is between 0 and 100', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const score = res.body.data.health.isoReadiness;
+    expect(score).toBeGreaterThanOrEqual(0);
+    expect(score).toBeLessThanOrEqual(100);
+  });
+
+  it('GET /executive-summary myActions.dueThisWeek is a non-negative number', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.myActions.dueThisWeek).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /executive-summary certifications is a non-empty array', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.certifications)).toBe(true);
+    expect(res.body.data.certifications.length).toBeGreaterThan(0);
+  });
+});

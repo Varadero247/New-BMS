@@ -380,3 +380,71 @@ describe('ESG Reports — extended edge cases', () => {
     expect(res.body.data).toHaveLength(2);
   });
 });
+
+describe('ESG Reports — final coverage', () => {
+  it('POST /generate with UNGC framework creates report', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(3);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue({ ...mockEsgReport, framework: 'UNGC' });
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: 'UNGC',
+      period: '2026',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / returns JSON content-type header', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/esg-reports');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /generate response data contains period field', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue(mockEsgReport);
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: 'GRI',
+      period: '2026',
+    });
+    expect(res.body.data).toHaveProperty('period');
+  });
+
+  it('POST /generate count is used to build sequenced reference number', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(9);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue(mockEsgReport);
+    await request(app).post('/api/esg-reports/generate').send({ framework: 'GRI', period: '2026' });
+    expect(prisma.esgReport.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          referenceNumber: expect.stringMatching(/^ESGR-\d{4}-0010$/),
+        }),
+      })
+    );
+  });
+
+  it('GET / data items have status field', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([mockEsgReport]);
+    const res = await request(app).get('/api/esg-reports');
+    expect(res.body.data[0]).toHaveProperty('status');
+  });
+
+  it('POST /generate with empty framework string returns 400', async () => {
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: '',
+      period: '2026',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /generate returns 500 when create throws after count succeeds', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgReport.create as jest.Mock).mockRejectedValue(new Error('Timeout'));
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: 'GRI',
+      period: '2026',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

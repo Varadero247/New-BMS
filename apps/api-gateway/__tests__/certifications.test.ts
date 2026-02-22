@@ -420,3 +420,78 @@ describe('Certifications — extended edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Certifications — final additional coverage', () => {
+  let app: express.Express;
+
+  const certBase = {
+    id: '00000000-0000-0000-0000-000000000001',
+    standard: 'ISO 9001:2015',
+    scope: 'Manufacturing',
+    certificationBody: 'BSI',
+    certificateNumber: 'FS-123456',
+    status: 'ACTIVE',
+    issueDate: new Date('2024-01-15'),
+    expiryDate: new Date('2027-01-14'),
+    lastSurveillanceDate: null,
+    nextSurveillanceDate: null,
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/certifications', certificationsRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockRequireRole.mockImplementation((...roles: string[]) => (req: any, res: any, next: any) => {
+      if (!roles.includes(req.user?.role)) return res.status(403).json({ success: false, error: { code: 'FORBIDDEN' } });
+      next();
+    });
+    mockListCertificates.mockReturnValue([certBase]);
+    mockGetCertificate.mockReturnValue(certBase);
+    mockCreateCertificate.mockReturnValue({ ...certBase, id: '00000000-0000-0000-0000-000000000002' });
+    mockUpdateCertificate.mockReturnValue({ ...certBase, status: 'EXPIRED' });
+    mockDeleteCertificate.mockReturnValue(true);
+    mockCalculateReadinessScore.mockReturnValue({ score: 85, maxScore: 100, grade: 'B', blockers: [], lastCalculatedAt: new Date() });
+  });
+
+  it('GET /api/admin/certifications returns data with readinessScore per item', async () => {
+    const res = await request(app).get('/api/admin/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('readinessScore');
+  });
+
+  it('DELETE /:id returns 404 when cert not found', async () => {
+    mockDeleteCertificate.mockReturnValueOnce(false);
+    const res = await request(app).delete('/api/admin/certifications/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+  });
+
+  it('PUT /:id with no body fields still returns 200', async () => {
+    const res = await request(app)
+      .put('/api/admin/certifications/00000000-0000-0000-0000-000000000001')
+      .send({});
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /:id/readiness returns certificateId alongside readiness', async () => {
+    mockGetCertificate.mockReturnValueOnce(certBase);
+    const res = await request(app).get('/api/admin/certifications/00000000-0000-0000-0000-000000000001/readiness');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('certificateId');
+  });
+
+  it('calculateReadinessScore is called once per readiness GET', async () => {
+    mockGetCertificate.mockReturnValueOnce(certBase);
+    await request(app).get('/api/admin/certifications/00000000-0000-0000-0000-000000000001/readiness');
+    expect(mockCalculateReadinessScore).toHaveBeenCalledTimes(1);
+  });
+
+  it('response content-type is JSON for list endpoint', async () => {
+    const res = await request(app).get('/api/admin/certifications');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

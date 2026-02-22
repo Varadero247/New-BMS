@@ -218,3 +218,38 @@ describe('Password policy — edge cases and boundary conditions', () => {
     expect(result.errors).not.toContain('Password must contain at least one special character');
   });
 });
+
+// ── Password policy — final coverage ─────────────────────────────────────────
+
+describe('Password policy — final coverage', () => {
+  it('accepts password with numbers embedded in middle', () => {
+    const result = validatePasswordStrength('SecureP4ss!Word');
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('rejects password that is all uppercase and special chars but no lowercase or number', () => {
+    const result = validatePasswordStrength('UPPERCASE!!!!!!!!!!!!');
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Password must contain at least one lowercase letter');
+    expect(result.errors).toContain('Password must contain at least one number');
+  });
+
+  it('accepts valid 13-char password containing all required character types', () => {
+    // 1 uppercase + 9 lowercase + 1 digit + 1 special + 1 lowercase = 13 chars
+    const pwd = 'Ulllllllll1!a';
+    expect(pwd.length).toBe(13);
+    const result = validatePasswordStrength(pwd);
+    expect(result.valid).toBe(true);
+  });
+
+  it('returns errors array containing string values only', () => {
+    const result = validatePasswordStrength('weak');
+    result.errors.forEach((e) => expect(typeof e).toBe('string'));
+  });
+
+  it('rejects password with spaces only (edge case)', () => {
+    const result = validatePasswordStrength('            ');
+    expect(result.valid).toBe(false);
+  });
+});

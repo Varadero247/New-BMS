@@ -437,3 +437,96 @@ describe('compliance — extended coverage', () => {
     expect(res.body.data.overdue).toBeGreaterThanOrEqual(0);
   });
 });
+
+describe('compliance — final coverage', () => {
+  it('POST /api/compliance creates SECR obligation', async () => {
+    (prisma.energyComplianceObligation.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'SECR Report 2025',
+      regulation: 'SECR',
+      status: 'NOT_ASSESSED',
+    });
+
+    const res = await request(app).post('/api/compliance').send({
+      title: 'SECR Report 2025',
+      regulation: 'SECR',
+      requirement: 'Annual streamlined energy reporting',
+      jurisdiction: 'UK',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.regulation).toBe('SECR');
+  });
+
+  it('GET /api/compliance pagination.page defaults to 1', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyComplianceObligation.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/compliance');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('PUT /api/compliance/:id/assess accepts PARTIALLY_COMPLIANT status', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      notes: null,
+    });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PARTIALLY_COMPLIANT',
+    });
+
+    const res = await request(app)
+      .put('/api/compliance/00000000-0000-0000-0000-000000000001/assess')
+      .send({ status: 'PARTIALLY_COMPLIANT', notes: 'Some gaps remain' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('PARTIALLY_COMPLIANT');
+  });
+
+  it('GET /api/compliance/:id returns 500 on findFirst throw', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockRejectedValue(new Error('DB timeout'));
+
+    const res = await request(app).get('/api/compliance/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/compliance/:id returns data.id', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    const res = await request(app).delete('/api/compliance/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('GET /api/compliance/dashboard complianceRate is 100 when all compliant', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([
+      { id: '1', status: 'COMPLIANT', regulation: 'ESOS', dueDate: null },
+      { id: '2', status: 'COMPLIANT', regulation: 'ESOS', dueDate: null },
+    ]);
+
+    const res = await request(app).get('/api/compliance/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.complianceRate).toBe(100);
+  });
+
+  it('PUT /api/compliance/:id updates jurisdiction field', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', jurisdiction: 'EU' });
+
+    const res = await request(app)
+      .put('/api/compliance/00000000-0000-0000-0000-000000000001')
+      .send({ jurisdiction: 'EU' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.jurisdiction).toBe('EU');
+  });
+});

@@ -268,3 +268,59 @@ describe('Threat Intelligence — edge cases and deeper coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ===================================================================
+// Threat Intelligence — final coverage
+// ===================================================================
+describe('Threat Intelligence — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / responds with JSON content-type', async () => {
+    prisma.isThreatIntelligence.findMany.mockResolvedValue([]);
+    prisma.isThreatIntelligence.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / with search param returns 200', async () => {
+    prisma.isThreatIntelligence.findMany.mockResolvedValue([]);
+    prisma.isThreatIntelligence.count.mockResolvedValue(0);
+    const res = await request(app).get('/?search=ransomware');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST / accepts OPERATIONAL category', async () => {
+    prisma.isThreatIntelligence.create.mockResolvedValue({ ...mockTI, category: 'OPERATIONAL' });
+    const res = await request(app).post('/').send({ ...tiPayload, category: 'OPERATIONAL' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / sets status to ACTIVE on creation', async () => {
+    prisma.isThreatIntelligence.create.mockResolvedValue(mockTI);
+    await request(app).post('/').send(tiPayload);
+    expect(prisma.isThreatIntelligence.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'ACTIVE' }),
+      })
+    );
+  });
+
+  it('GET /summary success is true', async () => {
+    prisma.isThreatIntelligence.count.mockResolvedValue(0);
+    prisma.isThreatIntelligence.groupBy
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    const res = await request(app).get('/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id accepts ARCHIVED status', async () => {
+    prisma.isThreatIntelligence.findUnique.mockResolvedValue(mockTI);
+    prisma.isThreatIntelligence.update.mockResolvedValue({ ...mockTI, status: 'ARCHIVED' });
+    const res = await request(app).put('/ti-1').send({ status: 'ARCHIVED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('ARCHIVED');
+  });
+});

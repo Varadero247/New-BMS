@@ -510,3 +510,122 @@ describe('Aerospace Special Processes API', () => {
     });
   });
 });
+
+describe('Aerospace Special Processes API — additional coverage', () => {
+  it('GET /api/special-processes returns correct totalPages for multi-page result', async () => {
+    mockPrisma.aeroSpecialProcess.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroSpecialProcess.count.mockResolvedValueOnce(40);
+
+    const res = await request(app)
+      .get('/api/special-processes?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(2);
+    expect(res.body.meta.total).toBe(40);
+  });
+
+  it('GET /api/special-processes page 2 limit 10 computes skip=10', async () => {
+    mockPrisma.aeroSpecialProcess.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroSpecialProcess.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/special-processes?page=2&limit=10')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroSpecialProcess.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/special-processes response shape has success:true and meta block', async () => {
+    mockPrisma.aeroSpecialProcess.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroSpecialProcess.count.mockResolvedValueOnce(0);
+
+    const res = await request(app)
+      .get('/api/special-processes')
+      .set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('GET /api/special-processes/:id returns 500 on db error', async () => {
+    mockPrisma.aeroSpecialProcess.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .get('/api/special-processes/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/special-processes/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroSpecialProcess.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'ACTIVE',
+      deletedAt: null,
+    });
+    mockPrisma.aeroSpecialProcess.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/special-processes/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'UNDER_REVIEW' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/special-processes/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroSpecialProcess.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    mockPrisma.aeroSpecialProcess.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .delete('/api/special-processes/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/special-processes/nadcap returns 500 on db error', async () => {
+    mockPrisma.aeroNadcapApproval.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .get('/api/special-processes/nadcap')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/special-processes?search=titanium applies OR search filter', async () => {
+    mockPrisma.aeroSpecialProcess.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroSpecialProcess.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/special-processes?search=titanium')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroSpecialProcess.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
+    );
+  });
+
+  it('PUT /api/special-processes/nadcap/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroNadcapApproval.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      approvalStatus: 'ACTIVE',
+      auditDate: null,
+      approvalDate: new Date(),
+      expiryDate: new Date(),
+      deletedAt: null,
+    });
+    mockPrisma.aeroNadcapApproval.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/special-processes/nadcap/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ approvalStatus: 'EXPIRED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

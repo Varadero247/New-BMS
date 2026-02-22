@@ -255,3 +255,40 @@ describe('AdaptiveTimeout — edge cases and boundary conditions', () => {
     expect(t.getTimeout()).toBe(200);
   });
 });
+
+describe('AdaptiveTimeout — additional boundary tests', () => {
+  it('default baseTimeoutMs is 5000', () => {
+    const t = new AdaptiveTimeout();
+    expect(t.getTimeout()).toBe(5000);
+  });
+
+  it('default minSamples is 10 — 9 samples still uses base', () => {
+    const t = new AdaptiveTimeout({ baseTimeoutMs: 2000 });
+    for (let i = 0; i < 9; i++) t.record(100);
+    expect(t.getTimeout()).toBe(2000);
+  });
+
+  it('percentile(50) with two samples returns lower of the two', () => {
+    const t = new AdaptiveTimeout();
+    t.record(100);
+    t.record(200);
+    // sorted [100, 200], p50: ceil(0.5*2)-1 = 0 → 100
+    expect(t.percentile(50)).toBe(100);
+  });
+
+  it('sampleCount is 0 after construction', () => {
+    expect(new AdaptiveTimeout({ windowSize: 100 }).sampleCount).toBe(0);
+  });
+
+  it('reset() after zero records does not throw', () => {
+    const t = new AdaptiveTimeout();
+    expect(() => t.reset()).not.toThrow();
+    expect(t.sampleCount).toBe(0);
+  });
+
+  it('withAdaptiveTimeout resolves with null correctly', async () => {
+    const t = new AdaptiveTimeout({ baseTimeoutMs: 1000 });
+    const result = await withAdaptiveTimeout(t, async () => null);
+    expect(result).toBeNull();
+  });
+});

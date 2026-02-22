@@ -600,3 +600,105 @@ describe('Health & Safety Objectives — additional coverage', () => {
     expect(response.status).toBe(500);
   });
 });
+
+describe('Health & Safety Objectives — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/objectives', objectivesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / calls findMany with include milestones', async () => {
+    (mockPrisma.ohsObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.ohsObjective.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/objectives').set('Authorization', 'Bearer token');
+    expect(mockPrisma.ohsObjective.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ include: expect.objectContaining({ milestones: expect.any(Object) }) })
+    );
+  });
+
+  it('POST / sets status to ACTIVE by default', async () => {
+    (mockPrisma.ohsObjective.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.ohsObjective.create as jest.Mock).mockResolvedValueOnce({ id: 'x', referenceNumber: 'OBJ-001', status: 'ACTIVE', milestones: [] });
+    await request(app)
+      .post('/api/objectives')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Test', category: 'INCIDENT_REDUCTION', targetDate: '2026-12-31' });
+    expect(mockPrisma.ohsObjective.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('PATCH /:id returns 500 on update DB error', async () => {
+    (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001', status: 'ACTIVE', milestones: [],
+    });
+    (mockPrisma.ohsObjective.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .patch('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id calls update with deletedAt', async () => {
+    (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({ id: '15000000-0000-4000-a000-000000000001' });
+    (mockPrisma.ohsObjective.update as jest.Mock).mockResolvedValueOnce({});
+    await request(app)
+      .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.ohsObjective.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST /milestones calls create with sortOrder equal to milestones.length', async () => {
+    (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+      milestones: [{ id: 'ms-1' }, { id: 'ms-2' }, { id: 'ms-3' }],
+    });
+    (mockPrisma.objectiveMilestone.create as jest.Mock).mockResolvedValueOnce({ id: 'ms-4', sortOrder: 3 });
+    await request(app)
+      .post('/api/objectives/15000000-0000-4000-a000-000000000001/milestones')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Fourth milestone', dueDate: '2026-09-30' });
+    expect(mockPrisma.objectiveMilestone.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ sortOrder: 3 }) })
+    );
+  });
+
+  it('GET / meta.total matches mocked count', async () => {
+    (mockPrisma.ohsObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.ohsObjective.count as jest.Mock).mockResolvedValueOnce(17);
+    const res = await request(app).get('/api/objectives').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(17);
+  });
+
+  it('PATCH /milestones/:mid progress 0% when all uncompleted', async () => {
+    (mockPrisma.objectiveMilestone.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '1b000000-0000-4000-a000-000000000001',
+      objectiveId: '15000000-0000-4000-a000-000000000001',
+      completed: true,
+    });
+    (mockPrisma.objectiveMilestone.update as jest.Mock).mockResolvedValueOnce({ id: '1b000000-0000-4000-a000-000000000001', completed: false });
+    (mockPrisma.objectiveMilestone.findMany as jest.Mock).mockResolvedValueOnce([
+      { completed: false }, { completed: false }, { completed: false },
+    ]);
+    (mockPrisma.ohsObjective.update as jest.Mock).mockResolvedValueOnce({});
+    const res = await request(app)
+      .patch('/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ completed: false });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.ohsObjective.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { progressPercent: 0 } })
+    );
+  });
+});

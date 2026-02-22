@@ -389,3 +389,60 @@ describe('Field Service Technicians — edge cases and validation', () => {
     expect(res.body.data.message).toBe('Technician deleted');
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('technicians.api — further coverage', () => {
+  it('GET / applies correct skip for page 3 limit 20', async () => {
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(0);
+
+    await request(app).get('/api/technicians?page=3&limit=20');
+
+    expect(mockPrisma.fsSvcTechnician.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 40, take: 20 })
+    );
+  });
+
+  it('POST / returns 201 with created technician data', async () => {
+    mockPrisma.fsSvcTechnician.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000050',
+      name: 'Test Tech',
+      email: 'techtest@test.com',
+      skills: ['hvac'],
+    });
+
+    const res = await request(app)
+      .post('/api/technicians')
+      .send({ name: 'Test Tech', email: 'techtest@test.com', skills: ['hvac'] });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET / returns pagination.total matching count mock', async () => {
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(42);
+
+    const res = await request(app).get('/api/technicians');
+
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('GET /available returns 500 on DB error', async () => {
+    mockPrisma.fsSvcTechnician.findMany.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/technicians/available');
+
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id calls update exactly once on success', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060' });
+    mockPrisma.fsSvcTechnician.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060', deletedAt: new Date() });
+
+    await request(app).delete('/api/technicians/00000000-0000-0000-0000-000000000060');
+
+    expect(mockPrisma.fsSvcTechnician.update).toHaveBeenCalledTimes(1);
+  });
+});

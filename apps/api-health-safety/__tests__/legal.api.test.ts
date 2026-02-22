@@ -545,3 +545,81 @@ describe('Health & Safety Legal Requirements — additional coverage', () => {
     );
   });
 });
+
+describe('Health & Safety Legal Requirements — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/legal', legalRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET returns success true on 200', async () => {
+    (mockPrisma.legalRequirement.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.legalRequirement.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/legal').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns data with correct id field', async () => {
+    (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '14000000-0000-4000-a000-000000000001',
+      title: 'Health and Safety at Work Act',
+    });
+    const res = await request(app).get('/api/legal/14000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('14000000-0000-4000-a000-000000000001');
+  });
+
+  it('POST creates with status ACTIVE by default', async () => {
+    (mockPrisma.legalRequirement.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.legalRequirement.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'LR-001',
+      status: 'ACTIVE',
+    });
+    await request(app)
+      .post('/api/legal')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'COSHH', description: 'Control substances', category: 'SUBORDINATE_LEGISLATION', jurisdiction: 'UK' });
+    expect(mockPrisma.legalRequirement.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('PATCH response has success true on 200', async () => {
+    (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '14000000-0000-4000-a000-000000000001', complianceStatus: 'NOT_ASSESSED',
+    });
+    (mockPrisma.legalRequirement.update as jest.Mock).mockResolvedValueOnce({ id: '14000000-0000-4000-a000-000000000001', title: 'Updated' });
+    const res = await request(app)
+      .patch('/api/legal/14000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET meta.totalPages is computed correctly for 50 records limit 20', async () => {
+    (mockPrisma.legalRequirement.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.legalRequirement.count as jest.Mock).mockResolvedValueOnce(50);
+    const res = await request(app).get('/api/legal?limit=20').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('POST returns 400 for missing description', async () => {
+    const res = await request(app)
+      .post('/api/legal')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'COSHH', category: 'SUBORDINATE_LEGISLATION' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

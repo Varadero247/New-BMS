@@ -607,3 +607,119 @@ describe('analyses.api — edge cases', () => {
     expect(res.body.meta.total).toBe(0);
   });
 });
+
+// ── analyses.api — further coverage ───────────────────────────────────────
+
+describe('analyses.api — further coverage', () => {
+  let app: express.Express;
+
+  const mockAnalysis = {
+    id: '52000000-0000-4000-a000-000000000001',
+    userId: '20000000-0000-4000-a000-000000000001',
+    sourceType: 'risk',
+    sourceId: 'source-1',
+    sourceData: { title: 'Fall from height' },
+    prompt: 'Analyse this risk',
+    provider: 'OPENAI',
+    model: 'gpt-4',
+    response: { content: 'Analysis result' },
+    suggestedRootCause: 'Inadequate protection',
+    suggestedActions: [],
+    complianceGaps: [],
+    highlights: [],
+    status: 'COMPLETED',
+    acceptedAt: null,
+    rejectedAt: null,
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date('2024-01-15'),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyses', analysesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/analyses computes totalPages=3 for 25 records with limit=10', async () => {
+    mockPrisma.aIAnalysis.findMany.mockResolvedValueOnce([mockAnalysis]);
+    mockPrisma.aIAnalysis.count.mockResolvedValueOnce(25);
+    const res = await request(app)
+      .get('/api/analyses?page=1&limit=10')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('GET /api/analyses page 4 limit 5 computes skip=15 in findMany call', async () => {
+    mockPrisma.aIAnalysis.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aIAnalysis.count.mockResolvedValueOnce(30);
+    const res = await request(app)
+      .get('/api/analyses?page=4&limit=5')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.aIAnalysis.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 15, take: 5 })
+    );
+  });
+
+  it('POST /api/analyses/:id/accept with empty suggestedActions sets ACCEPTED', async () => {
+    const noActionsAnalysis = { ...mockAnalysis, suggestedActions: [] };
+    mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(noActionsAnalysis);
+    mockPrisma.aIAnalysis.update.mockResolvedValueOnce({
+      ...noActionsAnalysis,
+      status: 'ACCEPTED',
+      acceptedAt: new Date(),
+    });
+    const res = await request(app)
+      .post('/api/analyses/52000000-0000-4000-a000-000000000001/accept')
+      .set('Authorization', 'Bearer test-token')
+      .send({ acceptedActions: [] });
+    expect(res.status).toBe(200);
+    const updateCall = (mockPrisma.aIAnalysis.update as jest.Mock).mock.calls[0];
+    expect(updateCall[0].data.status).toBe('ACCEPTED');
+  });
+
+  it('DELETE /api/analyses/:id returns 204 on success', async () => {
+    mockPrisma.aIAnalysis.update.mockResolvedValueOnce({ ...mockAnalysis, deletedAt: new Date() });
+    const res = await request(app)
+      .delete('/api/analyses/52000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(204);
+  });
+
+  it('GET /api/analyses response shape has success:true and meta block', async () => {
+    mockPrisma.aIAnalysis.findMany.mockResolvedValueOnce([mockAnalysis]);
+    mockPrisma.aIAnalysis.count.mockResolvedValueOnce(1);
+    const res = await request(app)
+      .get('/api/analyses')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('meta');
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('limit');
+    expect(res.body.meta).toHaveProperty('total');
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/analyses/:id returns success:true with data.sourceType', async () => {
+    mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(mockAnalysis);
+    const res = await request(app)
+      .get('/api/analyses/52000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.sourceType).toBe('risk');
+  });
+
+  it('GET /api/analyses totalPages=1 for exactly 20 records with default limit', async () => {
+    const items = Array.from({ length: 20 }, (_, i) => ({ ...mockAnalysis, id: `item-${i}` }));
+    mockPrisma.aIAnalysis.findMany.mockResolvedValueOnce(items);
+    mockPrisma.aIAnalysis.count.mockResolvedValueOnce(20);
+    const res = await request(app)
+      .get('/api/analyses')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(1);
+  });
+});

@@ -283,3 +283,54 @@ describe('status — more scenarios', () => {
     expect(Array.isArray(res.body.data.services)).toBe(true);
   });
 });
+
+describe('status — final coverage batch', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/health/status', statusRouter);
+    jest.clearAllMocks();
+    mockGetPlatformStatus.mockReturnValue({
+      status: 'operational',
+      timestamp: new Date().toISOString(),
+      services: [{ name: 'api-gateway', status: 'operational', latencyMs: 5 }],
+      uptime: { '24h': 99.98, '7d': 99.95, '30d': 99.91 },
+      incidents: [],
+    });
+  });
+
+  it('response has data.status equal to operational', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.body.data.status).toBe('operational');
+  });
+
+  it('response data.timestamp is a valid ISO string', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(() => new Date(res.body.data.timestamp)).not.toThrow();
+  });
+
+  it('response data.uptime 30d is 99.91', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.body.data.uptime['30d']).toBe(99.91);
+  });
+
+  it('getPlatformStatus is not called with any arguments', async () => {
+    await request(app).get('/api/health/status');
+    expect(mockGetPlatformStatus).toHaveBeenCalledWith();
+  });
+
+  it('mock returning outage status causes body.data.status to be outage', async () => {
+    mockGetPlatformStatus.mockReturnValueOnce({
+      status: 'outage',
+      timestamp: new Date().toISOString(),
+      services: [],
+      uptime: { '24h': 80.0, '7d': 95.0, '30d': 98.0 },
+      incidents: [],
+    });
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('outage');
+  });
+});

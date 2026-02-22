@@ -340,3 +340,61 @@ describe('stakeholders — extended coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000002');
   });
 });
+
+describe('stakeholders — additional coverage 2', () => {
+  it('GET / returns pagination object with total', async () => {
+    (prisma.esgStakeholder.findMany as jest.Mock).mockResolvedValue([mockStakeholder]);
+    (prisma.esgStakeholder.count as jest.Mock).mockResolvedValue(5);
+    const res = await request(app).get('/api/stakeholders');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(5);
+  });
+
+  it('POST / stores createdBy from authenticated user', async () => {
+    (prisma.esgStakeholder.create as jest.Mock).mockResolvedValue(mockStakeholder);
+    await request(app).post('/api/stakeholders').send({ name: 'Test Corp', type: 'REGULATOR' });
+    const [call] = (prisma.esgStakeholder.create as jest.Mock).mock.calls;
+    expect(call[0].data.createdBy).toBe('user-123');
+  });
+
+  it('PUT /:id updates name field successfully', async () => {
+    (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(mockStakeholder);
+    (prisma.esgStakeholder.update as jest.Mock).mockResolvedValue({ ...mockStakeholder, name: 'Renamed Corp' });
+    const res = await request(app)
+      .put('/api/stakeholders/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Renamed Corp' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Renamed Corp');
+  });
+
+  it('GET / filters by EMPLOYEE type correctly', async () => {
+    (prisma.esgStakeholder.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgStakeholder.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/stakeholders?type=EMPLOYEE');
+    expect(prisma.esgStakeholder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'EMPLOYEE' }) })
+    );
+  });
+
+  it('GET / returns correct number of results', async () => {
+    (prisma.esgStakeholder.findMany as jest.Mock).mockResolvedValue([mockStakeholder, mockStakeholder]);
+    (prisma.esgStakeholder.count as jest.Mock).mockResolvedValue(2);
+    const res = await request(app).get('/api/stakeholders');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('DELETE /:id calls update with deletedAt', async () => {
+    (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(mockStakeholder);
+    (prisma.esgStakeholder.update as jest.Mock).mockResolvedValue({ ...mockStakeholder, deletedAt: new Date() });
+    await request(app).delete('/api/stakeholders/00000000-0000-0000-0000-000000000001');
+    const [call] = (prisma.esgStakeholder.update as jest.Mock).mock.calls;
+    expect(call[0].data).toHaveProperty('deletedAt');
+  });
+
+  it('GET /:id returns name and type in data', async () => {
+    (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(mockStakeholder);
+    const res = await request(app).get('/api/stakeholders/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('name', 'Acme Investors');
+    expect(res.body.data).toHaveProperty('type', 'INVESTOR');
+  });
+});

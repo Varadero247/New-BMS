@@ -328,3 +328,60 @@ describe('Depreciation — additional coverage', () => {
     );
   });
 });
+
+describe('Depreciation — final coverage block', () => {
+  it('POST is not supported — returns 404', async () => {
+    const res = await request(app).post('/api/depreciation').send({});
+    expect(res.status).toBe(404);
+  });
+
+  it('data items currentValue is less than or equal to purchaseCost', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Compressor', purchaseCost: 10000, currentValue: 8000, purchaseDate: '2023-01-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].currentValue).toBeLessThanOrEqual(res.body.data[0].purchaseCost);
+  });
+
+  it('response content-type contains json', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('findMany is called with orgId filter', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/depreciation');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ orgId: 'org-1' }),
+      })
+    );
+  });
+
+  it('success is true when assets have high purchase costs', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Server', purchaseCost: 500000, currentValue: 400000, purchaseDate: '2022-01-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('data[0].id is the same id as returned by mock', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'unique-id-xyz', name: 'Widget', purchaseCost: 1000, currentValue: 750, purchaseDate: '2025-01-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('unique-id-xyz');
+  });
+
+  it('success flag is boolean true on successful response', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/depreciation');
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(true);
+  });
+});

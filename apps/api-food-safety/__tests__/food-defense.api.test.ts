@@ -389,3 +389,83 @@ describe('food-defense.api — edge cases and extended coverage', () => {
     expect(res.body.data).toHaveProperty('threatType', 'BIOTERRORISM');
   });
 });
+
+describe('food-defense.api — final coverage pass', () => {
+  it('GET /api/food-defense default page=1 applies skip 0', async () => {
+    mockPrisma.fsFoodDefense.findMany.mockResolvedValue([]);
+    mockPrisma.fsFoodDefense.count.mockResolvedValue(0);
+
+    await request(app).get('/api/food-defense');
+    expect(mockPrisma.fsFoodDefense.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('GET /api/food-defense count error still returns 500', async () => {
+    mockPrisma.fsFoodDefense.findMany.mockResolvedValue([]);
+    mockPrisma.fsFoodDefense.count.mockRejectedValue(new Error('count error'));
+
+    const res = await request(app).get('/api/food-defense');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/food-defense create returns data with id', async () => {
+    const record = {
+      id: '00000000-0000-0000-0000-000000000010',
+      title: 'Espionage Threat',
+      threatType: 'SABOTAGE',
+      riskLevel: 'LOW',
+    };
+    mockPrisma.fsFoodDefense.create.mockResolvedValue(record);
+
+    const res = await request(app).post('/api/food-defense').send({
+      title: 'Espionage Threat',
+      threatType: 'SABOTAGE',
+      riskLevel: 'LOW',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id', '00000000-0000-0000-0000-000000000010');
+  });
+
+  it('PUT /api/food-defense/:id can update title field', async () => {
+    mockPrisma.fsFoodDefense.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsFoodDefense.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Revised Assessment',
+    });
+
+    const res = await request(app)
+      .put('/api/food-defense/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Revised Assessment' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('title', 'Revised Assessment');
+  });
+
+  it('DELETE /api/food-defense/:id calls update with deletedAt', async () => {
+    mockPrisma.fsFoodDefense.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsFoodDefense.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    await request(app).delete('/api/food-defense/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsFoodDefense.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/food-defense page=2 limit=5 returns skip=5 take=5', async () => {
+    mockPrisma.fsFoodDefense.findMany.mockResolvedValue([]);
+    mockPrisma.fsFoodDefense.count.mockResolvedValue(0);
+
+    await request(app).get('/api/food-defense?page=2&limit=5');
+    expect(mockPrisma.fsFoodDefense.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+});

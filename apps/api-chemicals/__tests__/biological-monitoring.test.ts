@@ -343,3 +343,74 @@ describe('Biological Monitoring — extended coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Biological Monitoring — additional coverage 2', () => {
+  it('GET / response has pagination property with total', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/biological-monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total', 1);
+  });
+
+  it('GET / filters by exceedsBGV=false when set to false', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(1);
+    await request(app).get('/api/biological-monitoring?exceedsBGV=false');
+    const [call] = (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.exceedsBGV).toBe(false);
+  });
+
+  it('GET /alerts response data object has both required keys', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/biological-monitoring/alerts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('exceedingBGV');
+    expect(res.body.data).toHaveProperty('overdueMonitoring');
+  });
+
+  it('POST / returns 201 with success:true on valid create', async () => {
+    (mockPrisma.chemBiologicalMonitoring.create as jest.Mock).mockResolvedValue(mockRecord);
+    const res = await request(app).post('/api/biological-monitoring').send({
+      employeeId: 'EMP-003',
+      employeeName: 'Carol',
+      substanceName: 'Toluene',
+      biomarker: 'Hippuric acid',
+      sampleType: 'URINE',
+      collectionDate: '2026-03-01',
+      measuredValue: 0.5,
+      unit: 'g/g creatinine',
+      collectedBy: 'Dr. Grant',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id updates correctionActions and returns 200', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+    (mockPrisma.chemBiologicalMonitoring.update as jest.Mock).mockResolvedValue({
+      ...mockRecord,
+      correctionActions: 'Provide PPE',
+    });
+    const res = await request(app)
+      .put('/api/biological-monitoring/00000000-0000-0000-0000-000000000001')
+      .send({ correctionActions: 'Provide PPE' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns 500 on db error', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/biological-monitoring/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / count is called once per list request', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/biological-monitoring');
+    expect(mockPrisma.chemBiologicalMonitoring.count).toHaveBeenCalledTimes(1);
+  });
+});

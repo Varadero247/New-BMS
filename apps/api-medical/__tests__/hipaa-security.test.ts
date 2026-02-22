@@ -315,3 +315,75 @@ describe('HIPAA Security — additional coverage', () => {
     );
   });
 });
+
+describe('HIPAA Security — final boundary coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns empty data array when no controls match', async () => {
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue([]);
+    prisma.hipaaSecurityControl.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('GET /dashboard counts all controls including NOT_APPLICABLE in total', async () => {
+    const controls = [
+      { ...mockControl, id: 'c1', implementationStatus: 'NOT_APPLICABLE' },
+      { ...mockControl, id: 'c2', implementationStatus: 'NOT_APPLICABLE' },
+      { ...mockControl, id: 'c3', implementationStatus: 'FULLY_IMPLEMENTED' },
+    ];
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue(controls);
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(3);
+    expect(res.body.data.fullyImplemented).toBe(1);
+  });
+
+  it('GET /dashboard 100% compliance when all FULLY_IMPLEMENTED', async () => {
+    const controls = [
+      { ...mockControl, id: 'c1', implementationStatus: 'FULLY_IMPLEMENTED' },
+      { ...mockControl, id: 'c2', implementationStatus: 'FULLY_IMPLEMENTED' },
+    ];
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue(controls);
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overallCompliancePercent).toBe(100);
+  });
+
+  it('GET /:id returns 500 for DB error during findUnique', async () => {
+    prisma.hipaaSecurityControl.findUnique.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/ctrl-err');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /seed created count matches createMany result count', async () => {
+    prisma.hipaaSecurityControl.count
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(41);
+    prisma.hipaaSecurityControl.createMany.mockResolvedValue({ count: 41 });
+    const res = await request(app).post('/seed');
+    expect(res.status).toBe(201);
+    expect(res.body.data.count).toBe(41);
+  });
+
+  it('PUT /:id/implementation TECHNICAL category control can be updated', async () => {
+    const technicalControl = { ...mockControl, id: 'ctrl-tech', category: 'TECHNICAL' };
+    prisma.hipaaSecurityControl.findUnique.mockResolvedValue(technicalControl);
+    prisma.hipaaSecurityControl.update.mockResolvedValue({ ...technicalControl, implementationStatus: 'FULLY_IMPLEMENTED' });
+    const res = await request(app)
+      .put('/ctrl-tech/implementation')
+      .send({ implementationStatus: 'FULLY_IMPLEMENTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.implementationStatus).toBe('FULLY_IMPLEMENTED');
+  });
+
+  it('GET /dashboard returns 500 on DB error', async () => {
+    prisma.hipaaSecurityControl.findMany.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

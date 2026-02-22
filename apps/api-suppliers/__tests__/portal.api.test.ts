@@ -248,3 +248,60 @@ describe('portal.api — profile extended paths', () => {
     expect(res.body.data.category).toBe('Manufacturing');
   });
 });
+
+describe('portal.api — final coverage expansion', () => {
+  it('GET /api/portal/profile: data object id is a string', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: 'str-id-123',
+      name: 'TechCo',
+      email: 'supplier@example.com',
+    });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.id).toBe('string');
+  });
+
+  it('GET /api/portal/profile: 404 error message is a string', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(404);
+    expect(typeof res.body.error.message).toBe('string');
+  });
+
+  it('GET /api/portal/profile: 500 error message is a string', async () => {
+    mockPrisma.suppSupplier.findFirst.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(500);
+    expect(typeof res.body.error.message).toBe('string');
+  });
+
+  it('GET /api/portal/profile: success true is boolean', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: '7',
+      name: 'Alpha',
+      email: 'supplier@example.com',
+    });
+    const res = await request(app).get('/api/portal/profile');
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/portal/profile: response content-type contains json', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '1', name: 'X', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/portal/profile: findFirst is not called more than once', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '1', name: 'X', email: 'supplier@example.com' });
+    await request(app).get('/api/portal/profile');
+    expect(mockPrisma.suppSupplier.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/portal/profile: data.name is defined on 200', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '1', name: 'DataCo', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBeDefined();
+  });
+});

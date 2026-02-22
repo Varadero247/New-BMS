@@ -468,3 +468,99 @@ describe('Additional customers coverage', () => {
     expect(res.body).toMatchObject({ success: true, pagination: expect.objectContaining({ total: 1 }) });
   });
 });
+
+// ===================================================================
+// Customers — final coverage block
+// ===================================================================
+describe('Customers — final coverage', () => {
+  it('GET /api/customers data array length matches findMany result', async () => {
+    mockPrisma.finCustomer.findMany.mockResolvedValue([
+      { id: 'f4000000-0000-4000-a000-000000000010', code: 'CUST-A-0001', name: 'Alpha', _count: { invoices: 0 } },
+      { id: 'f4000000-0000-4000-a000-000000000011', code: 'CUST-B-0002', name: 'Beta', _count: { invoices: 1 } },
+    ]);
+    mockPrisma.finCustomer.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/customers');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /api/customers/:id returns data with expected id field', async () => {
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
+      id: 'f4000000-0000-4000-a000-000000000012',
+      code: 'CUST-GAMMA-0001',
+      name: 'Gamma Ltd',
+      deletedAt: null,
+      invoices: [],
+      _count: { invoices: 0 },
+    });
+
+    const res = await request(app).get('/api/customers/f4000000-0000-4000-a000-000000000012');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id', 'f4000000-0000-4000-a000-000000000012');
+  });
+
+  it('POST /api/customers creates with paymentTerms field', async () => {
+    mockPrisma.finCustomer.create.mockResolvedValue({
+      id: 'cust-pt',
+      code: 'CUST-DELTA-0001',
+      name: 'Delta Corp',
+      paymentTerms: 60,
+    });
+
+    const res = await request(app).post('/api/customers').send({
+      name: 'Delta Corp',
+      paymentTerms: 60,
+      currency: 'EUR',
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.finCustomer.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ paymentTerms: 60 }) })
+    );
+  });
+
+  it('PUT /api/customers/:id passes currency field in update', async () => {
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
+      id: 'f4000000-0000-4000-a000-000000000013',
+      deletedAt: null,
+    });
+    mockPrisma.finCustomer.update.mockResolvedValue({
+      id: 'f4000000-0000-4000-a000-000000000013',
+      currency: 'USD',
+    });
+
+    const res = await request(app)
+      .put('/api/customers/f4000000-0000-4000-a000-000000000013')
+      .send({ currency: 'USD' });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.finCustomer.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ currency: 'USD' }) })
+    );
+  });
+
+  it('DELETE /api/customers/:id soft-delete sets deletedAt via update', async () => {
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
+      id: 'f4000000-0000-4000-a000-000000000014',
+      deletedAt: null,
+    });
+    mockPrisma.finInvoice.count.mockResolvedValue(0);
+    mockPrisma.finCustomer.update.mockResolvedValue({
+      id: 'f4000000-0000-4000-a000-000000000014',
+    });
+
+    await request(app).delete('/api/customers/f4000000-0000-4000-a000-000000000014');
+    expect(mockPrisma.finCustomer.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.anything() }),
+      })
+    );
+  });
+
+  it('GET /api/customers count is called once per list request', async () => {
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customers');
+    expect(mockPrisma.finCustomer.count).toHaveBeenCalledTimes(1);
+  });
+});

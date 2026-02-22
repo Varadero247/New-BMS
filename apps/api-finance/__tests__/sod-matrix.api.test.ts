@@ -460,3 +460,79 @@ describe('SoD Matrix — response shape validation', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// SoD Matrix — final coverage block
+// ===================================================================
+describe('SoD Matrix — final coverage', () => {
+  const rule = {
+    role1: 'General Ledger',
+    role2: 'Fixed Assets',
+    conflictType: 'MEDIUM',
+    description: 'GL and FA conflict',
+    mitigatingControl: 'Monthly reconciliation',
+  };
+
+  it('GET / data array is always an array', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/sod-matrix');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create is called once per valid POST', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      ...rule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/sod-matrix').send(rule);
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / findMany is called with deletedAt: null filter', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+    await request(app).get('/api/sod-matrix');
+    expect(mockPrisma.finSodRule.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('POST / response data has role2 field matching request', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000031',
+      ...rule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    const res = await request(app).post('/api/sod-matrix').send(rule);
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('role2', 'Fixed Assets');
+  });
+
+  it('GET / data items reflect mock data fields', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000032',
+        role1: 'Cash Manager',
+        role2: 'Bank Approver',
+        conflictType: 'HIGH',
+        orgId: '00000000-0000-4000-a000-000000000100',
+      },
+    ]);
+    const res = await request(app).get('/api/sod-matrix');
+    expect(res.body.data[0]).toHaveProperty('role1', 'Cash Manager');
+    expect(res.body.data[0]).toHaveProperty('conflictType', 'HIGH');
+  });
+
+  it('POST / conflictType MEDIUM creates successfully', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000033',
+      ...rule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    const res = await request(app).post('/api/sod-matrix').send(rule);
+    expect(res.status).toBe(201);
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ conflictType: 'MEDIUM' }) })
+    );
+  });
+});

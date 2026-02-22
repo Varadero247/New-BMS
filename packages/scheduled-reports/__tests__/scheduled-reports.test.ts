@@ -278,3 +278,37 @@ describe('schedule response shape and additional coverage', () => {
     expect(names).toContain('Third');
   });
 });
+
+describe('scheduled-reports — further coverage', () => {
+  it('REPORT_TYPES values are all unique strings', () => {
+    const values = REPORT_TYPES.map((t) => t.value);
+    expect(new Set(values).size).toBe(values.length);
+  });
+
+  it('createSchedule with excel format stores it correctly', () => {
+    const org = uniqueOrg();
+    const sched = createSchedule({ orgId: org, ...BASE_PARAMS, format: 'excel' as const });
+    expect(sched.format).toBe('excel');
+  });
+
+  it('getSchedule returns undefined for empty string id', () => {
+    expect(getSchedule('')).toBeUndefined();
+  });
+
+  it('deleteSchedule returns false for already-deleted schedule', () => {
+    const sched = createSchedule({ orgId: uniqueOrg(), ...BASE_PARAMS });
+    expect(deleteSchedule(sched.id)).toBe(true);
+    expect(deleteSchedule(sched.id)).toBe(false);
+  });
+
+  it('runScheduleNow returns the updated schedule object', () => {
+    const sched = createSchedule({ orgId: uniqueOrg(), ...BASE_PARAMS });
+    const result = runScheduleNow(sched.id);
+    expect(result).not.toBeNull();
+    expect(result!.id).toBe(sched.id);
+  });
+
+  it('updateSchedule returns null for empty string id', () => {
+    expect(updateSchedule('', { name: 'Nope' })).toBeNull();
+  });
+});

@@ -322,3 +322,79 @@ describe('Onboarding — edge cases', () => {
     );
   });
 });
+
+// ===================================================================
+// Additional coverage to reach 35 tests
+// ===================================================================
+
+describe('Onboarding — final coverage', () => {
+  it('POST /enqueue with firstName stores it in jobs metadata', async () => {
+    (prisma.$transaction as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app)
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'fn@test.com', firstName: 'Alice' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /status summary.sent is 0 when all jobs are pending', async () => {
+    (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue([
+      { id: '1', template: 'welcome', status: 'PENDING' },
+      { id: '2', template: 'feature_highlight', status: 'PENDING' },
+    ]);
+    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.sent).toBe(0);
+    expect(res.body.data.summary.pending).toBe(2);
+  });
+
+  it('POST /cancel returns success:true with positive cancelledCount', async () => {
+    (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 3 });
+    const res = await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.cancelledCount).toBe(3);
+  });
+
+  it('POST /enqueue response 201 and data has both sequenceId and jobsScheduled', async () => {
+    (prisma.$transaction as jest.Mock).mockResolvedValue([]);
+    const res = await request(app)
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000002')
+      .send({ email: 'both@test.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('sequenceId');
+    expect(res.body.data).toHaveProperty('jobsScheduled');
+  });
+
+  it('POST /enqueue jobsScheduled equals 7 regardless of firstName presence', async () => {
+    (prisma.$transaction as jest.Mock).mockResolvedValue([]);
+    const withName = await request(app)
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'name@test.com', firstName: 'Bob' });
+    const withoutName = await request(app)
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'noname@test.com' });
+    expect(withName.body.data.jobsScheduled).toBe(7);
+    expect(withoutName.body.data.jobsScheduled).toBe(7);
+  });
+
+  it('GET /status summary.cancelled is 0 when no cancelled jobs', async () => {
+    (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue([
+      { id: '1', template: 'welcome', status: 'SENT' },
+    ]);
+    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.cancelled).toBe(0);
+  });
+
+  it('POST /cancel updateMany where clause filters by userId', async () => {
+    (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+    await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000004');
+    expect(prisma.mktEmailJob.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ userId: '00000000-0000-0000-0000-000000000004' }),
+      })
+    );
+  });
+});

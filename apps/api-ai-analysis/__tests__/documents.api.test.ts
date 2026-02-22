@@ -488,3 +488,108 @@ describe('Document Analysis — further edge cases', () => {
     expect(bodyStr).not.toContain('sk-test-key');
   });
 });
+
+// ── Document Analysis — final additional coverage ────────────────────────────
+
+describe('Document Analysis — final additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(mockSettings);
+    (prisma.aISettings.update as jest.Mock).mockResolvedValue(mockSettings);
+  });
+
+  it('response body always has success property', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'ok' }) } }],
+        usage: { total_tokens: 5 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Some text', analysisType: 'SUMMARIZE' });
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('POST /api/documents/analyze fetch called with POST method', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'method test' }) } }],
+        usage: { total_tokens: 10 },
+      }),
+    });
+    await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Document text', analysisType: 'SUMMARIZE' });
+    expect(mockFetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ method: 'POST' }));
+  });
+
+  it('POST /api/documents/analyze aISettings.findFirst called with correct filter', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'ok' }) } }],
+        usage: { total_tokens: 5 },
+      }),
+    });
+    await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Text', analysisType: 'SUMMARIZE' });
+    expect(prisma.aISettings.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/documents/analyze with Anthropic provider calls anthropic endpoint', async () => {
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({ ...mockSettings, provider: 'ANTHROPIC', model: 'claude-3-sonnet-20240229', apiKey: 'sk-ant-key' });
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        content: [{ text: JSON.stringify({ summary: 'Anthropic summary' }) }],
+        usage: { input_tokens: 100, output_tokens: 80 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Anthropic test doc', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(200);
+    expect(mockFetch).toHaveBeenCalledWith('https://api.anthropic.com/v1/messages', expect.any(Object));
+  });
+
+  it('POST /api/documents/analyze 502 AI_ERROR when fetch returns non-ok without error field', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({}),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Some doc', analysisType: 'SUMMARIZE' });
+    expect([500, 502]).toContain(res.status);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/documents/analyze SUMMARIZE result field is defined in response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'Clear summary here', keyPoints: 'Point A', mainTopic: 'Safety', actionItems: 'Review annually' }) } }],
+        usage: { total_tokens: 100 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Health and safety policy document text.', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.result).toBeDefined();
+    expect(res.body.data.result.summary).toBe('Clear summary here');
+  });
+
+  it('POST /api/documents/analyze does not call fetch when no AI config', async () => {
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Some content here', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(400);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+});

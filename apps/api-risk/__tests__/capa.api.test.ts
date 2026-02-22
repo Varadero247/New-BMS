@@ -322,3 +322,61 @@ describe('capa.api — extended edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('capa.api — final coverage', () => {
+  it('POST / with AUDIT source creates CAPA successfully', async () => {
+    mockPrisma.riskCapa.count.mockResolvedValue(5);
+    mockPrisma.riskCapa.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Audit fix',
+      source: 'AUDIT',
+    });
+    const res = await request(app)
+      .post('/api/capa')
+      .send({ title: 'Audit fix', type: 'CORRECTIVE', source: 'AUDIT' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / with INCIDENT source creates CAPA successfully', async () => {
+    mockPrisma.riskCapa.count.mockResolvedValue(0);
+    mockPrisma.riskCapa.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      title: 'Incident fix',
+      source: 'INCIDENT',
+    });
+    const res = await request(app)
+      .post('/api/capa')
+      .send({ title: 'Incident fix', type: 'PREVENTIVE', source: 'INCIDENT' });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET / returns data array', async () => {
+    mockPrisma.riskCapa.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Fix A' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Fix B' },
+    ]);
+    mockPrisma.riskCapa.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/capa');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('DELETE /:id calls update once with deletedAt', async () => {
+    mockPrisma.riskCapa.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskCapa.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/capa/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.riskCapa.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / totalPages is computed from total and limit', async () => {
+    mockPrisma.riskCapa.findMany.mockResolvedValue([]);
+    mockPrisma.riskCapa.count.mockResolvedValue(40);
+    const res = await request(app).get('/api/capa?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+});

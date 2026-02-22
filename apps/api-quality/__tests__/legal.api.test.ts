@@ -514,3 +514,103 @@ describe('Quality Legal Obligations API Routes', () => {
     });
   });
 });
+
+describe('Quality Legal Obligations API — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/legal', legalRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /api/legal/:id — 500 on update error after findUnique', async () => {
+    mockPrisma.qualLegal.findUnique.mockResolvedValueOnce({
+      id: '18000000-0000-4000-a000-000000000001',
+    });
+    mockPrisma.qualLegal.update.mockRejectedValueOnce(new Error('DB write fail'));
+
+    const response = await request(app)
+      .delete('/api/legal/18000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/legal/:id — returns referenceNumber in response', async () => {
+    mockPrisma.qualLegal.findUnique.mockResolvedValueOnce({
+      id: '18000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-LEG-2026-001',
+      title: 'ISO 9001:2015 Certification',
+      obligationType: 'CERTIFICATION_REQUIREMENT',
+      complianceStatus: 'COMPLIANT',
+      status: 'ACTIVE',
+      description: 'Maintain ISO 9001 certification',
+    });
+
+    const response = await request(app)
+      .get('/api/legal/18000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.referenceNumber).toBe('QMS-LEG-2026-001');
+  });
+
+  it('POST /api/legal — count is called to generate sequential reference number', async () => {
+    mockPrisma.qualLegal.count.mockResolvedValueOnce(3);
+    mockPrisma.qualLegal.create.mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-LEG-2026-004',
+      title: 'New Reg',
+      obligationType: 'REGULATORY',
+      description: 'desc',
+    });
+
+    await request(app)
+      .post('/api/legal')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'New Reg', obligationType: 'REGULATORY', description: 'desc' });
+
+    expect(mockPrisma.qualLegal.count).toHaveBeenCalled();
+  });
+
+  it('PUT /api/legal/:id — update passes correct id in where clause', async () => {
+    mockPrisma.qualLegal.findUnique.mockResolvedValueOnce({
+      id: '18000000-0000-4000-a000-000000000001',
+      title: 'Legal Obligation',
+      status: 'ACTIVE',
+      complianceStatus: 'NOT_ASSESSED',
+    });
+    mockPrisma.qualLegal.update.mockResolvedValueOnce({
+      id: '18000000-0000-4000-a000-000000000001',
+      title: 'Updated Title',
+    });
+
+    await request(app)
+      .put('/api/legal/18000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Updated Title' });
+
+    expect(mockPrisma.qualLegal.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '18000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+
+  it('GET /api/legal — orderBy createdAt desc is applied', async () => {
+    mockPrisma.qualLegal.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
+
+    await request(app).get('/api/legal').set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.qualLegal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: 'desc' } })
+    );
+  });
+});

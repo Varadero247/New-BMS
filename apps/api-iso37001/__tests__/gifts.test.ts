@@ -473,3 +473,79 @@ describe('ISO 37001 Gifts API — additional coverage', () => {
     expect(mockPrisma.abGiftRegister.findMany).toHaveBeenCalled();
   });
 });
+
+describe('ISO 37001 Gifts API — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/gifts: skip is calculated correctly for page 3 limit 5', async () => {
+    (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(20);
+
+    await request(app).get('/api/gifts?page=3&limit=5');
+
+    expect(mockPrisma.abGiftRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('DELETE /api/gifts/:id: returns 500 on database error during soft delete', async () => {
+    (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+    (mockPrisma.abGiftRegister.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).delete('/api/gifts/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/gifts/:id/approve: returns 500 on database error during approval', async () => {
+    (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+    (mockPrisma.abGiftRegister.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).put('/api/gifts/00000000-0000-0000-0000-000000000001/approve');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/gifts/:id/decline: returns 500 on database error during decline', async () => {
+    (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+    (mockPrisma.abGiftRegister.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).put('/api/gifts/00000000-0000-0000-0000-000000000001/decline');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/gifts: referenceNumber is present in response data items', async () => {
+    (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
+    (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/gifts');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('referenceNumber');
+  });
+
+  it('POST /api/gifts: HOSPITALITY giftType is accepted', async () => {
+    (mockPrisma.abGiftRegister.create as jest.Mock).mockResolvedValueOnce({
+      ...mockGift2,
+      giftType: 'HOSPITALITY',
+    });
+
+    const res = await request(app).post('/api/gifts').send({
+      description: 'Business lunch',
+      giftType: 'HOSPITALITY',
+      direction: 'RECEIVED',
+      value: 80,
+      recipientOrGiver: 'Alice Partner',
+      date: '2026-02-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -234,3 +234,52 @@ describe('anomalies.api — extended edge cases', () => {
     expect(res.body.data).toHaveProperty('summary');
   });
 });
+
+// ── anomalies.api — final additional coverage ────────────────────────────────
+
+describe('anomalies.api — final additional coverage', () => {
+  it('GET /api/anomalies response always has success property', async () => {
+    const res = await request(app).get('/api/anomalies');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('GET /api/anomalies/kpis response always has success property', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('GET /api/anomalies?page=3&limit=5 returns 200 with pagination object', async () => {
+    const res = await request(app).get('/api/anomalies?page=3&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(typeof res.body.pagination.page).toBe('number');
+  });
+
+  it('GET /api/anomalies?limit=5 returns 200 with pagination.limit defined', async () => {
+    const res = await request(app).get('/api/anomalies?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(typeof res.body.pagination.limit).toBe('number');
+  });
+
+  it('PUT /api/anomalies/:id/dismiss with valid id and reason returns success:true', async () => {
+    const res = await request(app)
+      .put('/api/anomalies/anom-001/dismiss')
+      .send({ reason: 'Scheduled maintenance' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/anomalies kpis summary.normal is a number', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.summary.normal).toBe('number');
+  });
+
+  it('GET /api/anomalies?module=quality returns 200 with valid structure', async () => {
+    const res = await request(app).get('/api/anomalies?module=quality');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('anomalies');
+    expect(res.body.data).toHaveProperty('summary');
+  });
+});

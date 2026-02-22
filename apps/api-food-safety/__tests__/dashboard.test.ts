@@ -428,3 +428,63 @@ describe('Food Safety Dashboard — comprehensive edge cases', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ===================================================================
+// Food Safety Dashboard — final coverage block
+// ===================================================================
+describe('Food Safety Dashboard — final coverage block', () => {
+  const setupDefaultMocks = () => {
+    (prisma.fsHazard.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsAudit.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsNcr.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsRecall.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsProduct.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.fsNcr.findMany as jest.Mock).mockResolvedValue([]);
+  };
+
+  it('response status is 200 when all queries succeed', async () => {
+    setupDefaultMocks();
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+  });
+
+  it('data.summary has exactly the expected keys', async () => {
+    setupDefaultMocks();
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    const keys = Object.keys(res.body.data.summary);
+    expect(keys).toEqual(expect.arrayContaining(['hazards', 'ccps', 'audits', 'ncrs', 'openNcrs', 'recalls', 'activeRecalls', 'products']));
+  });
+
+  it('summary values are all numbers', async () => {
+    setupDefaultMocks();
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    for (const val of Object.values(res.body.data.summary as Record<string, unknown>)) {
+      expect(typeof val).toBe('number');
+    }
+  });
+
+  it('500 error from fsNcr.count results in 500 response', async () => {
+    (prisma.fsHazard.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsAudit.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsNcr.count as jest.Mock).mockRejectedValue(new Error('ncr count failed'));
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('recentNcrs entries have title and severity fields when data provided', async () => {
+    setupDefaultMocks();
+    (prisma.fsNcr.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000060', title: 'Temp Breach', severity: 'CRITICAL', status: 'OPEN', createdAt: new Date() },
+    ]);
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.recentNcrs[0]).toHaveProperty('title');
+    expect(res.body.data.recentNcrs[0]).toHaveProperty('severity');
+  });
+});

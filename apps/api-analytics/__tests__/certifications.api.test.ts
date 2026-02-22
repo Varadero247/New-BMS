@@ -408,3 +408,69 @@ describe('Certifications API — extended coverage', () => {
     );
   });
 });
+
+describe('Certifications API — final coverage', () => {
+  it('GET /api/certifications response body has success:true on success', async () => {
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/certifications count is called once per request', async () => {
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
+    await request(app).get('/api/certifications');
+    expect(mockPrisma.complianceDeadline.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/certifications body must have dueDate for 201', async () => {
+    mockPrisma.complianceDeadline.create.mockResolvedValue({
+      id: 'due-check',
+      name: 'DueCheck',
+      category: 'COMPLIANCE',
+      dueDate: new Date('2026-12-01'),
+      status: 'UPCOMING',
+    });
+    const res = await request(app).post('/api/certifications').send({
+      name: 'DueCheck',
+      category: 'COMPLIANCE',
+      dueDate: '2026-12-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.deadline).toHaveProperty('id');
+  });
+
+  it('GET /api/certifications/:id response has data.deadline property', async () => {
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Prop Check',
+      category: 'COMPLIANCE',
+      status: 'UPCOMING',
+    });
+    const res = await request(app).get('/api/certifications/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('deadline');
+  });
+
+  it('PATCH /api/certifications/:id response has data.deadline on success', async () => {
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.complianceDeadline.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+    });
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('deadline');
+  });
+
+  it('GET /api/certifications/seed calls createMany once', async () => {
+    mockPrisma.complianceDeadline.createMany.mockResolvedValue({ count: 3 });
+    await request(app).get('/api/certifications/seed');
+    expect(mockPrisma.complianceDeadline.createMany).toHaveBeenCalledTimes(1);
+  });
+});

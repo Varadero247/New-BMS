@@ -251,3 +251,35 @@ describe('Status Package — extended coverage', () => {
     expect(getOverallStatus()).toBe('down');
   });
 });
+
+// ─── Registry and status cross-checks ─────────────────────────────────────────
+
+describe('Status Package — registry and cross-checks', () => {
+  beforeEach(() => {
+    _resetStores();
+  });
+
+  it('checkServiceHealth returns name matching argument', () => {
+    const h = checkServiceHealth('Risk', 4027);
+    expect(h.name).toBe('Risk');
+  });
+
+  it('checkServiceHealth returns port matching argument', () => {
+    const h = checkServiceHealth('Audits', 4037);
+    expect(h.port).toBe(4037);
+  });
+
+  it('getAllServiceStatus returns an array', () => {
+    expect(Array.isArray(getAllServiceStatus())).toBe(true);
+  });
+
+  it('getPlatformStatus uptime has 7d key', () => {
+    const ps = getPlatformStatus();
+    expect(ps.uptime['7d']).toBeDefined();
+  });
+
+  it('getPlatformStatus uptime has 30d key', () => {
+    const ps = getPlatformStatus();
+    expect(ps.uptime['30d']).toBeDefined();
+  });
+});

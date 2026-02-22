@@ -342,3 +342,62 @@ describe('checklists.api — additional coverage', () => {
     }
   });
 });
+
+describe('Checklists API — final coverage block', () => {
+  it('POST / count is called to generate reference number', async () => {
+    mockPrisma.audChecklist.count.mockResolvedValue(1);
+    mockPrisma.audChecklist.create.mockResolvedValue({ id: 'chk-2', auditId: 'audit-1', title: 'Checklist 2', referenceNumber: 'ACH-2026-0002' });
+    await request(app).post('/api/checklists').send({ auditId: 'audit-1', title: 'Checklist 2' });
+    expect(mockPrisma.audChecklist.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id update is called with deletedAt data', async () => {
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audChecklist.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.audChecklist.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns data as an array', async () => {
+    mockPrisma.audChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/checklists');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id update is called with correct where.id', async () => {
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audChecklist.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    await request(app).put('/api/checklists/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+    expect(mockPrisma.audChecklist.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET / pagination total matches count mock', async () => {
+    mockPrisma.audChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.audChecklist.count.mockResolvedValue(22);
+    const res = await request(app).get('/api/checklists');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(22);
+  });
+
+  it('POST / create is called with auditId in data', async () => {
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.create.mockResolvedValue({ id: 'chk-new', auditId: 'aud-99', title: 'Check', referenceNumber: 'ACH-2026-0001' });
+    await request(app).post('/api/checklists').send({ auditId: 'aud-99', title: 'Check' });
+    expect(mockPrisma.audChecklist.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ auditId: 'aud-99' }) })
+    );
+  });
+
+  it('GET /:id data has title field matching mock data', async () => {
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'My Checklist' });
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('My Checklist');
+  });
+});

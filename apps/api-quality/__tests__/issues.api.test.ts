@@ -505,3 +505,116 @@ describe('Quality Issues API Routes', () => {
     });
   });
 });
+
+describe('Quality Issues API — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/issues', issuesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/issues — totalPages calculated correctly for large result set', async () => {
+    (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(100);
+
+    const response = await request(app)
+      .get('/api/issues?page=1&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(10);
+  });
+
+  it('GET /api/issues — response data has items property', async () => {
+    (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/issues').set('Authorization', 'Bearer token');
+
+    expect(response.body.data).toHaveProperty('items');
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('PUT /api/issues/:id — 500 on update DB error after successful findUnique', async () => {
+    (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      issueOfConcern: 'Issue',
+      bias: 'RISK',
+      priority: 'MEDIUM',
+      status: 'OPEN',
+    });
+    (mockPrisma.qualIssue.update as jest.Mock).mockRejectedValueOnce(new Error('write error'));
+
+    const response = await request(app)
+      .put('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ priority: 'HIGH' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/issues/:id — update called with deletedAt when record found', async () => {
+    (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.qualIssue.update as jest.Mock).mockResolvedValueOnce({});
+
+    await request(app)
+      .delete('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.qualIssue.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/issues/:id — referenceNumber present in response', async () => {
+    (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-ISS-2026-001',
+      issueOfConcern: 'Supply chain disruption',
+      bias: 'RISK',
+      priority: 'HIGH',
+      status: 'OPEN',
+      party: null,
+    });
+
+    const response = await request(app)
+      .get('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.referenceNumber).toBe('QMS-ISS-2026-001');
+  });
+
+  it('POST /api/issues — generate reference number uses count', async () => {
+    (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(5);
+    (mockPrisma.qualIssue.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-ISS-2026-006',
+      issueOfConcern: 'Another issue',
+      bias: 'RISK',
+      treatmentMethod: 'Plan',
+      priority: 'MEDIUM',
+      status: 'OPEN',
+      party: null,
+    });
+
+    const response = await request(app)
+      .post('/api/issues')
+      .set('Authorization', 'Bearer token')
+      .send({ issueOfConcern: 'Another issue', bias: 'RISK', treatmentMethod: 'Plan' });
+
+    expect(response.status).toBe(201);
+    expect(mockPrisma.qualIssue.count).toHaveBeenCalled();
+  });
+});

@@ -528,3 +528,69 @@ describe('Additional dashboard coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Dashboards API — final coverage', () => {
+  it('GET /api/dashboards pagination has all required keys', async () => {
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboards');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('POST /api/dashboards create is called once on valid input', async () => {
+    mockPrisma.analyticsDashboard.create.mockResolvedValue({
+      id: 'dash-once',
+      name: 'Once Dashboard',
+      ownerId: 'user-123',
+      isPublic: false,
+    });
+    await request(app).post('/api/dashboards').send({ name: 'Once Dashboard' });
+    expect(mockPrisma.analyticsDashboard.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/dashboards/:id sets deletedAt in the update call', async () => {
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsDashboard.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    mockPrisma.analyticsWidget.updateMany.mockResolvedValue({ count: 0 });
+    await request(app).delete('/api/dashboards/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.analyticsDashboard.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('PUT /api/dashboards/:id update called with correct id', async () => {
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsDashboard.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+    });
+    await request(app)
+      .put('/api/dashboards/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(mockPrisma.analyticsDashboard.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /api/dashboards/:id returns data.id matching the requested UUID', async () => {
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'ID Check',
+      analyticsWidgets: [],
+    });
+    const res = await request(app).get('/api/dashboards/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

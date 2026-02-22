@@ -372,3 +372,82 @@ describe('seedInitialFlags', () => {
     expect(seeded.every((f) => f.name !== 'workflow_visual_builder')).toBe(true);
   });
 });
+
+describe('feature-flags — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockFs.existsSync.mockReturnValue(true);
+    emptyStore();
+  });
+
+  it('createFlag calls writeFileSync with a JSON object containing the new flag', () => {
+    const written: string[] = [];
+    (mockFs.writeFileSync as jest.Mock).mockImplementation((_p: unknown, data: unknown) => {
+      written.push(String(data));
+    });
+    createFlag('persist_test', 'Test persistence');
+    const parsed = JSON.parse(written[written.length - 1]);
+    expect(parsed.flags.some((f: { name: string }) => f.name === 'persist_test')).toBe(true);
+  });
+
+  it('updateFlag writes updated description to store', () => {
+    setStore({
+      flags: [{ name: 'upd_persist', description: 'Old', enabled: false, createdAt: '', updatedAt: '' }],
+      orgOverrides: [],
+    });
+    const written: string[] = [];
+    (mockFs.writeFileSync as jest.Mock).mockImplementation((_p: unknown, data: unknown) => {
+      written.push(String(data));
+    });
+    updateFlag('upd_persist', { description: 'Updated' });
+    const parsed = JSON.parse(written[written.length - 1]);
+    const flag = parsed.flags.find((f: { name: string }) => f.name === 'upd_persist');
+    expect(flag?.description).toBe('Updated');
+  });
+
+  it('deleteFlag writes store without the deleted flag', () => {
+    setStore({
+      flags: [{ name: 'to_delete', description: 'D', enabled: true, createdAt: '', updatedAt: '' }],
+      orgOverrides: [],
+    });
+    const written: string[] = [];
+    (mockFs.writeFileSync as jest.Mock).mockImplementation((_p: unknown, data: unknown) => {
+      written.push(String(data));
+    });
+    deleteFlag('to_delete');
+    const parsed = JSON.parse(written[written.length - 1]);
+    expect(parsed.flags.some((f: { name: string }) => f.name === 'to_delete')).toBe(false);
+  });
+
+  it('getOrgOverrides returns empty array when no overrides exist for a flag', () => {
+    setStore({
+      flags: [{ name: 'no_ov', description: 'N', enabled: true, createdAt: '', updatedAt: '' }],
+      orgOverrides: [],
+    });
+    expect(getOrgOverrides('no_ov')).toHaveLength(0);
+  });
+
+  it('removeOrgOverride writes store without the removed override', () => {
+    setStore({
+      flags: [{ name: 'rem_chk', description: 'R', enabled: false, createdAt: '', updatedAt: '' }],
+      orgOverrides: [
+        { flagName: 'rem_chk', orgId: 'org-rm', enabled: true, createdAt: '', updatedAt: '' },
+      ],
+    });
+    const written: string[] = [];
+    (mockFs.writeFileSync as jest.Mock).mockImplementation((_p: unknown, data: unknown) => {
+      written.push(String(data));
+    });
+    removeOrgOverride('rem_chk', 'org-rm');
+    const parsed = JSON.parse(written[written.length - 1]);
+    expect(parsed.orgOverrides.some((o: { orgId: string }) => o.orgId === 'org-rm')).toBe(false);
+  });
+
+  it('isEnabled returns false for a disabled flag with no org override', async () => {
+    setStore({
+      flags: [{ name: 'disabled_flag', description: 'D', enabled: false, createdAt: '', updatedAt: '' }],
+      orgOverrides: [],
+    });
+    expect(await isEnabled('disabled_flag', 'org-any')).toBe(false);
+  });
+});

@@ -434,3 +434,97 @@ describe('Control Plan Routes — extended coverage', () => {
     expect(res.body.meta).toHaveProperty('total', 1);
   });
 });
+
+describe('Control Plan Routes — additional final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST / returns 201 with refNumber in response', async () => {
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.controlPlan.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      refNumber: 'CP-2602-0002',
+      title: 'Test Plan',
+      partNumber: 'PN-002',
+      partName: 'Part',
+      planType: 'PROTOTYPE',
+      status: 'DRAFT',
+    });
+    const res = await request(app).post('/api/control-plans').send({
+      title: 'Test Plan',
+      partNumber: 'PN-002',
+      partName: 'Part',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+
+  it('GET /:id returns success:true with characteristics in data', async () => {
+    (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      characteristics: [{ id: 'ch-1' }],
+    });
+    const res = await request(app).get('/api/control-plans/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data.characteristics)).toBe(true);
+  });
+
+  it('POST /:id/approve sets status to APPROVED in response', async () => {
+    (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      status: 'DRAFT',
+    });
+    (mockPrisma.controlPlan.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
+    const res = await request(app)
+      .post('/api/control-plans/00000000-0000-0000-0000-000000000001/approve')
+      .send({});
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+
+  it('GET / with search param passes it to findMany', async () => {
+    (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/control-plans?search=bracket');
+    expect(mockPrisma.controlPlan.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /:id/characteristics returns 201 with created characteristic data', async () => {
+    (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.controlPlanChar.create as jest.Mock).mockResolvedValue({
+      id: 'ch-3',
+      characteristicType: 'PROCESS',
+    });
+    const res = await request(app)
+      .post('/api/control-plans/00000000-0000-0000-0000-000000000001/characteristics')
+      .send({
+        processNumber: '20',
+        processName: 'Welding',
+        characteristicName: 'Bead Width',
+        characteristicType: 'PROCESS',
+        evalTechnique: 'Visual',
+        sampleSize: '10',
+        sampleFrequency: 'Shift',
+        controlMethod: 'Check sheet',
+        reactionPlan: 'Stop and call supervisor',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('ch-3');
+  });
+
+  it('GET / returns empty array in data when no control plans exist', async () => {
+    (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/control-plans');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+  });
+});

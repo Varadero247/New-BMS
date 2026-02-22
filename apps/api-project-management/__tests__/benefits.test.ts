@@ -636,4 +636,54 @@ describe('Project Management Benefits Realisation API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  // ==========================================
+  // Additional coverage
+  // ==========================================
+  describe('Benefits API — additional coverage', () => {
+    it('GET /api/benefits: response body has success and data fields', async () => {
+      (mockPrisma.benefit.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.benefit.count as jest.Mock).mockResolvedValueOnce(0);
+      const response = await request(app).get('/api/benefits').set('Authorization', 'Bearer token');
+      expect(response.body).toHaveProperty('success');
+      expect(response.body).toHaveProperty('data');
+    });
+
+    it('GET /api/benefits: returns empty items array when no benefits exist', async () => {
+      (mockPrisma.benefit.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.benefit.count as jest.Mock).mockResolvedValueOnce(0);
+      const response = await request(app).get('/api/benefits').set('Authorization', 'Bearer token');
+      expect(response.body.data.items).toEqual([]);
+    });
+
+    it('POST /api/benefits: create called once on success', async () => {
+      (mockPrisma.benefit.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.benefit.create as jest.Mock).mockResolvedValueOnce(mockBenefit);
+      await request(app).post('/api/benefits').set('Authorization', 'Bearer token').send(validCreatePayload);
+      expect(mockPrisma.benefit.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('PUT /api/benefits/:id: update called with correct id in where clause', async () => {
+      (mockPrisma.benefit.findUnique as jest.Mock).mockResolvedValueOnce(mockBenefit);
+      (mockPrisma.benefit.update as jest.Mock).mockResolvedValueOnce({ ...mockBenefit, title: 'New title' });
+      await request(app)
+        .put('/api/benefits/30000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'New title' });
+      expect(mockPrisma.benefit.update).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: '30000000-0000-4000-a000-000000000001' } })
+      );
+    });
+
+    it('DELETE /api/benefits/:id: update called with deletedAt in data', async () => {
+      (mockPrisma.benefit.findUnique as jest.Mock).mockResolvedValueOnce(mockBenefit);
+      (mockPrisma.benefit.update as jest.Mock).mockResolvedValueOnce({ ...mockBenefit, deletedAt: new Date() });
+      await request(app)
+        .delete('/api/benefits/30000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+      expect(mockPrisma.benefit.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+      );
+    });
+  });
 });

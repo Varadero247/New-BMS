@@ -297,3 +297,77 @@ describe('Activity Routes — edge cases', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Activity Routes — comprehensive pass', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/activity', activityRoutes);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+  });
+
+  it('GET /api/activity with both recordType and recordId calls getActivity', async () => {
+    mockGetActivity.mockResolvedValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/activity?recordType=risk&recordId=r-99');
+    expect(res.status).toBe(200);
+    expect(mockGetActivity).toHaveBeenCalled();
+  });
+
+  it('GET /api/activity/recent calls getRecentActivity once', async () => {
+    mockGetRecentActivity.mockResolvedValue([]);
+    const res = await request(app).get('/api/activity/recent');
+    expect(res.status).toBe(200);
+    expect(mockGetRecentActivity).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/activity with deleted action succeeds', async () => {
+    mockLogActivity.mockResolvedValue(undefined);
+    const res = await request(app).post('/api/activity').send({
+      recordType: 'document',
+      recordId: 'doc-1',
+      action: 'deleted',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/activity with commented action succeeds', async () => {
+    mockLogActivity.mockResolvedValue(undefined);
+    const res = await request(app).post('/api/activity').send({
+      recordType: 'product',
+      recordId: 'prod-1',
+      action: 'commented',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/activity/recent with limit=20 returns 200', async () => {
+    mockGetRecentActivity.mockResolvedValue([]);
+    const res = await request(app).get('/api/activity/recent?limit=20');
+    expect(res.status).toBe(200);
+    expect(mockGetRecentActivity).toHaveBeenCalled();
+  });
+
+  it('GET /api/activity with missing recordType returns 400', async () => {
+    const res = await request(app).get('/api/activity?recordId=r1');
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/activity logActivity is called once', async () => {
+    mockLogActivity.mockResolvedValue(undefined);
+    await request(app).post('/api/activity').send({
+      recordType: 'ncr',
+      recordId: 'r1',
+      action: 'created',
+    });
+    expect(mockLogActivity).toHaveBeenCalledTimes(1);
+  });
+});

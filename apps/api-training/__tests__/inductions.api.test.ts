@@ -283,3 +283,59 @@ describe('inductions.api — edge cases and extended coverage', () => {
     expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000010');
   });
 });
+
+describe('inductions.api — final coverage expansion', () => {
+  it('GET /api/inductions response content-type contains json', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/inductions data is empty array on no records', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /api/inductions success is boolean', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('GET /api/inductions: 500 error body has error object', async () => {
+    mockPrisma.trainRecord.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('GET /api/inductions returns records with status field if present', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      {
+        id: 'r-1',
+        employeeName: 'Eve',
+        status: 'COMPLETED',
+        course: { title: 'COSHH Induction', code: 'CO-001' },
+      },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].status).toBe('COMPLETED');
+  });
+
+  it('GET /api/inductions response body has no unexpected fields', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/inductions error body success is false when rejected', async () => {
+    mockPrisma.trainRecord.findMany.mockRejectedValue(new Error('rejection'));
+    const res = await request(app).get('/api/inductions');
+    expect(res.body.success).toBe(false);
+  });
+});

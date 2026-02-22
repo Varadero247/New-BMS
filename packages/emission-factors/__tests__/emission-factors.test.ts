@@ -171,3 +171,37 @@ describe('emission-factors', () => {
     });
   });
 });
+
+describe('emission-factors — additional coverage', () => {
+  it('DEFRA_FACTORS is a non-empty array', () => {
+    expect(Array.isArray(DEFRA_FACTORS)).toBe(true);
+    expect(DEFRA_FACTORS.length).toBeGreaterThan(0);
+  });
+
+  it('EPA_FACTORS is a non-empty array', () => {
+    expect(Array.isArray(EPA_FACTORS)).toBe(true);
+    expect(EPA_FACTORS.length).toBeGreaterThan(0);
+  });
+
+  it('getEmissionFactor returns a factor with scope defined', () => {
+    const factor = getEmissionFactor('natural_gas', 'DEFRA');
+    expect(['scope1', 'scope2', 'scope3']).toContain(factor!.scope);
+  });
+
+  it('calculateEmission result co2e is a finite number', () => {
+    const result = calculateEmission('diesel', 100, 'litre', 'EPA');
+    expect(Number.isFinite(result.co2e)).toBe(true);
+  });
+
+  it('calculateEmission result factor matches getEmissionFactor factor', () => {
+    const factor = getEmissionFactor('natural_gas', 'DEFRA')!;
+    const result = calculateEmission('natural_gas', 1, 'm3', 'DEFRA');
+    expect(result.co2e).toBeCloseTo(factor.factor, 5);
+  });
+
+  it('getGridFactor for DE (Germany) returns a defined factor', () => {
+    const factor = getGridFactor('DE');
+    expect(factor).toBeDefined();
+    expect(factor!.factor).toBeGreaterThan(0);
+  });
+});

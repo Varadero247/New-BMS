@@ -350,3 +350,53 @@ describe('Comments Routes — edge cases and 500 paths', () => {
     expect(mockGetComments).toHaveBeenCalledWith('risk', 'r5', { page: 3, limit: 5 });
   });
 });
+
+describe('Comments Routes — final additional coverage', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/comments', commentsRoutes);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockCreateComment.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001', body: 'Test comment',
+      mentions: [], authorId: 'user-1', authorName: 'Admin',
+    });
+    mockGetComments.mockResolvedValue({ comments: [], total: 0 });
+  });
+
+  it('POST /api/comments with mentions field succeeds', async () => {
+    const res = await request(app).post('/api/comments')
+      .send({ recordType: 'ncr', recordId: 'r1', body: 'Hey @admin', mentions: ['user-2'] });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/comments response content-type is JSON', async () => {
+    const res = await request(app).get('/api/comments?recordType=ncr&recordId=r1');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('createComment is called once per POST request', async () => {
+    await request(app).post('/api/comments').send({ recordType: 'ncr', recordId: 'r1', body: 'Test' });
+    expect(mockCreateComment).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/comments returns total in data', async () => {
+    mockGetComments.mockResolvedValueOnce({ comments: [{ id: 'c1', body: 'Hi' }], total: 1 });
+    const res = await request(app).get('/api/comments?recordType=ncr&recordId=r1');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total', 1);
+  });
+
+  it('POST /api/comments rejects missing body field', async () => {
+    const res = await request(app).post('/api/comments').send({ recordType: 'ncr', recordId: 'r1' });
+    expect(res.status).toBe(400);
+  });
+});

@@ -417,3 +417,73 @@ describe('alerts.api — extended edge cases', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+// ── alerts.api — final additional coverage ───────────────────────────────────
+
+describe('alerts.api — final additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/alerts response always has success property', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/alerts');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('GET /api/alerts pagination.page is 1 by default', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/alerts');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /api/alerts pagination.total equals count result', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/alerts');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('PUT /api/alerts/:id/acknowledge returns 500 when update throws', async () => {
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'TRIGGERED' });
+    mockPrisma.analyticsAlert.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000001/acknowledge');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/alerts/:id/resolve returns 500 when update throws', async () => {
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ACKNOWLEDGED' });
+    mockPrisma.analyticsAlert.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000001/resolve');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/alerts returns 500 when create throws', async () => {
+    mockPrisma.analyticsAlert.create.mockRejectedValue(new Error('DB insert failed'));
+    const res = await request(app).post('/api/alerts').send({ name: 'DB fail', metric: 'trir', condition: 'ABOVE', threshold: 5 });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/alerts with both status and condition filters returns 200', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/alerts?status=ACTIVE&condition=ABOVE');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/alerts/:id returns 500 when update throws', async () => {
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsAlert.update.mockRejectedValue(new Error('Delete failed'));
+    const res = await request(app).delete('/api/alerts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

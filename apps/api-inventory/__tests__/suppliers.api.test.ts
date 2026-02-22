@@ -518,3 +518,104 @@ describe('Inventory Suppliers API Routes', () => {
     });
   });
 });
+
+// ── Inventory Suppliers — final boundary tests ────────────────────────────────
+
+describe('Inventory Suppliers — final boundary tests', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/suppliers responds with JSON content-type', async () => {
+    (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/suppliers success:true on empty list', async () => {
+    (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('DELETE /:id returns 500 when update throws', async () => {
+    (mockPrisma.supplier.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      products: [],
+    });
+    (mockPrisma.supplier.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .delete('/api/suppliers/25000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id setUpdatedById from authenticated user', async () => {
+    (mockPrisma.supplier.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      code: 'ACME',
+      name: 'Acme Corp',
+    });
+    (mockPrisma.supplier.update as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      name: 'Acme Updated',
+    });
+    await request(app)
+      .patch('/api/suppliers/25000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ name: 'Acme Updated' });
+    expect(mockPrisma.supplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ updatedById: '20000000-0000-4000-a000-000000000123' }),
+      })
+    );
+  });
+
+  it('GET /api/suppliers data items have code field', async () => {
+    (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([{
+      id: '25000000-0000-4000-a000-000000000001',
+      code: 'ACME',
+      name: 'Acme Corp',
+      status: 'ACTIVE',
+      isActive: true,
+      _count: { products: 3 },
+    }]);
+    (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('code', 'ACME');
+  });
+
+  it('POST / accepts optional contactName and phone fields', async () => {
+    (mockPrisma.supplier.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.supplier.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      code: 'OPT',
+      name: 'Optional Fields Co',
+      contactName: 'Alice',
+      phone: '+1-555-1234',
+      status: 'ACTIVE',
+    });
+    const res = await request(app)
+      .post('/api/suppliers')
+      .set('Authorization', 'Bearer token')
+      .send({
+        code: 'OPT',
+        name: 'Optional Fields Co',
+        contactName: 'Alice',
+        email: 'alice@opt.com',
+        phone: '+1-555-1234',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -385,3 +385,63 @@ describe('DEFRA Factors — extended edge cases', () => {
     expect(res.body.data[0]).toHaveProperty('id');
   });
 });
+
+describe('DEFRA Factors — final coverage', () => {
+  it('GET / response body has data property', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST / with year as number creates factor', async () => {
+    (prisma.esgDefraFactor.create as jest.Mock).mockResolvedValue(mockDefraFactor);
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Waste',
+      activity: 'Landfill disposal',
+      factor: 0.587,
+      unit: 'kgCO2e/tonne',
+      year: 2025,
+      source: 'DEFRA 2025',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / without year returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Electricity',
+      activity: 'Grid electricity',
+      factor: 0.233,
+      unit: 'kgCO2e/kWh',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / findMany is called with deletedAt: null filter', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/defra-factors');
+    expect(prisma.esgDefraFactor.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('POST / returned data contains category', async () => {
+    (prisma.esgDefraFactor.create as jest.Mock).mockResolvedValue(mockDefraFactor);
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Electricity',
+      activity: 'Grid',
+      factor: 0.233,
+      unit: 'kgCO2e/kWh',
+      year: 2026,
+    });
+    expect(res.body.data).toHaveProperty('category');
+  });
+
+  it('GET / success:false and error.code set on DB error', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockRejectedValue(new Error('Timeout'));
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

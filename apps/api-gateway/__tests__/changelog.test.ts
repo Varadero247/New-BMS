@@ -414,3 +414,60 @@ describe('Changelog Routes — extended edge cases', () => {
     expect(mockCreateEntry).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Changelog Routes — final additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changelog', changelogRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    mockListAllEntries.mockReturnValue({ entries: [], total: 0 });
+    mockGetUnreadCount.mockReturnValue(0);
+    mockCreateEntry.mockReturnValue({
+      id: 'cl-1', title: 'New Feature', description: 'Details here',
+      category: 'new_feature', modules: ['quality'], isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+  });
+
+  it('GET /api/changelog response is content-type JSON', async () => {
+    const res = await request(app).get('/api/changelog');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/changelog with deprecation category returns 400 (invalid category)', async () => {
+    const res = await request(app).post('/api/changelog')
+      .send({ title: 'T', description: 'D', category: 'deprecation', modules: ['hr'] });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/changelog/all content-type is JSON', async () => {
+    const res = await request(app).get('/api/changelog/all');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/changelog returns data.isPublished field', async () => {
+    const res = await request(app).post('/api/changelog')
+      .send({ title: 'T', description: 'D', category: 'new_feature', modules: ['hr'] });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('isPublished');
+  });
+
+  it('listEntries called exactly once per GET /api/changelog request', async () => {
+    await request(app).get('/api/changelog');
+    expect(mockListEntries).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/changelog with performance_improvement category returns 400 (invalid)', async () => {
+    const res = await request(app).post('/api/changelog')
+      .send({ title: 'T', description: 'D', category: 'performance_improvement', modules: ['hr'] });
+    expect(res.status).toBe(400);
+  });
+});

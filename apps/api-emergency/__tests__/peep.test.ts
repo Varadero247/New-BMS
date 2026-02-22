@@ -427,3 +427,86 @@ describe('peep — extended edge cases', () => {
     expect(res.body.data.personName).toBe('David Brown');
   });
 });
+
+describe('peep — final coverage', () => {
+  it('GET /api/peep/due-review response includes premises info when populated', async () => {
+    const duePeep = {
+      ...fakePeep,
+      reviewDate: new Date(Date.now() - 1000).toISOString(),
+      premises: { name: 'Factory', id: PREMISES_ID },
+    };
+    mockPeep.findMany.mockResolvedValue([duePeep]);
+
+    const res = await request(app).get('/api/peep/due-review');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].premises).toBeDefined();
+    expect(res.body.data[0].premises.name).toBe('Factory');
+  });
+
+  it('PUT /api/peep/:id updates refugeLocation correctly', async () => {
+    const updated = { ...fakePeep, refugeLocation: 'Floor 3 Refuge Area' };
+    mockPeep.findFirst.mockResolvedValue(fakePeep);
+    mockPeep.update.mockResolvedValue(updated);
+
+    const res = await request(app).put(`/api/peep/${PEEP_ID}`).send({
+      refugeLocation: 'Floor 3 Refuge Area',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('creates PEEP with INDEPENDENT mobility level', async () => {
+    const independentPeep = { ...fakePeep, mobilityLevel: 'INDEPENDENT' };
+    mockPeep.create.mockResolvedValue(independentPeep);
+
+    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send({
+      personName: 'Rachel Adams',
+      mobilityLevel: 'INDEPENDENT',
+      reviewDate: '2027-05-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.mobilityLevel).toBe('INDEPENDENT');
+  });
+
+  it('GET /api/peep/premises/:id returns array of data', async () => {
+    mockPeep.findMany.mockResolvedValue([fakePeep]);
+
+    const res = await request(app).get(`/api/peep/premises/${PREMISES_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/peep/:id 500 response has INTERNAL_ERROR code', async () => {
+    mockPeep.findFirst.mockResolvedValue(fakePeep);
+    mockPeep.update.mockRejectedValue(new Error('Disk full'));
+
+    const res = await request(app).put(`/api/peep/${PEEP_ID}`).send({ evacuationMethod: 'Chair' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST returns 400 when personName is empty string', async () => {
+    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send({
+      personName: '',
+      mobilityLevel: 'WHEELCHAIR_USER',
+      reviewDate: '2027-01-01',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/peep/due-review response body success is true', async () => {
+    mockPeep.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/peep/due-review');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+});

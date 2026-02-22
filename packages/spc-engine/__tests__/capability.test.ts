@@ -224,3 +224,38 @@ describe('calculatePpk — comprehensive', () => {
     });
   });
 });
+
+// ─── Additional edge-case and boundary coverage ────────────────────────────────
+
+describe('calculateCpk — boundary and additional edge cases', () => {
+  it('returns mean equal to the single value when all data is identical', () => {
+    const result = calculateCpk([7, 7, 7, 7, 7], 10, 4);
+    expect(result.mean).toBe(7);
+  });
+
+  it('has Cp of 0 when sigma is 0 (constant data)', () => {
+    const result = calculateCpk([50, 50, 50], 60, 40);
+    expect(result.cp).toBe(0);
+  });
+
+  it('handles large datasets without throwing', () => {
+    const data = Array.from({ length: 200 }, (_, i) => 50 + (i % 5) - 2);
+    expect(() => calculateCpk(data, 60, 40)).not.toThrow();
+  });
+
+  it('result object has all required properties', () => {
+    const result = calculateCpk([10, 12, 11, 13, 10], 20, 0);
+    expect(result).toHaveProperty('cp');
+    expect(result).toHaveProperty('cpk');
+    expect(result).toHaveProperty('pp');
+    expect(result).toHaveProperty('ppk');
+    expect(result).toHaveProperty('mean');
+    expect(result).toHaveProperty('sigma');
+    expect(result).toHaveProperty('status');
+  });
+
+  it('status is one of CAPABLE, MARGINAL, or INCAPABLE', () => {
+    const result = calculateCpk([50, 51, 49, 50, 51], 60, 40);
+    expect(['CAPABLE', 'MARGINAL', 'INCAPABLE']).toContain(result.status);
+  });
+});

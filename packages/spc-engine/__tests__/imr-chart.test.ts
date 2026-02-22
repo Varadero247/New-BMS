@@ -251,3 +251,55 @@ describe('iMrChart — additional edge cases', () => {
     expect(chart.centerLine).toBeCloseTo(expected, 4);
   });
 });
+
+// ─── Further structural and type coverage ─────────────────────────────────────
+
+describe('iMrChart — structural and type coverage', () => {
+  it('returns outOfControl as an array', () => {
+    const data = makeDataPoints([10, 12, 11, 13, 10]);
+    const chart = iMrChart(data);
+    expect(Array.isArray(chart.outOfControl)).toBe(true);
+  });
+
+  it('dataPoints each have a value property that is a number', () => {
+    const data = makeDataPoints([5, 10, 15, 20]);
+    const chart = iMrChart(data);
+    chart.dataPoints.forEach((p) => {
+      expect(typeof p.value).toBe('number');
+    });
+  });
+
+  it('rangePoints each have a value property that is a number', () => {
+    const data = makeDataPoints([5, 10, 15, 20]);
+    const chart = iMrChart(data);
+    chart.rangePoints!.forEach((p) => {
+      expect(typeof p.value).toBe('number');
+    });
+  });
+
+  it('rangeUcl is always >= 0', () => {
+    const data = makeDataPoints([1, 2, 3, 4, 5]);
+    const chart = iMrChart(data);
+    expect(chart.rangeUcl).toBeGreaterThanOrEqual(0);
+  });
+
+  it('ucl > lcl for non-constant data', () => {
+    const data = makeDataPoints([10, 12, 11, 13, 10, 14, 11]);
+    const chart = iMrChart(data);
+    expect(chart.ucl).toBeGreaterThan(chart.lcl);
+  });
+
+  it('chart has correct type field for 2-point input', () => {
+    const data = makeDataPoints([100, 200]);
+    const chart = iMrChart(data);
+    expect(chart.type).toBe('IMR');
+  });
+
+  it('all rangePoints values are >= 0 (moving range is always non-negative)', () => {
+    const data = makeDataPoints([100, 50, 75, 25, 90, 40]);
+    const chart = iMrChart(data);
+    chart.rangePoints!.forEach((p) => {
+      expect(p.value).toBeGreaterThanOrEqual(0);
+    });
+  });
+});

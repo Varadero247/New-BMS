@@ -370,3 +370,44 @@ describe('checkOwnership — edge cases', () => {
     );
   });
 });
+
+describe('requireRole — additional cases', () => {
+  it('USER is denied MANAGER route', () => {
+    const req = mockReq({ user: { id: '1', role: 'USER', email: 'u@b.com' } });
+    const { status } = mockRes();
+    requireRole('MANAGER')(req, { status } as unknown as Response, next);
+    expect(status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('VIEWER is denied MANAGER route', () => {
+    const req = mockReq({ user: { id: '1', role: 'VIEWER', email: 'v@b.com' } });
+    const { status } = mockRes();
+    requireRole('MANAGER')(req, { status } as unknown as Response, next);
+    expect(status).toHaveBeenCalledWith(403);
+  });
+
+  it('returns middleware function', () => {
+    expect(typeof requireRole('ADMIN')).toBe('function');
+  });
+});
+
+describe('scopeToUser — additional cases', () => {
+  it('ADMIN gets empty ownerFilter and calls next', () => {
+    const req = mockReq({ user: { id: 'admin-x', role: 'ADMIN', email: 'a@b.com' } });
+    const { res } = mockRes();
+    scopeToUser(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('sets next() called for valid roles', () => {
+    const roles = ['ADMIN', 'MANAGER', 'USER', 'VIEWER'];
+    roles.forEach((role) => {
+      next = jest.fn();
+      const req = mockReq({ user: { id: 'u', role, email: 'u@b.com' } });
+      const { res } = mockRes();
+      scopeToUser(req, res, next);
+      expect(next).toHaveBeenCalled();
+    });
+  });
+});

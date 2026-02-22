@@ -300,3 +300,58 @@ describe('status-openapi — error paths and spec details', () => {
     expect(res.headers['content-type']).toMatch(/application\/json/);
   });
 });
+
+describe('status-openapi — final coverage batch', () => {
+  let statusApp: express.Express;
+  let openapiApp: express.Express;
+
+  beforeEach(() => {
+    statusApp = express();
+    statusApp.use(express.json());
+    statusApp.use('/api/health/status', statusRouter);
+
+    openapiApp = express();
+    openapiApp.use(express.json());
+    openapiApp.use('/api/docs', openapiRouter);
+
+    jest.clearAllMocks();
+    mockGetPlatformStatus.mockReturnValue({
+      status: 'operational',
+      timestamp: new Date().toISOString(),
+      services: [{ name: 'api-gateway', status: 'operational', latencyMs: 5 }],
+      uptime: { '24h': 99.98, '7d': 99.95, '30d': 99.91 },
+    });
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: '3.0.3',
+      info: { title: 'Nexara IMS API', version: '1.0.0' },
+      paths: {},
+    });
+  });
+
+  it('status response body has data field', async () => {
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('openapi spec response body has openapi field', async () => {
+    const res = await request(openapiApp).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('openapi');
+  });
+
+  it('status uptime 24h is a number', async () => {
+    const res = await request(statusApp).get('/api/health/status');
+    expect(typeof res.body.data.uptime['24h']).toBe('number');
+  });
+
+  it('openapi info.title is Nexara IMS API', async () => {
+    const res = await request(openapiApp).get('/api/docs/openapi.json');
+    expect(res.body.info.title).toBe('Nexara IMS API');
+  });
+
+  it('status services[0] has name field', async () => {
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.body.data.services[0]).toHaveProperty('name');
+  });
+});

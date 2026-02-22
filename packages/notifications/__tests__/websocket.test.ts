@@ -398,3 +398,48 @@ describe('WebSocketNotificationServer — notification payload structure', () =>
     expect(sentCount).toBe(2);
   });
 });
+
+// ── Additional edge-case tests ─────────────────────────────────────────────────
+
+describe('WebSocketNotificationServer — additional coverage', () => {
+  it('sendToUser sends notification with message field', () => {
+    const ws = makeMockWs('frank');
+    const server = buildServer({ frank: [ws] });
+    server.sendToUser('frank', makeNotification({ message: 'System update' }));
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.data.message).toBe('System update');
+  });
+
+  it('broadcastToOrg filters correctly when multiple orgs present', () => {
+    const ws1 = makeMockWs('u1', { orgId: 'org-x' });
+    const ws2 = makeMockWs('u2', { orgId: 'org-y' });
+    const ws3 = makeMockWs('u3', { orgId: 'org-x' });
+    const mockWss = { clients: new Set([ws1, ws2, ws3]) };
+    const server = buildServer({});
+    (server as unknown as { wss: unknown }).wss = mockWss;
+    server.broadcastToOrg('org-x', makeNotification({ id: 'org-x-msg' }));
+    expect(ws1.send).toHaveBeenCalledTimes(1);
+    expect(ws2.send).not.toHaveBeenCalled();
+    expect(ws3.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('getConnectionCount reflects added sockets', () => {
+    const server = buildServer({ u1: [makeMockWs('u1')] });
+    expect(server.getConnectionCount()).toBe(1);
+    const clients = (server as unknown as { clients: Map<string, Set<AuthWsMock>> }).clients;
+    clients.get('u1')!.add(makeMockWs('u1'));
+    expect(server.getConnectionCount()).toBe(2);
+  });
+
+  it('sendToUser with CLOSING readyState does not send', () => {
+    const closingWs = makeMockWs('grace', { readyState: WebSocket.CLOSING });
+    const server = buildServer({ grace: [closingWs] });
+    server.sendToUser('grace', makeNotification());
+    expect(closingWs.send).not.toHaveBeenCalled();
+  });
+
+  it('getConnectedUsers returns array type', () => {
+    const server = buildServer({ u1: [makeMockWs('u1')] });
+    expect(Array.isArray(server.getConnectedUsers())).toBe(true);
+  });
+});

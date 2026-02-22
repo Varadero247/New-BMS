@@ -562,3 +562,67 @@ describe('tasks.api — edge cases and extended coverage', () => {
     expect(updateCall.data.actualStartDate).toBeUndefined();
   });
 });
+
+describe('tasks.api — final extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tasks', tasksRouter);
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /api/tasks/:id does not call update when not found', async () => {
+    (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/tasks/00000000-0000-4000-a000-ffffffffffff');
+    expect(mockPrisma.projectTask.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/tasks returns data as array', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([mockTask]);
+    (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get(
+      '/api/tasks?projectId=44000000-0000-4000-a000-000000000001'
+    );
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/tasks/:id does not call update when not found', async () => {
+    (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .put('/api/tasks/00000000-0000-4000-a000-ffffffffffff')
+      .send({ taskName: 'Never updated' });
+    expect(mockPrisma.projectTask.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/tasks meta.limit defaults to 100', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get(
+      '/api/tasks?projectId=44000000-0000-4000-a000-000000000001'
+    );
+    expect(res.body.meta.limit).toBe(100);
+  });
+
+  it('POST /api/tasks: create is called with correct projectId', async () => {
+    (mockPrisma.projectTask.create as jest.Mock).mockResolvedValueOnce(mockTask);
+    await request(app).post('/api/tasks').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      taskCode: 'TSK-100',
+      taskName: 'Test create call',
+    });
+    expect(mockPrisma.projectTask.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ projectId: '44000000-0000-4000-a000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /api/tasks/gantt/:projectId returns success:true', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([mockGanttTask]);
+    const res = await request(app).get('/api/tasks/gantt/44000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

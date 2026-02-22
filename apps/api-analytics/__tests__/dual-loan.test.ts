@@ -312,3 +312,40 @@ describe('Dual Loan Model — edge cases and field validation', () => {
     expect(result.dirLoanBalance).toBeCloseTo(0, 0);
   });
 });
+
+describe('Dual Loan Model — final coverage', () => {
+  it('calculateAmortisation returns balance as number for any valid input', () => {
+    const result = calculateAmortisation(200000, 0.07, 24, 12);
+    expect(typeof result.balance).toBe('number');
+  });
+
+  it('calculateAmortisation payment is consistent: same inputs produce same output', () => {
+    const r1 = calculateAmortisation(50000, 0.05, 12, 6);
+    const r2 = calculateAmortisation(50000, 0.05, 12, 6);
+    expect(r1.payment).toBe(r2.payment);
+    expect(r1.interest).toBe(r2.interest);
+  });
+
+  it('calculateFounderIncome M12 loanPayment is finite', () => {
+    const result = calculateFounderIncome(12);
+    expect(Number.isFinite(result.loanPayment)).toBe(true);
+  });
+
+  it('calculateFounderIncome M36 dirLoan still active', () => {
+    const result = calculateFounderIncome(36);
+    expect(result.dirLoanPayment).toBeGreaterThan(0);
+    expect(result.dirLoanBalance).toBeGreaterThan(0);
+  });
+
+  it('calculateFounderIncome M40 all balances are zero', () => {
+    const result = calculateFounderIncome(40);
+    expect(result.dirLoanBalance).toBe(0);
+    expect(result.starterLoanBalance).toBe(0);
+  });
+
+  it('calculateAmortisation interest at month 6 is less than at month 1', () => {
+    const m1 = calculateAmortisation(100000, 0.06, 12, 1);
+    const m6 = calculateAmortisation(100000, 0.06, 12, 6);
+    expect(m6.interest).toBeLessThan(m1.interest);
+  });
+});

@@ -375,3 +375,55 @@ describe('OfflineCache — priority URL patterns', () => {
     expect(OfflineCache.isPriorityUrl('https://app.example.com/api/settings/profile')).toBe(false);
   });
 });
+
+describe('OfflineCache — cache isolation and extended scenarios', () => {
+  beforeEach(() => {
+    cacheInstances.clear();
+  });
+
+  test('getCachedResponse returns the exact response stored', async () => {
+    const cache = new OfflineCache();
+    await cache.cacheResponse('https://app.example.com/api/hs/incidents', makeResponse({ count: 42 }));
+    const cached = await cache.getCachedResponse('https://app.example.com/api/hs/incidents');
+    expect(cached).not.toBeNull();
+    const body = await cached!.json();
+    expect(body.count).toBe(42);
+  });
+
+  test('isPriorityUrl identifies incidents URL', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/hs/incidents')).toBe(true);
+  });
+
+  test('isPriorityUrl identifies documents URL', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/quality/documents')).toBe(true);
+  });
+
+  test('isPriorityUrl returns false for empty path segment', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api')).toBe(false);
+  });
+
+  test('cacheResponse with status 200 stores correct status', async () => {
+    const cache = new OfflineCache();
+    const response = new MockResponse(JSON.stringify({ ok: true }), { status: 200 }) as unknown as Response;
+    await cache.cacheResponse('https://app.example.com/api/test', response);
+    const cached = await cache.getCachedResponse('https://app.example.com/api/test');
+    expect(cached!.status).toBe(200);
+  });
+
+  test('clear removes previously stored items from subsequent getCachedResponse', async () => {
+    const cache = new OfflineCache();
+    await cache.cacheResponse('https://app.example.com/api/aaa', makeResponse({ a: 1 }));
+    await cache.clear();
+    const result = await cache.getCachedResponse('https://app.example.com/api/aaa');
+    expect(result).toBeNull();
+  });
+
+  test('getTrackedUrls returns only current URLs after eviction', async () => {
+    const cache = new OfflineCache();
+    for (let i = 0; i < 51; i++) {
+      await cache.cacheResponse(`https://app.example.com/api/item/${i}`, makeResponse({ i }));
+    }
+    const urls = await cache.getTrackedUrls();
+    expect(urls.length).toBeLessThanOrEqual(50);
+  });
+});

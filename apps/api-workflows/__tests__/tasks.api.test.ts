@@ -523,3 +523,86 @@ describe('Workflows Tasks API Routes — additional edge cases', () => {
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+// ── Workflow Tasks — further coverage ────────────────────────────────────────
+
+describe('Workflow Tasks API — further coverage', () => {
+  let appFurther: express.Express;
+
+  beforeAll(() => {
+    appFurther = express();
+    appFurther.use(express.json());
+    appFurther.use('/api/tasks', tasksRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/tasks with no filters calls findMany with deletedAt:null', async () => {
+    (mockPrisma.workflowTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    await request(appFurther).get('/api/tasks');
+
+    expect(mockPrisma.workflowTask.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      })
+    );
+  });
+
+  it('GET /api/tasks/:id returns task with instance field defined', async () => {
+    (mockPrisma.workflowTask.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '3d000000-0000-4000-a000-000000000001',
+      title: 'My Task',
+      instance: { referenceNumber: 'WF-001', definition: { name: 'Flow' } },
+    });
+    const res = await request(appFurther).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
+    expect(res.body.data.instance).toBeDefined();
+  });
+
+  it('PUT /api/tasks/:id/complete returns 200 and creates history entry', async () => {
+    (mockPrisma.workflowTask.update as jest.Mock).mockResolvedValueOnce({
+      id: '3d000000-0000-4000-a000-000000000001',
+      instanceId: '3c000000-0000-4000-a000-000000000001',
+      status: 'COMPLETED',
+    });
+    (mockPrisma.workflowHistory.create as jest.Mock).mockResolvedValueOnce({ id: 'hist-new' });
+
+    const res = await request(appFurther)
+      .put('/api/tasks/3d000000-0000-4000-a000-000000000001/complete')
+      .send({ outcome: 'done', notes: 'finished', completedBy: 'user-1' });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.workflowHistory.create).toHaveBeenCalled();
+  });
+
+  it('PUT /api/tasks/:id/reassign records DELEGATED event type in history', async () => {
+    (mockPrisma.workflowTask.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '3d000000-0000-4000-a000-000000000001',
+      assignedToId: 'old-user',
+      instanceId: '3c000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.workflowTask.update as jest.Mock).mockResolvedValueOnce({
+      id: '3d000000-0000-4000-a000-000000000001',
+      assignedToId: 'new-user',
+    });
+    (mockPrisma.workflowHistory.create as jest.Mock).mockResolvedValueOnce({ id: 'hist-2' });
+
+    await request(appFurther)
+      .put('/api/tasks/3d000000-0000-4000-a000-000000000001/reassign')
+      .send({ newAssigneeId: 'new-user', reason: 'on leave', reassignedBy: 'admin' });
+
+    expect(mockPrisma.workflowHistory.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ eventType: 'DELEGATED' }),
+      })
+    );
+  });
+
+  it('GET /api/tasks/stats/summary response body has success:true', async () => {
+    (mockPrisma.workflowTask.groupBy as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    (mockPrisma.workflowTask.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(appFurther).get('/api/tasks/stats/summary');
+    expect(res.body.success).toBe(true);
+  });
+});

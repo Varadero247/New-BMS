@@ -333,3 +333,76 @@ describe('Read Receipts — extended error and pagination coverage', () => {
     );
   });
 });
+
+describe('Read Receipts — call argument and edge case coverage', () => {
+  it('POST / calls create with documentId in data', async () => {
+    mockPrisma.docReadReceipt.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      documentId: 'doc-10',
+      userId: 'user-1',
+      status: 'READ',
+    });
+    await request(app)
+      .post('/api/read-receipts')
+      .send({ documentId: 'doc-10', userId: 'user-1', status: 'READ' });
+    expect(mockPrisma.docReadReceipt.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ documentId: 'doc-10' }) }),
+    );
+  });
+
+  it('PUT /:id calls update with correct id in where clause', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docReadReceipt.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).put('/api/read-receipts/00000000-0000-0000-0000-000000000001').send({ status: 'READ' });
+    expect(mockPrisma.docReadReceipt.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } }),
+    );
+  });
+
+  it('GET / response content-type is application/json', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/read-receipts');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / with status=READ filter passes it to findMany where', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    await request(app).get('/api/read-receipts?status=READ');
+    expect(mockPrisma.docReadReceipt.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'READ' }) }),
+    );
+  });
+
+  it('POST / body with ACKNOWLEDGED status returns 201', async () => {
+    mockPrisma.docReadReceipt.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000011',
+      documentId: 'doc-11',
+      userId: 'user-2',
+      status: 'ACKNOWLEDGED',
+    });
+    const res = await request(app)
+      .post('/api/read-receipts')
+      .send({ documentId: 'doc-11', userId: 'user-2', status: 'ACKNOWLEDGED' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('ACKNOWLEDGED');
+  });
+
+  it('DELETE /:id calls update with deletedAt in data', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docReadReceipt.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/read-receipts/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.docReadReceipt.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }),
+    );
+  });
+
+  it('GET / calls findMany and count once each per request', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    await request(app).get('/api/read-receipts');
+    expect(mockPrisma.docReadReceipt.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.docReadReceipt.count).toHaveBeenCalledTimes(1);
+  });
+});

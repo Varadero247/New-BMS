@@ -527,4 +527,100 @@ describe('Environment Actions API Routes', () => {
       expect(response.body.data[0].referenceNumber).toBe('ENV-ACT-2026-001');
     });
   });
+
+  describe('Environment Actions — further coverage', () => {
+    it('GET /api/actions filters by actionType=PREVENTIVE', async () => {
+      (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/actions?actionType=PREVENTIVE')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.envAction.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ actionType: 'PREVENTIVE' }),
+        })
+      );
+    });
+
+    it('GET /api/actions response body has success:true', async () => {
+      (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/actions')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.body.success).toBe(true);
+    });
+
+    it('PUT /api/actions/:id returns updated data in response body', async () => {
+      (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '13000000-0000-4000-a000-000000000001',
+        title: 'Old Title',
+        status: 'OPEN',
+      });
+      (mockPrisma.envAction.update as jest.Mock).mockResolvedValueOnce({
+        id: '13000000-0000-4000-a000-000000000001',
+        title: 'New Title',
+        status: 'OPEN',
+      });
+
+      const response = await request(app)
+        .put('/api/actions/13000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'New Title' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.title).toBe('New Title');
+    });
+
+    it('DELETE /api/actions/:id calls update with deletedAt set', async () => {
+      (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '13000000-0000-4000-a000-000000000001',
+      });
+      (mockPrisma.envAction.update as jest.Mock).mockResolvedValueOnce({});
+
+      await request(app)
+        .delete('/api/actions/13000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.envAction.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+        })
+      );
+    });
+
+    it('POST /api/actions returns 400 for missing source field', async () => {
+      const response = await request(app)
+        .post('/api/actions')
+        .set('Authorization', 'Bearer token')
+        .send({
+          title: 'Test Action',
+          actionType: 'CORRECTIVE',
+          priority: 'MEDIUM',
+          assignedTo: 'John',
+          dueDate: '2026-12-01',
+          // source is missing
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('GET /api/actions meta.page reflects page query param', async () => {
+      (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(50);
+
+      const response = await request(app)
+        .get('/api/actions?page=2&limit=10')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.page).toBe(2);
+      expect(response.body.meta.limit).toBe(10);
+    });
+  });
 });

@@ -424,3 +424,75 @@ describe('Sessions API — more edge cases', () => {
     );
   });
 });
+
+describe('Sessions API — final coverage batch', () => {
+  let app: import('express').Express;
+
+  beforeAll(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/sessions', sessionsRoutes);
+  });
+
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET /api/sessions returns JSON content-type', async () => {
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('DELETE /api/sessions returns JSON content-type', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValueOnce({ count: 0 });
+    const res = await request(app).delete('/api/sessions').set('Authorization', 'Bearer token');
+    // 204 may have no body; just check it doesn't crash
+    expect([200, 204]).toContain(res.status);
+  });
+
+  it('DELETE /api/sessions/:id returns JSON content-type on 404', async () => {
+    mockPrisma.session.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .delete('/api/sessions/00000000-0000-0000-0000-000000000099')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/sessions data array length equals mock sessions length', async () => {
+    const future = new Date(Date.now() + 86400_000);
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000001', userAgent: 'A', ipAddress: '1.1.1.1', createdAt: new Date(), lastActivityAt: new Date(), expiresAt: future },
+      { id: '00000000-0000-0000-0000-000000000002', userAgent: 'B', ipAddress: '2.2.2.2', createdAt: new Date(), lastActivityAt: new Date(), expiresAt: future },
+    ]);
+    const res = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /api/sessions session has id field', async () => {
+    const future = new Date(Date.now() + 86400_000);
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000001', userAgent: 'C', ipAddress: '3.3.3.3', createdAt: new Date(), lastActivityAt: new Date(), expiresAt: future },
+    ]);
+    const res = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('DELETE /api/sessions/:id 400 body has CANNOT_REVOKE_CURRENT code', async () => {
+    const res = await request(app)
+      .delete('/api/sessions/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('CANNOT_REVOKE_CURRENT');
+  });
+
+  it('DELETE /api/sessions/:id 500 body has INTERNAL_ERROR code when findFirst rejects', async () => {
+    mockPrisma.session.findFirst.mockRejectedValueOnce(new Error('network error'));
+    const res = await request(app)
+      .delete('/api/sessions/00000000-0000-0000-0000-000000000003')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

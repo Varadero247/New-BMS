@@ -275,3 +275,59 @@ describe('listResponses — totalPages and response shape', () => {
     expect(responses).toHaveLength(1);
   });
 });
+
+describe('submitResponse and analytics — additional edge cases', () => {
+  it('submitResponse rounds 5.5 to 6', () => {
+    const r = submitResponse('u', 'o', 5.5);
+    expect(r.score).toBe(6);
+  });
+
+  it('submitResponse rounds 0.4 to 0', () => {
+    const r = submitResponse('u', 'o', 0.4);
+    expect(r.score).toBe(0);
+  });
+
+  it('submitResponse clamps 100 to 10', () => {
+    const r = submitResponse('u', 'o', 100);
+    expect(r.score).toBe(10);
+  });
+
+  it('submitResponse stores userId and orgId as provided', () => {
+    const r = submitResponse('my-user-id', 'my-org-id', 7);
+    expect(r.userId).toBe('my-user-id');
+    expect(r.orgId).toBe('my-org-id');
+  });
+
+  it('getAnalytics npsScore is 100 when all responses are promoters', () => {
+    submitResponse('u1', 'org-all-promo', 10);
+    submitResponse('u2', 'org-all-promo', 9);
+    const a = getAnalytics('org-all-promo');
+    expect(a.npsScore).toBe(100);
+  });
+
+  it('getAnalytics breakdown includes entry for every distinct score submitted', () => {
+    submitResponse('u1', 'org-bd', 5);
+    submitResponse('u2', 'org-bd', 8);
+    submitResponse('u3', 'org-bd', 10);
+    const a = getAnalytics('org-bd');
+    expect(a.breakdown[5]).toBe(1);
+    expect(a.breakdown[8]).toBe(1);
+    expect(a.breakdown[10]).toBe(1);
+  });
+
+  it('listResponses default limit is 50', () => {
+    // Submit 60 entries
+    for (let i = 0; i < 60; i++) {
+      submitResponse(`u${i}`, 'org-default-limit', 5);
+    }
+    const { responses } = listResponses('org-default-limit');
+    expect(responses).toHaveLength(50);
+  });
+
+  it('listResponses with limit=1 returns exactly 1 response', () => {
+    submitResponse('u1', 'org-lim1', 7);
+    submitResponse('u2', 'org-lim1', 8);
+    const { responses } = listResponses('org-lim1', 1, 0);
+    expect(responses).toHaveLength(1);
+  });
+});

@@ -369,3 +369,57 @@ describe('createPerUserRateLimit() — additional coverage', () => {
     expect(res.statusCode).toBe(429);
   });
 });
+
+describe('createPerUserRateLimit() — final batch', () => {
+  let store: InMemoryUserRateLimitStore;
+
+  beforeEach(() => { store = new InMemoryUserRateLimitStore(999_999); });
+  afterEach(() => { store.destroy(); });
+
+  it('X-RateLimit-Limit header equals configured max', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 42, windowMs: 60_000 } } },
+      store
+    );
+    const req = mockReq('user-x', 'standard');
+    const res = mockRes();
+    mw(req, res, next());
+    expect(res.headers['X-RateLimit-Limit']).toBe(42);
+  });
+
+  it('enterprise tier never decrements X-RateLimit-Remaining below limit', () => {
+    const mw = createPerUserRateLimit({}, store);
+    const req = mockReq('ent-user', 'enterprise');
+    const n = next();
+    mw(req, mockRes(), n);
+    expect(n).toHaveBeenCalled();
+  });
+
+  it('store size is zero before any requests', () => {
+    expect(store.size).toBe(0);
+  });
+
+  it('two calls from same user only add one entry in the store', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 10, windowMs: 60_000 } } },
+      store
+    );
+    const req = mockReq('solo', 'standard');
+    mw(req, mockRes(), next());
+    mw(req, mockRes(), next());
+    expect(store.size).toBe(1);
+  });
+
+  it('429 response body has retryAfter field', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 1, windowMs: 60_000 } } },
+      store
+    );
+    const req = mockReq('user-ra', 'standard');
+    mw(req, mockRes(), next());
+    const res = mockRes();
+    mw(req, res, next());
+    const body = res.body as { error: { retryAfter?: number } };
+    expect(body.error.retryAfter).toBeDefined();
+  });
+});

@@ -400,3 +400,113 @@ describe('GET /api/dlp/monitoring-reviews', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// DLP Monitoring — extended coverage
+// ===================================================================
+describe('DLP Monitoring — extended coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /dlp-policies pagination contains totalPages', async () => {
+    (mockPrisma.isDlpPolicy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isDlpPolicy.count as jest.Mock).mockResolvedValue(40);
+    const res = await request(app).get('/api/dlp/dlp-policies?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages', 2);
+  });
+
+  it('GET /dlp-policies filters by scope via query param', async () => {
+    (mockPrisma.isDlpPolicy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isDlpPolicy.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/dlp/dlp-policies?scope=CLOUD');
+    const [call] = (mockPrisma.isDlpPolicy.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.scope).toBe('CLOUD');
+  });
+
+  it('PUT /dlp-policies/:id returns 500 on DB error during update', async () => {
+    (mockPrisma.isDlpPolicy.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
+    (mockPrisma.isDlpPolicy.update as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app)
+      .put('/api/dlp/dlp-policies/00000000-0000-0000-0000-000000000001')
+      .send({ enabled: true });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /dlp-incidents pagination contains page field', async () => {
+    (mockPrisma.isDlpIncident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isDlpIncident.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dlp/dlp-incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('GET /dlp-incidents filters by severity', async () => {
+    (mockPrisma.isDlpIncident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isDlpIncident.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/dlp/dlp-incidents?severity=CRITICAL');
+    const [call] = (mockPrisma.isDlpIncident.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.severity).toBe('CRITICAL');
+  });
+
+  it('GET /config-baselines pagination totalPages is calculated', async () => {
+    (mockPrisma.isConfigBaseline.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isConfigBaseline.count as jest.Mock).mockResolvedValue(30);
+    const res = await request(app).get('/api/dlp/config-baselines?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /config-baselines returns 500 on DB error', async () => {
+    (mockPrisma.isConfigBaseline.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dlp/config-baselines');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /config-baselines returns success:true on empty list', async () => {
+    (mockPrisma.isConfigBaseline.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isConfigBaseline.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dlp/config-baselines');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /config-baselines data is an array', async () => {
+    (mockPrisma.isConfigBaseline.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isConfigBaseline.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dlp/config-baselines');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /monitoring-reviews creates a monitoring review', async () => {
+    const validBody = {
+      reviewType: 'LOG_REVIEW',
+      reviewDate: '2026-01-15',
+      reviewedBy: 'Security Team',
+      systemsCovered: ['Firewall', 'IDS'],
+      period: 'January 2026',
+      findings: 'All checks passed',
+    };
+    (mockPrisma.isMonitoringReview.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000040',
+      ...validBody,
+      deletedAt: null,
+    });
+    const res = await request(app).post('/api/dlp/monitoring-reviews').send(validBody);
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /monitoring-reviews returns 400 when required fields missing', async () => {
+    const res = await request(app).post('/api/dlp/monitoring-reviews').send({ reviewedBy: 'Team' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /info-deletion filters by assetType', async () => {
+    (mockPrisma.isInfoDeletion.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isInfoDeletion.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/dlp/info-deletion?assetType=HDD');
+    const [call] = (mockPrisma.isInfoDeletion.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.assetType).toBe('HDD');
+  });
+});

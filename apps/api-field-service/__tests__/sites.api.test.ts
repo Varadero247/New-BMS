@@ -398,3 +398,57 @@ describe('Field Service Sites — edge cases and validation', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('sites.api — further coverage', () => {
+  it('GET / applies correct skip for page 2 limit 20', async () => {
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSite.count.mockResolvedValue(0);
+
+    await request(app).get('/api/sites?page=2&limit=20');
+
+    expect(mockPrisma.fsSvcSite.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 20 })
+    );
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/sites').send({});
+
+    expect(mockPrisma.fsSvcSite.create).not.toHaveBeenCalled();
+  });
+
+  it('GET /:id returns correct data.name', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000050',
+      name: 'Midlands Depot',
+      customer: {},
+    });
+
+    const res = await request(app).get('/api/sites/00000000-0000-0000-0000-000000000050');
+
+    expect(res.body.data.name).toBe('Midlands Depot');
+  });
+
+  it('DELETE /:id calls update exactly once', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060' });
+    mockPrisma.fsSvcSite.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060', deletedAt: new Date() });
+
+    await request(app).delete('/api/sites/00000000-0000-0000-0000-000000000060');
+
+    expect(mockPrisma.fsSvcSite.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id returns 200 and success:true on valid update', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000070' });
+    mockPrisma.fsSvcSite.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000070', name: 'Renamed' });
+
+    const res = await request(app)
+      .put('/api/sites/00000000-0000-0000-0000-000000000070')
+      .send({ name: 'Renamed' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

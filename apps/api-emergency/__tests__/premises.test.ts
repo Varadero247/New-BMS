@@ -440,3 +440,88 @@ describe('premises — extended edge cases', () => {
     expect(res.body.data._count.peeps).toBe(2);
   });
 });
+
+describe('premises — final coverage', () => {
+  it('GET /api/premises response has data array', async () => {
+    mockPremises.findMany.mockResolvedValue([fakePremises]);
+    mockPremises.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/premises');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/premises creates building with HOSPITAL type', async () => {
+    const hospital = { ...fakePremises, buildingType: 'HOSPITAL', name: 'City Hospital' };
+    mockPremises.create.mockResolvedValue(hospital);
+
+    const res = await request(app).post('/api/premises').send({
+      name: 'City Hospital',
+      address: '50 Hospital Road',
+      buildingType: 'HOSPITAL',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.buildingType).toBe('HOSPITAL');
+  });
+
+  it('GET /api/premises/:id/dashboard counts are all numbers', async () => {
+    mockPremises.findUnique.mockResolvedValue(fakePremises);
+    mockFra.count.mockResolvedValue(2);
+    mockIncident.count.mockResolvedValue(0);
+    mockWarden.count.mockResolvedValue(1);
+    mockEquipment.count.mockResolvedValue(3);
+    mockPeep.count.mockResolvedValue(2);
+    mockDrill.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get(`/api/premises/${PREMISES_ID}/dashboard`);
+
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.fraOverdueCount).toBe('number');
+    expect(typeof res.body.data.wardenTrainingExpiringCount).toBe('number');
+  });
+
+  it('PUT /api/premises/:id returns updated name in data', async () => {
+    const updated = { ...fakePremises, name: 'Satellite Office' };
+    mockPremises.findFirst.mockResolvedValue(fakePremises);
+    mockPremises.update.mockResolvedValue(updated);
+
+    const res = await request(app).put(`/api/premises/${PREMISES_ID}`).send({ name: 'Satellite Office' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Satellite Office');
+  });
+
+  it('GET /api/premises pagination.page defaults to 1', async () => {
+    mockPremises.findMany.mockResolvedValue([fakePremises]);
+    mockPremises.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/premises');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST /api/premises returns 500 on database error during create', async () => {
+    mockPremises.create.mockRejectedValue(new Error('Disk full'));
+
+    const res = await request(app).post('/api/premises').send({
+      name: 'Crisis Building',
+      address: '1 Crisis Lane',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/premises returns 500 when count query also fails', async () => {
+    mockPremises.findMany.mockRejectedValue(new Error('Network error'));
+    mockPremises.count.mockRejectedValue(new Error('Network error'));
+
+    const res = await request(app).get('/api/premises');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

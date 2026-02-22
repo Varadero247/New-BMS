@@ -397,3 +397,65 @@ describe('routes.api — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('routes.api — further coverage', () => {
+  it('GET / returns success:true on empty result set', async () => {
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/routes');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET / data array is always an array', async () => {
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/routes');
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create is not called when technicianId missing', async () => {
+    await request(app).post('/api/routes').send({ date: '2026-02-13', stops: [] });
+
+    expect(mockPrisma.fsSvcRoute.create).not.toHaveBeenCalled();
+  });
+
+  it('GET / applies correct skip for page 3 limit 10', async () => {
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(0);
+
+    await request(app).get('/api/routes?page=3&limit=10');
+
+    expect(mockPrisma.fsSvcRoute.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /optimize/:technicianId/:date returns empty stops when no jobs', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get(
+      '/api/routes/optimize/00000000-0000-0000-0000-000000000001/2026-03-01'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalStops).toBe(0);
+  });
+
+  it('DELETE /:id calls update exactly once on success', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010' });
+    mockPrisma.fsSvcRoute.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', deletedAt: new Date() });
+
+    await request(app).delete('/api/routes/00000000-0000-0000-0000-000000000010');
+
+    expect(mockPrisma.fsSvcRoute.update).toHaveBeenCalledTimes(1);
+  });
+});

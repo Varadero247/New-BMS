@@ -533,3 +533,89 @@ describe('Inventory Transactions — edge cases and deeper coverage', () => {
     expect(res.body.meta.totalPages).toBe(5);
   });
 });
+
+// ── Inventory Transactions — final tests ──────────────────────────────────────
+
+describe('Inventory Transactions — final tests', () => {
+  let finalApp: express.Express;
+
+  beforeAll(() => {
+    finalApp = express();
+    finalApp.use(express.json());
+    finalApp.use('/api/inventory/transactions', transactionsRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/inventory/transactions success:true on success', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(finalApp).get('/api/inventory/transactions');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/inventory/transactions responds with JSON content-type', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(finalApp).get('/api/inventory/transactions');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/inventory/transactions data is an array', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(finalApp).get('/api/inventory/transactions');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/inventory/transactions/:id returns product nested data', async () => {
+    (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '29000000-0000-4000-a000-000000000001',
+      transactionType: 'RECEIPT',
+      quantityChange: 50,
+      product: { id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget A', barcode: null },
+      warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
+      fromWarehouse: null,
+    });
+    const res = await request(finalApp).get('/api/inventory/transactions/29000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.product).toHaveProperty('sku', 'SKU001');
+  });
+
+  it('GET /api/inventory/transactions/:id returns warehouse nested data', async () => {
+    (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '29000000-0000-4000-a000-000000000001',
+      transactionType: 'RECEIPT',
+      quantityChange: 50,
+      product: { id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget A', barcode: null },
+      warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
+      fromWarehouse: null,
+    });
+    const res = await request(finalApp).get('/api/inventory/transactions/29000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.warehouse).toHaveProperty('code', 'WH1');
+  });
+
+  it('GET /api/inventory/transactions/product/:productId meta has totalPages', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '27000000-0000-4000-a000-000000000001',
+      sku: 'SKU001',
+      name: 'Widget A',
+    });
+    const res = await request(finalApp).get(
+      '/api/inventory/transactions/product/27000000-0000-4000-a000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/inventory/transactions meta has limit defaulting to 50', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(finalApp).get('/api/inventory/transactions');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.limit).toBe(50);
+  });
+});

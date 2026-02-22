@@ -279,3 +279,68 @@ describe('contracts dashboard — additional edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('contracts dashboard — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /stats returns 200 when both counts resolve to 1', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(1);
+    mockPrisma.contNotice.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalContracts).toBe(1);
+    expect(res.body.data.upcomingNotices).toBe(1);
+  });
+
+  it('GET /stats error body has both code and message on 500', async () => {
+    mockPrisma.contContract.count.mockRejectedValue(new Error('crash'));
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+    expect(res.body.error).toHaveProperty('message');
+  });
+
+  it('GET /stats data is not an array', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(false);
+  });
+
+  it('GET /stats totalContracts matches a large value', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(75000);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalContracts).toBe(75000);
+  });
+
+  it('GET /stats upcomingNotices matches a large value', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(8888);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.upcomingNotices).toBe(8888);
+  });
+
+  it('GET /stats success is boolean', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(3);
+    mockPrisma.contNotice.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('GET /stats contNotice.count called even when contContract.count returns 0', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contNotice.count).toHaveBeenCalledTimes(1);
+    expect(res.body.data.upcomingNotices).toBe(3);
+  });
+});

@@ -326,3 +326,67 @@ describe('approvals.api — pagination and filter coverage', () => {
     expect(res.headers['content-type']).toMatch(/application\/json/);
   });
 });
+
+describe('approvals.api — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / data contains the correct approval id', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', contractId: 'c-1', approver: 'u-1' }]);
+    mockPrisma.contApproval.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST / count called before create to generate referenceNumber', async () => {
+    mockPrisma.contApproval.count.mockResolvedValue(3);
+    mockPrisma.contApproval.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', contractId: 'c-1', approver: 'user-1' });
+    await request(app).post('/api/approvals').send({ contractId: 'c-1', approver: 'user-1' });
+    expect(mockPrisma.contApproval.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.contApproval.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id calls update with the correct data', async () => {
+    mockPrisma.contApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contApproval.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED' });
+    const res = await request(app).put('/api/approvals/00000000-0000-0000-0000-000000000001').send({ status: 'APPROVED' });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contApproval.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'APPROVED' }) })
+    );
+  });
+
+  it('DELETE /:id calls update with deletedAt set', async () => {
+    mockPrisma.contApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contApproval.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.contApproval.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns 200 with arbitrary unknown query params ignored', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals?unknownParam=somevalue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns data with approver field when found', async () => {
+    mockPrisma.contApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', approver: 'manager@example.com' });
+    const res = await request(app).get('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.approver).toBe('manager@example.com');
+  });
+});

@@ -364,3 +364,65 @@ describe('Feature Flags — extended edge cases', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('Feature Flags — final coverage', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    app = require('express')();
+    app.use(require('express').json());
+    app.use('/api', require('../src/routes/feature-flags').default);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetAllFlags.mockReturnValue([]);
+    mockGetAllOrgOverrides.mockReturnValue([]);
+  });
+
+  it('GET /api/admin/feature-flags response body has success: true', async () => {
+    const res = await require('supertest')(app).get('/api/admin/feature-flags');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/admin/feature-flags returns created flag id in data', async () => {
+    const res = await require('supertest')(app)
+      .post('/api/admin/feature-flags')
+      .send({ name: 'brand_new_flag', description: 'Brand new' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('PUT /api/admin/feature-flags/:name returns updated flag name in data', async () => {
+    const res = await require('supertest')(app)
+      .put('/api/admin/feature-flags/test_flag')
+      .send({ enabled: false });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('name');
+  });
+
+  it('GET /api/feature-flags/check name param is required (400 when omitted)', async () => {
+    const res = await require('supertest')(app).get('/api/feature-flags/check');
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/feature-flags response is an object with flag keys', async () => {
+    mockGetAll.mockResolvedValueOnce({ my_flag: true });
+    const res = await require('supertest')(app).get('/api/feature-flags');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+  });
+
+  it('PUT /api/admin/feature-flags/:name/orgs/:orgId calls setOrgOverride once', async () => {
+    await require('supertest')(app)
+      .put('/api/admin/feature-flags/some_flag/orgs/00000000-0000-0000-0000-000000000001')
+      .send({ enabled: true });
+    expect(mockSetOrgOverride).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/admin/feature-flags/:name calls deleteFlag once', async () => {
+    await require('supertest')(app).delete('/api/admin/feature-flags/to_delete');
+    expect(mockDeleteFlag).toHaveBeenCalledTimes(1);
+  });
+});

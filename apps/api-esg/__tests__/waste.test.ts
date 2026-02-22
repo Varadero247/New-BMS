@@ -355,3 +355,69 @@ describe('waste — extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('waste — additional coverage 2', () => {
+  it('GET / response includes pagination with total', async () => {
+    (prisma.esgWaste.findMany as jest.Mock).mockResolvedValue([mockWaste]);
+    (prisma.esgWaste.count as jest.Mock).mockResolvedValue(7);
+    const res = await request(app).get('/api/waste');
+    expect(res.body.pagination.total).toBe(7);
+  });
+
+  it('POST / stores createdBy from authenticated user', async () => {
+    (prisma.esgWaste.create as jest.Mock).mockResolvedValue(mockWaste);
+    await request(app).post('/api/waste').send({
+      wasteType: 'HAZARDOUS',
+      quantity: 200,
+      unit: 'kg',
+      disposalMethod: 'INCINERATED',
+      periodStart: '2026-02-01',
+      periodEnd: '2026-02-28',
+    });
+    const [call] = (prisma.esgWaste.create as jest.Mock).mock.calls;
+    expect(call[0].data.createdBy).toBe('user-123');
+  });
+
+  it('DELETE /:id calls update with deletedAt', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(mockWaste);
+    (prisma.esgWaste.update as jest.Mock).mockResolvedValue({ ...mockWaste, deletedAt: new Date() });
+    await request(app).delete('/api/waste/00000000-0000-0000-0000-000000000001');
+    const [call] = (prisma.esgWaste.update as jest.Mock).mock.calls;
+    expect(call[0].data).toHaveProperty('deletedAt');
+  });
+
+  it('GET / filters by wasteType=ELECTRONIC', async () => {
+    (prisma.esgWaste.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgWaste.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/waste?wasteType=ELECTRONIC');
+    expect(prisma.esgWaste.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ wasteType: 'ELECTRONIC' }) })
+    );
+  });
+
+  it('PUT /:id updates facility field', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(mockWaste);
+    (prisma.esgWaste.update as jest.Mock).mockResolvedValue({ ...mockWaste, facility: 'Plant B' });
+    const res = await request(app)
+      .put('/api/waste/00000000-0000-0000-0000-000000000001')
+      .send({ facility: 'Plant B' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.facility).toBe('Plant B');
+  });
+
+  it('GET /:id returns wasteType and quantity fields', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(mockWaste);
+    const res = await request(app).get('/api/waste/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('wasteType');
+    expect(res.body.data).toHaveProperty('quantity');
+  });
+
+  it('GET / page 3 with limit 5 passes skip 10', async () => {
+    (prisma.esgWaste.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgWaste.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/waste?page=3&limit=5');
+    expect(prisma.esgWaste.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+});

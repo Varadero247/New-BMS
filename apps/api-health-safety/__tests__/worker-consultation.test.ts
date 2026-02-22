@@ -295,3 +295,68 @@ describe('ISO 45001 Worker Consultation Routes', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Worker Consultation — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / response data array contains expected fields', async () => {
+    prisma.hSWorkerConsultation.findMany.mockResolvedValue([{ ...mockConsultation }]);
+    prisma.hSWorkerConsultation.count.mockResolvedValue(1);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('title');
+    expect(res.body.data[0]).toHaveProperty('topic');
+  });
+
+  it('POST / calls create with correct participantCount', async () => {
+    prisma.hSWorkerConsultation.create.mockResolvedValue(mockConsultation);
+    await request(app).post('/').send(consultationPayload);
+    expect(prisma.hSWorkerConsultation.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ participantCount: 12 }) })
+    );
+  });
+
+  it('PUT /:id calls update with correct where clause', async () => {
+    prisma.hSWorkerConsultation.findUnique.mockResolvedValue(mockConsultation);
+    prisma.hSWorkerConsultation.update.mockResolvedValue({ ...mockConsultation, outcomeSummary: 'Updated' });
+    await request(app).put('/cons-1').send({ outcomeSummary: 'Updated' });
+    expect(prisma.hSWorkerConsultation.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'cons-1' } })
+    );
+  });
+
+  it('GET /barriers calls findMany once', async () => {
+    prisma.hSParticipationBarrier.findMany.mockResolvedValue([]);
+    prisma.hSParticipationBarrier.count.mockResolvedValue(0);
+    await request(app).get('/barriers');
+    expect(prisma.hSParticipationBarrier.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /dashboard returns byTopic as an object', async () => {
+    prisma.hSWorkerConsultation.count.mockResolvedValueOnce(3);
+    prisma.hSWorkerConsultation.groupBy.mockResolvedValue([
+      { topic: 'HAZARD_IDENTIFICATION', _count: { id: 3 } },
+    ]);
+    prisma.hSWorkerConsultation.aggregate.mockResolvedValue({ _sum: { participantCount: 30 } });
+    prisma.hSParticipationBarrier.count.mockResolvedValue(0);
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.byTopic).toBe('object');
+  });
+
+  it('GET / filters by method wired to Prisma where', async () => {
+    prisma.hSWorkerConsultation.findMany.mockResolvedValue([]);
+    prisma.hSWorkerConsultation.count.mockResolvedValue(0);
+    await request(app).get('/?method=MEETING');
+    expect(prisma.hSWorkerConsultation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ method: 'MEETING' }) })
+    );
+  });
+
+  it('POST / returns 400 when title is missing', async () => {
+    const { title: _t, ...body } = consultationPayload;
+    const res = await request(app).post('/').send(body);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

@@ -286,3 +286,70 @@ describe('NotificationBellState — getTrackedUsers', () => {
     expect(state.getTrackedUsers()).not.toContain('alice');
   });
 });
+
+// ── Additional integration-style tests ─────────────────────────────────────────
+
+describe('NotificationBellState — integration and edge cases', () => {
+  it('markRead after markAllRead returns false (already read)', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'tgt', read: false }));
+    state.markAllRead('u1');
+    // notification is now read; markRead should still return true (found it)
+    const result = state.markRead('u1', 'tgt');
+    expect(result).toBe(true);
+    // unread count is still 0
+    expect(state.getUnreadCount('u1')).toBe(0);
+  });
+
+  it('getAll page beyond totalPages returns empty items', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification());
+    const result = state.getAll('u1', 99, 20);
+    expect(result.items).toHaveLength(0);
+    expect(result.total).toBe(1);
+  });
+
+  it('addNotification stores notification with correct fields', () => {
+    const state = new NotificationBellState();
+    const n = makeNotification({ id: 'field-check', title: 'Alert', severity: 'HIGH' });
+    state.addNotification('u1', n);
+    const all = state.getAll('u1').items;
+    expect(all[0].title).toBe('Alert');
+    expect(all[0].severity).toBe('HIGH');
+    expect(all[0].id).toBe('field-check');
+  });
+
+  it('getUnreadCount returns correct count after markRead for one item', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'r1', read: false }));
+    state.addNotification('u1', makeNotification({ id: 'r2', read: false }));
+    state.markRead('u1', 'r1');
+    expect(state.getUnreadCount('u1')).toBe(1);
+  });
+
+  it('clear then addNotification works correctly', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'old' }));
+    state.clear('u1');
+    state.addNotification('u1', makeNotification({ id: 'new' }));
+    const all = state.getAll('u1').items;
+    expect(all).toHaveLength(1);
+    expect(all[0].id).toBe('new');
+  });
+
+  it('multiple independent state instances do not share data', () => {
+    const s1 = new NotificationBellState();
+    const s2 = new NotificationBellState();
+    s1.addNotification('shared-user', makeNotification({ id: 'from-s1' }));
+    expect(s2.getAll('shared-user').total).toBe(0);
+  });
+
+  it('getAll with limit=1 returns only 1 item per page', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'p1' }));
+    state.addNotification('u1', makeNotification({ id: 'p2' }));
+    const page1 = state.getAll('u1', 1, 1);
+    expect(page1.items).toHaveLength(1);
+    expect(page1.totalPages).toBe(2);
+  });
+});

@@ -414,3 +414,62 @@ describe('Additional FMEA coverage', () => {
     expect(res.body).toMatchObject({ success: true, meta: expect.objectContaining({ total: 1 }) });
   });
 });
+
+describe('FMEA — final coverage block', () => {
+  it('GET /api/fmea returns empty array when no studies exist', async () => {
+    (mockPrisma.fmeaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/fmea');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/fmea/:id returns 500 on DB error', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get(`/api/fmea/${STUDY_ID}`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/fmea returns created study with refNumber', async () => {
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.fmeaStudy.create as jest.Mock).mockResolvedValue(mockStudy);
+    const res = await request(app).post('/api/fmea').send({ title: 'Engine Assembly PFMEA', preparedBy: 'John Engineer' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.refNumber).toBe('FMEA-2601-0001');
+  });
+
+  it('PUT /api/fmea/:id updates revision field', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
+    (mockPrisma.fmeaStudy.update as jest.Mock).mockResolvedValue({ ...mockStudy, revision: 'B' });
+    const res = await request(app).put(`/api/fmea/${STUDY_ID}`).send({ revision: 'B' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.revision).toBe('B');
+  });
+
+  it('POST /api/fmea/:id/items returns 201 with success:true', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
+    (mockPrisma.fmeaItem.create as jest.Mock).mockResolvedValue({ ...mockItem, id: 'item-new' });
+    const res = await request(app).post(`/api/fmea/${STUDY_ID}/items`).send({
+      itemNumber: 2,
+      processStep: 'Bolt Tightening',
+      function: 'Fasten joint',
+      failureMode: 'Over-torque',
+      failureEffect: 'Stripped thread',
+      severity: 5,
+      potentialCauses: 'Power tool malfunction',
+      occurrence: 4,
+      detection: 2,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/fmea meta.totalPages is 0 when no studies exist', async () => {
+    (mockPrisma.fmeaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/fmea');
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+});

@@ -308,3 +308,57 @@ describe('permits.api — extended edge cases', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('permits.api — final coverage', () => {
+  it('GET / returns success:true with data array', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([{ id: '1', title: 'P1' }]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/permits');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / pagination.totalPages rounds up correctly', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(21);
+    const res = await request(app).get('/api/permits?limit=10');
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('POST / creates permit with HOT_WORK type', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(4);
+    mockPrisma.ptwPermit.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005', title: 'Hot Work' });
+    const res = await request(app).post('/api/permits').send({ title: 'Hot Work', type: 'HOT_WORK' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 for invalid permit type', async () => {
+    const res = await request(app).post('/api/permits').send({ title: 'Test', type: 'FLYING' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id updates hazards field', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwPermit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', hazards: 'Fire risk' });
+    const res = await request(app).put('/api/permits/00000000-0000-0000-0000-000000000001').send({ hazards: 'Fire risk' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id calls update with deletedAt timestamp', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwPermit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/permits/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.ptwPermit.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /:id returns NOT_FOUND error code when not found', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/permits/00000000-0000-0000-0000-000000000099');
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

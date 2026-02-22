@@ -348,3 +348,63 @@ describe('Commission — query parameters and aggregation edge cases', () => {
     expect(res.body.data.totalPending).toBe(7500);
   });
 });
+
+describe('Commission — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /summary 200 response has success:true', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /summary findMany called with partnerId from req.partner', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/commission/summary');
+    expect(prisma.mktPartnerDeal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ partnerId: 'partner-1' }) })
+    );
+  });
+
+  it('GET /history findMany called with partnerId from req.partner', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/commission/history');
+    expect(prisma.mktPartnerDeal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ partnerId: 'partner-1' }) })
+    );
+  });
+
+  it('GET /pending success is true', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/pending');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /summary dealsWon equals count of CLOSED_WON deals', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { ...mockDeals[0], status: 'CLOSED_WON', commissionValue: 1000, commissionPaid: true },
+      { ...mockDeals[1], status: 'CLOSED_WON', commissionValue: 2000, commissionPaid: false },
+    ]);
+    const res = await request(app).get('/api/commission/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.dealsWon).toBe(2);
+  });
+
+  it('GET /history 500 has success:false', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/commission/history');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /pending 500 has success:false', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/commission/pending');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -342,3 +342,60 @@ describe('Release Notes — edge cases and extended coverage', () => {
     expect(res.body.data.pagination.page).toBe(1);
   });
 });
+
+describe('Release Notes — final coverage', () => {
+  it('GET list returns JSON content-type', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/release-notes');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET list pagination has limit field', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/release-notes');
+    expect(res.body.data.pagination).toHaveProperty('limit');
+  });
+
+  it('GET list pagination has page field', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/release-notes');
+    expect(res.body.data.pagination).toHaveProperty('page');
+  });
+
+  it('GET /:id returns changelog key in data', async () => {
+    mockPrisma.changelog.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      version: '1.0.0',
+      title: 'Test',
+      publishedAt: new Date(),
+    });
+    const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('changelog');
+  });
+
+  it('GET list default limit is 20', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/release-notes');
+    expect(res.body.data.pagination.limit).toBe(20);
+  });
+
+  it('GET /:id 500 error body has success false', async () => {
+    mockPrisma.changelog.findUnique.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET list changelogs contains version field on each item', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', version: '1.2.3', title: 'X', publishedAt: new Date() },
+    ]);
+    mockPrisma.changelog.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/release-notes');
+    expect(res.body.data.changelogs[0].version).toBe('1.2.3');
+  });
+});

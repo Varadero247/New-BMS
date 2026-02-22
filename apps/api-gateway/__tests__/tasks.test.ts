@@ -330,3 +330,64 @@ describe('tasks — error paths and pagination', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('tasks — business logic and response shape', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tasks', tasksRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/tasks data.total is a number', async () => {
+    mockGetTasks.mockResolvedValueOnce({ tasks: [], total: 7 });
+    const res = await request(app).get('/api/tasks');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.total).toBe('number');
+  });
+
+  it('POST /api/tasks calls createTask with correct user orgId', async () => {
+    mockCreateTask.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', title: 'T', status: 'OPEN', refNumber: 'TSK-001' });
+    await request(app).post('/api/tasks').send({ title: 'T', assigneeId: 'u', assigneeName: 'N', priority: 'LOW' });
+    expect(mockCreateTask).toHaveBeenCalledWith(
+      expect.objectContaining({ orgId: 'org-1' })
+    );
+  });
+
+  it('GET /api/tasks with assigneeId filter returns 200', async () => {
+    mockGetTasks.mockResolvedValueOnce({ tasks: [], total: 0 });
+    const res = await request(app).get('/api/tasks?assigneeId=user-2');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/tasks?search returns 200', async () => {
+    mockGetTasks.mockResolvedValueOnce({ tasks: [], total: 0 });
+    const res = await request(app).get('/api/tasks?search=audit');
+    expect(res.status).toBe(200);
+  });
+
+  it('PATCH /api/tasks/:id/complete calls completeTask with correct id', async () => {
+    mockCompleteTask.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETE', completedAt: new Date().toISOString() });
+    await request(app).patch('/api/tasks/00000000-0000-0000-0000-000000000001/complete');
+    expect(mockCompleteTask).toHaveBeenCalledWith(
+      expect.stringContaining('00000000-0000-0000-0000-000000000001')
+    );
+  });
+
+  it('DELETE /api/tasks/:id calls deleteTask with correct id', async () => {
+    mockDeleteTask.mockResolvedValueOnce(undefined);
+    await request(app).delete('/api/tasks/00000000-0000-0000-0000-000000000001');
+    expect(mockDeleteTask).toHaveBeenCalledWith(
+      expect.stringContaining('00000000-0000-0000-0000-000000000001')
+    );
+  });
+
+  it('GET /api/tasks/my-tasks response data has thisWeek field', async () => {
+    mockGetMyTasks.mockResolvedValueOnce({ overdue: [], today: [], thisWeek: [{ id: '1' }], later: [] });
+    const res = await request(app).get('/api/tasks/my-tasks');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('thisWeek');
+  });
+});

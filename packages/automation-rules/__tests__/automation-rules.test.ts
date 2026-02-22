@@ -282,3 +282,43 @@ describe('@ims/automation-rules — extended coverage', () => {
     expect(getEnabledRules('org-1')).toHaveLength(0);
   });
 });
+
+describe('@ims/automation-rules — rule structure deep checks', () => {
+  beforeEach(() => {
+    _resetStores();
+  });
+
+  it('each rule has at least one action', () => {
+    for (const rule of AUTOMATION_RULES) {
+      expect(rule.actions.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('each rule conditions array is defined (may be empty)', () => {
+    for (const rule of AUTOMATION_RULES) {
+      expect(Array.isArray(rule.conditions)).toBe(true);
+    }
+  });
+
+  it('getRuleById returns correct name for rule-010', () => {
+    const rule = getRuleById('rule-010');
+    expect(rule).toBeDefined();
+    expect(typeof rule!.name).toBe('string');
+  });
+
+  it('getExecutionLog with limit=0 returns empty array', () => {
+    logExecution('org-1', 'rule-001', 'success', 'OK');
+    const logs = getExecutionLog('org-1', undefined, 0);
+    expect(logs).toHaveLength(0);
+  });
+
+  it('logExecution for different orgs stores independently', () => {
+    logExecution('org-alpha', 'rule-001', 'success', 'A');
+    logExecution('org-beta', 'rule-002', 'failed', 'B');
+
+    expect(getExecutionLog('org-alpha')).toHaveLength(1);
+    expect(getExecutionLog('org-beta')).toHaveLength(1);
+    expect(getExecutionLog('org-alpha')[0].ruleId).toBe('rule-001');
+    expect(getExecutionLog('org-beta')[0].ruleId).toBe('rule-002');
+  });
+});

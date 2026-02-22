@@ -426,3 +426,75 @@ describe('Chat — new edge cases', () => {
     delete process.env.ANTHROPIC_API_KEY;
   });
 });
+
+// ===================================================================
+// Additional coverage to reach 35 tests
+// ===================================================================
+
+describe('Chat — final coverage', () => {
+  it('POST /start response data contains sessionId field', async () => {
+    (prisma.mktChatSession.create as jest.Mock).mockResolvedValue(mockSession);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(mockSession);
+
+    const res = await request(app).post('/api/chat/start').send({});
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('sessionId');
+  });
+
+  it('POST /start response data.message is a non-empty string', async () => {
+    (prisma.mktChatSession.create as jest.Mock).mockResolvedValue(mockSession);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(mockSession);
+
+    const res = await request(app).post('/api/chat/start').send({});
+
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.message).toBe('string');
+    expect(res.body.data.message.length).toBeGreaterThan(0);
+  });
+
+  it('GET /session/:id returns createdAt field in data', async () => {
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+
+    const res = await request(app).get('/api/chat/session/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('createdAt');
+  });
+
+  it('POST /message success:true when session is found and message processed', async () => {
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(session);
+
+    const res = await request(app)
+      .post('/api/chat/message')
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'pricing info please' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /start with visitorId calls create with that visitorId', async () => {
+    (prisma.mktChatSession.create as jest.Mock).mockResolvedValue({ ...mockSession, visitorId: 'v-999' });
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(mockSession);
+
+    const res = await request(app).post('/api/chat/start').send({ visitorId: 'v-999' });
+
+    expect(res.status).toBe(200);
+    expect(prisma.mktChatSession.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ visitorId: 'v-999' }) })
+    );
+  });
+
+  it('GET /session/:id success:true on valid session', async () => {
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+
+    const res = await request(app).get('/api/chat/session/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

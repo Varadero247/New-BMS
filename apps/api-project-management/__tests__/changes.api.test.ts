@@ -570,3 +570,90 @@ describe('Project Changes API — extended edge cases', () => {
     );
   });
 });
+
+describe('Project Changes API — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changes', changesRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /changes: response body has success and data fields', async () => {
+    (mockPrisma.projectChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/changes?projectId=proj-1').set('Authorization', 'Bearer token');
+    expect(response.body).toHaveProperty('success');
+    expect(response.body).toHaveProperty('data');
+  });
+
+  it('GET /changes: returns empty array when no changes exist', async () => {
+    (mockPrisma.projectChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/changes?projectId=proj-1').set('Authorization', 'Bearer token');
+    expect(response.body.data).toEqual([]);
+  });
+
+  it('POST /changes: create called once on success', async () => {
+    (mockPrisma.projectChange.create as jest.Mock).mockResolvedValueOnce({
+      id: 'chg-once',
+      projectId: 'proj-1',
+      changeCode: 'CHG-ONCE',
+      status: 'SUBMITTED',
+      requestedBy: '20000000-0000-4000-a000-000000000123',
+    });
+    await request(app)
+      .post('/api/changes')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'proj-1',
+        changeCode: 'CHG-ONCE',
+        changeTitle: 'Once title',
+        changeDescription: 'Once desc',
+        changeReason: 'Once reason',
+        changeType: 'SCOPE',
+      });
+    expect(mockPrisma.projectChange.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /changes/:id/review: update sets status to UNDER_REVIEW', async () => {
+    (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      status: 'SUBMITTED',
+    });
+    (mockPrisma.projectChange.update as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      status: 'UNDER_REVIEW',
+    });
+    await request(app)
+      .put('/api/changes/4b000000-0000-4000-a000-000000000001/review')
+      .set('Authorization', 'Bearer token')
+      .send({ reviewerComments: 'Reviewing now' });
+    expect(mockPrisma.projectChange.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'UNDER_REVIEW' }) })
+    );
+  });
+
+  it('PUT /changes/:id/approve: update sets status to APPROVED', async () => {
+    (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      status: 'UNDER_REVIEW',
+    });
+    (mockPrisma.projectChange.update as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      status: 'APPROVED',
+    });
+    await request(app)
+      .put('/api/changes/4b000000-0000-4000-a000-000000000001/approve')
+      .set('Authorization', 'Bearer token')
+      .send({ approvalComments: 'Approved' });
+    expect(mockPrisma.projectChange.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'APPROVED' }) })
+    );
+  });
+});

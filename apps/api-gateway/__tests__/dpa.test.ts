@@ -411,3 +411,83 @@ describe('DPA Routes — 500 paths and extra field validation', () => {
     expect(res.body.data.acceptance).toBeNull();
   });
 });
+
+describe('DPA Routes — final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/dpa', dpaRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetActiveDpa.mockReturnValue({
+      id: 'dpa-1',
+      version: '1.0',
+      title: 'Data Processing Agreement v1.0',
+      content: '<p>DPA Terms</p>',
+      isActive: true,
+    });
+    mockAcceptDpa.mockReturnValue({
+      id: 'acc-1',
+      orgId: 'org-1',
+      dpaId: 'dpa-1',
+      dpaVersion: '1.0',
+      signerName: 'John Smith',
+      signerTitle: 'DPO',
+      signedAt: new Date().toISOString(),
+    });
+    mockHasAcceptedDpa.mockReturnValue(false);
+    mockGetDpaAcceptance.mockReturnValue(null);
+  });
+
+  it('GET /api/admin/dpa response body has success property', async () => {
+    const res = await request(app).get('/api/admin/dpa');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('POST /api/admin/dpa/accept response status is 201', async () => {
+    const res = await request(app)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: 'Test User', signerTitle: 'Manager' });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/admin/dpa/acceptance response success is true', async () => {
+    const res = await request(app).get('/api/admin/dpa/acceptance');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/admin/dpa/accept rejects body with only whitespace signerName', async () => {
+    const res = await request(app)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: '   ', signerTitle: 'DPO' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/admin/dpa returns accepted property in data', async () => {
+    const res = await request(app).get('/api/admin/dpa');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('accepted');
+  });
+
+  it('GET /api/admin/dpa/acceptance returns accepted true when signed', async () => {
+    mockGetDpaAcceptance.mockReturnValueOnce({
+      id: 'acc-5',
+      signedAt: new Date().toISOString(),
+      signerName: 'Frank',
+      signerTitle: 'VP',
+    });
+    const res = await request(app).get('/api/admin/dpa/acceptance');
+    expect(res.status).toBe(200);
+    expect(res.body.data.accepted).toBe(true);
+  });
+
+  it('GET /api/admin/dpa calls getActiveDpa once', async () => {
+    await request(app).get('/api/admin/dpa');
+    expect(mockGetActiveDpa).toHaveBeenCalledTimes(1);
+  });
+});

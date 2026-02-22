@@ -525,3 +525,41 @@ describe('Rate Limiter Middleware', () => {
     });
   });
 });
+
+describe('Rate Limiter — final coverage batch', () => {
+  afterAll(async () => { await closeRedisConnection(); });
+
+  it('all five pre-configured limiters are callable functions', () => {
+    expect(typeof authLimiter).toBe('function');
+    expect(typeof registerLimiter).toBe('function');
+    expect(typeof apiLimiter).toBe('function');
+    expect(typeof passwordResetLimiter).toBe('function');
+    expect(typeof strictApiLimiter).toBe('function');
+  });
+
+  it('createRateLimiter with max 50 returns a function', () => {
+    const lim = createRateLimiter({ windowMs: 60_000, max: 50 });
+    expect(typeof lim).toBe('function');
+  });
+
+  it('createRateLimiter with skip option returns a function', () => {
+    const lim = createRateLimiter({ windowMs: 60_000, max: 10, skip: () => true });
+    expect(typeof lim).toBe('function');
+  });
+
+  it('createRateLimiter with standardHeaders false returns a function', () => {
+    const lim = createRateLimiter({ windowMs: 60_000, max: 10, standardHeaders: false });
+    expect(typeof lim).toBe('function');
+  });
+
+  it('createRateLimiter with legacyHeaders true returns a function', () => {
+    const lim = createRateLimiter({ windowMs: 60_000, max: 10, legacyHeaders: true });
+    expect(typeof lim).toBe('function');
+  });
+
+  it('getRedisClient returns null when REDIS_URL is absent', () => {
+    delete process.env.REDIS_URL;
+    const client = getRedisClient();
+    expect(client).toBeNull();
+  });
+});

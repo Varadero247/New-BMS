@@ -280,3 +280,69 @@ describe('PTW Dashboard — extended edge cases', () => {
     expect(res.body.success).toStrictEqual(true);
   });
 });
+
+describe('dashboard.api — final extended coverage', () => {
+  it('response content-type is JSON for /stats', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('totalPermits, totalMethodStatements, totalToolboxTalks are all numbers', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(10);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(20);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalPermits).toBe('number');
+    expect(typeof res.body.data.totalMethodStatements).toBe('number');
+    expect(typeof res.body.data.totalToolboxTalks).toBe('number');
+  });
+
+  it('ptwPermit.count is called with deletedAt null filter', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.ptwPermit.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('ptwMethodStatement.count is called with deletedAt null', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.ptwMethodStatement.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('ptwToolboxTalk.count is called with deletedAt null', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.ptwToolboxTalk.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('stats returns 200 status code on success', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(1);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(1);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+  });
+
+  it('data object is not null on success', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(3);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(2);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).not.toBeNull();
+  });
+});

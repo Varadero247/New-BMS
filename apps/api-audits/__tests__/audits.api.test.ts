@@ -324,3 +324,61 @@ describe('audits.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('Audits API — final coverage block', () => {
+  it('POST / count is called to generate reference number', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(2);
+    mockPrisma.audAudit.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Audit 3', referenceNumber: 'AUD-2026-0003' });
+    await request(app).post('/api/audits').send({ title: 'Audit 3' });
+    expect(mockPrisma.audAudit.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id update is called with deletedAt data', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audAudit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.audAudit.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns data as an array', async () => {
+    mockPrisma.audAudit.findMany.mockResolvedValue([]);
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id update is called with correct where.id', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audAudit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New' });
+    await request(app).put('/api/audits/00000000-0000-0000-0000-000000000001').send({ title: 'New' });
+    expect(mockPrisma.audAudit.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /:id returns correct data.id', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000042', title: 'Audit' });
+    const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000042');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000042');
+  });
+
+  it('GET / pagination total matches count mock', async () => {
+    mockPrisma.audAudit.findMany.mockResolvedValue([]);
+    mockPrisma.audAudit.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(15);
+  });
+
+  it('POST / with EXTERNAL type creates record successfully', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audAudit.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'External', type: 'EXTERNAL' });
+    const res = await request(app).post('/api/audits').send({ title: 'External', type: 'EXTERNAL' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

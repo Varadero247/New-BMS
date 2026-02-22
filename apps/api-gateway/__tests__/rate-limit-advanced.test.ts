@@ -667,3 +667,71 @@ describe('Rate Limiter — boundary and config tests', () => {
     await closeRedisConnection();
   });
 });
+
+describe('Rate Limiter — final coverage batch', () => {
+  afterEach(() => { jest.clearAllMocks(); });
+
+  it('createRateLimiter with max 7 blocks on the 8th request', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 7, keyGenerator: () => 'final-1' });
+    const app = buildApp(limiter);
+    const statuses = await fireRequests(app, 8, '10.30.0.1');
+    expect(statuses.slice(0, 7).every((s) => s === 200)).toBe(true);
+    expect(statuses[7]).toBe(429);
+    await closeRedisConnection();
+  });
+
+  it('3 requests under max 5 all return 200', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 5, keyGenerator: () => 'final-2' });
+    const app = buildApp(limiter);
+    const statuses = await fireRequests(app, 3, '10.30.0.2');
+    expect(statuses.every((s) => s === 200)).toBe(true);
+    await closeRedisConnection();
+  });
+
+  it('first request always returns 200 regardless of max', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 100, keyGenerator: () => 'final-3' });
+    const app = buildApp(limiter);
+    const res = await request(app).get('/api/test');
+    expect(res.status).toBe(200);
+    await closeRedisConnection();
+  });
+
+  it('blocked response has retryAfter in error body', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 1, keyGenerator: () => 'final-4' });
+    const app = buildApp(limiter);
+    await request(app).get('/api/test');
+    const res = await request(app).get('/api/test');
+    expect(res.status).toBe(429);
+    expect(res.body.error).toHaveProperty('retryAfter');
+    await closeRedisConnection();
+  });
+
+  it('createRateLimiter is a function', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    expect(typeof createRateLimiter).toBe('function');
+    await closeRedisConnection();
+  });
+
+  it('200 responses under limit have status 200 body success true', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 20, keyGenerator: () => 'final-5' });
+    const app = buildApp(limiter);
+    const res = await request(app).get('/api/test');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    await closeRedisConnection();
+  });
+
+  it('limiter can be created without keyGenerator (falls back to default)', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 100 });
+    const app = buildApp(limiter);
+    const res = await request(app).get('/api/test');
+    expect(res.status).toBe(200);
+    await closeRedisConnection();
+  });
+});

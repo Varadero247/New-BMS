@@ -340,3 +340,52 @@ describe('compressionMiddleware — further extended', () => {
     expect(next).toHaveBeenCalled();
   });
 });
+
+describe('compressionMiddleware — final additional coverage', () => {
+  it('calls next() for PATCH request with gzip support', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/json');
+    mw(makeReq('gzip', 'PATCH'), response, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('sets Content-Encoding to gzip for application/xml', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/xml');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBe('gzip');
+  });
+
+  it('compressionMiddleware() returns a function', () => {
+    const mw = compressionMiddleware();
+    expect(typeof mw).toBe('function');
+  });
+
+  it('does not throw when both gzip and deflate are listed in Accept-Encoding', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    expect(() => {
+      mw(makeReq('gzip, deflate, br'), makeRes('application/json'), next);
+    }).not.toThrow();
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('calls next() exactly once per request', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    mw(makeReq('gzip'), makeRes('application/json'), next);
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('gzip is preferred over deflate when both listed in Accept-Encoding (via br)', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('text/plain');
+    mw(makeReq('gzip;q=1.0, deflate;q=0.5'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBe('gzip');
+  });
+});

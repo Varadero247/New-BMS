@@ -346,3 +346,43 @@ describe('Calibrations — extended edge cases', () => {
     expect(res.body.pagination.total).toBe(7);
   });
 });
+
+describe('Calibrations — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST / returns 400 when required fields missing', async () => {
+    const res = await request(app).post('/api/calibrations').send({ notes: 'no required fields' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / findMany called once per request', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/calibrations');
+    expect(prisma.qualCalibration.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / returns success:true on valid list', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockResolvedValue([mockCalibration]);
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/calibrations');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id calls update once on successful update', async () => {
+    (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(mockCalibration);
+    (prisma.qualCalibration.update as jest.Mock).mockResolvedValue({ ...mockCalibration, status: 'OVERDUE' });
+    await request(app).put('/api/calibrations/00000000-0000-0000-0000-000000000001').send({ status: 'OVERDUE' });
+    expect(prisma.qualCalibration.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / pagination total matches count mock value', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(20);
+    const res = await request(app).get('/api/calibrations');
+    expect(res.body.pagination.total).toBe(20);
+  });
+});

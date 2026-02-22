@@ -395,3 +395,64 @@ describe('schedules.api — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('schedules.api — further coverage', () => {
+  it('GET / returns success:true on empty result set', async () => {
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/schedules');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET / data array is always an array', async () => {
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/schedules');
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create is not called when technicianId is missing', async () => {
+    await request(app).post('/api/schedules').send({ date: '2026-03-01', slots: [] });
+
+    expect(mockPrisma.fsSvcSchedule.create).not.toHaveBeenCalled();
+  });
+
+  it('GET / applies correct skip for page 3 limit 10', async () => {
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(0);
+
+    await request(app).get('/api/schedules?page=3&limit=10');
+
+    expect(mockPrisma.fsSvcSchedule.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /calendar/:technicianId returns jobs array', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Bob' });
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/schedules/calendar/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.jobs)).toBe(true);
+  });
+
+  it('DELETE /:id calls update exactly once on success', async () => {
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010' });
+    mockPrisma.fsSvcSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', deletedAt: new Date() });
+
+    await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000010');
+
+    expect(mockPrisma.fsSvcSchedule.update).toHaveBeenCalledTimes(1);
+  });
+});

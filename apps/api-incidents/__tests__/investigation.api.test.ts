@@ -370,3 +370,73 @@ describe('Investigation — field validation and response shape', () => {
     expect(res.body.error.message).toBeDefined();
   });
 });
+
+describe('Investigation — final coverage block', () => {
+  it('assign response is JSON content-type', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'usr',
+      status: 'INVESTIGATING',
+    });
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'usr' });
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('report update response is JSON content-type', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    const res = await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ rootCause: 'Equipment' });
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('assign with only investigatorName (no investigator) returns 400', async () => {
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigatorName: 'Bob' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('assign update data has investigator and status fields', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'inv10',
+      status: 'INVESTIGATING',
+    });
+    await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'inv10' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData).toHaveProperty('investigator', 'inv10');
+    expect(callData).toHaveProperty('status', 'INVESTIGATING');
+  });
+
+  it('assign success response has success:true and data keys', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'inv11',
+      status: 'INVESTIGATING',
+    });
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'inv11' });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('report update 500 response success is strictly false', async () => {
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('fatal'));
+    const res = await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ rootCause: 'Cause' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toStrictEqual(false);
+  });
+});

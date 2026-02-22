@@ -466,3 +466,93 @@ describe('drills — extended edge cases', () => {
     expect(res.body.data.premisesStats['Site X'].targetMetRate).toBe(0);
   });
 });
+
+describe('drills — final coverage', () => {
+  it('POST requires drillType to be present', async () => {
+    const res = await request(app).post(`/api/drills/premises/${PREMISES_ID}`).send({
+      drillDate: '2026-05-01',
+      evacuationType: 'FULL_EVACUATION',
+      alarmedOrSilent: 'ALARMED',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/drills/:id updates assemblyPointReached flag', async () => {
+    mockDrill.findFirst.mockResolvedValue(fakeDrill);
+    mockDrill.update.mockResolvedValue({ ...fakeDrill, assemblyPointReached: false });
+
+    const res = await request(app).put(`/api/drills/${DRILL_ID}`).send({
+      assemblyPointReached: false,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('analytics totalDrills equals length of returned drills array', async () => {
+    const three = [
+      { ...fakeDrill, premises: { name: 'HQ' } },
+      { ...fakeDrill, id: '00000000-0000-0000-0000-000000000010', premises: { name: 'HQ' } },
+      { ...fakeDrill, id: '00000000-0000-0000-0000-000000000011', premises: { name: 'HQ' } },
+    ];
+    mockDrill.findMany.mockResolvedValue(three);
+
+    const res = await request(app).get('/api/drills/analytics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDrills).toBe(3);
+  });
+
+  it('GET /api/drills/premises/:id returns success:true when drills exist', async () => {
+    mockDrill.findMany.mockResolvedValue([fakeDrill]);
+
+    const res = await request(app).get(`/api/drills/premises/${PREMISES_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body.data[0].premisesId).toBe(PREMISES_ID);
+  });
+
+  it('creates LOCKDOWN drill type successfully', async () => {
+    const lockdownDrill = { ...fakeDrill, drillType: 'LOCKDOWN', evacuationType: 'SHELTER_IN_PLACE' };
+    mockDrill.create.mockResolvedValue(lockdownDrill);
+
+    const res = await request(app).post(`/api/drills/premises/${PREMISES_ID}`).send({
+      drillDate: '2026-06-01',
+      drillType: 'LOCKDOWN',
+      evacuationType: 'SHELTER_IN_PLACE',
+      alarmedOrSilent: 'SILENT',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.drillType).toBe('LOCKDOWN');
+  });
+
+  it('PUT /api/drills/:id rollCallCompleted update returns 200', async () => {
+    mockDrill.findFirst.mockResolvedValue(fakeDrill);
+    mockDrill.update.mockResolvedValue({ ...fakeDrill, rollCallCompleted: false, rollCallTimeMinutes: null });
+
+    const res = await request(app).put(`/api/drills/${DRILL_ID}`).send({
+      rollCallCompleted: false,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('analytics returns drillsByType grouping', async () => {
+    const drills = [
+      { ...fakeDrill, drillType: 'FIRE', premises: { name: 'HQ' } },
+      { ...fakeDrill, id: '00000000-0000-0000-0000-000000000012', drillType: 'FIRE', premises: { name: 'HQ' } },
+      { ...fakeDrill, id: '00000000-0000-0000-0000-000000000013', drillType: 'LOCKDOWN', premises: { name: 'HQ' } },
+    ];
+    mockDrill.findMany.mockResolvedValue(drills);
+
+    const res = await request(app).get('/api/drills/analytics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDrills).toBe(3);
+  });
+});

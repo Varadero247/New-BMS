@@ -376,3 +376,78 @@ describe('Checklists — extended coverage', () => {
     expect(res.body.data).toHaveProperty('isActive');
   });
 });
+
+describe('Checklists — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/checklists sets assetType filter in Prisma where clause', async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([]);
+    prisma.cmmsChecklist.count.mockResolvedValue(0);
+    await request(app).get('/api/checklists?assetType=VEHICLE');
+    expect(prisma.cmmsChecklist.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ assetType: 'VEHICLE' }) })
+    );
+  });
+
+  it('POST /api/checklists sets createdBy from authenticated user', async () => {
+    prisma.cmmsChecklist.create.mockResolvedValue(mockChecklist);
+    await request(app).post('/api/checklists').send({
+      name: 'Weekly Safety Check',
+      items: [{ label: 'Inspect guards', type: 'boolean' }],
+    });
+    expect(prisma.cmmsChecklist.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('GET /api/checklists/:id/results returns empty array when no results exist', async () => {
+    prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
+    prisma.cmmsChecklistResult.findMany.mockResolvedValue([]);
+    const res = await request(app).get(
+      '/api/checklists/00000000-0000-0000-0000-000000000001/results'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('PUT /api/checklists/:id returns 404 when checklist is not found', async () => {
+    prisma.cmmsChecklist.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/checklists/00000000-0000-0000-0000-000000000088')
+      .send({ name: 'Renamed' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/checklists returns pagination with correct page and limit', async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([]);
+    prisma.cmmsChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/checklists?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('POST /api/checklists/:id/results returns 400 when completedBy missing', async () => {
+    const res = await request(app)
+      .post('/api/checklists/00000000-0000-0000-0000-000000000001/results')
+      .send({
+        assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        completedAt: '2026-02-13T10:00:00Z',
+        results: [],
+        overallResult: 'PASS',
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/checklists returns 500 with INTERNAL_ERROR when count rejects', async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([]);
+    prisma.cmmsChecklist.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/checklists');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

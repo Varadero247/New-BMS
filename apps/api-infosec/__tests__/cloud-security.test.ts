@@ -336,3 +336,59 @@ describe('GET /api/cloud-security/ict-readiness — extended', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Cloud Security — final coverage block', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /cloud-services response is JSON content-type', async () => {
+    (mockPrisma.isCloudService.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isCloudService.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/cloud-security/cloud-services');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /ict-readiness response is JSON content-type', async () => {
+    (mockPrisma.isIctReadiness.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isIctReadiness.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/cloud-security/ict-readiness');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /cloud-services excludes soft-deleted records via deletedAt: null', async () => {
+    (mockPrisma.isCloudService.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isCloudService.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/cloud-security/cloud-services');
+    const [call] = (mockPrisma.isCloudService.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.deletedAt).toBeNull();
+  });
+
+  it('PUT /ict-readiness/:id returns 500 on DB error during update', async () => {
+    (mockPrisma.isIctReadiness.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      systemName: 'ERP',
+      criticality: 'CRITICAL',
+    });
+    (mockPrisma.isIctReadiness.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/cloud-security/ict-readiness/00000000-0000-0000-0000-000000000010')
+      .send({ criticality: 'VITAL' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /cloud-security/cloud-services/:id returns success:true and correct serviceName', async () => {
+    (mockPrisma.isCloudService.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      serviceName: 'Google Cloud Storage',
+      provider: 'Google',
+      serviceType: 'IAAS',
+      dataClassification: 'INTERNAL',
+      deletedAt: null,
+    });
+    const res = await request(app).get('/api/cloud-security/cloud-services/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.serviceName).toBe('Google Cloud Storage');
+  });
+});

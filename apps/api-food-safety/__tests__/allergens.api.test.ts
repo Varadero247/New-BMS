@@ -366,3 +366,60 @@ describe('Food Safety Allergens — edge cases and error paths', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ===================================================================
+// Food Safety Allergens — final coverage block
+// ===================================================================
+describe('Food Safety Allergens — final coverage', () => {
+  it('GET /allergens count is called once per list request', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
+    await request(app).get('/api/allergens');
+    expect(mockPrisma.fsAllergen.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /allergens create is called once per valid POST', async () => {
+    mockPrisma.fsAllergen.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      name: 'Lupin',
+      code: 'ALG-020',
+      type: 'MAJOR',
+    });
+    await request(app).post('/api/allergens').send({ name: 'Lupin', type: 'MAJOR' });
+    expect(mockPrisma.fsAllergen.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /allergens/:id returns success:true on found record', async () => {
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000021',
+      name: 'Fish',
+      type: 'MAJOR',
+    });
+    const res = await request(app).get('/api/allergens/00000000-0000-0000-0000-000000000021');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /allergens/:id update includes isActive field when provided', async () => {
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000022' });
+    mockPrisma.fsAllergen.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000022',
+      isActive: false,
+    });
+    await request(app)
+      .put('/api/allergens/00000000-0000-0000-0000-000000000022')
+      .send({ isActive: false });
+    expect(mockPrisma.fsAllergen.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('DELETE /allergens/:id calls update with deletedAt', async () => {
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000023' });
+    mockPrisma.fsAllergen.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000023' });
+    await request(app).delete('/api/allergens/00000000-0000-0000-0000-000000000023');
+    expect(mockPrisma.fsAllergen.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.anything() }) })
+    );
+  });
+});

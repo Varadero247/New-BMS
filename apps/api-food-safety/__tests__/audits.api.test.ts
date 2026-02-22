@@ -358,3 +358,65 @@ describe('Food Safety Audits — edge cases and error paths', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ===================================================================
+// Food Safety Audits — final coverage block
+// ===================================================================
+describe('Food Safety Audits — final coverage', () => {
+  it('GET /audits count is called once per list request', async () => {
+    mockPrisma.fsAudit.findMany.mockResolvedValue([]);
+    mockPrisma.fsAudit.count.mockResolvedValue(0);
+    await request(app).get('/api/audits');
+    expect(mockPrisma.fsAudit.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /audits create is called once per valid POST', async () => {
+    mockPrisma.fsAudit.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      title: 'Hygiene Audit',
+      type: 'INTERNAL',
+      auditor: 'James',
+      scheduledDate: '2026-05-01',
+    });
+    await request(app).post('/api/audits').send({
+      title: 'Hygiene Audit',
+      type: 'INTERNAL',
+      auditor: 'James',
+      scheduledDate: '2026-05-01',
+    });
+    expect(mockPrisma.fsAudit.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /audits/:id returns success:true on found record', async () => {
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000031',
+      title: 'Pest Control Audit',
+    });
+    const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000031');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /audits/:id update includes auditor field when provided', async () => {
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000032' });
+    mockPrisma.fsAudit.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000032',
+      auditor: 'Karen',
+    });
+    await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000032')
+      .send({ auditor: 'Karen' });
+    expect(mockPrisma.fsAudit.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ auditor: 'Karen' }) })
+    );
+  });
+
+  it('DELETE /audits/:id calls update with deletedAt', async () => {
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000033' });
+    mockPrisma.fsAudit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000033' });
+    await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000033');
+    expect(mockPrisma.fsAudit.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.anything() }) })
+    );
+  });
+});

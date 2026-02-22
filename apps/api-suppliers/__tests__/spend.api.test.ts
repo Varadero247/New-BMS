@@ -354,3 +354,59 @@ describe('spend.api — edge cases and extended coverage', () => {
     expect(res.body.data.amount).toBe(9999);
   });
 });
+
+describe('spend.api — final coverage expansion', () => {
+  it('GET /api/spend with year filter returns 200', async () => {
+    mockPrisma.suppSpend.findMany.mockResolvedValue([]);
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/spend?year=2026');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/spend missing supplierId returns 400', async () => {
+    const res = await request(app).post('/api/spend').send({
+      period: '2026-Q1',
+      amount: 1000,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/spend/:id with amount returns updated data', async () => {
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppSpend.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      amount: 7500,
+    });
+    const res = await request(app)
+      .put('/api/spend/00000000-0000-0000-0000-000000000001')
+      .send({ amount: 7500 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('GET /api/spend/:id returns 500 on DB error', async () => {
+    mockPrisma.suppSpend.findFirst.mockRejectedValue(new Error('db fail'));
+    const res = await request(app).get('/api/spend/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/spend/:id success flag is true', async () => {
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003' });
+    mockPrisma.suppSpend.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003' });
+    const res = await request(app).delete('/api/spend/00000000-0000-0000-0000-000000000003');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/spend response body has pagination object', async () => {
+    mockPrisma.suppSpend.findMany.mockResolvedValue([]);
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/spend');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(typeof res.body.pagination).toBe('object');
+  });
+});

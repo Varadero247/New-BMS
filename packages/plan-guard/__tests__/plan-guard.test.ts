@@ -275,3 +275,35 @@ describe('Plan Guard — PLAN_LIMITS structure and values', () => {
     expect(Object.keys(PLAN_LIMITS)).toHaveLength(4);
   });
 });
+
+describe('Plan Guard — limits hierarchy', () => {
+  it('FREE users limit is less than STARTER users limit', () => {
+    expect(PLAN_LIMITS.FREE.users!).toBeLessThan(PLAN_LIMITS.STARTER.users!);
+  });
+
+  it('STARTER users limit is less than PROFESSIONAL users limit', () => {
+    expect(PLAN_LIMITS.STARTER.users!).toBeLessThan(PLAN_LIMITS.PROFESSIONAL.users!);
+  });
+
+  it('PROFESSIONAL users limit is non-null while ENTERPRISE is null', () => {
+    expect(PLAN_LIMITS.PROFESSIONAL.users).not.toBeNull();
+    expect(PLAN_LIMITS.ENTERPRISE.users).toBeNull();
+  });
+
+  it('FREE aiCallsPerMonth is less than STARTER aiCallsPerMonth', () => {
+    expect(PLAN_LIMITS.FREE.aiCallsPerMonth!).toBeLessThan(PLAN_LIMITS.STARTER.aiCallsPerMonth!);
+  });
+
+  it('STARTER aiCallsPerMonth is less than PROFESSIONAL aiCallsPerMonth when PROFESSIONAL is non-null', () => {
+    if (PLAN_LIMITS.PROFESSIONAL.aiCallsPerMonth !== null) {
+      expect(PLAN_LIMITS.STARTER.aiCallsPerMonth!).toBeLessThan(PLAN_LIMITS.PROFESSIONAL.aiCallsPerMonth);
+    } else {
+      expect(PLAN_LIMITS.PROFESSIONAL.aiCallsPerMonth).toBeNull();
+    }
+  });
+
+  it('setOrgPlan with STARTER plan can be retrieved', () => {
+    setOrgPlan('tier-test-org', 'STARTER');
+    expect(getOrgPlan('tier-test-org')).toBe('STARTER');
+  });
+});

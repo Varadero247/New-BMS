@@ -533,3 +533,101 @@ describe('Inventory Categories — additional coverage', () => {
     expect(res.body.data.name).toBe('Sensors');
   });
 });
+
+// ── Final boundary tests ─────────────────────────────────────────────────────
+
+describe('Inventory Categories — final boundary tests', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/categories', categoriesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / responds with JSON content-type', async () => {
+    (mockPrisma.productCategory.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/categories').set('Authorization', 'Bearer token');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / success:true on empty result set', async () => {
+    (mockPrisma.productCategory.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/categories').set('Authorization', 'Bearer token');
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('PATCH /:id update isActive to false succeeds', async () => {
+    (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '4d000000-0000-4000-a000-000000000001',
+      name: 'Electronics',
+      code: 'ELEC',
+      parentId: null,
+    });
+    (mockPrisma.productCategory.update as jest.Mock).mockResolvedValueOnce({
+      id: '4d000000-0000-4000-a000-000000000001',
+      name: 'Electronics',
+      code: 'ELEC',
+      isActive: false,
+      parent: null,
+    });
+    const res = await request(app)
+      .patch('/api/categories/4d000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ isActive: false });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 when findUnique throws', async () => {
+    (mockPrisma.productCategory.findUnique as jest.Mock).mockRejectedValueOnce(new Error('fail'));
+    const res = await request(app)
+      .delete('/api/categories/4d000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / with parentId that exists proceeds to code check', async () => {
+    // First call: parent lookup returns a valid parent
+    (mockPrisma.productCategory.findUnique as jest.Mock)
+      .mockResolvedValueOnce({ id: '4d000000-0000-4000-a000-000000000001' }) // parent found
+      .mockResolvedValueOnce(null); // no duplicate code
+    (mockPrisma.productCategory.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      name: 'Child Category',
+      code: 'CHILD',
+      isActive: true,
+      parent: { id: '4d000000-0000-4000-a000-000000000001' },
+    });
+    const res = await request(app)
+      .post('/api/categories')
+      .set('Authorization', 'Bearer token')
+      .send({
+        name: 'Child Category',
+        code: 'CHILD',
+        parentId: '4d000000-0000-4000-a000-000000000001',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns products array in response data', async () => {
+    (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '4d000000-0000-4000-a000-000000000001',
+      name: 'Electronics',
+      parent: null,
+      children: [],
+      products: [{ id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget', status: 'ACTIVE' }],
+      _count: { products: 1 },
+    });
+    const res = await request(app)
+      .get('/api/categories/4d000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('products');
+    expect(res.body.data.products).toHaveLength(1);
+  });
+});

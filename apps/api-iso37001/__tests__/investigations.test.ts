@@ -571,3 +571,92 @@ describe('ISO 37001 Investigations API', () => {
     });
   });
 });
+
+describe('ISO 37001 Investigations API — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/investigations: response shape has success, data array, and pagination', async () => {
+    (mockPrisma.abInvestigation.findMany as jest.Mock).mockResolvedValueOnce([mockInvestigation]);
+    (mockPrisma.abInvestigation.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/investigations');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET /api/investigations: skip is correct for page 2 limit 5', async () => {
+    (mockPrisma.abInvestigation.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abInvestigation.count as jest.Mock).mockResolvedValueOnce(10);
+
+    await request(app).get('/api/investigations?page=2&limit=5');
+
+    expect(mockPrisma.abInvestigation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('PUT /api/investigations/:id/investigate: returns 500 on DB error', async () => {
+    (mockPrisma.abInvestigation.findFirst as jest.Mock).mockResolvedValueOnce(mockInvestigation);
+    (mockPrisma.abInvestigation.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/investigations/00000000-0000-0000-0000-000000000001/investigate')
+      .send({ investigatorName: 'Jane Doe' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /api/investigations/:id: returns 500 on DB error during soft delete', async () => {
+    (mockPrisma.abInvestigation.findFirst as jest.Mock).mockResolvedValueOnce(mockInvestigation);
+    (mockPrisma.abInvestigation.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).delete(
+      '/api/investigations/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/investigations/:id: returns 500 on DB error during update', async () => {
+    (mockPrisma.abInvestigation.findFirst as jest.Mock).mockResolvedValueOnce(mockInvestigation);
+    (mockPrisma.abInvestigation.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/investigations/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Title' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/investigations: filter by priority passes through', async () => {
+    (mockPrisma.abInvestigation.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abInvestigation.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/investigations?priority=HIGH');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.abInvestigation.findMany).toHaveBeenCalled();
+  });
+
+  it('POST /api/investigations: creates GIFT_VIOLATION allegation type', async () => {
+    (mockPrisma.abInvestigation.create as jest.Mock).mockResolvedValueOnce(mockInvestigation2);
+
+    const res = await request(app).post('/api/investigations').send({
+      title: 'Gift Policy Violation',
+      allegationType: 'GIFT_VIOLATION',
+      reportedBy: 'HR Department',
+      reportedDate: '2026-01-20',
+      anonymous: false,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

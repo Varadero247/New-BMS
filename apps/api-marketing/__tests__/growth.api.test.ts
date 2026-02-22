@@ -433,3 +433,96 @@ describe('Growth — new edge cases and paths', () => {
     );
   });
 });
+
+// ===================================================================
+// Additional coverage to reach 35 tests
+// ===================================================================
+
+describe('Growth — final coverage', () => {
+  it('metrics: response body success:true', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/growth/metrics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('snapshot: success:true and data has date, leads, emailsSent', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(3);
+    (prisma.mktEmailLog.count as jest.Mock).mockResolvedValue(7);
+
+    const res = await request(app).get('/api/growth/snapshot/2026-04-01');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.date).toBe('2026-04-01');
+    expect(typeof res.body.data.leads).toBe('number');
+    expect(typeof res.body.data.emailsSent).toBe('number');
+  });
+
+  it('metrics: mktHealthScore.findMany is called once', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/growth/metrics');
+
+    expect(prisma.mktHealthScore.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('snapshot: returns 400 for clearly invalid date string', async () => {
+    const res = await request(app).get('/api/growth/snapshot/not-a-date-string');
+
+    expect(res.status).toBe(400);
+  });
+
+  it('metrics: renewals object has upcoming30Days key', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(2);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/growth/metrics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.renewals).toHaveProperty('upcoming30Days');
+  });
+
+  it('metrics: winBacks object has active key', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(3);
+
+    const res = await request(app).get('/api/growth/metrics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.winBacks).toHaveProperty('active');
+  });
+
+  it('snapshot: returns 500 with success:false on DB error', async () => {
+    (prisma.mktLead.count as jest.Mock).mockRejectedValue(new Error('DB gone'));
+    (prisma.mktEmailLog.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/growth/snapshot/2026-02-01');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

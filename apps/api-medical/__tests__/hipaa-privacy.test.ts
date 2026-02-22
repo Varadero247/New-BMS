@@ -337,3 +337,55 @@ describe('HIPAA Privacy — extended coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('HIPAA Privacy — final edge cases', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /minimum-necessary returns 500 on DB error', async () => {
+    prisma.hipaaMinimumNecessary.findMany.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/minimum-necessary');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /minimum-necessary returns 500 on DB error', async () => {
+    prisma.hipaaMinimumNecessary.create.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).post('/minimum-necessary').send({
+      role: 'Doctor',
+      phiCategory: 'Labs',
+      accessLevel: 'Read',
+      justification: 'Direct care',
+      approvedBy: 'Privacy Officer',
+      effectiveDate: '2026-01-01',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id returns 500 on DB error during update', async () => {
+    prisma.hipaaPrivacyPolicy.findUnique.mockResolvedValue({ id: 'p1', deletedAt: null });
+    prisma.hipaaPrivacyPolicy.update.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).put('/p1').send({ status: 'ACTIVE' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / returns 500 on DB error', async () => {
+    prisma.hipaaPrivacyPolicy.create.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).post('/').send({
+      version: '2.0',
+      effectiveDate: '2026-03-01',
+      nppSummary: 'New Summary',
+      fullText: 'Full text of NPP v2',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    prisma.hipaaPrivacyPolicy.findUnique.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/some-policy-id');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -618,3 +618,97 @@ describe('Quality Improvements API — additional edge cases', () => {
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Quality Improvements API — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/improvements', improvementsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/improvements — default limit is 20', async () => {
+    (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/improvements').set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.limit).toBe(20);
+  });
+
+  it('GET /api/improvements — totalPages is 0 when total is 0', async () => {
+    (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/improvements').set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.total).toBe(0);
+  });
+
+  it('DELETE /api/improvements/:id — calls update with deletedAt Date', async () => {
+    (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '21000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.qualImprovement.update as jest.Mock).mockResolvedValueOnce({});
+
+    await request(app)
+      .delete('/api/improvements/21000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.qualImprovement.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('POST /api/improvements — missing expectedBenefits returns 400', async () => {
+    const response = await request(app)
+      .post('/api/improvements')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Test',
+        category: 'PROCESS_IMPROVEMENT',
+        source: 'AUDIT',
+        submittedBy: 'Test',
+        description: 'Some description',
+        proposedSolution: 'A solution',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/improvements/:id — success response includes updated title', async () => {
+    (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '21000000-0000-4000-a000-000000000001',
+      qualityImpact: 'NONE',
+      customerImpact: 'NONE',
+      processImpact: 'NONE',
+      priorityScore: 0,
+    });
+    (mockPrisma.qualImprovement.update as jest.Mock).mockResolvedValueOnce({
+      id: '21000000-0000-4000-a000-000000000001',
+      title: 'New Title',
+      qualityImpact: 'NONE',
+      customerImpact: 'NONE',
+      processImpact: 'NONE',
+      priorityScore: 0,
+    });
+
+    const response = await request(app)
+      .put('/api/improvements/21000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'New Title' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.title).toBe('New Title');
+  });
+});

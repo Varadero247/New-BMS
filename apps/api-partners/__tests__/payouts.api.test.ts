@@ -362,3 +362,90 @@ describe('Payouts — edge cases and field validation', () => {
     expect(res.body.data.minPayoutAmount).toBe(100);
   });
 });
+
+describe('Payouts — final coverage', () => {
+  const appWithPartner = express();
+  appWithPartner.use(express.json());
+  appWithPartner.use((req: any, _res: any, next: any) => {
+    req.partner = { id: 'partner-2' };
+    next();
+  });
+  appWithPartner.use('/api/payouts', payoutsRouter);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /request: mktPartnerPayout.create called with correct partnerId', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd-99', commissionValue: 300 },
+    ]);
+    (prisma.mktPartnerPayout.create as jest.Mock).mockResolvedValue({ id: 'p-99', amount: 300, status: 'PENDING' });
+    (prisma.mktPartnerDeal.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+
+    await request(appWithPartner).post('/api/payouts/request');
+
+    expect(prisma.mktPartnerPayout.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ partnerId: 'partner-2' }),
+      })
+    );
+  });
+
+  it('POST /request: mktPartnerDeal.findMany filters by partnerId from req.partner', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd-1', commissionValue: 200 },
+    ]);
+    (prisma.mktPartnerPayout.create as jest.Mock).mockResolvedValue({ id: 'p-1' });
+    (prisma.mktPartnerDeal.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+
+    await request(appWithPartner).post('/api/payouts/request');
+
+    expect(prisma.mktPartnerDeal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ partnerId: 'partner-2' }) })
+    );
+  });
+
+  it('GET / response payouts field reflects mock data length', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([
+      { id: 'p-a', amount: 100, status: 'PAID' },
+      { id: 'p-b', amount: 200, status: 'PENDING' },
+      { id: 'p-c', amount: 150, status: 'PAID' },
+    ]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(appWithPartner).get('/api/payouts');
+    expect(res.status).toBe(200);
+    expect(res.body.data.payouts).toHaveLength(3);
+  });
+
+  it('POST /request: response body has id on success', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd-1', commissionValue: 500 },
+    ]);
+    (prisma.mktPartnerPayout.create as jest.Mock).mockResolvedValue({ id: 'payout-unique-id', amount: 500, status: 'PENDING' });
+    (prisma.mktPartnerDeal.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+
+    const res = await request(appWithPartner).post('/api/payouts/request');
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('payout-unique-id');
+  });
+
+  it('GET / availableBalance is 0 when no unpaid deals', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(appWithPartner).get('/api/payouts');
+    expect(res.status).toBe(200);
+    expect(res.body.data.availableBalance).toBe(0);
+  });
+
+  it('GET / success is false on DB error', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(appWithPartner).get('/api/payouts');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

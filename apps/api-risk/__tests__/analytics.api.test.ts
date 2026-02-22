@@ -356,3 +356,56 @@ describe('analytics.api — extended edge cases', () => {
     expect(typeof res.body.data.kriWarnings).toBe('number');
   });
 });
+
+describe('Risk Analytics — absolute final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('dashboard error.code is INTERNAL_ERROR on 500', async () => {
+    mockPrisma.riskRegister.count.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('by-module error.code is INTERNAL_ERROR on 500', async () => {
+    mockPrisma.riskRegister.groupBy.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('dashboard moduleBreakdown is an array', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.moduleBreakdown)).toBe(true);
+  });
+
+  it('dashboard byStatus is an object', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.byStatus).toBe('object');
+  });
+
+  it('by-module with multiple modules returns correct count', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([
+      { sourceModule: 'MANUAL', _count: 5 },
+      { sourceModule: 'CHEMICAL_COSHH', _count: 3 },
+      { sourceModule: 'ENVIRONMENT', _count: 2 },
+    ]);
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+});

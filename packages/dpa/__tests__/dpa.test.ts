@@ -248,3 +248,43 @@ describe('dpa — extended scenarios', () => {
     expect(getDpaById('')).toBeUndefined();
   });
 });
+
+describe('dpa — comprehensive validation', () => {
+  it('acceptDpa returns an object with orgId, userId, signerName, signerTitle fields', () => {
+    const org = uniqueOrg();
+    const acc = acceptDpa({ orgId: org, userId: 'u-v1', signerName: 'Validator', signerTitle: 'CFO' });
+    expect(acc).toMatchObject({
+      orgId: org,
+      userId: 'u-v1',
+      signerName: 'Validator',
+      signerTitle: 'CFO',
+    });
+  });
+
+  it('hasAcceptedDpa returns false for a uniqueOrg that was never used', () => {
+    const org = uniqueOrg();
+    expect(hasAcceptedDpa(org)).toBe(false);
+  });
+
+  it('acceptDpa null ipAddress is preserved', () => {
+    const acc = acceptDpa({ orgId: uniqueOrg(), userId: 'u', signerName: 'N', signerTitle: 'T' });
+    expect(acc!.ipAddress).toBeNull();
+  });
+
+  it('acceptDpa null signature is preserved when not provided', () => {
+    const acc = acceptDpa({ orgId: uniqueOrg(), userId: 'u', signerName: 'N', signerTitle: 'T' });
+    expect(acc!.signature).toBeNull();
+  });
+
+  it('getDpaAcceptance returns updated record after second acceptDpa call for same org', () => {
+    const org = uniqueOrg();
+    acceptDpa({ orgId: org, userId: 'first', signerName: 'First', signerTitle: 'CEO' });
+    acceptDpa({ orgId: org, userId: 'second', signerName: 'Second', signerTitle: 'CFO' });
+    const acc = getDpaAcceptance(org);
+    expect(acc!.userId).toBe('second');
+  });
+
+  it('getActiveDpa isActive is true', () => {
+    expect(getActiveDpa()!.isActive).toBe(true);
+  });
+});

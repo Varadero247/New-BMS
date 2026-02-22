@@ -388,3 +388,50 @@ describe('PTW Conflicts — extended edge cases', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+describe('conflicts.api — final extended coverage', () => {
+  it('response content-type is JSON', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('findMany receives where clause with status ACTIVE', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    await request(app).get('/api/conflicts');
+    const call = (mockPrisma.ptwPermit.findMany as jest.Mock).mock.calls[0][0];
+    expect(call.where.status).toBe('ACTIVE');
+  });
+
+  it('conflict permit1 and permit2 titles are strings', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: 'a', title: 'Alpha Permit', location: 'Site 1', area: 'Zone 1', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: 'b', title: 'Beta Permit', location: 'Site 1', area: 'Zone 1', startDate: new Date(), endDate: new Date(), type: 'ELECTRICAL' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(typeof res.body.data[0].permit1.title).toBe('string');
+    expect(typeof res.body.data[0].permit2.title).toBe('string');
+  });
+
+  it('no conflicts when zero permits exist', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('ptwPermit.findMany called with correct base filters', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    await request(app).get('/api/conflicts');
+    expect(mockPrisma.ptwPermit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null, status: 'ACTIVE' }),
+      })
+    );
+  });
+
+  it('success property is true on successful response', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.body.success).toBe(true);
+  });
+});

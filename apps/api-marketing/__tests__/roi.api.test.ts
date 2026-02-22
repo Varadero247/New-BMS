@@ -341,3 +341,75 @@ describe('ROI — new edge cases and paths', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ===================================================================
+// Additional coverage to reach 35 tests
+// ===================================================================
+
+describe('ROI — final coverage', () => {
+  it('calculateROI: Enterprise pricePerUser is 19', () => {
+    const result = calculateROI({ isoCount: 10 });
+    expect(result.pricePerUser).toBe(19);
+    expect(result.recommendedTier).toBe('Enterprise');
+  });
+
+  it('calculateROI: Professional pricePerUser is 29', () => {
+    const result = calculateROI({ isoCount: 1 });
+    expect(result.pricePerUser).toBe(29);
+    expect(result.recommendedTier).toBe('Professional');
+  });
+
+  it('POST /calculate: returns monthlyCost in response data', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-fin' });
+
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'FinCo',
+      name: 'Fin User',
+      email: 'fin@finco.com',
+      isoCount: 2,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('monthlyCost');
+  });
+
+  it('POST /calculate: returns pricePerUser in response data', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-fin2' });
+
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'FinCo2',
+      name: 'Fin User2',
+      email: 'fin2@finco.com',
+      isoCount: 1,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('pricePerUser');
+  });
+
+  it('GET /history returns empty array when no ROI leads exist', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/roi/history');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST /calculate: mktLead.create called with companyName in data', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-cn' });
+
+    await request(app).post('/api/roi/calculate').send({
+      companyName: 'CorpName',
+      name: 'Corp User',
+      email: 'corp@corpname.com',
+      isoCount: 2,
+    });
+
+    expect(prisma.mktLead.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ company: 'CorpName' }),
+      })
+    );
+  });
+});

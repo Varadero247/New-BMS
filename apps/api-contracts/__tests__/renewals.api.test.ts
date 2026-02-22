@@ -294,3 +294,70 @@ describe('renewals.api — edge cases and field validation', () => {
     expect(mockPrisma.contContract.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('renewals.api — deep field and call coverage', () => {
+  it('findMany is called with a renewalDate lte filter (within window)', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    await request(app).get('/api/renewals');
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          renewalDate: expect.objectContaining({ lte: expect.any(Date) }),
+        }),
+      }),
+    );
+  });
+
+  it('findMany is called with orderBy renewalDate asc', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    await request(app).get('/api/renewals');
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { renewalDate: 'asc' } }),
+    );
+  });
+
+  it('response body is a plain object, not null', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.body).not.toBeNull();
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('response data items have an id field', async () => {
+    const futureDate = new Date(Date.now() + 12 * 24 * 60 * 60 * 1000);
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000010', title: 'Renewal Test', renewalDate: futureDate, status: 'ACTIVE' },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('success:false on 500 when findMany rejects with a TypeError', async () => {
+    mockPrisma.contContract.findMany.mockRejectedValue(new TypeError('Type mismatch'));
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('response content-type header is application/json', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('five-contract response has data of length five', async () => {
+    const futureDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    mockPrisma.contContract.findMany.mockResolvedValue(
+      Array.from({ length: 5 }, (_, i) => ({
+        id: `0000000${i}`,
+        title: `Contract ${i}`,
+        renewalDate: futureDate,
+        status: 'ACTIVE',
+      })),
+    );
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(5);
+  });
+});

@@ -492,3 +492,61 @@ describe('metrics.api — extended edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('metrics.api — final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/metrics/safety', metricsRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns success: true', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/metrics/safety');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data is an array', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/metrics/safety');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / upsert is called once', async () => {
+    (mockPrisma.safetyMetric.upsert as jest.Mock).mockResolvedValueOnce({ id: 'x', year: 2025, month: 8, hoursWorked: 30000, ltifr: 0, trir: 0, severityRate: 0 });
+    await request(app).post('/api/metrics/safety').send({ year: 2025, month: 8, hoursWorked: 30000 });
+    expect(mockPrisma.safetyMetric.upsert).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /summary with one metric sums hoursWorked correctly', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: 'm1', year: 2025, month: 3, hoursWorked: 20000, lostTimeInjuries: 0, totalRecordableInjuries: 0, daysLost: 0, nearMisses: 0 },
+    ]);
+    const res = await request(app).get('/api/metrics/safety/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalHoursWorked).toBe(20000);
+  });
+
+  it('POST / returns 400 for month > 12', async () => {
+    const res = await request(app).post('/api/metrics/safety').send({ year: 2025, month: 14, hoursWorked: 10000 });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / takes 100 max records', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/metrics/safety');
+    expect(mockPrisma.safetyMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 100 })
+    );
+  });
+
+  it('POST / returns 400 for year missing', async () => {
+    const res = await request(app).post('/api/metrics/safety').send({ month: 5, hoursWorked: 10000 });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

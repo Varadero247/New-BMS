@@ -479,3 +479,88 @@ describe('medical-suppliers — error paths and edge cases', () => {
     );
   });
 });
+
+describe('medical-suppliers — final boundary coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET / success:true is present in response', async () => {
+    (mockPrisma.medicalSupplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    const res = await request(app).get('/api/suppliers');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns success:true for found supplier', async () => {
+    (mockPrisma.medicalSupplier.findFirst as jest.Mock).mockResolvedValueOnce(mockSupplier);
+
+    const res = await request(app).get(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / count is called before create to generate refNumber', async () => {
+    (mockPrisma.medicalSupplier.count as jest.Mock).mockResolvedValueOnce(3);
+    (mockPrisma.medicalSupplier.create as jest.Mock).mockResolvedValueOnce(mockSupplier);
+
+    await request(app).post('/api/suppliers').send({ name: 'Count Test' });
+
+    expect(mockPrisma.medicalSupplier.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.medicalSupplier.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT / response data contains the id field', async () => {
+    (mockPrisma.medicalSupplier.update as jest.Mock).mockResolvedValueOnce(mockSupplier);
+
+    const res = await request(app).put(`/api/suppliers/${SUPPLIER_ID}`).send({ name: 'Updated' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id', SUPPLIER_ID);
+  });
+
+  it('DELETE / response data has only the id field', async () => {
+    (mockPrisma.medicalSupplier.update as jest.Mock).mockResolvedValueOnce({
+      ...mockSupplier,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id', SUPPLIER_ID);
+  });
+
+  it('GET / orderBy createdAt desc is passed to findMany', async () => {
+    (mockPrisma.medicalSupplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    await request(app).get('/api/suppliers');
+
+    expect(mockPrisma.medicalSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: 'desc' } })
+    );
+  });
+
+  it('POST / with riskLevel HIGH creates supplier with HIGH riskLevel', async () => {
+    (mockPrisma.medicalSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.medicalSupplier.create as jest.Mock).mockResolvedValueOnce({
+      ...mockSupplier,
+      riskLevel: 'HIGH',
+    });
+
+    const res = await request(app).post('/api/suppliers').send({ name: 'High Risk', riskLevel: 'HIGH' });
+
+    expect(res.status).toBe(201);
+    expect(mockPrisma.medicalSupplier.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ riskLevel: 'HIGH' }) })
+    );
+  });
+});

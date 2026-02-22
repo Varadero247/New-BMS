@@ -394,3 +394,57 @@ describe('Cross-function invariants', () => {
     );
   });
 });
+
+// ── Additional cross-function invariants ────────────────────────────────────────
+
+describe('Additional property-based invariants', () => {
+  it('sanitizeString output is idempotent when called twice with no options', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const once = sanitizeString(input);
+        const twice = sanitizeString(once);
+        expect(twice).toBe(once);
+      }),
+      { numRuns: 200 }
+    );
+  });
+
+  it('sanitizeEmail is idempotent', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const once = sanitizeEmail(input);
+        const twice = sanitizeEmail(once);
+        expect(twice).toBe(once);
+      }),
+      { numRuns: 200 }
+    );
+  });
+
+  it('sanitizeUrl never returns undefined', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        const result = sanitizeUrl(input as string);
+        expect(result).not.toBeUndefined();
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('sanitizeFilename never returns undefined', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        const result = sanitizeFilename(input as string);
+        expect(result).not.toBeUndefined();
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('containsXss returns false for empty string', () => {
+    expect(containsXss('')).toBe(false);
+  });
+
+  it('containsSqlInjection returns false for empty string', () => {
+    expect(containsSqlInjection('')).toBe(false);
+  });
+});

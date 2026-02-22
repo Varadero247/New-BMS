@@ -347,3 +347,58 @@ describe('Additional scenario-analysis coverage', () => {
     expect(res.body).toMatchObject({ success: true, pagination: expect.objectContaining({ total: 1 }) });
   });
 });
+
+describe('scenario-analysis — final coverage', () => {
+  it('GET / returns JSON content-type header', async () => {
+    (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/scenario-analysis');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / data items have title and scenarioType fields when results exist', async () => {
+    (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([mockScenario]);
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/scenario-analysis');
+    expect(res.body.data[0]).toHaveProperty('title');
+    expect(res.body.data[0]).toHaveProperty('scenarioType');
+  });
+
+  it('POST / response data has id field on creation', async () => {
+    (mockPrisma.esgScenarioAnalysis.create as jest.Mock).mockResolvedValue(mockScenario);
+    const res = await request(app).post('/api/scenario-analysis').send({
+      title: 'Physical Risk Assessment',
+      scenarioType: 'PHYSICAL_RISK',
+      baselineScenario: '2C',
+      timeHorizon: 'MEDIUM_TERM',
+      description: 'Physical risk assessment',
+      assumptions: 'Flood risk increases by 20%',
+      keyVariables: ['flood risk', 'sea level'],
+      analysisDate: '2026-03-01',
+      conductedBy: 'Risk Team',
+      reportingYear: 2026,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('PUT /:id sets status ARCHIVED successfully', async () => {
+    (mockPrisma.esgScenarioAnalysis.findUnique as jest.Mock).mockResolvedValue(mockScenario);
+    (mockPrisma.esgScenarioAnalysis.update as jest.Mock).mockResolvedValue({ ...mockScenario, status: 'ARCHIVED' });
+    const res = await request(app)
+      .put('/api/scenario-analysis/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ARCHIVED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('ARCHIVED');
+  });
+
+  it('GET /summary byScenarioType is an object', async () => {
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(2);
+    (mockPrisma.esgScenarioAnalysis.groupBy as jest.Mock)
+      .mockResolvedValueOnce([{ scenarioType: 'PHYSICAL_RISK', _count: { id: 2 } }])
+      .mockResolvedValueOnce([{ timeHorizon: 'MEDIUM_TERM', _count: { id: 2 } }]);
+    const res = await request(app).get('/api/scenario-analysis/summary');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.byScenarioType).toBe('object');
+  });
+});

@@ -363,3 +363,78 @@ describe('notices.api — pagination, filter and edge cases', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('notices.api — response shape and method call coverage', () => {
+  it('GET / calls findMany and count both once per request', async () => {
+    mockPrisma.contNotice.findMany.mockResolvedValue([]);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    await request(app).get('/api/notices');
+    expect(mockPrisma.contNotice.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.contNotice.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / response has success property as boolean true', async () => {
+    mockPrisma.contNotice.findMany.mockResolvedValue([]);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/notices');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns 500 with INTERNAL_ERROR on DB error', async () => {
+    mockPrisma.contNotice.findFirst.mockRejectedValue(new Error('DB timeout'));
+    const res = await request(app).get('/api/notices/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id calls update once with the correct id in where clause', async () => {
+    mockPrisma.contNotice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contNotice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'X' });
+    await request(app).put('/api/notices/00000000-0000-0000-0000-000000000001').send({ title: 'X' });
+    expect(mockPrisma.contNotice.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } }),
+    );
+  });
+
+  it('POST / with LOW priority creates successfully', async () => {
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    mockPrisma.contNotice.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000008',
+      contractId: 'c-1',
+      title: 'Low Notice',
+      priority: 'LOW',
+      dueDate: '2026-06-01',
+    });
+    const res = await request(app).post('/api/notices').send({
+      contractId: 'c-1',
+      title: 'Low Notice',
+      priority: 'LOW',
+      dueDate: '2026-06-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.priority).toBe('LOW');
+  });
+
+  it('DELETE /:id calls update with deletedAt set to current timestamp', async () => {
+    mockPrisma.contNotice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contNotice.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    await request(app).delete('/api/notices/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.contNotice.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }),
+    );
+  });
+
+  it('GET / passes deletedAt: null to where clause to exclude soft-deleted notices', async () => {
+    mockPrisma.contNotice.findMany.mockResolvedValue([]);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    await request(app).get('/api/notices');
+    expect(mockPrisma.contNotice.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) }),
+    );
+  });
+});

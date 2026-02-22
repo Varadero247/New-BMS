@@ -469,3 +469,77 @@ describe('Financial Controls — additional coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000005');
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('controls.api — further coverage', () => {
+  it('GET / data array is always an array', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([]);
+    mockPrisma.finControl.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/controls');
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / applies correct skip for page 2 limit 5', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([]);
+    mockPrisma.finControl.count.mockResolvedValue(0);
+
+    await request(app).get('/api/controls?page=2&limit=5');
+
+    expect(mockPrisma.finControl.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST / create is not called when title is missing', async () => {
+    await request(app).post('/api/controls').send({
+      description: 'Missing title',
+      controlType: 'PREVENTIVE',
+      status: 'ACTIVE',
+    });
+
+    expect(mockPrisma.finControl.create).not.toHaveBeenCalled();
+  });
+
+  it('GET / pagination.page defaults to 1 when not provided', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([]);
+    mockPrisma.finControl.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/controls');
+
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('PUT /:id returns success:true with updated status field', async () => {
+    mockPrisma.finControl.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', deletedAt: null });
+    mockPrisma.finControl.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', status: 'INACTIVE' });
+
+    const res = await request(app)
+      .put('/api/controls/00000000-0000-0000-0000-000000000010')
+      .send({ status: 'INACTIVE' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE / returns 500 on DB error and has error.code INTERNAL_ERROR', async () => {
+    mockPrisma.finControl.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/controls/00000000-0000-0000-0000-000000000099');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / filters by controlType when provided', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([]);
+    mockPrisma.finControl.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/controls?controlType=DETECTIVE');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

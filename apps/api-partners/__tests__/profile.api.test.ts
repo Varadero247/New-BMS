@@ -361,3 +361,73 @@ describe('Partner Profile — edge cases and field validation', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Partner Profile — final coverage', () => {
+  const appWithPartner = express();
+  appWithPartner.use(express.json());
+  appWithPartner.use((req: any, _res: any, next: any) => {
+    req.partner = { id: 'partner-99' };
+    next();
+  });
+  appWithPartner.use('/api/profile', profileRouter);
+
+  const baseMock = {
+    id: 'partner-99',
+    email: 'p99@example.com',
+    name: 'Partner 99',
+    company: 'Corp 99',
+    phone: '+44 7000 000000',
+    tier: 'RESELLER',
+    isoSpecialisms: [],
+    referralCode: 'REF-99',
+    referralUrl: 'https://nexara.io/ref/REF-99',
+    status: 'ACTIVE',
+    createdAt: new Date('2026-01-01'),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /profile returns INTERNAL_ERROR code on DB error', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockRejectedValue(new Error('Connection timeout'));
+    const res = await request(appWithPartner).get('/api/profile');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /profile: query uses select clause to limit fields', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(baseMock);
+    await request(appWithPartner).get('/api/profile');
+    expect(prisma.mktPartner.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ select: expect.any(Object) })
+    );
+  });
+
+  it('PUT /profile returns INTERNAL_ERROR code on DB error', async () => {
+    (prisma.mktPartner.update as jest.Mock).mockRejectedValue(new Error('DB crashed'));
+    const res = await request(appWithPartner).put('/api/profile').send({ name: 'New Name' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /profile with company update reflects new company in response', async () => {
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue({ ...baseMock, company: 'New Corp' });
+    const res = await request(appWithPartner).put('/api/profile').send({ company: 'New Corp' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.company).toBe('New Corp');
+  });
+
+  it('GET /profile success:true when partner is found', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(baseMock);
+    const res = await request(appWithPartner).get('/api/profile');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /profile NOT_FOUND code when partner record is null', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(appWithPartner).get('/api/profile');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

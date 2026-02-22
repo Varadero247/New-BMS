@@ -563,3 +563,117 @@ describe('Inventory Warehouses API Routes', () => {
     });
   });
 });
+
+// ── Inventory Warehouses — final boundary tests ──────────────────────────────
+
+describe('Inventory Warehouses — final boundary tests', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/warehouses', warehousesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/warehouses responds with JSON content-type', async () => {
+    (mockPrisma.warehouse.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.warehouse.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/warehouses').set('Authorization', 'Bearer token');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/warehouses data items have stats.totalProducts when groupBy data present', async () => {
+    (mockPrisma.warehouse.findMany as jest.Mock).mockResolvedValueOnce([{
+      id: '28000000-0000-4000-a000-000000000001',
+      code: 'WH1',
+      name: 'Main Warehouse',
+      isActive: true,
+      isDefault: true,
+    }]);
+    (mockPrisma.warehouse.count as jest.Mock).mockResolvedValueOnce(1);
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValueOnce([{
+      warehouseId: '28000000-0000-4000-a000-000000000001',
+      _sum: { quantityOnHand: 100, inventoryValue: 5000 },
+      _count: { productId: 10 },
+    }]);
+    const res = await request(app).get('/api/warehouses').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].stats.totalProducts).toBe(10);
+  });
+
+  it('PATCH /:id setUpdatedById from authenticated user', async () => {
+    (mockPrisma.warehouse.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '28000000-0000-4000-a000-000000000001',
+      code: 'WH1',
+      name: 'Main Warehouse',
+      version: 1,
+    });
+    (mockPrisma.warehouse.update as jest.Mock).mockResolvedValueOnce({
+      id: '28000000-0000-4000-a000-000000000001',
+      name: 'Updated WH',
+      version: 2,
+    });
+    await request(app)
+      .patch('/api/warehouses/28000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ name: 'Updated WH' });
+    expect(mockPrisma.warehouse.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ updatedById: '20000000-0000-4000-a000-000000000123' }),
+      })
+    );
+  });
+
+  it('GET /:id/inventory quantityAvailable is calculated as onHand minus reserved', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValueOnce([
+      {
+        id: 'inv-9',
+        quantityOnHand: 80,
+        quantityReserved: 20,
+        product: {
+          id: '27000000-0000-4000-a000-000000000001',
+          sku: 'SKU001',
+          name: 'Widget A',
+          barcode: '123456',
+          reorderPoint: 10,
+          category: { id: '4d000000-0000-4000-a000-000000000001', name: 'Widgets' },
+        },
+      },
+    ]);
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app)
+      .get('/api/warehouses/28000000-0000-4000-a000-000000000001/inventory')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].quantityAvailable).toBe(60);
+  });
+
+  it('POST /api/warehouses creates with isDefault:false when not specified', async () => {
+    (mockPrisma.warehouse.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.warehouse.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      code: 'WH4',
+      name: 'New WH',
+      isActive: true,
+      isDefault: false,
+    });
+    const res = await request(app)
+      .post('/api/warehouses')
+      .set('Authorization', 'Bearer token')
+      .send({ code: 'WH4', name: 'New WH' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.isDefault).toBe(false);
+  });
+
+  it('DELETE /:id 404 has NOT_FOUND error code', async () => {
+    (mockPrisma.warehouse.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(app)
+      .delete('/api/warehouses/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

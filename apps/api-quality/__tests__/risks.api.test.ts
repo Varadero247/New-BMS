@@ -585,3 +585,99 @@ describe('Quality Risks API — additional edge cases', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+describe('Quality Risks API — further edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', risksRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risks response contains totalPages', async () => {
+    (mockPrisma.qualRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(40);
+    const response = await request(app).get('/api/risks?page=1&limit=20').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(2);
+  });
+
+  it('DELETE /api/risks/:id calls update with deletedAt', async () => {
+    (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001' });
+    (mockPrisma.qualRisk.update as jest.Mock).mockResolvedValueOnce({});
+    const response = await request(app)
+      .delete('/api/risks/10000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(204);
+    expect(mockPrisma.qualRisk.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/risks/:id returns referenceNumber in response', async () => {
+    (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '10000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-RSK-2026-001',
+      riskDescription: 'Equipment failure risk',
+    });
+    const response = await request(app)
+      .get('/api/risks/10000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.referenceNumber).toBe('QMS-RSK-2026-001');
+  });
+
+  it('POST /api/risks returns riskLevel in response body', async () => {
+    (mockPrisma.qualRisk.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualRisk.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      riskFactor: 12,
+      riskLevel: 'MEDIUM',
+      status: 'OPEN',
+    });
+    const response = await request(app)
+      .post('/api/risks')
+      .set('Authorization', 'Bearer token')
+      .send({
+        process: 'HR',
+        riskDescription: 'Staff turnover',
+        likelihood: 3,
+        lossOfContracts: 2,
+        harmToUser: 4,
+        unableToMeetTerms: 1,
+        violationOfRegulations: 3,
+        reputationImpact: 2,
+        costOfCorrection: 3,
+      });
+    expect(response.status).toBe(201);
+    expect(response.body.data.riskLevel).toBe('MEDIUM');
+  });
+
+  it('PUT /api/risks/:id response contains success:true', async () => {
+    (mockPrisma.qualRisk.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '10000000-0000-4000-a000-000000000001',
+      process: 'OPERATIONS',
+      likelihood: 3,
+      lossOfContracts: 2,
+      harmToUser: 4,
+      unableToMeetTerms: 1,
+      violationOfRegulations: 3,
+      reputationImpact: 2,
+      costOfCorrection: 3,
+      probabilityRating: 3,
+      consequenceRating: 4,
+    });
+    (mockPrisma.qualRisk.update as jest.Mock).mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000001', status: 'MONITORED' });
+    const response = await request(app)
+      .put('/api/risks/10000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'MONITORED' });
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+});

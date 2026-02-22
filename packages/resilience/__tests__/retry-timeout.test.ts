@@ -309,3 +309,42 @@ describe('withRetry — additional edge cases', () => {
     expect(fn).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Bulkhead — additional edge cases', () => {
+  it('should allow multiple sequential executions', async () => {
+    const bulkhead = new Bulkhead(2);
+    const r1 = await bulkhead.execute(() => Promise.resolve('a'));
+    const r2 = await bulkhead.execute(() => Promise.resolve('b'));
+    expect(r1).toBe('a');
+    expect(r2).toBe('b');
+  });
+
+  it('stats.running decrements after error', async () => {
+    const bulkhead = new Bulkhead(5);
+    await expect(bulkhead.execute(() => Promise.reject(new Error('err')))).rejects.toThrow();
+    expect(bulkhead.stats.running).toBe(0);
+  });
+
+  it('stats.queued is 0 initially', () => {
+    const bulkhead = new Bulkhead(3, 5);
+    expect(bulkhead.stats.queued).toBe(0);
+  });
+
+  it('withTimeout resolves with array result', async () => {
+    const fn = () => Promise.resolve([1, 2, 3]);
+    const result = await withTimeout(fn, 1000);
+    expect(result).toEqual([1, 2, 3]);
+  });
+
+  it('withRetry handles function that returns a plain value', async () => {
+    const fn = jest.fn().mockResolvedValue(42);
+    const result = await withRetry(fn, { maxAttempts: 2, initialDelay: 10 });
+    expect(result).toBe(42);
+  });
+
+  it('withTimeout resolves with false correctly', async () => {
+    const fn = () => Promise.resolve(false);
+    const result = await withTimeout(fn, 500);
+    expect(result).toBe(false);
+  });
+});

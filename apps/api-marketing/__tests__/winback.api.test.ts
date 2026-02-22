@@ -332,3 +332,84 @@ describe('Winback — edge cases', () => {
     expect(res.body.data).toHaveProperty('id');
   });
 });
+
+describe('Winback — final coverage', () => {
+  it('GET /reason/time schedules winback_day7_time template', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-1', orgId: 'org-1' });
+    (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app).get('/api/winback/reason/time?token=t');
+
+    expect(prisma.mktEmailJob.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ template: 'winback_day7_time' }),
+      })
+    );
+  });
+
+  it('GET /reason/business schedules winback_day7_business template', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-1', orgId: 'org-1' });
+    (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app).get('/api/winback/reason/business?token=t');
+
+    expect(prisma.mktEmailJob.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ template: 'winback_day7_business' }),
+      })
+    );
+  });
+
+  it('POST /start/:orgId creates exactly one email job (day3)', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-emails', orgId: 'org-1' });
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'multi@org.com' });
+
+    expect(prisma.mktEmailJob.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /active returns data array length matching mocked results', async () => {
+    const sequences = [
+      { id: 'wb-a', orgId: 'org-a', reactivatedAt: null },
+      { id: 'wb-b', orgId: 'org-b', reactivatedAt: null },
+    ];
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue(sequences);
+
+    const res = await request(app).get('/api/winback/active');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /start/:orgId findUnique is called with orgId', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-q', orgId: 'org-q' });
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'q@org.com' });
+
+    expect(prisma.mktWinBackSequence.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { orgId: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /reason/:reason updates sequence with token used as lookup', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-tok', orgId: 'org-1' });
+    (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app).get('/api/winback/reason/price?token=lookup-tok');
+
+    expect(prisma.mktWinBackSequence.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { token: 'lookup-tok' } })
+    );
+  });
+});

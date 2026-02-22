@@ -347,3 +347,56 @@ describe('Automation Rules — extended edge cases', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('Automation Rules — final additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/automation-rules', automationRulesRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListRules.mockReturnValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Critical NCR → Auto-CAPA',
+        description: 'Auto-creates CAPA', enabled: false, isBuiltIn: true },
+    ]);
+    mockGetRuleById.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Critical NCR → Auto-CAPA' });
+    mockEnableRule.mockReturnValue(true);
+    mockDisableRule.mockReturnValue(true);
+    mockGetExecutionLog.mockReturnValue([]);
+  });
+
+  it('GET / returns content-type application/json', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /:id/enable with valid rule returns success true', async () => {
+    const res = await request(app).post('/api/automation-rules/00000000-0000-0000-0000-000000000001/enable');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /:id/disable with valid rule returns success true', async () => {
+    const res = await request(app).post('/api/automation-rules/00000000-0000-0000-0000-000000000001/disable');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id/log returns data as an array', async () => {
+    const res = await request(app).get('/api/automation-rules/00000000-0000-0000-0000-000000000001/log');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / rule has enabled property', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.body.data[0]).toHaveProperty('enabled');
+  });
+
+  it('getExecutionLog is called once per GET /:id/log request', async () => {
+    await request(app).get('/api/automation-rules/00000000-0000-0000-0000-000000000001/log');
+    expect(mockGetExecutionLog).toHaveBeenCalledTimes(1);
+  });
+});

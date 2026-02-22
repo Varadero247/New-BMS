@@ -367,3 +367,67 @@ describe('SiemEngine – extended coverage', () => {
     engine.destroy();
   });
 });
+
+describe('SiemEngine — additional rule and actor coverage', () => {
+  it('alert has a ruleId field matching the rule that fired', () => {
+    const rule: SiemRule = {
+      id: 'ID_CHECK',
+      name: 'ID Check',
+      description: '1 event',
+      ruleType: 'threshold',
+      severity: 'low',
+      eventTypes: ['AUTH_FAILURE'],
+      windowMs: 60_000,
+      threshold: 1,
+    };
+    const engine = new SiemEngine([rule], { cleanupIntervalMs: 999_999 });
+    engine.ingest(authFailure('tester'));
+    const alerts = engine.getAlerts('tester');
+    expect(alerts[0].ruleId).toBe('ID_CHECK');
+    engine.destroy();
+  });
+
+  it('alert severity matches the rule severity', () => {
+    const rule: SiemRule = {
+      id: 'SEV_CHECK',
+      name: 'Sev Check',
+      description: '1 event',
+      ruleType: 'threshold',
+      severity: 'critical',
+      eventTypes: ['AUTH_FAILURE'],
+      windowMs: 60_000,
+      threshold: 1,
+    };
+    const engine = new SiemEngine([rule], { cleanupIntervalMs: 999_999 });
+    engine.ingest(authFailure('actor'));
+    expect(engine.getAlerts('actor')[0].severity).toBe('critical');
+    engine.destroy();
+  });
+
+  it('getEvents returns all events for an actor', () => {
+    const engine = new SiemEngine([], { cleanupIntervalMs: 999_999 });
+    engine.ingest(authFailure('bob'));
+    engine.ingest(authFailure('bob'));
+    expect(engine.getEvents('bob')).toHaveLength(2);
+    engine.destroy();
+  });
+
+  it('ingest returns an array even when no rules fire', () => {
+    const engine = new SiemEngine([], { cleanupIntervalMs: 999_999 });
+    const result = engine.ingest(authFailure('nobody'));
+    expect(Array.isArray(result)).toBe(true);
+    engine.destroy();
+  });
+
+  it('DEFAULT_RULES array length is at least 4', () => {
+    expect(DEFAULT_RULES.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('actorCount returns 0 after reset', () => {
+    const engine = new SiemEngine([], { cleanupIntervalMs: 999_999 });
+    engine.ingest(authFailure('x'));
+    engine.reset();
+    expect(engine.actorCount).toBe(0);
+    engine.destroy();
+  });
+});

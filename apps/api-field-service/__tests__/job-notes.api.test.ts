@@ -386,3 +386,77 @@ describe('job-notes.api — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('job-notes.api — further coverage', () => {
+  it('GET / returns success:true on empty result set', async () => {
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/job-notes');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET / pagination.page defaults to 1 when not supplied', async () => {
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/job-notes');
+
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST / create is called with type NOTE when type is omitted', async () => {
+    mockPrisma.fsSvcJobNote.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      type: 'NOTE',
+      content: 'default type',
+      jobId: '00000000-0000-0000-0000-000000000001',
+    });
+
+    await request(app).post('/api/job-notes').send({
+      jobId: '00000000-0000-0000-0000-000000000001',
+      content: 'default type',
+    });
+
+    expect(mockPrisma.fsSvcJobNote.create).toHaveBeenCalled();
+  });
+
+  it('GET / data array is always an array', async () => {
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/job-notes');
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id update passes correct id in where clause', async () => {
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000050' });
+    mockPrisma.fsSvcJobNote.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000050', content: 'Updated' });
+
+    await request(app)
+      .put('/api/job-notes/00000000-0000-0000-0000-000000000050')
+      .send({ content: 'Updated' });
+
+    expect(mockPrisma.fsSvcJobNote.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000050' }),
+      })
+    );
+  });
+
+  it('DELETE /:id returns message "Job note deleted" in data.message', async () => {
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060' });
+    mockPrisma.fsSvcJobNote.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060', deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/job-notes/00000000-0000-0000-0000-000000000060');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Job note deleted');
+  });
+});

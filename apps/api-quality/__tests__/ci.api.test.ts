@@ -402,4 +402,79 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
       expect(res.body.data.byPriority).toHaveLength(0);
     });
   });
+
+  describe('DELETE /api/ci — final coverage', () => {
+    const mockCI = {
+      id: '00000000-0000-0000-0000-000000000001',
+      referenceNumber: 'QMS-CI-2026-001',
+      title: 'Reduce defect rate',
+      description: 'Defect rate reduction',
+      source: 'AUDIT',
+      category: 'Manufacturing',
+      priority: 'HIGH',
+      status: 'IDEA',
+      deletedAt: null,
+    };
+
+    it('DELETE /:id sets deletedAt via update call', async () => {
+      mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(mockCI);
+      mockPrisma.qualContinuousImprovement.update.mockResolvedValue({ ...mockCI, deletedAt: new Date() });
+      await request(app).delete('/api/ci/00000000-0000-0000-0000-000000000001');
+      expect(mockPrisma.qualContinuousImprovement.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+      );
+    });
+
+    it('GET / returns success:true on valid list response', async () => {
+      mockPrisma.qualContinuousImprovement.findMany.mockResolvedValue([mockCI]);
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(1);
+      const res = await request(app).get('/api/ci');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('GET / returns empty data array when no CI items exist', async () => {
+      mockPrisma.qualContinuousImprovement.findMany.mockResolvedValue([]);
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(0);
+      const res = await request(app).get('/api/ci');
+      expect(res.body.data).toEqual([]);
+      expect(res.body.pagination.total).toBe(0);
+    });
+
+    it('POST / creates CI item with assignedTo field', async () => {
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(0);
+      mockPrisma.qualContinuousImprovement.create.mockResolvedValue({ ...mockCI, assignedTo: 'Jane Engineer' });
+      const res = await request(app).post('/api/ci').send({
+        title: 'Assigned CI',
+        description: 'Needs assignment',
+        priority: 'MEDIUM',
+        assignedTo: 'Jane Engineer',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('PUT /:id returns updated record in response body', async () => {
+      mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(mockCI);
+      mockPrisma.qualContinuousImprovement.update.mockResolvedValue({ ...mockCI, status: 'IN_PROGRESS' });
+      const res = await request(app).put('/api/ci/00000000-0000-0000-0000-000000000001').send({ status: 'IN_PROGRESS' });
+      expect(res.status).toBe(200);
+      expect(res.body.data.status).toBe('IN_PROGRESS');
+    });
+
+    it('GET /:id returns success:true and data on found record', async () => {
+      mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(mockCI);
+      const res = await request(app).get('/api/ci/00000000-0000-0000-0000-000000000001');
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.referenceNumber).toBe('QMS-CI-2026-001');
+    });
+
+    it('POST / returns 500 when create throws', async () => {
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(0);
+      mockPrisma.qualContinuousImprovement.create.mockRejectedValue(new Error('crash'));
+      const res = await request(app).post('/api/ci').send({ title: 'CI Item', description: 'Desc', priority: 'HIGH' });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
 });

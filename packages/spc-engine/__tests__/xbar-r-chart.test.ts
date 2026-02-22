@@ -309,3 +309,44 @@ describe('xbarRChart — comprehensive', () => {
     });
   });
 });
+
+// ─── Additional structural and SPC_CONSTANTS coverage ─────────────────────────
+
+describe('xbarRChart — additional structural coverage', () => {
+  it('SPC_CONSTANTS has entries for subgroup sizes 2 through 10', () => {
+    for (let n = 2; n <= 10; n++) {
+      expect(SPC_CONSTANTS[n]).toBeDefined();
+      expect(SPC_CONSTANTS[n].A2).toBeGreaterThan(0);
+      expect(SPC_CONSTANTS[n].D4).toBeGreaterThan(0);
+    }
+  });
+
+  it('outOfControl is always an array', () => {
+    const data = makeDataPoints(Array(10).fill(50));
+    const chart = xbarRChart(data, 5);
+    expect(Array.isArray(chart.outOfControl)).toBe(true);
+  });
+
+  it('dataPoints have outOfControl and violationRules fields', () => {
+    const data = makeDataPoints(Array(10).fill(50));
+    const chart = xbarRChart(data, 5);
+    for (const p of chart.dataPoints) {
+      expect(typeof p.outOfControl).toBe('boolean');
+      expect(Array.isArray(p.violationRules)).toBe(true);
+    }
+  });
+
+  it('rangePoints length equals the number of subgroups', () => {
+    const data = makeDataPoints(Array(15).fill(10));
+    const chart = xbarRChart(data, 5);
+    expect(chart.rangePoints).toHaveLength(3);
+  });
+
+  it('rangeCenterLine is the average of subgroup ranges', () => {
+    // Subgroups: [10,20] range=10, [10,20] range=10, [10,20] range=10
+    const values = [10, 20, 10, 20, 10, 20];
+    const data = makeDataPoints(values);
+    const chart = xbarRChart(data, 2);
+    expect(chart.rangeCenterLine).toBeCloseTo(10, 4);
+  });
+});

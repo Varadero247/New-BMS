@@ -437,3 +437,121 @@ describe('InfoSec Controls — additional response shape coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ===================================================================
+// InfoSec Controls — extended boundary and pagination coverage
+// ===================================================================
+describe('InfoSec Controls — extended boundary and pagination coverage', () => {
+  const baseControl = {
+    id: 'a3000000-0000-4000-a000-000000000001',
+    controlId: 'A.5.1',
+    domain: 'ORGANISATIONAL',
+    title: 'Policies for information security',
+    description: 'A set of policies',
+    applicability: 'APPLICABLE',
+    justification: 'Required',
+    implementationStatus: 'FULLY_IMPLEMENTED',
+    implementationNotes: null,
+    evidence: null,
+    owner: 'CISO',
+    reviewDate: null,
+    lastReviewedAt: null,
+    createdBy: 'system',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/controls pagination contains totalPages', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([baseControl]);
+    (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(50);
+
+    const res = await request(app).get('/api/controls?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages', 5);
+  });
+
+  it('GET /api/controls custom page and limit are reflected in pagination', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/controls?page=3&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(20);
+  });
+
+  it('GET /api/controls responds with JSON content-type', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/controls');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/controls/soa summary contains implemented count', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([
+      { ...baseControl, implementationStatus: 'FULLY_IMPLEMENTED' },
+      { ...baseControl, id: 'a3000000-0000-4000-a000-000000000002', controlId: 'A.5.2', implementationStatus: 'NOT_IMPLEMENTED' },
+    ]);
+
+    const res = await request(app).get('/api/controls/soa');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary).toHaveProperty('fullyImplemented');
+  });
+
+  it('GET /api/controls/soa PDF endpoint returns content-disposition attachment', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([baseControl]);
+
+    const res = await request(app).get('/api/controls/soa/pdf');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-disposition']).toMatch(/attachment/);
+  });
+
+  it('PUT /api/controls/:id/status returns 400 when body is empty', async () => {
+    const res = await request(app)
+      .put('/api/controls/a3000000-0000-4000-a000-000000000001/status')
+      .send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/controls/:id/implementation accepts PARTIALLY_IMPLEMENTED status', async () => {
+    (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(baseControl);
+    (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce({
+      ...baseControl,
+      implementationStatus: 'PARTIALLY_IMPLEMENTED',
+    });
+
+    const res = await request(app)
+      .put('/api/controls/a3000000-0000-4000-a000-000000000001/implementation')
+      .send({ implementationStatus: 'PARTIALLY_IMPLEMENTED' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/controls data items have controlId field', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([baseControl]);
+    (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/controls');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('controlId');
+  });
+
+  it('GET /api/controls filter by domain PEOPLE passes to prisma query', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app).get('/api/controls?domain=PEOPLE');
+
+    const findCall = (mockPrisma.isControl.findMany as jest.Mock).mock.calls[0][0];
+    expect(findCall.where.domain).toBe('PEOPLE');
+  });
+});

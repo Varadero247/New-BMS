@@ -357,3 +357,59 @@ describe('appetite.api — extended edge cases', () => {
     expect(mockPrisma.riskAppetiteStatement.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Risk Appetite — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /appetite returns each item with category field', async () => {
+    mockPrisma.riskAppetiteStatement.findMany.mockResolvedValue([
+      { id: '1', category: 'FINANCIAL', appetiteLevel: 'MODERATE_APPETITE' },
+      { id: '2', category: 'OPERATIONAL', appetiteLevel: 'LOW_APPETITE' },
+    ]);
+    const res = await request(app).get('/api/risks/appetite');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].category).toBe('FINANCIAL');
+  });
+
+  it('GET /framework data has id when framework exists', async () => {
+    mockPrisma.riskFramework.findUnique.mockResolvedValue({ id: 'fw-123', frameworkVersion: 'ISO 31000:2018', organisationId: 'org-1' });
+    const res = await request(app).get('/api/risks/framework');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('fw-123');
+  });
+
+  it('PUT /framework create is called when no framework exists', async () => {
+    mockPrisma.riskFramework.findUnique.mockResolvedValue(null);
+    mockPrisma.riskFramework.create.mockResolvedValue({ id: 'new-fw', organisationId: 'org-1' });
+    await request(app).put('/api/risks/framework').send({ maturityLevel: 'Initial' });
+    expect(mockPrisma.riskFramework.create).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.riskFramework.update).not.toHaveBeenCalled();
+  });
+
+  it('POST /appetite 400 when statement field is missing', async () => {
+    const res = await request(app).post('/api/risks/appetite').send({
+      category: 'OPERATIONAL',
+      appetiteLevel: 'VERY_LOW',
+      maximumTolerableScore: 5,
+      acceptableResidualScore: 3,
+      escalationThreshold: 6,
+      reviewDate: '2026-12-01T00:00:00Z',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /framework update is not called when framework does not exist', async () => {
+    mockPrisma.riskFramework.findUnique.mockResolvedValue(null);
+    mockPrisma.riskFramework.create.mockResolvedValue({ id: 'new-fw', organisationId: 'org-1' });
+    await request(app).put('/api/risks/framework').send({ maturityLevel: 'Managed' });
+    expect(mockPrisma.riskFramework.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /appetite findMany called once per request', async () => {
+    mockPrisma.riskAppetiteStatement.findMany.mockResolvedValue([]);
+    await request(app).get('/api/risks/appetite');
+    expect(mockPrisma.riskAppetiteStatement.findMany).toHaveBeenCalledTimes(1);
+  });
+});

@@ -393,3 +393,53 @@ describe('portal-orders — filtering, pagination, and edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Portal Orders — final coverage', () => {
+  it('GET list: response body has success and data fields', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/orders');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET list: returns empty array when no orders exist', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/orders');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('PUT /:id returns success true on successful update', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.portalOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', notes: 'Done' });
+    const res = await request(app)
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001')
+      .send({ notes: 'Done' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id returns 500 on update DB error', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.portalOrder.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001')
+      .send({ notes: 'Done' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET list: pagination page defaults to 1', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/orders');
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /:id: success true when order found', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', orderNumber: 'PO-1' });
+    const res = await request(app).get('/api/portal/orders/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

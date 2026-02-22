@@ -375,3 +375,59 @@ describe('RACI Routes — extended edge cases', () => {
     expect(res.body.data.raciType).toBe('ACCOUNTABLE');
   });
 });
+
+describe('RACI Routes — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/raci — response data is array', async () => {
+    (prisma.qualRaci.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualRaci.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/raci');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/raci — returns 200 with INFORMED type filter', async () => {
+    (prisma.qualRaci.findMany as jest.Mock).mockResolvedValue([{ ...mockRaci, raciType: 'INFORMED' }]);
+    (prisma.qualRaci.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/raci?raciType=INFORMED');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/raci — CONSULTED type creates successfully', async () => {
+    (prisma.qualRaci.count as jest.Mock).mockResolvedValue(0);
+    (prisma.qualRaci.create as jest.Mock).mockResolvedValue({ ...mockRaci, raciType: 'CONSULTED' });
+    const res = await request(app).post('/api/raci').send({
+      processName: 'Audit',
+      activityName: 'Evidence Review',
+      roleName: 'Auditor',
+      raciType: 'CONSULTED',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.raciType).toBe('CONSULTED');
+  });
+
+  it('PUT /api/raci/:id — update is called with correct where id', async () => {
+    (prisma.qualRaci.findFirst as jest.Mock).mockResolvedValue(mockRaci);
+    (prisma.qualRaci.update as jest.Mock).mockResolvedValue({ ...mockRaci, raciType: 'INFORMED' });
+    const res = await request(app)
+      .put('/api/raci/00000000-0000-0000-0000-000000000001')
+      .send({ raciType: 'INFORMED' });
+    expect(res.status).toBe(200);
+    expect(prisma.qualRaci.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /api/raci/matrix — response body has success:true', async () => {
+    (prisma.qualRaci.findMany as jest.Mock).mockResolvedValue([mockRaci]);
+    const res = await request(app).get('/api/raci/matrix');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

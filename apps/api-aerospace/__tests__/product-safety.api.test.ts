@@ -484,3 +484,114 @@ describe('Aerospace Product Safety API', () => {
     });
   });
 });
+
+describe('Aerospace Product Safety API — additional coverage', () => {
+  it('GET /api/product-safety returns correct totalPages for multi-page result', async () => {
+    mockPrisma.aeroProductSafetyItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroProductSafetyItem.count.mockResolvedValueOnce(40);
+
+    const res = await request(app)
+      .get('/api/product-safety?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(2);
+    expect(res.body.meta.total).toBe(40);
+  });
+
+  it('GET /api/product-safety page 2 limit 10 computes skip=10', async () => {
+    mockPrisma.aeroProductSafetyItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroProductSafetyItem.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/product-safety?page=2&limit=10')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroProductSafetyItem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/product-safety response shape has success:true and meta block', async () => {
+    mockPrisma.aeroProductSafetyItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroProductSafetyItem.count.mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/product-safety').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('GET /api/product-safety/:id returns 500 on db error', async () => {
+    mockPrisma.aeroProductSafetyItem.findUnique.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .get('/api/product-safety/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/product-safety/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      lastReviewDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+    });
+    mockPrisma.aeroProductSafetyItem.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/product-safety/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ complianceStatus: 'COMPLIANT' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/product-safety/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    mockPrisma.aeroProductSafetyItem.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .delete('/api/product-safety/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/product-safety/reviews returns 500 on db error', async () => {
+    mockPrisma.aeroSafetyReview.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .get('/api/product-safety/reviews')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/product-safety/reviews returns 500 on db error', async () => {
+    mockPrisma.aeroSafetyReview.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroSafetyReview.create.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .post('/api/product-safety/reviews')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Hazard Review', reviewType: 'SYSTEM_SAFETY', scheduledDate: '2026-04-01' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/product-safety?search=gear applies OR search filter', async () => {
+    mockPrisma.aeroProductSafetyItem.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroProductSafetyItem.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/product-safety?search=gear')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroProductSafetyItem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
+    );
+  });
+});

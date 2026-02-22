@@ -564,3 +564,88 @@ describe('Health & Safety Training API Routes', () => {
     });
   });
 });
+
+describe('H&S Training — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/training', trainingRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /courses calls findMany with isActive: true', async () => {
+    (mockPrisma.trainCourse.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/training/courses').set('Authorization', 'Bearer token');
+    expect(mockPrisma.trainCourse.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isActive: true }) })
+    );
+  });
+
+  it('GET /records filters by status=IN_PROGRESS wired to Prisma where', async () => {
+    (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/training/records?status=IN_PROGRESS').set('Authorization', 'Bearer token');
+    expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'IN_PROGRESS' }) })
+    );
+  });
+
+  it('POST /courses response data has standard: ISO_45001', async () => {
+    (mockPrisma.trainCourse.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      title: 'Ladder Safety',
+      standard: 'ISO_45001',
+      isActive: true,
+    });
+    const res = await request(app)
+      .post('/api/training/courses')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Ladder Safety' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.standard).toBe('ISO_45001');
+  });
+
+  it('POST /records response data has userId field', async () => {
+    (mockPrisma.trainRecord.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      userId: '20000000-0000-4000-a000-000000000001',
+      courseId: '2d000000-0000-4000-a000-000000000001',
+      status: 'COMPLETED',
+    });
+    const res = await request(app)
+      .post('/api/training/records')
+      .set('Authorization', 'Bearer token')
+      .send({ userId: '20000000-0000-4000-a000-000000000001', courseId: '2d000000-0000-4000-a000-000000000001', status: 'COMPLETED' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.userId).toBe('20000000-0000-4000-a000-000000000001');
+  });
+
+  it('GET /records orders by createdAt desc', async () => {
+    (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/training/records').set('Authorization', 'Bearer token');
+    expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: 'desc' } })
+    );
+  });
+
+  it('GET /courses take is 100', async () => {
+    (mockPrisma.trainCourse.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/training/courses').set('Authorization', 'Bearer token');
+    expect(mockPrisma.trainCourse.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 100 })
+    );
+  });
+
+  it('POST /records returns 400 for missing courseId', async () => {
+    const res = await request(app)
+      .post('/api/training/records')
+      .set('Authorization', 'Bearer token')
+      .send({ userId: '20000000-0000-4000-a000-000000000001', status: 'NOT_STARTED' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

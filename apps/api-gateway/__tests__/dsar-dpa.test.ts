@@ -449,3 +449,79 @@ describe('DSAR + DPA — 500 paths, field validation, and extra coverage', () =>
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('DSAR + DPA — combined final coverage', () => {
+  let dsarApp: import('express').Express;
+  let dpaApp: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    dsarApp = express();
+    dsarApp.use(express.json());
+    dsarApp.use('/api/admin/privacy/dsar', dsarRouter);
+
+    dpaApp = express();
+    dpaApp.use(express.json());
+    dpaApp.use('/api/admin/dpa', dpaRouter);
+
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetActiveDpa.mockReturnValue({ id: 'dpa-1', version: '1.0', title: 'DPA v1', content: '<p>Terms</p>', isActive: true });
+    mockGetDpaAcceptance.mockReturnValue(null);
+    mockHasAcceptedDpa.mockReturnValue(false);
+    mockListRequests.mockReturnValue([]);
+    mockCreateRequest.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com' });
+    mockGetRequest.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com' });
+    mockProcessExportRequest.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'COMPLETE', downloadUrl: '/downloads/dsar-1.zip' });
+    mockProcessErasureRequest.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', type: 'ERASURE', status: 'COMPLETE' });
+    mockAcceptDpa.mockReturnValue({ id: 'acc-1', orgId: 'org-1', dpaId: 'dpa-1', signedAt: new Date().toISOString() });
+  });
+
+  it('POST /dsar with ERASURE subjectEmail is validated as email format', async () => {
+    const res = await request(dsarApp).post('/api/admin/privacy/dsar').send({
+      type: 'ERASURE',
+      subjectEmail: 'bad-email',
+      reason: 'Delete me',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /dpa returns success: true', async () => {
+    const res = await request(dpaApp).get('/api/admin/dpa');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /dsar/:id returns success: true for valid request', async () => {
+    const res = await request(dsarApp).get('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /dpa/acceptance body.data.accepted is boolean', async () => {
+    const res = await request(dpaApp).get('/api/admin/dpa/acceptance');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.accepted).toBe('boolean');
+  });
+
+  it('POST /dpa/accept calls acceptDpa once', async () => {
+    await request(dpaApp)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: 'Test', signerTitle: 'Staff' });
+    expect(mockAcceptDpa).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /dsar calls listRequests once', async () => {
+    await request(dsarApp).get('/api/admin/privacy/dsar');
+    expect(mockListRequests).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /dsar/:id/process returns COMPLETE status for ERASURE', async () => {
+    mockGetRequest.mockReturnValueOnce({ id: '00000000-0000-0000-0000-000000000001', type: 'ERASURE', status: 'PENDING', subjectEmail: 'user@example.com' });
+    const res = await request(dsarApp).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLETE');
+  });
+});

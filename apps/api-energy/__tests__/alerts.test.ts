@@ -403,3 +403,105 @@ describe('GET /api/alerts pagination and response shape', () => {
     expect(res.body.data.meterId).toBe('00000000-0000-0000-0000-000000000010');
   });
 });
+
+describe('alerts — final coverage', () => {
+  it('GET /api/alerts returns success:true on empty list', async () => {
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/alerts');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/alerts filters by severity=HIGH', async () => {
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/alerts?severity=HIGH');
+
+    expect(prisma.energyAlert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ severity: 'HIGH' }),
+      })
+    );
+  });
+
+  it('PUT /api/alerts/:id/acknowledge sets acknowledgedBy to current user', async () => {
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      acknowledged: false,
+    });
+    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      acknowledged: true,
+      acknowledgedBy: '00000000-0000-4000-a000-000000000123',
+    });
+
+    const res = await request(app).put('/api/alerts/e4000000-0000-4000-a000-000000000001/acknowledge');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.acknowledgedBy).toBe('00000000-0000-4000-a000-000000000123');
+  });
+
+  it('DELETE /api/alerts/:id returns data.id in response', async () => {
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001' });
+    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({ id: 'e4000000-0000-4000-a000-000000000001' });
+
+    const res = await request(app).delete('/api/alerts/e4000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('e4000000-0000-4000-a000-000000000001');
+  });
+
+  it('POST /api/alerts creates EQUIPMENT_FAULT type alert', async () => {
+    (prisma.energyAlert.create as jest.Mock).mockResolvedValue({
+      id: 'new-fault-id',
+      type: 'EQUIPMENT_FAULT',
+      severity: 'LOW',
+      message: 'Meter sensor fault detected',
+      acknowledged: false,
+    });
+
+    const res = await request(app).post('/api/alerts').send({
+      type: 'EQUIPMENT_FAULT',
+      severity: 'LOW',
+      message: 'Meter sensor fault detected',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.type).toBe('EQUIPMENT_FAULT');
+  });
+
+  it('PUT /api/alerts/:id/resolve response has resolvedAt defined', async () => {
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      resolvedAt: null,
+    });
+    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      resolvedAt: new Date().toISOString(),
+    });
+
+    const res = await request(app).put('/api/alerts/e4000000-0000-4000-a000-000000000001/resolve');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.resolvedAt).toBeDefined();
+  });
+
+  it('GET /api/alerts pagination total is reflected in response', async () => {
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([
+      { id: 'a1', type: 'ANOMALY' },
+      { id: 'a2', type: 'OVERCONSUMPTION' },
+    ]);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(100);
+
+    const res = await request(app).get('/api/alerts?page=1&limit=2');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(100);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

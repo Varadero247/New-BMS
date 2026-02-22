@@ -350,3 +350,62 @@ describe('Legal Register — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Legal Register — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/legal-register data is an array', async () => {
+    mockPrisma.regLegalRegister.findMany.mockResolvedValue([]);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/legal-register');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/legal-register pagination.totalPages computed correctly', async () => {
+    mockPrisma.regLegalRegister.findMany.mockResolvedValue([]);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/legal-register?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it('GET /api/legal-register/:id success:true when found', async () => {
+    mockPrisma.regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'GDPR' });
+    const res = await request(app).get('/api/legal-register/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/legal-register referenceNumber in create data', async () => {
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.create.mockResolvedValue({ id: '1', title: 'GDPR', referenceNumber: 'RLR-2026-0001' });
+    const res = await request(app).post('/api/legal-register').send({ title: 'GDPR' });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.regLegalRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ referenceNumber: expect.any(String) }) })
+    );
+  });
+
+  it('PUT /api/legal-register/:id calls update with correct id', async () => {
+    mockPrisma.regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old' });
+    mockPrisma.regLegalRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New' });
+    await request(app)
+      .put('/api/legal-register/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New' });
+    expect(mockPrisma.regLegalRegister.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('DELETE /api/legal-register/:id calls update with deletedAt', async () => {
+    mockPrisma.regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'GDPR' });
+    mockPrisma.regLegalRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/legal-register/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.regLegalRegister.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

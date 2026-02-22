@@ -355,3 +355,83 @@ describe('Inventory Reports — edge cases and deeper coverage', () => {
     expect(res.body.data).toHaveProperty('topMovingProducts');
   });
 });
+
+// ── Inventory Reports — further coverage ──────────────────────────────────────
+
+describe('Inventory Reports — further coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /valuation responds with JSON content-type', async () => {
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { quantityOnHand: 0, inventoryValue: 0 },
+      _count: { id: 0 },
+    });
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/valuation');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /movement success:true on empty data', async () => {
+    (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.$queryRaw as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/movement');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /ageing 500 has INTERNAL_ERROR code', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/reports/ageing');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /turnover 500 has INTERNAL_ERROR code', async () => {
+    (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/reports/turnover');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /valuation byWarehouse merges stats per warehouse', async () => {
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { quantityOnHand: 200, inventoryValue: 8000 },
+      _count: { id: 15 },
+    });
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([
+      {
+        warehouseId: 'wh-1',
+        _sum: { quantityOnHand: 200, inventoryValue: 8000 },
+        _count: { productId: 15 },
+      },
+    ]);
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/valuation');
+    expect(res.status).toBe(200);
+    expect(res.body.data.byWarehouse).toHaveLength(1);
+  });
+
+  it('GET /ageing 31-60 days items have correct ageBucket', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'inv-10',
+        inventoryValue: 500,
+        lastReceivedAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+        product: { sku: 'SKU-045', name: 'Widget D' },
+        warehouse: { code: 'WH-01', name: 'Main' },
+      },
+    ]);
+    const res = await request(app).get('/api/reports/ageing');
+    expect(res.status).toBe(200);
+    expect(res.body.data.items[0].ageBucket).toBe('31-60 days');
+  });
+
+  it('GET /turnover success:true when no transactions exist', async () => {
+    (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/turnover');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.products).toHaveLength(0);
+  });
+});

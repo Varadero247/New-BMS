@@ -527,3 +527,89 @@ describe('Quality Actions API Routes', () => {
     });
   });
 });
+
+describe('Quality Actions — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/actions', actionsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns empty items array when no actions exist', async () => {
+    mockPrisma.qualAction.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualAction.count.mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/actions').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.items).toEqual([]);
+    expect(response.body.data.total).toBe(0);
+  });
+
+  it('GET / returns success:true on valid response', async () => {
+    mockPrisma.qualAction.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualAction.count.mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/actions').set('Authorization', 'Bearer token');
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 for missing actionType', async () => {
+    const response = await request(app)
+      .post('/api/actions')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Action',
+        source: 'NC_REPORT',
+        description: 'Desc',
+        expectedOutcome: 'Outcome',
+        assignedTo: 'John',
+        department: 'Prod',
+        dueDate: '2026-06-01',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /stats returns success:true on valid data', async () => {
+    mockPrisma.qualAction.groupBy
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    mockPrisma.qualAction.count.mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/actions/stats').set('Authorization', 'Bearer token');
+    expect(response.body.success).toBe(true);
+  });
+
+  it('PUT /:id sets completionDate when status changes to COMPLETED', async () => {
+    mockPrisma.qualAction.findUnique.mockResolvedValueOnce({
+      id: '19000000-0000-4000-a000-000000000001',
+      title: 'Action',
+      status: 'IN_PROGRESS',
+      completionDate: null,
+      verificationDate: null,
+    });
+    mockPrisma.qualAction.update.mockResolvedValueOnce({
+      id: '19000000-0000-4000-a000-000000000001',
+      status: 'COMPLETED',
+    });
+    const response = await request(app)
+      .put('/api/actions/19000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'COMPLETED' });
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('DELETE /:id soft deletes by calling update with deletedAt', async () => {
+    mockPrisma.qualAction.findUnique.mockResolvedValueOnce({ id: '19000000-0000-4000-a000-000000000001' });
+    mockPrisma.qualAction.update.mockResolvedValueOnce({});
+    await request(app).delete('/api/actions/19000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualAction.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

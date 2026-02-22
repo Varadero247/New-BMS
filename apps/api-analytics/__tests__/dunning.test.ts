@@ -564,3 +564,97 @@ describe('Dunning — edge cases and extended webhook coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Dunning — final coverage', () => {
+  const finalApp = express();
+  finalApp.use(express.json());
+  finalApp.use('/', stripeDunningRouter);
+
+  it('runDunningJob processed count matches number of sequences', async () => {
+    const seqs = [
+      { id: 'f1', currentStep: 'DAY_0', customerEmail: 'a@b.com', customerName: 'A', amountDue: 50 },
+      { id: 'f2', currentStep: 'DAY_3', customerEmail: 'b@c.com', customerName: 'B', amountDue: 75 },
+    ];
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue(seqs);
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({});
+    const result = await runDunningJob();
+    expect(result.processed).toBe(2);
+  });
+
+  it('runDunningJob update is called for each active sequence', async () => {
+    const seqs = [
+      { id: 'g1', currentStep: 'DAY_7', customerEmail: 'a@b.com', customerName: 'A', amountDue: 100 },
+      { id: 'g2', currentStep: 'DAY_9', customerEmail: 'c@d.com', customerName: 'C', amountDue: 200 },
+    ];
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue(seqs);
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({});
+    await runDunningJob();
+    expect(prisma.dunningSequence.update).toHaveBeenCalledTimes(2);
+  });
+
+  it('GET /active data.total equals sequences length', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([
+      { id: 'ga-1', currentStep: 'DAY_0', customerEmail: 'a@b.com' },
+      { id: 'ga-2', currentStep: 'DAY_3', customerEmail: 'c@d.com' },
+      { id: 'ga-3', currentStep: 'DAY_7', customerEmail: 'e@f.com' },
+    ]);
+    const res = await request(finalApp).get('/active');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(3);
+    expect(res.body.data.sequences).toHaveLength(3);
+  });
+
+  it('POST / with invoice.payment_failed and missing data returns 400', async () => {
+    const res = await request(finalApp).post('/').send({
+      id: 'evt_nd',
+      type: 'invoice.payment_failed',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('runDunningJob update includes nextActionAt for each step', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([
+      { id: 'email-1', currentStep: 'DAY_0', customerEmail: 'a@b.com', customerName: 'A', amountDue: 50 },
+    ]);
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({});
+    await runDunningJob();
+    const updateCall = (prisma.dunningSequence.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data).toHaveProperty('nextActionAt');
+    expect(updateCall.data.nextActionAt).toBeInstanceOf(Date);
+  });
+
+  it('POST / creates sequence with currentStep=DAY_0', async () => {
+    (prisma.dunningSequence.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.dunningSequence.create as jest.Mock).mockResolvedValue({
+      id: 'step-check',
+      stripeInvoiceId: 'inv_step',
+      currentStep: 'DAY_0',
+    });
+    await request(finalApp).post('/').send({
+      id: 'evt_step',
+      type: 'invoice.payment_failed',
+      data: {
+        object: {
+          id: 'inv_step',
+          customer: 'cus_step',
+          customer_email: 'step@test.com',
+          customer_name: 'Step User',
+          amount_due: 2000,
+          currency: 'gbp',
+        },
+      },
+    });
+    const createCall = (prisma.dunningSequence.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.currentStep).toBe('DAY_0');
+  });
+
+  it('runDunningJob cancelled count is 1 when one DAY_14 sequence in batch', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([
+      { id: 'can-1', currentStep: 'DAY_14', customerEmail: 'a@b.com', customerName: 'A', amountDue: 100 },
+    ]);
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({});
+    const result = await runDunningJob();
+    expect(result.cancelled).toBe(1);
+  });
+});

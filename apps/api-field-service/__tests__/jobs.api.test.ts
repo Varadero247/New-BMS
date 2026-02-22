@@ -467,3 +467,56 @@ describe('Field Service Jobs — additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('jobs.api — further coverage', () => {
+  it('GET / returns pagination.total matching count mock', async () => {
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJob.count.mockResolvedValue(7);
+
+    const res = await request(app).get('/api/jobs');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(7);
+  });
+
+  it('GET / data array is always an array', async () => {
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJob.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/jobs');
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/jobs').send({});
+
+    expect(mockPrisma.fsSvcJob.create).not.toHaveBeenCalled();
+  });
+
+  it('GET /dispatch-board returns 500 on DB error', async () => {
+    mockPrisma.fsSvcJob.findMany.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/jobs/dispatch-board');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id update calls update with correct where id', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010' });
+    mockPrisma.fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', title: 'Patched' });
+
+    await request(app)
+      .put('/api/jobs/00000000-0000-0000-0000-000000000010')
+      .send({ title: 'Patched' });
+
+    expect(mockPrisma.fsSvcJob.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000010' }),
+      })
+    );
+  });
+});

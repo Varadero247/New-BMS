@@ -424,3 +424,63 @@ describe('portal-users — filtering, pagination, and edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Portal Users — final coverage', () => {
+  it('GET list: response body has success and data fields', async () => {
+    mockPrisma.portalUser.findMany.mockResolvedValue([]);
+    mockPrisma.portalUser.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/users');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET list: returns empty array when no users exist', async () => {
+    mockPrisma.portalUser.findMany.mockResolvedValue([]);
+    mockPrisma.portalUser.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/users');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST create: findFirst called to check for duplicate email', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-1', email: 'find@test.com', name: 'Find', portalType: 'CUSTOMER', role: 'CUSTOMER_USER', status: 'PENDING' });
+    await request(app).post('/api/portal/users').send({
+      email: 'find@test.com',
+      name: 'Find User',
+      company: 'FindCo',
+      role: 'CUSTOMER_USER',
+      portalType: 'CUSTOMER',
+    });
+    expect(mockPrisma.portalUser.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ email: 'find@test.com' }) })
+    );
+  });
+
+  it('PUT /:id: success is true on successful update', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.portalUser.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated Name' });
+    const res = await request(app)
+      .put('/api/portal/users/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Name' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE: update called with status INACTIVE', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.portalUser.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'INACTIVE' });
+    await request(app).delete('/api/portal/users/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.portalUser.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'INACTIVE' }) })
+    );
+  });
+
+  it('GET list: filter by CUSTOMER portalType passes filter in where clause', async () => {
+    mockPrisma.portalUser.findMany.mockResolvedValue([]);
+    mockPrisma.portalUser.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/users?portalType=CUSTOMER');
+    expect(mockPrisma.portalUser.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ portalType: 'CUSTOMER' }) })
+    );
+  });
+});

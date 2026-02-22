@@ -358,3 +358,48 @@ describe('toolbox-talks.api — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('toolbox-talks.api — final coverage', () => {
+  it('GET / pagination.totalPages rounds up correctly', async () => {
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(31);
+    const res = await request(app).get('/api/toolbox-talks?limit=10');
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('POST / returns 400 for empty topic string', async () => {
+    const res = await request(app).post('/api/toolbox-talks').send({ topic: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns updated topic in response', async () => {
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', topic: 'Old' });
+    mockPrisma.ptwToolboxTalk.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', topic: 'Updated Topic' });
+    const res = await request(app).put('/api/toolbox-talks/00000000-0000-0000-0000-000000000001').send({ topic: 'Updated Topic' });
+    expect(res.body.data.topic).toBe('Updated Topic');
+  });
+
+  it('GET / returns success:true on valid list response', async () => {
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([{ id: '1', topic: 'Talk 1' }]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/toolbox-talks');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / pagination total matches count mock', async () => {
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/toolbox-talks');
+    expect(res.body.pagination.total).toBe(15);
+  });
+
+  it('POST / creates with presenter field', async () => {
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(5);
+    mockPrisma.ptwToolboxTalk.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000006', topic: 'Safety Talk', presenter: 'user-2' });
+    const res = await request(app).post('/api/toolbox-talks').send({ topic: 'Safety Talk', presenter: 'user-2' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

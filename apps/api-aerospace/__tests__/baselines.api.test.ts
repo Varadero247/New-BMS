@@ -482,3 +482,130 @@ describe('Aerospace Baselines API — additional coverage', () => {
     expect(res.body.data.status).toBe('APPROVED');
   });
 });
+
+describe('Aerospace Baselines API — extended coverage 2', () => {
+  it('GET /api/baselines page 3 limit 10 computes skip=20', async () => {
+    mockPrisma.aeroConfigBaseline.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/baselines?page=3&limit=10')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroConfigBaseline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /api/baselines returns success:false in error shape', async () => {
+    mockPrisma.aeroConfigBaseline.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).get('/api/baselines').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toHaveProperty('code');
+  });
+
+  it('GET /api/baselines?baselineType=PRODUCT filters correctly', async () => {
+    mockPrisma.aeroConfigBaseline.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/baselines?baselineType=PRODUCT')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroConfigBaseline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ baselineType: 'PRODUCT' }) })
+    );
+  });
+
+  it('GET /api/baselines totalPages rounds up correctly for 21 items limit 20', async () => {
+    mockPrisma.aeroConfigBaseline.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(21);
+
+    const res = await request(app)
+      .get('/api/baselines?limit=20')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(2);
+  });
+
+  it('POST /api/baselines returns success:true in body on creation', async () => {
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroConfigBaseline.create.mockResolvedValueOnce({
+      id: 'b-shape',
+      refNumber: 'AERO-BL-2026-001',
+      title: 'Shape Test',
+      baselineType: 'FUNCTIONAL',
+      status: 'DRAFT',
+    });
+
+    const res = await request(app)
+      .post('/api/baselines')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Shape Test', program: 'X' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('PUT /api/baselines/:id returns 500 when update throws on db error', async () => {
+    mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      effectiveDate: null,
+      approvedDate: null,
+      deletedAt: null,
+    });
+    mockPrisma.aeroConfigBaseline.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/baselines/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'APPROVED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/baselines?status=DRAFT filters by status correctly', async () => {
+    mockPrisma.aeroConfigBaseline.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/baselines?status=DRAFT')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroConfigBaseline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'DRAFT' }) })
+    );
+  });
+
+  it('PUT /api/baselines/:id/approve returns 500 when update throws', async () => {
+    const existing = {
+      id: '00000000-0000-0000-0000-000000000003',
+      status: 'UNDER_REVIEW',
+      notes: null,
+      deletedAt: null,
+    };
+    mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(existing);
+    mockPrisma.aeroConfigBaseline.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/baselines/00000000-0000-0000-0000-000000000003/approve')
+      .set('Authorization', 'Bearer token')
+      .send({ approvedBy: 'Bob' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/baselines/:id sets deletedAt on soft-delete call', async () => {
+    mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000004',
+      deletedAt: null,
+    });
+    mockPrisma.aeroConfigBaseline.update.mockResolvedValueOnce({});
+
+    await request(app)
+      .delete('/api/baselines/00000000-0000-0000-0000-000000000004')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroConfigBaseline.update).toHaveBeenCalledWith({
+      where: { id: '00000000-0000-0000-0000-000000000004' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+});

@@ -333,3 +333,72 @@ describe('stakeholder-plans — extended coverage', () => {
     expect(res.body.data.frequency).toBe('ONGOING');
   });
 });
+
+describe('stakeholder-plans — additional coverage 2', () => {
+  it('GET / returns correct data length', async () => {
+    (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mockResolvedValue([mockPlan, { ...mockPlan, id: '00000000-0000-0000-0000-000000000002' }]);
+    (mockPrisma.esgStakeholderPlan.count as jest.Mock).mockResolvedValue(2);
+    const res = await request(app).get('/api/stakeholder-plans');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /:id returns stakeholderGroup field', async () => {
+    (mockPrisma.esgStakeholderPlan.findUnique as jest.Mock).mockResolvedValue(mockPlan);
+    const res = await request(app).get('/api/stakeholder-plans/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('stakeholderGroup', 'Investors');
+  });
+
+  it('POST / stores stakeholderGroup in create call data', async () => {
+    (mockPrisma.esgStakeholderPlan.create as jest.Mock).mockResolvedValue(mockPlan);
+    await request(app).post('/api/stakeholder-plans').send({
+      stakeholderGroup: 'Regulators',
+      engagementPurpose: 'Regulatory engagement',
+      frequency: 'ANNUAL',
+      methods: ['MEETING'],
+      reportingYear: 2026,
+      responsibleTeam: 'Legal',
+    });
+    const [call] = (mockPrisma.esgStakeholderPlan.create as jest.Mock).mock.calls;
+    expect(call[0].data.stakeholderGroup).toBe('Regulators');
+  });
+
+  it('PUT /:id updates methods array field', async () => {
+    (mockPrisma.esgStakeholderPlan.findUnique as jest.Mock).mockResolvedValue(mockPlan);
+    (mockPrisma.esgStakeholderPlan.update as jest.Mock).mockResolvedValue({ ...mockPlan, methods: ['SURVEY'] });
+    const res = await request(app)
+      .put('/api/stakeholder-plans/00000000-0000-0000-0000-000000000001')
+      .send({ methods: ['SURVEY'] });
+    expect(res.status).toBe(200);
+    expect(res.body.data.methods).toEqual(['SURVEY']);
+  });
+
+  it('GET / findMany called once per request', async () => {
+    (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgStakeholderPlan.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/stakeholder-plans');
+    expect(mockPrisma.esgStakeholderPlan.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / returns 500 body with error.code INTERNAL_ERROR', async () => {
+    (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/stakeholder-plans');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 201 with success:true', async () => {
+    (mockPrisma.esgStakeholderPlan.create as jest.Mock).mockResolvedValue(mockPlan);
+    const res = await request(app).post('/api/stakeholder-plans').send({
+      stakeholderGroup: 'NGOs',
+      engagementPurpose: 'Community consultation',
+      frequency: 'AD_HOC',
+      methods: ['MEETING', 'SURVEY'],
+      reportingYear: 2026,
+      responsibleTeam: 'CSR Team',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

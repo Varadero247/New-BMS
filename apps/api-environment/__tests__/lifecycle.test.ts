@@ -656,3 +656,111 @@ describe('Environment Life Cycle Assessment API Routes', () => {
     });
   });
 });
+
+describe('Environment LCA — final coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/lifecycle', lifecycleRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /assessments response body has success:true', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/lifecycle/assessments')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /assessments excludes soft-deleted records (deletedAt: null in where)', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app2)
+      .get('/api/lifecycle/assessments')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.lifeCycleAssessment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      })
+    );
+  });
+
+  it('POST /assessments createdBy is set from authenticated user id', async () => {
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.lifeCycleAssessment.create as jest.Mock).mockResolvedValueOnce({
+      id: 'lca-new',
+      refNumber: 'LCA-2602-0001',
+      stages: [],
+    });
+
+    await request(app2)
+      .post('/api/lifecycle/assessments')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'New LCA', productProcess: 'Process X' });
+
+    expect(mockPrisma.lifeCycleAssessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          createdBy: '20000000-0000-4000-a000-000000000123',
+        }),
+      })
+    );
+  });
+
+  it('GET /assessments meta.total reflects count result', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(42);
+
+    const response = await request(app2)
+      .get('/api/lifecycle/assessments')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.total).toBe(42);
+  });
+
+  it('GET /assessments/:id returns refNumber field', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '40000000-0000-4000-a000-000000000001',
+      refNumber: 'LCA-2602-0007',
+      stages: [],
+    });
+
+    const response = await request(app2)
+      .get('/api/lifecycle/assessments/40000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.refNumber).toBe('LCA-2602-0007');
+  });
+
+  it('PUT /assessments/:id/stages/USE with severity=3 succeeds', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '40000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockResolvedValueOnce({
+      stageName: 'USE',
+      severity: 3,
+      aspects: 'Usage energy',
+    });
+
+    const response = await request(app2)
+      .put('/api/lifecycle/assessments/40000000-0000-4000-a000-000000000001/stages/USE')
+      .set('Authorization', 'Bearer token')
+      .send({ aspects: 'Usage energy', severity: 3 });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.severity).toBe(3);
+  });
+});

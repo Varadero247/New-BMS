@@ -410,3 +410,81 @@ describe('Stripe Webhooks — new edge cases', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('Stripe Webhooks — extra coverage', () => {
+  it('POST /api/webhooks/stripe responds with JSON body', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'invoice.paid', data: { object: { id: 'inv-json' } } });
+
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('handles customer.subscription.deleted for distinct orgIds independently', async () => {
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-org7' });
+
+    const res1 = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'customer.subscription.deleted', data: { object: { metadata: { orgId: 'org-7' } } } });
+
+    const res2 = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'customer.subscription.deleted', data: { object: { metadata: { orgId: 'org-8' } } } });
+
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+    expect(prisma.mktWinBackSequence.create).toHaveBeenCalledTimes(2);
+  });
+
+  it('handles invoice.payment_failed event without throwing even if metadata missing', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'invoice.payment_failed', data: { object: {} } });
+
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+
+  it('response body has received:true for invoice.paid', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'invoice.paid', data: { object: { id: 'inv-check' } } });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('received', true);
+  });
+
+  it('handles customer.subscription.updated with status past_due — no renewal update called', async () => {
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.updated',
+        data: { object: { metadata: { orgId: 'org-pastdue' }, status: 'past_due' } },
+      });
+
+    expect(res.status).toBe(200);
+    expect(prisma.mktRenewalSequence.update).not.toHaveBeenCalled();
+  });
+
+  it('handles type-only payload with no data field at all', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'checkout.session.completed' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+
+  it('handles a P2002 error from mktWinBackSequence without returning 500', async () => {
+    (prisma.mktWinBackSequence.create as jest.Mock).mockRejectedValue({ code: 'P2002' });
+
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'customer.subscription.deleted', data: { object: { metadata: { orgId: 'org-dup' } } } });
+
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+});

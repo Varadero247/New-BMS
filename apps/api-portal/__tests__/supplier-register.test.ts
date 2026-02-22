@@ -337,3 +337,55 @@ describe('Supplier Register — edge cases', () => {
     );
   });
 });
+
+describe('Supplier Register — final coverage', () => {
+  it('POST register: response body has success and data fields', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-final', email: 'final@co.com', status: 'PENDING' });
+    const res = await request(app).post('/api/supplier/register').send({ email: 'final@co.com', name: 'Final', company: 'FinalCo' });
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST register: returns 400 for empty email string', async () => {
+    const res = await request(app).post('/api/supplier/register').send({ email: '', name: 'Test', company: 'Co' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST register: create called with status PENDING', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-pending', email: 'pending@co.com', status: 'PENDING' });
+    await request(app).post('/api/supplier/register').send({ email: 'pending@co.com', name: 'Pending', company: 'PendingCo' });
+    expect(mockPrisma.portalUser.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'PENDING' }) })
+    );
+  });
+
+  it('GET /status: response body has success field', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: 'u-1', email: 'test@test.com', name: 'John', company: 'Acme', status: 'PENDING', role: 'SUPPLIER_USER', createdAt: new Date() });
+    const res = await request(app).get('/api/supplier/register/status');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('POST register: findFirst called once per register request', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-x', email: 'x@co.com', status: 'PENDING' });
+    await request(app).post('/api/supplier/register').send({ email: 'x@co.com', name: 'X', company: 'XCo' });
+    expect(mockPrisma.portalUser.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST register: create called once per successful register', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-y', email: 'y@co.com', status: 'PENDING' });
+    await request(app).post('/api/supplier/register').send({ email: 'y@co.com', name: 'Y', company: 'YCo' });
+    expect(mockPrisma.portalUser.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /status: findFirst searches by authenticated user id', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: 'user-123', email: 'test@test.com', name: 'Test', company: 'Co', status: 'ACTIVE', role: 'SUPPLIER_USER', createdAt: new Date() });
+    await request(app).get('/api/supplier/register/status');
+    expect(mockPrisma.portalUser.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: 'user-123' }) })
+    );
+  });
+});

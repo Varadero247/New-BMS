@@ -490,3 +490,116 @@ describe('Energy Reports — further extended', () => {
     expect(res.body.data.intensityMetrics).toHaveLength(0);
   });
 });
+
+describe('Energy Reports — final coverage', () => {
+  it('GET /reports/dashboard returns yearlyConsumption from second aggregate call', async () => {
+    (prisma.energyReading.aggregate as jest.Mock)
+      .mockResolvedValueOnce({ _sum: { value: 1000, cost: 200 } })
+      .mockResolvedValueOnce({ _sum: { value: 12000, cost: 2400 } });
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(3);
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(2);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/reports/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.yearlyConsumption).toBe(12000);
+    expect(res.body.data.yearlyCost).toBe(2400);
+  });
+
+  it('GET /reports/consumption groupBy=type (default) creates breakdown by meter type', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([
+      { value: 4000, cost: 800, meter: { type: 'ELECTRICITY', facility: 'HQ', unit: 'kWh', name: 'M1' } },
+      { value: 4000, cost: 800, meter: { type: 'ELECTRICITY', facility: 'Site B', unit: 'kWh', name: 'M2' } },
+    ]);
+
+    const res = await request(app).get('/api/reports/consumption?groupBy=type');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalConsumption).toBe(8000);
+    expect(res.body.data.breakdown).toHaveLength(1); // only ELECTRICITY type
+  });
+
+  it('GET /reports/esos qualifyingAudits counts all returned audits', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([
+      { id: '1', type: 'EXTERNAL', title: 'Audit 1' },
+      { id: '2', type: 'INTERNAL', title: 'Audit 2' },
+      { id: '3', type: 'EXTERNAL', title: 'Audit 3' },
+    ]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/reports/esos');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.qualifyingAudits).toBe(3);
+  });
+
+  it('GET /reports/secr reportYear is a number', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { cost: null, consumption: null },
+    });
+    (prisma.energyEnpi.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/reports/secr?year=2026');
+
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.reportYear).toBe('number');
+    expect(res.body.data.reportYear).toBe(2026);
+  });
+
+  it('GET /reports/consumption success is true on 200', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/reports/consumption');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /reports/dashboard totalTargets equals length of findMany result', async () => {
+    (prisma.energyReading.aggregate as jest.Mock)
+      .mockResolvedValueOnce({ _sum: { value: 0, cost: 0 } })
+      .mockResolvedValueOnce({ _sum: { value: 0, cost: 0 } });
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(1);
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([
+      { status: 'ON_TRACK' },
+      { status: 'ON_TRACK' },
+      { status: 'OFF_TRACK' },
+      { status: 'ACHIEVED' },
+    ]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/reports/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalTargets).toBe(4);
+  });
+
+  it('GET /reports/esos savingsOpportunities contains title field', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([
+      {
+        title: 'HVAC Upgrade',
+        type: 'EFFICIENCY',
+        estimatedSavings: 8000,
+        investmentCost: 15000,
+        paybackMonths: 22,
+        status: 'PROPOSED',
+      },
+    ]);
+
+    const res = await request(app).get('/api/reports/esos');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.savingsOpportunities[0].title).toBe('HVAC Upgrade');
+  });
+});

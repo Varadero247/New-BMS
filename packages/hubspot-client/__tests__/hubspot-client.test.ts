@@ -293,3 +293,70 @@ describe('HubSpotClient — further edge cases', () => {
     expect(mockFetch.mock.calls[0][1].headers['Content-Type']).toBe('application/json');
   });
 });
+
+describe('HubSpotClient — comprehensive edge cases', () => {
+  it('createContact with multiple properties wraps all in properties key', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ id: 'c-multi' }));
+    await client.createContact({ email: 'a@b.com', firstname: 'Alice', lastname: 'Smith', phone: '555-1234' });
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.properties.email).toBe('a@b.com');
+    expect(body.properties.firstname).toBe('Alice');
+    expect(body.properties.lastname).toBe('Smith');
+    expect(body.properties.phone).toBe('555-1234');
+  });
+
+  it('updateDeal sends correct dealId in URL', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ id: 'deal-url-check' }));
+    await client.updateDeal('deal-abc-999', { dealstage: 'new' });
+    expect(mockFetch.mock.calls[0][0]).toContain('deal-abc-999');
+  });
+
+  it('getDeals sends GET method (no body)', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ results: [] }));
+    await client.getDeals();
+    const opts = mockFetch.mock.calls[0][1];
+    expect(opts.method).toBeUndefined();
+  });
+
+  it('getDealsByStage uses GET (no method set)', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ results: [] }));
+    await client.getDealsByStage('pipe-x');
+    const opts = mockFetch.mock.calls[0][1];
+    expect(opts.method).toBeUndefined();
+  });
+
+  it('createDeal includes Authorization header', async () => {
+    const client = new HubSpotClient('my-deal-key');
+    mockFetch.mockReturnValueOnce(ok({ id: 'd-auth' }));
+    await client.createDeal({ dealname: 'Verified' });
+    expect(mockFetch.mock.calls[0][1].headers.Authorization).toBe('Bearer my-deal-key');
+  });
+
+  it('no-key client returns null for all methods without calling fetch', async () => {
+    const client = new HubSpotClient();
+    const results = await Promise.all([
+      client.createDeal({ dealname: 'x' }),
+      client.updateDeal('d1', { dealstage: 'y' }),
+      client.createTask({ hs_task_subject: 'z', hs_task_status: 'NOT_STARTED' }),
+      client.getDeals(),
+      client.getDealsByStage('pipe'),
+    ]);
+    expect(results.every((r) => r === null)).toBe(true);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('updateContact sends PATCH with correct contact id and properties', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ id: 'c-patch' }));
+    await client.updateContact('contact-777', { email: 'updated@test.com' });
+    const [url, opts] = mockFetch.mock.calls[0];
+    expect(url).toContain('contact-777');
+    expect(opts.method).toBe('PATCH');
+    const body = JSON.parse(opts.body);
+    expect(body.properties.email).toBe('updated@test.com');
+  });
+});

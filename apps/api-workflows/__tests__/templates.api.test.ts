@@ -467,3 +467,87 @@ describe('Workflows Templates API — additional coverage', () => {
     expect([404, 500]).toContain(response.status);
   });
 });
+
+// ── Workflow Templates — further coverage ─────────────────────────────────────
+
+describe('Workflow Templates API — further coverage', () => {
+  let appFurther: express.Express;
+
+  beforeAll(() => {
+    appFurther = express();
+    appFurther.use(express.json());
+    appFurther.use('/api/templates', templatesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST /api/templates sets isActive true by default', async () => {
+    (mockPrisma.workflowTemplate.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000999',
+      code: 'T',
+      name: 'T',
+      category: 'APPROVAL',
+      isActive: true,
+    });
+    const res = await request(appFurther).post('/api/templates').send({
+      code: 'T',
+      name: 'T',
+      category: 'APPROVAL',
+      definitionTemplate: {},
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.isActive).toBe(true);
+  });
+
+  it('GET /api/templates/:id returns 404 for unknown template', async () => {
+    (mockPrisma.workflowTemplate.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(appFurther).get(
+      '/api/templates/00000000-0000-4000-a000-ffffffffffff'
+    );
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/templates with isActive=false filters correctly', async () => {
+    (mockPrisma.workflowTemplate.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(appFurther).get('/api/templates?isActive=false');
+    expect(mockPrisma.workflowTemplate.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ isActive: false }),
+      })
+    );
+  });
+
+  it('PUT /api/templates/:id/publish returns success:true', async () => {
+    (mockPrisma.workflowTemplate.update as jest.Mock).mockResolvedValueOnce({
+      id: '41000000-0000-4000-a000-000000000001',
+      isActive: true,
+    });
+    const res = await request(appFurther).put(
+      '/api/templates/41000000-0000-4000-a000-000000000001/publish'
+    );
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/templates/categories/list response is success:true with data', async () => {
+    (mockPrisma.workflowTemplate.groupBy as jest.Mock).mockResolvedValueOnce([
+      { category: 'ONBOARDING', _count: 3 },
+    ]);
+    const res = await request(appFurther).get('/api/templates/categories/list');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.length).toBeGreaterThan(0);
+  });
+
+  it('PUT /api/templates/:id allows updating name to a new value', async () => {
+    (mockPrisma.workflowTemplate.update as jest.Mock).mockResolvedValueOnce({
+      id: '41000000-0000-4000-a000-000000000001',
+      name: 'Renamed Template',
+    });
+    const res = await request(appFurther)
+      .put('/api/templates/41000000-0000-4000-a000-000000000001')
+      .send({ name: 'Renamed Template' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Renamed Template');
+  });
+});

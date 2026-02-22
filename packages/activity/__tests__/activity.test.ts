@@ -508,3 +508,98 @@ describe('activityLogger middleware', () => {
     expect(entries[0].orgId).toBe('org-via-orgId');
   });
 });
+
+// ── Additional edge cases ─────────────────────────────────────────────────────
+
+describe('@ims/activity — additional edge cases', () => {
+  beforeEach(() => {
+    clearAllActivity();
+  });
+
+  it('logActivity stores the recordType on the entry', async () => {
+    await logActivity({
+      orgId: 'org-1',
+      recordType: 'incident',
+      recordId: 'inc-42',
+      userId: 'u1',
+      userName: 'Alice',
+      action: 'created',
+    });
+    const { entries } = await getActivity('incident', 'inc-42');
+    expect(entries[0].recordType).toBe('incident');
+  });
+
+  it('logActivity stores the recordId on the entry', async () => {
+    await logActivity({
+      orgId: 'org-1',
+      recordType: 'aspect',
+      recordId: 'asp-99',
+      userId: 'u1',
+      userName: 'Bob',
+      action: 'updated',
+    });
+    const { entries } = await getActivity('aspect', 'asp-99');
+    expect(entries[0].recordId).toBe('asp-99');
+  });
+
+  it('getActivity offset beyond total returns empty list', async () => {
+    await logActivity({
+      orgId: 'org-1', recordType: 'risk', recordId: 'r-offset',
+      userId: 'u1', userName: 'Alice', action: 'created',
+    });
+    const { entries } = await getActivity('risk', 'r-offset', { limit: 10, offset: 100 });
+    expect(entries).toHaveLength(0);
+  });
+
+  it('getRecentActivity limit defaults sensibly (returns all when few entries)', async () => {
+    await logActivity({
+      orgId: 'org-limit', recordType: 'risk', recordId: 'r1',
+      userId: 'u1', userName: 'Alice', action: 'created',
+    });
+    const recent = await getRecentActivity('org-limit');
+    expect(recent.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('each logged entry has a createdAt date', async () => {
+    await logActivity({
+      orgId: 'org-date', recordType: 'risk', recordId: 'r-date',
+      userId: 'u1', userName: 'Alice', action: 'created',
+    });
+    const { entries } = await getActivity('risk', 'r-date');
+    expect(entries[0].createdAt).toBeInstanceOf(Date);
+  });
+
+  it('logActivity with undefined field does not throw', async () => {
+    await expect(
+      logActivity({
+        orgId: 'org-1',
+        recordType: 'risk',
+        recordId: 'r-nofield',
+        userId: 'u1',
+        userName: 'Alice',
+        action: 'updated',
+        field: undefined,
+      })
+    ).resolves.toBeUndefined();
+  });
+
+  it('activityLogger — logs "created" action for POST 201 with body.data.id', async () => {
+    const middleware = activityLogger('risk');
+    const mockReq: MockReq = {
+      method: 'POST',
+      params: {},
+      path: '/api/risks',
+      user: { id: 'user-1', name: 'Alice', organisationId: 'org-1' },
+    };
+    const mockRes = { statusCode: 201, json: jest.fn() as jest.Mock };
+    const mockNext: NextFunction = jest.fn();
+
+    middleware(mockReq as unknown as Request, mockRes as unknown as Response, mockNext);
+    mockRes.json({ success: true, data: { id: 'risk-from-body-data' } });
+    await new Promise((r) => setImmediate(r));
+
+    const { entries } = await getActivity('risk', 'risk-from-body-data');
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries[0].action).toBe('created');
+  });
+});

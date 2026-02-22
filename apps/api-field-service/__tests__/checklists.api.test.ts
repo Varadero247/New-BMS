@@ -399,3 +399,80 @@ describe('Additional checklists coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('checklists — additional coverage 2', () => {
+  it('GET / response has success:true with data array', async () => {
+    mockPrisma.fsSvcChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/checklists');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 when find rejects', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id/results returns empty array when no results', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcChecklistResult.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001/results');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('PUT /:id updates isActive to false', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcChecklist.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', isActive: false });
+    const res = await request(app)
+      .put('/api/checklists/00000000-0000-0000-0000-000000000001')
+      .send({ isActive: false });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / creates checklist with description field', async () => {
+    mockPrisma.fsSvcChecklist.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      name: 'Electrical Safety',
+      category: 'electrical',
+      description: 'Check all electrical panels',
+      items: [],
+    });
+    const res = await request(app).post('/api/checklists').send({
+      name: 'Electrical Safety',
+      category: 'electrical',
+      description: 'Check all electrical panels',
+      items: [],
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.name).toBe('Electrical Safety');
+  });
+
+  it('POST /:id/results with FAIL overallResult creates successfully', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcChecklistResult.create.mockResolvedValue({ id: 'cr-fail', overallResult: 'FAIL' });
+    const res = await request(app)
+      .post('/api/checklists/00000000-0000-0000-0000-000000000001/results')
+      .send({
+        jobId: '00000000-0000-0000-0000-000000000001',
+        completedAt: '2026-03-01T09:00:00Z',
+        results: [{ item: 'Fire ext', pass: false }],
+        overallResult: 'FAIL',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / findMany called with correct where for category filter', async () => {
+    mockPrisma.fsSvcChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcChecklist.count.mockResolvedValue(0);
+    await request(app).get('/api/checklists?category=electrical');
+    expect(mockPrisma.fsSvcChecklist.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'electrical' }) })
+    );
+  });
+});

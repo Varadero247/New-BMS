@@ -350,3 +350,66 @@ describe('TNA — extended edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('tna.api — final coverage expansion', () => {
+  it('GET /api/tna response content-type contains json', async () => {
+    mockPrisma.trainTNA.findMany.mockResolvedValue([]);
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/tna');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/tna pagination totalPages computed correctly', async () => {
+    mockPrisma.trainTNA.findMany.mockResolvedValue([]);
+    mockPrisma.trainTNA.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/tna?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /api/tna/:id returns NOT_FOUND on null', async () => {
+    mockPrisma.trainTNA.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/tna/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/tna with CRITICAL priority succeeds', async () => {
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    mockPrisma.trainTNA.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Critical TNA',
+      priority: 'CRITICAL',
+      referenceNumber: 'TNA-2026-0001',
+    });
+    const res = await request(app).post('/api/tna').send({
+      title: 'Critical TNA',
+      priority: 'CRITICAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/tna/:id returns success message containing deleted', async () => {
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainTNA.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/tna/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted');
+  });
+
+  it('GET /api/tna data is array type', async () => {
+    mockPrisma.trainTNA.findMany.mockResolvedValue([]);
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/tna');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/tna count is called exactly once per list request', async () => {
+    mockPrisma.trainTNA.findMany.mockResolvedValue([]);
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    await request(app).get('/api/tna');
+    expect(mockPrisma.trainTNA.count).toHaveBeenCalledTimes(1);
+  });
+});

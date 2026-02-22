@@ -392,3 +392,73 @@ describe('customers.api — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('customers.api — additional coverage 2', () => {
+  it('GET / response has success:true with pagination object', async () => {
+    mockPrisma.fsSvcCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcCustomer.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customers');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET /:id returns name and code in data', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Acme',
+      code: 'CUST-1001',
+      sites: [],
+      contracts: [],
+    });
+    const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('name', 'Acme');
+    expect(res.body.data).toHaveProperty('code', 'CUST-1001');
+  });
+
+  it('DELETE /:id calls update with deletedAt', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005' });
+    mockPrisma.fsSvcCustomer.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005', deletedAt: new Date() });
+    await request(app).delete('/api/customers/00000000-0000-0000-0000-000000000005');
+    const [call] = mockPrisma.fsSvcCustomer.update.mock.calls;
+    expect(call[0].data).toHaveProperty('deletedAt');
+  });
+
+  it('GET /:id/sites returns multiple sites', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([
+      { id: 'site-1', name: 'HQ' },
+      { id: 'site-2', name: 'Branch' },
+    ]);
+    const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001/sites');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / generated customer code starts with CUST-', async () => {
+    mockPrisma.fsSvcCustomer.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      name: 'Delta Corp',
+      code: 'CUST-9999',
+      address: { city: 'Berlin' },
+    });
+    const res = await request(app).post('/api/customers').send({ name: 'Delta Corp', address: { city: 'Berlin' } });
+    expect(res.status).toBe(201);
+    expect(res.body.data.code).toMatch(/^CUST-/);
+  });
+
+  it('GET /:id/jobs returns 500 on DB error for jobs query', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcJob.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001/jobs');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id returns 500 when findFirst rejects', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/customers/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

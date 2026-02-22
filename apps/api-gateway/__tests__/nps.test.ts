@@ -340,3 +340,53 @@ describe('NPS Routes — edge cases and 500 paths', () => {
     expect(res.status).toBe(201);
   });
 });
+
+describe('NPS Routes — final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/nps', npsRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1', organisationId: 'org-1' };
+      next();
+    });
+    mockSubmitResponse.mockReturnValue({ id: 'nps-1', userId: 'user-1', orgId: 'org-1', score: 9, category: 'promoter', createdAt: new Date().toISOString() });
+    mockGetAnalytics.mockReturnValue({ npsScore: 42, total: 10, promoters: 6, passives: 2, detractors: 2, promoterPct: 60, detractorPct: 20 });
+    mockListResponses.mockReturnValue({ responses: [], total: 0 });
+  });
+
+  it('POST /api/nps response body has success: true', async () => {
+    const res = await request(app).post('/api/nps').send({ score: 9 });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/nps/analytics calls getAnalytics once', async () => {
+    await request(app).get('/api/nps/analytics');
+    expect(mockGetAnalytics).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/nps/analytics detractorPct is a number', async () => {
+    const res = await request(app).get('/api/nps/analytics');
+    expect(typeof res.body.data.detractorPct).toBe('number');
+  });
+
+  it('GET /api/nps/responses meta.total field is present', async () => {
+    mockListResponses.mockReturnValueOnce({ responses: [], total: 3 });
+    const res = await request(app).get('/api/nps/responses');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total');
+  });
+
+  it('POST /api/nps calls submitResponse once per request', async () => {
+    await request(app).post('/api/nps').send({ score: 8 });
+    expect(mockSubmitResponse).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/nps/analytics response has promoterPct field', async () => {
+    const res = await request(app).get('/api/nps/analytics');
+    expect(res.body.data).toHaveProperty('promoterPct');
+  });
+});

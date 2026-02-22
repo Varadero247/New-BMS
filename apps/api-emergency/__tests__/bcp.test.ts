@@ -432,3 +432,78 @@ describe('BCP Routes — extended coverage', () => {
     expect(res.body.pagination).toHaveProperty('total', 1);
   });
 });
+
+describe('BCP Routes — additional field and response coverage', () => {
+  it('GET / response content-type is application/json', async () => {
+    mockBcp.findMany.mockResolvedValue([]);
+    mockBcp.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/bcp');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST / calls create with title in data', async () => {
+    mockBcp.count.mockResolvedValue(0);
+    mockBcp.create.mockResolvedValue(fakeBcp);
+    await request(app).post('/api/bcp').send(validCreateBody);
+    expect(mockBcp.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ title: 'Main Business Continuity Plan' }) }),
+    );
+  });
+
+  it('PUT /:id calls update with correct id in where clause', async () => {
+    mockBcp.findFirst.mockResolvedValue(fakeBcp);
+    mockBcp.update.mockResolvedValue({ ...fakeBcp, title: 'Updated' });
+    await request(app).put(`/api/bcp/${BCP_ID}`).send({ title: 'Updated' });
+    expect(mockBcp.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: BCP_ID } }),
+    );
+  });
+
+  it('GET /due-review calls findMany with reviewDate lt filter', async () => {
+    mockBcp.findMany.mockResolvedValue([]);
+    await request(app).get('/api/bcp/due-review');
+    expect(mockBcp.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ reviewDate: expect.objectContaining({ lt: expect.any(Date) }) }),
+      }),
+    );
+  });
+
+  it('POST /:id/exercise calls create with bcpId in data', async () => {
+    mockBcp.findFirst.mockResolvedValue(fakeBcp);
+    mockExercise.create.mockResolvedValue({
+      id: EXERCISE_ID,
+      bcpId: BCP_ID,
+      exerciseType: 'TABLETOP',
+      title: 'Test',
+      scheduledDate: '2026-09-01',
+    });
+    await request(app).post(`/api/bcp/${BCP_ID}/exercise`).send({
+      exerciseType: 'TABLETOP',
+      title: 'Test',
+      scheduledDate: '2026-09-01',
+    });
+    expect(mockExercise.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ bcpId: BCP_ID }) }),
+    );
+  });
+
+  it('GET / data array items have planReference field', async () => {
+    mockBcp.findMany.mockResolvedValue([fakeBcp]);
+    mockBcp.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/bcp');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('planReference');
+  });
+
+  it('POST / with APPROVED status field in body creates BCP and returns 201', async () => {
+    mockBcp.count.mockResolvedValue(0);
+    mockBcp.create.mockResolvedValue({ ...fakeBcp, status: 'APPROVED' });
+    const res = await request(app).post('/api/bcp').send({
+      ...validCreateBody,
+      status: 'APPROVED',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

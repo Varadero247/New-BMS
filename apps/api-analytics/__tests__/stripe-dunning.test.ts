@@ -334,3 +334,61 @@ describe('stripe-dunning — edge cases and field validation', () => {
     expect(createCall.data.amountDue).toBe(0);
   });
 });
+
+describe('Stripe Dunning — final coverage', () => {
+  it('POST success response body is an object', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'fin-dun-1', currentStep: 'DAY_0' } as any);
+    const res = await request(app)
+      .post('/api/webhooks/stripe-dunning')
+      .send(validPaymentFailedEvent);
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('POST returns JSON content-type', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'fin-dun-2' } as any);
+    const res = await request(app)
+      .post('/api/webhooks/stripe-dunning')
+      .send(validPaymentFailedEvent);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('findFirst called with stripeInvoiceId on payment_failed', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'fin-dun-3' } as any);
+    await request(app)
+      .post('/api/webhooks/stripe-dunning')
+      .send(validPaymentFailedEvent);
+    expect(mockPrisma.dunningSequence.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ stripeInvoiceId: 'in_001' }) })
+    );
+  });
+
+  it('GET /active success is true', async () => {
+    mockPrisma.dunningSequence.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/webhooks/stripe-dunning/active');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST missing type returns 400 with VALIDATION_ERROR', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe-dunning')
+      .send({ id: 'evt_noType', data: { object: {} } });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('create called exactly once on new valid payment_failed event', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'fin-dun-5' } as any);
+    await request(app).post('/api/webhooks/stripe-dunning').send(validPaymentFailedEvent);
+    expect(mockPrisma.dunningSequence.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /active total equals sequences array length', async () => {
+    mockPrisma.dunningSequence.findMany.mockResolvedValue([{ id: 'x' }, { id: 'y' }] as any);
+    const res = await request(app).get('/api/webhooks/stripe-dunning/active');
+    expect(res.body.data.total).toBe(res.body.data.sequences.length);
+  });
+});

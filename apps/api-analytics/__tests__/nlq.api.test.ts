@@ -359,3 +359,43 @@ describe('NLQ API — edge cases and extended validation', () => {
     expect(res.body.data.results.totalCount).toBe(0);
   });
 });
+
+describe('NLQ API — final coverage', () => {
+  it('POST /api/nlq/query returns success true for a valid recognised query', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: 'show overdue actions' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/nlq/query response body has data key', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: 'show me all open CAPAs' });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/nlq/examples success is true', async () => {
+    const res = await request(app).get('/api/nlq/examples');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/nlq/examples response is JSON', async () => {
+    const res = await request(app).get('/api/nlq/examples');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/nlq/history success is true', async () => {
+    const res = await request(app).get('/api/nlq/history');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/nlq/query query.interpretation is a string when recognised', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: 'show me all open CAPAs' });
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.query.interpretation).toBe('string');
+  });
+
+  it('GET /api/nlq/history returns an array', async () => {
+    const res = await request(app).get('/api/nlq/history');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

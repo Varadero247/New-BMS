@@ -415,3 +415,80 @@ describe('Contracts — extended coverage', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('Contracts — final coverage', () => {
+  it('GET /api/contracts response body has success:true', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/contracts count is called once per list request', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/contracts');
+    expect(prisma.contract.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/contracts create is called once on valid input', async () => {
+    (prisma.contract.create as jest.Mock).mockResolvedValue({
+      id: 'c-once',
+      name: 'Once',
+      vendor: 'V',
+      category: 'SOFTWARE',
+      startDate: new Date('2026-01-01'),
+      endDate: new Date('2027-01-01'),
+      annualCost: 100,
+      status: 'ACTIVE',
+    });
+    await request(app).post('/api/contracts').send({
+      name: 'Once',
+      vendor: 'V',
+      category: 'SOFTWARE',
+      startDate: '2026-01-01',
+      endDate: '2027-01-01',
+      annualCost: 100,
+    });
+    expect(prisma.contract.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/contracts/:id returns data.contract.id on success', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Final',
+      vendor: 'V',
+      status: 'ACTIVE',
+      deletedAt: null,
+    });
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.contract.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('DELETE /api/contracts/:id calls delete with correct id', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.contract.delete as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(prisma.contract.delete).toHaveBeenCalledWith({
+      where: { id: '00000000-0000-0000-0000-000000000001' },
+    });
+  });
+
+  it('PATCH /api/contracts/:id calls update with correct id', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (prisma.contract.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'EXPIRED',
+    });
+    await request(app)
+      .patch('/api/contracts/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'EXPIRED' });
+    expect(prisma.contract.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});

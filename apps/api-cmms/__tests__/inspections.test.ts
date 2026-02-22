@@ -346,3 +346,73 @@ describe('inspections — edge cases and field validation', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('inspections — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /inspections?status=COMPLETED filters findMany by status', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([]);
+    prisma.cmmsInspection.count.mockResolvedValue(0);
+    await request(app).get('/api/inspections?status=COMPLETED');
+    expect(prisma.cmmsInspection.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'COMPLETED' }) })
+    );
+  });
+
+  it('GET /inspections pagination returns correct totalPages', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([]);
+    prisma.cmmsInspection.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/inspections?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /inspections/overdue returns data array with matching records', async () => {
+    const overdue = { ...mockInspection, scheduledDate: new Date('2025-01-01') };
+    prisma.cmmsInspection.findMany.mockResolvedValue([overdue]);
+    const res = await request(app).get('/api/inspections/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('PUT /inspections/:id returns 404 with NOT_FOUND code when not found', async () => {
+    prisma.cmmsInspection.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/inspections/00000000-0000-0000-0000-000000000088')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE /inspections/:id calls soft delete via update with deletedAt', async () => {
+    prisma.cmmsInspection.findFirst.mockResolvedValue(mockInspection);
+    prisma.cmmsInspection.update.mockResolvedValue({ ...mockInspection, deletedAt: new Date() });
+    const res = await request(app).delete(
+      '/api/inspections/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(prisma.cmmsInspection.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /inspections returns 500 with INTERNAL_ERROR when count rejects', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([]);
+    prisma.cmmsInspection.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/inspections');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /inspections returns success:true and has data array', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([mockInspection]);
+    prisma.cmmsInspection.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/inspections');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

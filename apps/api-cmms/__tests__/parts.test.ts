@@ -356,3 +356,63 @@ describe('Parts Routes — extended coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Parts Routes — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST / sets createdBy from authenticated user', async () => {
+    prisma.cmmsPart.create.mockResolvedValue(mockPart);
+    await request(app).post('/api/parts').send({ name: 'Seal Kit', partNumber: 'SK-001' });
+    expect(prisma.cmmsPart.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('GET /parts?search passes OR clause to Prisma findMany', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([]);
+    prisma.cmmsPart.count.mockResolvedValue(0);
+    await request(app).get('/api/parts?search=seal');
+    expect(prisma.cmmsPart.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
+    );
+  });
+
+  it('GET /parts?category filters findMany with category in where clause', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([]);
+    prisma.cmmsPart.count.mockResolvedValue(0);
+    await request(app).get('/api/parts?category=Bearings');
+    expect(prisma.cmmsPart.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: expect.anything() }) })
+    );
+  });
+
+  it('GET /low-stock returns 500 on DB error', async () => {
+    prisma.cmmsPart.findMany.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/parts/low-stock');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/usage records usage and decrements stock via update', async () => {
+    prisma.cmmsPart.findFirst.mockResolvedValue({ ...mockPart, quantity: 50 });
+    prisma.cmmsPartUsage.create.mockResolvedValue({ id: 'usage-x', quantity: 3, totalCost: 76.5 });
+    prisma.cmmsPart.update.mockResolvedValue({ ...mockPart, quantity: 47 });
+    const res = await request(app)
+      .post('/api/parts/00000000-0000-0000-0000-000000000001/usage')
+      .send({ workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', quantity: 3 });
+    expect(res.status).toBe(201);
+    expect(prisma.cmmsPartUsage.create).toHaveBeenCalled();
+    expect(prisma.cmmsPart.update).toHaveBeenCalled();
+  });
+
+  it('GET / returns success:true and data is an array', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([mockPart]);
+    prisma.cmmsPart.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/parts');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

@@ -305,6 +305,60 @@ describe('adjustments.api — additional coverage', () => {
   });
 });
 
+describe('Adjustments — final boundary tests', () => {
+  const finalApp = express();
+  finalApp.use(express.json());
+  finalApp.use('/api/adjustments', router);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/adjustments data items have transactionType field', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([mockTransaction]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(finalApp).get('/api/adjustments');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('transactionType');
+  });
+
+  it('GET /api/adjustments meta has limit field', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(finalApp).get('/api/adjustments');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('limit');
+  });
+
+  it('POST /api/adjustments RECOUNT type is accepted', async () => {
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({ id: 'inv-1', quantityOnHand: 20 });
+    (mockPrisma.$transaction as jest.Mock).mockResolvedValue([mockTransaction]);
+    const res = await request(finalApp).post('/api/adjustments').send({
+      productId: PRODUCT_ID,
+      warehouseId: WAREHOUSE_ID,
+      adjustmentType: 'RECOUNT',
+      quantity: 3,
+      reason: 'Physical count',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/adjustments/:id 404 error code is NOT_FOUND', async () => {
+    (mockPrisma.inventoryTransaction.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(finalApp).get(`/api/adjustments/${ADJ_ID}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/adjustments 500 has success false', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockRejectedValue(new Error('timeout'));
+    const res = await request(finalApp).get('/api/adjustments');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
 describe('Adjustments — edge cases and deeper coverage', () => {
   const outerApp = express();
   outerApp.use(express.json());

@@ -483,3 +483,82 @@ describe('CRM Reports — extended coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('CRM Reports — additional response shape and metric coverage', () => {
+  it('GET /sales-dashboard response body is a plain object with data', async () => {
+    mockPrisma.crmDeal.count
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(2);
+    mockPrisma.crmDeal.aggregate
+      .mockResolvedValueOnce({ _sum: { value: 500000 } })
+      .mockResolvedValueOnce({ _sum: { value: 200000 } });
+    const res = await request(app).get('/api/reports/sales-dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body).toBe('object');
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('GET /pipeline-velocity returns avgDealAge as a number', async () => {
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    mockPrisma.crmDeal.findMany.mockResolvedValue([{ createdAt: threeDaysAgo, stageId: 's-1' }]);
+    const res = await request(app).get('/api/reports/pipeline-velocity');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.avgDealAge).toBe('number');
+  });
+
+  it('GET /win-loss byAssignee groups correctly when multiple assignees', async () => {
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
+      { status: 'WON', source: 'INBOUND', assignedTo: 'rep-1' },
+      { status: 'LOST', source: 'OUTBOUND', assignedTo: 'rep-2' },
+      { status: 'WON', source: 'REFERRAL', assignedTo: 'rep-1' },
+    ]);
+    const res = await request(app).get('/api/reports/win-loss');
+    expect(res.status).toBe(200);
+    // byAssignee items use 'assignee' key (not 'assignedTo')
+    const reps = res.body.data.byAssignee.map((r: any) => r.assignee);
+    expect(reps).toContain('rep-1');
+    expect(reps).toContain('rep-2');
+  });
+
+  it('GET /forecast totalWeightedForecast is a number', async () => {
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
+      { value: 8000, probability: 25, expectedCloseDate: new Date('2026-05-01') },
+    ]);
+    const res = await request(app).get('/api/reports/forecast');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalWeightedForecast).toBe('number');
+  });
+
+  it('GET /partner-performance topPartners is an array', async () => {
+    mockPrisma.crmPartner.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/partner-performance');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.topPartners)).toBe(true);
+  });
+
+  it('GET /customer-health healthBreakdown is an array', async () => {
+    mockPrisma.crmAccount.findMany.mockResolvedValue([
+      {
+        id: 'a-1',
+        name: 'Corp',
+        lifetimeRevenue: 5000,
+        openComplaintCount: 0,
+        openNCRCount: 0,
+        lastInvoiceDate: new Date(),
+      },
+    ]);
+    const res = await request(app).get('/api/reports/customer-health');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.healthBreakdown)).toBe(true);
+  });
+
+  it('GET /sales-dashboard conversionRate is 0 when totalDeals is 0', async () => {
+    mockPrisma.crmDeal.count.mockResolvedValue(0);
+    mockPrisma.crmDeal.aggregate.mockResolvedValue({ _sum: { value: null } });
+    const res = await request(app).get('/api/reports/sales-dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.conversionRate).toBe(0);
+  });
+});

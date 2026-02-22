@@ -316,3 +316,90 @@ describe('customer-nps — edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('customer-nps — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST: create called with reportType=INSPECTION', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: 'nps-final',
+      reportType: 'INSPECTION',
+      description: 'NPS Score: 8',
+    });
+
+    await request(app).post('/api/customer/nps').send({ score: 8 });
+
+    expect(mockPrisma.portalQualityReport.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ reportType: 'INSPECTION' }),
+      })
+    );
+  });
+
+  it('GET list: response has pagination object', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/nps');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('POST: create called with status=CLOSED for any valid score', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: 'nps-closed',
+      reportType: 'INSPECTION',
+      status: 'CLOSED',
+    });
+
+    await request(app).post('/api/customer/nps').send({ score: 6 });
+
+    expect(mockPrisma.portalQualityReport.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'CLOSED' }),
+      })
+    );
+  });
+
+  it('GET list: page defaults to 1 when not provided', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/nps');
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET list: limit defaults to a sensible value when not provided', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customer/nps');
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('GET list: data length matches mock return length', async () => {
+    const mockItems = [
+      { id: 'n-1', reportType: 'INSPECTION', description: 'NPS Score: 9' },
+      { id: 'n-2', reportType: 'INSPECTION', description: 'NPS Score: 7' },
+    ];
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue(mockItems);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/customer/nps');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST: score=5 (passive midpoint) is accepted', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: 'nps-5',
+      reportType: 'INSPECTION',
+      description: 'NPS Score: 5',
+    });
+
+    const res = await request(app).post('/api/customer/nps').send({ score: 5 });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

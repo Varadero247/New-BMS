@@ -381,3 +381,70 @@ describe('Agenda — validation and serialisation', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Agenda — final coverage', () => {
+  const reviewId = '00000000-0000-0000-0000-000000000001';
+  const mockReview = { id: reviewId, title: 'Final Coverage Review', deletedAt: null };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('response body has both data and success fields on 200', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('findFirst query uses orgId from auth user', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    await request(app).post(`/api/agenda/${reviewId}/generate`);
+    const findCall = (prisma.mgmtReview.findFirst as jest.Mock).mock.calls[0][0];
+    expect(findCall.where.orgId).toBe('org-1');
+  });
+
+  it('error message is Failed to generate resource on 500 from findFirst', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockRejectedValue(new Error('db error'));
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBe('Failed to generate resource');
+  });
+
+  it('data.items are all strings', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    for (const item of res.body.data.items) {
+      expect(typeof item).toBe('string');
+    }
+  });
+
+  it('generatedAt is an ISO date string', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(new Date(res.body.data.generatedAt).toString()).not.toBe('Invalid Date');
+  });
+
+  it('update is NOT called when review is not found', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(null);
+    await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(prisma.mgmtReview.update).not.toHaveBeenCalled();
+  });
+
+  it('customItems of empty array yields exactly 14 items', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app)
+      .post(`/api/agenda/${reviewId}/generate`)
+      .send({ customItems: [] });
+    expect(res.status).toBe(200);
+    expect(res.body.data.items).toHaveLength(14);
+  });
+});

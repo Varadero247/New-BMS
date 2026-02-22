@@ -342,3 +342,57 @@ describe('audits — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('audits — final coverage', () => {
+  it('GET / with no filters returns all non-deleted audits', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([mockAudit]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(1);
+    await request(app).get('/api/audits');
+    expect(prisma.esgAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('GET / returns JSON content-type header', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/audits');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / creates audit with EXTERNAL type successfully', async () => {
+    (prisma.esgAudit.create as jest.Mock).mockResolvedValue({ ...mockAudit, auditType: 'EXTERNAL' });
+    const res = await request(app).post('/api/audits').send({
+      title: 'External ESG Audit',
+      auditType: 'EXTERNAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET / returns success:true in response body', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([mockAudit]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/audits');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT / update changes auditor field successfully', async () => {
+    (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(mockAudit);
+    (prisma.esgAudit.update as jest.Mock).mockResolvedValue({ ...mockAudit, auditor: 'New Auditor' });
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .send({ auditor: 'New Auditor' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.auditor).toBe('New Auditor');
+  });
+
+  it('GET / page=1 limit=20 uses skip 0', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/audits?page=1&limit=20');
+    expect(prisma.esgAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 20 })
+    );
+  });
+});

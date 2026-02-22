@@ -327,3 +327,65 @@ describe('work-orders.api — additional coverage', () => {
     }
   });
 });
+
+describe('Work Orders API — final coverage block', () => {
+  it('POST / count is called to generate reference number', async () => {
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(4);
+    mockPrisma.assetWorkOrder.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Fix pump', referenceNumber: 'AWO-2026-0005' });
+    await request(app).post('/api/work-orders').send({ assetId: 'asset-1', title: 'Fix pump' });
+    expect(mockPrisma.assetWorkOrder.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id update is called with deletedAt data', async () => {
+    mockPrisma.assetWorkOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetWorkOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/work-orders/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.assetWorkOrder.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST / create is called with assetId in data', async () => {
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Task' });
+    await request(app).post('/api/work-orders').send({ assetId: 'asset-zz', title: 'Task' });
+    expect(mockPrisma.assetWorkOrder.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ assetId: 'asset-zz' }) })
+    );
+  });
+
+  it('PUT /:id update is called with correct where.id', async () => {
+    mockPrisma.assetWorkOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetWorkOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Done' });
+    await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001').send({ title: 'Done' });
+    expect(mockPrisma.assetWorkOrder.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET / returns success true and data is an array', async () => {
+    mockPrisma.assetWorkOrder.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'WO 1' },
+    ]);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/work-orders');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id returns correct data.id matching param', async () => {
+    mockPrisma.assetWorkOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000042' });
+    const res = await request(app).get('/api/work-orders/00000000-0000-0000-0000-000000000042');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000042');
+  });
+
+  it('GET / pagination total matches count mock', async () => {
+    mockPrisma.assetWorkOrder.findMany.mockResolvedValue([]);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(88);
+    const res = await request(app).get('/api/work-orders');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(88);
+  });
+});

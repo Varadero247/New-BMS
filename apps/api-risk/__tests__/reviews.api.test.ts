@@ -325,3 +325,73 @@ describe('reviews.api — pagination and extended paths', () => {
     expect(res.body.pagination.total).toBe(0);
   });
 });
+
+describe('reviews.api — final coverage', () => {
+  it('GET / totalPages computed from total and limit', async () => {
+    mockPrisma.riskReview.findMany.mockResolvedValue([]);
+    mockPrisma.riskReview.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/reviews?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('POST / returns 400 when riskId is empty string', async () => {
+    const res = await request(app)
+      .post('/api/reviews')
+      .send({ riskId: '', scheduledDate: '2026-03-01T00:00:00.000Z' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns data with id matching request param', async () => {
+    mockPrisma.riskReview.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SCHEDULED',
+    });
+    const res = await request(app).get('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('DELETE /:id calls update with deletedAt field', async () => {
+    mockPrisma.riskReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskReview.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.riskReview.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('PUT /:id with IN_PROGRESS status succeeds', async () => {
+    mockPrisma.riskReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskReview.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'IN_PROGRESS',
+    });
+    const res = await request(app)
+      .put('/api/reviews/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'IN_PROGRESS' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / create response has data.id', async () => {
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    mockPrisma.riskReview.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000099',
+      riskId: 'risk-x',
+    });
+    const res = await request(app)
+      .post('/api/reviews')
+      .send({ riskId: 'risk-x', scheduledDate: '2026-07-01T00:00:00.000Z' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBeDefined();
+  });
+
+  it('GET / returns pagination object', async () => {
+    mockPrisma.riskReview.findMany.mockResolvedValue([]);
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reviews');
+    expect(res.body).toHaveProperty('pagination');
+  });
+});

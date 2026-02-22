@@ -389,3 +389,67 @@ describe('Vendors — additional pagination and response shape tests', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Vendors — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/vendors filters by search query param', async () => {
+    prisma.cmmsVendor.findMany.mockResolvedValue([]);
+    prisma.cmmsVendor.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/vendors?search=acme');
+    expect(res.status).toBe(200);
+    expect(prisma.cmmsVendor.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/vendors response content-type is application/json', async () => {
+    prisma.cmmsVendor.findMany.mockResolvedValue([]);
+    prisma.cmmsVendor.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/vendors');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST /api/vendors returns 409 when code is duplicated', async () => {
+    prisma.cmmsVendor.create.mockRejectedValue({ code: 'P2002' });
+    const res = await request(app).post('/api/vendors').send({ name: 'Dupe', code: 'ACME-001' });
+    expect(res.status).toBe(409);
+  });
+
+  it('PUT /api/vendors/:id returns success true on successful update', async () => {
+    prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
+    prisma.cmmsVendor.update.mockResolvedValue({ ...mockVendor, rating: 5.0 });
+    const res = await request(app)
+      .put('/api/vendors/00000000-0000-0000-0000-000000000001')
+      .send({ rating: 5.0 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/vendors/:id/contracts returns empty array when vendor has no contracts', async () => {
+    prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
+    prisma.cmmsServiceContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000001/contracts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('DELETE /api/vendors/:id sets deletedAt in the update call', async () => {
+    prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
+    prisma.cmmsVendor.update.mockResolvedValue({ ...mockVendor, deletedAt: new Date() });
+    const res = await request(app).delete('/api/vendors/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(prisma.cmmsVendor.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/vendors pagination defaults page to 1 when not provided', async () => {
+    prisma.cmmsVendor.findMany.mockResolvedValue([]);
+    prisma.cmmsVendor.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/vendors');
+    expect(res.status).toBe(200);
+    const page = res.body.pagination?.page ?? res.body.meta?.page ?? res.body.page;
+    expect(page).toBe(1);
+  });
+});

@@ -418,3 +418,93 @@ describe('GDPR API — pagination, field validation and 500 path coverage', () =
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+// ===================================================================
+// GDPR API — response integrity and remaining scenarios
+// ===================================================================
+describe('GDPR API — response integrity and remaining scenarios', () => {
+  it('GET /gdpr/categories response body has success:true', async () => {
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/gdpr/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /gdpr/dpas response body has success:true', async () => {
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/gdpr/dpas');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /gdpr/dpas 500 on DB error returns INTERNAL_ERROR', async () => {
+    mockPrisma.dataProcessingAgreement.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/gdpr/dpas').send({
+      processorName: 'FailVendor',
+      purpose: 'Testing',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /gdpr/report summary.compliantCategories counts COMPLIANT items', async () => {
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([
+      { id: 'c1', category: 'A', complianceStatus: 'COMPLIANT' },
+      { id: 'c2', category: 'B', complianceStatus: 'COMPLIANT' },
+      { id: 'c3', category: 'C', complianceStatus: 'AT_RISK' },
+    ]);
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue([]);
+    mockPrisma.dataRequest.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/gdpr/report');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.totalCategories).toBe(3);
+    expect(res.body.data.summary.atRiskCategories).toBe(1);
+  });
+
+  it('POST /gdpr/categories created category has id field', async () => {
+    mockPrisma.gdprDataCategory.create.mockResolvedValue({
+      id: 'cat-has-id',
+      category: 'Test Cat',
+      legalBasis: 'CONSENT',
+    });
+
+    const res = await request(app).post('/api/gdpr/categories').send({
+      category: 'Test Cat',
+      legalBasis: 'CONSENT',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toHaveProperty('id');
+  });
+
+  it('POST /gdpr/dpas created dpa has id field', async () => {
+    mockPrisma.dataProcessingAgreement.create.mockResolvedValue({
+      id: 'dpa-has-id',
+      processorName: 'NewVendor',
+      purpose: 'Testing',
+      isActive: true,
+    });
+
+    const res = await request(app).post('/api/gdpr/dpas').send({
+      processorName: 'NewVendor',
+      purpose: 'Testing',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.dpa).toHaveProperty('id');
+  });
+
+  it('GET /gdpr/report dpas list is included in report data', async () => {
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([]);
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue([
+      { id: 'dpa-1', processorName: 'Vendor', isActive: true },
+    ]);
+    mockPrisma.dataRequest.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/gdpr/report');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.dpas)).toBe(true);
+  });
+});

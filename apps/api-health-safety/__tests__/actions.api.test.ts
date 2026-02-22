@@ -325,3 +325,63 @@ describe('H&S Actions — extended coverage', () => {
     expect(res.body.data.status).toBe('COMPLETED');
   });
 });
+
+describe('H&S Actions — final coverage', () => {
+  it('GET /api/actions response data is an array', async () => {
+    (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([mockAction]);
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/actions filters by type wired to Prisma where', async () => {
+    (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/actions?type=PREVENTIVE');
+    expect(mockPrisma.hSAction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'PREVENTIVE' }) })
+    );
+  });
+
+  it('DELETE /api/actions/:id calls update once with deletedAt', async () => {
+    (mockPrisma.hSAction.findFirst as jest.Mock).mockResolvedValue(mockAction);
+    (mockPrisma.hSAction.update as jest.Mock).mockResolvedValue({ ...mockAction, deletedAt: new Date() });
+    await request(app).delete(`/api/actions/${ACTION_ID}`);
+    expect(mockPrisma.hSAction.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST /api/actions response data has referenceNumber', async () => {
+    (mockPrisma.hSAction.create as jest.Mock).mockResolvedValue(mockAction);
+    const res = await request(app).post('/api/actions').send({
+      title: 'Hazard check', description: 'Check for slip hazards', type: 'CORRECTIVE', priority: 'MEDIUM', ownerId: 'Alice', dueDate: '2026-06-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('GET /api/actions/stats returns 500 when groupBy rejects', async () => {
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(10);
+    (mockPrisma.hSAction.groupBy as jest.Mock).mockRejectedValue(new Error('groupBy fail'));
+    const res = await request(app).get('/api/actions/stats');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/actions/overdue 500 when count rejects', async () => {
+    (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.hSAction.count as jest.Mock).mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/actions/overdue');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/actions/:id calls update with correct where clause', async () => {
+    (mockPrisma.hSAction.findFirst as jest.Mock).mockResolvedValue(mockAction);
+    (mockPrisma.hSAction.update as jest.Mock).mockResolvedValue({ ...mockAction, status: 'IN_PROGRESS' });
+    await request(app).put(`/api/actions/${ACTION_ID}`).send({ status: 'IN_PROGRESS' });
+    expect(mockPrisma.hSAction.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: ACTION_ID } })
+    );
+  });
+});

@@ -309,3 +309,76 @@ describe('Audits Dashboard — boundary and combination coverage', () => {
     expect(Array.isArray(res.body.data)).toBe(false);
   });
 });
+
+describe('Audits Dashboard — final boundary checks', () => {
+  it('returns 200 with expected keys when all mocks resolve to large values', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(9999);
+    mockPrisma.audFinding.count.mockResolvedValue(9999);
+    mockPrisma.audChecklist.count.mockResolvedValue(9999);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalAudits).toBe(9999);
+    expect(res.body.data.totalFindings).toBe(9999);
+    expect(res.body.data.totalChecklists).toBe(9999);
+  });
+
+  it('response body always has a success property', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('error body has error.code on checklist rejection', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(1);
+    mockPrisma.audFinding.count.mockResolvedValue(1);
+    mockPrisma.audChecklist.count.mockRejectedValue(new Error('checklist crash'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+  });
+
+  it('totalAudits, totalFindings, totalChecklists are all present on 200', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(2);
+    mockPrisma.audFinding.count.mockResolvedValue(3);
+    mockPrisma.audChecklist.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    const d = res.body.data;
+    expect(d).toHaveProperty('totalAudits', 2);
+    expect(d).toHaveProperty('totalFindings', 3);
+    expect(d).toHaveProperty('totalChecklists', 4);
+  });
+
+  it('returns 500 when only audFinding.count rejects', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(5);
+    mockPrisma.audFinding.count.mockRejectedValue(new Error('finding down'));
+    mockPrisma.audChecklist.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('multiple requests clear mocks between runs', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(10);
+    mockPrisma.audFinding.count.mockResolvedValue(20);
+    mockPrisma.audChecklist.count.mockResolvedValue(5);
+    const r1 = await request(app).get('/api/dashboard/stats');
+    expect(r1.body.data.totalAudits).toBe(10);
+    jest.clearAllMocks();
+    mockPrisma.audAudit.count.mockResolvedValue(1);
+    mockPrisma.audFinding.count.mockResolvedValue(1);
+    mockPrisma.audChecklist.count.mockResolvedValue(1);
+    const r2 = await request(app).get('/api/dashboard/stats');
+    expect(r2.body.data.totalAudits).toBe(1);
+  });
+
+  it('response has Content-Type application/json', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+});

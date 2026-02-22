@@ -307,3 +307,55 @@ describe('getTaskById', () => {
     expect(found).toBeNull();
   });
 });
+
+// ─── Additional coverage ───────────────────────────────────────────────────────
+
+describe('tasks — additional coverage', () => {
+  beforeEach(() => {
+    resetStore();
+  });
+
+  it('createTask produces a UUID id', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'T', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    expect(task.id).toMatch(/^[0-9a-f-]{36}$/);
+  });
+
+  it('createTask sets createdAt and updatedAt to Date instances', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'T', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    expect(task.createdAt).toBeInstanceOf(Date);
+    expect(task.updatedAt).toBeInstanceOf(Date);
+  });
+
+  it('createTask with LOW priority stores LOW', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'T', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2', priority: 'LOW' });
+    expect(task.priority).toBe('LOW');
+  });
+
+  it('updateTask changes status to IN_PROGRESS', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'T', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    const updated = await updateTask(task.id, { status: 'IN_PROGRESS' });
+    expect(updated.status).toBe('IN_PROGRESS');
+  });
+
+  it('updateTask updates updatedAt timestamp', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'T', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    const before = task.updatedAt.getTime();
+    await new Promise((r) => setTimeout(r, 2));
+    const updated = await updateTask(task.id, { title: 'Updated' });
+    expect(updated.updatedAt.getTime()).toBeGreaterThanOrEqual(before);
+  });
+
+  it('completeTask completedAt is a Date instance', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'T', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    const completed = await completeTask(task.id);
+    expect(completed.completedAt).toBeInstanceOf(Date);
+  });
+
+  it('deleteTask reduces getTasks total by 1', async () => {
+    const t1 = await createTask({ orgId: 'org-1', title: 'T1', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    await createTask({ orgId: 'org-1', title: 'T2', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    await deleteTask(t1.id);
+    const { total } = await getTasks('org-1');
+    expect(total).toBe(1);
+  });
+});

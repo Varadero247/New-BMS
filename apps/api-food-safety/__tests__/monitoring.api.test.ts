@@ -355,3 +355,87 @@ describe('monitoring.api — edge cases and extended coverage', () => {
     expect(res.body.pagination.total).toBe(5);
   });
 });
+
+describe('monitoring.api — final coverage pass', () => {
+  it('GET /api/monitoring default pagination applies skip 0', async () => {
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(0);
+
+    await request(app).get('/api/monitoring');
+    expect(mockPrisma.fsMonitoringRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('POST /api/monitoring creates with monitored and record by user', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000010',
+      ccpId: '550e8400-e29b-41d4-a716-446655440000',
+      value: '80C',
+      withinLimits: true,
+      recordedBy: 'user-123',
+    };
+    mockPrisma.fsMonitoringRecord.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/monitoring').send({
+      ccpId: '550e8400-e29b-41d4-a716-446655440000',
+      monitoredAt: '2026-02-01T08:00:00Z',
+      value: '80C',
+      withinLimits: true,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('recordedBy', 'user-123');
+  });
+
+  it('GET /api/monitoring/:id queries with deletedAt null', async () => {
+    mockPrisma.fsMonitoringRecord.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      value: '76C',
+    });
+    await request(app).get('/api/monitoring/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsMonitoringRecord.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null }),
+      })
+    );
+  });
+
+  it('PUT /api/monitoring/:id updates withinLimits field', async () => {
+    mockPrisma.fsMonitoringRecord.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsMonitoringRecord.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      withinLimits: false,
+    });
+
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000001')
+      .send({ withinLimits: false });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('withinLimits', false);
+  });
+
+  it('GET /api/monitoring page=3 limit=10 applies skip=20 take=10', async () => {
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(0);
+
+    await request(app).get('/api/monitoring?page=3&limit=10');
+    expect(mockPrisma.fsMonitoringRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /api/monitoring success:true with data array', async () => {
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', value: '75C', withinLimits: true },
+      { id: '00000000-0000-0000-0000-000000000002', value: '60C', withinLimits: false },
+    ]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

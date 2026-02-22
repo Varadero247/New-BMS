@@ -501,3 +501,101 @@ describe('IR35 — validation and field coverage', () => {
     );
   });
 });
+
+// ===================================================================
+// IR35 — final coverage block
+// ===================================================================
+describe('IR35 — final coverage', () => {
+  const basePayload = { contractorName: 'Henry Ford' };
+
+  it('GET / response data items have referenceNumber field', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000030',
+        referenceNumber: 'IR35-2026-0030',
+        contractorName: 'Henry Ford',
+        orgId: '00000000-0000-4000-a000-000000000100',
+      },
+    ]);
+    const res = await request(app).get('/api/ir35');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('referenceNumber', 'IR35-2026-0030');
+  });
+
+  it('GET / response has success:true and data is an array', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/ir35');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / orgId from authenticated user is included in create call', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000031',
+      ...basePayload,
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/ir35').send(basePayload);
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100' }),
+      })
+    );
+  });
+
+  it('POST / referenceNumber follows IR35-YYYY-NNNN pattern', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(9);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000032',
+      ...basePayload,
+      referenceNumber: 'IR35-2026-0010',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    const res = await request(app).post('/api/ir35').send(basePayload);
+    expect(res.status).toBe(201);
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          referenceNumber: expect.stringMatching(/^IR35-\d{4}-\d{4}$/),
+        }),
+      })
+    );
+  });
+
+  it('GET / 500 response has success:false and INTERNAL_ERROR code', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockRejectedValue(new Error('Network error'));
+    const res = await request(app).get('/api/ir35');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / 500 response when count throws error', async () => {
+    mockPrisma.finIr35Assessment.count.mockRejectedValue(new Error('count failure'));
+    const res = await request(app).post('/api/ir35').send(basePayload);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / clientName optional field is passed to create data', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000033',
+      contractorName: 'Ingrid Test',
+      clientName: 'BigCo Ltd',
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/ir35').send({
+      contractorName: 'Ingrid Test',
+      clientName: 'BigCo Ltd',
+    });
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ clientName: 'BigCo Ltd' }),
+      })
+    );
+  });
+});

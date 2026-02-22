@@ -476,3 +476,140 @@ describe('Quality Scope — additional edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Quality Scope — final coverage', () => {
+  const validBody = {
+    scope: 'QMS applies to all production and delivery operations.',
+    purpose: 'To establish the QMS boundary.',
+    exclusions: 'R&D activities',
+    boundaries: 'Head office and two plants',
+    applicableStandards: 'ISO 9001:2015',
+    version: '3.0',
+    status: 'APPROVED',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/scope response has data.scope string field', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.scope).toBe('string');
+  });
+
+  it('GET /api/scope data.purpose is empty string when no document', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data.purpose).toBe('');
+  });
+
+  it('PUT /api/scope success:true when new document created', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.qualDocument.count.mockResolvedValue(0);
+    mockPrisma.qualDocument.create.mockResolvedValue({
+      id: 'new-doc-1',
+      referenceNumber: 'QMS-SCP-2601-005',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: validBody.scope,
+      purpose: validBody.purpose,
+      keyChanges: JSON.stringify({ exclusions: validBody.exclusions, boundaries: validBody.boundaries, applicableStandards: validBody.applicableStandards }),
+      version: validBody.version,
+      status: validBody.status,
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    const res = await request(app).put('/api/scope').send(validBody);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/scope applicableStandards empty string when keyChanges null', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue({
+      id: 'doc-1',
+      referenceNumber: 'QMS-SCP-2601-001',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: 'Scope text',
+      purpose: 'Purpose text',
+      keyChanges: null,
+      version: '1.0',
+      status: 'DRAFT',
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data.applicableStandards).toBe('');
+  });
+
+  it('PUT /api/scope 500 on update error returns INTERNAL_ERROR', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue({
+      id: 'doc-1',
+      referenceNumber: 'QMS-SCP-2601-001',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: 'Old scope',
+      purpose: 'Old purpose',
+      keyChanges: null,
+      version: '1.0',
+      status: 'DRAFT',
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    mockPrisma.qualDocument.update.mockRejectedValue(new Error('Crash'));
+    const res = await request(app).put('/api/scope').send(validBody);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/scope data.status is DRAFT when no document exists', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('DRAFT');
+  });
+
+  it('PUT /api/scope update not called when create path used', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.qualDocument.count.mockResolvedValue(0);
+    mockPrisma.qualDocument.create.mockResolvedValue({
+      id: 'new-doc-2',
+      referenceNumber: 'QMS-SCP-2601-006',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: validBody.scope,
+      purpose: validBody.purpose,
+      keyChanges: null,
+      version: validBody.version,
+      status: validBody.status,
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await request(app).put('/api/scope').send(validBody);
+    expect(mockPrisma.qualDocument.update).not.toHaveBeenCalled();
+  });
+});

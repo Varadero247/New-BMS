@@ -433,3 +433,71 @@ describe('Analytics Datasets — extended field and filter coverage', () => {
     expect(res.body.data.description).toBe('A dataset with description');
   });
 });
+
+describe('Analytics Datasets — final coverage', () => {
+  it('GET /api/datasets response body has success:true', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/datasets');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/datasets count is called once per list request', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+    await request(app).get('/api/datasets');
+    expect(mockPrisma.analyticsDataset.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/datasets create called once on valid body', async () => {
+    mockPrisma.analyticsDataset.create.mockResolvedValue({
+      id: 'ds-once',
+      name: 'Once',
+      source: 'QUALITY',
+      isActive: true,
+    });
+    await request(app).post('/api/datasets').send({
+      name: 'Once',
+      source: 'QUALITY',
+      query: 'SELECT 1',
+      schema: { columns: [] },
+    });
+    expect(mockPrisma.analyticsDataset.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/datasets/:id/refresh update includes lastRefreshed as a Date', async () => {
+    mockPrisma.analyticsDataset.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsDataset.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      lastRefreshed: new Date(),
+      rowCount: 200,
+    });
+    await request(app).post('/api/datasets/00000000-0000-0000-0000-000000000001/refresh');
+    expect(mockPrisma.analyticsDataset.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ lastRefreshed: expect.any(Date) }) })
+    );
+  });
+
+  it('DELETE /api/datasets/:id calls update with deletedAt field', async () => {
+    mockPrisma.analyticsDataset.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsDataset.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    await request(app).delete('/api/datasets/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.analyticsDataset.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/datasets/:id findFirst called with correct id', async () => {
+    mockPrisma.analyticsDataset.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'ID Check',
+    });
+    await request(app).get('/api/datasets/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.analyticsDataset.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+});

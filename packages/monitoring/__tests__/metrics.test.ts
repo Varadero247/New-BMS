@@ -328,3 +328,69 @@ describe('Prometheus metrics', () => {
     });
   });
 });
+
+describe('Prometheus metrics — additional coverage', () => {
+  beforeEach(async () => {
+    register.resetMetrics();
+  });
+
+  describe('trackDbQuery helper', () => {
+    it('returns the value from the wrapped function', async () => {
+      const { trackDbQuery } = await import('../src/metrics');
+      const result = await trackDbQuery('findMany', 'User', async () => [{ id: '1' }]);
+      expect(result).toEqual([{ id: '1' }]);
+    });
+
+    it('records a metric even when the wrapped function resolves quickly', async () => {
+      const { trackDbQuery } = await import('../src/metrics');
+      await trackDbQuery('create', 'Order', async () => ({ id: 'o-1' }));
+      const output = await register.metrics();
+      expect(output).toContain('database_query_duration_seconds');
+    });
+
+    it('propagates errors thrown inside the wrapped function', async () => {
+      const { trackDbQuery } = await import('../src/metrics');
+      await expect(
+        trackDbQuery('delete', 'Invoice', async () => {
+          throw new Error('DB error');
+        })
+      ).rejects.toThrow('DB error');
+    });
+  });
+
+  describe('activeRequests gauge', () => {
+    it('can be incremented without throwing', () => {
+      expect(() => activeRequests.inc({ service: 'test-svc' })).not.toThrow();
+    });
+
+    it('can be decremented without throwing', () => {
+      activeRequests.inc({ service: 'dec-svc' });
+      expect(() => activeRequests.dec({ service: 'dec-svc' })).not.toThrow();
+    });
+
+    it('appears in Prometheus text output', async () => {
+      activeRequests.inc({ service: 'gauge-test' });
+      const output = await register.metrics();
+      expect(output).toContain('http_requests_active');
+    });
+  });
+
+  describe('httpRequestDuration histogram bucket labels', () => {
+    it('can observe with method/route/status_code/service labels', () => {
+      expect(() => {
+        httpRequestDuration.observe(
+          { method: 'POST', route: '/api/users', status_code: '201', service: 'api-gateway' },
+          0.25
+        );
+      }).not.toThrow();
+    });
+  });
+
+  describe('httpRequestTotal counter', () => {
+    it('increments with all four label dimensions', async () => {
+      httpRequestTotal.inc({ method: 'GET', route: '/health', status_code: '200', service: 'api-health-safety' });
+      const output = await register.metrics();
+      expect(output).toContain('http_requests_total');
+    });
+  });
+});

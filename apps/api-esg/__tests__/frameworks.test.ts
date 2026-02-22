@@ -395,3 +395,50 @@ describe('frameworks — additional coverage', () => {
     expect(res.body.pagination.limit).toBe(15);
   });
 });
+
+describe('frameworks — final coverage', () => {
+  it('GET / response is JSON content-type', async () => {
+    (prisma.esgFramework.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgFramework.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/frameworks');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / creates IFRS-S2 framework successfully', async () => {
+    (prisma.esgFramework.create as jest.Mock).mockResolvedValue({ ...mockFramework, code: 'IFRS-S2' });
+    const res = await request(app).post('/api/frameworks').send({
+      name: 'IFRS S2 Standards',
+      code: 'IFRS-S2',
+      version: '2023',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id update with isActive=false succeeds', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
+    (prisma.esgFramework.update as jest.Mock).mockResolvedValue({ ...mockFramework, isActive: false });
+    const res = await request(app)
+      .put('/api/frameworks/00000000-0000-0000-0000-000000000001')
+      .send({ isActive: false });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id/metrics returns data array', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
+    (prisma.esgMetric.findMany as jest.Mock).mockResolvedValue([mockMetric]);
+    const res = await request(app).get('/api/frameworks/00000000-0000-0000-0000-000000000001/metrics');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('DELETE /:id sets deletedAt on soft delete', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
+    (prisma.esgFramework.update as jest.Mock).mockResolvedValue({ ...mockFramework, deletedAt: new Date() });
+    await request(app).delete('/api/frameworks/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgFramework.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

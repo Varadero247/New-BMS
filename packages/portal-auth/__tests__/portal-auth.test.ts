@@ -291,3 +291,50 @@ describe('portal-auth — additional coverage', () => {
     expect(decoded).toBeNull();
   });
 });
+
+describe('portal-auth — comprehensive verification', () => {
+  it('two tokens signed for different users have different payloads', () => {
+    const token1 = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+    const token2 = signPortalToken(mockCustomer, 'customer', { secret: TEST_SECRET });
+    expect(token1).not.toBe(token2);
+  });
+
+  it('verifyPortalToken returns correct portalType for both portal types', () => {
+    const supplierToken = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+    const customerToken = signPortalToken(mockCustomer, 'customer', { secret: TEST_SECRET });
+    expect(verifyPortalToken(supplierToken, { secret: TEST_SECRET })!.portalType).toBe('supplier');
+    expect(verifyPortalToken(customerToken, { secret: TEST_SECRET })!.portalType).toBe('customer');
+  });
+
+  it('requirePortalPermission allows a user with multiple permissions to access any of them', () => {
+    const perms = ['view_orders', 'submit_quotes', 'view_invoices'];
+    perms.forEach((perm) => {
+      const mw = requirePortalPermission(perm);
+      const req: any = { portalUser: mockUser };
+      const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
+      mw(req, res, next);
+      expect(next).toHaveBeenCalled();
+    });
+  });
+
+  it('portalAuthenticate middleware attaches organisationId to portalUser', () => {
+    const mw = portalAuthenticate({ secret: TEST_SECRET });
+    const token = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+    const req: any = { headers: { authorization: `Bearer ${token}` } };
+    const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+    mw(req, res, next);
+    expect(req.portalUser.organisationId).toBe(mockUser.organisationId);
+  });
+
+  it('requirePortalType returns middleware function', () => {
+    const mw = requirePortalType('supplier');
+    expect(typeof mw).toBe('function');
+  });
+
+  it('requirePortalPermission returns middleware function', () => {
+    const mw = requirePortalPermission('view_orders');
+    expect(typeof mw).toBe('function');
+  });
+});

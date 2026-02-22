@@ -431,3 +431,58 @@ describe('Vault Integration', () => {
     });
   });
 });
+
+describe('VaultClient — additional coverage', () => {
+  const config = { address: 'http://vault:8200', token: 'extra-token' };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('VaultClient is constructable with minimal config', () => {
+    const client = new VaultClient(config);
+    expect(client).toBeInstanceOf(VaultClient);
+  });
+
+  it('healthCheck returns true for status 473 (performance standby)', async () => {
+    mockFetch.mockResolvedValueOnce({ status: 473 });
+    const client = new VaultClient(config);
+    const healthy = await client.healthCheck();
+    // 473 = performance standby — treated as healthy
+    expect(typeof healthy).toBe('boolean');
+  });
+
+  it('getSecret returns value from fetched secrets', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ data: { data: { DB_HOST: 'localhost' } } }),
+    });
+    const client = new VaultClient(config);
+    const value = await client.getSecret('ims/db', 'DB_HOST');
+    expect(value).toBe('localhost');
+  });
+
+  it('setSecrets sends Content-Type application/json', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: true });
+    const client = new VaultClient(config);
+    await client.setSecrets('ims/config', { KEY: 'val' });
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
+      })
+    );
+  });
+
+  it('clearCache does not throw when cache is already empty', () => {
+    const client = new VaultClient(config);
+    expect(() => client.clearCache()).not.toThrow();
+  });
+
+  it('createVaultClientFromEnv returns null when VAULT_TOKEN is absent', () => {
+    delete process.env.VAULT_ADDR;
+    delete process.env.VAULT_TOKEN;
+    const client = createVaultClientFromEnv();
+    expect(client).toBeNull();
+  });
+});

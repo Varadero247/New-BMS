@@ -372,3 +372,78 @@ describe('webhooks — error paths and field validation', () => {
     expect(res.body.data.length).toBeGreaterThan(0);
   });
 });
+
+describe('webhooks — business logic and response correctness', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/webhooks', webhooksRouter);
+    jest.clearAllMocks();
+    mockGetEndpoint.mockReturnValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      orgId: 'org-1',
+      name: 'Test',
+      url: 'https://example.com/hook',
+      secret: 'whsec_abcdefghijklmnop',
+      events: ['ncr.created'],
+      enabled: true,
+      headers: null,
+      lastTriggeredAt: null,
+      failureCount: 0,
+    });
+  });
+
+  it('POST creates endpoint and calls createEndpoint once', async () => {
+    const res = await request(app)
+      .post('/api/admin/webhooks')
+      .send({ name: 'Hook A', url: 'https://a.example.com/hook', events: ['capa.closed'] });
+    expect(res.status).toBe(201);
+    expect(mockCreateEndpoint).toHaveBeenCalledTimes(1);
+  });
+
+  it('PATCH calls updateEndpoint with correct id', async () => {
+    const res = await request(app)
+      .patch('/api/admin/webhooks/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Renamed Hook' });
+    expect(res.status).toBe(200);
+    expect(mockUpdateEndpoint).toHaveBeenCalledWith(
+      '00000000-0000-0000-0000-000000000001',
+      expect.objectContaining({ name: 'Renamed Hook' })
+    );
+  });
+
+  it('DELETE calls deleteEndpoint with correct id', async () => {
+    await request(app).delete('/api/admin/webhooks/00000000-0000-0000-0000-000000000001');
+    expect(mockDeleteEndpoint).toHaveBeenCalledWith('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST /test calls dispatch once', async () => {
+    mockDispatch.mockReturnValueOnce([{ id: 'del-ping', status: 'PENDING' }]);
+    const res = await request(app).post('/api/admin/webhooks/00000000-0000-0000-0000-000000000001/test');
+    expect(res.status).toBe(200);
+    expect(mockDispatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /deliveries calls listDeliveries with correct id as first arg', async () => {
+    mockListDeliveries.mockReturnValueOnce([]);
+    await request(app).get('/api/admin/webhooks/00000000-0000-0000-0000-000000000001/deliveries');
+    const firstCall = mockListDeliveries.mock.calls[0];
+    expect(firstCall[0]).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST events array with multiple events is accepted', async () => {
+    const res = await request(app)
+      .post('/api/admin/webhooks')
+      .send({ name: 'Multi', url: 'https://multi.example.com/hook', events: ['ncr.created', 'capa.created'] });
+    expect(res.status).toBe(201);
+  });
+
+  it('PATCH /test returns 500 when dispatch throws', async () => {
+    mockDispatch.mockImplementationOnce(() => { throw new Error('dispatch failed'); });
+    const res = await request(app).post('/api/admin/webhooks/00000000-0000-0000-0000-000000000001/test');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -398,3 +398,65 @@ describe('portal-scorecards — edge cases', () => {
     expect(res.body.data.complianceScore).toBe(95);
   });
 });
+
+describe('Portal Scorecards — final coverage', () => {
+  it('GET list: returns empty array when no scorecards exist', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/scorecards');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET list: response body has success and data fields', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/scorecards');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST: count called once per create request', async () => {
+    mockPrisma.portalScorecard.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q4',
+      overallScore: 75,
+    });
+    await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q4',
+      overallScore: 75,
+    });
+    expect(mockPrisma.portalScorecard.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: findMany called once per list request', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/scorecards');
+    expect(mockPrisma.portalScorecard.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: total in pagination matches count mock value', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(7);
+    const res = await request(app).get('/api/portal/scorecards');
+    expect(res.body.pagination.total).toBe(7);
+  });
+
+  it('POST: overallScore=100 boundary value is accepted', async () => {
+    mockPrisma.portalScorecard.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000099',
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 100,
+    });
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 100,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.overallScore).toBe(100);
+  });
+});

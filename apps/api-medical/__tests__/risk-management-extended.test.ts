@@ -446,3 +446,119 @@ describe('Risk Management Routes (Medical)', () => {
     });
   });
 });
+
+describe('Risk Management Routes — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/risk-management filters by status', async () => {
+    (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/risk-management?status=ACTIVE');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskManagementFile.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('GET /api/risk-management filters by deviceName using contains', async () => {
+    (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/risk-management?deviceName=Cardiac');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskManagementFile.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deviceName: expect.objectContaining({ contains: 'Cardiac' }) }),
+      })
+    );
+  });
+
+  it('POST /api/risk-management creates file with status DRAFT', async () => {
+    (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.riskManagementFile.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DRAFT',
+      title: 'New Device RMF',
+    });
+
+    const res = await request(app).post('/api/risk-management').send({
+      title: 'New Device RMF',
+      deviceName: 'Infusion Pump V2',
+      deviceClass: 'CLASS_II',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(mockPrisma.riskManagementFile.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'DRAFT' }) })
+    );
+  });
+
+  it('POST /api/risk-management/:id/hazards BIOLOGICAL category is valid', async () => {
+    (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.hazard.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.hazard.create as jest.Mock).mockResolvedValue({ id: 'hz-bio' });
+
+    const res = await request(app)
+      .post('/api/risk-management/00000000-0000-0000-0000-000000000001/hazards')
+      .send({
+        hazardCategory: 'BIOLOGICAL',
+        hazardDescription: 'Contamination risk',
+        hazardousSituation: 'Exposure to patient tissue',
+        harm: 'Infection',
+        severityBefore: 3,
+        probabilityBefore: 2,
+      });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/risk-management/:id/report returns empty hazard breakdown for no hazards', async () => {
+    (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      hazards: [],
+    });
+
+    const res = await request(app).get('/api/risk-management/00000000-0000-0000-0000-000000000001/report');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.totalHazards).toBe(0);
+  });
+
+  it('POST /api/risk-management/:id/benefit-risk returns 500 on DB error', async () => {
+    (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.riskManagementFile.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .post('/api/risk-management/00000000-0000-0000-0000-000000000001/benefit-risk')
+      .send({
+        overallRiskAcceptable: true,
+        benefitRiskAcceptable: true,
+        benefitRiskAnalysis: 'Benefits outweigh risks',
+        reportSummary: 'All mitigated',
+      });
+
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/risk-management meta contains total and page', async () => {
+    (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValue(25);
+
+    const res = await request(app).get('/api/risk-management?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(25);
+    expect(res.body.meta.page).toBe(2);
+  });
+});

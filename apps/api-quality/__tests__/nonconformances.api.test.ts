@@ -552,3 +552,120 @@ describe('Quality Nonconformances — additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Quality Nonconformances — further edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/nonconformances', nonconformancesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/nonconformances — search filter applied to where clause', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/nonconformances?search=defect')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.qualNonConformance.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          title: { contains: 'defect', mode: 'insensitive' },
+        }),
+      })
+    );
+  });
+
+  it('GET /api/nonconformances — severity filter applied to where clause', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+
+    await request(app)
+      .get('/api/nonconformances?severity=MAJOR')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.qualNonConformance.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ severity: 'MAJOR' }),
+      })
+    );
+  });
+
+  it('PUT /api/nonconformances/:id — update passes correct id in where', async () => {
+    mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce({
+      id: '1c000000-0000-4000-a000-000000000001',
+      title: 'Existing NC',
+      status: 'REPORTED',
+      closureDate: null,
+    });
+    mockPrisma.qualNonConformance.update.mockResolvedValueOnce({
+      id: '1c000000-0000-4000-a000-000000000001',
+      title: 'Updated NC',
+    });
+
+    await request(app)
+      .put('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Updated NC' });
+
+    expect(mockPrisma.qualNonConformance.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '1c000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+
+  it('POST /api/nonconformances — sets reportedBy from payload', async () => {
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+    mockPrisma.qualNonConformance.create.mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-NC-2026-001',
+      title: 'New NC',
+      description: 'desc',
+      ncType: 'PRODUCT_DEFECT',
+      source: 'INSPECTION',
+      severity: 'MAJOR',
+      reportedBy: 'QA Inspector',
+      department: 'QA',
+      status: 'REPORTED',
+    });
+
+    const res = await request(app)
+      .post('/api/nonconformances')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'New NC',
+        description: 'desc',
+        ncType: 'PRODUCT_DEFECT',
+        source: 'INSPECTION',
+        severity: 'MAJOR',
+        reportedBy: 'QA Inspector',
+        department: 'QA',
+      });
+
+    expect(res.status).toBe(201);
+    expect(mockPrisma.qualNonConformance.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ reportedBy: 'QA Inspector' }),
+      })
+    );
+  });
+
+  it('GET /api/nonconformances — response has success:true and data.items', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+
+    const res = await request(app)
+      .get('/api/nonconformances')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('items');
+  });
+});

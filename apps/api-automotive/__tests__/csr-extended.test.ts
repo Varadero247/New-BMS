@@ -372,3 +372,65 @@ describe('CSR Routes — additional edge cases', () => {
     );
   });
 });
+
+describe('CSR Routes — final coverage block', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/csr/oems findMany is called with distinct and select params', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ oem: 'Volvo' }]);
+    await request(app).get('/api/csr/oems');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ distinct: ['oem'], select: { oem: true } })
+    );
+  });
+
+  it('GET /api/csr/gaps where clause excludes COMPLIANT and NOT_ASSESSED', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/csr/gaps');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { complianceStatus: { notIn: ['COMPLIANT', 'NOT_ASSESSED'] } },
+      })
+    );
+  });
+
+  it('PUT /api/csr/:id/status update passes gapNotes in data object', async () => {
+    const id = '00000000-0000-0000-0000-000000000001';
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id });
+    (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id, complianceStatus: 'PARTIAL', gapNotes: 'In progress' });
+    await request(app)
+      .put(`/api/csr/${id}/status`)
+      .send({ complianceStatus: 'PARTIAL', gapNotes: 'In progress' });
+    expect(mockPrisma.csrRequirement.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ gapNotes: 'In progress' }) })
+    );
+  });
+
+  it('GET /api/csr/oems/:oem findMany includes oem insensitive filter', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/csr/oems/BMW');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ oem: { equals: 'BMW', mode: 'insensitive' } }),
+      })
+    );
+  });
+
+  it('GET /api/csr/gaps returns success:true in body', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/csr/gaps');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/csr/:id/status findUnique called with correct id', async () => {
+    const id = '00000000-0000-0000-0000-000000000003';
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id });
+    (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id, complianceStatus: 'COMPLIANT' });
+    await request(app).put(`/api/csr/${id}/status`).send({ complianceStatus: 'COMPLIANT' });
+    expect(mockPrisma.csrRequirement.findUnique).toHaveBeenCalledWith({ where: { id } });
+  });
+});

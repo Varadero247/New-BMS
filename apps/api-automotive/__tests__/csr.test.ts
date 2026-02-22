@@ -601,3 +601,64 @@ describe('Automotive CSR API Routes — additional edge cases', () => {
     expect(response.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('Automotive CSR API Routes — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/csr', csrRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/csr/oems returns array of strings (not objects)', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ oem: 'Hyundai' }, { oem: 'Kia' }]);
+    const res = await request(app).get('/api/csr/oems');
+    expect(res.status).toBe(200);
+    expect(res.body.data.every((v: unknown) => typeof v === 'string')).toBe(true);
+  });
+
+  it('GET /api/csr/gaps meta has page and limit fields', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/csr/gaps');
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('limit');
+  });
+
+  it('GET /api/csr/oems/:oem with iatfClause filter calls findMany once', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/csr/oems/Ford?iatfClause=9.1');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/csr/:id/status 200 response body has success:true and data', async () => {
+    const id = '30000000-0000-4000-a000-000000000001';
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id });
+    (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id, complianceStatus: 'COMPLIANT' });
+    const res = await request(app).put(`/api/csr/${id}/status`).send({ complianceStatus: 'COMPLIANT' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('GET /api/csr/gaps with page=2 limit=5 returns correct meta', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(10);
+    const res = await request(app).get('/api/csr/gaps?page=2&limit=5');
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+    expect(res.body.meta.totalPages).toBe(2);
+  });
+
+  it('GET /api/csr/oems/:oem with no filters returns total count in meta', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(7);
+    const res = await request(app).get('/api/csr/oems/Toyota');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(7);
+  });
+});

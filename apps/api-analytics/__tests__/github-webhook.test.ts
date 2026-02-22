@@ -409,3 +409,104 @@ describe("GitHub Webhook — edge cases and field validation", () => {
     expect(typeof createCall.data.commitSha).toBe("string");
   });
 });
+
+// ===================================================================
+// GitHub Webhook — remaining coverage
+// ===================================================================
+describe("GitHub Webhook — remaining coverage", () => {
+  it("details object contains a shas field that is an array", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "rc-1" });
+    await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "rc1", message: "fix: array check" }],
+        head_commit: { message: "fix: array check" },
+      });
+    const createCall = (prisma.changelog.create as jest.Mock).mock.calls[0][0];
+    expect(Array.isArray(createCall.data.details.shas)).toBe(true);
+  });
+
+  it("version field matches YYYY.MM.DD format", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "rc-2" });
+    await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "rc2", message: "chore: version format" }],
+        head_commit: { message: "chore: version format" },
+      });
+    const createCall = (prisma.changelog.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.version).toMatch(/^\d{4}\.\d{2}\.\d{2}$/);
+  });
+
+  it("summary string includes all commit messages", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "rc-3" });
+    await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [
+          { id: "rc3a", message: "fix: alpha" },
+          { id: "rc3b", message: "feat: beta" },
+          { id: "rc3c", message: "chore: gamma" },
+        ],
+        head_commit: { message: "chore: gamma" },
+      });
+    const createCall = (prisma.changelog.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.summary).toContain("fix: alpha");
+    expect(createCall.data.summary).toContain("feat: beta");
+    expect(createCall.data.summary).toContain("chore: gamma");
+  });
+
+  it("response data.changelog is defined with the id from mock", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "rc-4-confirm" });
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "rc4", message: "fix: id confirm" }],
+        head_commit: { message: "fix: id confirm" },
+      });
+    expect(res.body.data.changelog.id).toBe("rc-4-confirm");
+  });
+
+  it("pushing to refs/heads/release branch is skipped", async () => {
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/release/1.0",
+        commits: [{ id: "rc5", message: "chore: release" }],
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.data.skipped).toBe(true);
+    expect(prisma.changelog.create).not.toHaveBeenCalled();
+  });
+
+  it("error response body has an error field with message", async () => {
+    (prisma.changelog.create as jest.Mock).mockRejectedValue(new Error("connection refused"));
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "rc6", message: "fix: error field" }],
+        head_commit: { message: "fix: error field" },
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it("details.commitCount is a positive integer on valid push", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "rc-7" });
+    await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "rc7a", message: "a" }, { id: "rc7b", message: "b" }],
+        head_commit: { message: "b" },
+      });
+    const createCall = (prisma.changelog.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.details.commitCount).toBeGreaterThan(0);
+    expect(Number.isInteger(createCall.data.details.commitCount)).toBe(true);
+  });
+});

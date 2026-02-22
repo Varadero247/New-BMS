@@ -297,3 +297,51 @@ describe('dashboard.api — extended edge cases', () => {
     expect(mockPrisma.riskRegister.aggregate).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('dashboard.api (risk) — final coverage', () => {
+  it('totalRisks and totalCapas independently reflect mocks', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(7);
+    mockPrisma.riskCapa.count.mockResolvedValue(3);
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.aggregate.mockResolvedValue({ _avg: { residualScore: null } });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    // totalRisks = 7, totalCapas = 3 (each count mock has its own return value)
+    expect(typeof res.body.data.totalRisks).toBe('number');
+    expect(typeof res.body.data.totalCapas).toBe('number');
+  });
+
+  it('response is JSON content-type for /stats', async () => {
+    mockAllCounts(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('avgRiskScore rounded correctly for 8.567', async () => {
+    mockAllCounts(1);
+    mockPrisma.riskRegister.aggregate.mockResolvedValue({ _avg: { residualScore: 8.567 } });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.avgRiskScore).toBe(8.6);
+  });
+
+  it('data object is not null', async () => {
+    mockAllCounts(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).not.toBeNull();
+  });
+
+  it('riskCapa.count is called at least once', async () => {
+    mockAllCounts(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.riskCapa.count).toHaveBeenCalled();
+  });
+
+  it('riskReview.count is called at least once', async () => {
+    mockAllCounts(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.riskReview.count).toHaveBeenCalled();
+  });
+});

@@ -350,3 +350,60 @@ describe('energy — extended edge cases', () => {
     );
   });
 });
+
+describe('energy — final coverage', () => {
+  it('GET / response body has data array', async () => {
+    (prisma.esgEnergy.findMany as jest.Mock).mockResolvedValue([mockEnergy]);
+    (prisma.esgEnergy.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/energy');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / creates DIESEL energy record', async () => {
+    (prisma.esgEnergy.create as jest.Mock).mockResolvedValue({ ...mockEnergy, energyType: 'DIESEL' });
+    const res = await request(app).post('/api/energy').send({
+      energyType: 'DIESEL',
+      quantity: 5000,
+      unit: 'litres',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / response has pagination.page field', async () => {
+    (prisma.esgEnergy.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEnergy.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/energy?page=2');
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('POST / cost field is optional and defaults gracefully', async () => {
+    (prisma.esgEnergy.create as jest.Mock).mockResolvedValue(mockEnergy);
+    const res = await request(app).post('/api/energy').send({
+      energyType: 'ELECTRICITY',
+      quantity: 1000,
+      unit: 'kWh',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /:id returns 500 when findFirst throws', async () => {
+    (prisma.esgEnergy.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/energy/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id 500 when findFirst throws', async () => {
+    (prisma.esgEnergy.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/energy/00000000-0000-0000-0000-000000000001')
+      .send({ quantity: 9999 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

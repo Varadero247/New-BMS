@@ -279,3 +279,62 @@ describe('Search — take limit and response shape coverage', () => {
     );
   });
 });
+
+describe('Search — additional query and response coverage', () => {
+  it('GET /search?q=test response body is an object', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=test');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /search?q=multi returns data length matching mock', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: 'd-1', title: 'Doc A', description: 'desc a' },
+      { id: 'd-2', title: 'Doc B', description: 'desc b' },
+      { id: 'd-3', title: 'Doc C', description: 'desc c' },
+      { id: 'd-4', title: 'Doc D', description: 'desc d' },
+    ]);
+    const res = await request(app).get('/api/search?q=multi');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(4);
+  });
+
+  it('GET /search?q=test findMany called with orgId filter', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    await request(app).get('/api/search?q=test');
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) }),
+    );
+  });
+
+  it('500 response success is false', async () => {
+    mockPrisma.docDocument.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/search?q=crash');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns first document id correctly from mock', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000099', title: 'First', description: 'desc' },
+    ]);
+    const res = await request(app).get('/api/search?q=first');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000099');
+  });
+
+  it('returns 200 with success:true even when q contains only letters', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=xyz');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / without q param returns empty array not null', async () => {
+    const res = await request(app).get('/api/search');
+    expect(res.status).toBe(200);
+    expect(res.body.data).not.toBeNull();
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

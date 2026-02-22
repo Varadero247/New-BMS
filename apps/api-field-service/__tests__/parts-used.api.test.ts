@@ -411,3 +411,85 @@ describe('parts-used.api — extended edge cases', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('parts-used.api — further coverage', () => {
+  it('GET / pagination.page defaults to 1 when not supplied', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/parts-used');
+
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET / data array is always an array', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/parts-used');
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/parts-used').send({});
+
+    expect(mockPrisma.fsSvcPartUsed.create).not.toHaveBeenCalled();
+  });
+
+  it('DELETE /:id calls update exactly once on success', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000040' });
+    mockPrisma.fsSvcPartUsed.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000040', deletedAt: new Date() });
+
+    await request(app).delete('/api/parts-used/00000000-0000-0000-0000-000000000040');
+
+    expect(mockPrisma.fsSvcPartUsed.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / applies correct skip for page 4 limit 5', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(0);
+
+    await request(app).get('/api/parts-used?page=4&limit=5');
+
+    expect(mockPrisma.fsSvcPartUsed.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 15, take: 5 })
+    );
+  });
+
+  it('POST / returns 201 and data.id on success', async () => {
+    mockPrisma.fsSvcPartUsed.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000050',
+      partName: 'Pump',
+      quantity: 1,
+      unitCost: 200,
+      totalCost: 200,
+    });
+
+    const res = await request(app).post('/api/parts-used').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      partName: 'Pump',
+      partNumber: 'PMP-001',
+      quantity: 1,
+      unitCost: 200,
+      totalCost: 200,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('PUT /:id returns 200 and success:true on valid update', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060' });
+    mockPrisma.fsSvcPartUsed.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060', quantity: 8 });
+
+    const res = await request(app)
+      .put('/api/parts-used/00000000-0000-0000-0000-000000000060')
+      .send({ quantity: 8 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

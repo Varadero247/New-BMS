@@ -310,3 +310,34 @@ describe('Security Headers — HTTP level (supertest)', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Security Headers HTTP — final coverage batch', () => {
+  it('GET /api/data response body has success true', async () => {
+    const res = await request(app).get('/api/data');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/data response body has data.value field', async () => {
+    const res = await request(app).get('/api/data');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('value', 42);
+  });
+
+  it('GET /api/echo reflects query param q in response body', async () => {
+    const res = await request(app).get('/api/echo?q=hello');
+    expect(res.status).toBe(200);
+    expect(res.body.data.q).toBe('hello');
+  });
+
+  it('POST /test with valid JSON body returns 200', async () => {
+    const res = await request(app).post('/test').set('Content-Type', 'application/json').send({ hello: 'world' });
+    expect(res.status).toBe(200);
+    expect(res.body.received).toEqual({ hello: 'world' });
+  });
+
+  it('GET /test response body equals { ok: true }', async () => {
+    const res = await request(app).get('/test');
+    expect(res.body).toEqual({ ok: true });
+  });
+});

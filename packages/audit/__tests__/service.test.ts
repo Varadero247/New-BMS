@@ -471,3 +471,77 @@ describe('AuditService — additional coverage', () => {
     expect(call.where.createdAt.lt).toBeInstanceOf(Date);
   });
 });
+
+// ── Audit Service — further coverage ──────────────────────────────────────────
+
+describe('AuditService — further coverage', () => {
+  let auditService: AuditService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    auditService = createAuditService(
+      mockPrisma as unknown as Parameters<typeof createAuditService>[0]
+    );
+  });
+
+  it('log() passes ipAddress and userAgent to the DB create call', async () => {
+    mockPrisma.auditLog.create.mockResolvedValue({ id: 'log-ip' });
+
+    await auditService.log({
+      action: AuditAction.CREATE,
+      entity: AuditEntity.USER,
+      ipAddress: '10.10.10.1',
+      userAgent: 'Test-Agent/1.0',
+    });
+
+    const call = mockPrisma.auditLog.create.mock.calls[0][0];
+    expect(call.data.ipAddress).toBe('10.10.10.1');
+    expect(call.data.userAgent).toBe('Test-Agent/1.0');
+  });
+
+  it('logCreate stores newData in the DB entry', async () => {
+    mockPrisma.auditLog.create.mockResolvedValue({ id: 'log-newdata' });
+
+    await auditService.logCreate('Product', 'prod-1', { name: 'Widget', price: 9.99 }, {});
+
+    const call = mockPrisma.auditLog.create.mock.calls[0][0];
+    expect(call.data.newData).toMatchObject({ name: 'Widget' });
+  });
+
+  it('logDelete has no newData (or null newData)', async () => {
+    mockPrisma.auditLog.create.mockResolvedValue({ id: 'log-del' });
+
+    await auditService.logDelete('Product', 'prod-2', { name: 'Widget' }, {});
+
+    const call = mockPrisma.auditLog.create.mock.calls[0][0];
+    expect([null, undefined]).toContain(call.data.newData);
+  });
+
+  it('query with userId filter passes it to findMany', async () => {
+    mockPrisma.auditLog.findMany.mockResolvedValue([]);
+    mockPrisma.auditLog.count.mockResolvedValue(0);
+
+    await auditService.query({ userId: 'user-filter-123' });
+
+    expect(mockPrisma.auditLog.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ userId: 'user-filter-123' }),
+      })
+    );
+  });
+
+  it('getEntityHistory passes limit to findMany when provided', async () => {
+    mockPrisma.auditLog.findMany.mockResolvedValue([]);
+    mockPrisma.auditLog.count.mockResolvedValue(0);
+
+    await auditService.getEntityHistory('Document', 'doc-1', { limit: 5 });
+
+    expect(mockPrisma.auditLog.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 5 })
+    );
+  });
+
+  it('SENSITIVE_FIELDS contains bankAccount', () => {
+    expect(SENSITIVE_FIELDS).toContain('bankAccount');
+  });
+});

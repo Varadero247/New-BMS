@@ -331,3 +331,66 @@ describe('actions route — extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('actions route — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response content-type is application/json', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / data array contains the correct action id', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', action: 'Fix it' }]);
+    mockPrisma.compAction.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST / count is called before create to generate reference number', async () => {
+    mockPrisma.compAction.count.mockResolvedValue(7);
+    mockPrisma.compAction.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000007', referenceNumber: 'CMA-2026-0008' });
+    await request(app).post('/api/actions').send({ complaintId: 'comp-1', action: 'Test' });
+    expect(mockPrisma.compAction.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.compAction.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id response data has updated id', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'CLOSED' });
+    const res = await request(app).put('/api/actions/00000000-0000-0000-0000-000000000001').send({ status: 'CLOSED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('DELETE /:id calls update with deletedAt set', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/actions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.compAction.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns 200 with arbitrary unknown query params ignored', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions?unknownParam=somevalue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id success true when record found', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', action: 'Fix it' });
+    const res = await request(app).get('/api/actions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.action).toBe('Fix it');
+  });
+});

@@ -554,3 +554,87 @@ describe('UDI Routes — additional response shape coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// UDI Routes — further edge cases
+// ===================================================================
+describe('UDI Routes — further edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/udi', udiRouter);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/udi/devices accepts CLASS_IIB device class', async () => {
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.udiDevice.create as jest.Mock).mockResolvedValue({ ...mockDevice, deviceClass: 'CLASS_IIB' });
+    const res = await request(app).post('/api/udi/devices').send({
+      deviceName: 'Defibrillator',
+      modelNumber: 'DF-100',
+      manufacturer: 'HeartCo',
+      deviceClass: 'CLASS_IIB',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/udi/devices with search filter returns 200', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/udi/devices?search=cardiac');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /api/udi/devices/:id returns device data with diRecords and piRecords', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDevice,
+      diRecords: [{ id: 'di-1', diCode: '12345' }],
+      piRecords: [],
+      submissions: [],
+    });
+    const res = await request(app).get(`/api/udi/devices/${mockDevice.id}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('diRecords');
+  });
+
+  it('POST /api/udi/devices/:id/pi with manufacturing and expiration dates returns 201', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(mockDevice);
+    (mockPrisma.udiPiRecord.create as jest.Mock).mockResolvedValue({
+      id: 'pi-2',
+      lotNumber: 'LOT-A1',
+      manufacturingDate: new Date('2026-01-10'),
+      expirationDate: new Date('2028-01-10'),
+    });
+    const res = await request(app)
+      .post(`/api/udi/devices/${mockDevice.id}/pi`)
+      .send({
+        lotNumber: 'LOT-A1',
+        manufacturingDate: '2026-01-10',
+        expirationDate: '2028-01-10',
+      });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/udi/devices meta.limit reflects requested limit', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/udi/devices?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('PUT /api/udi/devices/:id/submissions/:sid returns 400 for invalid status', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(mockDevice);
+    (mockPrisma.udiSubmission.findFirst as jest.Mock).mockResolvedValue(mockSubmission);
+    const res = await request(app)
+      .put(`/api/udi/devices/${mockDevice.id}/submissions/${mockSubmission.id}`)
+      .send({ status: 'NOT_A_STATUS' });
+    expect(res.status).toBe(400);
+  });
+});

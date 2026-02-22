@@ -356,3 +356,78 @@ describe('Prospect Research — new edge cases', () => {
     );
   });
 });
+
+// ===================================================================
+// Additional coverage to reach 35 tests
+// ===================================================================
+
+describe('Prospect Research — final coverage', () => {
+  it('POST /research success:true on valid request', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'FinalCo',
+    });
+
+    const res = await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'FinalCo', industry: 'Retail' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /research with no optional fields still returns 201', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'MinimalCo',
+    });
+
+    const res = await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'MinimalCo' });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/prospects data is an array', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', companyName: 'ABC Corp' },
+    ]);
+
+    const res = await request(app).get('/api/prospects');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /:id/save-to-hubspot response data has saved field', async () => {
+    (prisma.mktProspectResearch.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'TechCo',
+    });
+
+    const res = await request(app).post(
+      '/api/prospects/00000000-0000-0000-0000-000000000001/save-to-hubspot'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('saved');
+  });
+
+  it('POST /research returns 400 for missing companyName', async () => {
+    const res = await request(app)
+      .post('/api/prospects/research')
+      .send({ industry: 'Technology' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/prospects findMany called once per request', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/prospects');
+
+    expect(prisma.mktProspectResearch.findMany).toHaveBeenCalledTimes(1);
+  });
+});

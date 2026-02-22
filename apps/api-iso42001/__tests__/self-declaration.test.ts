@@ -443,3 +443,96 @@ describe('Self-Declaration — extended coverage', () => {
     expect(res.status).toBe(200);
   });
 });
+
+// ===================================================================
+// Additional coverage to reach 35 tests
+// ===================================================================
+
+describe('Self-Declaration — final coverage', () => {
+  it('GET /api/self-declaration includes limit in pagination response', async () => {
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/self-declaration?limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('DELETE /api/self-declaration/:id returns id and deleted:true in data', async () => {
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockResolvedValue({ ...mockDeclaration, deletedAt: new Date() });
+
+    const res = await request(app).delete(`/api/self-declaration/${UUID1}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(UUID1);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('PUT /api/self-declaration/:id/publish updates signedBy to user id', async () => {
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockResolvedValue({
+      ...mockDeclaration,
+      status: 'PUBLISHED',
+      signedBy: 'user-123',
+      publishedAt: new Date(),
+    });
+
+    const res = await request(app).put(`/api/self-declaration/${UUID1}/publish`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.signedBy).toBe('user-123');
+  });
+
+  it('POST /api/self-declaration stores standard defaulting to ISO 42001:2023', async () => {
+    mockPrisma.aiSelfDeclaration.create.mockResolvedValue({
+      id: UUID2,
+      reference: 'AI42-DEC-2602-1111',
+      title: 'Test',
+      scope: 'Test scope',
+      conformanceStatement: 'We conform...',
+      standard: 'ISO 42001:2023',
+      status: 'DRAFT',
+      declarationDate: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    });
+
+    const res = await request(app).post('/api/self-declaration').send({
+      title: 'Test',
+      scope: 'Test scope',
+      conformanceStatement: 'We conform with all requirements of the standard.',
+      declarationDate: '2026-03-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.standard).toBe('ISO 42001:2023');
+  });
+
+  it('GET /api/self-declaration success:true when data has one item', async () => {
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([mockDeclaration]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/self-declaration');
+
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('PUT /api/self-declaration/:id can update exclusions field', async () => {
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockResolvedValue({
+      ...mockDeclaration,
+      exclusions: 'Updated exclusions text',
+    });
+
+    const res = await request(app)
+      .put(`/api/self-declaration/${UUID1}`)
+      .send({ exclusions: 'Updated exclusions text' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.exclusions).toBe('Updated exclusions text');
+  });
+});

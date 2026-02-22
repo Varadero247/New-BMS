@@ -355,3 +355,61 @@ describe('Portal Approvals — edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('portal-approvals — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /approvals: pagination page defaults to 1', async () => {
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST /approvals: create called with status=PENDING', async () => {
+    const approval = { id: '00000000-0000-0000-0000-000000000001', type: 'ORDER', status: 'PENDING' };
+    mockPrisma.portalApproval.create.mockResolvedValue(approval);
+
+    await request(app).post('/api/portal/approvals').send({ type: 'ORDER', referenceId: 'ord-10' });
+
+    expect(mockPrisma.portalApproval.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'PENDING' }) })
+    );
+  });
+
+  it('POST /approvals: returns 500 on DB create error', async () => {
+    mockPrisma.portalApproval.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .post('/api/portal/approvals')
+      .send({ type: 'ORDER', referenceId: 'ord-11' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /approvals: status filter passed in where clause', async () => {
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/approvals?status=APPROVED');
+
+    expect(mockPrisma.portalApproval.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'APPROVED' }) })
+    );
+  });
+
+  it('PUT /approve: findFirst called before update', async () => {
+    const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(approval);
+    mockPrisma.portalApproval.update.mockResolvedValue({ ...approval, status: 'APPROVED' });
+
+    await request(app)
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/approve')
+      .send({});
+
+    expect(mockPrisma.portalApproval.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.portalApproval.update).toHaveBeenCalledTimes(1);
+  });
+});

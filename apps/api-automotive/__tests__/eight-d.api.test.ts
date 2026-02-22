@@ -365,3 +365,58 @@ describe('eight-d.api — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('eight-d.api — final coverage', () => {
+  it('GET /api/eight-d returns data array of reports', async () => {
+    (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([mockReport]);
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/eight-d');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/eight-d/stats byStatus is defined', async () => {
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(5);
+    (mockPrisma.eightDReport.groupBy as jest.Mock).mockResolvedValue([{ status: 'D1_TEAM_FORMATION', _count: { id: 5 } }]);
+    const res = await request(app).get('/api/eight-d/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.byStatus).toBeDefined();
+  });
+
+  it('POST /api/eight-d refNumber is in created record', async () => {
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.eightDReport.create as jest.Mock).mockResolvedValue(mockReport);
+    const res = await request(app).post('/api/eight-d').send({
+      title: 'Dimensional non-conformance on Part A',
+      problemStatement: 'Part A outer diameter out of tolerance',
+      teamLeader: 'Jane Smith',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.refNumber).toBe('8D-2601-0001');
+  });
+
+  it('PUT /api/eight-d/:id returns updated status in data', async () => {
+    (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    (mockPrisma.eightDReport.update as jest.Mock).mockResolvedValue({ ...mockReport, status: 'D3_INTERIM_CONTAINMENT' });
+    const res = await request(app).put(`/api/eight-d/${REPORT_ID}`).send({ status: 'D3_INTERIM_CONTAINMENT' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('D3_INTERIM_CONTAINMENT');
+  });
+
+  it('GET /api/eight-d with page=3 and limit=5 returns correct meta', async () => {
+    (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(15);
+    const res = await request(app).get('/api/eight-d?page=3&limit=5');
+    expect(res.body.meta.page).toBe(3);
+    expect(res.body.meta.limit).toBe(5);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('DELETE /api/eight-d/:id 500 on DB error', async () => {
+    (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    (mockPrisma.eightDReport.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).delete(`/api/eight-d/${REPORT_ID}`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

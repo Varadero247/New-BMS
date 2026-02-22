@@ -557,3 +557,75 @@ describe('Energy Dashboard — further extended', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Energy Dashboard — final coverage', () => {
+  const setup = (overrides: Record<string, any> = {}) => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(overrides.meters ?? 0);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(overrides.baselines ?? 0);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(overrides.targets ?? 0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(overrides.seus ?? 0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(overrides.alerts ?? 0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(overrides.projects ?? 0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(overrides.audits ?? 0);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue(overrides.readings ?? []);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue(overrides.alertList ?? []);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue(overrides.seuList ?? []);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue(overrides.bills ?? []);
+  };
+
+  it('summary.seus reflects count value', async () => {
+    setup({ seus: 11 });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.seus).toBe(11);
+  });
+
+  it('summary.alerts reflects unacknowledged alert count', async () => {
+    setup({ alerts: 7 });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.alerts).toBe(7);
+  });
+
+  it('response does not contain unexpected top-level fields', async () => {
+    setup();
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('handles bill with toNumber method for cost', async () => {
+    setup({ bills: [{ cost: { toNumber: () => 999 }, consumption: 3000, unit: 'kWh' }] });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.totalCost).toBe(999);
+  });
+
+  it('energySeu.count throws returns 500', async () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockRejectedValue(new Error('SEU DB error'));
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/dashboard');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('energySeu.findMany is called once per request', async () => {
+    setup({ seus: 2 });
+    await request(app).get('/api/dashboard');
+    expect(prisma.energySeu.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('energyBill.findMany is called to aggregate costs', async () => {
+    setup({ bills: [] });
+    await request(app).get('/api/dashboard');
+    expect(prisma.energyBill.findMany).toHaveBeenCalledTimes(1);
+  });
+});

@@ -408,3 +408,65 @@ describe('Certification Tracker — extended coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Certification Tracker — final coverage', () => {
+  it('runCertificationTrackerJob processes multiple deadlines in one run', async () => {
+    const past = new Date('2020-01-01');
+    const future = new Date(Date.now() + 120 * 24 * 60 * 60 * 1000);
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([
+      { id: 'cd-a', name: 'A', dueDate: past, status: 'UPCOMING', lastCompletedAt: null },
+      { id: 'cd-b', name: 'B', dueDate: future, status: 'UPCOMING', lastCompletedAt: null },
+    ]);
+    (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({});
+    await runCertificationTrackerJob();
+    expect(prisma.complianceDeadline.update).toHaveBeenCalledTimes(1);
+    expect(prisma.complianceDeadline.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'cd-a' }, data: { status: 'OVERDUE' } })
+    );
+  });
+
+  it('runCertificationTrackerJob findMany is called once', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    await runCertificationTrackerJob();
+    expect(prisma.complianceDeadline.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/certifications data.deadlines is an array', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(Array.isArray(res.body.data.deadlines)).toBe(true);
+  });
+
+  it('POST /api/certifications returns 201 with data.deadline.id on success', async () => {
+    (prisma.complianceDeadline.create as jest.Mock).mockResolvedValue({
+      id: 'cd-final',
+      name: 'Final',
+      category: 'COMPLIANCE',
+      dueDate: new Date('2026-10-01'),
+      status: 'UPCOMING',
+    });
+    const res = await request(app).post('/api/certifications').send({
+      name: 'Final',
+      category: 'COMPLIANCE',
+      dueDate: '2026-10-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.deadline.id).toBe('cd-final');
+  });
+
+  it('GET /api/certifications/:id 500 returns error.code INTERNAL_ERROR', async () => {
+    (prisma.complianceDeadline.findUnique as jest.Mock).mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/certifications/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/certifications pagination.limit matches limit query param', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.limit).toBe(5);
+  });
+});

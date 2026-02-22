@@ -375,3 +375,57 @@ describe('Forecast — additional coverage', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Forecast — method call and response shape coverage', () => {
+  it('GET / calls findMany exactly once per request', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/forecast');
+    expect(mockPrisma.crmDeal.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / response content-type is application/json', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/forecast');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST / calls update exactly once per request', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID1, probability: 55 });
+    await request(app).post('/api/forecast').send({ dealId: ID1, probability: 55 });
+    expect(mockPrisma.crmDeal.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id calls update with the correct dealId in where clause', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID2, probability: 70 });
+    await request(app).put(`/api/forecast/${ID2}`).send({ probability: 70 });
+    expect(mockPrisma.crmDeal.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: ID2 } }),
+    );
+  });
+
+  it('DELETE /:id response data contains id field', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID1, status: 'LOST' });
+    const res = await request(app).delete(`/api/forecast/${ID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET / deals with 50% probability produce weightedValue equal to half the value', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([makeDeal(ID3, 50, 8000)]);
+    const res = await request(app).get('/api/forecast');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].weightedValue).toBe(4000);
+  });
+
+  it('GET / body has success:true with three deals returned', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([
+      makeDeal(ID1, 90, 5000),
+      makeDeal(ID2, 60, 10000),
+      makeDeal(ID3, 20, 2000),
+    ]);
+    const res = await request(app).get('/api/forecast');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(3);
+  });
+});

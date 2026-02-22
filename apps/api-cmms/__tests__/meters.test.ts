@@ -347,3 +347,60 @@ describe('meters — extended coverage', () => {
     expect(res.body.pagination.limit).toBe(25);
   });
 });
+
+describe('meters — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST / sets createdBy from the authenticated user', async () => {
+    prisma.cmmsMeterReading.create.mockResolvedValue(mockReading);
+    await request(app).post('/api/meters').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      meterType: 'HOURS',
+      reading: 5200,
+      readingDate: '2026-02-15T00:00:00Z',
+    });
+    expect(prisma.cmmsMeterReading.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('GET /meters?assetId filters findMany by assetId', async () => {
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([]);
+    prisma.cmmsMeterReading.count.mockResolvedValue(0);
+    const aid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    await request(app).get(`/api/meters?assetId=${aid}`);
+    expect(prisma.cmmsMeterReading.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ assetId: aid }) })
+    );
+  });
+
+  it('PUT /:id returns updated reading value in response', async () => {
+    prisma.cmmsMeterReading.findFirst.mockResolvedValue(mockReading);
+    prisma.cmmsMeterReading.update.mockResolvedValue({ ...mockReading, reading: 6000 });
+    const res = await request(app)
+      .put('/api/meters/00000000-0000-0000-0000-000000000001')
+      .send({ reading: 6000 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.reading).toBe(6000);
+  });
+
+  it('DELETE /:id soft-deletes by setting deletedAt via update', async () => {
+    prisma.cmmsMeterReading.findFirst.mockResolvedValue(mockReading);
+    prisma.cmmsMeterReading.update.mockResolvedValue({ ...mockReading, deletedAt: new Date() });
+    await request(app).delete('/api/meters/00000000-0000-0000-0000-000000000001');
+    expect(prisma.cmmsMeterReading.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns success:true and data is an array', async () => {
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([mockReading]);
+    prisma.cmmsMeterReading.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/meters');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

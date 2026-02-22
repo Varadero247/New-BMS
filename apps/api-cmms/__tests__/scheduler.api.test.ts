@@ -334,3 +334,81 @@ describe('DELETE /api/scheduler/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('scheduler — additional coverage', () => {
+  it('GET /upcoming returns success:true with data array', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([mockSchedule]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/scheduler/upcoming');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /overdue returns success:true and empty data when no overdue', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/scheduler/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /calendar returns year and month matching query params', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.cmmsWorkOrder.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/scheduler/calendar?year=2026&month=6');
+    expect(res.status).toBe(200);
+    expect(res.body.data.year).toBe(2026);
+    expect(res.body.data.month).toBe(6);
+  });
+
+  it('GET / returns pagination object with page, limit, and total', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([mockSchedule]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(15);
+    const res = await request(app).get('/api/scheduler?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+    expect(res.body.pagination.total).toBe(15);
+  });
+
+  it('POST / sets createdBy from authenticated user', async () => {
+    (mockPrisma.cmmsPreventivePlan.create as jest.Mock).mockResolvedValue(mockSchedule);
+    await request(app).post('/api/scheduler').send({
+      assetId: ASSET_ID,
+      name: 'Quarterly Safety Check',
+      frequency: 'QUARTERLY',
+    });
+    expect(mockPrisma.cmmsPreventivePlan.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-1' }) })
+    );
+  });
+
+  it('POST /:id/complete advances nextDue date relative to completedDate', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    const advanced = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({
+      ...mockSchedule,
+      lastPerformed: new Date('2026-02-16'),
+      nextDue: advanced,
+    });
+    const res = await request(app)
+      .post(`/api/scheduler/${SCHEDULE_ID}/complete`)
+      .send({ completedDate: '2026-02-16' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.lastPerformed).toBeDefined();
+    expect(res.body.data.nextDue).toBeDefined();
+  });
+
+  it('PUT /:id response contains updated frequency field', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({
+      ...mockSchedule,
+      frequency: 'WEEKLY',
+    });
+    const res = await request(app).put(`/api/scheduler/${SCHEDULE_ID}`).send({ frequency: 'WEEKLY' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.frequency).toBe('WEEKLY');
+  });
+});

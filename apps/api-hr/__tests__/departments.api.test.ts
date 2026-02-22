@@ -491,3 +491,77 @@ describe('HR Departments API Routes', () => {
     });
   });
 });
+
+describe('HR Departments API — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/departments', departmentsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/departments returns success:true on success', async () => {
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app).get('/api/departments');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/departments response data is an array', async () => {
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app).get('/api/departments');
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('POST /api/departments create is called with name field', async () => {
+    (mockPrisma.hRDepartment.create as jest.Mock).mockResolvedValueOnce({
+      id: 'new-dept',
+      code: 'HR',
+      name: 'Human Resources',
+      isActive: true,
+      parent: null,
+    });
+    await request(app).post('/api/departments').send({ code: 'HR', name: 'Human Resources' });
+    const createCall = (mockPrisma.hRDepartment.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.name).toBe('Human Resources');
+  });
+
+  it('PUT /api/departments/:id response data has id field', async () => {
+    (mockPrisma.hRDepartment.update as jest.Mock).mockResolvedValueOnce({
+      id: '2b000000-0000-4000-a000-000000000001',
+      name: 'Finance Updated',
+      parent: null,
+    });
+    const response = await request(app)
+      .put('/api/departments/2b000000-0000-4000-a000-000000000001')
+      .send({ name: 'Finance Updated' });
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('id');
+  });
+
+  it('DELETE /api/departments/:id passes correct departmentId to employee.count', async () => {
+    (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.hRDepartment.update as jest.Mock).mockResolvedValueOnce({
+      id: '2b000000-0000-4000-a000-000000000001',
+      isActive: false,
+    });
+    await request(app).delete('/api/departments/2b000000-0000-4000-a000-000000000001');
+    expect(mockPrisma.employee.count).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ departmentId: '2b000000-0000-4000-a000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /api/departments/positions/all returns empty array when no positions exist', async () => {
+    (mockPrisma.position.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app).get('/api/departments/positions/all');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+  });
+});

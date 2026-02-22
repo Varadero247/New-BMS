@@ -527,3 +527,65 @@ describe('Quality Documents API Routes', () => {
     });
   });
 });
+
+describe('Quality Documents — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/documents', documentsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns empty items array when no documents exist', async () => {
+    mockPrisma.qualDocument.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/documents').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.items).toEqual([]);
+  });
+
+  it('GET / returns success:true on valid response', async () => {
+    mockPrisma.qualDocument.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/documents').set('Authorization', 'Bearer token');
+    expect(response.body.success).toBe(true);
+  });
+
+  it('DELETE /:id soft deletes by calling update with deletedAt', async () => {
+    mockPrisma.qualDocument.findUnique.mockResolvedValueOnce({ id: '1e000000-0000-4000-a000-000000000001' });
+    mockPrisma.qualDocument.update.mockResolvedValueOnce({});
+    await request(app).delete('/api/documents/1e000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualDocument.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST / returns 400 for missing documentType', async () => {
+    const response = await request(app)
+      .post('/api/documents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Doc',
+        author: 'Jane',
+        ownerCustodian: 'QM',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id updates version field successfully', async () => {
+    mockPrisma.qualDocument.findUnique.mockResolvedValueOnce({ id: '1e000000-0000-4000-a000-000000000001', title: 'Doc', status: 'DRAFT' });
+    mockPrisma.qualDocument.update.mockResolvedValueOnce({ id: '1e000000-0000-4000-a000-000000000001', version: '2.0' });
+    const response = await request(app)
+      .put('/api/documents/1e000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ version: '2.0' });
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+});

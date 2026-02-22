@@ -476,3 +476,85 @@ describe('GET /api/suppliers — extended coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ===================================================================
+// Suppliers — final coverage block
+// ===================================================================
+describe('Finance Suppliers — final coverage', () => {
+  it('GET /api/suppliers data is always an array', async () => {
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/suppliers');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/suppliers/:id data has expected id field', async () => {
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
+      id: 'f7000000-0000-4000-a000-000000000050',
+      code: 'SUPP-OMEGA-0001',
+      name: 'Omega Supplies',
+      deletedAt: null,
+      purchaseOrders: [],
+      _count: { purchaseOrders: 0, bills: 0 },
+    });
+    const res = await request(app).get('/api/suppliers/f7000000-0000-4000-a000-000000000050');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id', 'f7000000-0000-4000-a000-000000000050');
+  });
+
+  it('DELETE /api/suppliers/:id soft-delete update includes deletedAt', async () => {
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
+      id: 'f7000000-0000-4000-a000-000000000051',
+      deletedAt: null,
+    });
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+    mockPrisma.finSupplier.update.mockResolvedValue({
+      id: 'f7000000-0000-4000-a000-000000000051',
+    });
+
+    await request(app).delete('/api/suppliers/f7000000-0000-4000-a000-000000000051');
+    expect(mockPrisma.finSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.anything() }) })
+    );
+  });
+
+  it('GET /api/suppliers count is called once per list request', async () => {
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
+    await request(app).get('/api/suppliers');
+    expect(mockPrisma.finSupplier.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/suppliers/:id passes phone field in update data', async () => {
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
+      id: 'f7000000-0000-4000-a000-000000000052',
+      deletedAt: null,
+    });
+    mockPrisma.finSupplier.update.mockResolvedValue({
+      id: 'f7000000-0000-4000-a000-000000000052',
+      phone: '+44 161 999 0000',
+    });
+
+    await request(app)
+      .put('/api/suppliers/f7000000-0000-4000-a000-000000000052')
+      .send({ phone: '+44 161 999 0000' });
+    expect(mockPrisma.finSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ phone: '+44 161 999 0000' }) })
+    );
+  });
+
+  it('POST /api/suppliers create is called once per valid POST', async () => {
+    mockPrisma.finSupplier.create.mockResolvedValue({
+      id: 'supp-final',
+      code: 'SUPP-DELTA-0001',
+      name: 'Delta Supplier',
+    });
+
+    await request(app).post('/api/suppliers').send({
+      name: 'Delta Supplier',
+      currency: 'GBP',
+      paymentTerms: 30,
+    });
+    expect(mockPrisma.finSupplier.create).toHaveBeenCalledTimes(1);
+  });
+});

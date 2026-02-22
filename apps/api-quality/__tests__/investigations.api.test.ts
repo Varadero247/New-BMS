@@ -422,3 +422,101 @@ describe('Quality Investigations API Routes', () => {
     });
   });
 });
+
+describe('Quality Investigations API — extended coverage', () => {
+  const mockInvestigation = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-INV-2026-001',
+    title: 'Customer complaint investigation',
+    description: 'Investigate root cause of product failure',
+    source: 'COMPLAINT',
+    severity: 'HIGH',
+    status: 'OPEN',
+    assignedTo: 'Jane Investigator',
+    dueDate: new Date('2026-04-01').toISOString(),
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/investigations — response body has success:true', async () => {
+    mockPrisma.qualInvestigation.findMany.mockResolvedValue([mockInvestigation]);
+    mockPrisma.qualInvestigation.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/investigations');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/investigations — default limit is applied', async () => {
+    mockPrisma.qualInvestigation.findMany.mockResolvedValue([]);
+    mockPrisma.qualInvestigation.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/investigations');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('POST /api/investigations — source field is optional', async () => {
+    mockPrisma.qualInvestigation.count.mockResolvedValue(0);
+    mockPrisma.qualInvestigation.create.mockResolvedValue(mockInvestigation);
+
+    const res = await request(app).post('/api/investigations').send({
+      title: 'Investigation without source',
+      description: 'Some description',
+      severity: 'LOW',
+    });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/investigations/:id — returns full investigation object', async () => {
+    mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
+
+    const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Customer complaint investigation');
+    expect(res.body.data.severity).toBe('HIGH');
+  });
+
+  it('DELETE /api/investigations/:id — 500 on update error', async () => {
+    mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
+    mockPrisma.qualInvestigation.update.mockRejectedValue(new Error('write error'));
+
+    const res = await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/investigations/stats — bySeverity includes groupBy result', async () => {
+    mockPrisma.qualInvestigation.count
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(1);
+    mockPrisma.qualInvestigation.groupBy.mockResolvedValue([
+      { severity: 'LOW', _count: { id: 3 } },
+    ]);
+
+    const res = await request(app).get('/api/investigations/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.bySeverity).toBeDefined();
+  });
+
+  it('PUT /api/investigations/:id — returns updated status in response', async () => {
+    mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
+    mockPrisma.qualInvestigation.update.mockResolvedValue({
+      ...mockInvestigation,
+      status: 'CLOSED',
+    });
+
+    const res = await request(app)
+      .put('/api/investigations/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('CLOSED');
+  });
+});

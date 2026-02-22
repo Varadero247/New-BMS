@@ -179,3 +179,44 @@ describe('encryption — extended scenarios', () => {
     expect(isEncryptionConfigured()).toBe(true);
   });
 });
+
+describe('encryption — final edge case coverage', () => {
+  beforeEach(() => {
+    process.env.ENCRYPTION_KEY = 'a'.repeat(64);
+  });
+
+  afterEach(() => {
+    delete process.env.ENCRYPTION_KEY;
+  });
+
+  it('encrypt output is a string', () => {
+    expect(typeof encrypt('any value')).toBe('string');
+  });
+
+  it('decrypt handles a null-byte in plaintext', () => {
+    const val = 'before\x00after';
+    expect(decrypt(encrypt(val))).toBe(val);
+  });
+
+  it('encryptIfPresent with whitespace-only string encrypts it', () => {
+    const ct = encryptIfPresent('   ');
+    expect(typeof ct).toBe('string');
+    expect(ct).not.toBe('   ');
+  });
+
+  it('decryptIfEncrypted returns original for text with no colons', () => {
+    expect(decryptIfEncrypted('nocolons')).toBe('nocolons');
+  });
+
+  it('encrypt called twice with same input produces different IV segments', () => {
+    const c1 = encrypt('same-text');
+    const c2 = encrypt('same-text');
+    // IV is first segment (different each time)
+    expect(c1.split(':')[0]).not.toBe(c2.split(':')[0]);
+  });
+
+  it('decrypt result matches original plaintext for numeric string', () => {
+    const val = '1234567890';
+    expect(decrypt(encrypt(val))).toBe(val);
+  });
+});

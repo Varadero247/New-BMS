@@ -576,3 +576,101 @@ describe('Quality Suppliers API — extended coverage', () => {
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Quality Suppliers API — final edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/suppliers data has referenceNumber field', async () => {
+    (mockPrisma.qualSupplier.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: '25000000-0000-4000-a000-000000000001', referenceNumber: 'QMS-SUP-2026-001', supplierName: 'Acme Ltd' },
+    ]);
+    (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(1);
+    const response = await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.items[0].referenceNumber).toBe('QMS-SUP-2026-001');
+  });
+
+  it('DELETE /api/suppliers/:id calls update with deletedAt', async () => {
+    (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({ id: '25000000-0000-4000-a000-000000000001' });
+    (mockPrisma.qualSupplier.update as jest.Mock).mockResolvedValueOnce({});
+    const response = await request(app)
+      .delete('/api/suppliers/25000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(204);
+    expect(mockPrisma.qualSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/suppliers filter by approvedStatus=CONDITIONALLY_APPROVED', async () => {
+    (mockPrisma.qualSupplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/suppliers?approvedStatus=CONDITIONALLY_APPROVED').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ approvedStatus: 'CONDITIONALLY_APPROVED' }) })
+    );
+  });
+
+  it('POST /api/suppliers referenceNumber is generated on create', async () => {
+    (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualSupplier.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-SUP-2026-001',
+      supplierName: 'Test Supplier',
+      category: 'SERVICES',
+      approvedStatus: 'PENDING_EVALUATION',
+    });
+    const response = await request(app)
+      .post('/api/suppliers')
+      .set('Authorization', 'Bearer token')
+      .send({ supplierName: 'Test Supplier', category: 'SERVICES' });
+    expect(response.status).toBe(201);
+    expect(mockPrisma.qualSupplier.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ referenceNumber: expect.stringContaining('QMS-SUP-') }) })
+    );
+  });
+
+  it('PUT /api/suppliers/:id returns updated supplierName', async () => {
+    (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      supplierName: 'Old Name',
+      category: 'MATERIALS',
+      qualityScore: 80,
+      hsAuditScore: 70,
+      envAuditScore: 60,
+    });
+    (mockPrisma.qualSupplier.update as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      supplierName: 'Brand New Name',
+    });
+    const response = await request(app)
+      .put('/api/suppliers/25000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ supplierName: 'Brand New Name' });
+    expect(response.status).toBe(200);
+    expect(response.body.data.supplierName).toBe('Brand New Name');
+  });
+
+  it('GET /api/suppliers/:id returns overallImsScore field', async () => {
+    (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      supplierName: 'Acme Ltd',
+      overallImsScore: 86,
+    });
+    const response = await request(app)
+      .get('/api/suppliers/25000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.overallImsScore).toBe(86);
+  });
+});

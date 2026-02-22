@@ -503,3 +503,84 @@ describe('DHF — deeper edge cases', () => {
     expect(res.body.data[0].completeness).toBe(30);
   });
 });
+
+describe('DHF — boundary and schema coverage', () => {
+  let boundApp: express.Express;
+
+  beforeAll(() => {
+    boundApp = express();
+    boundApp.use(express.json());
+    boundApp.use('/api/dhf', dhfRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /dhf returns success:true when projects exist', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+
+    const res = await request(boundApp).get('/api/dhf');
+
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('POST /dhf with invalid category still creates (category is optional)', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce(mockHistoryFile);
+
+    const res = await request(boundApp).post('/api/dhf').send({
+      projectId: PROJECT_ID,
+      title: 'Some Doc',
+      category: 'DESIGN_VALIDATION',
+    });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /dhf calls findMany with include historyFiles', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    await request(boundApp).get('/api/dhf');
+
+    expect(mockPrisma.designProject.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ include: expect.objectContaining({ historyFiles: expect.anything() }) })
+    );
+  });
+
+  it('POST /dhf create is called exactly once', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce(mockHistoryFile);
+
+    await request(boundApp).post('/api/dhf').send({ projectId: PROJECT_ID, title: 'Single Call Doc' });
+
+    expect(mockPrisma.designHistoryFile.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /dhf response body is an array', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    const res = await request(boundApp).get('/api/dhf');
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /dhf returns 400 with VALIDATION_ERROR when body is empty', async () => {
+    const res = await request(boundApp).post('/api/dhf').send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /dhf completeness for 5 files is 50', async () => {
+    const projectWith5Files = {
+      ...mockProject,
+      historyFiles: new Array(5).fill(null).map((_, i) => ({ ...mockHistoryFile, id: `file-${i}` })),
+    };
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([projectWith5Files]);
+
+    const res = await request(boundApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].completeness).toBe(50);
+  });
+});

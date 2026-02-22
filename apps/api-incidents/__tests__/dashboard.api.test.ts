@@ -234,3 +234,52 @@ describe('GET /api/dashboard/stats — comprehensive', () => {
     expect(Object.keys(res.body.data)).toContain('totalIncidents');
   });
 });
+
+describe('GET /api/dashboard/stats — final coverage block', () => {
+  it('returns 200 with count of 1000', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(1000);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalIncidents).toBe(1000);
+  });
+
+  it('error body has error.message as string', async () => {
+    mockPrisma.incIncident.count.mockRejectedValue(new Error('internal server error'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(typeof res.body.error.message).toBe('string');
+  });
+
+  it('success response data.totalIncidents is not undefined', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(11);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalIncidents).not.toBeUndefined();
+  });
+
+  it('where clause does not include deletedAt: undefined', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    const callWhere = (mockPrisma.incIncident.count as jest.Mock).mock.calls[0][0].where;
+    expect(callWhere.deletedAt).toBeNull();
+    expect(callWhere.deletedAt).not.toBeUndefined();
+  });
+
+  it('response content-type includes application/json', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toContain('application/json');
+  });
+
+  it('totalIncidents is integer (not a float)', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(7);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(Number.isInteger(res.body.data.totalIncidents)).toBe(true);
+  });
+
+  it('success key in response is strictly boolean true on success', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.success).toStrictEqual(true);
+  });
+});

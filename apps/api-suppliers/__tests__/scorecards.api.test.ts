@@ -325,3 +325,53 @@ describe('scorecards.api — edge cases and extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('scorecards.api — final coverage expansion', () => {
+  it('GET /api/scorecards/:id returns 500 on DB error', async () => {
+    mockPrisma.suppScorecard.findFirst.mockRejectedValue(new Error('db fail'));
+    const res = await request(app).get('/api/scorecards/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/scorecards with supplierId filter returns 200', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/scorecards?supplierId=sup-1');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/scorecards with delivery score creates successfully', async () => {
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      supplierId: 'sup-1',
+      delivery: 85,
+    });
+    const res = await request(app).post('/api/scorecards').send({
+      supplierId: 'sup-1',
+      delivery: 85,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/scorecards/:id response data.id matches expected', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000007',
+      supplierId: 'sup-7',
+    });
+    const res = await request(app).get('/api/scorecards/00000000-0000-0000-0000-000000000007');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000007');
+  });
+
+  it('DELETE /api/scorecards/:id returns 500 when update fails', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockRejectedValue(new Error('db fail'));
+    const res = await request(app).delete('/api/scorecards/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

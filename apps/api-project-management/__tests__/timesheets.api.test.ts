@@ -589,3 +589,73 @@ describe('timesheets.api — edge cases and extended coverage', () => {
     expect(res.body.meta.totalPages).toBe(5);
   });
 });
+
+describe('timesheets.api — final extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/timesheets', timesheetsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /api/timesheets/:id does not call update when not found', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/timesheets/00000000-0000-4000-a000-ffffffffffff');
+    expect(mockPrisma.projectTimesheet.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/timesheets returns data as array', async () => {
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValueOnce([mockTimesheet]);
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app)
+      .get('/api/timesheets')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/timesheets/:id does not call update when not found', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .put('/api/timesheets/00000000-0000-4000-a000-ffffffffffff')
+      .send({ hoursWorked: 5 });
+    expect(mockPrisma.projectTimesheet.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/timesheets meta.page defaults to 1', async () => {
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app)
+      .get('/api/timesheets')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(res.body.meta.page).toBe(1);
+  });
+
+  it('PUT /api/timesheets/:id/approve does not call update when not found', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .put('/api/timesheets/00000000-0000-4000-a000-ffffffffffff/approve')
+      .send();
+    expect(mockPrisma.projectTimesheet.update).not.toHaveBeenCalled();
+  });
+
+  it('POST /api/timesheets: create called with correct employeeId', async () => {
+    (mockPrisma.projectTimesheet.create as jest.Mock).mockResolvedValueOnce({
+      ...mockTimesheet,
+      employeeId: 'emp-test',
+    });
+    await request(app).post('/api/timesheets').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      employeeId: 'emp-test',
+      workDate: '2025-03-15',
+      hoursWorked: 8,
+      activityType: 'DEVELOPMENT',
+    });
+    expect(mockPrisma.projectTimesheet.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ employeeId: 'emp-test' }),
+      })
+    );
+  });
+});

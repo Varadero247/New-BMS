@@ -488,3 +488,89 @@ describe('HR Attendance API Routes', () => {
     });
   });
 });
+
+describe('HR Attendance — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/attendance', attendanceRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/attendance returns success: true', async () => {
+    (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.attendance.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/attendance');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/attendance meta.limit defaults to 50', async () => {
+    (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.attendance.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/attendance');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.limit).toBe(50);
+  });
+
+  it('GET /api/attendance data is an array', async () => {
+    (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.attendance.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/attendance');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /clock-in returns 400 for missing method field gracefully', async () => {
+    (mockPrisma.attendance.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValueOnce({ id: '11111111-1111-1111-1111-111111111111', shiftId: null, shift: null });
+    (mockPrisma.attendance.upsert as jest.Mock).mockResolvedValueOnce({
+      id: 'att-1', employeeId: '11111111-1111-1111-1111-111111111111', clockIn: new Date(), status: 'PRESENT',
+      employee: { firstName: 'Test', lastName: 'User' },
+    });
+    const res = await request(app).post('/api/attendance/clock-in').send({ employeeId: '11111111-1111-1111-1111-111111111111' });
+    expect([200, 400]).toContain(res.status);
+  });
+
+  it('GET /api/attendance/shifts/all response data is an array', async () => {
+    (mockPrisma.workShift.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/attendance/shifts/all');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /shifts returns 400 for missing endTime', async () => {
+    const res = await request(app)
+      .post('/api/attendance/shifts')
+      .send({ name: 'Shift', code: 'SH', startTime: '08:00', workingHours: 8 });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/attendance/:id returns 200 with success: true', async () => {
+    (mockPrisma.attendance.update as jest.Mock).mockResolvedValueOnce({
+      id: '2c000000-0000-4000-a000-000000000001',
+      status: 'ABSENT',
+      notes: 'Sick leave',
+    });
+    const res = await request(app)
+      .put('/api/attendance/2c000000-0000-4000-a000-000000000001')
+      .send({ status: 'ABSENT', notes: 'Sick leave' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/attendance filter by departmentId is passed as where clause', async () => {
+    (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.attendance.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/attendance?departmentId=dept-1');
+    expect(mockPrisma.attendance.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+});

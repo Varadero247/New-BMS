@@ -500,3 +500,127 @@ describe('HACCP Flow — extended coverage', () => {
     expect(res.body.data.id).toBe(TEST_ID);
   });
 });
+
+describe('HACCP Flow — final coverage pass', () => {
+  it('GET /api/haccp-flow includes step index for each item', async () => {
+    (prisma.fsCcp.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000010',
+        processStep: 'Smoking',
+        criticalLimit: '74°C',
+        monitoringMethod: 'Thermocouple',
+        isActive: true,
+        hazard: null,
+        number: 'CCP-010',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const res = await request(app).get('/api/haccp-flow');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].step).toBe('number');
+  });
+
+  it('POST /api/haccp-flow stores monitoringMethod from controlMeasures', async () => {
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(2);
+    (prisma.fsCcp.create as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'Baking',
+      criticalLimit: '180°C',
+      monitoringMethod: 'Oven probe',
+      isActive: true,
+      hazard: null,
+      number: 'CCP-003',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await request(app).post('/api/haccp-flow').send({
+      processStep: 'Baking',
+      controlMeasures: 'Oven probe',
+    });
+    expect(prisma.fsCcp.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ monitoringMethod: 'Oven probe' }),
+      })
+    );
+  });
+
+  it('GET /api/haccp-flow/:id response has isCCP property', async () => {
+    (prisma.fsCcp.findFirst as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'Drying',
+      criticalLimit: '< 10% moisture',
+      monitoringMethod: 'Moisture meter',
+      isActive: true,
+      hazard: null,
+      number: 'CCP-006',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    const res = await request(app).get(`/api/haccp-flow/${TEST_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('isCCP', true);
+  });
+
+  it('PUT /api/haccp-flow/:id can update processStep and criticalLimit together', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'Combined Step',
+      criticalLimit: '85°C',
+      monitoringMethod: 'Sensor',
+      isActive: true,
+      hazard: null,
+      number: 'CCP-001',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    const res = await request(app)
+      .put(`/api/haccp-flow/${TEST_ID}`)
+      .send({ processStep: 'Combined Step', criticalLimit: '85°C' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.processStep).toBe('Combined Step');
+  });
+
+  it('DELETE /api/haccp-flow/:id calls update with where id and deletedAt', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({ id: TEST_ID, deletedAt: new Date() });
+    await request(app).delete(`/api/haccp-flow/${TEST_ID}`);
+    expect(prisma.fsCcp.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: TEST_ID },
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/haccp-flow with multiple CCPs assigns correct step indices', async () => {
+    (prisma.fsCcp.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        processStep: 'Step 1',
+        criticalLimit: 'L1',
+        monitoringMethod: 'M1',
+        isActive: true,
+        hazard: null,
+        number: 'CCP-001',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000002',
+        processStep: 'Step 2',
+        criticalLimit: 'L2',
+        monitoringMethod: 'M2',
+        isActive: true,
+        hazard: null,
+        number: 'CCP-002',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const res = await request(app).get('/api/haccp-flow');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].step).toBe(1);
+    expect(res.body.data[1].step).toBe(2);
+  });
+});

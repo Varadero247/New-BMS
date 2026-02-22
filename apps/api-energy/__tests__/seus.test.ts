@@ -398,3 +398,87 @@ describe('seus — extended coverage', () => {
     expect(res.body.data.facility).toBe('New Building');
   });
 });
+
+describe('seus — further edge cases', () => {
+  it('DELETE /api/seus/:id calls update with deletedAt', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e7000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energySeu.update as jest.Mock).mockResolvedValue({
+      id: 'e7000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/seus/e7000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(prisma.energySeu.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/seus/:id returns id in data', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e7000000-0000-4000-a000-000000000001',
+      name: 'HVAC System',
+      priority: 'HIGH',
+    });
+
+    const res = await request(app).get('/api/seus/e7000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.priority).toBe('HIGH');
+  });
+
+  it('POST /api/seus returns 400 when consumptionPercentage is missing', async () => {
+    const res = await request(app).post('/api/seus').send({
+      name: 'Boiler System',
+      annualConsumption: 100000,
+      unit: 'kWh',
+      priority: 'HIGH',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/seus returns list with correct length', async () => {
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([
+      { id: 'e7000000-0000-4000-a000-000000000001', name: 'HVAC' },
+      { id: 'e7000000-0000-4000-a000-000000000002', name: 'Lighting' },
+    ]);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(2);
+
+    const res = await request(app).get('/api/seus');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.pagination.total).toBe(2);
+  });
+
+  it('PUT /api/seus/:id updates status to ANALYZED', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e7000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energySeu.update as jest.Mock).mockResolvedValue({
+      id: 'e7000000-0000-4000-a000-000000000001',
+      status: 'ANALYZED',
+    });
+
+    const res = await request(app)
+      .put('/api/seus/e7000000-0000-4000-a000-000000000001')
+      .send({ status: 'ANALYZED' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('ANALYZED');
+  });
+
+  it('GET /api/seus response has success:true', async () => {
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/seus');
+
+    expect(res.body.success).toBe(true);
+  });
+});

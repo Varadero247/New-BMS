@@ -408,3 +408,73 @@ describe('DSARs — extended coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('DSARs — final coverage', () => {
+  it('GET /api/dsars response body has success:true', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dsars');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/dsars create is called once on valid input', async () => {
+    (prisma.dataRequest.create as jest.Mock).mockResolvedValue({
+      id: 'dr-once',
+      type: 'ACCESS',
+      requesterEmail: 'once@test.com',
+      requesterName: 'Once User',
+      status: 'RECEIVED',
+      deadlineAt: new Date(),
+    });
+    await request(app).post('/api/dsars').send({
+      type: 'ACCESS',
+      requesterEmail: 'once@test.com',
+      requesterName: 'Once User',
+    });
+    expect(prisma.dataRequest.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/dsars data.requests is always an array', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dsars');
+    expect(Array.isArray(res.body.data.requests)).toBe(true);
+  });
+
+  it('PATCH /api/dsars/:id/status update called with correct id', async () => {
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'RECEIVED',
+    });
+    (prisma.dataRequest.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'VERIFIED',
+    });
+    await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'VERIFIED' });
+    expect(prisma.dataRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /api/dsars count is called once per list request', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/dsars');
+    expect(prisma.dataRequest.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/dsars create data has deadlineAt set to future Date', async () => {
+    (prisma.dataRequest.create as jest.Mock).mockImplementation(({ data }) => {
+      expect(data.deadlineAt).toBeInstanceOf(Date);
+      expect(data.deadlineAt.getTime()).toBeGreaterThan(Date.now());
+      return Promise.resolve({ id: 'dr-dl', ...data });
+    });
+    await request(app).post('/api/dsars').send({
+      type: 'ERASURE',
+      requesterEmail: 'dl@test.com',
+      requesterName: 'DL User',
+    });
+  });
+});

@@ -345,3 +345,73 @@ describe('Fumigation API — additional coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Fumigation API — additional coverage 2', () => {
+  it('GET /api/fumigation filters by status=IN_PROGRESS when provided', async () => {
+    (mockPrisma.chemFumigation.findMany as jest.Mock).mockResolvedValue([{ ...mockFumigation, status: 'IN_PROGRESS' }]);
+    (mockPrisma.chemFumigation.count as jest.Mock).mockResolvedValue(1);
+    await request(app).get('/api/fumigation?status=IN_PROGRESS');
+    const [call] = (mockPrisma.chemFumigation.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.status).toBe('IN_PROGRESS');
+  });
+
+  it('GET /api/fumigation/:id returns data with fumigantName field', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockResolvedValue(mockFumigation);
+    const res = await request(app).get('/api/fumigation/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('fumigantName', 'Phosphine');
+  });
+
+  it('POST /api/fumigation sets status to PLANNED on create', async () => {
+    (mockPrisma.chemFumigation.create as jest.Mock).mockResolvedValue(mockFumigation);
+    await request(app).post('/api/fumigation').send({
+      location: 'Warehouse B',
+      purpose: 'Pest control',
+      fumigantName: 'Methyl Bromide',
+      plannedStartDate: '2026-04-01',
+      competentPersonName: 'Alice Green',
+    });
+    const [call] = (mockPrisma.chemFumigation.create as jest.Mock).mock.calls;
+    expect(call[0].data).toHaveProperty('status', 'PLANNED');
+  });
+
+  it('PUT /api/fumigation/:id/notify-hse sets hseNotificationDate on update', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockResolvedValue(mockFumigation);
+    (mockPrisma.chemFumigation.update as jest.Mock).mockResolvedValue({
+      ...mockFumigation, status: 'HSE_NOTIFIED', hseNotificationDate: new Date('2026-03-05'),
+    });
+    const res = await request(app)
+      .put('/api/fumigation/00000000-0000-0000-0000-000000000001/notify-hse')
+      .send({ hseNotificationRef: 'HSE-2026-999', hseNotificationDate: '2026-03-05' });
+    expect(res.status).toBe(200);
+    const [call] = (mockPrisma.chemFumigation.update as jest.Mock).mock.calls;
+    expect(call[0].data).toHaveProperty('hseNotificationDate');
+  });
+
+  it('PUT /api/fumigation/:id/gas-free returns 500 on db error', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockResolvedValue({ ...mockFumigation, status: 'IN_PROGRESS' });
+    (mockPrisma.chemFumigation.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/fumigation/00000000-0000-0000-0000-000000000001/gas-free')
+      .send({ gasFreeDate: '2026-03-13', gasFreeIssuedBy: 'Dr. Safety' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/fumigation returns empty data array when no records', async () => {
+    (mockPrisma.chemFumigation.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemFumigation.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/fumigation');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('PUT /api/fumigation/:id/notify-hse returns 500 on db error', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockResolvedValue(mockFumigation);
+    (mockPrisma.chemFumigation.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/fumigation/00000000-0000-0000-0000-000000000001/notify-hse')
+      .send({ hseNotificationRef: 'HSE-FAIL', hseNotificationDate: '2026-03-05' });
+    expect(res.status).toBe(500);
+  });
+});

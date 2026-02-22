@@ -427,3 +427,108 @@ describe('Life Cycle Assessment Routes — extended coverage', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('Life Cycle Assessment Routes — further coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST /assessments generates refNumber containing current year digits', async () => {
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.lifeCycleAssessment.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      refNumber: 'LCA-2602-0001',
+      stages: [],
+    });
+
+    const res = await request(app).post('/api/lifecycle/assessments').send({
+      title: 'Full LCA',
+      productProcess: 'Assembly',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.refNumber).toContain('LCA-');
+  });
+
+  it('GET /assessments response body has success:true', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/lifecycle/assessments');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /assessments/:id returns stages array in data', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      stages: [
+        { stageName: 'MANUFACTURING', aspects: 'Assembly' },
+        { stageName: 'USE', aspects: 'Operation' },
+      ],
+    });
+
+    const res = await request(app).get(
+      '/api/lifecycle/assessments/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.stages).toHaveLength(2);
+  });
+
+  it('PUT /assessments/:id/stages/MANUFACTURING stores controls field', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockResolvedValue({
+      stageName: 'MANUFACTURING',
+      aspects: 'Assembly',
+      controls: 'Ventilation systems installed',
+    });
+
+    const res = await request(app)
+      .put('/api/lifecycle/assessments/00000000-0000-0000-0000-000000000001/stages/MANUFACTURING')
+      .send({ aspects: 'Assembly', controls: 'Ventilation systems installed' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.controls).toBe('Ventilation systems installed');
+  });
+
+  it('GET /assessments with status=IN_PROGRESS filter wired to findMany', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/lifecycle/assessments?status=IN_PROGRESS');
+
+    expect(mockPrisma.lifeCycleAssessment.findMany).toHaveBeenCalled();
+  });
+
+  it('POST /assessments returns 400 for invalid body (no fields)', async () => {
+    const res = await request(app).post('/api/lifecycle/assessments').send({});
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /assessments meta page=1 limit defaults to 50', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValue(10);
+
+    const res = await request(app).get('/api/lifecycle/assessments');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(1);
+    expect(res.body.meta.total).toBe(10);
+  });
+
+  it('PUT /assessments/:id/stages/END_OF_LIFE returns 500 when upsert throws', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app)
+      .put('/api/lifecycle/assessments/00000000-0000-0000-0000-000000000001/stages/END_OF_LIFE')
+      .send({ aspects: 'Disposal' });
+
+    expect(res.status).toBe(500);
+  });
+});

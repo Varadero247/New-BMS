@@ -541,3 +541,115 @@ describe('Quality Interested Parties API — additional edge cases', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+describe('Quality Interested Parties API — further edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/parties', partiesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/parties — totalPages calculated correctly', async () => {
+    (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(50);
+
+    const response = await request(app)
+      .get('/api/parties?page=1&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(5);
+  });
+
+  it('DELETE /api/parties/:id — 500 on update DB error after findUnique', async () => {
+    (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '24000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.qualInterestedParty.update as jest.Mock).mockRejectedValueOnce(new Error('write error'));
+
+    const response = await request(app)
+      .delete('/api/parties/24000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/parties/:id — referenceNumber present in response', async () => {
+    (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '24000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-PTY-2026-001',
+      partyName: 'Acme Corp',
+      partyType: 'EXTERNAL',
+      reasonForInclusion: 'Key customer',
+      status: 'ACTIVE',
+      issues: [],
+    });
+
+    const response = await request(app)
+      .get('/api/parties/24000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.referenceNumber).toBe('QMS-PTY-2026-001');
+  });
+
+  it('PUT /api/parties/:id — update passes correct id in where clause', async () => {
+    (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '24000000-0000-4000-a000-000000000001',
+      partyName: 'Acme Corp',
+      partyType: 'EXTERNAL',
+      reasonForInclusion: 'Key customer',
+      status: 'ACTIVE',
+    });
+    (mockPrisma.qualInterestedParty.update as jest.Mock).mockResolvedValueOnce({
+      id: '24000000-0000-4000-a000-000000000001',
+      partyName: 'Updated Corp',
+    });
+
+    await request(app)
+      .put('/api/parties/24000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ partyName: 'Updated Corp' });
+
+    expect(mockPrisma.qualInterestedParty.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '24000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+
+  it('POST /api/parties — create called with correct partyType', async () => {
+    (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualInterestedParty.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-PTY-2026-001',
+      partyName: 'Internal Dept',
+      partyType: 'INTERNAL',
+      reasonForInclusion: 'Core team',
+      status: 'ACTIVE',
+    });
+
+    const response = await request(app)
+      .post('/api/parties')
+      .set('Authorization', 'Bearer token')
+      .send({
+        partyName: 'Internal Dept',
+        partyType: 'INTERNAL',
+        reasonForInclusion: 'Core team',
+      });
+
+    expect(response.status).toBe(201);
+    expect(mockPrisma.qualInterestedParty.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ partyType: 'INTERNAL' }),
+      })
+    );
+  });
+});

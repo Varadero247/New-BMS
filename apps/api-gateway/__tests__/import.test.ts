@@ -343,3 +343,67 @@ describe('Import Routes — edge cases and 500 paths', () => {
     expect(mockParseCSV).toHaveBeenCalledWith('firstName\nAlice', 'employees');
   });
 });
+
+describe('Import Routes — final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/import', importRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetImportSchema.mockReturnValue({
+      recordType: 'suppliers',
+      label: 'Suppliers',
+      fields: [{ name: 'name', required: true }, { name: 'code', required: true }],
+    });
+    mockGetTemplateHeaders.mockReturnValue('name,code,type,status,country,contact');
+    mockParseCSV.mockReturnValue({ valid: [{ name: 'Test' }], errors: [], totalRows: 1 });
+    mockImportRecords.mockReturnValue({ imported: 5, skipped: 0, errors: [] });
+  });
+
+  it('GET /schemas returns success: true', async () => {
+    const res = await request(app).get('/api/admin/import/schemas');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /validate response data.errors is an array', async () => {
+    const res = await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'suppliers', csvData: 'name,code\nTest,TST' });
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.errors)).toBe(true);
+  });
+
+  it('POST /execute importRecords called once per request', async () => {
+    await request(app)
+      .post('/api/admin/import/execute')
+      .send({ recordType: 'suppliers', rows: [{ name: 'Beta', code: 'BET-001' }] });
+    expect(mockImportRecords).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /templates/:type response includes recordType in data', async () => {
+    const res = await request(app).get('/api/admin/import/templates/suppliers');
+    expect(res.status).toBe(200);
+    expect(res.body.data.recordType).toBe('suppliers');
+  });
+
+  it('POST /validate returns success: true', async () => {
+    const res = await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'suppliers', csvData: 'name,code\nTest,TST' });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /execute returns success: true', async () => {
+    const res = await request(app)
+      .post('/api/admin/import/execute')
+      .send({ recordType: 'suppliers', rows: [{ name: 'Delta', code: 'DEL-001' }] });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

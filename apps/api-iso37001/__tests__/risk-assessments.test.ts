@@ -541,3 +541,88 @@ describe('ISO 37001 Risk Assessments — additional response shape coverage', ()
     expect(res.body.data).toHaveProperty('id');
   });
 });
+
+describe('ISO 37001 Risk Assessments — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risk-assessments: skip is correct for page 4 limit 5', async () => {
+    (mockPrisma.abRiskAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abRiskAssessment.count as jest.Mock).mockResolvedValueOnce(25);
+
+    await request(app).get('/api/risk-assessments?page=4&limit=5');
+
+    expect(mockPrisma.abRiskAssessment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 15, take: 5 })
+    );
+  });
+
+  it('DELETE /api/risk-assessments/:id: returns 500 on DB error during soft delete', async () => {
+    (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
+    (mockPrisma.abRiskAssessment.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).delete(
+      '/api/risk-assessments/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/risk-assessments/:id/mitigate: returns 500 on DB error', async () => {
+    (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
+    (mockPrisma.abRiskAssessment.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/risk-assessments/00000000-0000-0000-0000-000000000001/mitigate')
+      .send({ mitigationPlan: 'Enhanced checks', residualLikelihood: 2, residualImpact: 2 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/risk-assessments: referenceNumber is present in response items', async () => {
+    (mockPrisma.abRiskAssessment.findMany as jest.Mock).mockResolvedValueOnce([mockRisk]);
+    (mockPrisma.abRiskAssessment.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/risk-assessments');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('referenceNumber');
+  });
+
+  it('PUT /api/risk-assessments/:id: returns 500 on DB error during update', async () => {
+    (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
+    (mockPrisma.abRiskAssessment.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/risk-assessments/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Title' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/risk-assessments: calculates HIGH risk level for score 12-19', async () => {
+    (mockPrisma.abRiskAssessment.create as jest.Mock).mockResolvedValueOnce({
+      ...mockRisk,
+      riskScore: 12,
+      riskLevel: 'HIGH',
+    });
+
+    const res = await request(app).post('/api/risk-assessments').send({
+      title: 'High Risk Item',
+      category: 'BRIBERY_OF_PUBLIC_OFFICIALS',
+      businessFunction: 'Sales',
+      likelihood: 3,
+      impact: 4,
+    });
+
+    expect(mockPrisma.abRiskAssessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ riskScore: 12, riskLevel: 'HIGH' }),
+      })
+    );
+  });
+});

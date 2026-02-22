@@ -289,3 +289,69 @@ describe('dashboard.api — stats data integrity', () => {
     expect(res.body).not.toBeNull();
   });
 });
+
+describe('dashboard.api (suppliers) — final coverage', () => {
+  it('response content-type is JSON', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('totalDocuments is a number', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(55);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalDocuments).toBe('number');
+  });
+
+  it('error response success is false', async () => {
+    mockPrisma.suppSupplier.count.mockRejectedValue(new Error('gone'));
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /stats with all zero counts has no data.undefined keys', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalSuppliers).toBe(0);
+    expect(res.body.data.totalScorecards).toBe(0);
+    expect(res.body.data.totalDocuments).toBe(0);
+  });
+
+  it('HTTP GET /stats returns 200 on success', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(1);
+    mockPrisma.suppScorecard.count.mockResolvedValue(1);
+    mockPrisma.suppDocument.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+  });
+
+  it('HTTP GET /stats returns 500 when suppDocument count throws', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockRejectedValue(new Error('doc error'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('data object contains exactly the three stat keys', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(10);
+    mockPrisma.suppScorecard.count.mockResolvedValue(20);
+    mockPrisma.suppDocument.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    const keys = Object.keys(res.body.data);
+    expect(keys).toContain('totalSuppliers');
+    expect(keys).toContain('totalScorecards');
+    expect(keys).toContain('totalDocuments');
+  });
+});

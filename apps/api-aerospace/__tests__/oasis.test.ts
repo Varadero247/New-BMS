@@ -399,4 +399,74 @@ describe('OASIS Routes — additional coverage', () => {
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
+
+  it('GET /api/oasis/monitor returns empty data array with correct meta when no suppliers', async () => {
+    (mockPrisma.oasisMonitoredSupplier.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisMonitoredSupplier.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/oasis/monitor');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+
+  it('GET /api/oasis/alerts page 3 limit 10 computes skip=20', async () => {
+    (mockPrisma.oasisAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisAlert.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/oasis/alerts?page=3&limit=10');
+    expect(mockPrisma.oasisAlert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('PUT /api/oasis/alerts/:id/acknowledge returns success:true in response body', async () => {
+    (mockPrisma.oasisAlert.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      acknowledged: false,
+    });
+    (mockPrisma.oasisAlert.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      acknowledged: true,
+      acknowledgedBy: 'test@test.com',
+    });
+
+    const res = await request(app).put(
+      '/api/oasis/alerts/00000000-0000-0000-0000-000000000002/acknowledge'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.acknowledged).toBe(true);
+  });
+
+  it('GET /api/oasis/monitor response shape has success:true', async () => {
+    (mockPrisma.oasisMonitoredSupplier.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisMonitoredSupplier.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/oasis/monitor');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('GET /api/oasis/monitor page 2 limit 5 computes correct skip in findMany', async () => {
+    (mockPrisma.oasisMonitoredSupplier.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisMonitoredSupplier.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/oasis/monitor?page=2&limit=5');
+    expect(mockPrisma.oasisMonitoredSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET /api/oasis/alerts returns empty data array with correct meta', async () => {
+    (mockPrisma.oasisAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisAlert.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/oasis/alerts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+  });
 });

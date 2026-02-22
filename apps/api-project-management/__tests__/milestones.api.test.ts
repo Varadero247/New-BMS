@@ -544,3 +544,69 @@ describe('milestones.api — edge cases and extended coverage', () => {
     expect(res.body.meta.totalPages).toBe(10);
   });
 });
+
+describe('milestones.api — final extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/milestones', milestonesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /api/milestones/:id does not call update when not found', async () => {
+    (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/milestones/00000000-0000-4000-a000-ffffffffffff');
+    expect(mockPrisma.projectMilestone.update).not.toHaveBeenCalled();
+  });
+
+  it('PUT /api/milestones/:id/approve does not call update when not found', async () => {
+    (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).put('/api/milestones/00000000-0000-4000-a000-ffffffffffff/approve');
+    expect(mockPrisma.projectMilestone.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/milestones meta.limit defaults to 50', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get(
+      '/api/milestones?projectId=44000000-0000-4000-a000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.meta.limit).toBe(50);
+  });
+
+  it('POST /api/milestones returns 201 on success', async () => {
+    (mockPrisma.projectMilestone.create as jest.Mock).mockResolvedValueOnce(mockMilestone);
+    const res = await request(app).post('/api/milestones').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      milestoneName: 'New Milestone',
+      plannedDate: '2025-09-01',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/milestones returns body with data as array', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([mockMilestone]);
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get(
+      '/api/milestones?projectId=44000000-0000-4000-a000-000000000001'
+    );
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/milestones/:id update is called with correct id in where clause', async () => {
+    (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
+    (mockPrisma.projectMilestone.update as jest.Mock).mockResolvedValueOnce({
+      ...mockMilestone,
+      deliverables: 'New deliverables',
+    });
+    await request(app)
+      .put('/api/milestones/1b000000-0000-4000-a000-000000000001')
+      .send({ deliverables: 'New deliverables' });
+    expect(mockPrisma.projectMilestone.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '1b000000-0000-4000-a000-000000000001' } })
+    );
+  });
+});

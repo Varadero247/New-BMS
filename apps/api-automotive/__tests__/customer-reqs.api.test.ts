@@ -358,3 +358,61 @@ describe('customer-reqs — additional edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('customer-reqs — final coverage', () => {
+  it('GET /api/customer-reqs returns data array', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([mockReq]);
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/customer-reqs');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/customer-reqs/compliance-summary byStatus is an object', async () => {
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(10);
+    (mockPrisma.customerReq.groupBy as jest.Mock).mockResolvedValue([
+      { complianceStatus: 'COMPLIANT', _count: { id: 8 } },
+    ]);
+    const res = await request(app).get('/api/customer-reqs/compliance-summary');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.byStatus).toBe('object');
+  });
+
+  it('POST /api/customer-reqs creates with refNumber in response', async () => {
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.customerReq.create as jest.Mock).mockResolvedValue({ ...mockReq, id: 'new-req' });
+    const res = await request(app).post('/api/customer-reqs').send({
+      customer: 'Ford Motor Company',
+      requirementTitle: 'PPAP Level 3 Submission',
+      description: 'All new parts must have PPAP Level 3 submission before SOP',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+
+  it('DELETE /api/customer-reqs/:id calls update with deletedAt', async () => {
+    (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue(mockReq);
+    (mockPrisma.customerReq.update as jest.Mock).mockResolvedValue({ ...mockReq, deletedAt: new Date() });
+    await request(app).delete(`/api/customer-reqs/${REQ_ID}`);
+    expect(mockPrisma.customerReq.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('PUT /api/customer-reqs/:id 200 response has success:true', async () => {
+    (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue(mockReq);
+    (mockPrisma.customerReq.update as jest.Mock).mockResolvedValue({ ...mockReq, complianceStatus: 'PARTIAL' });
+    const res = await request(app)
+      .put(`/api/customer-reqs/${REQ_ID}`)
+      .send({ complianceStatus: 'PARTIAL' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/customer-reqs/customers returns success:true', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([{ customer: 'Nissan' }]);
+    const res = await request(app).get('/api/customer-reqs/customers');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

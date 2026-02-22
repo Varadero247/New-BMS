@@ -541,3 +541,79 @@ describe('Workflow Instances API Routes', () => {
     });
   });
 });
+
+// ── Workflow Instances — further coverage ─────────────────────────────────────
+
+describe('Workflow Instances API — further coverage', () => {
+  let appFurther: express.Express;
+
+  beforeAll(() => {
+    appFurther = express();
+    appFurther.use(express.json());
+    appFurther.use('/api/instances', instancesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / includes meta.total in response', async () => {
+    (mockPrisma.workflowInstance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.workflowInstance.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(appFurther).get('/api/instances');
+    expect(res.body.meta).toHaveProperty('total');
+  });
+
+  it('GET /stats/summary response data has byStatus and byPriority', async () => {
+    (mockPrisma.workflowInstance.groupBy as jest.Mock)
+      .mockResolvedValueOnce([{ status: 'IN_PROGRESS', _count: 2 }])
+      .mockResolvedValueOnce([{ priority: 'HIGH', _count: 1 }]);
+    (mockPrisma.workflowInstance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(appFurther).get('/api/instances/stats/summary');
+    expect(res.body.data.byStatus).toBeDefined();
+    expect(res.body.data.byPriority).toBeDefined();
+  });
+
+  it('POST / returns 400 for missing initiatedById', async () => {
+    const res = await request(appFurther).post('/api/instances').send({
+      definitionId: '11111111-1111-1111-1111-111111111111',
+      priority: 'NORMAL',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id/complete stores COMPLETED status in the DB call', async () => {
+    (mockPrisma.workflowInstance.update as jest.Mock).mockResolvedValueOnce({
+      id: '3c000000-0000-4000-a000-000000000001',
+      status: 'COMPLETED',
+    });
+    (mockPrisma.workflowHistory.create as jest.Mock).mockResolvedValueOnce({});
+
+    await request(appFurther)
+      .put('/api/instances/3c000000-0000-4000-a000-000000000001/complete')
+      .send({ outcome: 'APPROVED' });
+
+    expect(mockPrisma.workflowInstance.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'COMPLETED' }),
+      })
+    );
+  });
+
+  it('PUT /:id/cancel stores CANCELLED status in the DB call', async () => {
+    (mockPrisma.workflowInstance.update as jest.Mock).mockResolvedValueOnce({
+      id: '3c000000-0000-4000-a000-000000000001',
+      status: 'CANCELLED',
+    });
+    (mockPrisma.workflowHistory.create as jest.Mock).mockResolvedValueOnce({});
+
+    await request(appFurther)
+      .put('/api/instances/3c000000-0000-4000-a000-000000000001/cancel')
+      .send({ cancelledById: '20000000-0000-4000-a000-000000000001' });
+
+    expect(mockPrisma.workflowInstance.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'CANCELLED' }),
+      })
+    );
+  });
+});

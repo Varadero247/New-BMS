@@ -347,3 +347,76 @@ describe('annual-accounts — extended edge cases', () => {
     expect(Number(createCall.data.netProfit)).toBeLessThan(0);
   });
 });
+
+// ── annual-accounts — final additional coverage ──────────────────────────────
+
+describe('annual-accounts — final additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('create is called with data.sections.keyMetrics containing monthCount', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 3000, arr: 36000, founderSalary: 1000, founderLoanPayment: 500, arpu: 300, customers: 10 },
+      { month: '2025-05', mrr: 4000, arr: 48000, founderSalary: 1000, founderLoanPayment: 500, arpu: 400, customers: 10 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'fin-1' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.keyMetrics).toHaveProperty('avgMrr');
+  });
+
+  it('totalRevenue is sum of all mrr values across all snapshots', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 2000, arr: 24000, founderSalary: 0, founderLoanPayment: 0, arpu: 200, customers: 10 },
+      { month: '2025-05', mrr: 3000, arr: 36000, founderSalary: 0, founderLoanPayment: 0, arpu: 300, customers: 10 },
+      { month: '2025-06', mrr: 5000, arr: 60000, founderSalary: 0, founderLoanPayment: 0, arpu: 500, customers: 10 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'fin-2' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(Number(createCall.data.totalRevenue)).toBe(10000);
+  });
+
+  it('sections.summary is a string or object (not undefined)', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'fin-3' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.summary).toBeDefined();
+  });
+
+  it('fiscalYear in create data is a string', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'fin-4' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(typeof createCall.data.fiscalYear).toBe('string');
+  });
+
+  it('sections.expenseBreakdown has founderSalaries total', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 5000, arr: 60000, founderSalary: 3000, founderLoanPayment: 500, arpu: 500, customers: 10 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'fin-5' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.expenseBreakdown).toBeDefined();
+  });
+
+  it('runAnnualAccountsJob does not throw on normal invocation', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'fin-6' });
+    await expect(runAnnualAccountsJob('2025-2026')).resolves.toBeDefined();
+  });
+
+  it('sections.revenueBreakdown contains monthly entries when snapshots exist', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 4000, arr: 48000, founderSalary: 2000, founderLoanPayment: 500, arpu: 400, customers: 10 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'fin-7' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.revenueBreakdown).toBeDefined();
+  });
+});

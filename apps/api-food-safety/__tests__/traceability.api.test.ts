@@ -357,3 +357,102 @@ describe('traceability.api — edge cases and extended coverage', () => {
     expect(res.body.pagination.total).toBe(0);
   });
 });
+
+describe('traceability.api — final coverage pass', () => {
+  it('GET /api/traceability default pagination applies skip 0', async () => {
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(0);
+
+    await request(app).get('/api/traceability');
+    expect(mockPrisma.fsTraceability.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('GET /api/traceability/:id queries with deletedAt null', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsTraceability.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null }),
+      })
+    );
+  });
+
+  it('POST /api/traceability creates with createdBy from auth user', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000030',
+      productName: 'Pasteurised Milk',
+      batchNumber: 'PM-2026-001',
+      createdBy: 'user-123',
+    };
+    mockPrisma.fsTraceability.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/traceability').send({
+      productName: 'Pasteurised Milk',
+      batchNumber: 'PM-2026-001',
+      productionDate: '2026-02-20',
+      ingredients: [{ name: 'Milk', origin: 'Local' }],
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('createdBy', 'user-123');
+  });
+
+  it('PUT /api/traceability/:id update calls update with where id', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsTraceability.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'RECALLED',
+    });
+
+    await request(app)
+      .put('/api/traceability/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'RECALLED' });
+    expect(mockPrisma.fsTraceability.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '00000000-0000-0000-0000-000000000001' },
+      })
+    );
+  });
+
+  it('DELETE /api/traceability/:id calls update with deletedAt', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsTraceability.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    await request(app).delete('/api/traceability/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsTraceability.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /api/traceability page 2 limit 10 applies skip 10 take 10', async () => {
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(0);
+
+    await request(app).get('/api/traceability?page=2&limit=10');
+    expect(mockPrisma.fsTraceability.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/traceability/batch/:batchNumber queries findFirst with batchNumber', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      batchNumber: 'BATCH-999',
+    });
+    await request(app).get('/api/traceability/batch/BATCH-999');
+    expect(mockPrisma.fsTraceability.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ batchNumber: 'BATCH-999' }),
+      })
+    );
+  });
+});

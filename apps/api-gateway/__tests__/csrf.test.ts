@@ -412,3 +412,69 @@ describe('CSRF Protection Middleware — extended edge cases', () => {
     expect(token1).not.toBe(token2);
   });
 });
+
+describe('CSRF Protection Middleware — final additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    tokenStore.cleanup();
+  });
+
+  it('csrfProtection skips /health check path', () => {
+    const middleware = csrfProtection({ ignorePaths: ['/health'] });
+    const req = mockRequest({ method: 'POST', path: '/health' });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('csrfProtection returns 403 with CSRF_TOKEN_MISSING for PATCH without token', () => {
+    const middleware = csrfProtection();
+    const req = mockRequest({ method: 'PATCH', path: '/api/resource' });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledWith(403);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.code).toBe('CSRF_TOKEN_MISSING');
+  });
+
+  it('csrfProtection with valid PATCH token calls next', () => {
+    const token = 'patch-token-valid-12345';
+    tokenStore.set(token);
+    const middleware = csrfProtection();
+    const req = mockRequest({ method: 'PATCH', path: '/api/resource', cookies: { _csrf: token }, headers: { 'x-csrf-token': token } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('tokenStore.set followed by isValid returns true', () => {
+    const tok = 'uniquetoken-12345678';
+    tokenStore.set(tok);
+    expect(tokenStore.isValid(tok)).toBe(true);
+  });
+
+  it('tokenStore.delete removes the token', () => {
+    const tok = 'token-to-delete-xyz';
+    tokenStore.set(tok);
+    tokenStore.delete(tok);
+    expect(tokenStore.isValid(tok)).toBe(false);
+  });
+
+  it('generateCsrfToken sets cookie and responds with csrfToken', () => {
+    const handler = generateCsrfToken();
+    const req = mockRequest();
+    const res = mockResponse();
+    handler(req as Request, res as Response, mockNext);
+    expect(res.cookie).toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+  });
+
+  it('csrfProtection skips /api/auth/login path (default ignorePaths)', () => {
+    const middleware = csrfProtection();
+    const req = mockRequest({ method: 'POST', path: '/auth/login' });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+});

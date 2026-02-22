@@ -391,3 +391,74 @@ describe('sds.api — edge cases and field validation', () => {
     expect(res.body.data).toEqual([]);
   });
 });
+
+describe('sds.api — business logic and response structure', () => {
+  it('GET /sds returns data array with correct length', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([mockSds, mockSds]);
+    mockPrisma.chemSds.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/sds');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /sds?status=CURRENT filters by status in findMany call', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    await request(app).get('/api/sds?status=CURRENT');
+    expect(mockPrisma.chemSds.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'CURRENT' }) })
+    );
+  });
+
+  it('GET /sds/:id returns 500 with INTERNAL_ERROR code on DB failure', async () => {
+    mockPrisma.chemSds.findFirst.mockRejectedValue(new Error('db exploded'));
+    const res = await request(app).get('/api/sds/00000000-0000-0000-0000-000000000010');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /sds returns 400 when issueDate is missing', async () => {
+    const res = await request(app).post('/api/sds').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      version: '1.0',
+      nextReviewDate: '2027-01-15T00:00:00.000Z',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /sds returns 201 with created SDS data on success', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemSds.updateMany.mockResolvedValue({ count: 0 });
+    mockPrisma.chemSds.create.mockResolvedValue(mockSds);
+    const res = await request(app).post('/api/sds').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      version: '1.0',
+      issueDate: '2026-01-15T00:00:00.000Z',
+      nextReviewDate: '2027-01-15T00:00:00.000Z',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+    expect(res.body.data).toHaveProperty('version', '1.0');
+  });
+
+  it('PUT /sds/:id returns updated SDS with new version field', async () => {
+    mockPrisma.chemSds.findFirst.mockResolvedValue(mockSds);
+    mockPrisma.chemSds.update.mockResolvedValue({ ...mockSds, version: '3.0' });
+    const res = await request(app)
+      .put('/api/sds/00000000-0000-0000-0000-000000000010')
+      .send({ version: '3.0' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.version).toBe('3.0');
+  });
+
+  it('GET /sds/overdue returns array of overdue records on success', async () => {
+    const overdueSds = { ...mockSds, nextReviewDate: '2024-06-01T00:00:00.000Z' };
+    mockPrisma.chemSds.findMany.mockResolvedValue([overdueSds]);
+    const res = await request(app).get('/api/sds/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0]).toHaveProperty('nextReviewDate');
+  });
+});

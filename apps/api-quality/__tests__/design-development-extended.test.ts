@@ -469,3 +469,66 @@ describe('Design & Development Routes — additional edge cases', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Design & Development Routes — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns success:true with items array', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/design-development');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data.items)).toBe(true);
+  });
+
+  it('GET / returns correct pagination total', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValue(5);
+    const res = await request(app).get('/api/design-development');
+    expect(res.body.data.total).toBe(5);
+  });
+
+  it('PUT /:id returns updated data on success', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.qualDesignProject.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'ON_HOLD',
+    });
+    const res = await request(app)
+      .put('/api/design-development/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ON_HOLD' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id calls update with deletedAt', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.qualDesignProject.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    await request(app).delete('/api/design-development/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.qualDesignProject.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST / creates project and calls transaction', async () => {
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
+      return cb({
+        qualDesignProject: { create: jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Product Z' }) },
+        qualDesignStageDoc: { create: jest.fn().mockResolvedValue({}) },
+      });
+    });
+    const res = await request(app).post('/api/design-development').send({ title: 'Product Z', productName: 'Widget Z' });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+  });
+});

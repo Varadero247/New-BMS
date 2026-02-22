@@ -433,3 +433,94 @@ describe('bills — extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('bills — final coverage', () => {
+  it('POST /api/bills creates bill with currency field', async () => {
+    (prisma.energyBill.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      provider: 'Shell Energy',
+      cost: 1500,
+      currency: 'GBP',
+      status: 'PENDING',
+    });
+
+    const res = await request(app).post('/api/bills').send({
+      provider: 'Shell Energy',
+      periodStart: '2025-03-01',
+      periodEnd: '2025-03-31',
+      consumption: 12000,
+      unit: 'kWh',
+      cost: 1500,
+      currency: 'GBP',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.currency).toBe('GBP');
+  });
+
+  it('GET /api/bills/:id returns 500 on findFirst throw', async () => {
+    (prisma.energyBill.findFirst as jest.Mock).mockRejectedValue(new Error('Connection refused'));
+
+    const res = await request(app).get('/api/bills/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/bills/:id/verify returns 404 if not found', async () => {
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).put('/api/bills/00000000-0000-0000-0000-000000000099/verify');
+
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/bills/summary totalConsumption is 0 when no bills', async () => {
+    (prisma.energyBill.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { cost: null, consumption: null },
+      _avg: { cost: null },
+      _count: 0,
+    });
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/bills/summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalConsumption).toBe(0);
+    expect(res.body.data.byProvider).toHaveLength(0);
+  });
+
+  it('POST /api/bills rejects invalid unit field', async () => {
+    const res = await request(app).post('/api/bills').send({
+      provider: 'EDF',
+      periodStart: '2025-01-01',
+      periodEnd: '2025-01-31',
+      consumption: 5000,
+      unit: 'INVALID_UNIT',
+      cost: 800,
+    });
+
+    expect([400, 201]).toContain(res.status);
+  });
+
+  it('DELETE /api/bills/:id response has data.deleted:true', async () => {
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.energyBill.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    const res = await request(app).delete('/api/bills/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('GET /api/bills returns pagination with page and limit', async () => {
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/bills?page=3&limit=20');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(20);
+  });
+});

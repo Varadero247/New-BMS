@@ -343,3 +343,59 @@ describe('Calibrations API — extended edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Calibrations API — final coverage block', () => {
+  it('POST / count is called to generate reference number', async () => {
+    mockPrisma.assetCalibration.count.mockResolvedValue(5);
+    mockPrisma.assetCalibration.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      referenceNumber: 'ACL-2026-0006',
+    });
+    await request(app).post('/api/calibrations').send({ assetId: 'asset-x', scheduledDate: '2026-06-15' });
+    expect(mockPrisma.assetCalibration.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id update is called with deletedAt data', async () => {
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetCalibration.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.assetCalibration.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /:id data has referenceNumber field', async () => {
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      referenceNumber: 'ACL-2026-0001',
+    });
+    const res = await request(app).get('/api/calibrations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('POST / create is called with assetId in data', async () => {
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', referenceNumber: 'ACL-2026-0001' });
+    await request(app).post('/api/calibrations').send({ assetId: 'asset-abc', scheduledDate: '2026-07-01' });
+    expect(mockPrisma.assetCalibration.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ assetId: 'asset-abc' }) })
+    );
+  });
+
+  it('PUT /:id update is called with correct where.id', async () => {
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetCalibration.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PASSED' });
+    await request(app).put('/api/calibrations/00000000-0000-0000-0000-000000000001').send({ status: 'PASSED' });
+    expect(mockPrisma.assetCalibration.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET / findMany is called once per list request', async () => {
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    await request(app).get('/api/calibrations');
+    expect(mockPrisma.assetCalibration.findMany).toHaveBeenCalledTimes(1);
+  });
+});

@@ -468,3 +468,68 @@ describe('monitoring.api — edge cases and field validation', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('monitoring.api — additional coverage 2', () => {
+  it('GET /monitoring count is called once per list request', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    await request(app).get('/api/monitoring');
+    expect(mockPrisma.chemMonitoring.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /monitoring validates chemical existence before creating', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemMonitoring.create.mockResolvedValue(mockMonitoring);
+    await request(app).post('/api/monitoring').send(validMonitoringBody);
+    expect(mockPrisma.chemRegister.findFirst).toHaveBeenCalled();
+  });
+
+  it('GET /monitoring data items include resultVsWel field', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([mockMonitoring]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('resultVsWel', 'BELOW_WEL');
+  });
+
+  it('GET /monitoring/dashboard returns overdue count from 5th count call', async () => {
+    mockPrisma.chemMonitoring.count
+      .mockResolvedValueOnce(100)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(80)
+      .mockResolvedValueOnce(7);
+    const res = await request(app).get('/api/monitoring/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overdue).toBe(7);
+  });
+
+  it('GET /monitoring/overdue findMany is called with nextMonitoringDue filter', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    await request(app).get('/api/monitoring/overdue');
+    const [call] = (mockPrisma.chemMonitoring.findMany as jest.Mock).mock.calls;
+    expect(call[0].where).toHaveProperty('nextMonitoringDue');
+  });
+
+  it('PUT /monitoring/:id calls update with correct id in where clause', async () => {
+    mockPrisma.chemMonitoring.findFirst.mockResolvedValue(mockMonitoring);
+    mockPrisma.chemMonitoring.update.mockResolvedValue({ ...mockMonitoring, notes: 'updated' });
+    await request(app).put('/api/monitoring/00000000-0000-0000-0000-000000000040').send({ notes: 'updated' });
+    expect(mockPrisma.chemMonitoring.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000040' } })
+    );
+  });
+
+  it('POST /monitoring returns 400 when sampledAt is missing', async () => {
+    const res = await request(app).post('/api/monitoring').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      monitoringType: 'AIR_SAMPLE',
+      resultValue: 5,
+      resultUnit: 'mg/m3',
+      welTwaLimit: 10,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

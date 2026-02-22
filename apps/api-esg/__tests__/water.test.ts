@@ -349,3 +349,68 @@ describe('water — extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('water — additional coverage 2', () => {
+  it('GET / response includes pagination with total', async () => {
+    (prisma.esgWater.findMany as jest.Mock).mockResolvedValue([mockWater]);
+    (prisma.esgWater.count as jest.Mock).mockResolvedValue(8);
+    const res = await request(app).get('/api/water');
+    expect(res.body.pagination.total).toBe(8);
+  });
+
+  it('POST / stores createdBy from authenticated user', async () => {
+    (prisma.esgWater.create as jest.Mock).mockResolvedValue(mockWater);
+    await request(app).post('/api/water').send({
+      usageType: 'DISCHARGE',
+      quantity: 5000,
+      unit: 'liters',
+      periodStart: '2026-03-01',
+      periodEnd: '2026-03-31',
+    });
+    const [call] = (prisma.esgWater.create as jest.Mock).mock.calls;
+    expect(call[0].data.createdBy).toBe('user-123');
+  });
+
+  it('DELETE /:id calls update with deletedAt set', async () => {
+    (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
+    (prisma.esgWater.update as jest.Mock).mockResolvedValue({ ...mockWater, deletedAt: new Date() });
+    await request(app).delete('/api/water/00000000-0000-0000-0000-000000000001');
+    const [call] = (prisma.esgWater.update as jest.Mock).mock.calls;
+    expect(call[0].data).toHaveProperty('deletedAt');
+  });
+
+  it('GET / filters by source query param', async () => {
+    (prisma.esgWater.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgWater.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/water?usageType=RECYCLED');
+    expect(prisma.esgWater.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ usageType: 'RECYCLED' }) })
+    );
+  });
+
+  it('PUT /:id updates facility field', async () => {
+    (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
+    (prisma.esgWater.update as jest.Mock).mockResolvedValue({ ...mockWater, facility: 'Site B' });
+    const res = await request(app)
+      .put('/api/water/00000000-0000-0000-0000-000000000001')
+      .send({ facility: 'Site B' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.facility).toBe('Site B');
+  });
+
+  it('GET /:id returns usageType and quantity fields', async () => {
+    (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
+    const res = await request(app).get('/api/water/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('usageType', 'INTAKE');
+    expect(res.body.data).toHaveProperty('quantity', 10000);
+  });
+
+  it('GET / page 2 with limit 10 passes skip 10', async () => {
+    (prisma.esgWater.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgWater.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/water?page=2&limit=10');
+    expect(prisma.esgWater.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+});

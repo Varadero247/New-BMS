@@ -287,3 +287,67 @@ describe('regulatory.api — edge cases and field validation', () => {
     expect(res.body.error.message).toBeDefined();
   });
 });
+
+describe('regulatory.api — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response content-type is application/json', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / findMany is called with deletedAt null and isRegulatory true', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    await request(app).get('/api/regulatory');
+    expect(mockPrisma.compComplaint.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ isRegulatory: true, deletedAt: null }),
+      })
+    );
+  });
+
+  it('GET / returns 5 complaints correctly', async () => {
+    const complaints = Array.from({ length: 5 }, (_, i) => ({ id: `r-00${i}`, title: `Complaint ${i}`, isRegulatory: true }));
+    mockPrisma.compComplaint.findMany.mockResolvedValue(complaints);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(5);
+  });
+
+  it('GET / success field is boolean', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/regulatory');
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('GET / error.code is INTERNAL_ERROR on rejection', async () => {
+    mockPrisma.compComplaint.findMany.mockRejectedValue(new Error('db unreachable'));
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / data is array even when single complaint returned', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([{ id: 'r-001', title: 'Solo', isRegulatory: true }]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBe(1);
+  });
+
+  it('GET / data array items each have title and id fields', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'First', isRegulatory: true },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Second', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    for (const item of res.body.data) {
+      expect(item).toHaveProperty('id');
+      expect(item).toHaveProperty('title');
+    }
+  });
+});

@@ -393,3 +393,80 @@ describe('Medical CAPA API Routes', () => {
     });
   });
 });
+
+describe('Medical CAPA — final coverage', () => {
+  const mockCapa = {
+    id: '00000000-0000-0000-0000-000000000001',
+    refNumber: 'CAPA-2601-0001',
+    title: 'Fix device failure',
+    capaType: 'CORRECTIVE',
+    source: 'COMPLAINT',
+    sourceRef: 'CMP-001',
+    description: 'Device fails under stress',
+    deviceName: 'Device A',
+    deviceId: 'DEV-001',
+    severity: 'MAJOR',
+    status: 'OPEN',
+    createdBy: 'user-1',
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/capa filters by severity wired to Prisma where', async () => {
+    mockPrisma.medCapa.findMany.mockResolvedValue([]);
+    mockPrisma.medCapa.count.mockResolvedValue(0);
+    await request(app).get('/api/capa?severity=MAJOR');
+    expect(mockPrisma.medCapa.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ severity: 'MAJOR' }) })
+    );
+  });
+
+  it('GET /api/capa?capaType=CORRECTIVE filters correctly', async () => {
+    mockPrisma.medCapa.findMany.mockResolvedValue([mockCapa]);
+    mockPrisma.medCapa.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/capa?capaType=CORRECTIVE');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.medCapa.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ capaType: 'CORRECTIVE' }) })
+    );
+  });
+
+  it('POST /api/capa count is called before create to generate refNumber', async () => {
+    mockPrisma.medCapa.count.mockResolvedValue(5);
+    mockPrisma.medCapa.create.mockResolvedValue(mockCapa);
+    await request(app).post('/api/capa').send({ title: 'Test', source: 'COMPLAINT', description: 'desc' });
+    expect(mockPrisma.medCapa.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.medCapa.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/capa/stats byStatus groupBy is called', async () => {
+    mockPrisma.medCapa.count.mockResolvedValueOnce(5).mockResolvedValueOnce(0);
+    mockPrisma.medCapa.groupBy
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    await request(app).get('/api/capa/stats');
+    expect(mockPrisma.medCapa.groupBy).toHaveBeenCalledTimes(3);
+  });
+
+  it('PUT /api/capa/:id findUnique called with the id', async () => {
+    mockPrisma.medCapa.findUnique.mockResolvedValue(mockCapa);
+    mockPrisma.medCapa.update.mockResolvedValue(mockCapa);
+    await request(app)
+      .put('/api/capa/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(mockPrisma.medCapa.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('DELETE /api/capa/:id returns 404 when CAPA already soft-deleted', async () => {
+    mockPrisma.medCapa.findUnique.mockResolvedValue({ ...mockCapa, deletedAt: new Date() });
+    const res = await request(app).delete('/api/capa/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});

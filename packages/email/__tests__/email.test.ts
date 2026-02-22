@@ -263,3 +263,48 @@ describe('EmailService — extended edge cases', () => {
     expect(service).toBeInstanceOf(EmailService);
   });
 });
+
+describe('EmailService — singleton and template completeness', () => {
+  beforeEach(() => {
+    mockSendMail.mockReset();
+    mockVerify.mockReset();
+  });
+
+  it('sendEmail uses the current singleton (re-init replaces it)', async () => {
+    initEmailService(SMTP_CONFIG);
+    mockSendMail.mockResolvedValue({ messageId: 'singleton-msg' });
+    const result = await sendEmail({ to: 'a@b.com', subject: 'S' });
+    expect(result.success).toBe(true);
+    expect(result.messageId).toBe('singleton-msg');
+  });
+
+  it('getEmailService returns an EmailService instance', () => {
+    expect(getEmailService()).toBeInstanceOf(EmailService);
+  });
+
+  it('templates.passwordReset returns object with subject, text, and html', () => {
+    const t = templates.passwordReset('https://reset.url/token');
+    expect(t).toHaveProperty('subject');
+    expect(t).toHaveProperty('text');
+    expect(t).toHaveProperty('html');
+  });
+
+  it('templates.passwordResetConfirmation returns object with subject, text, and html', () => {
+    const t = templates.passwordResetConfirmation();
+    expect(t).toHaveProperty('subject');
+    expect(t).toHaveProperty('text');
+    expect(t).toHaveProperty('html');
+  });
+
+  it('EmailService send result has success:false when SMTP not configured, no messageId', async () => {
+    const service = new EmailService();
+    const result = await service.send({ to: 'x@y.com', subject: 'Test' });
+    expect(result.success).toBe(false);
+    expect(result.messageId).toBeUndefined();
+  });
+
+  it('EmailService verify returns false when not configured', async () => {
+    const service = new EmailService();
+    expect(await service.verify()).toBe(false);
+  });
+});

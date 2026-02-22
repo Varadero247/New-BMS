@@ -500,3 +500,75 @@ describe('Finance Purchase Orders — additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ===================================================================
+// Purchase Orders — final coverage block
+// ===================================================================
+describe('Finance Purchase Orders — final coverage', () => {
+  it('GET /api/purchase-orders data is always an array', async () => {
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/purchase-orders');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/purchase-orders/:id data has lines array', async () => {
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000050',
+      reference: 'FIN-PO-2601-9999',
+      status: 'DRAFT',
+      supplier: { id: SUPPLIER_UUID, code: 'SUPP-ACME-1234', name: 'Acme' },
+      lines: [],
+    });
+    const res = await request(app).get('/api/purchase-orders/f7100000-0000-4000-a000-000000000050');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.lines)).toBe(true);
+  });
+
+  it('DELETE /api/purchase-orders/:id calls update with deletedAt', async () => {
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000051',
+      status: 'DRAFT',
+      deletedAt: null,
+    });
+    mockPrisma.finPurchaseOrder.update.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000051',
+    });
+
+    await request(app).delete('/api/purchase-orders/f7100000-0000-4000-a000-000000000051');
+    expect(mockPrisma.finPurchaseOrder.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.anything() }),
+      })
+    );
+  });
+
+  it('GET /api/purchase-orders count is called once per list request', async () => {
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+
+    await request(app).get('/api/purchase-orders');
+    expect(mockPrisma.finPurchaseOrder.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/purchase-orders/:id update includes notes in data', async () => {
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000052',
+      status: 'DRAFT',
+      deletedAt: null,
+    });
+    mockPrisma.finPurchaseOrder.update.mockResolvedValue({
+      id: 'f7100000-0000-4000-a000-000000000052',
+      notes: 'Rush order',
+      supplier: { id: SUPPLIER_UUID, code: 'SUPP', name: 'Acme' },
+      lines: [],
+    });
+
+    await request(app)
+      .put('/api/purchase-orders/f7100000-0000-4000-a000-000000000052')
+      .send({ notes: 'Rush order' });
+    expect(mockPrisma.finPurchaseOrder.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ notes: 'Rush order' }) })
+    );
+  });
+});

@@ -555,3 +555,72 @@ describe('device-records — edge cases and error paths', () => {
     );
   });
 });
+
+describe('device-records — final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/device-records', deviceRecordsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET / always queries with deletedAt null', async () => {
+    (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app).get('/api/device-records');
+
+    expect(mockPrisma.deviceHistoryRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('GET / total in response matches count mock', async () => {
+    (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(42);
+
+    const res = await request(app).get('/api/device-records');
+
+    expect(res.body.total).toBe(42);
+  });
+
+  it('POST / generates refNumber using year and sequence', async () => {
+    (mockPrisma.deviceMasterRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockDmr);
+    (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(7);
+    (mockPrisma.deviceHistoryRecord.create as jest.Mock).mockResolvedValueOnce({ ...mockRecord, dmr: mockDmr });
+
+    await request(app).post('/api/device-records').send({ deviceName: 'Sequence Device' });
+
+    const createCall = (mockPrisma.deviceHistoryRecord.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.refNumber).toMatch(/DHR-\d{4}-\d+/);
+  });
+
+  it('PUT / success:true is present in response body', async () => {
+    (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce({ ...mockRecord, dmr: mockDmr });
+
+    const res = await request(app).put(`/api/device-records/${RECORD_ID}`).send({ status: 'RELEASED' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE / success:true in response', async () => {
+    (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce({ ...mockRecord, deletedAt: new Date() });
+
+    const res = await request(app).delete(`/api/device-records/${RECORD_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id includes dmr data in response', async () => {
+    (mockPrisma.deviceHistoryRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockRecord);
+
+    const res = await request(app).get(`/api/device-records/${RECORD_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('refNumber', 'DHR-2602-0001');
+  });
+});

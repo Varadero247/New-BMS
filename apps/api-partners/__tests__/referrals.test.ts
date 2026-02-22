@@ -314,3 +314,62 @@ describe('Referrals — edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Referrals — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns success:true on 200', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/referrals');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /track returns 201 on valid email with prospectName', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ referralCode: 'test-code' });
+    (portalPrisma.mktPartnerReferral.create as jest.Mock).mockResolvedValue(mockReferral);
+    const res = await request(app)
+      .post('/api/referrals/track')
+      .send({ prospectEmail: 'valid@example.com', prospectName: 'Valid Person' });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /stats: clicked field is a number', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/referrals/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.clicked).toBe('number');
+  });
+
+  it('GET /stats: signedUp field is a number', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/referrals/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.signedUp).toBe('number');
+  });
+
+  it('GET /stats: converted field is a number', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/referrals/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.converted).toBe('number');
+  });
+
+  it('GET /: response body is an object', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/referrals');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('POST /track: INTERNAL_ERROR code returned on DB error', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ referralCode: 'xyz' });
+    (portalPrisma.mktPartnerReferral.create as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app)
+      .post('/api/referrals/track')
+      .send({ prospectEmail: 'err@example.com' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

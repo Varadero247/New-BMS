@@ -282,3 +282,46 @@ describe('IntercomClient — edge cases and validation', () => {
     expect(headers['Intercom-Version']).toBe('2.10');
   });
 });
+
+describe('IntercomClient — final coverage', () => {
+  let client: IntercomClient;
+
+  beforeEach(() => {
+    client = new IntercomClient('final-token');
+  });
+
+  it('sendInAppMessage with a very long message does not throw', async () => {
+    const longMsg = 'x'.repeat(1000);
+    mockFetch.mockReturnValueOnce(ok({ id: 'long-msg' }));
+    await expect(client.sendInAppMessage('u', longMsg)).resolves.not.toThrow();
+  });
+
+  it('createContact with empty name string sends empty name in body', async () => {
+    mockFetch.mockReturnValueOnce(ok({ id: 'c-empty-name' }));
+    await client.createContact('e@ims.local', '');
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.name).toBe('');
+  });
+
+  it('no-token client returns null for createContact without calling fetch', async () => {
+    const noTokenClient = new IntercomClient('');
+    const result = await noTokenClient.createContact('x@ims.local', 'X');
+    expect(result).toBeNull();
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('sendInAppMessage from.type is always admin', async () => {
+    mockFetch.mockReturnValueOnce(ok({}));
+    await client.sendInAppMessage('user-admin-check', 'test');
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.from.type).toBe('admin');
+  });
+
+  it('createContact with custom attributes merges them correctly', async () => {
+    mockFetch.mockReturnValueOnce(ok({ id: 'c-merged' }));
+    await client.createContact('merge@ims.local', 'Merge User', { tier: 'gold', region: 'EU' });
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.custom_attributes.tier).toBe('gold');
+    expect(body.custom_attributes.region).toBe('EU');
+  });
+});

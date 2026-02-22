@@ -510,3 +510,65 @@ describe('E-Signature — extended edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('E-Signature — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockGetValidMeanings.mockReturnValue(['APPROVED', 'REVIEWED', 'RELEASED', 'VERIFIED', 'REJECTED', 'WITNESSED', 'AUTHORED', 'ACKNOWLEDGED']);
+  });
+
+  it('POST / creates signature and persists it via eSignature.create', async () => {
+    mockIsValidMeaning.mockReturnValue(true);
+    mockUser.findUnique.mockResolvedValue({
+      id: USER_ID,
+      email: 'admin@ims.local',
+      fullName: 'Admin User',
+      password: '$2b$10$hashedpassword',
+    });
+    mockCreateSignature.mockResolvedValue({
+      signature: { id: SIG_ID, userId: USER_ID, userEmail: 'admin@ims.local', userFullName: 'Admin User', meaning: 'APPROVED', reason: 'OK', resourceType: 'document', resourceId: '00000000-0000-0000-0000-000000000099', resourceRef: 'DOC-001', ipAddress: '127.0.0.1', userAgent: 'test', checksum: 'abc', valid: true, timestamp: new Date() },
+    });
+    mockESignature.create.mockResolvedValue(mockSigRecord);
+    const res = await request(app).post('/').send({ meaning: 'APPROVED', reason: 'OK', password: 'pass', resourceType: 'document', resourceId: '00000000-0000-0000-0000-000000000099', resourceRef: 'DOC-001' });
+    expect(res.status).toBe(201);
+    expect(mockESignature.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / filters by resourceType via query params', async () => {
+    mockESignature.findMany.mockResolvedValue([mockSigRecord]);
+    mockESignature.count.mockResolvedValue(1);
+    const res = await request(app).get('/').query({ resourceType: 'document' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.items).toHaveLength(1);
+  });
+
+  it('GET /:id response data has id matching SIG_ID', async () => {
+    mockESignature.findUnique.mockResolvedValue(mockSigRecord);
+    mockVerifySignature.mockReturnValue({ signatureId: SIG_ID, valid: true, checksumMatch: true, userId: USER_ID, userEmail: 'admin@ims.local', meaning: 'APPROVED', timestamp: new Date(), resourceType: 'document', resourceId: '00000000-0000-0000-0000-000000000099' });
+    const res = await request(app).get(`/${SIG_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(SIG_ID);
+  });
+
+  it('POST /:id/verify calls verifySignature once', async () => {
+    mockESignature.findUnique.mockResolvedValue(mockSigRecord);
+    mockVerifySignature.mockReturnValue({ signatureId: SIG_ID, valid: true, checksumMatch: true, userId: USER_ID, userEmail: 'admin@ims.local', meaning: 'APPROVED', timestamp: new Date(), resourceType: 'document', resourceId: '00000000-0000-0000-0000-000000000099' });
+    await request(app).post(`/${SIG_ID}/verify`);
+    expect(mockVerifySignature).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id returns message in response data', async () => {
+    mockESignature.findUnique.mockResolvedValue(mockSigRecord);
+    mockESignature.update.mockResolvedValue({ ...mockSigRecord, valid: false });
+    const res = await request(app).delete(`/${SIG_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET / returns page: 1 when page not provided', async () => {
+    mockESignature.findMany.mockResolvedValue([]);
+    mockESignature.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.body.data.page).toBe(1);
+  });
+});

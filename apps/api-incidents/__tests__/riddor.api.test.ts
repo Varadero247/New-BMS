@@ -336,3 +336,62 @@ describe('RIDDOR — edge cases and deeper coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('RIDDOR — final coverage block', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET response body has success:true', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('assess response body has success:true on success', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      riddorReportable: 'YES',
+    });
+    const res = await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: true });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('assess where clause has correct id from route param', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      riddorReportable: 'YES',
+    });
+    await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000005/assess')
+      .send({ reportable: true });
+    const callArg = mockPrisma.incIncident.update.mock.calls[0][0];
+    expect(callArg.where.id).toBe('00000000-0000-0000-0000-000000000005');
+  });
+
+  it('GET returns data array not null', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.body.data).not.toBeNull();
+  });
+
+  it('assess update called with data containing status: RIDDOR_REPORTED when reportable is true', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      riddorReportable: 'YES',
+    });
+    await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: true });
+    const callArg = mockPrisma.incIncident.update.mock.calls[0][0];
+    expect(callArg.data.riddorReportable).toBe('YES');
+  });
+
+  it('GET response content-type has json in it', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.headers['content-type']).toContain('json');
+  });
+});

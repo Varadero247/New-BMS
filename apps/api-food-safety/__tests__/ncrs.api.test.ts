@@ -374,3 +374,86 @@ describe('ncrs.api — edge cases and extended coverage', () => {
     expect(res.body.data).toHaveLength(2);
   });
 });
+
+describe('ncrs.api — final coverage pass', () => {
+  it('GET /api/ncrs default applies skip 0', async () => {
+    mockPrisma.fsNcr.findMany.mockResolvedValue([]);
+    mockPrisma.fsNcr.count.mockResolvedValue(0);
+
+    await request(app).get('/api/ncrs');
+    expect(mockPrisma.fsNcr.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('GET /api/ncrs/:id queries with deletedAt null', async () => {
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    await request(app).get('/api/ncrs/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsNcr.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null }),
+      })
+    );
+  });
+
+  it('POST /api/ncrs creates with createdBy from auth user', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000010',
+      number: 'NCR-2602-XXXX',
+      title: 'Foreign Object',
+      createdBy: 'user-123',
+    };
+    mockPrisma.fsNcr.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/ncrs').send({
+      title: 'Foreign Object',
+      category: 'PRODUCT',
+      severity: 'CRITICAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('createdBy', 'user-123');
+  });
+
+  it('PUT /api/ncrs/:id/close sets closedAt on update', async () => {
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'INVESTIGATING',
+    });
+    mockPrisma.fsNcr.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'CLOSED',
+    });
+
+    const res = await request(app)
+      .put('/api/ncrs/00000000-0000-0000-0000-000000000001/close')
+      .send({ rootCause: 'Supplier defect', correctiveAction: 'Reject shipment' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/ncrs page 3 limit 5 skip 10 take 5', async () => {
+    mockPrisma.fsNcr.findMany.mockResolvedValue([]);
+    mockPrisma.fsNcr.count.mockResolvedValue(0);
+
+    await request(app).get('/api/ncrs?page=3&limit=5');
+    expect(mockPrisma.fsNcr.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('DELETE /api/ncrs/:id calls update with deletedAt', async () => {
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsNcr.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    await request(app).delete('/api/ncrs/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsNcr.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+});

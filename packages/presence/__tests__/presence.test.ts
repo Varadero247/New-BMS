@@ -245,3 +245,45 @@ describe('presence – extended coverage', () => {
     expect(() => releaseLock(TYPE, ID, USER_A.userId)).not.toThrow();
   });
 });
+
+describe('presence – further edge cases', () => {
+  beforeEach(() => clearAll());
+
+  it('acquireLock with avatar returns acquired:true', () => {
+    const result = acquireLock(TYPE, ID, USER_A.userId, USER_A.userName, 'http://cdn/avatar.png');
+    expect(result.acquired).toBe(true);
+  });
+
+  it('expiresAt is a Date instance', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    const users = getPresence(TYPE, ID);
+    expect(users[0].expiresAt).toBeInstanceOf(Date);
+  });
+
+  it('lockedAt does not change on refreshLock', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    const originalLockedAt = getPresence(TYPE, ID)[0].lockedAt.getTime();
+    refreshLock(TYPE, ID, USER_A.userId);
+    expect(getPresence(TYPE, ID)[0].lockedAt.getTime()).toBe(originalLockedAt);
+  });
+
+  it('getPresence returns an array type', () => {
+    expect(Array.isArray(getPresence(TYPE, 'unknown-record'))).toBe(true);
+  });
+
+  it('releaseLock on a record with multiple cleanup does not corrupt store', () => {
+    // Acquire, expire, then release - should not throw
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    const users = getPresence(TYPE, ID);
+    users[0].expiresAt = new Date(Date.now() - 1);
+    expect(() => releaseLock(TYPE, ID, USER_A.userId)).not.toThrow();
+  });
+
+  it('force acquires lock for a new user with avatar', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName, 'a.png');
+    const result = acquireLock(TYPE, ID, USER_B.userId, USER_B.userName, 'b.png', true);
+    expect(result.acquired).toBe(true);
+    const users = getPresence(TYPE, ID);
+    expect(users[0].avatar).toBe('b.png');
+  });
+});

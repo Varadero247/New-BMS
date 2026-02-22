@@ -467,3 +467,59 @@ describe('cleanup-sessions — extended coverage', () => {
     job.stop();
   });
 });
+
+describe('cleanup-sessions — additional scenarios', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('cleanupExpiredSessions passes a Date instance to prisma.session.deleteMany', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 0 });
+    await cleanupExpiredSessions(mockPrisma);
+    const args = mockPrisma.session.deleteMany.mock.calls[0][0];
+    expect(args.where.expiresAt.lt).toBeInstanceOf(Date);
+  });
+
+  it('cleanupInactiveSessions with 72-hour cutoff produces correct window', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 5 });
+    const before = Date.now();
+    await cleanupInactiveSessions(mockPrisma, 72);
+    const after = Date.now();
+
+    const args = mockPrisma.session.deleteMany.mock.calls[0][0];
+    const cutoff = (args.where.lastActivityAt.lt as Date).getTime();
+    const expectedMin = before - 72 * 60 * 60 * 1000;
+    const expectedMax = after - 72 * 60 * 60 * 1000;
+    expect(cutoff).toBeGreaterThanOrEqual(expectedMin);
+    expect(cutoff).toBeLessThanOrEqual(expectedMax);
+  });
+
+  it('createSessionCleanupJob with no logger uses default logger without throwing', () => {
+    expect(() => createSessionCleanupJob(mockPrisma)).not.toThrow();
+  });
+
+  it('SessionCleanupJob stop logs stopped message', () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 0 });
+    const job = new SessionCleanupJob(mockPrisma, mockLogger);
+    job.start(60000);
+    job.stop();
+    expect(mockLogger.info).toHaveBeenCalledWith('Session cleanup job stopped');
+  });
+
+  it('SessionCleanupJob isJobRunning returns false on a brand new instance', () => {
+    const job = new SessionCleanupJob(mockPrisma, mockLogger);
+    expect(job.isJobRunning()).toBe(false);
+  });
+
+  it('runCleanup logs expired count for large count', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 1000 });
+    const job = new SessionCleanupJob(mockPrisma, mockLogger);
+    await job.runCleanup();
+    expect(mockLogger.info).toHaveBeenCalledWith('Cleaned up expired sessions', { count: 1000 });
+  });
+});

@@ -397,3 +397,79 @@ describe('KPIs — edge cases and error paths', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// KPIs — response structure and remaining edge cases
+// ===================================================================
+describe('KPIs — response structure and remaining edge cases', () => {
+  it('GET /api/kpis response data is an array', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/kpis response data has id field', async () => {
+    mockPrisma.analyticsKpi.create.mockResolvedValue({
+      id: 'kpi-id-check',
+      name: 'ID Check KPI',
+      module: 'HR',
+      trend: 'UP',
+      frequency: 'WEEKLY',
+    });
+
+    const res = await request(app).post('/api/kpis').send({
+      name: 'ID Check KPI',
+      module: 'HR',
+      trend: 'UP',
+      frequency: 'WEEKLY',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET /api/kpis/executive-dashboard returns an object', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([
+      { id: 'kpi-1', name: 'TRIR', module: 'HEALTH_SAFETY', trend: 'DOWN' },
+    ]);
+
+    const res = await request(app).get('/api/kpis/executive-dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+  });
+
+  it('GET /api/kpis with multiple filters returns 200', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/kpis?module=QUALITY&frequency=MONTHLY');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsKpi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ module: 'QUALITY', frequency: 'MONTHLY' }),
+      })
+    );
+  });
+
+  it('GET /api/kpis pagination has limit field', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /api/kpis/modules/:module passes module to where clause', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/kpis/modules/ENVIRONMENT');
+
+    expect(mockPrisma.analyticsKpi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ module: 'ENVIRONMENT' }) })
+    );
+  });
+});

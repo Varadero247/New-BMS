@@ -594,3 +594,70 @@ describe('AI Settings — further edge cases', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+// ── AI Settings — final additional coverage ─────────────────────────────────
+
+describe('AI Settings — final additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/settings', settingsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('response body always has success property on GET', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app).get('/api/settings').set('Authorization', 'Bearer test-token');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('GET /api/settings 200 response data has id field when settings exist', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockExistingSettings);
+    const res = await request(app).get('/api/settings').set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('settings-1');
+  });
+
+  it('POST /api/settings response data has provider field after create', async () => {
+    const created = { id: 'new-1', provider: 'GROK', apiKey: 'grok-k', model: 'grok-beta', defaultPrompt: null, totalTokensUsed: 0, lastUsedAt: null, createdAt: new Date() };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.aISettings.create.mockResolvedValueOnce(created);
+    const res = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer test-token')
+      .send({ provider: 'GROK', apiKey: 'grok-k' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.provider).toBe('GROK');
+  });
+
+  it('DELETE /api/settings returns 401 without auth', async () => {
+    const res = await request(app).delete('/api/settings');
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('POST /api/settings returns 401 without auth', async () => {
+    const res = await request(app).post('/api/settings').send({ provider: 'OPENAI', apiKey: 'sk-key' });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('GET /api/settings response data totalTokensUsed is a number when settings exist', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockExistingSettings);
+    const res = await request(app).get('/api/settings').set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalTokensUsed).toBe('number');
+  });
+
+  it('DELETE /api/settings returns 500 when deleteMany rejects', async () => {
+    mockPrisma.aISettings.deleteMany.mockRejectedValueOnce(new Error('Transaction failed'));
+    const res = await request(app).delete('/api/settings').set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

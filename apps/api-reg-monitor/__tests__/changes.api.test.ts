@@ -315,3 +315,58 @@ describe('Regulatory Changes — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Regulatory Changes — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/changes response data is an array', async () => {
+    mockPrisma.regChange.findMany.mockResolvedValue([]);
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/changes');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/changes pagination.totalPages is correct for page=2 limit=5', async () => {
+    mockPrisma.regChange.findMany.mockResolvedValue([]);
+    mockPrisma.regChange.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/changes?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /api/changes/:id returns NOT_FOUND code on 404', async () => {
+    mockPrisma.regChange.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/changes/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/changes success response has id', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(2);
+    mockPrisma.regChange.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', title: 'Reg 3' });
+    const res = await request(app).post('/api/changes').send({ title: 'Reg 3' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBeDefined();
+  });
+
+  it('DELETE /api/changes/:id success:true on successful delete', async () => {
+    mockPrisma.regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.regChange.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/changes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/changes/:id success:true on successful update', async () => {
+    mockPrisma.regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old' });
+    mockPrisma.regChange.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Latest' });
+    const res = await request(app)
+      .put('/api/changes/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Latest' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

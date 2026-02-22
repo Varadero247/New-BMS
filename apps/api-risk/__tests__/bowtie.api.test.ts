@@ -349,3 +349,95 @@ describe('bowtie.api — extended edge cases', () => {
     expect(res.body.data).toBeNull();
   });
 });
+
+describe('bowtie.api — final coverage', () => {
+  it('POST /:id/bowtie returns 400 when preventionBarriers is missing', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'HIGH',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    const incomplete = {
+      topEvent: 'Explosion',
+      threats: [],
+      consequences: [],
+      mitigationBarriers: [],
+      // missing preventionBarriers
+    };
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(incomplete);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /:id/bowtie returns 400 when mitigationBarriers is missing', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'HIGH',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    const incomplete = {
+      topEvent: 'Explosion',
+      threats: [],
+      consequences: [],
+      preventionBarriers: [],
+      // missing mitigationBarriers
+    };
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(incomplete);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /bowtie/all returns data array on success', async () => {
+    mockPrisma.riskBowtie.findMany.mockResolvedValue([
+      { id: 'b1', topEvent: 'Spill' },
+      { id: 'b2', topEvent: 'Flood' },
+      { id: 'b3', topEvent: 'Blast' },
+    ]);
+    const res = await request(app).get('/api/risks/bowtie/all');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('POST /:id/bowtie with existing bowtie calls update not create', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'CRITICAL',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue({ id: 'b-exist', version: '2.0' });
+    mockPrisma.riskBowtie.update.mockResolvedValue({ id: 'b-exist', version: '2.1' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(validBowtie);
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskBowtie.update).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.riskBowtie.create).not.toHaveBeenCalled();
+  });
+
+  it('POST /:id/bowtie with new bowtie calls create not update', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'HIGH',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    mockPrisma.riskBowtie.create.mockResolvedValue({ id: 'b-new', version: '1.0' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(validBowtie);
+    expect(res.status).toBe(201);
+    expect(mockPrisma.riskBowtie.create).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.riskBowtie.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /:id/bowtie findUnique called with riskId', async () => {
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/bowtie');
+    expect(mockPrisma.riskBowtie.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { riskId: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});

@@ -298,3 +298,69 @@ describe('Dashboard Stats — extended edge cases', () => {
     expect(mockPrisma.regObligation.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Dashboard Stats — additional final cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/dashboard/stats response body is an object', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/dashboard/stats totalObligations is a number', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(10);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalObligations).toBe('number');
+  });
+
+  it('GET /api/dashboard/stats totalLegalItems is a number', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(8);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalLegalItems).toBe('number');
+  });
+
+  it('GET /api/dashboard/stats error.message is defined on 500', async () => {
+    mockPrisma.regChange.count.mockRejectedValue(new Error('DB crash'));
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBeDefined();
+  });
+
+  it('GET /api/dashboard/stats regLegalRegister count called once', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.regLegalRegister.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/dashboard/stats regChange count called once', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.regChange.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/dashboard/stats returns 200 when all counts are 0', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

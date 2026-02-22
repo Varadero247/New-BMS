@@ -283,3 +283,52 @@ describe('Security Headers Middleware', () => {
     });
   });
 });
+
+describe('Security Headers — final coverage batch', () => {
+  let mockReq: Partial<Request>;
+  let mockRes: Partial<Response>;
+  let mockNext: NextFunction;
+
+  beforeEach(() => {
+    mockReq = { path: '/api/test' };
+    mockRes = {
+      setHeader: jest.fn().mockReturnThis(),
+      removeHeader: jest.fn().mockReturnThis(),
+      getHeader: jest.fn().mockReturnValue(undefined),
+    };
+    mockNext = jest.fn();
+  });
+
+  it('securityHeaders calls next exactly once', () => {
+    securityHeaders(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('additionalSecurityHeaders calls next exactly once', () => {
+    additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('additionalSecurityHeaders sets X-Content-Type-Options to nosniff for /api/data', () => {
+    mockReq.path = '/api/data';
+    additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.setHeader).toHaveBeenCalledWith('X-Content-Type-Options', 'nosniff');
+  });
+
+  it('additionalSecurityHeaders does not set Cache-Control for /docs path', () => {
+    mockReq.path = '/docs';
+    additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.setHeader).not.toHaveBeenCalledWith('Cache-Control', expect.any(String));
+  });
+
+  it('additionalSecurityHeaders sets Surrogate-Control for /api/crm path', () => {
+    mockReq.path = '/api/crm';
+    additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.setHeader).toHaveBeenCalledWith('Surrogate-Control', 'no-store');
+  });
+
+  it('createSecurityMiddleware returns exactly 2 middleware', () => {
+    const mw = createSecurityMiddleware();
+    expect(mw).toHaveLength(2);
+  });
+});

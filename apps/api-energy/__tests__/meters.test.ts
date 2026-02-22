@@ -408,3 +408,96 @@ describe('Additional meters coverage', () => {
     expect(res.body).toMatchObject({ success: true, pagination: expect.objectContaining({ total: 1 }) });
   });
 });
+
+describe('meters — further edge cases', () => {
+  it('POST /api/meters with valid parentMeterId succeeds', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock)
+      .mockResolvedValueOnce(null) // code check — no duplicate
+      .mockResolvedValueOnce({ id: 'e1000000-0000-4000-a000-000000000001' }); // parent found
+    (prisma.energyMeter.create as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000002',
+      name: 'Sub Meter',
+      code: 'SUB-001',
+      type: 'ELECTRICITY',
+      unit: 'kWh',
+      parentMeterId: 'e1000000-0000-4000-a000-000000000001',
+    });
+
+    const res = await request(app).post('/api/meters').send({
+      name: 'Sub Meter',
+      code: 'SUB-001',
+      type: 'ELECTRICITY',
+      unit: 'kWh',
+      parentMeterId: 'e1000000-0000-4000-a000-000000000001',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.code).toBe('SUB-001');
+  });
+
+  it('GET /api/meters/:id returns meter with children array', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      name: 'Parent Meter',
+      children: [{ id: 'e1000000-0000-4000-a000-000000000002', name: 'Sub Meter' }],
+    });
+
+    const res = await request(app).get('/api/meters/e1000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.children).toHaveLength(1);
+  });
+
+  it('GET /api/meters hierarchy returns empty tree when no meters', async () => {
+    (prisma.energyMeter.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/meters/hierarchy');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('PUT /api/meters/:id updates type field', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      deletedAt: null,
+    });
+    (prisma.energyMeter.update as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      type: 'GAS',
+    });
+
+    const res = await request(app)
+      .put('/api/meters/e1000000-0000-4000-a000-000000000001')
+      .send({ type: 'GAS' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.type).toBe('GAS');
+  });
+
+  it('GET /api/meters/:id/readings pagination returns totalPages', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyReading.count as jest.Mock).mockResolvedValue(30);
+
+    const res = await request(app).get(
+      '/api/meters/e1000000-0000-4000-a000-000000000001/readings?page=2&limit=10'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(30);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('POST /api/meters returns 400 when code is missing', async () => {
+    const res = await request(app).post('/api/meters').send({
+      name: 'No Code Meter',
+      type: 'ELECTRICITY',
+      unit: 'kWh',
+    });
+
+    expect(res.status).toBe(400);
+  });
+});

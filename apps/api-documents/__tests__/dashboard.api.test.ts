@@ -304,3 +304,70 @@ describe('Documents Dashboard — boundary and edge-case coverage', () => {
     expect(mockPrisma.docApproval.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Documents Dashboard — response correctness and edge cases', () => {
+  it('returns correct totalDocuments when count is 42', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(42);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDocuments).toBe(42);
+  });
+
+  it('returns correct totalVersions when count is 100', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(100);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalVersions).toBe(100);
+  });
+
+  it('returns correct pendingApprovals when count is 13', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(13);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pendingApprovals).toBe(13);
+  });
+
+  it('response has no extra unknown keys beyond totalDocuments, totalVersions, pendingApprovals', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(1);
+    mockPrisma.docVersion.count.mockResolvedValue(2);
+    mockPrisma.docApproval.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    const keys = Object.keys(res.body.data);
+    expect(keys).toContain('totalDocuments');
+    expect(keys).toContain('totalVersions');
+    expect(keys).toContain('pendingApprovals');
+  });
+
+  it('returns 500 with error.code INTERNAL_ERROR when all three queries reject', async () => {
+    mockPrisma.docDocument.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.docVersion.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.docApproval.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('returns 200 when all counts are large numbers', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(100000);
+    mockPrisma.docVersion.count.mockResolvedValue(500000);
+    mockPrisma.docApproval.count.mockResolvedValue(99999);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/dashboard/stats GET method returns 200, not 404', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).not.toBe(404);
+  });
+});

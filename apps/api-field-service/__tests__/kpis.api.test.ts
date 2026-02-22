@@ -415,3 +415,70 @@ describe('kpis.api — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('kpis.api — further coverage', () => {
+  it('GET / returns success:true on empty result set', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/kpis');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET / pagination.page defaults to 1', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/kpis');
+
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET / data array is always an array', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/kpis');
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/kpis').send({});
+
+    expect(mockPrisma.fsSvcKpi.create).not.toHaveBeenCalled();
+  });
+
+  it('PUT /:id update passes correct id in where clause', async () => {
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010' });
+    mockPrisma.fsSvcKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', value: 88 });
+
+    await request(app)
+      .put('/api/kpis/00000000-0000-0000-0000-000000000010')
+      .send({ value: 88 });
+
+    expect(mockPrisma.fsSvcKpi.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000010' }),
+      })
+    );
+  });
+
+  it('GET /dashboard returns jobStats with openJobs field', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJob.count
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(7)
+      .mockResolvedValueOnce(3);
+
+    const res = await request(app).get('/api/kpis/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.jobStats.openJobs).toBe(3);
+  });
+});

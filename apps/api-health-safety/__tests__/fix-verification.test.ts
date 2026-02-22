@@ -403,3 +403,74 @@ describe('Architecture Fix — pagination edge cases', () => {
     expect(res.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
   });
 });
+
+describe('Architecture Fix — risk CRUD additional paths', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', risksRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risks data array contains returned items', async () => {
+    const risk = { id: '00000000-0000-4000-a000-000000000001', title: 'Fire risk' };
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([risk]);
+    mockPrisma.risk.count.mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/risks');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].title).toBe('Fire risk');
+  });
+
+  it('findMany called with take matching requested limit', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    await request(app).get('/api/risks?limit=15');
+    expect(mockPrisma.risk.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 15 })
+    );
+  });
+
+  it('DELETE returns 204 for second valid risk id', async () => {
+    mockPrisma.risk.findUnique.mockResolvedValueOnce({ id: '10000000-0000-4000-a000-000000000002' });
+    (mockPrisma.risk.delete as jest.Mock).mockResolvedValueOnce({});
+    const res = await request(app).delete('/api/risks/10000000-0000-4000-a000-000000000002');
+    expect(res.status).toBe(204);
+  });
+
+  it('F-032: error message is a string in 500 response', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockRejectedValueOnce(new Error('storage failure'));
+    const res = await request(app).get('/api/risks');
+    expect(res.status).toBe(500);
+    expect(typeof res.body.error.message).toBe('string');
+  });
+
+  it('meta.totalPages is 0 when total is 0', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/risks');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+
+  it('success field is always present in 200 response', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/risks');
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('GET /api/risks ?page=5 results in skip=80 with default limit=20', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    await request(app).get('/api/risks?page=5');
+    expect(mockPrisma.risk.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 80 })
+    );
+  });
+});

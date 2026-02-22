@@ -465,3 +465,76 @@ describe('Regulatory Submissions Routes', () => {
     });
   });
 });
+
+describe('Regulatory Submissions — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/submissions returns success:true', async () => {
+    (mockPrisma.regulatorySubmission.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.regulatorySubmission.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/submissions');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/submissions count called once before create', async () => {
+    (mockPrisma.regulatorySubmission.count as jest.Mock).mockResolvedValue(5);
+    (mockPrisma.regulatorySubmission.create as jest.Mock).mockResolvedValue({ id: 'sub-count' });
+
+    await request(app).post('/api/submissions').send({
+      deviceName: 'Count Device',
+      market: 'FDA_510K',
+      submissionType: 'INITIAL',
+    });
+
+    expect(mockPrisma.regulatorySubmission.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/submissions/:id creates change log on status update', async () => {
+    (mockPrisma.regulatorySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      refNumber: 'REG-2602-0001',
+    });
+    (mockPrisma.regulatorySubmission.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUBMITTED',
+    });
+
+    const res = await request(app)
+      .put('/api/submissions/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'SUBMITTED' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/submissions meta.total matches count', async () => {
+    (mockPrisma.regulatorySubmission.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.regulatorySubmission.count as jest.Mock).mockResolvedValue(13);
+
+    const res = await request(app).get('/api/submissions');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(13);
+  });
+
+  it('POST /api/submissions accepts UKCA market', async () => {
+    (mockPrisma.regulatorySubmission.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.regulatorySubmission.create as jest.Mock).mockResolvedValue({
+      id: 'sub-uk',
+      market: 'UKCA',
+    });
+
+    const res = await request(app).post('/api/submissions').send({
+      deviceName: 'UK Device',
+      market: 'UKCA',
+      submissionType: 'INITIAL',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.market).toBe('UKCA');
+  });
+});

@@ -394,3 +394,83 @@ describe('InfoSec Assets — additional response shape coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('InfoSec Assets — final coverage block', () => {
+  const mockAsset = {
+    id: 'a1000000-0000-4000-a000-000000000001',
+    refNumber: 'IA-0001',
+    name: 'Production Database',
+    type: 'SOFTWARE',
+    classification: 'CONFIDENTIAL',
+    description: 'Primary PostgreSQL database',
+    owner: 'DBA Team',
+    custodian: 'IT Ops',
+    location: 'AWS eu-west-1',
+    value: 50000,
+    riskLevel: 'HIGH',
+    status: 'ACTIVE',
+    createdBy: '00000000-0000-4000-a000-000000000123',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/assets pagination has totalPages field', async () => {
+    (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(50);
+    const res = await request(app).get('/api/assets?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages', 5);
+  });
+
+  it('GET /api/assets/:id returns 200 with correct data', async () => {
+    (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
+    const res = await request(app).get('/api/assets/a1000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Production Database');
+  });
+
+  it('PUT /api/assets/:id returns 500 on DB error during update', async () => {
+    (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
+    (mockPrisma.isAsset.update as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/assets/a1000000-0000-4000-a000-000000000001')
+      .send({ name: 'New Name' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /api/assets/:id returns 500 on DB error during update', async () => {
+    (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
+    (mockPrisma.isAsset.update as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const res = await request(app).delete('/api/assets/a1000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/assets response body has pagination field', async () => {
+    (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/assets');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST /api/assets returns 201 with data.refNumber field', async () => {
+    (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(2);
+    (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce({ ...mockAsset, refNumber: 'IA-0003' });
+    const res = await request(app).post('/api/assets').send({
+      name: 'Backup Server',
+      type: 'HARDWARE',
+      classification: 'INTERNAL',
+      description: 'Secondary backup server',
+      owner: 'IT Ops',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+});

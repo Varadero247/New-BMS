@@ -386,3 +386,58 @@ describe('Field Service Time Entries — edge cases and validation', () => {
     );
   });
 });
+
+// ─── Further coverage ─────────────────────────────────────────────────────────
+
+describe('time-entries.api — further coverage', () => {
+  it('GET / applies correct skip for page 4 limit 10', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(0);
+
+    await request(app).get('/api/time-entries?page=4&limit=10');
+
+    expect(mockPrisma.fsSvcTimeEntry.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 30, take: 10 })
+    );
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/time-entries').send({});
+
+    expect(mockPrisma.fsSvcTimeEntry.create).not.toHaveBeenCalled();
+  });
+
+  it('GET / filters by type=OVERTIME when provided', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(0);
+
+    await request(app).get('/api/time-entries?type=OVERTIME');
+
+    expect(mockPrisma.fsSvcTimeEntry.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'OVERTIME' }),
+      })
+    );
+  });
+
+  it('DELETE /:id calls update exactly once on success', async () => {
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000050' });
+    mockPrisma.fsSvcTimeEntry.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000050', deletedAt: new Date() });
+
+    await request(app).delete('/api/time-entries/00000000-0000-0000-0000-000000000050');
+
+    expect(mockPrisma.fsSvcTimeEntry.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id returns 200 and success:true on valid update', async () => {
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060' });
+    mockPrisma.fsSvcTimeEntry.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060', duration: 3.5 });
+
+    const res = await request(app)
+      .put('/api/time-entries/00000000-0000-0000-0000-000000000060')
+      .send({ duration: 3.5 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

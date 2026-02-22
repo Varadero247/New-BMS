@@ -379,3 +379,83 @@ describe('portal-announcements — pagination and filtering', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('portal-announcements — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: pagination has page and limit fields', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/portal/announcements?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('POST: returns 400 for missing title', async () => {
+    const res = await request(app).post('/api/portal/announcements').send({
+      content: 'No title here',
+      portalType: 'CUSTOMER',
+      priority: 'MEDIUM',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST: SUPPLIER portalType is accepted', async () => {
+    mockPrisma.portalAnnouncement.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      title: 'Supplier Announcement',
+      isActive: true,
+    });
+
+    const res = await request(app).post('/api/portal/announcements').send({
+      title: 'Supplier Announcement',
+      content: 'For suppliers',
+      portalType: 'SUPPLIER',
+      priority: 'HIGH',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: count and findMany both called once', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/announcements');
+
+    expect(mockPrisma.portalAnnouncement.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.portalAnnouncement.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE returns 500 on update DB error', async () => {
+    mockPrisma.portalAnnouncement.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalAnnouncement.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete(
+      '/api/portal/announcements/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET list: findMany called with deletedAt:null in where clause', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/announcements');
+
+    expect(mockPrisma.portalAnnouncement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+});

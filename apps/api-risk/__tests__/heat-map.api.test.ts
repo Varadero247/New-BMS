@@ -269,3 +269,62 @@ describe('heat-map.api — extended edge cases', () => {
     expect(res.body.data.total).toBe(4);
   });
 });
+
+describe('heat-map.api — final coverage', () => {
+  it('findMany called with take: 500', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/heat-map');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 500 })
+    );
+  });
+
+  it('findMany called with select containing id, title, likelihood, consequence, inherentScore', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/heat-map');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          id: true,
+          title: true,
+          likelihood: true,
+          consequence: true,
+          inherentScore: true,
+        }),
+      })
+    );
+  });
+
+  it('response body has success:true on 200', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('risks array entries preserve title field', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: 'x', title: 'Unique title', likelihood: 2, consequence: 2, inherentScore: 4 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.body.data.risks[0].title).toBe('Unique title');
+  });
+
+  it('HTTP POST returns 404 for unregistered POST /', async () => {
+    const res = await request(app).post('/api/heat-map').send({});
+    expect([404, 405]).toContain(res.status);
+  });
+
+  it('error code on 500 is INTERNAL_ERROR', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('connection refused'));
+    const res = await request(app).get('/api/heat-map');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('data.total is 0 for empty risk list', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.body.data.total).toBe(0);
+    expect(res.body.data.risks).toHaveLength(0);
+  });
+});

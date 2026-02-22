@@ -396,3 +396,88 @@ describe('fireRiskAssessment — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('fireRiskAssessment — final coverage', () => {
+  it('GET /api/fra returns data as array', async () => {
+    mockFra.findMany.mockResolvedValue([fakeFra]);
+    mockFra.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/fra');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/fra calculates MEDIUM risk level for score 10', async () => {
+    const mediumRiskFra = { ...fakeFra, overallRiskScore: 10, overallRiskLevel: 'MEDIUM' };
+    mockFra.count.mockResolvedValue(0);
+    mockFra.create.mockResolvedValue(mediumRiskFra);
+
+    const res = await request(app).post('/api/fra').send({
+      ...validCreateBody,
+      likelihoodRating: 2,
+      consequenceRating: 5,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.overallRiskLevel).toBe('MEDIUM');
+  });
+
+  it('PUT /api/fra/:id updates assessmentStatus field', async () => {
+    const updated = { ...fakeFra, assessmentStatus: 'UNDER_REVIEW' };
+    mockFra.findFirst.mockResolvedValue(fakeFra);
+    mockFra.update.mockResolvedValue(updated);
+
+    const res = await request(app).put(`/api/fra/${FRA_ID}`).send({
+      assessmentStatus: 'UNDER_REVIEW',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/fra/overdue response body has success:true', async () => {
+    const overdueFra = { ...fakeFra, nextReviewDate: '2024-01-01T00:00:00.000Z' };
+    mockFra.findMany.mockResolvedValue([overdueFra]);
+
+    const res = await request(app).get('/api/fra/overdue');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('POST /api/fra/:id/approve sets approvedBy to current user id', async () => {
+    const approved = { ...fakeFra, assessmentStatus: 'CURRENT', approvedBy: 'user-1' };
+    mockFra.findFirst.mockResolvedValue(fakeFra);
+    mockFra.update.mockResolvedValue(approved);
+
+    const res = await request(app).post(`/api/fra/${FRA_ID}/approve`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.approvedBy).toBe('user-1');
+  });
+
+  it('GET /api/fra/:id returns premises object when included', async () => {
+    const withPremises = { ...fakeFra, premises: { id: PREMISES_ID, name: 'Head Office', address: '1 Main St' } };
+    mockFra.findFirst.mockResolvedValue(withPremises);
+
+    const res = await request(app).get(`/api/fra/${FRA_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.premises).toBeDefined();
+    expect(res.body.data.premises.name).toBe('Head Office');
+  });
+
+  it('POST /api/fra returns 400 when assessmentDate is missing', async () => {
+    const res = await request(app).post('/api/fra').send({
+      premisesId: PREMISES_ID,
+      nextReviewDate: '2027-01-01',
+      assessorName: 'Jane Smith',
+      likelihoodRating: 2,
+      consequenceRating: 2,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

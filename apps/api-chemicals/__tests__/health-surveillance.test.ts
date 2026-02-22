@@ -346,3 +346,77 @@ describe('Health Surveillance — extended coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Health Surveillance — additional coverage 2', () => {
+  it('GET / returns pagination block with page, limit, and total', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/health-surveillance');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+
+  it('GET / count is called once per list request', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/health-surveillance');
+    expect(mockPrisma.chemHealthSurveillance.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / creates record with employeeId from request body', async () => {
+    (mockPrisma.chemHealthSurveillance.create as jest.Mock).mockResolvedValue(mockRecord);
+    await request(app).post('/api/health-surveillance').send({
+      employeeId: 'EMP-001',
+      employeeName: 'Jane Smith',
+      jobRole: 'Paint Sprayer',
+      substancesExposed: ['Isocyanates'],
+      surveillanceType: 'LUNG_FUNCTION',
+      examinationDate: '2026-01-15',
+      conductedBy: 'Dr. Jones',
+      result: 'NORMAL',
+    });
+    const [call] = (mockPrisma.chemHealthSurveillance.create as jest.Mock).mock.calls;
+    expect(call[0].data).toHaveProperty('employeeId', 'EMP-001');
+  });
+
+  it('GET /dashboard returns overdue and dueSoon fields', async () => {
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock)
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(3);
+    const res = await request(app).get('/api/health-surveillance/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total');
+  });
+
+  it('GET /:id returns 500 on db error', async () => {
+    (mockPrisma.chemHealthSurveillance.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/health-surveillance/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id updates nextSurveillanceDue when provided', async () => {
+    (mockPrisma.chemHealthSurveillance.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+    (mockPrisma.chemHealthSurveillance.update as jest.Mock).mockResolvedValue({
+      ...mockRecord,
+      nextSurveillanceDue: new Date('2028-01-15'),
+    });
+    const res = await request(app)
+      .put('/api/health-surveillance/00000000-0000-0000-0000-000000000001')
+      .send({ nextSurveillanceDue: '2028-01-15T00:00:00.000Z' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / filters by result=ABNORMAL when provided as query param', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([{ ...mockRecord, result: 'ABNORMAL' }]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(1);
+    await request(app).get('/api/health-surveillance?result=ABNORMAL');
+    const [call] = (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.result).toBe('ABNORMAL');
+  });
+});

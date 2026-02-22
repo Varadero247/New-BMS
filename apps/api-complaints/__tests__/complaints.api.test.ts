@@ -334,3 +334,66 @@ describe('complaints.api — extended coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 });
+
+describe('complaints.api — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response content-type is application/json', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/complaints');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST / count is called before create to generate referenceNumber', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(4);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004', referenceNumber: 'CMP-2026-0005' });
+    await request(app).post('/api/complaints').send({ title: 'Count check' });
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.compComplaint.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / data is an array not an object', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/complaints');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id calls update with provided fields', async () => {
+    mockPrisma.compComplaint.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compComplaint.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New Title' });
+    const res = await request(app).put('/api/complaints/00000000-0000-0000-0000-000000000001').send({ title: 'New Title' });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.compComplaint.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ title: 'New Title' }) })
+    );
+  });
+
+  it('DELETE /:id calls update with deletedAt set', async () => {
+    mockPrisma.compComplaint.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compComplaint.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/complaints/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.compComplaint.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / returns 200 with arbitrary unknown query params ignored', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/complaints?unknownParam=somevalue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id response data contains the title field', async () => {
+    mockPrisma.compComplaint.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Late Delivery' });
+    const res = await request(app).get('/api/complaints/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Late Delivery');
+  });
+});

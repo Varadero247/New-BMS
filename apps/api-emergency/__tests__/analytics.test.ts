@@ -501,3 +501,69 @@ describe('Emergency Analytics — extended metrics and alert coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Emergency Analytics — data type and value boundary coverage', () => {
+  it('activePremises is a number in response data', async () => {
+    setupAnalyticsMocks({ activePremises: 7 });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.activePremises).toBe('number');
+  });
+
+  it('fraOverdueCount is a number in response data', async () => {
+    setupAnalyticsMocks({ fraOverdue: 4 });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.fraOverdueCount).toBe('number');
+    expect(res.body.data.fraOverdueCount).toBe(4);
+  });
+
+  it('response body has success:true on all successful calls', async () => {
+    setupAnalyticsMocks();
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('multiple criticalAlerts can be present simultaneously', async () => {
+    setupAnalyticsMocks({
+      activeIncidents: 1,
+      fraOverdue: 2,
+      wardenExpiring: 3,
+      equipmentDue: 4,
+      premisesNoDrill: 5,
+    });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.criticalAlerts.length).toBeGreaterThan(1);
+  });
+
+  it('bcpCount and bcpNotTestedCount are both numbers', async () => {
+    setupAnalyticsMocks({ bcpCount: 10, bcpNotTested: 3 });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.bcpCount).toBe('number');
+    expect(typeof res.body.data.bcpNotTestedCount).toBe('number');
+  });
+
+  it('drillsDueSoon equals premisesNoDrill value from mock', async () => {
+    setupAnalyticsMocks({ premisesNoDrill: 9 });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.drillsDueSoon).toBe(9);
+  });
+
+  it('incidentTypeBreakdown EVACUATON key maps correctly from groupBy mock', async () => {
+    setupAnalyticsMocks({
+      incidentBreakdown: [{ emergencyType: 'EVACUATION', _count: 7 }],
+    });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.incidentTypeBreakdown.EVACUATION).toBe(7);
+  });
+
+  it('response content-type is application/json', async () => {
+    setupAnalyticsMocks();
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+});

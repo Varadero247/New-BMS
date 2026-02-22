@@ -348,3 +348,67 @@ describe('Social — extended coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('social — additional coverage 2', () => {
+  it('GET /api/social response body has pagination object', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([mockSocial]);
+    (prisma.esgSocialMetric.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/social');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET /api/social filters by HEALTH_SAFETY category', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgSocialMetric.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/social?category=HEALTH_SAFETY');
+    expect(prisma.esgSocialMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'HEALTH_SAFETY' }) })
+    );
+  });
+
+  it('POST /api/social stores createdBy from auth user', async () => {
+    (prisma.esgSocialMetric.create as jest.Mock).mockResolvedValue(mockSocial);
+    await request(app).post('/api/social').send({
+      category: 'LABOR',
+      metric: 'Employee Turnover',
+      value: 0.12,
+      periodStart: '2026-01-01',
+      periodEnd: '2026-03-31',
+    });
+    const [call] = (prisma.esgSocialMetric.create as jest.Mock).mock.calls;
+    expect(call[0].data.createdBy).toBe('user-123');
+  });
+
+  it('GET /api/social/workforce returns data object with diversity key', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([
+      { ...mockSocial, category: 'DIVERSITY', metric: 'Gender Ratio', value: 0.5 },
+    ]);
+    const res = await request(app).get('/api/social/workforce');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('diversity');
+  });
+
+  it('DELETE /api/social/:id 404 returns error message', async () => {
+    (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).delete('/api/social/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('GET /api/social page defaults to 1 and limit to 20', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgSocialMetric.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/social');
+    expect(prisma.esgSocialMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 20 })
+    );
+  });
+
+  it('GET /api/social/:id success:true when record found', async () => {
+    (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(mockSocial);
+    const res = await request(app).get('/api/social/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

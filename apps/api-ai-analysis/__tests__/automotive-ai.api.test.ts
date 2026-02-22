@@ -751,3 +751,120 @@ describe('automotive-ai.api — edge cases', () => {
     expect(res.body.error.code).toBe('PARSE_ERROR');
   });
 });
+
+// ── automotive-ai.api — final additional coverage ────────────────────────────
+
+describe('automotive-ai.api — final additional coverage', () => {
+  let app: express.Express;
+
+  const ppapResult = {
+    readinessScore: 75,
+    readinessLevel: 'MOSTLY_READY',
+    elementsStatus: { complete: 13, incomplete: 5, notApplicable: 0, total: 18 },
+    estimatedCompletionDays: 15,
+    recommendation1: 'Complete PFMEA',
+    recommendation2: 'Run MSA studies',
+  };
+
+  const apqpResult = {
+    overallRiskLevel: 'HIGH',
+    overallRiskScore: 80,
+    criticalDeliverable: 'PFMEA',
+    criticalDeliverablePriority: 'CRITICAL',
+    recommendedMitigation: 'Front-load validation testing',
+    mitigationPhase: 'PRODUCT_DESIGN',
+    mitigationResponsible: 'Engineering',
+    typicalTimeline: { totalWeeks: 40, firstPhase: 'Plan and Define', firstPhaseDuration: 5 },
+    oemConsideration: 'BMW requires IATF 16949',
+    lessonLearned: 'Engage supplier early',
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyze', analyzeRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('response body always has success property', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: {} });
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('AUTOMOTIVE_PPAP_READINESS success response data has result object', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(ppapResult)));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: { partName: 'Shaft seal' } });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('result');
+    expect(typeof res.body.data.result).toBe('object');
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT response has data.result.overallRiskLevel', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(apqpResult)));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: { productDescription: 'Transmission housing' } });
+    expect(res.status).toBe(200);
+    expect(res.body.data.result.overallRiskLevel).toBe('HIGH');
+    expect(res.body.data.result.overallRiskScore).toBe(80);
+  });
+
+  it('AUTOMOTIVE_PPAP_READINESS returns 500 when DB throws on findFirst', async () => {
+    mockPrisma.aISettings.findFirst.mockRejectedValueOnce(new Error('DB connection failed'));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: {} });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT fetch is called with POST method', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(apqpResult)));
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: { productDescription: 'Test' } });
+    expect(mockFetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ method: 'POST' }));
+  });
+
+  it('AUTOMOTIVE_PPAP_READINESS aISettings.update called with correct id after success', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(ppapResult), 200));
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: { partName: 'CV Joint' } });
+    expect(mockPrisma.aISettings.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'settings-1' } })
+    );
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT with GROK provider calls x.ai endpoint', async () => {
+    const grokSettings = { ...mockSettings, provider: 'GROK', model: 'grok-beta' };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(grokSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(grokSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(apqpResult)));
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: { productDescription: 'Grok test part' } });
+    expect(mockFetch).toHaveBeenCalledWith('https://api.x.ai/v1/chat/completions', expect.any(Object));
+  });
+});

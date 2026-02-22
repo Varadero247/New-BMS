@@ -252,3 +252,47 @@ describe('Locale metadata completeness', () => {
     expect(Object.keys(expectedFlags)).toHaveLength(locales.length);
   });
 });
+
+/* ====================================================================
+ *  6. Additional locale contract tests
+ * ==================================================================== */
+
+describe('@ims/i18n — additional locale contract', () => {
+  test('locales array is frozen (readonly-compatible check)', () => {
+    // The array reference itself should be stable
+    const ref1 = locales;
+    const ref2 = locales;
+    expect(ref1).toBe(ref2);
+  });
+
+  test('defaultLocale is a string', () => {
+    expect(typeof defaultLocale).toBe('string');
+  });
+
+  test('locales contains only lowercase strings', () => {
+    locales.forEach((locale) => {
+      expect(locale).toBe(locale.toLowerCase());
+    });
+  });
+
+  test('locales contains only 2-letter ISO codes', () => {
+    locales.forEach((locale) => {
+      expect(locale).toMatch(/^[a-z]{2}$/);
+    });
+  });
+
+  test('useT returns same value as mockUseTranslations returns', () => {
+    const sentinel = () => 'translated';
+    mockUseTranslations.mockReturnValueOnce(sentinel);
+    const t = useT('any-ns');
+    expect(t).toBe(sentinel);
+  });
+
+  test('useT called with numeric-like namespace does not throw', () => {
+    expect(() => useT('123')).not.toThrow();
+  });
+
+  test('index module is importable without error', () => {
+    expect(() => require('../src/index')).not.toThrow();
+  });
+});

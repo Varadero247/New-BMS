@@ -345,3 +345,74 @@ describe('Requests — extended coverage', () => {
     expect(res.body.data).toHaveProperty('status');
   });
 });
+
+describe('Requests — business logic and response structure', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST / sets createdBy from authenticated user', async () => {
+    prisma.cmmsRequest.create.mockResolvedValue(mockRequest);
+    await request(app).post('/api/requests').send({
+      title: 'Replace light bulb',
+      requestedBy: 'Jane Doe',
+    });
+    expect(prisma.cmmsRequest.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('GET /requests?assetId filters findMany by assetId', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([]);
+    prisma.cmmsRequest.count.mockResolvedValue(0);
+    await request(app).get('/api/requests?assetId=asset-1');
+    expect(prisma.cmmsRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ assetId: 'asset-1' }) })
+    );
+  });
+
+  it('PUT /:id/approve returns data.request and data.workOrder on success', async () => {
+    prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
+    prisma.cmmsWorkOrder.create.mockResolvedValue({ id: 'wo-new', number: 'WO-2026-1' });
+    prisma.cmmsRequest.update.mockResolvedValue({
+      ...mockRequest,
+      status: 'APPROVED',
+      workOrderId: 'wo-new',
+    });
+    const res = await request(app).put(
+      '/api/requests/00000000-0000-0000-0000-000000000001/approve'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data.request).toBeDefined();
+    expect(res.body.data.workOrder).toBeDefined();
+    expect(res.body.data.workOrder.number).toBe('WO-2026-1');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
+    prisma.cmmsRequest.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).delete('/api/requests/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / returns success:true with data array and pagination', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([mockRequest]);
+    prisma.cmmsRequest.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/requests');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('PUT /:id/approve returns 500 on work order creation failure', async () => {
+    prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
+    prisma.cmmsWorkOrder.create.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).put(
+      '/api/requests/00000000-0000-0000-0000-000000000001/approve'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

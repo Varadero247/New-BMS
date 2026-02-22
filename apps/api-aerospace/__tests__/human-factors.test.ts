@@ -721,3 +721,96 @@ describe('Aerospace Human Factors — additional edge cases', () => {
     });
   });
 });
+
+describe('Aerospace Human Factors — extended coverage 2', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/human-factors', humanFactorsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/human-factors/incidents returns correct totalPages for multi-page result', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(50);
+
+    const response = await request(app)
+      .get('/api/human-factors/incidents?page=1&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.totalPages).toBe(5);
+    expect(response.body.meta.total).toBe(50);
+  });
+
+  it('GET /api/human-factors/incidents response shape has success:true and meta', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app)
+      .get('/api/human-factors/incidents')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.success).toBe(true);
+    expect(response.body).toHaveProperty('data');
+    expect(response.body).toHaveProperty('meta');
+  });
+
+  it('GET /api/human-factors/incidents returns empty data array when none match', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app)
+      .get('/api/human-factors/incidents?category=AWARENESS')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+    expect(response.body.meta.total).toBe(0);
+  });
+
+  it('POST /api/human-factors/incidents returns 400 for INVALID_CATEGORY', async () => {
+    const response = await request(app)
+      .post('/api/human-factors/incidents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Test',
+        description: 'Test description',
+        category: 'INVALID_CATEGORY',
+        incidentDate: '2026-01-15T10:00:00Z',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/human-factors/dashboard returns success:false on error', async () => {
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockRejectedValueOnce(new Error('DB'));
+
+    const response = await request(app)
+      .get('/api/human-factors/dashboard')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.success).toBe(false);
+  });
+
+  it('GET /api/human-factors/dirty-dozen returns totals object with FATIGUE key', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([
+      { category: 'FATIGUE', incidentDate: new Date('2026-01-10') },
+      { category: 'FATIGUE', incidentDate: new Date('2026-02-01') },
+    ]);
+
+    const response = await request(app)
+      .get('/api/human-factors/dirty-dozen')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.totals.FATIGUE).toBe(2);
+  });
+});

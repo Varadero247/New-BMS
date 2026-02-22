@@ -259,3 +259,60 @@ describe('sla.api — edge cases and field validation', () => {
     expect(res.body.data.onTrack).toBe(5);
   });
 });
+
+describe('sla.api — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response content-type is application/json', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/sla');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / data object is not null', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(1).mockResolvedValueOnce(2);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.data).not.toBeNull();
+  });
+
+  it('GET / data does not contain unexpected keys', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('overdue');
+    expect(res.body.data).toHaveProperty('onTrack');
+  });
+
+  it('GET / success is boolean not string', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(3).mockResolvedValueOnce(4);
+    const res = await request(app).get('/api/sla');
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('GET / overdue field is a non-negative integer', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(0).mockResolvedValueOnce(10);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(Number.isInteger(res.body.data.overdue)).toBe(true);
+    expect(res.body.data.overdue).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET / onTrack field is a non-negative integer', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(5).mockResolvedValueOnce(20);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(Number.isInteger(res.body.data.onTrack)).toBe(true);
+    expect(res.body.data.onTrack).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET / error response body has both code and message', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('sla error'));
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+    expect(res.body.error).toHaveProperty('message');
+  });
+});

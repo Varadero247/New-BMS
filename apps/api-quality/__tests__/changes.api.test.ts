@@ -576,3 +576,80 @@ describe('Quality Changes — additional response shape coverage', () => {
     );
   });
 });
+
+describe('Quality Changes — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changes', changesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns empty items array when no changes exist', async () => {
+    (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.items).toEqual([]);
+  });
+
+  it('DELETE /:id soft-deletes by calling update with deletedAt', async () => {
+    (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce({ id: '26000000-0000-4000-a000-000000000001' });
+    (mockPrisma.qualChange.update as jest.Mock).mockResolvedValueOnce({});
+    await request(app).delete('/api/changes/26000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualChange.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / success is true on valid response', async () => {
+    (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET / pagination totalPages rounds up for non-exact division', async () => {
+    (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(31);
+    const response = await request(app).get('/api/changes?limit=10').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(4);
+  });
+
+  it('GET /:id returns title in response data', async () => {
+    (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '26000000-0000-4000-a000-000000000001',
+      title: 'My Change',
+      changeType: 'DOCUMENT_UPDATE',
+    });
+    const response = await request(app)
+      .get('/api/changes/26000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.body.data.title).toBe('My Change');
+  });
+
+  it('POST / returns 500 on DB error during create', async () => {
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualChange.create as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const response = await request(app)
+      .post('/api/changes')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Crash Test',
+        changeType: 'PROCESS_CHANGE',
+        requestedBy: 'Test',
+        department: 'Eng',
+        currentState: 'Old',
+        proposedChange: 'New',
+        reasonForChange: 'Why',
+      });
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

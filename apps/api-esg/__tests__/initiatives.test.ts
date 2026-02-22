@@ -337,3 +337,58 @@ describe('initiatives — extended edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('initiatives — final coverage', () => {
+  it('GET / returns JSON content-type header', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/initiatives');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / creates initiative with owner field', async () => {
+    (prisma.esgInitiative.create as jest.Mock).mockResolvedValue({ ...mockInitiative, owner: 'Jane Smith' });
+    const res = await request(app).post('/api/initiatives').send({
+      title: 'Water Conservation Initiative',
+      category: 'ENVIRONMENTAL',
+      owner: 'Jane Smith',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.owner).toBe('Jane Smith');
+  });
+
+  it('GET / response body has success and data properties', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([mockInitiative]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/initiatives');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET / data items have title and category fields', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([mockInitiative]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/initiatives');
+    expect(res.body.data[0]).toHaveProperty('title');
+    expect(res.body.data[0]).toHaveProperty('category');
+  });
+
+  it('PUT /:id update with budget field succeeds', async () => {
+    (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
+    (prisma.esgInitiative.update as jest.Mock).mockResolvedValue({ ...mockInitiative, budget: 200000 });
+    const res = await request(app)
+      .put('/api/initiatives/00000000-0000-0000-0000-000000000001')
+      .send({ budget: 200000 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.budget).toBe(200000);
+  });
+
+  it('GET / filters by GOVERNANCE category in where clause', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/initiatives?category=GOVERNANCE');
+    expect(prisma.esgInitiative.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'GOVERNANCE' }) })
+    );
+  });
+});

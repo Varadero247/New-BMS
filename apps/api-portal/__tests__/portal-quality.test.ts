@@ -378,3 +378,64 @@ describe('portal-quality — edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Portal Quality — final coverage', () => {
+  it('GET list: response body has success and data fields', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/quality-reports');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET list: returns empty array when no reports exist', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/quality-reports');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST: AUDIT reportType is valid and creates successfully', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      reportType: 'AUDIT',
+      referenceNumber: 'PTL-QR-2602-0010',
+      status: 'OPEN',
+    });
+    const res = await request(app).post('/api/portal/quality-reports').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      reportType: 'AUDIT',
+      description: 'Audit finding noted',
+      severity: 'MINOR',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.reportType).toBe('AUDIT');
+  });
+
+  it('GET list: count called once per list request', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/quality-reports');
+    expect(mockPrisma.portalQualityReport.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id: update called with correct id in where clause', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.portalQualityReport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'INVESTIGATING' });
+    await request(app)
+      .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'INVESTIGATING' });
+    expect(mockPrisma.portalQualityReport.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET list: findMany called with reportType NCR in where clause', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/quality-reports?reportType=NCR');
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ reportType: 'NCR' }) })
+    );
+  });
+});
