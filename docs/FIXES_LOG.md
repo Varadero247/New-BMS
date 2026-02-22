@@ -1,5 +1,38 @@
 # IMS — Fixes Log
 
+## Phase 21 — Frontend Gap Closure (February 22, 2026)
+
+Gap analysis of web-admin, web-customer-portal, web-partners. 17 new pages + 3 sidebars updated.
+
+**New pages — web-admin (9):**
+- `/chat` — AI marketing assistant chat interface
+- `/digest` — Marketing digest generator with sentiment badge + history table
+- `/expansion` — Expansion revenue pipeline (upsell/cross-sell/add-on) with modal
+- `/health-score` — Customer health scoring with tier cards and sub-scores
+- `/leads` — Lead pipeline with stage progression and add-lead modal
+- `/onboarding` — Customer onboarding tracker with step progress bars
+- `/partner-onboarding` — Partner onboarding with approve/reject/activate workflow
+- `/renewal` — Renewal pipeline sorted by urgency with color-coded days-until-renewal
+- `/winback` — Win-back campaign tracker with recovered MRR stats
+
+**New pages — web-customer-portal (7):**
+- `/announcements` — Portal announcements with HIGH/MEDIUM/LOW priority filtering
+- `/approvals` — Approval requests with inline approve/reject (PATCH optimistic update)
+- `/notifications` — Notifications with read/unread state and mark-all-read
+- `/orders` — Order history table with status tracking and search
+- `/quality-reports` — Quality report cards (AUDIT/INSPECTION/CERTIFICATE/TEST_REPORT)
+- `/scorecards` — Performance scorecards with score progress bars per category
+- `/users` — Portal user management with invite-user modal
+
+**New pages — web-partners (1):**
+- `/profile` — Partner profile with tier badge (gold/silver/bronze) and ISO specialism editor
+
+**Sidebars updated (3):** web-admin (+9), web-customer-portal (+7), web-partners (+1)
+
+**Commit:** 8ba17aca | Tests: 17,853/674 | TypeScript: 0 errors
+
+---
+
 ## Phase 20 — Frontend Gap Closure (February 22, 2026)
 
 Systematic audit of remaining API-to-web-app pairs. 9 new pages across 6 apps. 6 sidebars updated.
