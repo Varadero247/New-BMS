@@ -3,7 +3,7 @@ import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
+const uuidv4 = () => crypto.randomUUID();
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam, parsePagination } from '@ims/shared';
 

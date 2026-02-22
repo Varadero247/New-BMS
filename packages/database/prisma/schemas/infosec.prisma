@@ -639,23 +639,25 @@ model IsRetentionSchedule {
 
 // A.5.7 - Threat Intelligence
 model IsThreatIntelligence {
-  id              String           @id @default(uuid())
-  source          String
-  category        IsThreatCategory
-  severity        String
-  indicatorType   String
-  indicator       String
-  description     String           @db.Text
-  affectedSystems String[]
-  status          IsThreatStatus   @default(ACTIVE)
-  validFrom       DateTime         @default(now())
-  validUntil      DateTime?
-  mitigationSteps String?          @db.Text
-  linkedControls  String[]
-  createdBy       String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  deletedAt       DateTime?
+  id                  String    @id @default(uuid())
+  title               String
+  source              String
+  category            String
+  threatType          String
+  description         String    @db.Text
+  iocIndicators       String[]
+  affectedSystems     String[]
+  severity            String
+  confidence          String
+  tlpLevel            String?
+  recommendedActions  String?   @db.Text
+  validUntil          DateTime?
+  reportedBy          String
+  mitigationNotes     String?   @db.Text
+  status              String    @default("ACTIVE")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
 
   @@map("is_threat_intelligence")
 }
@@ -669,15 +671,17 @@ model IsCloudService {
   dataClassification    String
   personalDataProcessed Boolean           @default(false)
   dataResidency         String?
-  sharedResponsibility  String            @db.Text
-  securityAssessment    String?           @db.Text
-  certifications        String[]
-  exitStrategy          String?           @db.Text
-  status                String            @default("ACTIVE")
-  owner                 String
+  baaRequired           Boolean           @default(false)
+  encryptionAtRest      Boolean           @default(false)
+  encryptionInTransit   Boolean           @default(false)
+  mfaEnabled            Boolean           @default(false)
+  businessOwner         String
+  technicalContact      String?
+  contractRef           String?
+  reviewDate            DateTime?
   riskRating            String            @default("MEDIUM")
-  lastReviewDate        DateTime?
-  nextReviewDate        DateTime?
+  riskNotes             String?           @db.Text
+  status                String            @default("ACTIVE")
   createdAt             DateTime          @default(now())
   updatedAt             DateTime          @updatedAt
   deletedAt             DateTime?
@@ -687,26 +691,25 @@ model IsCloudService {
 
 // A.5.30 - ICT Readiness for Business Continuity
 model IsIctReadiness {
-  id                      String   @id @default(uuid())
-  title                   String
-  system                  String
-  criticality             String
-  rto                     Int
-  rpo                     Int
-  backupStrategy          String   @db.Text
-  lastBackupTest          DateTime?
-  backupTestResult        String?
-  recoveryProcedure       String?  @db.Text
-  lastDrTest              DateTime?
-  drTestResult            String?
-  dependencies            String[]
-  alternativeArrangements String?  @db.Text
-  status                  String   @default("CURRENT")
-  owner                   String
-  nextReviewDate          DateTime?
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
-  deletedAt               DateTime?
+  id                   String    @id @default(uuid())
+  systemName           String
+  criticality          String
+  rto                  Int?
+  rpo                  Int?
+  backupFrequency      String?
+  backupLocation       String?
+  lastBackupTest       DateTime?
+  failoverCapability   Boolean   @default(false)
+  failoverTarget       String?
+  redundancyDetails    String?   @db.Text
+  bcpReference         String?
+  drpReference         String?
+  ictOwner             String
+  lastReviewed         DateTime?
+  status               String    @default("CURRENT")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
 
   @@map("is_ict_readiness")
 }
@@ -734,44 +737,38 @@ model IsPhysicalMonitoring {
 
 // A.8.9 - Configuration Management
 model IsConfigBaseline {
-  id              String   @id @default(uuid())
-  assetName       String
-  assetType       String
-  configVersion   String
-  status          String   @default("ACTIVE")
-  baselineConfig  String   @db.Text
-  deviations      String?  @db.Text
-  lastVerified    DateTime?
-  verifiedBy      String?
-  owner           String
-  nextReviewDate  DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  deletedAt       DateTime?
+  id                   String    @id @default(uuid())
+  systemName           String
+  systemType           String
+  baselineVersion      String
+  baselineDate         DateTime
+  configurationItems   String[]
+  deviations           String?   @db.Text
+  complianceScore      Float?
+  reviewedBy           String
+  nextReviewDate       DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
 
   @@map("is_config_baselines")
 }
 
 // A.8.10 - Information Deletion
 model IsInfoDeletion {
-  id                 String   @id @default(uuid())
-  referenceNumber    String   @unique
-  dataDescription    String
-  dataSource         String
+  id                 String    @id @default(uuid())
+  assetDescription   String
+  assetType          String
   dataClassification String
-  deletionReason     String
   deletionMethod     String
-  scheduledDate      DateTime?
-  completedDate      DateTime?
-  status             String   @default("PENDING")
-  verifiedBy         String?
-  verificationMethod String?
-  certificate        String?
-  personalData       Boolean  @default(false)
-  linkedDsarId       String?
+  deletionDate       DateTime
   performedBy        String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  witnessedBy        String?
+  certificateRef     String?
+  quantity           Int?
+  verifiedComplete   Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?
 
   @@map("is_info_deletions")
@@ -779,61 +776,59 @@ model IsInfoDeletion {
 
 // A.8.12 - Data Leakage Prevention
 model IsDlpPolicy {
-  id            String        @id @default(uuid())
-  name          String
-  description   String        @db.Text
-  dataTypes     String[]
-  channels      String[]
-  action        String
-  status        String        @default("ACTIVE")
-  triggerCount  Int           @default(0)
-  lastTriggered DateTime?
-  owner         String
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  deletedAt     DateTime?
-  incidents     IsDlpIncident[]
+  id          String   @id @default(uuid())
+  name        String
+  scope       String
+  dataTypes   String[]
+  action      String
+  description String   @db.Text
+  owner       String
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
 
   @@map("is_dlp_policies")
 }
 
 model IsDlpIncident {
-  id                 String      @id @default(uuid())
-  policyId           String
-  policy             IsDlpPolicy @relation(fields: [policyId], references: [id])
-  detectedAt         DateTime    @default(now())
-  user               String?
-  channel            String
+  id                 String    @id @default(uuid())
+  policyId           String?
+  policyName         String
+  eventDate          DateTime
   dataType           String
-  description        String      @db.Text
+  channel            String
+  userIdentifier     String
+  dataVolume         String?
+  destination        String?
+  blocked            Boolean   @default(false)
+  falsePositive      Boolean   @default(false)
+  investigationNotes String?   @db.Text
   severity           String
-  action             String
-  falsePositive      Boolean     @default(false)
-  investigationNotes String?     @db.Text
-  status             String      @default("OPEN")
-  closedAt           DateTime?
-  closedBy           String?
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
+  detectedBy         String
+  status             String    @default("OPEN")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 
   @@map("is_dlp_incidents")
 }
 
 // A.8.16 - Monitoring Activities
 model IsMonitoringReview {
-  id              String   @id @default(uuid())
-  reviewDate      DateTime @default(now())
-  reviewer        String
-  systemsReviewed String[]
-  period          String
-  anomaliesFound  Int      @default(0)
-  anomalyDetails  String?  @db.Text
-  actionsTaken    String?  @db.Text
-  escalated       Boolean  @default(false)
-  escalationRef   String?
-  notes           String?  @db.Text
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String    @id @default(uuid())
+  reviewType        String
+  reviewDate        DateTime
+  systemsCovered    String[]
+  period            String
+  findings          String?   @db.Text
+  anomaliesDetected Int       @default(0)
+  actionsTaken      String?   @db.Text
+  reviewedBy        String
+  nextReviewDate    DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
 
   @@map("is_monitoring_reviews")
 }
@@ -877,77 +872,62 @@ model IsSecurityCodeReview {
 
 // GDPR A.37-39 - DPO Management
 model IsDpo {
-  id                          String   @id @default(uuid())
-  name                        String
-  email                       String
-  phone                       String?
-  type                        String
-  designatedDate              DateTime
-  mandatoryReason             String?
-  tasks                       String[]
-  status                      String   @default("ACTIVE")
-  qualifications              String?  @db.Text
-  independenceNotes           String?  @db.Text
-  resourcesProvided           String?  @db.Text
-  contactPublished            Boolean  @default(false)
-  supervisoryAuthorityNotified Boolean @default(false)
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
-  deletedAt                   DateTime?
+  id                  String    @id @default(uuid())
+  name                String
+  email               String
+  phone               String?
+  isExternal          Boolean   @default(false)
+  organisation        String?
+  appointmentDate     DateTime
+  responsibilities    String?   @db.Text
+  publishedOnWebsite  Boolean   @default(false)
+  notifiedToSa        Boolean   @default(false)
+  saNotificationDate  DateTime?
+  status              String    @default("ACTIVE")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
 
   @@map("is_dpo")
 }
 
 // GDPR Art 28 - Data Processing Agreements
 model IsDpa {
-  id                       String    @id @default(uuid())
-  referenceNumber          String    @unique
-  processorName            String
-  processorCountry         String
-  processorContact         String?
-  status                   IsDpaStatus @default(DRAFT)
-  processingPurpose        String    @db.Text
-  dataCategories           String[]
-  dataSubjectCategories    String[]
-  processingInstructions   String?   @db.Text
-  subProcessorsAllowed     Boolean   @default(false)
-  subProcessors            String[]
-  securityMeasures         String    @db.Text
-  assistanceObligations    String?   @db.Text
-  deletionObligation       String?   @db.Text
-  auditRight               Boolean   @default(true)
-  effectiveDate            DateTime
-  expiryDate               DateTime?
-  signedDate               DateTime?
-  signedBy                 String?
-  documentRef              String?
-  createdBy                String
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime  @updatedAt
-  deletedAt                DateTime?
+  id                   String    @id @default(uuid())
+  processorName        String
+  processorContact     String?
+  processingActivities String    @db.Text
+  dataCategories       String[]
+  effectiveDate        DateTime
+  expiryDate           DateTime?
+  subProcessorsAllowed Boolean   @default(false)
+  subProcessorList     String?   @db.Text
+  article28Compliant   Boolean   @default(false)
+  documentRef          String?
+  createdBy            String
+  status               String    @default("ACTIVE")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
 
   @@map("is_dpas")
 }
 
 // GDPR Art 46 - International Transfers
 model IsInternationalTransfer {
-  id                String                @id @default(uuid())
-  referenceNumber   String                @unique
-  recipientOrg      String
+  id                String   @id @default(uuid())
   recipientCountry  String
+  recipientOrg      String
+  transferMechanism String
   dataCategories    String[]
-  transferPurpose   String                @db.Text
-  transferMechanism IsTransferMechanism
-  adequacyDecision  String?
-  sccVersion        String?
-  bcrRef            String?
-  derogation        String?
+  purpose           String   @db.Text
   documentRef       String?
-  status            String                @default("ACTIVE")
-  reviewDate        DateTime?
+  validFrom         DateTime
+  validUntil        DateTime?
   createdBy         String
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
+  status            String   @default("ACTIVE")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
   deletedAt         DateTime?
 
   @@map("is_international_transfers")
@@ -955,50 +935,50 @@ model IsInternationalTransfer {
 
 // GDPR Art 25 - Privacy by Design
 model IsPrivacyByDesign {
-  id                        String   @id @default(uuid())
-  projectName               String
-  projectType               String
-  description               String   @db.Text
-  personalDataInvolved      Boolean  @default(true)
-  dataMinimisationMeasures  String?  @db.Text
-  pseudonymisationMeasures  String?  @db.Text
-  encryptionMeasures        String?  @db.Text
-  accessControlMeasures     String?  @db.Text
-  retentionPeriod           String?
-  privacyNoticeUpdated      Boolean  @default(false)
-  dpiaRequired              Boolean  @default(false)
-  dpiaRef                   String?
-  status                    String   @default("IN_PROGRESS")
-  reviewedBy                String?
-  approvedBy                String?
-  approvedAt                DateTime?
-  createdBy                 String
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
-  deletedAt                 DateTime?
+  id                  String    @id @default(uuid())
+  projectName         String
+  projectDescription  String    @db.Text
+  dpiaRequired        Boolean   @default(false)
+  dpiaCompleted       Boolean   @default(false)
+  dpiaDate            DateTime?
+  dpiaFindings        String?   @db.Text
+  dataMinimisation    Boolean   @default(false)
+  pseudonymisation    Boolean   @default(false)
+  encryptionApplied   Boolean   @default(false)
+  accessControls      String?   @db.Text
+  retentionPeriod     String?
+  deletionMechanism   String?
+  approvedBy          String?
+  reviewDate          DateTime?
+  createdBy           String
+  status              String    @default("IN_PROGRESS")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
 
   @@map("is_privacy_by_design")
 }
 
 // GDPR Art 77 - Supervisory Authority Complaints
 model IsSaComplaint {
-  id               String              @id @default(uuid())
-  referenceNumber  String              @unique
-  authority        String
-  country          String
-  complaintDate    DateTime
-  subject          String
-  description      String              @db.Text
-  status           IsSaComplaintStatus @default(RECEIVED)
-  responseDeadline DateTime?
-  responseDate     DateTime?
-  response         String?             @db.Text
-  outcome          String?
-  remedialActions  String?             @db.Text
-  closedAt         DateTime?
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
-  deletedAt        DateTime?
+  id                   String    @id @default(uuid())
+  complaintRef         String?
+  complainantType      String
+  supervisoryAuthority String
+  receivedDate         DateTime
+  subject              String
+  description          String    @db.Text
+  artCited             String[]
+  responseDeadline     DateTime?
+  assignedTo           String?
+  createdBy            String
+  responseNotes        String?   @db.Text
+  resolvedAt           DateTime?
+  closedAt             DateTime?
+  status               String    @default("OPEN")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
 
   @@map("is_sa_complaints")
 }
@@ -1027,7 +1007,8 @@ enum IsCloudServiceType {
   IAAS
   PAAS
   SAAS
-  FAAS
+  CAAS
+  OTHER
 }
 
 enum IsDpaStatus {

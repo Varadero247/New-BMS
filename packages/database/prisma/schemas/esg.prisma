@@ -593,127 +593,131 @@ model EsgScopeEmission {
 
 // GRI 2-26 - Ethics & Whistleblowing
 model EsgWhistleblow {
-  id                 String                  @id @default(uuid())
-  referenceNumber    String                  @unique
-  channel            String
-  reportDate         DateTime                @default(now())
-  category           EsgWhistleblowCategory
-  description        String                  @db.Text
-  anonymous          Boolean                 @default(false)
-  status             EsgWhistleblowStatus    @default(RECEIVED)
-  assignedTo         String?
-  investigationNotes String?                 @db.Text
-  outcomeCategory    String?
-  outcome            String?                 @db.Text
-  remedialActions    String?                 @db.Text
-  closedAt           DateTime?
-  createdAt          DateTime                @default(now())
-  updatedAt          DateTime                @updatedAt
-  deletedAt          DateTime?
+  id                    String                  @id @default(uuid())
+  referenceNumber       String                  @unique
+  category              EsgWhistleblowCategory
+  summary               String
+  details               String?                 @db.Text
+  reportedDate          DateTime
+  channel               String
+  anonymous             Boolean                 @default(false)
+  reporterName          String?
+  reporterEmail         String?
+  relatedEntityOrPerson String?
+  urgency               String?
+  status                EsgWhistleblowStatus    @default(RECEIVED)
+  assignedTo            String?
+  investigationNotes    String?                 @db.Text
+  outcome               String?                 @db.Text
+  closedAt              DateTime?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  deletedAt             DateTime?
 
   @@map("esg_whistleblows")
 }
 
 // GRI 2-29 - Stakeholder Engagement Plans
 model EsgStakeholderPlan {
-  id                     String   @id @default(uuid())
-  stakeholderGroup       String
-  engagementTopics       String[]
-  methods                String[]
-  frequency              String
-  objectives             String   @db.Text
-  responsibilityOwner    String
-  year                   Int
-  status                 String   @default("ACTIVE")
-  outcomes               String?  @db.Text
-  feedbackIncorporated   String?  @db.Text
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-  deletedAt              DateTime?
+  id                  String    @id @default(uuid())
+  stakeholderGroup    String
+  engagementPurpose   String    @db.Text
+  frequency           String
+  methods             String[]
+  responsibleTeam     String
+  keyTopics           String[]
+  feedbackMechanism   String?
+  lastEngagementDate  DateTime?
+  nextEngagementDate  DateTime?
+  outcomes            String?   @db.Text
+  reportingYear       Int
+  status              String    @default("ACTIVE")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
 
   @@map("esg_stakeholder_plans")
 }
 
 // GRI 414-1 - Supplier Social Screening
 model EsgSupplierSocialScreen {
-  id                      String                 @id @default(uuid())
-  supplierName            String
-  supplierCountry         String
-  screeningYear           Int
-  isNewSupplier           Boolean                @default(true)
-  screeningMethod         String
-  criteriaAssessed        String[]
-  labourPracticesResult   String?
-  humanRightsResult       String?
-  freedomAssocResult      String?
-  childLabourResult       String?
-  forcedLabourResult      String?
-  wagesResult             String?
-  nonDiscriminationResult String?
-  overallResult           EsgSocialScreenResult  @default(PENDING)
-  concernsIdentified      String?                @db.Text
-  actionsTaken            String?                @db.Text
-  followUpRequired        Boolean                @default(false)
-  followUpDate            DateTime?
-  followUpNotes           String?
-  screenedBy              String
-  screeningDate           DateTime               @default(now())
-  createdAt               DateTime               @default(now())
-  updatedAt               DateTime               @updatedAt
-  deletedAt               DateTime?
+  id                        String    @id @default(uuid())
+  supplierName              String
+  supplierCountry           String?
+  supplierSector            String?
+  screeningDate             DateTime
+  screenedBy                String
+  criteriaUsed              String[]
+  laborRightsCheck          Boolean   @default(false)
+  childLaborCheck           Boolean   @default(false)
+  forcedLaborCheck          Boolean   @default(false)
+  healthSafetyCheck         Boolean   @default(false)
+  diversityCheck            Boolean   @default(false)
+  humanRightsCheck          Boolean   @default(false)
+  communityImpactCheck      Boolean   @default(false)
+  result                    String
+  riskRating                String?
+  findings                  String?   @db.Text
+  correctiveActionsRequired String?   @db.Text
+  nextReviewDate            DateTime?
+  isNewSupplier             Boolean   @default(true)
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+  deletedAt                 DateTime?
 
   @@map("esg_supplier_social_screens")
 }
 
 // TCFD - Climate Scenario Analysis
 model EsgScenarioAnalysis {
-  id                 String           @id @default(uuid())
-  title              String
-  scenarioType       EsgScenarioType
-  scenarioName       String
-  framework          String
-  timeHorizon        String
-  description        String           @db.Text
-  assumptions        String           @db.Text
-  physicalRisks      String?          @db.Text
-  transitionRisks    String?          @db.Text
-  financialImpact    String?          @db.Text
-  opportunities      String?          @db.Text
-  adaptationMeasures String?          @db.Text
-  resilienceConclusion String?        @db.Text
-  status             String           @default("DRAFT")
-  approvedBy         String?
-  approvedAt         DateTime?
-  analysisYear       Int
-  createdBy          String
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  deletedAt          DateTime?
+  id                      String          @id @default(uuid())
+  title                   String
+  scenarioType            EsgScenarioType
+  baselineScenario        String
+  timeHorizon             String
+  description             String          @db.Text
+  assumptions             String          @db.Text
+  methodology             String?         @db.Text
+  keyVariables            String[]
+  financialImpactLow      Float?
+  financialImpactHigh     Float?
+  financialImpactCurrency String?
+  strategicImplications   String?         @db.Text
+  resilience              String?         @db.Text
+  adaptationMeasures      String?         @db.Text
+  analysisDate            DateTime
+  conductedBy             String
+  reviewedBy              String?
+  reportingYear           Int
+  status                  String          @default("DRAFT")
+  approvedBy              String?
+  approvedAt              DateTime?
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+  deletedAt               DateTime?
 
   @@map("esg_scenario_analyses")
 }
 
 enum EsgWhistleblowCategory {
-  FRAUD
-  CORRUPTION
-  BRIBERY
-  ENVIRONMENTAL
-  HEALTH_SAFETY
-  HUMAN_RIGHTS
-  DATA_PRIVACY
   FINANCIAL_MISCONDUCT
-  HARASSMENT
+  ENVIRONMENTAL
+  SAFETY
   DISCRIMINATION
+  HARASSMENT
+  CORRUPTION
+  HUMAN_RIGHTS
+  DATA_PROTECTION
   OTHER
 }
 
 enum EsgWhistleblowStatus {
   RECEIVED
-  ACKNOWLEDGED
   UNDER_INVESTIGATION
-  AWAITING_INFORMATION
-  RESOLVED
+  SUBSTANTIATED
+  UNSUBSTANTIATED
   CLOSED
+  REFERRED
 }
 
 enum EsgSocialScreenResult {
@@ -726,7 +730,8 @@ enum EsgSocialScreenResult {
 }
 
 enum EsgScenarioType {
-  PHYSICAL
-  TRANSITION
+  TRANSITION_RISK
+  PHYSICAL_RISK
   COMBINED
+  OPPORTUNITY
 }

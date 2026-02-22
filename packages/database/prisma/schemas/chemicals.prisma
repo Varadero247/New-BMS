@@ -706,25 +706,23 @@ model ChemIncompatAlert {
 
 // Regulation 11 - Health Surveillance
 model ChemHealthSurveillance {
-  id                  String                    @id @default(uuid())
+  id                  String                  @id @default(uuid())
   employeeId          String
   employeeName        String
   jobRole             String
-  substancesExposedTo String[]
+  department          String?
+  substancesExposed   String[]
   surveillanceType    String
-  scheduledDate       DateTime
-  completedDate       DateTime?
-  conductedBy         String?
-  result              ChemSurveillanceResult?
-  findings            String?                   @db.Text
-  fitForWork          Boolean?
-  restrictions        String?                   @db.Text
-  nextScheduled       DateTime?
-  followUpRequired    Boolean                   @default(false)
-  followUpNotes       String?
-  status              String                    @default("SCHEDULED")
-  createdAt           DateTime                  @default(now())
-  updatedAt           DateTime                  @updatedAt
+  examinationDate     DateTime
+  conductedBy         String
+  clinicRef           String?
+  result              ChemSurveillanceResult
+  clinicalFindings    String?                 @db.Text
+  restrictionsApplied String?                 @db.Text
+  nextSurveillanceDue DateTime?
+  consentObtained     Boolean                 @default(false)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
   deletedAt           DateTime?
 
   @@map("chem_health_surveillance")
@@ -735,18 +733,22 @@ model ChemBiologicalMonitoring {
   id                      String   @id @default(uuid())
   employeeId              String
   employeeName            String
-  substance               String
-  biolMonitoringGuidance  String?
+  department              String?
+  substanceName           String
+  substanceCasNumber      String?
+  biomarker               String
   sampleType              String
-  sampleDate              DateTime
-  result                  Float
+  collectionDate          DateTime
+  measuredValue           Float
   unit                    String
-  beiLevel                Float?
-  exceedsBEI              Boolean  @default(false)
-  worksInProgress         String?  @db.Text
-  conductedBy             String
+  biologicalGuidanceValue Float?
+  bgvSource               String?
+  exceedsBGV              Boolean  @default(false)
   laboratoryRef           String?
-  notes                   String?
+  collectedBy             String
+  investigationRequired   Boolean  @default(false)
+  correctionActions       String?  @db.Text
+  nextMonitoringDue       DateTime?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
   deletedAt               DateTime?
@@ -756,54 +758,50 @@ model ChemBiologicalMonitoring {
 
 // Regulation 18 - Fumigations
 model ChemFumigation {
-  id                       String               @id @default(uuid())
-  referenceNumber          String               @unique
-  location                 String
-  premisesAddress          String               @db.Text
-  fumigant                 String
-  purpose                  String
-  scheduledDate            DateTime
-  completedDate            DateTime?
-  contractor               String
-  contractorCertRef        String?
-  supervisorName           String
-  supervisorCertRef        String?
-  authorityNotifiedDate    DateTime?
-  authorityNotifiedRef     String?
-  authorityNotified        Boolean              @default(false)
-  neighboursNotifiedDate   DateTime?
-  neighboursNotified       Boolean              @default(false)
-  fumigationPlanRef        String?
-  warningSignsPosted       Boolean              @default(false)
-  exclusionZoneEstablished Boolean              @default(false)
-  concentrationAtCompletion Float?
-  clearanceCertificateRef  String?
-  clearanceDate            DateTime?
-  reEntryAuthorizedBy      String?
-  reEntryAuthorizedAt      DateTime?
-  status                   ChemFumigationStatus @default(PLANNED)
-  notes                    String?              @db.Text
-  createdBy                String
-  createdAt                DateTime             @default(now())
-  updatedAt                DateTime             @updatedAt
-  deletedAt                DateTime?
+  id                          String               @id @default(uuid())
+  location                    String
+  purpose                     String
+  fumigantName                String
+  fumigantCasNumber           String?
+  estimatedQuantityKg         Float?
+  plannedStartDate            DateTime
+  plannedEndDate              DateTime?
+  competentPersonName         String
+  competentPersonCertRef      String?
+  contractorCompany           String?
+  hseNotificationRef          String?
+  hseNotificationDate         DateTime?
+  neighboursNotified          Boolean              @default(false)
+  neighbourNotificationDate   DateTime?
+  gasClearanceConcentrationPpm Float?
+  gasFreeDate                 DateTime?
+  gasFreeIssuedBy             String?
+  gasFreeRefNumber            String?
+  emergencyProceduresDocRef   String?
+  ppeRequired                 String[]
+  preEntryChecksComplete      Boolean              @default(false)
+  notes                       String?              @db.Text
+  status                      ChemFumigationStatus @default(PLANNED)
+  createdAt                   DateTime             @default(now())
+  updatedAt                   DateTime             @updatedAt
+  deletedAt                   DateTime?
 
   @@map("chem_fumigations")
 }
 
 enum ChemSurveillanceResult {
   NORMAL
-  ABNORMAL
   BORDERLINE
-  INCONCLUSIVE
+  ABNORMAL
+  REQUIRES_FOLLOW_UP
+  UNFIT_FOR_ROLE
 }
 
 enum ChemFumigationStatus {
   PLANNED
-  AUTHORITY_NOTIFIED
+  HSE_NOTIFIED
   IN_PROGRESS
-  CLEARANCE_PENDING
-  CLEARED
+  GAS_FREE_CERTIFIED
   COMPLETED
   CANCELLED
 }

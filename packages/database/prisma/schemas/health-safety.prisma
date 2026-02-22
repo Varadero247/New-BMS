@@ -1110,140 +1110,119 @@ enum HSCommStatus {
 
 // Clause 8.1.3 - Management of Change
 model HSChangeRequest {
-  id                        String         @id @default(uuid())
-  referenceNumber           String         @unique
-  title                     String
-  description               String         @db.Text
-  changeType                HSChangeType
-  status                    HSChangeStatus @default(DRAFT)
-  initiatedBy               String
-  initiatedDate             DateTime       @default(now())
-  targetDate                DateTime?
-  completedDate             DateTime?
-  riskAssessment            String?        @db.Text
-  controlMeasures           String?        @db.Text
-  stakeholdersConsulted     String[]
-  workerConsulted           Boolean        @default(false)
-  workerConsultationNotes   String?        @db.Text
-  reviewedBy                String?
-  approvedBy                String?
-  approvedAt                DateTime?
-  rejectionReason           String?
-  postChangeReview          String?        @db.Text
-  postChangeReviewDate      DateTime?
-  relatedRiskIds            String[]
-  createdAt                 DateTime       @default(now())
-  updatedAt                 DateTime       @updatedAt
-  deletedAt                 DateTime?
+  id                    String         @id @default(uuid())
+  referenceNumber       String         @unique
+  title                 String
+  changeType            HSChangeType
+  description           String         @db.Text
+  rationale             String         @db.Text
+  proposedDate          DateTime
+  affectedActivities    String[]
+  affectedPersonnel     String[]
+  ohsRisksIdentified    String?        @db.Text
+  riskControls          String?        @db.Text
+  requestedBy           String
+  reviewedBy            String?
+  approvedBy            String?
+  approvedAt            DateTime?
+  actualImplementedDate DateTime?
+  closedAt              DateTime?
+  status                HSChangeStatus @default(DRAFT)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  deletedAt             DateTime?
 
   @@map("hs_change_requests")
 }
 
 // Clause 8.4 - Contractor OHS Management
 model HSContractor {
-  id                   String                @id @default(uuid())
-  referenceNumber      String                @unique
-  companyName          String
-  contactName          String
-  contactEmail         String?
-  contactPhone         String?
-  status               HSContractorStatus    @default(ACTIVE)
-  workType             String
-  workLocation         String
-  startDate            DateTime?
-  endDate              DateTime?
-  insurancePolicyRef   String?
-  insuranceExpiry      DateTime?
-  riskLevel            String                @default("MEDIUM")
-  inductionCompleted   Boolean               @default(false)
-  inductionDate        DateTime?
-  inductionConductedBy String?
-  ohsPlanRef           String?
-  permitRequired       Boolean               @default(false)
-  performanceRating    Int?
-  lastPerformanceReview DateTime?
-  incidents            Int                   @default(0)
-  nonConformances      String?               @db.Text
-  requirements         String[]
-  createdBy            String
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
-  deletedAt            DateTime?
-  inspections          HSContractorInspection[]
+  id                 String                   @id @default(uuid())
+  companyName        String
+  contactName        String?
+  contactEmail       String?
+  contactPhone       String?
+  workType           String
+  workLocation       String
+  startDate          DateTime
+  endDate            DateTime?
+  ohsRequirements    String
+  inductionCompleted Boolean                  @default(false)
+  inductionDate      DateTime?
+  insuranceRef       String?
+  insuranceExpiry    DateTime?
+  approvedBy         String?
+  status             HSContractorStatus       @default(ACTIVE)
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  deletedAt          DateTime?
+  inspections        HSContractorInspection[]
 
   @@map("hs_contractors")
 }
 
 model HSContractorInspection {
-  id              String        @id @default(uuid())
-  contractorId    String
-  contractor      HSContractor  @relation(fields: [contractorId], references: [id])
-  inspectionDate  DateTime
-  inspector       String
-  type            String
-  findings        String        @db.Text
-  rating          String
-  actionsRequired String?       @db.Text
-  followUpDate    DateTime?
-  closedAt        DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                String       @id @default(uuid())
+  contractorId      String
+  contractor        HSContractor @relation(fields: [contractorId], references: [id])
+  inspectedBy       String
+  inspectionDate    DateTime
+  findings          String       @db.Text
+  nonConformances   String?      @db.Text
+  correctiveActions String?      @db.Text
+  outcome           String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   @@map("hs_contractor_inspections")
 }
 
 // Clause 5.4 - Worker Consultation & Participation
 model HSWorkerConsultation {
-  id                    String                @id @default(uuid())
-  referenceNumber       String                @unique
-  consultationDate      DateTime
-  topic                 HSConsultationTopic
-  description           String                @db.Text
-  participantType       String
-  consultationMethod    String
-  participantCount      Int
-  accessibilityMeasures String?               @db.Text
-  workerInput           String                @db.Text
-  outcome               String                @db.Text
-  decisionInfluenced    Boolean               @default(false)
-  decisionDescription   String?               @db.Text
-  linkedRiskId          String?
-  linkedPolicyRef       String?
-  conductedBy           String
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
-  deletedAt             DateTime?
+  id                   String              @id @default(uuid())
+  title                String
+  topic                HSConsultationTopic
+  description          String              @db.Text
+  consultationDate     DateTime
+  workerRepresentatives String[]
+  method               String
+  facilitatedBy        String
+  participantCount     Int
+  location             String?
+  agendaItems          String[]
+  outcomeSummary       String?             @db.Text
+  actionsTaken         String?             @db.Text
+  feedbackProvidedBack Boolean             @default(false)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  deletedAt            DateTime?
+  barriers             HSParticipationBarrier[]
 
   @@map("hs_worker_consultations")
 }
 
 model HSParticipationBarrier {
-  id                   String   @id @default(uuid())
-  barrierType          String
-  description          String   @db.Text
-  affectedGroups       String[]
-  identifiedDate       DateTime @default(now())
-  identifiedBy         String
-  removalActions       String?  @db.Text
-  removed              Boolean  @default(false)
-  removedDate          DateTime?
-  removedBy            String?
-  verificationEvidence String?  @db.Text
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id               String               @id @default(uuid())
+  consultationId   String
+  consultation     HSWorkerConsultation @relation(fields: [consultationId], references: [id])
+  barrierType      String
+  description      String               @db.Text
+  mitigationAction String?              @db.Text
+  mitigatedBy      String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  deletedAt        DateTime?
 
   @@map("hs_participation_barriers")
 }
 
 enum HSChangeType {
-  TECHNOLOGY
   PROCESS
-  ORGANISATION
-  LEGAL_REGULATORY
   EQUIPMENT
-  MATERIALS
-  FACILITY
-  TEMPORARY
+  MATERIAL
+  PERSONNEL
+  LEGAL
+  ORGANIZATIONAL
   OTHER
 }
 
@@ -1251,8 +1230,8 @@ enum HSChangeStatus {
   DRAFT
   PENDING_REVIEW
   APPROVED
-  IN_PROGRESS
-  COMPLETED
+  IMPLEMENTED
+  CLOSED
   REJECTED
   CANCELLED
 }
@@ -1260,19 +1239,19 @@ enum HSChangeStatus {
 enum HSContractorStatus {
   ACTIVE
   SUSPENDED
+  COMPLETED
   TERMINATED
   PENDING_APPROVAL
 }
 
 enum HSConsultationTopic {
-  OHS_POLICY
   HAZARD_IDENTIFICATION
   RISK_ASSESSMENT
-  CONTROL_SELECTION
   INCIDENT_INVESTIGATION
-  IMPROVEMENT_ACTIONS
-  LEGAL_COMPLIANCE
-  COMPETENCE_REQUIREMENTS
-  PPE_SELECTION
-  EMERGENCY_PROCEDURES
+  POLICY_REVIEW
+  OBJECTIVES
+  CONTROLS
+  EMERGENCY_PLANNING
+  TRAINING_NEEDS
+  OTHER
 }

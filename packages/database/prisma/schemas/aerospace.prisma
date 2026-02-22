@@ -755,6 +755,9 @@ enum AeroChangeType {
   DOCUMENT
   SOFTWARE
   TOOLING
+  FACILITY
+  REGULATORY
+  CUSTOMER_DRIVEN
   OTHER
 }
 
@@ -1340,69 +1343,73 @@ model AeroManufacturingChange {
 
 // 8.5.1.2 - Nadcap Scope Verification
 model AeroNadcapScope {
-  id              String   @id @default(uuid())
-  supplierName    String
-  nadcapCertRef   String
-  commodityCode   String
-  commodityName   String
-  scope           String   @db.Text
-  certifiedSince  DateTime
-  expiryDate      DateTime
-  accreditingBody String   @default("PRI Nadcap")
-  status          String   @default("ACTIVE")
-  lastAuditDate   DateTime?
-  nextAuditDate   DateTime?
-  limitationsNotes String? @db.Text
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  deletedAt       DateTime?
+  id                     String    @id @default(uuid())
+  supplierName           String
+  supplierCode           String?
+  nadcapCertRef          String
+  certExpiryDate         DateTime
+  issuedByPri            Boolean   @default(true)
+  commodityCodes         String[]
+  commodityCodesRequired String[]
+  scopeGaps              String[]
+  processDescription     String    @db.Text
+  auditBoard             String?
+  lastAuditDate          DateTime?
+  nextAuditDate          DateTime?
+  verifiedBy             String
+  verificationDate       DateTime
+  approvedBy             String?
+  notes                  String?   @db.Text
+  status                 String    @default("VERIFIED_COMPLIANT")
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
 
   @@map("aero_nadcap_scopes")
 }
 
 // 8.5.1.2 - Process Parameter Records
 model AeroProcessParameterRecord {
-  id                      String   @id @default(uuid())
-  specialProcessType      String
-  workOrderRef            String
-  partNumber              String
-  lotNumber               String?
-  serialNumber            String?
-  operatorId              String
-  operatorCertRef         String?
-  processDate             DateTime
-  equipment               String
-  equipmentCalibrationRef String?
-  parameters              String   @db.Text
-  parametersWithinSpec    Boolean  @default(true)
-  deviations              String?  @db.Text
-  deviationDisposition    String?
-  ncrRef                  String?
-  inspectionResult        String
-  inspectedBy             String
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  id                       String   @id @default(uuid())
+  processName              String
+  processNumber            String?
+  partNumber               String?
+  workOrderRef             String?
+  specialProcessRef        String?
+  operatorId               String
+  operatorName             String
+  processDate              DateTime
+  parameters               Json
+  equipmentId              String?
+  equipmentLastCalibrated  DateTime?
+  processConforms          Boolean  @default(true)
+  nonConformanceRef        String?
+  verifiedBy               String?
+  notes                    String?  @db.Text
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  deletedAt                DateTime?
 
   @@map("aero_process_parameter_records")
 }
 
 // 8.5.1.2 - Requalification Triggers
 model AeroRequalificationTrigger {
-  id                            String   @id @default(uuid())
-  processType                   String
-  triggerType                   String
-  description                   String   @db.Text
-  detectedDate                  DateTime @default(now())
-  detectedBy                    String
-  requalificationRequired       Boolean  @default(true)
-  requalificationStatus         String   @default("PENDING")
-  requalificationDue            DateTime?
-  requalificationCompletedDate  DateTime?
-  requalificationRef            String?
-  waiverJustification           String?
-  waiverApprovedBy              String?
-  createdAt                     DateTime @default(now())
-  updatedAt                     DateTime @updatedAt
+  id                           String    @id @default(uuid())
+  processRef                   String
+  triggerType                  String
+  triggerDate                  DateTime
+  description                  String    @db.Text
+  requiredByDate               DateTime?
+  assignedTo                   String?
+  requalificationCompletedDate DateTime?
+  requalificationResult        String?
+  approvedBy                   String?
+  notes                        String?   @db.Text
+  status                       String    @default("OPEN")
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+  deletedAt                    DateTime?
 
   @@map("aero_requalification_triggers")
 }
@@ -1417,18 +1424,6 @@ enum AeroRiskCategory {
   REGULATORY
   CUSTOMER
   ENVIRONMENTAL
-}
-
-enum AeroChangeType {
-  DESIGN
-  PROCESS
-  MATERIAL
-  SUPPLIER
-  TOOLING
-  SOFTWARE
-  FACILITY
-  REGULATORY
-  CUSTOMER_DRIVEN
 }
 
 enum AeroMfgChangeStatus {
