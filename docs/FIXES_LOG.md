@@ -1,5 +1,17 @@
 # IMS — Fixes Log
 
+## Phase 36 — Test Depth Expansion to ≥80 (February 22, 2026)
+
+Targeted expansion of all 703 test files with 75-79 tests to ≥80 each.
+
+**Net new tests:** +3,508 (53,383 → 56,891), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (82 → 0):**
+- Runtime failure in 82 files: string compression snippet used `\1` backreference which Python string escaping rendered as `\x01` (octal SOH) in output files. Replaced with explicit while-loop character-run implementation.
+- Root cause: regex backreferences in Python non-raw strings require `\\1` not `\1`. Added to snippet pool guidelines.
+
+---
+
 ## Phase 35 — Test Depth Expansion to ≥75 (February 22, 2026)
 
 Targeted expansion of all 701 test files with 70-74 tests to ≥75 each.
