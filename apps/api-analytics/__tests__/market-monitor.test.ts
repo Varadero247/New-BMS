@@ -257,3 +257,78 @@ describe('market-monitor — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Market Monitor — further edge cases', () => {
+  it('GET /api/competitors pagination total is a number', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.pagination.total).toBe('number');
+  });
+
+  it('GET /api/competitors?page=2&limit=3 uses correct skip', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/competitors?page=2&limit=3');
+    expect(prisma.competitorMonitor.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 3, take: 3 })
+    );
+  });
+
+  it('POST /api/competitors succeeds without category (category is optional)', async () => {
+    (prisma.competitorMonitor.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      name: 'PartialCo',
+      website: 'https://partial.com',
+    });
+    const res = await request(app)
+      .post('/api/competitors')
+      .send({ name: 'PartialCo', website: 'https://partial.com' });
+    expect([200, 201]).toContain(res.status);
+  });
+
+  it('POST /api/competitors/:id/intel returns 404 for missing competitor', async () => {
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/competitors/00000000-0000-0000-0000-000000000099/intel')
+      .send({ type: 'PRICING', detail: 'Price cut' });
+    expect(res.status).toBe(404);
+  });
+
+  it('runMarketMonitorJob rejects on DB error', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    await expect(runMarketMonitorJob()).rejects.toThrow('DB down');
+  });
+
+  it('GET /api/competitors/:id 500 on findUnique error', async () => {
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/competitors/:id/intel 500 when update fails', async () => {
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      intel: [],
+    });
+    (prisma.competitorMonitor.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .post('/api/competitors/00000000-0000-0000-0000-000000000001/intel')
+      .send({ type: 'PRICING', detail: 'Failed update' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/competitors with multiple results returns correct count', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Alpha' },
+      { id: '00000000-0000-0000-0000-000000000002', name: 'Beta' },
+      { id: '00000000-0000-0000-0000-000000000003', name: 'Gamma' },
+    ]);
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(3);
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(200);
+    expect(res.body.data.competitors).toHaveLength(3);
+    expect(res.body.data.pagination.total).toBe(3);
+  });
+});

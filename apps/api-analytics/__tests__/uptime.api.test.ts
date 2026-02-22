@@ -278,3 +278,86 @@ describe('uptime.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Uptime API — edge cases and field validation', () => {
+  it('GET / data.checks contains items with serviceName field', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', serviceName: 'API Gateway', status: 'UP', uptimePercent: 99.9 },
+    ]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.status).toBe(200);
+    expect(res.body.data.checks[0]).toHaveProperty('serviceName');
+  });
+
+  it('GET / data.checks items have status field', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000002', serviceName: 'H&S API', status: 'DOWN', uptimePercent: 95 },
+    ]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.status).toBe(200);
+    expect(res.body.data.checks[0]).toHaveProperty('status');
+  });
+
+  it('GET /:id data.check has id field matching request param', async () => {
+    const check = { id: '00000000-0000-0000-0000-000000000003', serviceName: 'Env API', status: 'UP', uptimePercent: 99 };
+    mockPrisma.uptimeCheck.findUnique.mockResolvedValue(check);
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000003');
+    expect(res.status).toBe(200);
+    expect(res.body.data.check.id).toBe('00000000-0000-0000-0000-000000000003');
+  });
+
+  it('GET /:id/history default page is 1', async () => {
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    mockPrisma.uptimeIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.page).toBe(1);
+  });
+
+  it('GET /:id/history default limit is 20', async () => {
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    mockPrisma.uptimeIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.limit).toBe(20);
+  });
+
+  it('GET /:id/history count is called once per request', async () => {
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    mockPrisma.uptimeIncident.count.mockResolvedValue(5);
+    await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history');
+    expect(mockPrisma.uptimeIncident.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id/history pagination totalPages is ceil(total/limit)', async () => {
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    mockPrisma.uptimeIncident.count.mockResolvedValue(45);
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history?limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /:id returns recentIncidents as an array', async () => {
+    mockPrisma.uptimeCheck.findUnique.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', serviceName: 'API', status: 'UP', uptimePercent: 100 });
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([
+      { id: 'inc-x', uptimeCheckId: '00000000-0000-0000-0000-000000000001', detectedAt: new Date() },
+      { id: 'inc-y', uptimeCheckId: '00000000-0000-0000-0000-000000000001', detectedAt: new Date() },
+    ]);
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.recentIncidents)).toBe(true);
+    expect(res.body.data.recentIncidents).toHaveLength(2);
+  });
+
+  it('GET / with multiple checks returns all in data.checks', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000004', serviceName: 'A', status: 'UP', uptimePercent: 100 },
+      { id: '00000000-0000-0000-0000-000000000005', serviceName: 'B', status: 'DOWN', uptimePercent: 90 },
+      { id: '00000000-0000-0000-0000-000000000006', serviceName: 'C', status: 'UP', uptimePercent: 99 },
+    ]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.status).toBe(200);
+    expect(res.body.data.checks).toHaveLength(3);
+  });
+});

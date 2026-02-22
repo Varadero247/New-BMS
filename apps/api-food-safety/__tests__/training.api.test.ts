@@ -268,3 +268,132 @@ describe('training.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('training.api — edge cases and pagination', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/training', trainingRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/training returns pagination metadata', async () => {
+    mockPrisma.fsTraining.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraining.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/training');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+
+  it('GET /api/training respects page and limit params', async () => {
+    mockPrisma.fsTraining.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraining.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/training?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(10);
+  });
+
+  it('GET /api/training filters by both type and status', async () => {
+    mockPrisma.fsTraining.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraining.count.mockResolvedValue(0);
+
+    await request(app).get('/api/training?type=GMP&status=PLANNED');
+    expect(mockPrisma.fsTraining.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'GMP', status: 'PLANNED' }),
+      })
+    );
+  });
+
+  it('POST /api/training with all valid training types succeeds for HYGIENE', async () => {
+    mockPrisma.fsTraining.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      title: 'Hygiene Training',
+      type: 'HYGIENE',
+    });
+
+    const res = await request(app).post('/api/training').send({
+      title: 'Hygiene Training',
+      type: 'HYGIENE',
+      scheduledDate: '2026-04-01',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('POST /api/training with ALLERGEN type succeeds', async () => {
+    mockPrisma.fsTraining.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      title: 'Allergen Training',
+      type: 'ALLERGEN',
+    });
+
+    const res = await request(app).post('/api/training').send({
+      title: 'Allergen Training',
+      type: 'ALLERGEN',
+      scheduledDate: '2026-04-15',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/training/:id returns 500 when DB throws', async () => {
+    mockPrisma.fsTraining.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/training/:id returns 500 when update throws', async () => {
+    mockPrisma.fsTraining.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsTraining.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/training/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Title' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/training/:id returns 500 when update throws', async () => {
+    mockPrisma.fsTraining.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsTraining.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/training/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/training with FOOD_DEFENSE type succeeds', async () => {
+    mockPrisma.fsTraining.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000004',
+      title: 'Food Defense Training',
+      type: 'FOOD_DEFENSE',
+    });
+
+    const res = await request(app).post('/api/training').send({
+      title: 'Food Defense Training',
+      type: 'FOOD_DEFENSE',
+      scheduledDate: '2026-05-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.type).toBe('FOOD_DEFENSE');
+  });
+
+  it('GET /api/training returns totalPages in pagination', async () => {
+    mockPrisma.fsTraining.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraining.count.mockResolvedValue(100);
+
+    const res = await request(app).get('/api/training?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(10);
+  });
+});

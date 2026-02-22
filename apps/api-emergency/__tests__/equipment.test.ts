@@ -330,3 +330,108 @@ describe('equipment — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('equipment — extended edge cases', () => {
+  it('GET /api/equipment returns paginated list with pagination metadata', async () => {
+    mockEquipment.findMany.mockResolvedValue([fakeEquipment]);
+    mockEquipment.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/equipment');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('GET /api/equipment returns 500 on DB error', async () => {
+    mockEquipment.findMany.mockRejectedValue(new Error('DB failure'));
+    mockEquipment.count.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).get('/api/equipment');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/equipment/premises/:id returns 500 when create fails', async () => {
+    mockEquipment.create.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app)
+      .post(`/api/equipment/premises/${PREMISES_ID}`)
+      .send(validCreateBody);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/equipment returns empty list when no equipment', async () => {
+    mockEquipment.findMany.mockResolvedValue([]);
+    mockEquipment.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/equipment');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST /api/equipment/:id/inspect returns 500 on DB error during update', async () => {
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
+    mockEquipment.update.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).post(`/api/equipment/${EQUIPMENT_ID}/inspect`).send({
+      inspectionResult: 'PASS',
+    });
+
+    expect(res.status).toBe(500);
+  });
+
+  it('creates equipment of type EMERGENCY_LIGHTING', async () => {
+    const lightEquip = { ...fakeEquipment, equipmentType: 'EMERGENCY_LIGHTING' };
+    mockEquipment.create.mockResolvedValue(lightEquip);
+
+    const res = await request(app).post(`/api/equipment/premises/${PREMISES_ID}`).send({
+      equipmentType: 'EMERGENCY_LIGHTING',
+      location: 'Stairwell',
+      nextServiceDue: '2027-06-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.equipmentType).toBe('EMERGENCY_LIGHTING');
+  });
+
+  it('PUT /api/equipment/:id updates isOperational flag to false', async () => {
+    const decommissioned = { ...fakeEquipment, isOperational: false };
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
+    mockEquipment.update.mockResolvedValue(decommissioned);
+
+    const res = await request(app).put(`/api/equipment/${EQUIPMENT_ID}`).send({
+      isOperational: false,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/equipment?page=2 respects pagination params', async () => {
+    mockEquipment.findMany.mockResolvedValue([]);
+    mockEquipment.count.mockResolvedValue(100);
+
+    const res = await request(app).get('/api/equipment?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('GET /api/equipment/service-due includes premises info', async () => {
+    const nearDue = { ...fakeEquipment, nextServiceDue: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), premises: { name: 'Head Office' } };
+    mockEquipment.findMany.mockResolvedValue([nearDue]);
+
+    const res = await request(app).get('/api/equipment/service-due');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].premises).toBeDefined();
+    expect(res.body.data[0].premises.name).toBe('Head Office');
+  });
+});

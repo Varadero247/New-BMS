@@ -306,3 +306,93 @@ describe('GET /api/fra/:id/action-plan', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('fireRiskAssessment — extended edge cases', () => {
+  it('GET /api/fra with page and limit params returns pagination', async () => {
+    mockFra.findMany.mockResolvedValue([fakeFra]);
+    mockFra.count.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/fra?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(50);
+  });
+
+  it('POST /api/fra returns 500 when create fails', async () => {
+    mockFra.count.mockResolvedValue(0);
+    mockFra.create.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).post('/api/fra').send(validCreateBody);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/fra/:id returns 500 on update DB error', async () => {
+    mockFra.findFirst.mockResolvedValue(fakeFra);
+    mockFra.update.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).put(`/api/fra/${FRA_ID}`).send({ assessorName: 'Test' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/fra/:id/approve returns 500 on DB error', async () => {
+    mockFra.findFirst.mockResolvedValue(fakeFra);
+    mockFra.update.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).post(`/api/fra/${FRA_ID}/approve`);
+
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/fra/overdue returns 500 on DB error', async () => {
+    mockFra.findMany.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).get('/api/fra/overdue');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/fra rejects when consequenceRating is out of range', async () => {
+    const res = await request(app).post('/api/fra').send({
+      ...validCreateBody,
+      consequenceRating: 6,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/fra/:id returns 500 on DB error', async () => {
+    mockFra.findFirst.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).get(`/api/fra/${FRA_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/fra filters by both status and premisesId', async () => {
+    mockFra.findMany.mockResolvedValue([fakeFra]);
+    mockFra.count.mockResolvedValue(1);
+
+    const res = await request(app).get(`/api/fra?status=DRAFT&premisesId=${PREMISES_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('action-plan returns 500 on DB error', async () => {
+    mockFra.findFirst.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).get(`/api/fra/${FRA_ID}/action-plan`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

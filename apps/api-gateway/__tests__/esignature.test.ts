@@ -407,3 +407,106 @@ describe('E-Signature — additional coverage', () => {
     });
   });
 });
+
+describe('E-Signature — extended edge cases', () => {
+  it('GET / returns success:true in response body', async () => {
+    mockESignature.findMany.mockResolvedValue([mockSigRecord]);
+    mockESignature.count.mockResolvedValue(1);
+    const res = await request(app).get('/');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / page defaults to 1 when not provided', async () => {
+    mockESignature.findMany.mockResolvedValue([]);
+    mockESignature.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.data.page).toBe(1);
+  });
+
+  it('POST / returns 400 when resourceType is missing', async () => {
+    mockIsValidMeaning.mockReturnValue(true);
+    const res = await request(app).post('/').send({
+      meaning: 'APPROVED',
+      reason: 'Approved',
+      password: 'pass',
+      resourceId: '00000000-0000-0000-0000-000000000099',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / returns 400 when password is missing', async () => {
+    mockIsValidMeaning.mockReturnValue(true);
+    const res = await request(app).post('/').send({
+      meaning: 'APPROVED',
+      reason: 'Approved',
+      resourceType: 'document',
+      resourceId: '00000000-0000-0000-0000-000000000099',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /:id/verify returns 500 on database error', async () => {
+    mockESignature.findUnique.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post(`/${SIG_ID}/verify`);
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id returns 500 on database error during findUnique', async () => {
+    mockESignature.findUnique.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete(`/${SIG_ID}`);
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / count is called once per list request', async () => {
+    mockESignature.findMany.mockResolvedValue([]);
+    mockESignature.count.mockResolvedValue(0);
+    await request(app).get('/');
+    expect(mockESignature.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id returns 500 on database error', async () => {
+    mockESignature.findUnique.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get(`/${SIG_ID}`);
+    expect(res.status).toBe(500);
+  });
+
+  it('POST / with REJECTED meaning is accepted when isValidMeaning returns true', async () => {
+    mockIsValidMeaning.mockReturnValue(true);
+    mockUser.findUnique.mockResolvedValue({
+      id: USER_ID,
+      email: 'admin@ims.local',
+      fullName: 'Admin User',
+      password: '$2b$10$hashedpassword',
+    });
+    mockCreateSignature.mockResolvedValue({
+      signature: {
+        id: SIG_ID,
+        userId: USER_ID,
+        userEmail: 'admin@ims.local',
+        userFullName: 'Admin User',
+        meaning: 'REJECTED',
+        reason: 'Does not meet standards',
+        resourceType: 'document',
+        resourceId: '00000000-0000-0000-0000-000000000099',
+        resourceRef: 'DOC-2026-002',
+        ipAddress: '127.0.0.1',
+        userAgent: 'test-agent',
+        checksum: 'def456',
+        valid: true,
+        timestamp: new Date(),
+      },
+    });
+    mockESignature.create.mockResolvedValue({ ...mockSigRecord, meaning: 'REJECTED' });
+    const res = await request(app).post('/').send({
+      meaning: 'REJECTED',
+      reason: 'Does not meet standards',
+      password: 'correctpassword',
+      resourceType: 'document',
+      resourceId: '00000000-0000-0000-0000-000000000099',
+      resourceRef: 'DOC-2026-002',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

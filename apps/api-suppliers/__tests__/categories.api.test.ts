@@ -197,3 +197,67 @@ describe('categories.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('categories.api — query and filter edge cases', () => {
+  it('findMany receives where clause with deletedAt null', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    await request(app).get('/api/categories');
+    expect(mockPrisma.suppSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('single supplier with category produces one entry', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([{ category: 'Consulting' }]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].category).toBe('Consulting');
+    expect(res.body.data[0].count).toBe(1);
+  });
+
+  it('all null categories produces empty data array', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([{ category: null }, { category: null }]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('error body has error.code INTERNAL_ERROR on 500', async () => {
+    mockPrisma.suppSupplier.findMany.mockRejectedValue(new Error('disk full'));
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('response has data property on success', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([{ category: 'Retail' }]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('four distinct categories produce four entries', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
+      { category: 'A' },
+      { category: 'B' },
+      { category: 'C' },
+      { category: 'D' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body.data).toHaveLength(4);
+  });
+
+  it('findMany called exactly once per request', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([{ category: 'Food' }]);
+    await request(app).get('/api/categories');
+    await request(app).get('/api/categories');
+    expect(mockPrisma.suppSupplier.findMany).toHaveBeenCalledTimes(2);
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.suppSupplier.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/categories');
+    expect(res.body.success).toBe(false);
+  });
+});

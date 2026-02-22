@@ -280,3 +280,83 @@ describe('certifications.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('certifications.api — edge cases and filters', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/certifications', router);
+    jest.clearAllMocks();
+  });
+
+  it('GET / filters by employeeId query param', async () => {
+    (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.employeeCertification.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get(`/api/certifications?employeeId=${EMP_ID}`);
+    const callArgs = (mockPrisma.employeeCertification.findMany as jest.Mock).mock.calls[0][0];
+    expect(callArgs.where.employeeId).toBe(EMP_ID);
+  });
+
+  it('GET / filters by status query param', async () => {
+    (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.employeeCertification.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/certifications?status=EXPIRED');
+    const callArgs = (mockPrisma.employeeCertification.findMany as jest.Mock).mock.calls[0][0];
+    expect(callArgs.where.status).toBe('EXPIRED');
+  });
+
+  it('GET / meta includes page and limit', async () => {
+    (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.employeeCertification.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('limit');
+  });
+
+  it('GET /expiring-soon returns empty array when no expiring certs', async () => {
+    (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/certifications/expiring-soon');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /stats returns active count', async () => {
+    (mockPrisma.employeeCertification.count as jest.Mock).mockResolvedValue(5);
+    const res = await request(app).get('/api/certifications/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(5);
+  });
+
+  it('POST / returns 400 on missing employeeId', async () => {
+    const res = await request(app)
+      .post('/api/certifications')
+      .send({ name: 'ISO 9001', issuingOrganization: 'BSI', issueDate: '2025-01-01' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / returns 400 on invalid issueDate format', async () => {
+    const res = await request(app)
+      .post('/api/certifications')
+      .send({ employeeId: EMP_ID, name: 'ISO 9001', issuingOrganization: 'BSI', issueDate: 'not-a-date' });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT / can set status to EXPIRED', async () => {
+    (mockPrisma.employeeCertification.findUnique as jest.Mock).mockResolvedValue(mockCert);
+    (mockPrisma.employeeCertification.update as jest.Mock).mockResolvedValue({ ...mockCert, status: 'EXPIRED' });
+    const res = await request(app).put(`/api/certifications/${CERT_ID}`).send({ status: 'EXPIRED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('EXPIRED');
+  });
+
+  it('DELETE / response has no body on 204', async () => {
+    (mockPrisma.employeeCertification.findUnique as jest.Mock).mockResolvedValue(mockCert);
+    (mockPrisma.employeeCertification.delete as jest.Mock).mockResolvedValue(mockCert);
+    const res = await request(app).delete(`/api/certifications/${CERT_ID}`);
+    expect(res.status).toBe(204);
+    expect(res.body).toEqual({});
+  });
+});

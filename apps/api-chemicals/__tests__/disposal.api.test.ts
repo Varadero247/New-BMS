@@ -335,3 +335,99 @@ describe('Chemicals Disposal — additional coverage', () => {
     expect(res.body.pagination.totalPages).toBe(5);
   });
 });
+
+describe('Chemicals Disposal — extended edge cases', () => {
+  it('GET /disposal returns success: true on 200', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([mockDisposal]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /disposal data items contain disposalMethod field', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([mockDisposal]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('disposalMethod');
+  });
+
+  it('POST /disposal returns 400 when disposalDate is missing', async () => {
+    const res = await request(app).post('/api/disposal').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      quantityDisposed: 10,
+      unit: 'L',
+      disposalMethod: 'Incineration',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /disposal returns 400 when quantityDisposed is a string', async () => {
+    const res = await request(app).post('/api/disposal').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      quantityDisposed: 'ten',
+      unit: 'kg',
+      disposalDate: '2026-02-15T00:00:00.000Z',
+      disposalMethod: 'Incineration',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /disposal/:id returns 200 with updated record on success', async () => {
+    mockPrisma.chemDisposal.findFirst.mockResolvedValue(mockDisposal);
+    mockPrisma.chemDisposal.update.mockResolvedValue({
+      ...mockDisposal,
+      wasteContractorName: 'New Contractor Ltd',
+    });
+    const res = await request(app)
+      .put('/api/disposal/00000000-0000-0000-0000-000000000060')
+      .send({ wasteContractorName: 'New Contractor Ltd' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.wasteContractorName).toBe('New Contractor Ltd');
+  });
+
+  it('GET /disposal 500 error response has error.code INTERNAL_ERROR', async () => {
+    mockPrisma.chemDisposal.findMany.mockRejectedValue(new Error('Connection lost'));
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /disposal supports disposalMethod filter in query string', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/disposal?disposalMethod=Incineration');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /disposal returns 404 with NOT_FOUND code when chemical missing', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
+    const res = await request(app).post('/api/disposal').send({
+      chemicalId: '00000000-0000-0000-0000-000000000099',
+      quantityDisposed: 5,
+      unit: 'kg',
+      disposalDate: '2026-03-01T00:00:00.000Z',
+      disposalMethod: 'Landfill',
+    });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /disposal pagination includes page field', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+});

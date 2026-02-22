@@ -258,3 +258,88 @@ describe('downtime — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('downtime — edge cases and field validation', () => {
+  it('GET /downtime returns success: true on 200', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([mockDowntime]);
+    prisma.cmmsDowntime.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/downtime');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /downtime pagination includes total, page, and limit fields', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([]);
+    prisma.cmmsDowntime.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/downtime');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /downtime?page=2&limit=5 returns correct pagination metadata', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([]);
+    prisma.cmmsDowntime.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/downtime?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+    expect(res.body.pagination.total).toBe(20);
+  });
+
+  it('GET /downtime data items include id field', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([mockDowntime]);
+    prisma.cmmsDowntime.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/downtime');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id', '00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST /downtime sets createdBy from authenticated user', async () => {
+    prisma.cmmsDowntime.create.mockResolvedValue(mockDowntime);
+    await request(app).post('/api/downtime').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      startTime: '2026-02-13T08:00:00Z',
+      reason: 'Motor overload',
+    });
+    expect(prisma.cmmsDowntime.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ createdBy: 'user-123' }),
+      })
+    );
+  });
+
+  it('DELETE /downtime/:id returns 500 on update error', async () => {
+    prisma.cmmsDowntime.findFirst.mockResolvedValue(mockDowntime);
+    prisma.cmmsDowntime.update.mockRejectedValue(new Error('DB write error'));
+    const res = await request(app).delete('/api/downtime/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /downtime/pareto returns empty array when no records exist', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/downtime/pareto');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('PUT /downtime/:id response data contains updated reason field', async () => {
+    prisma.cmmsDowntime.findFirst.mockResolvedValue(mockDowntime);
+    prisma.cmmsDowntime.update.mockResolvedValue({ ...mockDowntime, reason: 'Coolant pump failure' });
+    const res = await request(app)
+      .put('/api/downtime/00000000-0000-0000-0000-000000000001')
+      .send({ reason: 'Coolant pump failure' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.reason).toBe('Coolant pump failure');
+  });
+
+  it('GET /downtime/:id 500 response has error.code INTERNAL_ERROR', async () => {
+    prisma.cmmsDowntime.findFirst.mockRejectedValue(new Error('Read error'));
+    const res = await request(app).get('/api/downtime/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

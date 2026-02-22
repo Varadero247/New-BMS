@@ -251,3 +251,92 @@ describe('stakeholders — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+// ── Extended coverage ──────────────────────────────────────────────────────
+
+describe('stakeholders — extended coverage', () => {
+  it('GET / returns pagination metadata', async () => {
+    (prisma.esgStakeholder.findMany as jest.Mock).mockResolvedValue([mockStakeholder]);
+    (prisma.esgStakeholder.count as jest.Mock).mockResolvedValue(42);
+    const res = await request(app).get('/api/stakeholders?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(42);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('GET / filters by both type and engagementLevel', async () => {
+    (prisma.esgStakeholder.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgStakeholder.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/stakeholders?type=CUSTOMER&engagementLevel=LOW');
+    expect(prisma.esgStakeholder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'CUSTOMER', engagementLevel: 'LOW' }),
+      })
+    );
+  });
+
+  it('POST / returns 201 with all stakeholder types', async () => {
+    const types = ['INVESTOR', 'CUSTOMER', 'EMPLOYEE', 'REGULATOR', 'COMMUNITY', 'SUPPLIER', 'NGO'];
+    for (const type of types) {
+      (prisma.esgStakeholder.create as jest.Mock).mockResolvedValue({ ...mockStakeholder, type });
+      const res = await request(app).post('/api/stakeholders').send({ name: 'Test', type });
+      expect(res.status).toBe(201);
+    }
+  });
+
+  it('POST / sets default engagementLevel to MEDIUM when not provided', async () => {
+    (prisma.esgStakeholder.create as jest.Mock).mockResolvedValue(mockStakeholder);
+    await request(app).post('/api/stakeholders').send({ name: 'New Corp', type: 'SUPPLIER' });
+    const [call] = (prisma.esgStakeholder.create as jest.Mock).mock.calls;
+    expect(call[0].data.engagementLevel).toBe('MEDIUM');
+  });
+
+  it('PUT / returns 400 for invalid engagementLevel', async () => {
+    const res = await request(app)
+      .put('/api/stakeholders/00000000-0000-0000-0000-000000000001')
+      .send({ engagementLevel: 'CRITICAL' });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT / returns 400 for invalid contactEmail format', async () => {
+    const res = await request(app)
+      .put('/api/stakeholders/00000000-0000-0000-0000-000000000001')
+      .send({ contactEmail: 'not-an-email' });
+    expect(res.status).toBe(400);
+  });
+
+  it('DELETE / success response has message field', async () => {
+    (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(mockStakeholder);
+    (prisma.esgStakeholder.update as jest.Mock).mockResolvedValue({
+      ...mockStakeholder,
+      deletedAt: new Date(),
+    });
+    const res = await request(app).delete('/api/stakeholders/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBeDefined();
+  });
+
+  it('POST / creates stakeholder with optional contactEmail', async () => {
+    (prisma.esgStakeholder.create as jest.Mock).mockResolvedValue({
+      ...mockStakeholder,
+      contactEmail: 'partner@example.com',
+    });
+    const res = await request(app).post('/api/stakeholders').send({
+      name: 'Partner NGO',
+      type: 'NGO',
+      contactEmail: 'partner@example.com',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns correct id in response', async () => {
+    (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue({
+      ...mockStakeholder,
+      id: '00000000-0000-0000-0000-000000000002',
+    });
+    const res = await request(app).get('/api/stakeholders/00000000-0000-0000-0000-000000000002');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000002');
+  });
+});

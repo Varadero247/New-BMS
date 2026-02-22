@@ -271,3 +271,98 @@ describe('Changelog and NPS — additional coverage', () => {
     expect(mockListResponses).toHaveBeenCalledWith('default', 25, 50);
   });
 });
+
+describe('Changelog and NPS — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    const cl = require('../src/routes/changelog').default;
+    const nps = require('../src/routes/nps').default;
+    app.use('/api/changelog', cl);
+    app.use('/api/nps', nps);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    mockListAllEntries.mockReturnValue({ entries: [], total: 0 });
+    mockGetUnreadCount.mockReturnValue(0);
+    mockSubmitResponse.mockReturnValue({ id: 'nps-1', score: 9, category: 'promoter' });
+    mockGetAnalytics.mockReturnValue({ npsScore: 42, total: 10, promoters: 6, passives: 2, detractors: 2 });
+    mockListResponses.mockReturnValue({ responses: [], total: 0 });
+  });
+
+  it('GET /api/changelog/unread-count returns zero by default', async () => {
+    mockGetUnreadCount.mockReturnValue(0);
+    const res = await request(app).get('/api/changelog/unread-count');
+    expect(res.status).toBe(200);
+    expect(res.body.data.unreadCount).toBe(0);
+  });
+
+  it('GET /api/changelog returns entries and total in data', async () => {
+    mockListEntries.mockReturnValue({ entries: [{ id: 'cl-x', title: 'x' }], total: 1 });
+    const res = await request(app).get('/api/changelog');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total', 1);
+    expect(Array.isArray(res.body.data.entries)).toBe(true);
+  });
+
+  it('POST /api/nps with score 10 returns promoter', async () => {
+    mockSubmitResponse.mockReturnValue({ id: 'nps-10', score: 10, category: 'promoter' });
+    const res = await request(app).post('/api/nps').send({ score: 10 });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toBe('promoter');
+  });
+
+  it('POST /api/nps with score 1 returns detractor', async () => {
+    mockSubmitResponse.mockReturnValue({ id: 'nps-d', score: 1, category: 'detractor' });
+    const res = await request(app).post('/api/nps').send({ score: 1 });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toBe('detractor');
+  });
+
+  it('GET /api/nps/analytics returns promoters count', async () => {
+    mockGetAnalytics.mockReturnValue({ npsScore: 50, total: 5, promoters: 4, passives: 0, detractors: 1 });
+    const res = await request(app).get('/api/nps/analytics');
+    expect(res.status).toBe(200);
+    expect(res.body.data.promoters).toBe(4);
+  });
+
+  it('GET /api/nps/responses returns responses array', async () => {
+    mockListResponses.mockReturnValue({ responses: [{ id: 'r1', score: 8 }], total: 1 });
+    const res = await request(app).get('/api/nps/responses');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('responses');
+  });
+
+  it('POST /api/changelog/mark-read calls markAsRead', async () => {
+    const res = await request(app).post('/api/changelog/mark-read');
+    expect(res.status).toBe(200);
+    expect(mockMarkAsRead).toHaveBeenCalled();
+  });
+
+  it('GET /api/changelog/all returns success true', async () => {
+    mockListAllEntries.mockReturnValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/changelog/all');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/changelog with improvement category succeeds', async () => {
+    mockCreateEntry.mockReturnValue({
+      id: 'cl-new',
+      title: 'Perf',
+      category: 'improvement',
+      isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+    const res = await request(app)
+      .post('/api/changelog')
+      .send({ title: 'Perf', description: 'Faster', category: 'improvement', modules: ['env'] });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toBe('improvement');
+  });
+});

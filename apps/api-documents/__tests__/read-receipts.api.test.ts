@@ -243,3 +243,93 @@ describe('read-receipts.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+// ─── Read Receipts — extended error and pagination coverage ──────────────────
+
+describe('Read Receipts — extended error and pagination coverage', () => {
+  it('GET / returns pagination object with total and page', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/read-receipts');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(0);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET / with page=2&limit=5 reflects pagination values', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/read-receipts?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('POST / returns 500 when create throws', async () => {
+    mockPrisma.docReadReceipt.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/read-receipts')
+      .send({ documentId: 'doc-1', userId: 'user-1', status: 'READ' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update throws', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docReadReceipt.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/read-receipts/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ACKNOWLEDGED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update throws', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docReadReceipt.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete(
+      '/api/read-receipts/00000000-0000-0000-0000-000000000001',
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get(
+      '/api/read-receipts/00000000-0000-0000-0000-000000000001',
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id success message contains "deleted"', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docReadReceipt.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete(
+      '/api/read-receipts/00000000-0000-0000-0000-000000000001',
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted');
+  });
+
+  it('GET / with search param passes filter to findMany', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    await request(app).get('/api/read-receipts?search=john');
+    expect(mockPrisma.docReadReceipt.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ userName: expect.any(Object) }),
+      }),
+    );
+  });
+});

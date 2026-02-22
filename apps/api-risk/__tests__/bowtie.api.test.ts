@@ -253,3 +253,99 @@ describe('bowtie.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('bowtie.api — extended edge cases', () => {
+  it('GET /:id/bowtie success:true when bowtie is found', async () => {
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue({ id: 'b1', topEvent: 'Explosion' });
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/bowtie');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /:id/bowtie returns 400 when topEvent is missing', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'HIGH',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    const incomplete = { ...validBowtie };
+    delete (incomplete as any).topEvent;
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(incomplete);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /:id/bowtie with VERY_HIGH risk level creates bowtie', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'VERY_HIGH',
+      inherentRiskLevel: 'VERY_HIGH',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    mockPrisma.riskBowtie.create.mockResolvedValue({ id: 'b-new', ...validBowtie });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(validBowtie);
+    expect(res.status).toBe(201);
+  });
+
+  it('POST /:id/bowtie update increments version', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'HIGH',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue({ id: 'b1', version: '1.0' });
+    mockPrisma.riskBowtie.update.mockResolvedValue({ id: 'b1', version: '1.1', ...validBowtie });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(validBowtie);
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskBowtie.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /bowtie/all findMany called with orgId filter', async () => {
+    mockPrisma.riskBowtie.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/bowtie/all');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskBowtie.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ risk: expect.any(Object) }) })
+    );
+  });
+
+  it('GET /:id/bowtie returns success:false on 500', async () => {
+    mockPrisma.riskBowtie.findUnique.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/bowtie');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /:id/bowtie returns success:false on 500', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'HIGH',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    mockPrisma.riskBowtie.create.mockRejectedValue(new Error('crash'));
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(validBowtie);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /bowtie/all returns success:false on 500', async () => {
+    mockPrisma.riskBowtie.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/bowtie/all');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id/bowtie data is null when no bowtie exists', async () => {
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000002/bowtie');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeNull();
+  });
+});

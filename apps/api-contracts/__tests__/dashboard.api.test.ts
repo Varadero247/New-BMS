@@ -202,3 +202,80 @@ describe('contracts dashboard route — additional coverage', () => {
     expect(res.body.data.totalContracts).not.toBe(res.body.data.upcomingNotices);
   });
 });
+
+describe('contracts dashboard — additional edge cases', () => {
+  it('GET /stats returns 200 with both counts as zero when no records', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalContracts).toBe(0);
+    expect(res.body.data.upcomingNotices).toBe(0);
+  });
+
+  it('GET /stats data object is not null', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(5);
+    mockPrisma.contNotice.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).not.toBeNull();
+    expect(typeof res.body.data).toBe('object');
+  });
+
+  it('GET /stats response content-type is application/json', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET /stats totalContracts is a non-negative number', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(12);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalContracts).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /stats upcomingNotices is a non-negative number', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(7);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.upcomingNotices).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /stats error body contains error.message on 500', async () => {
+    mockPrisma.contContract.count.mockRejectedValue(new Error('connection refused'));
+    mockPrisma.contNotice.count.mockRejectedValue(new Error('connection refused'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBeDefined();
+  });
+
+  it('GET /stats large values are returned accurately', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(50000);
+    mockPrisma.contNotice.count.mockResolvedValue(999);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalContracts).toBe(50000);
+    expect(res.body.data.upcomingNotices).toBe(999);
+  });
+
+  it('GET /stats both count methods are called once per request', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(3);
+    mockPrisma.contNotice.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.contContract.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.contNotice.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /stats success field is boolean true on 200', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(1);
+    mockPrisma.contNotice.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(true);
+  });
+});

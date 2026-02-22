@@ -241,3 +241,87 @@ describe('reviews.api — additional coverage', () => {
     }
   });
 });
+
+describe('reviews.api — pagination and extended paths', () => {
+  it('GET / includes pagination object with page, limit, total, totalPages', async () => {
+    mockPrisma.riskReview.findMany.mockResolvedValue([]);
+    mockPrisma.riskReview.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/reviews?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET / pagination total reflects count mock', async () => {
+    mockPrisma.riskReview.findMany.mockResolvedValue([]);
+    mockPrisma.riskReview.count.mockResolvedValue(75);
+    const res = await request(app).get('/api/reviews');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(75);
+  });
+
+  it('GET / returns data as an array', async () => {
+    mockPrisma.riskReview.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001' },
+      { id: '00000000-0000-0000-0000-000000000002' },
+    ]);
+    mockPrisma.riskReview.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/reviews');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / with status field succeeds', async () => {
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    mockPrisma.riskReview.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SCHEDULED',
+    });
+    const res = await request(app)
+      .post('/api/reviews')
+      .send({ riskId: 'risk-1', scheduledDate: '2026-06-01T00:00:00.000Z', status: 'SCHEDULED' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when scheduledDate is invalid datetime', async () => {
+    const res = await request(app)
+      .post('/api/reviews')
+      .send({ riskId: 'risk-1', scheduledDate: 'not-a-date' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /:id returns success message', async () => {
+    mockPrisma.riskReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskReview.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('review deleted successfully');
+  });
+
+  it('PUT /:id with optional fields succeeds', async () => {
+    mockPrisma.riskReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskReview.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      findings: 'All clear',
+    });
+    const res = await request(app)
+      .put('/api/reviews/00000000-0000-0000-0000-000000000001')
+      .send({ findings: 'All clear', recommendations: 'None' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /?search with count=0 returns empty data array', async () => {
+    mockPrisma.riskReview.findMany.mockResolvedValue([]);
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reviews?search=nonexistent');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+  });
+});

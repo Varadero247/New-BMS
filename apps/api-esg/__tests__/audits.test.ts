@@ -250,3 +250,95 @@ describe('audits — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+// ─── Extended edge cases ────────────────────────────────────────────────────
+
+describe('audits — extended edge cases', () => {
+  it('GET / returns pagination metadata', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([mockAudit]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(1);
+    expect(res.body.pagination.totalPages).toBeGreaterThanOrEqual(1);
+  });
+
+  it('GET / page=2 uses correct skip offset', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(25);
+    await request(app).get('/api/audits?page=2&limit=10');
+    expect(prisma.esgAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET / filters by framework when provided', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/audits?auditType=EXTERNAL');
+    expect(res.status).toBe(200);
+    expect(prisma.esgAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ auditType: 'EXTERNAL' }) })
+    );
+  });
+
+  it('POST / creates audit with REGULATORY type', async () => {
+    (prisma.esgAudit.create as jest.Mock).mockResolvedValue({ ...mockAudit, auditType: 'REGULATORY' });
+    const res = await request(app).post('/api/audits').send({
+      title: 'Regulatory Audit 2026',
+      auditType: 'REGULATORY',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / accepts optional score field', async () => {
+    (prisma.esgAudit.create as jest.Mock).mockResolvedValue({ ...mockAudit, score: 92 });
+    const res = await request(app).post('/api/audits').send({
+      title: 'Scored Audit',
+      auditType: 'INTERNAL',
+      score: 92,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when score is out of range', async () => {
+    const res = await request(app).post('/api/audits').send({
+      title: 'Bad Score Audit',
+      auditType: 'INTERNAL',
+      score: 150,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT / with valid IN_PROGRESS status succeeds', async () => {
+    (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(mockAudit);
+    (prisma.esgAudit.update as jest.Mock).mockResolvedValue({ ...mockAudit, status: 'IN_PROGRESS' });
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'IN_PROGRESS' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('IN_PROGRESS');
+  });
+
+  it('DELETE / sets deletedAt on soft delete', async () => {
+    (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(mockAudit);
+    (prisma.esgAudit.update as jest.Mock).mockResolvedValue({ ...mockAudit, deletedAt: new Date() });
+    const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(prisma.esgAudit.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /count returns 500 when count fails', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgAudit.count as jest.Mock).mockRejectedValue(new Error('count failed'));
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

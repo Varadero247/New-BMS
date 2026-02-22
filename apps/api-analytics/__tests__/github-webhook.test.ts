@@ -299,3 +299,113 @@ describe("GitHub Webhook — additional coverage", () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe("GitHub Webhook — edge cases and field validation", () => {
+  it("stores all commit SHAs in details.shas array", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "ec-1" });
+    await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [
+          { id: "sha-a", message: "fix: one" },
+          { id: "sha-b", message: "fix: two" },
+          { id: "sha-c", message: "fix: three" },
+        ],
+        head_commit: { message: "fix: three" },
+      });
+    const createCall = (prisma.changelog.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.details.shas).toContain("sha-a");
+    expect(createCall.data.details.shas).toContain("sha-b");
+    expect(createCall.data.details.shas).toContain("sha-c");
+  });
+
+  it("response body data object is defined on success", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "ec-2" });
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "ec2", message: "chore: data" }],
+        head_commit: { message: "chore: data" },
+      });
+    expect(res.body.data).toBeDefined();
+    expect(typeof res.body.data).toBe("object");
+  });
+
+  it("changelog create is not called for refs/heads/develop branch", async () => {
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({ ref: "refs/heads/develop", commits: [{ id: "d1", message: "wip" }] });
+    expect(res.status).toBe(200);
+    expect(res.body.data.skipped).toBe(true);
+    expect(prisma.changelog.create).not.toHaveBeenCalled();
+  });
+
+  it("handles payload with repository having only name field", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "ec-4" });
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "ec4", message: "fix: repo name" }],
+        head_commit: { message: "fix: repo name" },
+        repository: { name: "my-repo" },
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it("error message is returned in body on 500", async () => {
+    (prisma.changelog.create as jest.Mock).mockRejectedValue(new Error("crash"));
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "ec5", message: "crash test" }],
+        head_commit: { message: "crash test" },
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it("response data.changelog id matches mock value", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "ec-6-id", version: "2026.02.22" });
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "ec6", message: "feat: verify id" }],
+        head_commit: { message: "feat: verify id" },
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.data.changelog.id).toBe("ec-6-id");
+  });
+
+  it("POST to webhook with JSON content type succeeds", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "ec-7" });
+    const res = await request(app)
+      .post("/webhooks/github")
+      .set("Content-Type", "application/json")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "ec7", message: "fix: content-type" }],
+        head_commit: { message: "fix: content-type" },
+      });
+    expect(res.status).toBe(200);
+  });
+
+  it("commitSha in created record is a string type", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "ec-8" });
+    await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "abc-sha-string", message: "test" }],
+        head_commit: { message: "test" },
+      });
+    const createCall = (prisma.changelog.create as jest.Mock).mock.calls[0][0];
+    expect(typeof createCall.data.commitSha).toBe("string");
+  });
+});

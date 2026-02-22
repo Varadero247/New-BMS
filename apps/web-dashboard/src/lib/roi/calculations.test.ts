@@ -158,3 +158,52 @@ describe('calculateRoi — extended', () => {
     }
   });
 });
+
+describe('calculateRoi — additional edge cases', () => {
+  it('Starter plan nexaraCost is 299 * 12 = 3588', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, employees: 25 });
+    expect(results.nexaraCost).toBe(299 * 12);
+  });
+
+  it('Growth plan nexaraCost is 599 * 12 = 7188', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, employees: 100 });
+    expect(results.nexaraCost).toBe(599 * 12);
+  });
+
+  it('Scale plan nexaraCost is 1199 * 12 = 14388', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, employees: 500 });
+    expect(results.nexaraCost).toBe(1199 * 12);
+  });
+
+  it('Enterprise plan nexaraCost is 1800 * 12 = 21600', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, employees: 2000 });
+    expect(results.nexaraCost).toBe(1800 * 12);
+  });
+
+  it('auditDaysSaved is 0 when auditPrepDays equals 2', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, auditPrepDays: 2 });
+    expect(results.auditDaysSaved).toBe(0);
+  });
+
+  it('auditDaysSaved is positive when auditPrepDays > 2', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, auditPrepDays: 5, numberOfAudits: 2 });
+    expect(results.auditDaysSaved).toBeGreaterThan(0);
+  });
+
+  it('adminValueSaved scales proportionally with adminHoursPerWeek', () => {
+    const r5 = calculateRoi({ ...DEFAULT_INPUTS, adminHoursPerWeek: 5 });
+    const r10 = calculateRoi({ ...DEFAULT_INPUTS, adminHoursPerWeek: 10 });
+    expect(r10.adminValueSaved).toBeCloseTo(r5.adminValueSaved * 2, 5);
+  });
+
+  it('dailyRateOverride of 0 produces adminValueSaved of 0', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, dailyRateOverride: 0 });
+    expect(results.adminValueSaved).toBe(0);
+  });
+
+  it('auditRiskValue is always numberOfAudits * (8000 / 3)', () => {
+    const inputs = { ...DEFAULT_INPUTS, numberOfAudits: 3 };
+    const results = calculateRoi(inputs);
+    expect(results.auditRiskValue).toBeCloseTo(3 * (8000 / 3), 5);
+  });
+});

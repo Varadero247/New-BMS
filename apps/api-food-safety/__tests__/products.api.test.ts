@@ -285,3 +285,94 @@ describe('Food Safety Products — additional coverage', () => {
     expect(res.body.data).toHaveProperty('name', 'Gouda Cheese');
   });
 });
+
+describe('products.api — edge cases and extended coverage', () => {
+  it('GET /api/products filters by status and category together', async () => {
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(0);
+
+    await request(app).get('/api/products?status=ACTIVE&category=Beverages');
+    expect(mockPrisma.fsProduct.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          status: 'ACTIVE',
+          category: expect.objectContaining({ contains: 'Beverages' }),
+        }),
+      })
+    );
+  });
+
+  it('POST /api/products rejects empty name', async () => {
+    const res = await request(app).post('/api/products').send({ name: '', code: 'PROD-001' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/products rejects invalid status enum', async () => {
+    const res = await request(app).post('/api/products').send({
+      name: 'Test Product',
+      code: 'PROD-002',
+      status: 'ARCHIVED',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/products/:id handles 500 on update', async () => {
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsProduct.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/products/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Name' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/products/:id handles 500 on update', async () => {
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsProduct.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/products/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/products/:id handles 500 on findFirst', async () => {
+    mockPrisma.fsProduct.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/products/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/products returns empty list with total 0', async () => {
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/products');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST /api/products creates with shelfLifeDays and storageRequirements', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000006',
+      name: 'Aged Cheddar',
+      code: 'CHED-001',
+      shelfLifeDays: 180,
+      storageRequirements: 'Refrigerate at 4C',
+    };
+    mockPrisma.fsProduct.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/products').send({
+      name: 'Aged Cheddar',
+      code: 'CHED-001',
+      shelfLifeDays: 180,
+      storageRequirements: 'Refrigerate at 4C',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('shelfLifeDays', 180);
+  });
+});

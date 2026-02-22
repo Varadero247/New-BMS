@@ -354,3 +354,147 @@ describe('Circuit Breaker — additional coverage', () => {
     );
   });
 });
+
+// ── Extended coverage ──────────────────────────────────────────────────────
+
+describe('Circuit Breaker — extended coverage', () => {
+  it('HALF_OPEN state allows exactly one probe request through', () => {
+    jest.useFakeTimers();
+    const cb = createProxyCircuitBreaker({
+      name: 'ProbeTest',
+      failureThreshold: 1,
+      resetTimeoutMs: 1000,
+      halfOpenSuccesses: 2,
+    });
+    cb.onFailure();
+    jest.advanceTimersByTime(2000);
+
+    // First request in HALF_OPEN passes through
+    const { req: req1, res: res1, next: next1 } = makeReqRes('GET', '/api/probe');
+    cb.middleware(req1, res1, next1);
+    expect(next1).toHaveBeenCalled();
+    expect(cb.getState()).toBe('HALF_OPEN');
+
+    jest.useRealTimers();
+  });
+
+  it('multiple independent circuit breakers do not share state', () => {
+    const cb1 = createProxyCircuitBreaker({ name: 'ServiceA', failureThreshold: 1 });
+    const cb2 = createProxyCircuitBreaker({ name: 'ServiceB', failureThreshold: 1 });
+
+    cb1.onFailure();
+    expect(cb1.getState()).toBe('OPEN');
+    expect(cb2.getState()).toBe('CLOSED');
+  });
+
+  it('OPEN circuit returns 503 with success: false for PUT requests', () => {
+    const cb = createProxyCircuitBreaker({ name: 'PutTest', failureThreshold: 1 });
+    cb.onFailure();
+
+    const { req, res, next } = makeReqRes('PUT', '/api/resource');
+    cb.middleware(req, res, next);
+
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(503);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
+  });
+
+  it('OPEN circuit returns 503 for DELETE requests', () => {
+    const cb = createProxyCircuitBreaker({ name: 'DeleteTest', failureThreshold: 1 });
+    cb.onFailure();
+
+    const { req, res, next } = makeReqRes('DELETE', '/api/resource/1');
+    cb.middleware(req, res, next);
+
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(503);
+  });
+
+  it('captureMiddleware patches res.write for GET requests', () => {
+    const cb = createProxyCircuitBreaker({ name: 'CaptureTest' });
+    const { req, res, next } = makeReqRes('GET', '/api/items');
+    const originalWrite = res.write;
+
+    cb.captureMiddleware(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+    // write should be patched for GET
+    expect(res.write).not.toBe(originalWrite);
+  });
+
+  it('default failureThreshold is respected when not specified', () => {
+    const cb = createProxyCircuitBreaker({ name: 'DefaultThreshold' });
+    // Default is 5 failures
+    cb.onFailure();
+    cb.onFailure();
+    cb.onFailure();
+    cb.onFailure();
+    expect(cb.getState()).toBe('CLOSED');
+    cb.onFailure();
+    expect(cb.getState()).toBe('OPEN');
+  });
+
+  it('after circuit re-closes, new failures count from zero', () => {
+    jest.useFakeTimers();
+    const cb = createProxyCircuitBreaker({
+      name: 'ResetCountTest',
+      failureThreshold: 2,
+      resetTimeoutMs: 1000,
+      halfOpenSuccesses: 1,
+    });
+
+    // Open circuit
+    cb.onFailure();
+    cb.onFailure();
+    expect(cb.getState()).toBe('OPEN');
+
+    // Let it move to HALF_OPEN
+    jest.advanceTimersByTime(2000);
+    const { req, res, next } = makeReqRes();
+    cb.middleware(req, res, next);
+    expect(cb.getState()).toBe('HALF_OPEN');
+
+    // Close circuit with one success
+    cb.onSuccess();
+    expect(cb.getState()).toBe('CLOSED');
+
+    // One failure after re-closing should NOT open circuit (need 2)
+    cb.onFailure();
+    expect(cb.getState()).toBe('CLOSED');
+
+    jest.useRealTimers();
+  });
+
+  it('Retry-After header contains a numeric string when circuit is OPEN', () => {
+    const cb = createProxyCircuitBreaker({ name: 'RetryAfterTest', failureThreshold: 1 });
+    cb.onFailure();
+
+    const { req, res } = makeReqRes('GET', '/api/data');
+    cb.middleware(req, res, jest.fn());
+
+    const retryAfterCall = (res.set as jest.Mock).mock.calls.find(
+      (c: string[]) => c[0] === 'Retry-After'
+    );
+    expect(retryAfterCall).toBeDefined();
+    expect(Number(retryAfterCall[1])).not.toBeNaN();
+  });
+
+  it('HEAD request is treated like GET and can be served from stale cache', () => {
+    const cb = createProxyCircuitBreaker({ name: 'HeadTest', failureThreshold: 1 });
+
+    // Warm cache with a GET
+    const { req: warmReq, res: warmRes, next: warmNext } = makeReqRes('GET', '/api/items');
+    cb.captureMiddleware(warmReq, warmRes, warmNext);
+    warmRes.end(JSON.stringify({ success: true, data: [] }));
+
+    cb.onFailure();
+    expect(cb.getState()).toBe('OPEN');
+
+    // HEAD request for same path
+    const { req: headReq, res: headRes, next: headNext } = makeReqRes('HEAD', '/api/items');
+    cb.middleware(headReq, headRes, headNext);
+
+    // HEAD is non-GET/non-POST — should get 503 (cache keyed by GET)
+    expect(headRes.status).toHaveBeenCalledWith(503);
+  });
+});

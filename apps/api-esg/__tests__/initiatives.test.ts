@@ -255,3 +255,85 @@ describe('initiatives — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+// ─── Extended edge cases ────────────────────────────────────────────────────
+
+describe('initiatives — extended edge cases', () => {
+  it('GET / returns pagination metadata with totalPages', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([mockInitiative]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/initiatives');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET / page=2 limit=5 uses correct skip offset', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(10);
+    await request(app).get('/api/initiatives?page=2&limit=5');
+    expect(prisma.esgInitiative.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST / creates SOCIAL category initiative', async () => {
+    (prisma.esgInitiative.create as jest.Mock).mockResolvedValue({ ...mockInitiative, category: 'SOCIAL' });
+    const res = await request(app).post('/api/initiatives').send({
+      title: 'Community Outreach Program',
+      category: 'SOCIAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / creates GOVERNANCE category initiative', async () => {
+    (prisma.esgInitiative.create as jest.Mock).mockResolvedValue({ ...mockInitiative, category: 'GOVERNANCE' });
+    const res = await request(app).post('/api/initiatives').send({
+      title: 'Board Diversity Initiative',
+      category: 'GOVERNANCE',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT / update with COMPLETED status succeeds', async () => {
+    (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
+    (prisma.esgInitiative.update as jest.Mock).mockResolvedValue({ ...mockInitiative, status: 'COMPLETED' });
+    const res = await request(app)
+      .put('/api/initiatives/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLETED');
+  });
+
+  it('DELETE / returns success message in data', async () => {
+    (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
+    (prisma.esgInitiative.update as jest.Mock).mockResolvedValue({ ...mockInitiative, deletedAt: new Date() });
+    const res = await request(app).delete('/api/initiatives/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET / filter by SOCIAL category', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/initiatives?category=SOCIAL');
+    expect(prisma.esgInitiative.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'SOCIAL' }) })
+    );
+  });
+
+  it('GET /:id returns success=true when found', async () => {
+    (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
+    const res = await request(app).get('/api/initiatives/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE / 500 when findFirst throws', async () => {
+    (prisma.esgInitiative.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/initiatives/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

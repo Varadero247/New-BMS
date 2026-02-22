@@ -171,3 +171,76 @@ describe('Executive Summary — additional coverage', () => {
     });
   });
 });
+
+// ===================================================================
+// Executive Summary — field-level and pagination edge cases
+// ===================================================================
+describe('Executive Summary — field-level and pagination edge cases', () => {
+  it('GET /executive-summary health has openCapasTrend field', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.health).toHaveProperty('openCapasTrend');
+  });
+
+  it('GET /executive-summary health has overdueItems field', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.health).toHaveProperty('overdueItems');
+    expect(typeof res.body.data.health.overdueItems).toBe('number');
+  });
+
+  it('GET /executive-summary moduleCounts includes quality section', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.moduleCounts).toHaveProperty('quality');
+    expect(typeof res.body.data.moduleCounts.quality).toBe('object');
+  });
+
+  it('GET /executive-summary moduleCounts.quality has ncrs, capas, audits', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const q = res.body.data.moduleCounts.quality;
+    expect(q).toHaveProperty('ncrs');
+    expect(q).toHaveProperty('capas');
+    expect(q).toHaveProperty('audits');
+  });
+
+  it('GET /executive-summary certifications have readinessScore field', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const certs = res.body.data.certifications as Array<Record<string, unknown>>;
+    certs.forEach((cert) => {
+      expect(cert).toHaveProperty('readinessScore');
+    });
+  });
+
+  it('GET /executive-summary certifications have nextAudit field', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const certs = res.body.data.certifications as Array<Record<string, unknown>>;
+    certs.forEach((cert) => {
+      expect(cert).toHaveProperty('nextAudit');
+    });
+  });
+
+  it('GET /executive-summary myActions.dueToday is a non-negative number', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.myActions.dueToday).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /executive-summary recentActivity entries have module field', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const activity = res.body.data.recentActivity as Array<Record<string, unknown>>;
+    activity.forEach((entry) => {
+      expect(entry).toHaveProperty('module');
+    });
+  });
+
+  it('GET /executive-summary health.csatScore is a number', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.health.csatScore).toBe('number');
+  });
+});

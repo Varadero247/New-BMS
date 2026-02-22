@@ -215,3 +215,98 @@ describe('courses.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('courses.api — edge cases and extended coverage', () => {
+  it('GET /api/courses supports pagination params', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([]);
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/courses?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET /api/courses pagination includes totalPages', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([]);
+    mockPrisma.trainCourse.count.mockResolvedValue(25);
+    const res = await request(app).get('/api/courses?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('POST /api/courses returns 400 when title is missing', async () => {
+    const res = await request(app).post('/api/courses').send({ type: 'MANDATORY' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/courses returns 400 when type is invalid', async () => {
+    const res = await request(app).post('/api/courses').send({
+      title: 'Test',
+      type: 'INVALID_TYPE',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/courses creates INDUCTION type successfully', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainCourse.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Site Induction',
+      type: 'INDUCTION',
+    });
+    const res = await request(app).post('/api/courses').send({
+      title: 'Site Induction',
+      type: 'INDUCTION',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/courses/:id returns correct success message', async () => {
+    mockPrisma.trainCourse.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainCourse.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/courses/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('course deleted successfully');
+  });
+
+  it('PUT /api/courses/:id with invalid delivery enum returns 400', async () => {
+    const res = await request(app)
+      .put('/api/courses/00000000-0000-0000-0000-000000000001')
+      .send({ delivery: 'INVALID_DELIVERY' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/courses returns data as array', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Course A' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Course B' },
+    ]);
+    mockPrisma.trainCourse.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/courses');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /api/courses with negative cost returns 400', async () => {
+    const res = await request(app).post('/api/courses').send({
+      title: 'Test Course',
+      type: 'OPTIONAL',
+      cost: -50,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

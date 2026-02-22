@@ -400,3 +400,104 @@ describe('GET /api/analytics/dashboard — additional coverage', () => {
     expect(res.body.data.criticalAlerts.some((a: string) => a.includes('warden'))).toBe(true);
   });
 });
+
+// ─── Analytics — extended metrics and alert coverage ─────────────────────────
+
+describe('Emergency Analytics — extended metrics and alert coverage', () => {
+  it('criticalAlerts contains equipment alert when equipmentDue > 0', async () => {
+    setupAnalyticsMocks({
+      activeIncidents: 0,
+      fraOverdue: 0,
+      wardenExpiring: 0,
+      equipmentDue: 3,
+      premisesNoDrill: 0,
+    });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.criticalAlerts.some((a: string) => a.includes('equipment'))).toBe(true);
+  });
+
+  it('criticalAlerts contains drills alert when premisesNoDrill > 0', async () => {
+    setupAnalyticsMocks({
+      activeIncidents: 0,
+      fraOverdue: 0,
+      wardenExpiring: 0,
+      equipmentDue: 0,
+      premisesNoDrill: 2,
+    });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.criticalAlerts.some((a: string) => a.includes('drill'))).toBe(true);
+  });
+
+  it('response contains all expected top-level data keys', async () => {
+    setupAnalyticsMocks();
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    const data = res.body.data;
+    expect(data).toHaveProperty('activePremises');
+    expect(data).toHaveProperty('fraOverdueCount');
+    expect(data).toHaveProperty('activeIncidents');
+    expect(data).toHaveProperty('incidentsLast30Days');
+    expect(data).toHaveProperty('wardenTrainingExpiring');
+    expect(data).toHaveProperty('peepReviewDue');
+    expect(data).toHaveProperty('equipmentServiceDue');
+    expect(data).toHaveProperty('bcpCount');
+    expect(data).toHaveProperty('bcpNotTestedCount');
+    expect(data).toHaveProperty('riskLevelBreakdown');
+    expect(data).toHaveProperty('incidentTypeBreakdown');
+    expect(data).toHaveProperty('recentIncidents');
+    expect(data).toHaveProperty('drillsDueSoon');
+    expect(data).toHaveProperty('criticalAlerts');
+  });
+
+  it('riskLevelBreakdown is an object (not array)', async () => {
+    setupAnalyticsMocks({
+      riskBreakdown: [{ overallRiskLevel: 'HIGH', _count: 3 }],
+    });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.riskLevelBreakdown).toBe('object');
+    expect(Array.isArray(res.body.data.riskLevelBreakdown)).toBe(false);
+  });
+
+  it('incidentTypeBreakdown is an object (not array)', async () => {
+    setupAnalyticsMocks({
+      incidentBreakdown: [{ emergencyType: 'FIRE', _count: 2 }],
+    });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.incidentTypeBreakdown).toBe('object');
+    expect(Array.isArray(res.body.data.incidentTypeBreakdown)).toBe(false);
+  });
+
+  it('recentIncidents is an array', async () => {
+    setupAnalyticsMocks({ recentIncidents: [] });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.recentIncidents)).toBe(true);
+  });
+
+  it('criticalAlerts is an array', async () => {
+    setupAnalyticsMocks({ activeIncidents: 0, fraOverdue: 0, wardenExpiring: 0, equipmentDue: 0, premisesNoDrill: 0 });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.criticalAlerts)).toBe(true);
+  });
+
+  it('returns 500 with INTERNAL_ERROR when femEmergencyIncident.count rejects', async () => {
+    mockPremises.count.mockResolvedValueOnce(5).mockResolvedValueOnce(0);
+    mockFra.count.mockResolvedValue(0);
+    mockFra.groupBy.mockResolvedValue([]);
+    mockIncident.count.mockRejectedValue(new Error('incident DB error'));
+    mockIncident.findMany.mockResolvedValue([]);
+    mockIncident.groupBy.mockResolvedValue([]);
+    mockWarden.count.mockResolvedValue(0);
+    mockPeep.count.mockResolvedValue(0);
+    mockEquipment.count.mockResolvedValue(0);
+    mockBcp.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

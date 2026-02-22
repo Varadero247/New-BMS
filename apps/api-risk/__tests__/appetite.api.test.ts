@@ -260,3 +260,100 @@ describe('appetite.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('appetite.api — extended edge cases', () => {
+  it('GET /appetite returns success:true on 200', async () => {
+    mockPrisma.riskAppetiteStatement.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/appetite');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /appetite data is an array', async () => {
+    mockPrisma.riskAppetiteStatement.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/appetite');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /appetite returns 400 when category is invalid enum', async () => {
+    const res = await request(app).post('/api/risks/appetite').send({
+      category: 'INVALID_CATEGORY',
+      appetiteLevel: 'LOW',
+      statement: 'Test',
+      maximumTolerableScore: 10,
+      acceptableResidualScore: 6,
+      escalationThreshold: 12,
+      reviewDate: '2026-12-01T00:00:00Z',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /appetite returns 400 when maximumTolerableScore exceeds 25', async () => {
+    const res = await request(app).post('/api/risks/appetite').send({
+      category: 'OPERATIONAL',
+      appetiteLevel: 'LOW',
+      statement: 'Test',
+      maximumTolerableScore: 30,
+      acceptableResidualScore: 6,
+      escalationThreshold: 12,
+      reviewDate: '2026-12-01T00:00:00Z',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /framework returns success:false on 500', async () => {
+    mockPrisma.riskFramework.findUnique.mockRejectedValue(new Error('crash'));
+    const res = await request(app).put('/api/risks/framework').send({ maturityLevel: 'Initial' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /framework success:true when data returned', async () => {
+    mockPrisma.riskFramework.findUnique.mockResolvedValue({ id: 'fw1', organisationId: 'org-1' });
+    const res = await request(app).get('/api/risks/framework');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /appetite create call includes category in data', async () => {
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue(null);
+    mockPrisma.riskAppetiteStatement.create.mockResolvedValue({ id: 'new-1', category: 'COMPLIANCE' });
+    const res = await request(app).post('/api/risks/appetite').send({
+      category: 'COMPLIANCE',
+      appetiteLevel: 'VERY_LOW',
+      statement: 'Zero tolerance',
+      maximumTolerableScore: 5,
+      acceptableResidualScore: 3,
+      escalationThreshold: 6,
+      reviewDate: '2026-12-01T00:00:00Z',
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.riskAppetiteStatement.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /framework update call is made when framework exists', async () => {
+    mockPrisma.riskFramework.findUnique.mockResolvedValue({ id: 'fw1', organisationId: 'org-1' });
+    mockPrisma.riskFramework.update.mockResolvedValue({ id: 'fw1' });
+    const res = await request(app).put('/api/risks/framework').send({ maturityLevel: 'Optimised' });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskFramework.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /appetite update is called when existing statement found', async () => {
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue({ id: 'existing-1', category: 'STRATEGIC' });
+    mockPrisma.riskAppetiteStatement.update.mockResolvedValue({ id: 'existing-1', appetiteLevel: 'MODERATE_APPETITE' });
+    const res = await request(app).post('/api/risks/appetite').send({
+      category: 'STRATEGIC',
+      appetiteLevel: 'MODERATE_APPETITE',
+      statement: 'Balanced',
+      maximumTolerableScore: 15,
+      acceptableResidualScore: 10,
+      escalationThreshold: 18,
+      reviewDate: '2026-12-01T00:00:00Z',
+    });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskAppetiteStatement.update).toHaveBeenCalledTimes(1);
+  });
+});

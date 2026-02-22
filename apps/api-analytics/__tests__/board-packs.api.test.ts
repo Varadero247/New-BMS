@@ -269,3 +269,70 @@ describe('board-packs.api.test.ts — additional coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('board-packs.api — extended edge cases', () => {
+  it('GET /api/board-packs returns success:true', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/board-packs pagination has limit field', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.limit).toBe(10);
+  });
+
+  it('GET /api/board-packs/:id returns 500 on DB error with INTERNAL_ERROR code', async () => {
+    mockPrisma.boardPack.findUnique.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /api/board-packs/:id with valid DRAFT to FINAL updates status', async () => {
+    mockPrisma.boardPack.findUnique.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' });
+    mockPrisma.boardPack.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'FINAL' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'FINAL' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('FINAL');
+  });
+
+  it('PATCH /api/board-packs/:id calls update once on valid transition', async () => {
+    mockPrisma.boardPack.findUnique.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' });
+    mockPrisma.boardPack.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'FINAL' });
+    await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'FINAL' });
+    expect(mockPrisma.boardPack.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('PATCH /api/board-packs/:id does NOT call update on invalid transition', async () => {
+    mockPrisma.boardPack.findUnique.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' });
+    await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DISTRIBUTED' });
+    expect(mockPrisma.boardPack.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/board-packs returns boardPacks array with correct id', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000003', status: 'DRAFT', generatedAt: new Date() }]);
+    mockPrisma.boardPack.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.data.boardPacks[0].id).toBe('00000000-0000-0000-0000-000000000003');
+  });
+
+  it('GET /api/board-packs count is called once per request', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
+    await request(app).get('/api/board-packs');
+    expect(mockPrisma.boardPack.count).toHaveBeenCalledTimes(1);
+  });
+});

@@ -240,3 +240,107 @@ describe('suppliers.api — additional coverage', () => {
     }
   });
 });
+
+describe('suppliers.api — edge cases and extended coverage', () => {
+  it('GET /api/suppliers supports pagination', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/suppliers?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(10);
+  });
+
+  it('GET /api/suppliers pagination includes totalPages', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/suppliers?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /api/suppliers returns data as array', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Supplier A' },
+    ]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/suppliers');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/suppliers returns 400 when invalid status enum', async () => {
+    const res = await request(app).post('/api/suppliers').send({
+      name: 'Test Supplier',
+      status: 'NOT_VALID_STATUS',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/suppliers returns 400 when invalid tier enum', async () => {
+    const res = await request(app).post('/api/suppliers').send({
+      name: 'Test Supplier',
+      tier: 'NOT_VALID_TIER',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/suppliers creates with optional fields', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppSupplier.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Full Supplier',
+    });
+    const res = await request(app).post('/api/suppliers').send({
+      name: 'Full Supplier',
+      status: 'APPROVED',
+      tier: 'HIGH',
+      category: 'IT',
+      city: 'London',
+      country: 'UK',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/suppliers/:id returns correct success message', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('supplier deleted successfully');
+  });
+
+  it('PUT /api/suppliers/:id with valid status update succeeds', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUSPENDED',
+    });
+    const res = await request(app)
+      .put('/api/suppliers/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'SUSPENDED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/suppliers/:id returns correct data id', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      name: 'Specific Supplier',
+    });
+    const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000003');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000003');
+  });
+});

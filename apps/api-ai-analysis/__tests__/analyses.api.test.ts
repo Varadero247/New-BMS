@@ -475,3 +475,135 @@ describe('analyses.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+// ── analyses.api — edge cases and extended paths ──────────────────────────
+
+describe('analyses.api — edge cases', () => {
+  let app: express.Express;
+
+  const mockAnalysis = {
+    id: '52000000-0000-4000-a000-000000000001',
+    userId: '20000000-0000-4000-a000-000000000001',
+    sourceType: 'risk',
+    sourceId: 'source-1',
+    sourceData: { title: 'Fall from height' },
+    prompt: 'Analyse this risk',
+    provider: 'OPENAI',
+    model: 'gpt-4',
+    response: { content: 'Analysis result' },
+    suggestedRootCause: 'Inadequate protection',
+    suggestedActions: [
+      { title: 'Install guardrails', description: 'Install guardrails', priority: 'HIGH', type: 'CORRECTIVE' },
+    ],
+    complianceGaps: [],
+    highlights: [],
+    status: 'COMPLETED',
+    acceptedAt: null,
+    rejectedAt: null,
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date('2024-01-15'),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyses', analysesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/analyses filters by sourceType=incident', async () => {
+    mockPrisma.aIAnalysis.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aIAnalysis.count.mockResolvedValueOnce(0);
+    const res = await request(app)
+      .get('/api/analyses?sourceType=incident')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.aIAnalysis.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ sourceType: 'incident' }) })
+    );
+  });
+
+  it('GET /api/analyses filters by status=REJECTED', async () => {
+    mockPrisma.aIAnalysis.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aIAnalysis.count.mockResolvedValueOnce(0);
+    const res = await request(app)
+      .get('/api/analyses?status=REJECTED')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.aIAnalysis.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'REJECTED' }) })
+    );
+  });
+
+  it('GET /api/analyses returns totalPages=1 for single result', async () => {
+    mockPrisma.aIAnalysis.findMany.mockResolvedValueOnce([mockAnalysis]);
+    mockPrisma.aIAnalysis.count.mockResolvedValueOnce(1);
+    const res = await request(app)
+      .get('/api/analyses')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(1);
+  });
+
+  it('POST /api/analyses/:id/accept returns 400 for invalid acceptedActions type', async () => {
+    mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(mockAnalysis);
+    const res = await request(app)
+      .post('/api/analyses/52000000-0000-4000-a000-000000000001/accept')
+      .set('Authorization', 'Bearer test-token')
+      .send({ acceptedActions: 'not-an-array' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/analyses/:id/accept sets ACCEPTED when acceptedActions length matches suggestedActions', async () => {
+    const oneActionAnalysis = { ...mockAnalysis, suggestedActions: [{ title: 'Action 1' }] };
+    mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(oneActionAnalysis);
+    mockPrisma.aIAnalysis.update.mockResolvedValueOnce({ ...oneActionAnalysis, status: 'ACCEPTED', acceptedAt: new Date() });
+    const res = await request(app)
+      .post('/api/analyses/52000000-0000-4000-a000-000000000001/accept')
+      .set('Authorization', 'Bearer test-token')
+      .send({ acceptedActions: [0] });
+    expect(res.status).toBe(200);
+    const updateCall = (mockPrisma.aIAnalysis.update as jest.Mock).mock.calls[0];
+    expect(updateCall[0].data.status).toBe('ACCEPTED');
+  });
+
+  it('POST /api/analyses/:id/reject returns 500 on update DB error', async () => {
+    mockPrisma.aIAnalysis.findUnique.mockResolvedValueOnce(mockAnalysis);
+    mockPrisma.aIAnalysis.update.mockRejectedValueOnce(new Error('DB fail'));
+    const res = await request(app)
+      .post('/api/analyses/52000000-0000-4000-a000-000000000001/reject')
+      .set('Authorization', 'Bearer test-token')
+      .send({});
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/analyses/:id soft-deletes by setting deletedAt', async () => {
+    mockPrisma.aIAnalysis.update.mockResolvedValueOnce({ ...mockAnalysis, deletedAt: new Date() });
+    const res = await request(app)
+      .delete('/api/analyses/52000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(204);
+    expect(mockPrisma.aIAnalysis.update).toHaveBeenCalledWith({
+      where: { id: '52000000-0000-4000-a000-000000000001' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+
+  it('GET /api/analyses/:id returns 401 without auth', async () => {
+    const res = await request(app).get('/api/analyses/52000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/analyses returns empty data array with correct meta', async () => {
+    mockPrisma.aIAnalysis.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aIAnalysis.count.mockResolvedValueOnce(0);
+    const res = await request(app)
+      .get('/api/analyses')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+  });
+});

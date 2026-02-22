@@ -268,3 +268,85 @@ describe('legal-register.api — additional coverage', () => {
     }
   });
 });
+
+describe('Legal Register — extended edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/legal-register returns pagination object', async () => {
+    mockPrisma.regLegalRegister.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'GDPR' }]);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/legal-register?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(15);
+  });
+
+  it('GET /api/legal-register page 2 skips correctly', async () => {
+    mockPrisma.regLegalRegister.findMany.mockResolvedValue([]);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(10);
+    const res = await request(app).get('/api/legal-register?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.regLegalRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5 })
+    );
+  });
+
+  it('GET /api/legal-register filters by jurisdiction', async () => {
+    mockPrisma.regLegalRegister.findMany.mockResolvedValue([]);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/legal-register?jurisdiction=EU');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/legal-register returns empty array when none exist', async () => {
+    mockPrisma.regLegalRegister.findMany.mockResolvedValue([]);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/legal-register');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST /api/legal-register data has id on success', async () => {
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'REACH' });
+    const res = await request(app).post('/api/legal-register').send({ title: 'REACH' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('PUT /api/legal-register/:id returns updated title', async () => {
+    mockPrisma.regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old' });
+    mockPrisma.regLegalRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated GDPR' });
+    const res = await request(app)
+      .put('/api/legal-register/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated GDPR' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Updated GDPR');
+  });
+
+  it('DELETE /api/legal-register/:id message contains "deleted successfully"', async () => {
+    mockPrisma.regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.regLegalRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/legal-register/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted successfully');
+  });
+
+  it('GET /api/legal-register INTERNAL_ERROR on count failure', async () => {
+    mockPrisma.regLegalRegister.findMany.mockResolvedValue([]);
+    mockPrisma.regLegalRegister.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/legal-register');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/legal-register INTERNAL_ERROR code on create failure', async () => {
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.create.mockRejectedValue(new Error('crash'));
+    const res = await request(app).post('/api/legal-register').send({ title: 'GDPR' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

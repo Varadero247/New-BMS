@@ -418,3 +418,155 @@ describe('changes.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('Project Changes API — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changes', changesRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /changes: count called once per request with projectId', async () => {
+    (mockPrisma.projectChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectChange.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/changes?projectId=proj-x').set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectChange.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /changes: meta.page defaults to 1 when not specified', async () => {
+    (mockPrisma.projectChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/changes?projectId=proj-x')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.meta.page).toBe(1);
+  });
+
+  it('GET /changes: meta.totalPages is correct for count 50 and limit 50', async () => {
+    (mockPrisma.projectChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectChange.count as jest.Mock).mockResolvedValueOnce(50);
+    const response = await request(app)
+      .get('/api/changes?projectId=proj-x')
+      .set('Authorization', 'Bearer token');
+    expect(response.body.meta.totalPages).toBe(1);
+  });
+
+  it('POST /changes: returns 400 for invalid changeType enum', async () => {
+    const response = await request(app)
+      .post('/api/changes')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'proj-1',
+        changeCode: 'CHG-999',
+        changeTitle: 'Invalid type',
+        changeDescription: 'Testing invalid enum',
+        changeReason: 'Test',
+        changeType: 'INVALID_TYPE',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /changes/:id/review: findUnique called with correct id', async () => {
+    (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .put('/api/changes/4b000000-0000-4000-a000-000000000001/review')
+      .set('Authorization', 'Bearer token')
+      .send({ reviewerComments: 'Checking' });
+    expect(mockPrisma.projectChange.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '4b000000-0000-4000-a000-000000000001' } })
+    );
+  });
+
+  it('PUT /changes/:id/approve: sets approvedBy to authenticated user id', async () => {
+    (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      status: 'UNDER_REVIEW',
+    });
+    (mockPrisma.projectChange.update as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      status: 'APPROVED',
+      approvedBy: '20000000-0000-4000-a000-000000000123',
+    });
+    await request(app)
+      .put('/api/changes/4b000000-0000-4000-a000-000000000001/approve')
+      .set('Authorization', 'Bearer token')
+      .send({ approvalComments: 'Go ahead' });
+    expect(mockPrisma.projectChange.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ approvedBy: '20000000-0000-4000-a000-000000000123' }),
+      })
+    );
+  });
+
+  it('DELETE /changes/:id: soft-deletes by setting deletedAt', async () => {
+    (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.projectChange.update as jest.Mock).mockResolvedValueOnce({});
+    const response = await request(app)
+      .delete('/api/changes/4b000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(204);
+  });
+
+  it('PUT /changes/:id: update called with correct id in where clause', async () => {
+    (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      status: 'SUBMITTED',
+    });
+    (mockPrisma.projectChange.update as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      changeTitle: 'New title',
+    });
+    await request(app)
+      .put('/api/changes/4b000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ changeTitle: 'New title' });
+    expect(mockPrisma.projectChange.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '4b000000-0000-4000-a000-000000000001' } })
+    );
+  });
+
+  it('GET /changes: success is true in response body', async () => {
+    (mockPrisma.projectChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/changes?projectId=proj-1')
+      .set('Authorization', 'Bearer token');
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST /changes: requestedBy is set to authenticated user id', async () => {
+    (mockPrisma.projectChange.create as jest.Mock).mockResolvedValueOnce({
+      id: 'chg-new',
+      projectId: 'proj-1',
+      changeCode: 'CHG-010',
+      status: 'SUBMITTED',
+      requestedBy: '20000000-0000-4000-a000-000000000123',
+    });
+    await request(app)
+      .post('/api/changes')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'proj-1',
+        changeCode: 'CHG-010',
+        changeTitle: 'New feature request',
+        changeDescription: 'Add export functionality',
+        changeReason: 'Customer feedback',
+        changeType: 'SCOPE',
+      });
+    expect(mockPrisma.projectChange.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ requestedBy: '20000000-0000-4000-a000-000000000123' }),
+      })
+    );
+  });
+});

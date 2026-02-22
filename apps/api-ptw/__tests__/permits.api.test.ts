@@ -234,3 +234,77 @@ describe('permits.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('permits.api — extended edge cases', () => {
+  it('GET / returns correct pagination totalPages', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(45);
+    const res = await request(app).get('/api/permits?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('GET / pagination object has required fields', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/permits');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('POST / creates permit with optional fields', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(2);
+    mockPrisma.ptwPermit.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', title: 'Full Permit' });
+    const res = await request(app).post('/api/permits').send({
+      title: 'Full Permit',
+      type: 'HOT_WORK',
+      priority: 'HIGH',
+      location: 'Site A',
+      area: 'Zone 1',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id returns updated data object', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwPermit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Modified Title' });
+    const res = await request(app).put('/api/permits/00000000-0000-0000-0000-000000000001').send({ title: 'Modified Title' });
+    expect(res.body.data.title).toBe('Modified Title');
+  });
+
+  it('DELETE /:id returns success message', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwPermit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/permits/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data.message).toBe('permit deleted successfully');
+  });
+
+  it('GET / returns empty data array when no permits', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/permits');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /:id returns 404 error code NOT_FOUND', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/permits/00000000-0000-0000-0000-000000000099');
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET / returns success false on DB error', async () => {
+    mockPrisma.ptwPermit.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/permits');
+    expect(res.body.success).toBe(false);
+    expect(res.status).toBe(500);
+  });
+
+  it('POST / returns 400 with VALIDATION_ERROR when body is empty', async () => {
+    const res = await request(app).post('/api/permits').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

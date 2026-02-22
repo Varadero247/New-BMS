@@ -210,3 +210,87 @@ describe('renewals.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('renewals.api — edge cases and field validation', () => {
+  it('returns contracts sorted by renewalDate ascending', async () => {
+    const sooner = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    const later = new Date(Date.now() + 25 * 24 * 60 * 60 * 1000);
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '1', title: 'Earlier Renewal', renewalDate: sooner, status: 'ACTIVE' },
+      { id: '2', title: 'Later Renewal', renewalDate: later, status: 'ACTIVE' },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.data[0].title).toBe('Earlier Renewal');
+  });
+
+  it('findMany is called with status ACTIVE filter', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    await request(app).get('/api/renewals');
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('findMany is called with deletedAt null filter', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    await request(app).get('/api/renewals');
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('response data array items have renewalDate field', async () => {
+    const futureDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Contract A', renewalDate: futureDate, status: 'ACTIVE' },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('renewalDate');
+  });
+
+  it('error body has error.code INTERNAL_ERROR on 500', async () => {
+    mockPrisma.contContract.findMany.mockRejectedValue(new Error('db failure'));
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(500);
+    expect(res.body).toHaveProperty('error');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('error body has error.message on 500', async () => {
+    mockPrisma.contContract.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBeDefined();
+  });
+
+  it('returns content-type application/json', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('data array is empty when no contracts due for renewal', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('success property is boolean true on 200', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    await request(app).get('/api/renewals');
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledTimes(1);
+  });
+});

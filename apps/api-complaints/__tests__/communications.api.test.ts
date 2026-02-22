@@ -256,3 +256,93 @@ describe('communications route — additional coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000003');
   });
 });
+
+describe('communications route — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns pagination object with page and limit', async () => {
+    mockPrisma.compCommunication.findMany.mockResolvedValue([]);
+    mockPrisma.compCommunication.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/communications?page=3&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET / filters by search query param', async () => {
+    mockPrisma.compCommunication.findMany.mockResolvedValue([]);
+    mockPrisma.compCommunication.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/communications?search=invoice');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.compCommunication.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ subject: expect.objectContaining({ contains: 'invoice' }) }) })
+    );
+  });
+
+  it('GET /:id returns 404 with NOT_FOUND code', async () => {
+    mockPrisma.compCommunication.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/communications/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST / generates a referenceNumber via count', async () => {
+    mockPrisma.compCommunication.count.mockResolvedValue(4);
+    mockPrisma.compCommunication.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000004',
+      referenceNumber: 'CMC-2026-0005',
+    });
+    const res = await request(app).post('/api/communications').send({ complaintId: 'comp-1' });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.compCommunication.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id updates subject field', async () => {
+    mockPrisma.compCommunication.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compCommunication.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      subject: 'Updated Subject',
+    });
+    const res = await request(app)
+      .put('/api/communications/00000000-0000-0000-0000-000000000001')
+      .send({ complaintId: 'comp-1', subject: 'Updated Subject' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.subject).toBe('Updated Subject');
+  });
+
+  it('DELETE /:id response message confirms deletion', async () => {
+    mockPrisma.compCommunication.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compCommunication.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/communications/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('GET / returns totalPages in pagination', async () => {
+    mockPrisma.compCommunication.findMany.mockResolvedValue([]);
+    mockPrisma.compCommunication.count.mockResolvedValue(100);
+    const res = await request(app).get('/api/communications?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('GET / success is true on 200 response', async () => {
+    mockPrisma.compCommunication.findMany.mockResolvedValue([]);
+    mockPrisma.compCommunication.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/communications');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / filters by status=DRAFT', async () => {
+    mockPrisma.compCommunication.findMany.mockResolvedValue([]);
+    mockPrisma.compCommunication.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/communications?status=DRAFT');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.compCommunication.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'DRAFT' }) })
+    );
+  });
+});

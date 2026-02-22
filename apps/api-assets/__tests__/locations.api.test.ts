@@ -173,6 +173,93 @@ describe('Locations — extended', () => {
     expect(names.length).toBe(uniqueNames.length);
   });
 });
+describe('Locations — field and edge-case coverage', () => {
+  it('returns entries sorted with at least one entry when assets have valid locations', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Alpha' },
+      { location: 'Beta' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('a single unique location produces a single entry with count 1', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([{ location: 'Room 101' }]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].count).toBe(1);
+  });
+
+  it('four assets with two distinct locations produce two entries', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Zone A' },
+      { location: 'Zone A' },
+      { location: 'Zone B' },
+      { location: 'Zone B' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('findMany called with deletedAt: null filter', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/locations');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      })
+    );
+  });
+
+  it('error response has INTERNAL_ERROR code on rejection', async () => {
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('DB unavailable'));
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('response data items each have exactly location and count keys', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Dock 1' },
+      { location: 'Dock 2' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    for (const item of res.body.data) {
+      expect(Object.keys(item)).toEqual(expect.arrayContaining(['location', 'count']));
+    }
+  });
+
+  it('count is correct for 5 assets at same location', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Bay 5' },
+      { location: 'Bay 5' },
+      { location: 'Bay 5' },
+      { location: 'Bay 5' },
+      { location: 'Bay 5' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].count).toBe(5);
+  });
+
+  it('empty string locations are excluded from output', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: '' },
+      { location: '' },
+      { location: 'Valid Site' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    const locations = res.body.data.map((d: any) => d.location);
+    expect(locations).not.toContain('');
+    expect(locations).toContain('Valid Site');
+  });
+});
+
 describe('GET /api/locations — additional coverage', () => {
   it('enforces authentication — authenticate middleware is called', async () => {
     const { authenticate } = require('@ims/auth');

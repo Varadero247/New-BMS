@@ -244,3 +244,100 @@ describe('clauses.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('clauses.api — pagination, filter and field validation', () => {
+  it('GET / supports search filter on title', async () => {
+    mockPrisma.contClause.findMany.mockResolvedValue([]);
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/clauses?search=payment');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contClause.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ title: expect.objectContaining({ contains: 'payment' }) }) })
+    );
+  });
+
+  it('GET / returns correct pagination totalPages', async () => {
+    mockPrisma.contClause.findMany.mockResolvedValue([]);
+    mockPrisma.contClause.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/clauses?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.total).toBe(30);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('POST / creates clause with optional content and category', async () => {
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    mockPrisma.contClause.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      contractId: 'c-2',
+      title: 'Liability Clause',
+      content: 'Full text here',
+      category: 'LEGAL',
+    });
+    const res = await request(app).post('/api/clauses').send({
+      contractId: 'c-2',
+      title: 'Liability Clause',
+      content: 'Full text here',
+      category: 'LEGAL',
+      isKey: true,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toBe('LEGAL');
+  });
+
+  it('PUT / updates isKey flag to false', async () => {
+    mockPrisma.contClause.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      isKey: true,
+    });
+    mockPrisma.contClause.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      isKey: false,
+    });
+    const res = await request(app)
+      .put('/api/clauses/00000000-0000-0000-0000-000000000001')
+      .send({ isKey: false });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE / returns message containing deleted in data', async () => {
+    mockPrisma.contClause.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contClause.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    const res = await request(app).delete('/api/clauses/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET /:id returns NOT_FOUND code on missing clause', async () => {
+    mockPrisma.contClause.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/clauses/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET / pagination defaults to page 1 when not provided', async () => {
+    mockPrisma.contClause.findMany.mockResolvedValue([]);
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/clauses');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST / returns 400 when both contractId and title missing', async () => {
+    const res = await request(app).post('/api/clauses').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / returns content-type application/json', async () => {
+    mockPrisma.contClause.findMany.mockResolvedValue([]);
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/clauses');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+});

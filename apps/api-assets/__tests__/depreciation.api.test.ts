@@ -185,6 +185,92 @@ describe('Depreciation — extra', () => {
 
 // ─── Additional coverage ─────────────────────────────────────────────────────
 
+describe('Depreciation — edge cases and field validation', () => {
+  it('findMany is called with purchaseCost not-null filter', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/depreciation');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ purchaseCost: { not: null } }),
+      })
+    );
+  });
+
+  it('findMany is called with take: 500 limit', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/depreciation');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 500 })
+    );
+  });
+
+  it('findMany is called with select containing exactly 5 fields', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/depreciation');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          id: true,
+          name: true,
+          purchaseCost: true,
+          currentValue: true,
+          purchaseDate: true,
+        }),
+      })
+    );
+  });
+
+  it('handles asset where purchaseCost equals currentValue (not yet depreciated)', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'New Tool', purchaseCost: 3000, currentValue: 3000, purchaseDate: '2026-01-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].currentValue).toBe(res.body.data[0].purchaseCost);
+  });
+
+  it('handles large fleet of 10 assets without error', async () => {
+    const assets = Array.from({ length: 10 }, (_, i) => ({
+      id: `a-${i}`,
+      name: `Asset ${i}`,
+      purchaseCost: (i + 1) * 1000,
+      currentValue: (i + 1) * 800,
+      purchaseDate: '2024-01-01',
+    }));
+    mockPrisma.assetRegister.findMany.mockResolvedValue(assets);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(10);
+  });
+
+  it('response body has no extra top-level keys besides success and data', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    const keys = Object.keys(res.body);
+    expect(keys).toContain('success');
+    expect(keys).toContain('data');
+  });
+
+  it('error response body has success: false and an error object', async () => {
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('network failure'));
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBeDefined();
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('purchaseDate field is returned as a string', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Press', purchaseCost: 20000, currentValue: 15000, purchaseDate: '2023-08-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].purchaseDate).toBe('string');
+  });
+});
+
 describe('Depreciation — additional coverage', () => {
   it('returns 401 when authenticate rejects the request', async () => {
     const { authenticate: mockAuth } = require('@ims/auth');

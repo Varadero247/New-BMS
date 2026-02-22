@@ -204,3 +204,94 @@ describe('i18n — additional coverage', () => {
     expect(esSet.has('auth.signIn')).toBe(true);
   });
 });
+
+// ── Edge cases, missing keys, and locale validation ──────────────────────────
+
+describe('i18n — edge cases and locale validation', () => {
+  it('flattenKeys returns an empty array for an empty object', () => {
+    expect(flattenKeys({})).toHaveLength(0);
+  });
+
+  it('flattenKeys handles a single-level flat object', () => {
+    const result = flattenKeys({ a: 'hello', b: 'world' });
+    expect(result).toEqual(['a', 'b']);
+  });
+
+  it('flattenKeys handles deeply nested objects', () => {
+    const deep = { a: { b: { c: 'value' } } };
+    const result = flattenKeys(deep);
+    expect(result).toEqual(['a.b.c']);
+  });
+
+  it('a non-existent key is not found in any locale', () => {
+    const ghost = '__ghost_key_that_does_not_exist__';
+    expect(enSet.has(ghost)).toBe(false);
+    expect(deSet.has(ghost)).toBe(false);
+    expect(frSet.has(ghost)).toBe(false);
+    expect(esSet.has(ghost)).toBe(false);
+  });
+
+  it('all locale key sets are equal to the en key set', () => {
+    const enArr = Array.from(enSet).sort();
+    expect(Array.from(deSet).sort()).toEqual(enArr);
+    expect(Array.from(frSet).sort()).toEqual(enArr);
+    expect(Array.from(esSet).sort()).toEqual(enArr);
+  });
+
+  it('no locale contains duplicate keys', () => {
+    expect(en.length).toBe(enSet.size);
+    expect(de.length).toBe(deSet.size);
+    expect(fr.length).toBe(frSet.size);
+    expect(es.length).toBe(esSet.size);
+  });
+
+  it('errors section keys exist in all locales', () => {
+    const errorKeys = ['errors.notFound', 'errors.unauthorized', 'errors.serverError'];
+    for (const key of errorKeys) {
+      expect(enSet.has(key)).toBe(true);
+      expect(deSet.has(key)).toBe(true);
+      expect(frSet.has(key)).toBe(true);
+      expect(esSet.has(key)).toBe(true);
+    }
+  });
+
+  it('dashboard section keys exist in all locales', () => {
+    const dashKeys = ['dashboard.title', 'dashboard.welcome', 'dashboard.overview'];
+    for (const key of dashKeys) {
+      expect(enSet.has(key)).toBe(true);
+      expect(deSet.has(key)).toBe(true);
+      expect(frSet.has(key)).toBe(true);
+      expect(esSet.has(key)).toBe(true);
+    }
+  });
+
+  it('validation section keys exist in all locales', () => {
+    const valKeys = ['validation.required', 'validation.email', 'validation.minLength'];
+    for (const key of valKeys) {
+      expect(enSet.has(key)).toBe(true);
+      expect(deSet.has(key)).toBe(true);
+      expect(frSet.has(key)).toBe(true);
+      expect(esSet.has(key)).toBe(true);
+    }
+  });
+
+  it('table section keys exist in all locales', () => {
+    const tableKeys = ['table.noData', 'table.rowsPerPage', 'table.first', 'table.last'];
+    for (const key of tableKeys) {
+      expect(enSet.has(key)).toBe(true);
+      expect(deSet.has(key)).toBe(true);
+      expect(frSet.has(key)).toBe(true);
+      expect(esSet.has(key)).toBe(true);
+    }
+  });
+
+  it('notifications section keys exist in all locales', () => {
+    const notifKeys = ['notifications.title', 'notifications.markAllRead', 'notifications.noNotifications'];
+    for (const key of notifKeys) {
+      expect(enSet.has(key)).toBe(true);
+      expect(deSet.has(key)).toBe(true);
+      expect(frSet.has(key)).toBe(true);
+      expect(esSet.has(key)).toBe(true);
+    }
+  });
+});

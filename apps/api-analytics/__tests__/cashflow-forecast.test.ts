@@ -314,3 +314,106 @@ describe('Cash Flow Forecast — additional edge cases', () => {
     expect(delOrder).toBeLessThan(createOrder);
   });
 });
+
+// ===================================================================
+// Cash Flow Forecast — extended business logic coverage
+// ===================================================================
+describe('Cash Flow Forecast — extended business logic', () => {
+  const extApp = express();
+  extApp.use(express.json());
+  extApp.use('/', cashflowRouter);
+
+  it('GET / response has success=true and data key', async () => {
+    (prisma.cashFlowForecast.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(extApp).get('/');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET / data.forecasts is an array', async () => {
+    (prisma.cashFlowForecast.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(extApp).get('/');
+    expect(Array.isArray(res.body.data.forecasts)).toBe(true);
+  });
+
+  it('GET /position response.data.position contains bankBalance', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue({
+      bankBalance: 99000,
+      receivables: 0,
+      payables: 0,
+      runway: 24,
+    });
+    const res = await request(extApp).get('/position');
+    expect(res.status).toBe(200);
+    expect(res.body.data.position).toHaveProperty('bankBalance');
+  });
+
+  it('runCashFlowForecastJob week 13 opening equals week 12 closing', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue({ bankBalance: 10000 });
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'cf-wk' });
+
+    await runCashFlowForecastJob();
+    const calls = (prisma.cashFlowForecast.create as jest.Mock).mock.calls;
+    const week12Closing = calls[11][0].data.closingBalance;
+    const week13Opening = calls[12][0].data.openingBalance;
+    expect(week13Opening).toBeCloseTo(week12Closing, 2);
+  });
+
+  it('runCashFlowForecastJob all weeks have defined weekStart date', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'cf-ws' });
+
+    await runCashFlowForecastJob();
+    const calls = (prisma.cashFlowForecast.create as jest.Mock).mock.calls;
+    for (const call of calls) {
+      expect(call[0].data.weekStart).toBeInstanceOf(Date);
+    }
+  });
+
+  it('runCashFlowForecastJob all weeks have defined closingBalance as a number', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'cf-we' });
+
+    await runCashFlowForecastJob();
+    const calls = (prisma.cashFlowForecast.create as jest.Mock).mock.calls;
+    for (const call of calls) {
+      expect(typeof call[0].data.closingBalance).toBe('number');
+    }
+  });
+
+  it('runCashFlowForecastJob returns weeksCreated=13 even with large bankBalance', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue({ bankBalance: 9999999 });
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'cf-big' });
+
+    const result = await runCashFlowForecastJob();
+    expect(result.weeksCreated).toBe(13);
+  });
+
+  it('GET / returns 500 with error.code INTERNAL_ERROR on DB failure', async () => {
+    (prisma.cashFlowForecast.findMany as jest.Mock).mockRejectedValue(new Error('connection lost'));
+    const res = await request(extApp).get('/');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /position returns 500 with error.code INTERNAL_ERROR on DB failure', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockRejectedValue(
+      new Error('connection lost')
+    );
+    const res = await request(extApp).get('/position');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -392,3 +392,118 @@ describe('ai-variance.test.ts — additional coverage', () => {
     expect(result.recommendations).toHaveLength(1);
   });
 });
+
+
+describe('ai-variance — edge cases and extended coverage', () => {
+  const snap = {
+    id: 'snap-edge',
+    month: '2026-08',
+    monthNumber: 6,
+    mrr: 0,
+    arr: 0,
+    customers: 0,
+    newCustomers: 0,
+    churnedCustomers: 0,
+    mrrGrowthPct: 0,
+    revenueChurnPct: 0,
+    pipelineValue: 0,
+    wonDeals: 0,
+    winRate: 0,
+    newLeads: 0,
+    activeTrials: 0,
+    trialConversionPct: 0,
+    avgHealthScore: 0,
+  };
+  const zeroPlan = {
+    plannedMrr: 0,
+    plannedCustomers: 0,
+    plannedNewCustomers: 0,
+    plannedChurnPct: 0,
+    plannedArpu: 0,
+  };
+
+  it('buildVariancePrompt returns a non-empty string', () => {
+    const prompt = buildVariancePrompt(snap, zeroPlan);
+    expect(typeof prompt).toBe('string');
+    expect(prompt.length).toBeGreaterThan(0);
+  });
+});
+
+describe('ai-variance — edge cases and extended coverage', () => {
+  const snap = {
+    id: 'snap-edge',
+    month: '2026-08',
+    monthNumber: 6,
+    mrr: 0,
+    arr: 0,
+    customers: 0,
+    newCustomers: 0,
+    churnedCustomers: 0,
+    mrrGrowthPct: 0,
+    revenueChurnPct: 0,
+    pipelineValue: 0,
+    wonDeals: 0,
+    winRate: 0,
+    newLeads: 0,
+    activeTrials: 0,
+    trialConversionPct: 0,
+    avgHealthScore: 0,
+  };
+  const zeroPlan = {
+    plannedMrr: 0,
+    plannedCustomers: 0,
+    plannedNewCustomers: 0,
+    plannedChurnPct: 0,
+    plannedArpu: 0,
+  };
+
+  it('buildVariancePrompt does not throw when all values are zero', () => {
+    expect(() => buildVariancePrompt(snap, zeroPlan)).not.toThrow();
+  });
+
+  it('parseAIResponse treats empty string as fallback', () => {
+    const result = parseAIResponse('');
+    expect(result.trajectory).toBe('ON_TRACK');
+    expect(result.alerts).toHaveLength(0);
+  });
+
+  it('parseAIResponse handles multiple recommendations correctly', () => {
+    const json = JSON.stringify({
+      summary: 'Multiple recs',
+      alerts: ['a', 'b'],
+      recommendations: [
+        { metric: 'MRR', current: 1000, suggested: 2000, rationale: 'r1' },
+        { metric: 'ARR', current: 12000, suggested: 24000, rationale: 'r2' },
+        { metric: 'Churn', current: 5, suggested: 2, rationale: 'r3' },
+      ],
+      trajectory: 'BEHIND',
+    });
+    const result = parseAIResponse(json);
+    expect(result.recommendations).toHaveLength(3);
+    expect(result.alerts).toHaveLength(2);
+    expect(result.trajectory).toBe('BEHIND');
+  });
+
+  it('buildVariancePrompt contains the month number from the snapshot', () => {
+    const prompt = buildVariancePrompt({ ...snap, monthNumber: 9 }, zeroPlan);
+    expect(prompt).toContain('Month 9');
+  });
+
+  it('runVarianceAnalysis returns null when ANTHROPIC_API_KEY is undefined', async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+    const result = await runVarianceAnalysis(snap, zeroPlan);
+    expect(result).toBeNull();
+  });
+
+  it('parseAIResponse does not mutate the input string', () => {
+    const input = '{"summary":"ok","alerts":[],"recommendations":[],"trajectory":"ON_TRACK"}';
+    const copy = input;
+    parseAIResponse(input);
+    expect(input).toBe(copy);
+  });
+
+  it('buildVariancePrompt includes ARR value in prompt text', () => {
+    const prompt = buildVariancePrompt({ ...snap, arr: 120000 }, zeroPlan);
+    expect(prompt).toContain('120,000');
+  });
+});

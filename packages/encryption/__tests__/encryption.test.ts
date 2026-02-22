@@ -129,3 +129,53 @@ describe('encryption — additional coverage', () => {
     expect(decryptIfEncrypted('')).toBe('');
   });
 });
+
+describe('encryption — extended scenarios', () => {
+  it('encrypt produces only hex characters in each segment', () => {
+    const ct = encrypt('data');
+    for (const part of ct.split(':')) {
+      expect(part).toMatch(/^[0-9a-f]+$/);
+    }
+  });
+
+  it('decrypt round-trips an empty string', () => {
+    const ct = encrypt('');
+    expect(decrypt(ct)).toBe('');
+  });
+
+  it('decrypt round-trips a very long string', () => {
+    const long = 'x'.repeat(10000);
+    expect(decrypt(encrypt(long))).toBe(long);
+  });
+
+  it('encryptIfPresent encrypts strings containing spaces', () => {
+    const ct = encryptIfPresent('hello world');
+    expect(typeof ct).toBe('string');
+    expect(decryptIfEncrypted(ct as string)).toBe('hello world');
+  });
+
+  it('decryptIfEncrypted passes through a string with one colon (not encrypted)', () => {
+    const plain = 'key:value';
+    expect(decryptIfEncrypted(plain)).toBe('key:value');
+  });
+
+  it('decryptIfEncrypted passes through a string with three or more colons as-is (not exactly 2)', () => {
+    const plain = 'a:b:c:d';
+    expect(decryptIfEncrypted(plain)).toBe('a:b:c:d');
+  });
+
+  it('isEncryptionConfigured returns false when key is exactly 63 chars', () => {
+    process.env.ENCRYPTION_KEY = 'a'.repeat(63);
+    expect(isEncryptionConfigured()).toBe(false);
+  });
+
+  it('isEncryptionConfigured returns false when key is exactly 65 chars', () => {
+    process.env.ENCRYPTION_KEY = 'a'.repeat(65);
+    expect(isEncryptionConfigured()).toBe(false);
+  });
+
+  it('isEncryptionConfigured returns true when key is exactly 64 chars', () => {
+    process.env.ENCRYPTION_KEY = 'a'.repeat(64);
+    expect(isEncryptionConfigured()).toBe(true);
+  });
+});

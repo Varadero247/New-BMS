@@ -257,3 +257,96 @@ describe('Comments Routes — additional coverage', () => {
     expect(res.body.data).toHaveProperty('removed', true);
   });
 });
+
+describe('Comments Routes — edge cases and 500 paths', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/comments', commentsRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/comments returns 500 when createComment throws unexpectedly', async () => {
+    mockCreateComment.mockRejectedValueOnce(new Error('Unexpected DB failure'));
+    const res = await request(app)
+      .post('/api/comments')
+      .send({ recordType: 'ncr', recordId: 'r1', body: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/comments returns 500 when getComments throws', async () => {
+    mockGetComments.mockRejectedValueOnce(new Error('DB connection lost'));
+    const res = await request(app).get('/api/comments?recordType=ncr&recordId=r1');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/comments/:id returns 404 when updateComment says not found', async () => {
+    mockUpdateComment.mockRejectedValueOnce(new Error('Comment not found'));
+    const res = await request(app)
+      .put('/api/comments/00000000-0000-0000-0000-000000000001')
+      .send({ body: 'Updated body' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/comments/:id returns 500 when updateComment throws unexpectedly', async () => {
+    mockUpdateComment.mockRejectedValueOnce(new Error('Unknown DB error'));
+    const res = await request(app)
+      .put('/api/comments/00000000-0000-0000-0000-000000000001')
+      .send({ body: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/comments/:id returns 500 when deleteComment throws unexpectedly', async () => {
+    mockDeleteComment.mockRejectedValueOnce(new Error('Catastrophic failure'));
+    const res = await request(app).delete('/api/comments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/comments/:id returns 403 when deleteComment says only-author', async () => {
+    mockDeleteComment.mockRejectedValueOnce(new Error('Only the author can delete this comment'));
+    const res = await request(app).delete('/api/comments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe('FORBIDDEN');
+  });
+
+  it('POST /api/comments/:id/reactions returns 404 when comment not found', async () => {
+    mockAddReaction.mockRejectedValueOnce(new Error('Comment not found'));
+    const res = await request(app)
+      .post('/api/comments/00000000-0000-0000-0000-000000000001/reactions')
+      .send({ emoji: '👍' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/comments/:id/reactions returns 500 when addReaction throws unexpectedly', async () => {
+    mockAddReaction.mockRejectedValueOnce(new Error('Unexpected error'));
+    const res = await request(app)
+      .post('/api/comments/00000000-0000-0000-0000-000000000001/reactions')
+      .send({ emoji: '🔥' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/comments/:id/reactions/:emoji returns 404 when reaction not found', async () => {
+    mockRemoveReaction.mockRejectedValueOnce(new Error('Reaction not found'));
+    const res = await request(app).delete(
+      '/api/comments/00000000-0000-0000-0000-000000000001/reactions/%F0%9F%91%8D'
+    );
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/comments passes page and limit to getComments', async () => {
+    mockGetComments.mockResolvedValueOnce({ comments: [], total: 0 });
+    await request(app).get('/api/comments?recordType=risk&recordId=r5&page=3&limit=5');
+    expect(mockGetComments).toHaveBeenCalledWith('risk', 'r5', { page: 3, limit: 5 });
+  });
+});

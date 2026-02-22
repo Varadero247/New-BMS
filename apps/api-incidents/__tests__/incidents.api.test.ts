@@ -222,3 +222,76 @@ describe('Incidents — additional coverage', () => {
     expect(res.body.data).toHaveProperty('message');
   });
 });
+
+describe('Incidents — search and pagination', () => {
+  it('GET / with search param filters by title contains', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/incidents?search=fire');
+    const countCall = (mockPrisma.incIncident.count as jest.Mock).mock.calls[0][0];
+    expect(countCall.where.title).toEqual({ contains: 'fire', mode: 'insensitive' });
+  });
+
+  it('GET / pagination defaults page to 1', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET / pagination defaults limit to 20', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(20);
+  });
+
+  it('GET / pagination totalPages is computed', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(45);
+    const res = await request(app).get('/api/incidents?limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('POST / includes severity field when provided', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    mockPrisma.incIncident.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001', title: 'Fire', severity: 'MAJOR',
+    });
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({ title: 'Fire', dateOccurred: '2026-01-15T10:00:00Z', severity: 'MAJOR' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('severity', 'MAJOR');
+  });
+
+  it('POST / returns 400 for invalid severity value', async () => {
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({ title: 'Test', dateOccurred: '2026-01-15T10:00:00Z', severity: 'INVALID_SEVERITY' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT / updates status field', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001', status: 'CLOSED',
+    });
+    const res = await request(app)
+      .put('/api/incidents/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('CLOSED');
+  });
+
+  it('GET / response data is an array', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

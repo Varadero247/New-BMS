@@ -252,3 +252,108 @@ describe('traceability.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('traceability.api — edge cases and extended coverage', () => {
+  it('GET /api/traceability returns pagination metadata', async () => {
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(60);
+
+    const res = await request(app).get('/api/traceability?page=3&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toMatchObject({ page: 3, limit: 20, total: 60, totalPages: 3 });
+  });
+
+  it('GET /api/traceability filters by combined status and productName', async () => {
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(0);
+
+    await request(app).get('/api/traceability?status=DISTRIBUTED&productName=Butter');
+    expect(mockPrisma.fsTraceability.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          status: 'DISTRIBUTED',
+          productName: expect.objectContaining({ contains: 'Butter' }),
+        }),
+      })
+    );
+  });
+
+  it('POST /api/traceability rejects missing batchNumber', async () => {
+    const res = await request(app).post('/api/traceability').send({
+      productName: 'Test Product',
+      productionDate: '2026-01-15',
+      ingredients: [],
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/traceability/:id handles 500 on update', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsTraceability.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/traceability/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'RECALLED' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/traceability/:id returns confirmation message', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsTraceability.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).delete(
+      '/api/traceability/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('DELETE /api/traceability/:id handles 500 on update', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsTraceability.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete(
+      '/api/traceability/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/traceability/:id handles 500 on findFirst', async () => {
+    mockPrisma.fsTraceability.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/traceability/batch/:batchNumber returns correct batchNumber', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      productName: 'Yogurt',
+      batchNumber: 'YOG-2026-001',
+    });
+
+    const res = await request(app).get('/api/traceability/batch/YOG-2026-001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('productName', 'Yogurt');
+  });
+
+  it('GET /api/traceability returns empty list when no records match', async () => {
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/traceability?productName=NonExistent');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+});

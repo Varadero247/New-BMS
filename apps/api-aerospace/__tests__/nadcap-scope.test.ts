@@ -257,3 +257,115 @@ describe('PUT /api/nadcap-scope/:id', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ── Additional coverage ────────────────────────────────────────────────────
+
+describe('nadcap-scope — additional coverage', () => {
+  it('GET / returns pagination metadata', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mockResolvedValue([mockRecord, mockRecord]);
+    (mockPrisma.aeroNadcapScope.count as jest.Mock).mockResolvedValue(25);
+    const res = await request(app).get('/api/nadcap-scope?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(10);
+    expect(res.body.pagination.total).toBe(25);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET / respects combined supplierName and status filters', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.aeroNadcapScope.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/nadcap-scope?supplierName=Acme&status=VERIFIED_COMPLIANT');
+    expect(res.status).toBe(200);
+    const [call] = (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.supplierName).toBe('Acme');
+    expect(call[0].where.status).toBe('VERIFIED_COMPLIANT');
+  });
+
+  it('GET / returns empty array when no records match', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroNadcapScope.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/nadcap-scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+    expect(res.body.pagination.totalPages).toBe(0);
+  });
+
+  it('POST / accepts optional supplierCode and notes fields', async () => {
+    (mockPrisma.aeroNadcapScope.create as jest.Mock).mockResolvedValue({ ...mockRecord, supplierCode: 'ACME-001', notes: 'Annual review' });
+    const res = await request(app).post('/api/nadcap-scope').send({
+      supplierName: 'Acme Heat Treat',
+      supplierCode: 'ACME-001',
+      nadcapCertRef: 'NADCAP-2026-12345',
+      certExpiryDate: '2027-03-01',
+      commodityCodes: ['AC7102'],
+      commodityCodesRequired: ['AC7102'],
+      processDescription: 'Heat treatment',
+      verifiedBy: 'Jane Smith',
+      verificationDate: '2026-02-01',
+      notes: 'Annual review',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when processDescription is missing', async () => {
+    const res = await request(app).post('/api/nadcap-scope').send({
+      supplierName: 'Acme Heat Treat',
+      nadcapCertRef: 'NADCAP-2026-12345',
+      certExpiryDate: '2027-03-01',
+      commodityCodes: ['AC7102'],
+      commodityCodesRequired: ['AC7102'],
+      verifiedBy: 'Jane Smith',
+      verificationDate: '2026-02-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /gaps count returns 500 when second findMany fails', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockRejectedValueOnce(new Error('DB fail'));
+    const res = await request(app).get('/api/nadcap-scope/gaps');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (mockPrisma.aeroNadcapScope.findUnique as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/api/nadcap-scope/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id returns 500 on DB update error', async () => {
+    (mockPrisma.aeroNadcapScope.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+    (mockPrisma.aeroNadcapScope.update as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app)
+      .put('/api/nadcap-scope/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'EXPIRED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id sets status VERIFIED_COMPLIANT when no scope gaps remain', async () => {
+    (mockPrisma.aeroNadcapScope.findUnique as jest.Mock).mockResolvedValue({
+      ...mockRecord,
+      commodityCodes: ['AC7102'],
+      commodityCodesRequired: ['AC7102', 'AC7004'],
+    });
+    (mockPrisma.aeroNadcapScope.update as jest.Mock).mockResolvedValue({
+      ...mockRecord,
+      commodityCodes: ['AC7102', 'AC7004'],
+      commodityCodesRequired: ['AC7102', 'AC7004'],
+      scopeGaps: [],
+      status: 'VERIFIED_COMPLIANT',
+    });
+    const res = await request(app)
+      .put('/api/nadcap-scope/00000000-0000-0000-0000-000000000001')
+      .send({ commodityCodes: ['AC7102', 'AC7004'] });
+    expect(res.status).toBe(200);
+    const [call] = (mockPrisma.aeroNadcapScope.update as jest.Mock).mock.calls;
+    expect(call[0].data.scopeGaps).toEqual([]);
+  });
+});

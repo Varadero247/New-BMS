@@ -300,3 +300,119 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Extended coverage ───────────────────────────────────────────────────────
+
+describe('invoices.api — extended edge cases', () => {
+  it('GET / returns pagination metadata', async () => {
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', number: 'FSI-001', status: 'DRAFT', job: {}, customer: {} },
+    ]);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(8);
+
+    const res = await request(app).get('/api/invoices');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination.total).toBe(8);
+  });
+
+  it('GET / applies page and limit to query', async () => {
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(0);
+
+    await request(app).get('/api/invoices?page=2&limit=5');
+
+    expect(mockPrisma.fsSvcInvoice.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET / filters by jobId', async () => {
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(0);
+
+    await request(app).get('/api/invoices?jobId=00000000-0000-0000-0000-000000000001');
+
+    expect(mockPrisma.fsSvcInvoice.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ jobId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('PUT /:id/send returns 404 when invoice not found', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000099/send');
+
+    expect(res.status).toBe(404);
+  });
+
+  it('PUT /:id/pay returns 404 when invoice not found', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000099/pay');
+
+    expect(res.status).toBe(404);
+  });
+
+  it('PUT /:id/send returns 500 on DB error during update', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DRAFT',
+    });
+    mockPrisma.fsSvcInvoice.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000001/send');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns success:true', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002' });
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/invoices/00000000-0000-0000-0000-000000000002');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id/pay returns 500 on DB error during update', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      status: 'SENT',
+    });
+    mockPrisma.fsSvcInvoice.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000003/pay');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update rejects', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004' });
+    mockPrisma.fsSvcInvoice.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/invoices/00000000-0000-0000-0000-000000000004');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 400 when lineItems is missing', async () => {
+    const res = await request(app).post('/api/invoices').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      laborTotal: 100,
+      partsTotal: 0,
+      total: 100,
+      dueDate: '2026-03-01',
+    });
+
+    expect(res.status).toBe(400);
+  });
+});

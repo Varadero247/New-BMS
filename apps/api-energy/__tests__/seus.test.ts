@@ -281,3 +281,120 @@ describe('seus — additional coverage', () => {
     }
   });
 });
+
+describe('seus — extended coverage', () => {
+  it('GET /api/seus returns pagination metadata', async () => {
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'HVAC' },
+    ]);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(20);
+
+    const res = await request(app).get('/api/seus?page=1&limit=1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(20);
+  });
+
+  it('GET /api/seus filters by both priority and status', async () => {
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/seus?priority=MEDIUM&status=ANALYZED');
+
+    expect(prisma.energySeu.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          priority: 'MEDIUM',
+          status: 'ANALYZED',
+        }),
+      })
+    );
+  });
+
+  it('GET /api/seus/:id returns 500 when findFirst throws', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/seus/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/seus returns 500 when findMany throws', async () => {
+    (prisma.energySeu.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/seus');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/seus rejects missing unit field', async () => {
+    const res = await request(app).post('/api/seus').send({
+      name: 'Boiler',
+      consumptionPercentage: 20,
+      annualConsumption: 80000,
+      facility: 'Building B',
+      priority: 'MEDIUM',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/seus with facility field creates SEU successfully', async () => {
+    (prisma.energySeu.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      name: 'Compressor',
+      facility: 'Site B',
+      status: 'IDENTIFIED',
+    });
+
+    const res = await request(app).post('/api/seus').send({
+      name: 'Compressor',
+      consumptionPercentage: 15,
+      annualConsumption: 60000,
+      unit: 'kWh',
+      facility: 'Site B',
+      priority: 'LOW',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.name).toBe('Compressor');
+  });
+
+  it('GET /api/seus success field is true on 200', async () => {
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/seus');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/seus filters by facility when provided', async () => {
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/seus?facility=Building+A');
+
+    expect(prisma.energySeu.findMany).toHaveBeenCalled();
+  });
+
+  it('PUT /api/seus/:id allows updating facility field', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energySeu.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      facility: 'New Building',
+    });
+
+    const res = await request(app)
+      .put('/api/seus/00000000-0000-0000-0000-000000000001')
+      .send({ facility: 'New Building' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.facility).toBe('New Building');
+  });
+});

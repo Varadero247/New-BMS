@@ -212,3 +212,71 @@ describe('dashboard.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('PTW Dashboard — extended edge cases', () => {
+  it('500 when ptwMethodStatement.count rejects', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(5);
+    mockPrisma.ptwMethodStatement.count.mockRejectedValue(new Error('DB failure'));
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('500 when ptwToolboxTalk.count rejects', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(5);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(3);
+    mockPrisma.ptwToolboxTalk.count.mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('error body has error.code INTERNAL_ERROR on any count failure', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(1);
+    mockPrisma.ptwMethodStatement.count.mockRejectedValue(new Error('crash'));
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('count queries receive correct where clause with deletedAt null', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.ptwPermit.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('data.totalPermits equals mocked permit count value', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(42);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalPermits).toBe(42);
+  });
+
+  it('returns 404 for GET /api/dashboard/nonexistent-path', async () => {
+    const res = await request(app).get('/api/dashboard/nonexistent-path');
+    expect(res.status).toBe(404);
+  });
+
+  it('data object keys are exactly totalPermits, totalMethodStatements, totalToolboxTalks', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(1);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(1);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    const keys = Object.keys(res.body.data).sort();
+    expect(keys).toEqual(['totalMethodStatements', 'totalPermits', 'totalToolboxTalks']);
+  });
+
+  it('success field is boolean true on success', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.success).toStrictEqual(true);
+  });
+});

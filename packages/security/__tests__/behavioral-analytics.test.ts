@@ -210,3 +210,137 @@ describe('BehaviorProfileStore', () => {
     expect(p?.eventCount).toBeLessThanOrEqual(500);
   });
 });
+
+// ── Additional edge-case coverage ─────────────────────────────────────────────
+
+describe('buildProfile() — edge cases', () => {
+  it('excludes hours that appear only once out of 20 events (below 5%)', () => {
+    const events: ActivityEvent[] = [];
+    // 19 events at hour 10, 1 at hour 2 → 1/20 = 5% (≤5%, should be excluded since filter is > 0.05)
+    for (let i = 0; i < 19; i++) {
+      events.push(makeEvent({ timestamp: new Date(`2026-01-${String(i + 1).padStart(2, '0')}T10:00:00Z`) }));
+    }
+    events.push(makeEvent({ timestamp: new Date('2026-01-20T02:00:00Z') }));
+    const p = buildProfile('u-1', events);
+    expect(p.normalLoginHours).toContain(10);
+    expect(p.normalLoginHours).not.toContain(2);
+  });
+
+  it('handles single-event profiles with avgIntervalMs of 0', () => {
+    const p = buildProfile('u-1', [makeEvent()]);
+    expect(p.avgIntervalMs).toBe(0);
+  });
+
+  it('limits commonCountries to at most 3 entries', () => {
+    const events = [
+      ...bulkEvents(5, { geoCountry: 'GB' }),
+      ...bulkEvents(4, { geoCountry: 'US' }),
+      ...bulkEvents(3, { geoCountry: 'DE' }),
+      ...bulkEvents(2, { geoCountry: 'FR' }),
+    ];
+    const p = buildProfile('u-1', events);
+    expect(p.commonCountries.length).toBeLessThanOrEqual(3);
+  });
+
+  it('events without geoCountry do not appear in commonCountries', () => {
+    const events: ActivityEvent[] = [];
+    for (let i = 0; i < 10; i++) {
+      events.push(makeEvent({ geoCountry: undefined }));
+    }
+    const p = buildProfile('u-1', events);
+    expect(p.commonCountries).toHaveLength(0);
+  });
+
+  it('profile userId matches the provided userId', () => {
+    const p = buildProfile('user-xyz', bulkEvents(5));
+    expect(p.userId).toBe('user-xyz');
+  });
+
+  it('updatedAt is a Date instance', () => {
+    const p = buildProfile('u-1', bulkEvents(3));
+    expect(p.updatedAt).toBeInstanceOf(Date);
+  });
+});
+
+describe('detectAnomaly() — scoring thresholds', () => {
+  it('score of exactly 20 gives level medium', () => {
+    // Only unusual hour (score +20, no new country)
+    const events = bulkEvents(10, { geoCountry: 'GB' });
+    const p = buildProfile('u-1', events);
+    // Hour 3 is not in normalLoginHours (hour 9 is normal)
+    const event = makeEvent({ geoCountry: 'GB', timestamp: new Date('2026-02-01T03:00:00Z') });
+    const result = detectAnomaly(event, p);
+    expect(result.score).toBe(20);
+    expect(result.level).toBe('medium');
+  });
+
+  it('score of exactly 30 gives level medium', () => {
+    // Only new country (score +30)
+    const events = bulkEvents(10, { geoCountry: 'GB' });
+    const p = buildProfile('u-1', events);
+    const event = makeEvent({ geoCountry: 'AU', timestamp: new Date('2026-02-01T09:00:00Z') });
+    const result = detectAnomaly(event, p);
+    expect(result.score).toBe(30);
+    expect(result.level).toBe('medium');
+  });
+
+  it('score 0 gives level none when profile is sufficient', () => {
+    const events = bulkEvents(10, { geoCountry: 'GB' });
+    const p = buildProfile('u-1', events);
+    const event = makeEvent({ geoCountry: 'GB', timestamp: new Date('2026-02-01T09:00:00Z') });
+    const result = detectAnomaly(event, p);
+    expect(result.score).toBe(0);
+    expect(result.level).toBe('none');
+  });
+
+  it('reasons array is empty when score is 0', () => {
+    const events = bulkEvents(10, { geoCountry: 'GB' });
+    const p = buildProfile('u-1', events);
+    const event = makeEvent({ geoCountry: 'GB', timestamp: new Date('2026-02-01T09:00:00Z') });
+    const result = detectAnomaly(event, p);
+    expect(result.reasons).toHaveLength(0);
+  });
+
+  it('event from known country at normal hour produces no reasons', () => {
+    const events = bulkEvents(10, { geoCountry: 'US' });
+    const p = buildProfile('u-1', events);
+    const event = makeEvent({ geoCountry: 'US', timestamp: new Date('2026-02-01T09:00:00Z') });
+    const { reasons } = detectAnomaly(event, p);
+    expect(reasons).toHaveLength(0);
+  });
+
+  it('returns AnomalyResult shape with level, score, reasons', () => {
+    const events = bulkEvents(10, { geoCountry: 'GB' });
+    const p = buildProfile('u-1', events);
+    const result = detectAnomaly(makeEvent({ geoCountry: 'CN' }), p);
+    expect(result).toHaveProperty('level');
+    expect(result).toHaveProperty('score');
+    expect(result).toHaveProperty('reasons');
+    expect(Array.isArray(result.reasons)).toBe(true);
+  });
+});
+
+describe('BehaviorProfileStore — additional scenarios', () => {
+  let store: BehaviorProfileStore;
+
+  beforeEach(() => {
+    store = new BehaviorProfileStore();
+  });
+
+  it('supports independent profiles per user', () => {
+    for (let i = 0; i < 10; i++) {
+      store.record(makeEvent({ userId: 'alice', geoCountry: 'GB' }));
+      store.record(makeEvent({ userId: 'bob', geoCountry: 'AU' }));
+    }
+    expect(store.userCount).toBe(2);
+    expect(store.getProfile('alice')?.commonCountries).toContain('GB');
+    expect(store.getProfile('bob')?.commonCountries).toContain('AU');
+  });
+
+  it('evaluate() returns a valid AnomalyResult shape for new user', () => {
+    const result = store.evaluate(makeEvent({ userId: 'brand-new' }));
+    expect(['none', 'low', 'medium', 'high', 'critical']).toContain(result.level);
+    expect(typeof result.score).toBe('number');
+    expect(Array.isArray(result.reasons)).toBe(true);
+  });
+});

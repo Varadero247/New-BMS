@@ -278,3 +278,100 @@ describe('raci — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('RACI Routes — extended edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/raci returns pagination metadata', async () => {
+    (prisma.qualRaci.findMany as jest.Mock).mockResolvedValue([mockRaci]);
+    (prisma.qualRaci.count as jest.Mock).mockResolvedValue(5);
+    const res = await request(app).get('/api/raci?page=1&limit=2');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(5);
+  });
+
+  it('GET /api/raci filters by search keyword', async () => {
+    (prisma.qualRaci.findMany as jest.Mock).mockResolvedValue([mockRaci]);
+    (prisma.qualRaci.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/raci?search=Quality');
+    expect(res.status).toBe(200);
+    expect(prisma.qualRaci.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
+    );
+  });
+
+  it('GET /api/raci/matrix returns grouped matrix object', async () => {
+    (prisma.qualRaci.findMany as jest.Mock).mockResolvedValue([mockRaci, mockRaci2]);
+    const res = await request(app).get('/api/raci/matrix');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+    expect(typeof res.body.data).toBe('object');
+  });
+
+  it('GET /api/raci/matrix filters by processId', async () => {
+    (prisma.qualRaci.findMany as jest.Mock).mockResolvedValue([mockRaci]);
+    const res = await request(app).get('/api/raci/matrix?processId=proc-1');
+    expect(res.status).toBe(200);
+    expect(prisma.qualRaci.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ processId: 'proc-1' }) })
+    );
+  });
+
+  it('POST /api/raci returns 400 when raciType is invalid', async () => {
+    const res = await request(app).post('/api/raci').send({
+      processName: 'P1',
+      activityName: 'A1',
+      roleName: 'R1',
+      raciType: 'INVALID_TYPE',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/raci/:id returns 400 for invalid raciType in update', async () => {
+    const res = await request(app)
+      .put('/api/raci/00000000-0000-0000-0000-000000000001')
+      .send({ raciType: 'UNKNOWN' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/raci/:id sets deleted:true in response', async () => {
+    (prisma.qualRaci.findFirst as jest.Mock).mockResolvedValue(mockRaci);
+    (prisma.qualRaci.update as jest.Mock).mockResolvedValue({ ...mockRaci, deletedAt: new Date() });
+    const res = await request(app).delete('/api/raci/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('GET /api/raci/:id returns NOT_FOUND error code on 404', async () => {
+    (prisma.qualRaci.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/raci/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/raci returns INTERNAL_ERROR code on 500', async () => {
+    (prisma.qualRaci.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/raci');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/raci creates with ACCOUNTABLE type', async () => {
+    (prisma.qualRaci.count as jest.Mock).mockResolvedValue(0);
+    (prisma.qualRaci.create as jest.Mock).mockResolvedValue({ ...mockRaci2 });
+    const res = await request(app).post('/api/raci').send({
+      processName: 'Document Control',
+      activityName: 'Document Approval',
+      roleName: 'Department Head',
+      raciType: 'ACCOUNTABLE',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.raciType).toBe('ACCOUNTABLE');
+  });
+});

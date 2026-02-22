@@ -301,3 +301,144 @@ describe('targets — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('targets — extended coverage', () => {
+  it('GET /api/targets returns pagination metadata', async () => {
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: '10% Reduction' },
+    ]);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(12);
+
+    const res = await request(app).get('/api/targets?page=1&limit=1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(12);
+  });
+
+  it('GET /api/targets filters by both year and metricType', async () => {
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/targets?year=2026&metricType=COST');
+
+    expect(prisma.energyTarget.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          year: 2026,
+          metricType: 'COST',
+        }),
+      })
+    );
+  });
+
+  it('GET /api/targets/:id returns 500 when findFirst throws', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/targets/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/targets/:id returns 500 when update throws', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyTarget.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/targets/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/targets/:id returns 500 when update throws', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyTarget.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/targets/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/targets/:id/progress returns 500 when findFirst throws', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get(
+      '/api/targets/00000000-0000-0000-0000-000000000001/progress'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/targets success field is true on 200', async () => {
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/targets');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/targets creates target with valid baseline', async () => {
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyTarget.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      name: 'Carbon Reduction',
+      status: 'ON_TRACK',
+    });
+
+    const res = await request(app).post('/api/targets').send({
+      name: 'Carbon Reduction',
+      metricType: 'EMISSIONS',
+      year: 2026,
+      targetValue: 1000,
+      unit: 'tCO2e',
+      baselineId: '00000000-0000-0000-0000-000000000001',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.name).toBe('Carbon Reduction');
+  });
+
+  it('GET /api/targets/:id/progress calculates progress as percentage of target', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      targetValue: 40000,
+      actualValue: 20000,
+      status: 'ON_TRACK',
+      baseline: { id: 'b1', name: 'Baseline', totalConsumption: 50000 },
+    });
+
+    const res = await request(app).get(
+      '/api/targets/00000000-0000-0000-0000-000000000001/progress'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.progress).toBe(50);
+    expect(res.body.data.target).toBe(40000);
+    expect(res.body.data.actual).toBe(20000);
+  });
+
+  it('GET /api/targets filters by status when provided', async () => {
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/targets?status=ACHIEVED');
+
+    expect(prisma.energyTarget.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'ACHIEVED' }),
+      })
+    );
+  });
+});

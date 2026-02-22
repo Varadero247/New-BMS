@@ -278,3 +278,113 @@ describe('GDPR Monitor — additional coverage', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ===================================================================
+// GDPR Monitor — extended job behaviour and route edge cases
+// ===================================================================
+describe('GDPR Monitor — extended job behaviour and route edge cases', () => {
+  it('runGdprMonitorJob processes multiple overdue categories', async () => {
+    const oldDate = new Date();
+    oldDate.setDate(oldDate.getDate() - 400);
+
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
+      { id: 'cat-a', category: 'Log Data', retentionDays: 365, complianceStatus: 'COMPLIANT', createdAt: oldDate },
+      { id: 'cat-b', category: 'Session Data', retentionDays: 180, complianceStatus: 'COMPLIANT', createdAt: oldDate },
+    ]);
+    (prisma.gdprDataCategory.update as jest.Mock).mockResolvedValue({});
+
+    await runGdprMonitorJob();
+
+    expect(prisma.gdprDataCategory.update).toHaveBeenCalledTimes(2);
+  });
+
+  it('runGdprMonitorJob skips categories already marked AT_RISK', async () => {
+    const oldDate = new Date();
+    oldDate.setDate(oldDate.getDate() - 400);
+
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
+      { id: 'cat-ar', category: 'Old Logs', retentionDays: 365, complianceStatus: 'AT_RISK', createdAt: oldDate },
+    ]);
+    (prisma.gdprDataCategory.update as jest.Mock).mockResolvedValue({});
+
+    await runGdprMonitorJob();
+
+    expect(prisma.gdprDataCategory.update).not.toHaveBeenCalled();
+  });
+
+  it('runGdprMonitorJob skips categories with missing retentionDays', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
+      { id: 'cat-nr', category: 'No Retention', retentionDays: null, complianceStatus: 'COMPLIANT', createdAt: new Date() },
+    ]);
+    (prisma.gdprDataCategory.update as jest.Mock).mockResolvedValue({});
+
+    await runGdprMonitorJob();
+
+    expect(prisma.gdprDataCategory.update).not.toHaveBeenCalled();
+  });
+
+  it('runGdprMonitorJob throws and propagates DB errors', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    await expect(runGdprMonitorJob()).rejects.toThrow('DB down');
+  });
+
+  it('GET /gdpr/report has a requestStats object with total field', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataProcessingAgreement.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([
+      { id: 'dr-1', status: 'COMPLETED' },
+    ]);
+
+    const res = await request(app).get('/api/gdpr/report');
+    expect(res.status).toBe(200);
+    expect(res.body.data.requestStats).toHaveProperty('total', 1);
+  });
+
+  it('GET /gdpr/report has a categories array in data', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
+      { id: 'cat-1', category: 'PII', complianceStatus: 'COMPLIANT' },
+    ]);
+    (prisma.dataProcessingAgreement.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/gdpr/report');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.categories)).toBe(true);
+    expect(res.body.data.categories).toHaveLength(1);
+  });
+
+  it('POST /gdpr/categories with VITAL_INTERESTS legalBasis creates successfully', async () => {
+    (prisma.gdprDataCategory.create as jest.Mock).mockResolvedValue({
+      id: 'cat-vi',
+      category: 'Health Records',
+      legalBasis: 'VITAL_INTERESTS',
+    });
+
+    const res = await request(app)
+      .post('/api/gdpr/categories')
+      .send({ category: 'Health Records', legalBasis: 'VITAL_INTERESTS' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.category.legalBasis).toBe('VITAL_INTERESTS');
+  });
+
+  it('GET /gdpr/dpas returns success:true with populated dpas', async () => {
+    (prisma.dataProcessingAgreement.findMany as jest.Mock).mockResolvedValue([
+      { id: 'dpa-1', processorName: 'Salesforce', purpose: 'CRM', isActive: true },
+      { id: 'dpa-2', processorName: 'Segment', purpose: 'Analytics', isActive: false },
+    ]);
+
+    const res = await request(app).get('/api/gdpr/dpas');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.dpas).toHaveLength(2);
+  });
+
+  it('runGdprMonitorJob processes an empty categories list without error', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([]);
+
+    await expect(runGdprMonitorJob()).resolves.not.toThrow();
+    expect(prisma.gdprDataCategory.update).not.toHaveBeenCalled();
+  });
+});

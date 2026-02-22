@@ -243,3 +243,94 @@ describe('records.api — additional coverage', () => {
     }
   });
 });
+
+describe('Training Records — extended edge cases', () => {
+  it('GET /api/records returns pagination object with page and limit', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/records?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /api/records returns multiple records correctly', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Fire Safety' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'First Aid' },
+    ]);
+    mockPrisma.trainRecord.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/records');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.pagination.total).toBe(2);
+  });
+
+  it('GET /api/records/:id returns data with correct id', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      title: 'ISO 9001 Training',
+      status: 'COMPLETED',
+    });
+    const res = await request(app).get('/api/records/00000000-0000-0000-0000-000000000005');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000005');
+  });
+
+  it('POST /api/records generates a referenceNumber', async () => {
+    mockPrisma.trainRecord.count.mockResolvedValue(3);
+    mockPrisma.trainRecord.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      title: 'New Record',
+      referenceNumber: 'TRN-2026-0004',
+    });
+    const res = await request(app)
+      .post('/api/records')
+      .send({ courseId: 'course-1', employeeId: 'emp-2' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toBeDefined();
+  });
+
+  it('PUT /api/records/:id responds with updated data', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainRecord.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+      score: 95,
+    });
+    const res = await request(app)
+      .put('/api/records/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED', score: 95 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/records/:id returns message in response', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainRecord.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/records/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/records filters by courseId query param', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/records?courseId=course-99');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/records count is called exactly once', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    await request(app).get('/api/records');
+    expect(mockPrisma.trainRecord.count).toHaveBeenCalledTimes(1);
+  });
+});

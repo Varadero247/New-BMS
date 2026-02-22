@@ -295,3 +295,111 @@ describe('wardens — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('wardens — extended edge cases', () => {
+  it('POST /api/wardens/premises/:id returns 500 when create fails', async () => {
+    mockWarden.create.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send(validCreateBody);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('creates warden with ASSEMBLY_POINT_WARDEN role', async () => {
+    const apWarden = { ...fakeWarden, icsRole: 'ASSEMBLY_POINT_WARDEN' };
+    mockWarden.create.mockResolvedValue(apWarden);
+
+    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send({
+      name: 'Carol Davis',
+      icsRole: 'ASSEMBLY_POINT_WARDEN',
+      areaResponsible: 'Car Park A',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.icsRole).toBe('ASSEMBLY_POINT_WARDEN');
+  });
+
+  it('creates warden with FIRST_AIDER role', async () => {
+    const firstAiderWarden = { ...fakeWarden, icsRole: 'FIRST_AIDER' };
+    mockWarden.create.mockResolvedValue(firstAiderWarden);
+
+    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send({
+      name: 'Dan Moore',
+      icsRole: 'FIRST_AIDER',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.icsRole).toBe('FIRST_AIDER');
+  });
+
+  it('creates warden with SAFETY_OFFICER role', async () => {
+    const safetyWarden = { ...fakeWarden, icsRole: 'SAFETY_OFFICER' };
+    mockWarden.create.mockResolvedValue(safetyWarden);
+
+    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send({
+      name: 'Eve Williams',
+      icsRole: 'SAFETY_OFFICER',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.icsRole).toBe('SAFETY_OFFICER');
+  });
+
+  it('training-expiring returns multiple wardens', async () => {
+    const expiring = [
+      { ...fakeWarden, trainingExpiryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), premises: { name: 'HQ' } },
+      { ...fakeWarden, id: '00000000-0000-0000-0000-000000000003', name: 'Bob Smith', trainingExpiryDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(), premises: { name: 'Site B' } },
+    ];
+    mockWarden.findMany.mockResolvedValue(expiring);
+
+    const res = await request(app).get('/api/wardens/training-expiring');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('PUT /api/wardens/:id deactivates a warden', async () => {
+    const deactivated = { ...fakeWarden, isActive: false };
+    mockWarden.findFirst.mockResolvedValue(fakeWarden);
+    mockWarden.update.mockResolvedValue(deactivated);
+
+    const res = await request(app).put(`/api/wardens/${WARDEN_ID}`).send({ isActive: false });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('creates warden with deputy information', async () => {
+    const withDeputy = { ...fakeWarden, deputyName: 'Frank Black', deputyPhone: '07700900001' };
+    mockWarden.create.mockResolvedValue(withDeputy);
+
+    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send({
+      ...validCreateBody,
+      deputyName: 'Frank Black',
+      deputyPhone: '07700900001',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.deputyName).toBe('Frank Black');
+  });
+
+  it('premises wardens endpoint returns success true and data array', async () => {
+    mockWarden.findMany.mockResolvedValue([fakeWarden]);
+
+    const res = await request(app).get(`/api/wardens/premises/${PREMISES_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('returns 400 when areaResponsible is provided without icsRole on create', async () => {
+    const res = await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send({
+      name: 'Test Person',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

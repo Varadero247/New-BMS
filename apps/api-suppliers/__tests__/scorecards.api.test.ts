@@ -219,3 +219,109 @@ describe('scorecards.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('scorecards.api — edge cases and extended coverage', () => {
+  it('GET /api/scorecards supports pagination query params', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/scorecards?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET /api/scorecards supports status filter', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/scorecards?status=COMPLETED');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/scorecards supports search filter', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/scorecards?search=SSC-2026');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/scorecards pagination includes totalPages', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(40);
+    const res = await request(app).get('/api/scorecards?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('POST /api/scorecards returns 400 when supplierId is missing', async () => {
+    const res = await request(app).post('/api/scorecards').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/scorecards returns 400 when quality score exceeds 100', async () => {
+    const res = await request(app).post('/api/scorecards').send({
+      supplierId: 'sup-1',
+      quality: 150,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/scorecards with valid status DRAFT creates successfully', async () => {
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      supplierId: 'sup-1',
+      status: 'DRAFT',
+    });
+    const res = await request(app).post('/api/scorecards').send({
+      supplierId: 'sup-1',
+      status: 'DRAFT',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/scorecards/:id returns success message', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.suppScorecard.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/scorecards/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('scorecard deleted successfully');
+  });
+
+  it('GET /api/scorecards returns data as array', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001' },
+      { id: '00000000-0000-0000-0000-000000000002' },
+    ]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/scorecards');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('PUT /api/scorecards/:id with valid status IN_REVIEW succeeds', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.suppScorecard.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'IN_REVIEW',
+    });
+    const res = await request(app)
+      .put('/api/scorecards/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'IN_REVIEW' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

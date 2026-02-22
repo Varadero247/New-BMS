@@ -198,3 +198,73 @@ describe('ISO 27001:2022 A.5.7 Threat Intelligence Routes', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('Threat Intelligence — edge cases and deeper coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / pagination object has totalPages field', async () => {
+    prisma.isThreatIntelligence.findMany.mockResolvedValue([mockTI, mockTI]);
+    prisma.isThreatIntelligence.count.mockResolvedValue(2);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET / pagination object has page field', async () => {
+    prisma.isThreatIntelligence.findMany.mockResolvedValue([]);
+    prisma.isThreatIntelligence.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('GET / filters by status query param', async () => {
+    prisma.isThreatIntelligence.findMany.mockResolvedValue([]);
+    prisma.isThreatIntelligence.count.mockResolvedValue(0);
+    const res = await request(app).get('/?status=EXPIRED');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST / returns 400 when source is missing', async () => {
+    const { source: _s, ...body } = tiPayload;
+    const res = await request(app).post('/').send(body);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 when reportedBy is missing', async () => {
+    const { reportedBy: _r, ...body } = tiPayload;
+    const res = await request(app).post('/').send(body);
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / returns 400 when threatType is invalid', async () => {
+    const res = await request(app).post('/').send({ ...tiPayload, threatType: 'UNKNOWN_TYPE' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /summary returns 500 on DB error', async () => {
+    prisma.isThreatIntelligence.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/summary');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id returns 500 on DB error during update', async () => {
+    prisma.isThreatIntelligence.findUnique.mockResolvedValue(mockTI);
+    prisma.isThreatIntelligence.update.mockRejectedValue(new Error('update fail'));
+    const res = await request(app).put('/ti-1').send({ status: 'ARCHIVED' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    prisma.isThreatIntelligence.findUnique.mockRejectedValue(new Error('db error'));
+    const res = await request(app).get('/ti-1');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST / accepts TECHNICAL category', async () => {
+    prisma.isThreatIntelligence.create.mockResolvedValue({ ...mockTI, category: 'TECHNICAL' });
+    const res = await request(app).post('/').send({ ...tiPayload, category: 'TECHNICAL' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

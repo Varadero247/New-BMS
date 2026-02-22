@@ -643,3 +643,175 @@ describe('analyze.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+// ── analyze.api — edge cases and extended paths ───────────────────────────
+
+describe('analyze.api — edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyze', analyzeRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('POST /api/analyze returns 400 for missing context field', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES' }); // no context
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/analyze returns 502 when fetch rejects with network error', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockRejectedValueOnce(new Error('ECONNREFUSED'));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'Network test' } });
+    expect([500, 502]).toContain(res.status);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/analyze returns 200 for WBS_GENERATION type', async () => {
+    const wbsResult = {
+      projectName: 'IMS Migration',
+      level1: 'Project Management',
+      level2_1: 'Planning',
+      level2_2: 'Execution',
+      level3_1: 'Requirements Gathering',
+      totalWorkPackages: 12,
+    };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: JSON.stringify(wbsResult) } }],
+        usage: { total_tokens: 80 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'WBS_GENERATION', context: { projectName: 'IMS Migration', projectType: 'Software' } });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.type).toBe('WBS_GENERATION');
+  });
+
+  it('POST /api/analyze sends correct model name to OpenAI in request body', async () => {
+    const legalRefs = [{ regulation: 'HSWA 1974', section: 'S2', relevance: 'Duty' }];
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: JSON.stringify(legalRefs) } }],
+        usage: { total_tokens: 50 },
+      }),
+    });
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'Model test' } });
+    const fetchCall = mockFetch.mock.calls[0];
+    const body = JSON.parse(fetchCall[1].body);
+    expect(body.model).toBe('gpt-4');
+  });
+
+  it('POST /api/analyze updates lastUsedAt timestamp after call', async () => {
+    const legalRefs = [{ regulation: 'HSWA 1974', section: 'S2', relevance: 'Duty' }];
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: JSON.stringify(legalRefs) } }],
+        usage: { total_tokens: 50 },
+      }),
+    });
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'Timestamp test' } });
+    expect(mockPrisma.aISettings.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ lastUsedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST /api/analyze returns 200 for EVM_ANALYSIS type', async () => {
+    const evmResult = {
+      spi: 0.95,
+      cpi: 1.02,
+      eac: 520000,
+      etc: 70000,
+      statusSummary: 'Slightly behind schedule but within budget',
+    };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: JSON.stringify(evmResult) } }],
+        usage: { total_tokens: 120 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'EVM_ANALYSIS', context: { bac: 500000, ac: 450000, ev: 420000, pv: 440000 } });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.type).toBe('EVM_ANALYSIS');
+  });
+
+  it('POST /api/analyze returns 502 on JSON parse error for LEGAL_REFERENCES', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'no json here whatsoever plain text' } }],
+        usage: { total_tokens: 10 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'Parse test' } });
+    expect(res.status).toBe(502);
+    expect(res.body.error.code).toBe('PARSE_ERROR');
+  });
+
+  it('POST /api/analyze returns 401 without Authorization header', async () => {
+    const res = await request(app)
+      .post('/api/analyze')
+      .send({ type: 'LEGAL_REFERENCES', context: {} });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('POST /api/analyze returns 502 PARSE_ERROR for SPRINT_PLANNING with unparseable AI response', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'not valid json plain text for sprint' } }],
+        usage: { total_tokens: 30 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'SPRINT_PLANNING', context: { teamCapacity: 50, sprintDuration: 14, velocity: 40 } });
+    expect(res.status).toBe(502);
+    expect(res.body.error.code).toBe('PARSE_ERROR');
+  });
+});

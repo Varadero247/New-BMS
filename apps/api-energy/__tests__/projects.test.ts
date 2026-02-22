@@ -315,3 +315,122 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('projects — extended coverage', () => {
+  it('GET /api/projects returns pagination metadata', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'LED Upgrade' },
+    ]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(10);
+
+    const res = await request(app).get('/api/projects?page=1&limit=1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(10);
+  });
+
+  it('GET /api/projects/:id returns 500 when findFirst throws', async () => {
+    (prisma.energyProject.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/projects/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/projects/:id returns 500 when update throws', async () => {
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyProject.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/projects/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/projects/:id returns 500 when update throws', async () => {
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyProject.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/projects/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/projects/:id/complete returns 500 when update throws', async () => {
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'IN_PROGRESS',
+      investmentCost: 10000,
+      estimatedSavings: 15000,
+    });
+    (prisma.energyProject.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/projects/00000000-0000-0000-0000-000000000001/complete')
+      .send({ actualSavings: 12000 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/projects/roi-summary returns 500 when findMany throws', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/projects/roi-summary');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/projects success field is true on 200', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/projects');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/projects filters by both type and status simultaneously', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/projects?type=RENEWABLE&status=PROPOSED');
+
+    expect(prisma.energyProject.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          type: 'RENEWABLE',
+          status: 'PROPOSED',
+        }),
+      })
+    );
+  });
+
+  it('GET /api/projects/roi-summary overallROI is non-negative when savings > investment', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        status: 'COMPLETED',
+        investmentCost: 10000,
+        estimatedSavings: 20000,
+        actualSavings: 18000,
+        paybackMonths: 6,
+      },
+    ]);
+
+    const res = await request(app).get('/api/projects/roi-summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.overallROI).toBeGreaterThan(0);
+  });
+});

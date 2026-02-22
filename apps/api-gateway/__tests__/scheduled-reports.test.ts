@@ -269,3 +269,92 @@ describe('Scheduled Reports — additional coverage', () => {
     expect(res.body.data).toHaveProperty('id', '00000000-0000-0000-0000-000000000001');
   });
 });
+
+describe('Scheduled Reports — error paths and edge cases', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/reports', scheduledReportsRouter);
+    jest.clearAllMocks();
+    mockListSchedules.mockReturnValue([]);
+    mockGetSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
+    mockUpdateSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    mockDeleteSchedule.mockReturnValue(true);
+    mockRunScheduleNow.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', lastRunAt: new Date().toISOString() });
+    mockCreateSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test', reportType: 'quality_objectives', schedule: '0 8 * * 1' });
+  });
+
+  it('GET /schedules returns meta.total field', async () => {
+    mockListSchedules.mockReturnValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
+    const res = await request(app).get('/api/admin/reports/schedules');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('total');
+  });
+
+  it('PUT /schedules/:id returns 404 when schedule not found', async () => {
+    mockUpdateSchedule.mockReturnValueOnce(undefined);
+    const res = await request(app)
+      .put('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Ghost' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE /schedules/:id returns 404 when schedule not found', async () => {
+    mockDeleteSchedule.mockReturnValueOnce(false);
+    const res = await request(app).delete('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /schedules/:id/run returns 404 when schedule not found', async () => {
+    mockRunScheduleNow.mockReturnValueOnce(undefined);
+    const res = await request(app).post('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000099/run');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /schedules rejects invalid format value', async () => {
+    const res = await request(app)
+      .post('/api/admin/reports/schedules')
+      .send({ name: 'Test', reportType: 'quality_objectives', schedule: '0 8 * * 1', recipients: ['a@b.com'], format: 'docx' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /schedules returns success true even when list is empty', async () => {
+    mockListSchedules.mockReturnValue([]);
+    const res = await request(app).get('/api/admin/reports/schedules');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('run now response data has message field', async () => {
+    const res = await request(app).post('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001/run');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('DELETE /schedules/:id response data has deleted true', async () => {
+    const res = await request(app).delete('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('deleted', true);
+  });
+
+  it('GET /types returns data with value and label on each entry', async () => {
+    const res = await request(app).get('/api/admin/reports/types');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('value');
+    expect(res.body.data[0]).toHaveProperty('label');
+  });
+
+  it('POST /schedules accepts format excel', async () => {
+    const res = await request(app)
+      .post('/api/admin/reports/schedules')
+      .send({ name: 'Excel Report', reportType: 'quality_objectives', schedule: '0 8 * * 1', recipients: ['a@b.com'], format: 'excel' });
+    expect(res.status).toBe(201);
+  });
+});

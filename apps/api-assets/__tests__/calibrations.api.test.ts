@@ -247,3 +247,99 @@ describe('calibrations.api — additional coverage', () => {
     }
   });
 });
+
+describe('Calibrations API — extended edge cases', () => {
+  it('GET / pagination has totalPages field', async () => {
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/calibrations');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET / with page=2 and limit=5 reflects correct pagination values', async () => {
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/calibrations?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET / pagination total matches mocked count', async () => {
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/calibrations');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('POST / creates calibration with technician and standard fields', async () => {
+    mockPrisma.assetCalibration.count.mockResolvedValue(2);
+    mockPrisma.assetCalibration.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000011',
+      referenceNumber: 'ACL-2026-0003',
+    });
+    const res = await request(app).post('/api/calibrations').send({
+      assetId: '00000000-0000-0000-0000-000000000001',
+      scheduledDate: '2026-06-01',
+      technician: 'John Doe',
+      standard: 'ISO 17025',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when scheduledDate is invalid', async () => {
+    const res = await request(app).post('/api/calibrations').send({
+      assetId: '00000000-0000-0000-0000-000000000001',
+      scheduledDate: 'not-a-date',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE / data.message confirms deletion', async () => {
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetCalibration.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('PUT /:id returns 500 when findFirst throws', async () => {
+    mockPrisma.assetCalibration.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/calibrations/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'PASSED' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id returns 500 on database error', async () => {
+    mockPrisma.assetCalibration.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/calibrations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', referenceNumber: 'ACL-2026-0001' },
+    ]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/calibrations');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / with FAILED status filter returns 200', async () => {
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/calibrations?status=FAILED');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

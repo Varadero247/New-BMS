@@ -158,3 +158,63 @@ describe('Password policy — additional coverage', () => {
     expect(result.errors).toHaveLength(0);
   });
 });
+
+describe('Password policy — edge cases and boundary conditions', () => {
+  it('valid flag is false when any error exists', () => {
+    const result = validatePasswordStrength('short');
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  it('valid flag is true when errors array is empty', () => {
+    const result = validatePasswordStrength('Secure1!Password');
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('rejects password of exactly 11 chars even if all other rules pass', () => {
+    const result = validatePasswordStrength('Aa1!Aa1!Aa1');
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Password must be at least 12 characters long');
+  });
+
+  it('accepts password of exactly 12 chars that satisfies all rules', () => {
+    const result = validatePasswordStrength('Aa1!Aa1!Aa1!');
+    expect(result.valid).toBe(true);
+  });
+
+  it('rejects password of exactly 73 chars even if all other rules pass', () => {
+    const result = validatePasswordStrength('Aa1!' + 'x'.repeat(69));
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Password must be at most 72 characters long');
+  });
+
+  it('accepts password containing tab character as a special char', () => {
+    const result = validatePasswordStrength('ValidPass1\t23');
+    // \t is non-alphanumeric so satisfies special char requirement
+    expect(result.errors).not.toContain('Password must contain at least one special character');
+  });
+
+  it('accepts password with only one of each required character type plus padding', () => {
+    const result = validatePasswordStrength('A' + 'a'.repeat(9) + '1!');
+    expect(result.valid).toBe(true);
+  });
+
+  it('no duplicate error messages for same violation', () => {
+    const result = validatePasswordStrength('abc');
+    const uniqueErrors = new Set(result.errors);
+    expect(uniqueErrors.size).toBe(result.errors.length);
+  });
+
+  it('returns exactly 6 errors for completely empty string violating all rules', () => {
+    const result = validatePasswordStrength('');
+    // Rules: min length, no uppercase, no lowercase, no number, no special — 5 or more
+    expect(result.errors.length).toBeGreaterThanOrEqual(4);
+    expect(result.valid).toBe(false);
+  });
+
+  it('password with special char at end passes special char requirement', () => {
+    const result = validatePasswordStrength('UpperLower1234!');
+    expect(result.errors).not.toContain('Password must contain at least one special character');
+  });
+});

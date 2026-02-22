@@ -307,3 +307,94 @@ describe('WebSocketNotificationServer — stop', () => {
     expect(() => server.stop()).not.toThrow();
   });
 });
+
+// ── Additional edge cases ──────────────────────────────────────────────────────
+
+describe('WebSocketNotificationServer — notification payload structure', () => {
+  it('notification payload wraps data with type=notification', () => {
+    const ws = makeMockWs('carol');
+    const server = buildServer({ carol: [ws] });
+    const n = makeNotification({ id: 'payload-test', type: 'ALERT', severity: 'HIGH' });
+    server.sendToUser('carol', n);
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.type).toBe('notification');
+    expect(payload.data.type).toBe('ALERT');
+    expect(payload.data.severity).toBe('HIGH');
+  });
+
+  it('sendToUser with CONNECTING readyState does not send', () => {
+    const connectingWs = makeMockWs('dave', { readyState: WebSocket.CONNECTING });
+    const server = buildServer({ dave: [connectingWs] });
+    server.sendToUser('dave', makeNotification());
+    expect(connectingWs.send).not.toHaveBeenCalled();
+  });
+
+  it('broadcast notification payload has correct data.title', () => {
+    const ws = makeMockWs('u1');
+    const mockWss = { clients: new Set([ws]) };
+    const server = buildServer({});
+    (server as unknown as { wss: unknown }).wss = mockWss;
+    server.broadcast(makeNotification({ title: 'My Title' }));
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.data.title).toBe('My Title');
+  });
+
+  it('broadcastToOrg does not send to client with no orgId', () => {
+    const wsNoOrg = makeMockWs('u1'); // orgId is undefined
+    const mockWss = { clients: new Set([wsNoOrg]) };
+    const server = buildServer({});
+    (server as unknown as { wss: unknown }).wss = mockWss;
+    server.broadcastToOrg('acme', makeNotification());
+    expect(wsNoOrg.send).not.toHaveBeenCalled();
+  });
+
+  it('getConnectionCount returns sum of sockets across three users', () => {
+    const server = buildServer({
+      u1: [makeMockWs('u1'), makeMockWs('u1')],
+      u2: [makeMockWs('u2')],
+      u3: [makeMockWs('u3'), makeMockWs('u3'), makeMockWs('u3')],
+    });
+    expect(server.getConnectionCount()).toBe(6);
+  });
+
+  it('getConnectedUsers returns unique user IDs only', () => {
+    const server = buildServer({
+      alice: [makeMockWs('alice'), makeMockWs('alice')],
+      bob: [makeMockWs('bob')],
+    });
+    const users = server.getConnectedUsers();
+    expect(users).toHaveLength(2);
+    expect(new Set(users).size).toBe(2);
+  });
+
+  it('stop with no heartbeat interval does not throw', () => {
+    const server = buildServer({});
+    (server as unknown as { heartbeatInterval: unknown }).heartbeatInterval = null;
+    (server as unknown as { wss: unknown }).wss = null;
+    expect(() => server.stop()).not.toThrow();
+  });
+
+  it('sendToUser sends JSON-parseable string', () => {
+    const ws = makeMockWs('eve');
+    const server = buildServer({ eve: [ws] });
+    server.sendToUser('eve', makeNotification({ id: 'json-check' }));
+    expect(() => JSON.parse(ws.send.mock.calls[0][0] as string)).not.toThrow();
+  });
+
+  it('makeNotification defaults to read=false', () => {
+    const n = makeNotification();
+    expect(n.read).toBe(false);
+  });
+
+  it('broadcast sends to exactly N open clients', () => {
+    const ws1 = makeMockWs('u1');
+    const ws2 = makeMockWs('u2');
+    const ws3 = makeMockWs('u3', { readyState: WebSocket.CLOSING });
+    const mockWss = { clients: new Set([ws1, ws2, ws3]) };
+    const server = buildServer({});
+    (server as unknown as { wss: unknown }).wss = mockWss;
+    server.broadcast(makeNotification());
+    const sentCount = [ws1, ws2, ws3].filter((w) => w.send.mock.calls.length > 0).length;
+    expect(sentCount).toBe(2);
+  });
+});

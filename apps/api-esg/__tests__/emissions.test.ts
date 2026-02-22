@@ -302,3 +302,106 @@ describe('emissions — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+// ─── Extended edge cases ────────────────────────────────────────────────────
+
+describe('emissions — extended edge cases', () => {
+  it('GET / filters by category using contains', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEmission.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/emissions?category=Combustion');
+    expect(res.status).toBe(200);
+    expect(prisma.esgEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          category: expect.objectContaining({ contains: 'Combustion' }),
+        }),
+      })
+    );
+  });
+
+  it('GET / filters by periodStart and periodEnd', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEmission.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/emissions?periodStart=2026-01-01&periodEnd=2026-12-31');
+    expect(res.status).toBe(200);
+    expect(prisma.esgEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          periodStart: expect.objectContaining({ gte: expect.any(Date) }),
+          periodEnd: expect.objectContaining({ lte: expect.any(Date) }),
+        }),
+      })
+    );
+  });
+
+  it('POST / creates SCOPE_2 emission successfully', async () => {
+    (prisma.esgEmission.create as jest.Mock).mockResolvedValue({ ...mockEmission, scope: 'SCOPE_2' });
+    const res = await request(app).post('/api/emissions').send({
+      scope: 'SCOPE_2',
+      category: 'Purchased Electricity',
+      source: 'Grid',
+      quantity: 500,
+      unit: 'kWh',
+      co2Equivalent: 115,
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / creates SCOPE_3 emission successfully', async () => {
+    (prisma.esgEmission.create as jest.Mock).mockResolvedValue({ ...mockEmission, scope: 'SCOPE_3' });
+    const res = await request(app).post('/api/emissions').send({
+      scope: 'SCOPE_3',
+      category: 'Business Travel',
+      source: 'Flights',
+      quantity: 200,
+      unit: 'km',
+      co2Equivalent: 51,
+      periodStart: '2026-02-01',
+      periodEnd: '2026-02-28',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /summary returns count field', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([mockEmission]);
+    const res = await request(app).get('/api/emissions/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('count');
+    expect(res.body.data.count).toBe(1);
+  });
+
+  it('GET /summary returns 500 on DB error', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/emissions/summary');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /trend returns 500 on DB error', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/emissions/trend?year=2026');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when findFirst fails', async () => {
+    (prisma.esgEmission.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/emissions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when findFirst fails', async () => {
+    (prisma.esgEmission.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/emissions/00000000-0000-0000-0000-000000000001')
+      .send({ quantity: 999 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

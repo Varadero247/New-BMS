@@ -242,3 +242,91 @@ describe('tasks — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('tasks — error paths and pagination', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tasks', tasksRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/tasks returns 500 when getTasks rejects', async () => {
+    mockGetTasks.mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app).get('/api/tasks');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/tasks/my-tasks returns 500 when getMyTasks rejects', async () => {
+    mockGetMyTasks.mockRejectedValueOnce(new Error('store unavailable'));
+    const res = await request(app).get('/api/tasks/my-tasks');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/tasks returns 500 when createTask rejects', async () => {
+    mockCreateTask.mockRejectedValueOnce(new Error('write failure'));
+    const res = await request(app).post('/api/tasks').send({
+      title: 'Failing task',
+      assigneeId: 'user-2',
+      assigneeName: 'John',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /api/tasks/:id/complete returns 404 when task not found', async () => {
+    mockCompleteTask.mockRejectedValueOnce(new Error('Task not found'));
+    const res = await request(app).patch('/api/tasks/00000000-0000-0000-0000-000000000099/complete');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/tasks/:id returns 404 when task not found', async () => {
+    mockUpdateTask.mockRejectedValueOnce(new Error('Task not found'));
+    const res = await request(app)
+      .put('/api/tasks/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Ghost' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE /api/tasks/:id returns 404 when task not found', async () => {
+    mockDeleteTask.mockRejectedValueOnce(new Error('Task not found'));
+    const res = await request(app).delete('/api/tasks/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/tasks supports page and limit query params', async () => {
+    mockGetTasks.mockResolvedValueOnce({ tasks: [], total: 0 });
+    const res = await request(app).get('/api/tasks?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(mockGetTasks).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ page: 2, limit: 10 })
+    );
+  });
+
+  it('GET /api/tasks supports filtering by priority', async () => {
+    mockGetTasks.mockResolvedValueOnce({ tasks: [], total: 0 });
+    const res = await request(app).get('/api/tasks?priority=HIGH');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/tasks data.tasks is an array', async () => {
+    mockGetTasks.mockResolvedValueOnce({ tasks: [], total: 0 });
+    const res = await request(app).get('/api/tasks');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('tasks');
+  });
+
+  it('POST /api/tasks returns 400 when assigneeId is missing', async () => {
+    const res = await request(app).post('/api/tasks').send({ title: 'No assignee', assigneeName: 'Bob' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

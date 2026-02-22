@@ -197,3 +197,93 @@ describe('regulatory.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('regulatory.api — edge cases and field validation', () => {
+  it('returns complaints with multiple regulatory issues', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: 'r-001', title: 'GDPR Breach', isRegulatory: true, severity: 'HIGH' },
+      { id: 'r-002', title: 'HSE Violation', isRegulatory: true, severity: 'MEDIUM' },
+      { id: 'r-003', title: 'ICO Report', isRegulatory: true, severity: 'LOW' },
+      { id: 'r-004', title: 'FDA Notice', isRegulatory: true, severity: 'CRITICAL' },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(4);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('each complaint in response has an id field', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Item A', isRegulatory: true },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Item B', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    for (const item of res.body.data) {
+      expect(item).toHaveProperty('id');
+    }
+  });
+
+  it('findMany is called with isRegulatory true condition', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    await request(app).get('/api/regulatory');
+    expect(mockPrisma.compComplaint.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isRegulatory: true }) })
+    );
+  });
+
+  it('error body contains error object with code property on 500', async () => {
+    mockPrisma.compComplaint.findMany.mockRejectedValue(new Error('connection refused'));
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(500);
+    expect(res.body).toHaveProperty('error');
+    expect(res.body.error).toHaveProperty('code');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('responds with 200 when single complaint returned', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Single Complaint', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('response body success field is boolean', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/regulatory');
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('findMany is called with deletedAt null filter', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    await request(app).get('/api/regulatory');
+    expect(mockPrisma.compComplaint.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('response content-type is application/json', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('data array contains complaint title fields when complaints returned', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Regulatory Notice', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].title).toBe('Regulatory Notice');
+  });
+
+  it('error message is defined on 500 response', async () => {
+    mockPrisma.compComplaint.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBeDefined();
+  });
+});

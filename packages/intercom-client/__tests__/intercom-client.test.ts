@@ -204,3 +204,81 @@ describe('IntercomClient — additional coverage', () => {
     expect(result).toBeNull();
   });
 });
+
+describe('IntercomClient — edge cases and validation', () => {
+  let client: IntercomClient;
+
+  beforeEach(() => {
+    client = new IntercomClient('edge-token');
+  });
+
+  it('sendInAppMessage body includes the exact message text', async () => {
+    const message = 'Your permit has been approved!';
+    mockFetch.mockReturnValueOnce(ok({ id: 'm-body' }));
+    await client.sendInAppMessage('uid-body', message);
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.body).toBe(message);
+  });
+
+  it('sendInAppMessage passes correct to.user_id for different users', async () => {
+    mockFetch.mockReturnValueOnce(ok({}));
+    await client.sendInAppMessage('user-xyz-999', 'Test');
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.to.user_id).toBe('user-xyz-999');
+  });
+
+  it('createContact payload has no custom_attributes when not provided', async () => {
+    mockFetch.mockReturnValueOnce(ok({ id: 'c-no-attrs' }));
+    await client.createContact('plain@ims.local', 'Plain User');
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.custom_attributes).toBeUndefined();
+  });
+
+  it('createContact uses POST method for /contacts endpoint', async () => {
+    mockFetch.mockReturnValueOnce(ok({}));
+    await client.createContact('post@ims.local', 'Post User');
+    const [, opts] = mockFetch.mock.calls[0];
+    expect(opts.method).toBe('POST');
+  });
+
+  it('sendInAppMessage returns null when INTERCOM_ACCESS_TOKEN is empty string', async () => {
+    const emptyClient = new IntercomClient('');
+    const result = await emptyClient.sendInAppMessage('u', 'msg');
+    expect(result).toBeNull();
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('createContact returns null when fetch rejects with network error', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('ECONNREFUSED'));
+    const result = await client.createContact('net@ims.local', 'Net User');
+    expect(result).toBeNull();
+  });
+
+  it('sendInAppMessage Authorization header uses exact token passed to constructor', async () => {
+    const specificClient = new IntercomClient('my-specific-token-abc123');
+    mockFetch.mockReturnValueOnce(ok({}));
+    await specificClient.sendInAppMessage('u', 'msg');
+    const { headers } = mockFetch.mock.calls[0][1];
+    expect(headers.Authorization).toBe('Bearer my-specific-token-abc123');
+  });
+
+  it('createContact sets Content-Type to application/json', async () => {
+    mockFetch.mockReturnValueOnce(ok({}));
+    await client.createContact('ct@ims.local', 'CT User');
+    const { headers } = mockFetch.mock.calls[0][1];
+    expect(headers['Content-Type']).toBe('application/json');
+  });
+
+  it('sendInAppMessage returns null on 401 Unauthorized', async () => {
+    mockFetch.mockReturnValueOnce(err(401));
+    const result = await client.sendInAppMessage('u', 'msg');
+    expect(result).toBeNull();
+  });
+
+  it('createContact sets Intercom-Version header to 2.10', async () => {
+    mockFetch.mockReturnValueOnce(ok({}));
+    await client.createContact('ver@ims.local', 'Ver User');
+    const { headers } = mockFetch.mock.calls[0][1];
+    expect(headers['Intercom-Version']).toBe('2.10');
+  });
+});

@@ -209,6 +209,95 @@ describe('GET /api/work-orders — filtering', () => {
   });
 });
 
+describe('work-orders.api — extended edge cases', () => {
+  it('POST with optional priority HIGH creates record', async () => {
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Urgent Fix',
+      priority: 'HIGH',
+    });
+    const res = await request(app)
+      .post('/api/work-orders')
+      .send({ assetId: '00000000-0000-0000-0000-000000000001', title: 'Urgent Fix', priority: 'HIGH' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST with invalid priority enum returns 400', async () => {
+    const res = await request(app)
+      .post('/api/work-orders')
+      .send({ assetId: 'a-1', title: 'Test', priority: 'ULTRA' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST with invalid status enum returns 400', async () => {
+    const res = await request(app)
+      .post('/api/work-orders')
+      .send({ assetId: 'a-1', title: 'Test', status: 'BROKEN' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET returns pagination metadata with correct total', async () => {
+    mockPrisma.assetWorkOrder.findMany.mockResolvedValue([]);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(100);
+    const res = await request(app).get('/api/work-orders?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(100);
+    expect(res.body.pagination.totalPages).toBe(10);
+    expect(res.body.pagination.page).toBe(3);
+  });
+
+  it('GET filters by search param and passes contains filter to findMany', async () => {
+    mockPrisma.assetWorkOrder.findMany.mockResolvedValue([]);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/work-orders?search=pump');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.assetWorkOrder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ title: expect.objectContaining({ contains: 'pump' }) }),
+      })
+    );
+  });
+
+  it('DELETE returns message containing deleted', async () => {
+    mockPrisma.assetWorkOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.assetWorkOrder.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/work-orders/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('PUT with valid status IN_PROGRESS updates successfully', async () => {
+    mockPrisma.assetWorkOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.assetWorkOrder.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'IN_PROGRESS',
+    });
+    const res = await request(app)
+      .put('/api/work-orders/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'IN_PROGRESS' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT with negative estimatedHours returns 400 validation error', async () => {
+    const res = await request(app)
+      .put('/api/work-orders/00000000-0000-0000-0000-000000000001')
+      .send({ estimatedHours: -5 });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
 describe('work-orders.api — additional coverage', () => {
   let app: express.Express;
 

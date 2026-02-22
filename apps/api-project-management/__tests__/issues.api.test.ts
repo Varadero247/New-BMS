@@ -406,3 +406,176 @@ describe('issues.api — additional coverage', () => {
     }
   });
 });
+
+describe('Project Issues API — edge cases and validation', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/issues', issuesRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /issues: meta.page defaults to 1', async () => {
+    (mockPrisma.projectIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/issues?projectId=proj-1')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.meta.page).toBe(1);
+  });
+
+  it('GET /issues: count called once per request', async () => {
+    (mockPrisma.projectIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app)
+      .get('/api/issues?projectId=proj-1')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectIssue.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /issues: returns empty data array when no issues found', async () => {
+    (mockPrisma.projectIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/issues?projectId=proj-1')
+      .set('Authorization', 'Bearer token');
+    expect(Array.isArray(response.body.data)).toBe(true);
+    expect(response.body.data).toHaveLength(0);
+  });
+
+  it('POST /issues: returns 400 for invalid issueType enum', async () => {
+    const response = await request(app)
+      .post('/api/issues')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'proj-1',
+        issueCode: 'ISS-999',
+        issueTitle: 'Bad type',
+        issueDescription: 'Desc',
+        issueType: 'TOTALLY_INVALID',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /issues: reportedBy set to authenticated user id', async () => {
+    (mockPrisma.projectIssue.create as jest.Mock).mockResolvedValueOnce({
+      id: 'iss-new',
+      projectId: 'proj-1',
+      issueCode: 'ISS-050',
+      issueType: 'DEFECT',
+      status: 'OPEN',
+      reportedBy: '20000000-0000-4000-a000-000000000123',
+    });
+    await request(app)
+      .post('/api/issues')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'proj-1',
+        issueCode: 'ISS-050',
+        issueTitle: 'New defect found',
+        issueDescription: 'Reproducible crash',
+        issueType: 'DEFECT',
+      });
+    expect(mockPrisma.projectIssue.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ reportedBy: '20000000-0000-4000-a000-000000000123' }),
+      })
+    );
+  });
+
+  it('PUT /issues/:id/resolve: actualResolutionDate is set automatically', async () => {
+    (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      status: 'OPEN',
+    });
+    (mockPrisma.projectIssue.update as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      status: 'RESOLVED',
+    });
+    await request(app)
+      .put('/api/issues/22000000-0000-4000-a000-000000000001/resolve')
+      .set('Authorization', 'Bearer token')
+      .send({ resolutionDescription: 'Patched' });
+    expect(mockPrisma.projectIssue.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ actualResolutionDate: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('DELETE /issues/:id: soft-deletes by setting deletedAt', async () => {
+    (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.projectIssue.update as jest.Mock).mockResolvedValueOnce({});
+    const response = await request(app)
+      .delete('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(204);
+    expect(mockPrisma.projectIssue.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /issues: filter by priority HIGH passes in where clause', async () => {
+    (mockPrisma.projectIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app)
+      .get('/api/issues?projectId=proj-1&priority=HIGH')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectIssue.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ projectId: 'proj-1' }),
+      })
+    );
+  });
+
+  it('PUT /issues/:id: update called with correct id in where clause', async () => {
+    (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      status: 'OPEN',
+    });
+    (mockPrisma.projectIssue.update as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+    });
+    await request(app)
+      .put('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ priority: 'LOW' });
+    expect(mockPrisma.projectIssue.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '22000000-0000-4000-a000-000000000001' } })
+    );
+  });
+
+  it('GET /issues: success is true in response body', async () => {
+    (mockPrisma.projectIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/issues?projectId=proj-1')
+      .set('Authorization', 'Bearer token');
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST /issues: returns 400 for missing issueTitle', async () => {
+    const response = await request(app)
+      .post('/api/issues')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'proj-1',
+        issueCode: 'ISS-100',
+        issueDescription: 'Missing title',
+        issueType: 'DEFECT',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

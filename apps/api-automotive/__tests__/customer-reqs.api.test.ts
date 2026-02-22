@@ -275,3 +275,86 @@ describe('DELETE /api/customer-reqs/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('customer-reqs — additional edge cases', () => {
+  it('GET /api/customer-reqs returns success:true and meta pagination block', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([mockReq]);
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/customer-reqs');
+    expect(res.body.success).toBe(true);
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('limit');
+    expect(res.body.meta).toHaveProperty('total');
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/customer-reqs calculates totalPages correctly', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(35);
+    const res = await request(app).get('/api/customer-reqs?limit=10');
+    expect(res.body.meta.totalPages).toBe(4);
+  });
+
+  it('GET /api/customer-reqs/customers returns strings not objects', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([
+      { customer: 'Toyota' },
+      { customer: 'BMW' },
+    ]);
+    const res = await request(app).get('/api/customer-reqs/customers');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toContain('Toyota');
+    expect(res.body.data).toContain('BMW');
+  });
+
+  it('GET /api/customer-reqs/compliance-summary returns overdue field', async () => {
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(5);
+    (mockPrisma.customerReq.groupBy as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/customer-reqs/compliance-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('overdue');
+  });
+
+  it('POST /api/customer-reqs returns 400 when description is missing', async () => {
+    const res = await request(app).post('/api/customer-reqs').send({
+      customer: 'Ford',
+      requirementTitle: 'Some Req',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/customer-reqs returns 400 when requirementTitle is empty string', async () => {
+    const res = await request(app).post('/api/customer-reqs').send({
+      customer: 'Ford',
+      requirementTitle: '',
+      description: 'Some description',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/customer-reqs/:id returns 500 on DB error during update', async () => {
+    (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue(mockReq);
+    (mockPrisma.customerReq.update as jest.Mock).mockRejectedValue(new Error('DB timeout'));
+    const res = await request(app)
+      .put(`/api/customer-reqs/${REQ_ID}`)
+      .send({ complianceStatus: 'COMPLIANT' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/customer-reqs with pagination page=2 returns page 2', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(50);
+    const res = await request(app).get('/api/customer-reqs?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(10);
+  });
+
+  it('GET /api/customer-reqs/:id returns 500 on DB error', async () => {
+    (mockPrisma.customerReq.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get(`/api/customer-reqs/${REQ_ID}`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

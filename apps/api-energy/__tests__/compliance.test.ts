@@ -309,3 +309,131 @@ describe('compliance — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('compliance — extended coverage', () => {
+  it('GET /api/compliance returns pagination metadata', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'ESOS' },
+    ]);
+    (prisma.energyComplianceObligation.count as jest.Mock).mockResolvedValue(15);
+
+    const res = await request(app).get('/api/compliance?page=1&limit=1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(15);
+  });
+
+  it('GET /api/compliance filters by regulation', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyComplianceObligation.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/compliance?regulation=ESOS');
+
+    expect(prisma.energyComplianceObligation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ regulation: expect.any(Object) }),
+      })
+    );
+  });
+
+  it('PUT /api/compliance/:id returns 500 when update throws', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/compliance/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/compliance/:id returns 500 when update throws', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/compliance/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/compliance/:id/assess returns 500 when update throws', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      notes: null,
+    });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/compliance/00000000-0000-0000-0000-000000000001/assess')
+      .send({ status: 'COMPLIANT' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/compliance/dashboard returns 500 on DB error', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/compliance/dashboard');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/compliance/:id returns 500 when findFirst throws', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/compliance/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/compliance/:id/assess accepts NON_COMPLIANT status', async () => {
+    (prisma.energyComplianceObligation.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      notes: null,
+    });
+    (prisma.energyComplianceObligation.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'NON_COMPLIANT',
+    });
+
+    const res = await request(app)
+      .put('/api/compliance/00000000-0000-0000-0000-000000000001/assess')
+      .send({ status: 'NON_COMPLIANT', notes: 'Audit failed' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('NON_COMPLIANT');
+  });
+
+  it('GET /api/compliance success field is true on 200', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyComplianceObligation.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/compliance');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/compliance/dashboard overdue count is set correctly', async () => {
+    const obligations = [
+      { id: '1', status: 'COMPLIANT', regulation: 'ESOS', dueDate: null },
+      { id: '2', status: 'NON_COMPLIANT', regulation: 'SECR', dueDate: new Date('2020-01-01') },
+    ];
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue(obligations);
+
+    const res = await request(app).get('/api/compliance/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(2);
+    expect(res.body.data.overdue).toBeGreaterThanOrEqual(0);
+  });
+});

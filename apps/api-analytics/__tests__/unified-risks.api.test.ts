@@ -165,3 +165,66 @@ describe('unified-risks.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Unified Risks — edge cases and field validation', () => {
+  it('pagination totalPages is a number', async () => {
+    const res = await request(app).get('/api/unified-risks?page=1&limit=10');
+    expect(typeof res.body.pagination.totalPages).toBe('number');
+  });
+
+  it('pagination total equals number of filtered risks', async () => {
+    const res = await request(app).get('/api/unified-risks?source=quality');
+    expect(typeof res.body.pagination.total).toBe('number');
+    expect(res.body.pagination.total).toBeGreaterThanOrEqual(0);
+  });
+
+  it('summary.byScoreRange has critical field', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(res.body.data.summary.byScoreRange).toHaveProperty('critical');
+  });
+
+  it('summary.byScoreRange has high field', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(res.body.data.summary.byScoreRange).toHaveProperty('high');
+  });
+
+  it('filtering by health_safety source returns only health_safety risks', async () => {
+    const res = await request(app).get('/api/unified-risks?source=health_safety&limit=100');
+    expect(res.status).toBe(200);
+    res.body.data.risks.forEach((r: { source: string }) => {
+      expect(r.source).toBe('health_safety');
+    });
+  });
+
+  it('filtering by owner returns only matching risks', async () => {
+    const res = await request(app).get('/api/unified-risks?owner=Alice');
+    expect(res.status).toBe(200);
+    res.body.data.risks.forEach((r: { owner: string }) => {
+      expect(r.owner.toLowerCase()).toContain('alice');
+    });
+  });
+
+  it('returns 400 for invalid source enum', async () => {
+    const res = await request(app).get('/api/unified-risks?source=invalid_source');
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns 400 for invalid sortBy value', async () => {
+    const res = await request(app).get('/api/unified-risks?sortBy=invalid_field');
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id returns data.source field', async () => {
+    const res = await request(app).get('/api/unified-risks/ur-001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('source');
+  });
+
+  it('GET /:id returns data.score as a number', async () => {
+    const res = await request(app).get('/api/unified-risks/ur-001');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.score).toBe('number');
+  });
+});

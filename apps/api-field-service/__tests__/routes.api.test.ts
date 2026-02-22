@@ -294,3 +294,106 @@ describe('routes.api — additional coverage', () => {
     }
   });
 });
+
+// ─── Extended coverage ───────────────────────────────────────────────────────
+
+describe('routes.api — extended edge cases', () => {
+  it('GET / returns pagination metadata', async () => {
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', technicianId: 'tech-1', stops: [], technician: {} },
+    ]);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(5);
+
+    const res = await request(app).get('/api/routes');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination.total).toBe(5);
+  });
+
+  it('GET / applies page and limit to query', async () => {
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(0);
+
+    await request(app).get('/api/routes?page=2&limit=5');
+
+    expect(mockPrisma.fsSvcRoute.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET / filters by both technicianId and status simultaneously', async () => {
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(0);
+
+    await request(app).get('/api/routes?technicianId=tech-5&status=COMPLETED');
+
+    expect(mockPrisma.fsSvcRoute.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ technicianId: 'tech-5', status: 'COMPLETED' }),
+      })
+    );
+  });
+
+  it('GET /optimize/:technicianId/:date returns 500 on fsSvcJob.findMany error', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcJob.findMany.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get(
+      '/api/routes/optimize/00000000-0000-0000-0000-000000000001/2026-02-13'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 400 when date is missing', async () => {
+    const res = await request(app).post('/api/routes').send({
+      technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      stops: [{ jobId: 'job-1', order: 1 }],
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id returns success:true with updated status', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002' });
+    mockPrisma.fsSvcRoute.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', status: 'COMPLETED' });
+
+    const res = await request(app)
+      .put('/api/routes/00000000-0000-0000-0000-000000000002')
+      .send({ status: 'COMPLETED' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns success:true', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003' });
+    mockPrisma.fsSvcRoute.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/routes/00000000-0000-0000-0000-000000000003');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 when update rejects', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004' });
+    mockPrisma.fsSvcRoute.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/routes/00000000-0000-0000-0000-000000000004');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/routes/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

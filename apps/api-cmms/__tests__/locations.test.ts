@@ -243,3 +243,97 @@ describe('locations — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('locations — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns pagination metadata with correct totalPages', async () => {
+    prisma.cmmsLocation.findMany.mockResolvedValue([mockLocation]);
+    prisma.cmmsLocation.count.mockResolvedValue(100);
+    const res = await request(app).get('/api/locations?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(10);
+    expect(res.body.pagination.total).toBe(100);
+  });
+
+  it('GET / filters by parentLocationId query param', async () => {
+    prisma.cmmsLocation.findMany.mockResolvedValue([]);
+    prisma.cmmsLocation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/locations?type=FLOOR');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET / returns success false and INTERNAL_ERROR on count failure', async () => {
+    prisma.cmmsLocation.findMany.mockResolvedValue([]);
+    prisma.cmmsLocation.count.mockRejectedValue(new Error('count error'));
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / accepts SITE as valid type', async () => {
+    prisma.cmmsLocation.create.mockResolvedValue({ ...mockLocation, type: 'SITE' });
+    const res = await request(app).post('/api/locations').send({
+      name: 'Main Site',
+      code: 'SITE-001',
+      type: 'SITE',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / accepts ZONE as valid type', async () => {
+    prisma.cmmsLocation.create.mockResolvedValue({ ...mockLocation, type: 'ZONE' });
+    const res = await request(app).post('/api/locations').send({
+      name: 'Zone A',
+      code: 'ZONE-001',
+      type: 'ZONE',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('POST / returns 400 when name exceeds max length', async () => {
+    const res = await request(app).post('/api/locations').send({
+      name: 'A'.repeat(201),
+      code: 'LOC-X',
+      type: 'ROOM',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns 404 with NOT_FOUND code', async () => {
+    prisma.cmmsLocation.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/locations/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /:id returns 400 on invalid type value', async () => {
+    prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
+    const res = await request(app)
+      .put('/api/locations/00000000-0000-0000-0000-000000000001')
+      .send({ type: 'WAREHOUSE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /:id response message confirms deletion', async () => {
+    prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
+    prisma.cmmsLocation.update.mockResolvedValue({ ...mockLocation, deletedAt: new Date() });
+    const res = await request(app).delete('/api/locations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('GET / returns page and limit in pagination object', async () => {
+    prisma.cmmsLocation.findMany.mockResolvedValue([]);
+    prisma.cmmsLocation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/locations?page=3&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+});

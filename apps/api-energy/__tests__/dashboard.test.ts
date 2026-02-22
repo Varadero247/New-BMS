@@ -472,3 +472,88 @@ describe('Energy Dashboard — additional coverage', () => {
     expect(summary).toHaveProperty('audits', 3);
   });
 });
+
+describe('Energy Dashboard — further extended', () => {
+  const setupAllMocks = (overrides: Record<string, any> = {}) => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(overrides.meters ?? 0);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(overrides.baselines ?? 0);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(overrides.targets ?? 0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(overrides.seus ?? 0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(overrides.alerts ?? 0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(overrides.projects ?? 0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(overrides.audits ?? 0);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue(overrides.readings ?? []);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue(overrides.alertList ?? []);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue(overrides.seuList ?? []);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue(overrides.bills ?? []);
+  };
+
+  it('returns success:true on GET /api/dashboard', async () => {
+    setupAllMocks();
+    const res = await request(app).get('/api/dashboard');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('multiple bills are summed correctly for totalConsumption', async () => {
+    setupAllMocks({
+      bills: [
+        { cost: 100, consumption: 300, unit: 'kWh' },
+        { cost: 200, consumption: 700, unit: 'kWh' },
+        { cost: 50, consumption: 150, unit: 'kWh' },
+      ],
+    });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.totalConsumption).toBe(1150);
+    expect(res.body.data.summary.totalCost).toBe(350);
+  });
+
+  it('data property contains summary, recentReadings, activeAlerts, topSeus', async () => {
+    setupAllMocks();
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('summary');
+    expect(res.body.data).toHaveProperty('recentReadings');
+    expect(res.body.data).toHaveProperty('activeAlerts');
+    expect(res.body.data).toHaveProperty('topSeus');
+  });
+
+  it('energyProject.count is called once per request', async () => {
+    setupAllMocks({ projects: 4 });
+    await request(app).get('/api/dashboard');
+    expect(prisma.energyProject.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('energyAudit.count is called with no deleted filter', async () => {
+    setupAllMocks({ audits: 2 });
+    await request(app).get('/api/dashboard');
+    expect(prisma.energyAudit.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('summary.targets reflects count value returned by mock', async () => {
+    setupAllMocks({ targets: 9 });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.targets).toBe(9);
+  });
+
+  it('summary.baselines reflects count value returned by mock', async () => {
+    setupAllMocks({ baselines: 6 });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.baselines).toBe(6);
+  });
+
+  it('energyTarget.count failure returns 500', async () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyTarget.count as jest.Mock).mockRejectedValue(new Error('Target DB error'));
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

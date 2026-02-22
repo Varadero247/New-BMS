@@ -202,3 +202,84 @@ describe('status — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('status — more scenarios', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/health/status', statusRouter);
+    jest.clearAllMocks();
+    mockGetPlatformStatus.mockReturnValue({
+      status: 'operational',
+      timestamp: new Date().toISOString(),
+      services: [{ name: 'api-gateway', status: 'operational', latencyMs: 5 }],
+      uptime: { '24h': 99.98, '7d': 99.95, '30d': 99.91 },
+      incidents: [],
+    });
+  });
+
+  it('returns 500 with INTERNAL_ERROR code when getPlatformStatus throws', async () => {
+    mockGetPlatformStatus.mockImplementationOnce(() => { throw new Error('unavailable'); });
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('returns success false when status check throws', async () => {
+    mockGetPlatformStatus.mockImplementationOnce(() => { throw new Error('boom'); });
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('uptime 7d value is a number', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(typeof res.body.data.uptime['7d']).toBe('number');
+  });
+
+  it('uptime 30d value is a number', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(typeof res.body.data.uptime['30d']).toBe('number');
+  });
+
+  it('services entries have latencyMs field', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.body.data.services[0]).toHaveProperty('latencyMs');
+  });
+
+  it('status data field is an object', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(typeof res.body.data).toBe('object');
+  });
+
+  it('incident objects in incidents array have id and title', async () => {
+    mockGetPlatformStatus.mockReturnValueOnce({
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+      services: [],
+      uptime: { '24h': 98.0, '7d': 99.0, '30d': 99.5 },
+      incidents: [{ id: 'inc-10', title: 'Slow API', status: 'investigating' }],
+    });
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.incidents[0]).toHaveProperty('id');
+    expect(res.body.data.incidents[0]).toHaveProperty('title');
+  });
+
+  it('response does not require any request headers', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBe(200);
+  });
+
+  it('content-type is application/json', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('data.services is an array even when all services operational', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(Array.isArray(res.body.data.services)).toBe(true);
+  });
+});

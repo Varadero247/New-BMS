@@ -258,3 +258,91 @@ describe('inspections — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('inspections — edge cases and field validation', () => {
+  it('GET /inspections returns success: true on 200', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([mockInspection]);
+    prisma.cmmsInspection.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/inspections');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /inspections pagination includes total, page, and limit fields', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([]);
+    prisma.cmmsInspection.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/inspections');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /inspections?page=2&limit=5 returns correct pagination metadata', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([]);
+    prisma.cmmsInspection.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/inspections?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+    expect(res.body.pagination.total).toBe(15);
+  });
+
+  it('GET /inspections data items include id field', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([mockInspection]);
+    prisma.cmmsInspection.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/inspections');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id', '00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST /inspections sets createdBy from authenticated user', async () => {
+    prisma.cmmsInspection.create.mockResolvedValue(mockInspection);
+    await request(app).post('/api/inspections').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      inspectionType: 'Electrical Inspection',
+      inspector: 'Jane Doe',
+      scheduledDate: '2026-04-01T00:00:00Z',
+    });
+    expect(prisma.cmmsInspection.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ createdBy: 'user-123' }),
+      })
+    );
+  });
+
+  it('DELETE /inspections/:id returns 500 on update error', async () => {
+    prisma.cmmsInspection.findFirst.mockResolvedValue(mockInspection);
+    prisma.cmmsInspection.update.mockRejectedValue(new Error('DB write error'));
+    const res = await request(app).delete(
+      '/api/inspections/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /inspections/overdue returns empty array when no overdue', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inspections/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('PUT /inspections/:id response data contains updated status field', async () => {
+    prisma.cmmsInspection.findFirst.mockResolvedValue(mockInspection);
+    prisma.cmmsInspection.update.mockResolvedValue({ ...mockInspection, status: 'IN_PROGRESS' });
+    const res = await request(app)
+      .put('/api/inspections/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'IN_PROGRESS' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('IN_PROGRESS');
+  });
+
+  it('GET /inspections/:id 500 response has error.code INTERNAL_ERROR', async () => {
+    prisma.cmmsInspection.findFirst.mockRejectedValue(new Error('Read error'));
+    const res = await request(app).get('/api/inspections/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

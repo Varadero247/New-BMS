@@ -394,3 +394,120 @@ describe('Error Handler — additional coverage', () => {
     }
   });
 });
+
+describe('Error Handler — response shape and logging extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should expose the message for 401 Unauthorized (4xx)', () => {
+    const err: AppError = new Error('Token expired');
+    err.statusCode = 401;
+    err.code = 'TOKEN_EXPIRED';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Token expired');
+    expect(payload.error.code).toBe('TOKEN_EXPIRED');
+  });
+
+  it('should mask message for 502 Bad Gateway (5xx)', () => {
+    const err: AppError = new Error('Upstream host unreachable: 172.16.0.1:4001');
+    err.statusCode = 502;
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Internal server error');
+  });
+
+  it('should log code as undefined when no code is set on the error', () => {
+    const err: AppError = new Error('Oops');
+    err.statusCode = 500;
+    // intentionally no err.code
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(mockLogger.error).toHaveBeenCalledWith('Unhandled error', {
+      error: 'Oops',
+      code: undefined,
+      statusCode: 500,
+    });
+  });
+
+  it('should use INTERNAL_ERROR code for errors with no code and 5xx status', () => {
+    const err: AppError = new Error('Fatal error');
+    err.statusCode = 503;
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('should call res.status exactly once', () => {
+    const err: AppError = new Error('Error');
+    err.statusCode = 404;
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call res.json exactly once', () => {
+    const err: AppError = new Error('Error');
+    err.statusCode = 400;
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.json).toHaveBeenCalledTimes(1);
+  });
+
+  it('response error object has exactly two keys: code and message', () => {
+    const err: AppError = new Error('Some error');
+    err.statusCode = 400;
+    err.code = 'SOME_ERROR';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(Object.keys(payload.error)).toEqual(['code', 'message']);
+  });
+
+  it('should expose "An unexpected error occurred" when message is empty for 4xx', () => {
+    const err: AppError = new Error('');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('An unexpected error occurred');
+  });
+});

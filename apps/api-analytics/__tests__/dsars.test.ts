@@ -304,3 +304,107 @@ describe('dsars — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+// ===================================================================
+// DSARs — extended field validation and route coverage
+// ===================================================================
+describe('DSARs — extended coverage', () => {
+  it('GET /api/dsars pagination contains page, limit, total, totalPages', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dsars');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination).toHaveProperty('page');
+    expect(res.body.data.pagination).toHaveProperty('limit');
+    expect(res.body.data.pagination).toHaveProperty('total');
+    expect(res.body.data.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/dsars returns empty requests array when none exist', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dsars');
+    expect(res.status).toBe(200);
+    expect(res.body.data.requests).toEqual([]);
+    expect(res.body.data.pagination.total).toBe(0);
+  });
+
+  it('POST /api/dsars with PORTABILITY type creates successfully', async () => {
+    (prisma.dataRequest.create as jest.Mock).mockResolvedValue({
+      id: 'dr-port',
+      type: 'PORTABILITY',
+      requesterEmail: 'port@test.com',
+      requesterName: 'Port User',
+      status: 'RECEIVED',
+      deadlineAt: new Date(),
+    });
+    const res = await request(app).post('/api/dsars').send({
+      type: 'PORTABILITY',
+      requesterEmail: 'port@test.com',
+      requesterName: 'Port User',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.request.type).toBe('PORTABILITY');
+  });
+
+  it('POST /api/dsars returns 400 for invalid email format', async () => {
+    const res = await request(app).post('/api/dsars').send({
+      type: 'ACCESS',
+      requesterEmail: 'not-an-email',
+      requesterName: 'Test User',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PATCH /api/dsars/:id/status rejects COMPLETED -> VERIFIED transition', async () => {
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+    });
+    const res = await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'VERIFIED' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_TRANSITION');
+  });
+
+  it('PATCH /api/dsars/:id/status transitions VERIFIED to PROCESSING', async () => {
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'VERIFIED',
+    });
+    (prisma.dataRequest.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PROCESSING',
+    });
+    const res = await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'PROCESSING' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.request.status).toBe('PROCESSING');
+  });
+
+  it('GET /api/dsars/:id returns 404 with NOT_FOUND code for missing request', async () => {
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/dsars/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/dsars?page=2&limit=10 uses correct skip', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/dsars?page=2&limit=10');
+    expect(prisma.dataRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /api/dsars/:id returns 500 on DB error', async () => {
+    (prisma.dataRequest.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/dsars/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

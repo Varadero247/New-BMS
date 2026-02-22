@@ -292,3 +292,106 @@ describe('schedules.api — additional coverage', () => {
     }
   });
 });
+
+// ─── Extended coverage ───────────────────────────────────────────────────────
+
+describe('schedules.api — extended edge cases', () => {
+  it('GET / returns pagination metadata', async () => {
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', technicianId: 'tech-1', date: new Date(), slots: [], technician: {} },
+    ]);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(9);
+
+    const res = await request(app).get('/api/schedules');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination.total).toBe(9);
+  });
+
+  it('GET / applies page and limit to query', async () => {
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(0);
+
+    await request(app).get('/api/schedules?page=2&limit=5');
+
+    expect(mockPrisma.fsSvcSchedule.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET / filters by both technicianId and isAvailable simultaneously', async () => {
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(0);
+
+    await request(app).get('/api/schedules?technicianId=tech-7&isAvailable=false');
+
+    expect(mockPrisma.fsSvcSchedule.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ technicianId: 'tech-7', isAvailable: false }),
+      })
+    );
+  });
+
+  it('GET /calendar/:technicianId returns 500 on fsSvcSchedule.findMany error', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Jane' });
+    mockPrisma.fsSvcSchedule.findMany.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get(
+      '/api/schedules/calendar/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 400 when date is missing', async () => {
+    const res = await request(app).post('/api/schedules').send({
+      technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      slots: [{ start: '09:00', end: '17:00' }],
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id returns success:true with updated isAvailable', async () => {
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002' });
+    mockPrisma.fsSvcSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', isAvailable: true });
+
+    const res = await request(app)
+      .put('/api/schedules/00000000-0000-0000-0000-000000000002')
+      .send({ isAvailable: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns success:true', async () => {
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003' });
+    mockPrisma.fsSvcSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000003');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 when update rejects', async () => {
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004' });
+    mockPrisma.fsSvcSchedule.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000004');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcSchedule.findFirst.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/schedules/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

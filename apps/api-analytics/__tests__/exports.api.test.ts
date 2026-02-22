@@ -320,3 +320,124 @@ describe('Analytics Exports — additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Analytics Exports — edge cases, pagination and field validation
+// ===================================================================
+describe('Analytics Exports — edge cases, pagination and field validation', () => {
+  it('GET /exports passes deletedAt:null in where clause', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/exports');
+
+    expect(mockPrisma.analyticsExport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('GET /exports filters by search query using name contains', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/exports?search=safety');
+
+    expect(mockPrisma.analyticsExport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          name: expect.objectContaining({ contains: 'safety' }),
+        }),
+      })
+    );
+  });
+
+  it('GET /exports response pagination has totalPages field', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(55);
+
+    const res = await request(app).get('/api/exports?limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+    expect(res.body.pagination.totalPages).toBe(6);
+  });
+
+  it('POST /exports with PDF format returns 201', async () => {
+    const created = { id: 'exp-pdf', name: 'PDF Export', type: 'FILTERED', format: 'PDF', status: 'QUEUED' };
+    mockPrisma.analyticsExport.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/exports').send({
+      name: 'PDF Export',
+      type: 'FILTERED',
+      format: 'PDF',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.format).toBe('PDF');
+  });
+
+  it('POST /exports with CUSTOM type creates successfully', async () => {
+    const created = { id: 'exp-custom', name: 'Custom Export', type: 'CUSTOM', format: 'CSV', status: 'QUEUED' };
+    mockPrisma.analyticsExport.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/exports').send({
+      name: 'Custom Export',
+      type: 'CUSTOM',
+      format: 'CSV',
+      filters: { module: 'quality' },
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.type).toBe('CUSTOM');
+  });
+
+  it('POST /exports returns 500 on DB create error', async () => {
+    mockPrisma.analyticsExport.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/exports').send({
+      name: 'Failing Export',
+      type: 'FULL',
+      format: 'CSV',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /exports/:id returns 500 on DB error', async () => {
+    mockPrisma.analyticsExport.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/exports/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /exports/:id/download returns 500 on DB error', async () => {
+    mockPrisma.analyticsExport.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get(
+      '/api/exports/00000000-0000-0000-0000-000000000001/download'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /exports/:id/download constructs fileName from name and format', async () => {
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Quality Report',
+      status: 'COMPLETED',
+      format: 'EXCEL',
+      fileUrl: 'https://storage.example.com/quality.xlsx',
+    });
+
+    const res = await request(app).get(
+      '/api/exports/00000000-0000-0000-0000-000000000001/download'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.fileName).toBe('Quality Report.excel');
+  });
+});

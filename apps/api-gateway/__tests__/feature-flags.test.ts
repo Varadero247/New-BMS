@@ -265,3 +265,102 @@ describe('Feature Flags — additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Feature Flags — extended edge cases', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    app = require('express')();
+    app.use(require('express').json());
+    app.use('/api', require('../src/routes/feature-flags').default);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+  });
+
+  it('GET /api/admin/feature-flags merges org overrides into flag list', async () => {
+    mockGetAllFlags.mockReturnValue([
+      { id: 'f1', name: 'beta_feature', description: 'Beta', enabled: false },
+    ]);
+    mockGetAllOrgOverrides.mockReturnValue([
+      { orgId: 'org-1', flagName: 'beta_feature', enabled: true },
+    ]);
+    const res = await require('supertest')(app).get('/api/admin/feature-flags');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeInstanceOf(Array);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('POST /api/admin/feature-flags with enabled:true creates enabled flag', async () => {
+    mockCreateFlag.mockReturnValueOnce({
+      id: 'flag-99',
+      name: 'active_flag',
+      description: 'Always on',
+      enabled: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    const res = await require('supertest')(app)
+      .post('/api/admin/feature-flags')
+      .send({ name: 'active_flag', description: 'Always on', enabled: true });
+    expect(res.status).toBe(201);
+    expect(res.body.data.enabled).toBe(true);
+  });
+
+  it('PUT /api/admin/feature-flags/:name updates description', async () => {
+    mockUpdateFlag.mockReturnValueOnce({
+      id: 'flag-1',
+      name: 'test_flag',
+      description: 'New description',
+      enabled: false,
+    });
+    const res = await require('supertest')(app)
+      .put('/api/admin/feature-flags/test_flag')
+      .send({ description: 'New description' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/admin/feature-flags/:name returns success: true on deletion', async () => {
+    mockDeleteFlag.mockReturnValueOnce(true);
+    const res = await require('supertest')(app).delete('/api/admin/feature-flags/some_flag');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/feature-flags returns object with flag names as keys', async () => {
+    mockGetAll.mockResolvedValueOnce({ feature_a: true, feature_b: false });
+    const res = await require('supertest')(app).get('/api/feature-flags');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual({ feature_a: true, feature_b: false });
+  });
+
+  it('GET /api/feature-flags/check returns 400 when name is empty string', async () => {
+    const res = await require('supertest')(app).get('/api/feature-flags/check?name=');
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/admin/feature-flags/:name/orgs/:orgId returns data with orgId', async () => {
+    mockSetOrgOverride.mockReturnValueOnce({
+      id: 'ov-3',
+      orgId: '00000000-0000-0000-0000-000000000003',
+      flagName: 'beta_feature',
+      enabled: true,
+    });
+    const res = await require('supertest')(app)
+      .put('/api/admin/feature-flags/beta_feature/orgs/00000000-0000-0000-0000-000000000003')
+      .send({ enabled: true });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/admin/feature-flags/:name/orgs/:orgId succeeds when override exists', async () => {
+    mockRemoveOrgOverride.mockReturnValueOnce(true);
+    const res = await require('supertest')(app).delete(
+      '/api/admin/feature-flags/existing_flag/orgs/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+  });
+});

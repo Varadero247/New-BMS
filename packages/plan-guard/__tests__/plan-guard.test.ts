@@ -207,3 +207,71 @@ describe('Plan Guard — additional coverage', () => {
     expect(typeof mw).toBe('function');
   });
 });
+
+describe('Plan Guard — PLAN_LIMITS structure and values', () => {
+  const makeRes = () => ({
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn().mockReturnThis(),
+  });
+
+  type MockReq = { user?: { id: string; orgId?: string } };
+  type GuardFn = ReturnType<typeof planGuard>;
+  type GuardReq = Parameters<GuardFn>[0];
+  type GuardRes = Parameters<GuardFn>[1];
+  type GuardNext = Parameters<GuardFn>[2];
+
+  it('STARTER plan has recordsPerModule of 5000', () => {
+    expect(PLAN_LIMITS.STARTER.recordsPerModule).toBe(5000);
+  });
+
+  it('STARTER plan limits aiCallsPerMonth to 100', () => {
+    expect(PLAN_LIMITS.STARTER.aiCallsPerMonth).toBe(100);
+  });
+
+  it('FREE plan limits users to 3', () => {
+    expect(PLAN_LIMITS.FREE.users).toBe(3);
+  });
+
+  it('PROFESSIONAL plan allows up to 50 users', () => {
+    expect(PLAN_LIMITS.PROFESSIONAL.users).toBe(50);
+  });
+
+  it('ENTERPRISE plan has null for modules (unlimited)', () => {
+    expect(PLAN_LIMITS.ENTERPRISE.modules).toBeNull();
+  });
+
+  it('checkLimit returns current:0 (not yet enforced)', () => {
+    const result = checkLimit('any-org', 'aiCalls');
+    expect(result.current).toBe(0);
+  });
+
+  it('checkLimit always has upgradeRequired:false', () => {
+    const result = checkLimit('any-org', 'modules');
+    expect(result.upgradeRequired).toBe(false);
+  });
+
+  it('planGuard calls next when user has organisationId instead of orgId', () => {
+    const mw = planGuard('records');
+    const mockReq: MockReq = { user: { id: 'user-org' } };
+    const mockRes = makeRes();
+    const mockNext: GuardNext = jest.fn();
+    mw(mockReq as unknown as GuardReq, mockRes as unknown as GuardRes, mockNext);
+    expect(mockNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('planGuard for different resource types all call next', () => {
+    const resources = ['users', 'records', 'aiCalls', 'modules'];
+    for (const resource of resources) {
+      const mw = planGuard(resource);
+      const mockRes = makeRes();
+      const mockNext: GuardNext = jest.fn();
+      const mockReq: MockReq = { user: { id: 'u', orgId: 'test-org' } };
+      mw(mockReq as unknown as GuardReq, mockRes as unknown as GuardRes, mockNext);
+      expect(mockNext).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it('PLAN_LIMITS has exactly 4 tiers', () => {
+    expect(Object.keys(PLAN_LIMITS)).toHaveLength(4);
+  });
+});

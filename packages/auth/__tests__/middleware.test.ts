@@ -332,3 +332,110 @@ describe('Auth Middleware — additional coverage', () => {
     expect(localRes.status).not.toHaveBeenCalled();
   });
 });
+
+describe('Auth Middleware — extended edge cases', () => {
+  let localReq: Partial<AuthRequest>;
+  let localRes: any;
+  let localNext: jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    localReq = { headers: {} };
+    localRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+    };
+    localNext = jest.fn();
+  });
+
+  it('authenticate sets req.token to the raw token string on success', async () => {
+    const token = generateToken({ userId: 'user-456', email: 'x@x.com', role: 'USER' });
+    localReq.headers = { authorization: `Bearer ${token}` };
+    (mockPrisma.session.findFirst as jest.Mock).mockResolvedValue({
+      id: 'session-456',
+      userId: 'user-456',
+      token,
+      user: { id: 'user-456', isActive: true },
+    });
+    (mockPrisma.session.update as jest.Mock).mockResolvedValue({});
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(localReq.token).toBe(token);
+  });
+
+  it('authenticate sets req.sessionId on success', async () => {
+    const token = generateToken({ userId: 'user-789', email: 'y@y.com', role: 'USER' });
+    localReq.headers = { authorization: `Bearer ${token}` };
+    (mockPrisma.session.findFirst as jest.Mock).mockResolvedValue({
+      id: 'session-789',
+      userId: 'user-789',
+      token,
+      user: { id: 'user-789', isActive: true },
+    });
+    (mockPrisma.session.update as jest.Mock).mockResolvedValue({});
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(localReq.sessionId).toBe('session-789');
+  });
+
+  it('requireRole 403 response has correct error code FORBIDDEN', () => {
+    localReq.user = { id: 'u', role: 'USER' } as unknown;
+    const middleware = requireRole('ADMIN');
+    middleware(localReq as AuthRequest, localRes, localNext);
+    expect(localRes.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({ code: 'FORBIDDEN' }),
+      })
+    );
+  });
+
+  it('optionalAuth does not set req.user when no authorization header', () => {
+    optionalAuth(localReq as AuthRequest, localRes, localNext);
+    expect(localReq.user).toBeUndefined();
+    expect(localNext).toHaveBeenCalled();
+  });
+
+  it('authenticate rejects DIGEST authorization scheme', async () => {
+    localReq.headers = { authorization: 'Digest credentials' };
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(localRes.status).toHaveBeenCalledWith(401);
+    expect(localNext).not.toHaveBeenCalled();
+  });
+
+  it('authenticate calls session.findFirst with the token', async () => {
+    const token = generateToken({ userId: 'user-999', email: 'z@z.com', role: 'USER' });
+    localReq.headers = { authorization: `Bearer ${token}` };
+    (mockPrisma.session.findFirst as jest.Mock).mockResolvedValue(null);
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(mockPrisma.session.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('requireRole allows SUPERADMIN when SUPERADMIN and ADMIN are both in roles list', () => {
+    localReq.user = { id: 'u', role: 'SUPERADMIN' } as unknown;
+    const middleware = requireRole('ADMIN', 'SUPERADMIN');
+    middleware(localReq as AuthRequest, localRes, localNext);
+    expect(localNext).toHaveBeenCalled();
+    expect(localRes.status).not.toHaveBeenCalled();
+  });
+
+  it('authenticate 401 response has success: false', async () => {
+    localReq.headers = {};
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(localRes.json).toHaveBeenCalledWith(
+      expect.objectContaining({ success: false })
+    );
+  });
+
+  it('authenticate deletes session when user is inactive', async () => {
+    const token = generateToken({ userId: 'user-inactive', email: 'i@i.com', role: 'USER' });
+    localReq.headers = { authorization: `Bearer ${token}` };
+    (mockPrisma.session.findFirst as jest.Mock).mockResolvedValue({
+      id: 'session-inactive',
+      userId: 'user-inactive',
+      token,
+      user: { id: 'user-inactive', isActive: false },
+    });
+    (mockPrisma.session.delete as jest.Mock).mockResolvedValue({});
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(mockPrisma.session.delete).toHaveBeenCalledWith({ where: { id: 'session-inactive' } });
+  });
+});

@@ -241,3 +241,82 @@ describe('reviews.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('reviews.api — extended error and field coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / includes pagination.page in response', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reviews');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('GET / includes pagination.totalPages in response', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/reviews?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it('GET / orgId from auth is included in findMany where clause', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    await request(app).get('/api/reviews');
+    expect(mockPrisma.mgmtReview.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ orgId: 'org-1', deletedAt: null }),
+      })
+    );
+  });
+
+  it('POST / returns 400 when minutesUrl is invalid', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    const res = await request(app).post('/api/reviews').send({ title: 'Review', minutesUrl: 'bad-url' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns 400 when minutesUrl is invalid', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app)
+      .put('/api/reviews/00000000-0000-0000-0000-000000000001')
+      .send({ minutesUrl: 'not-a-url' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE / response data has a message field', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.mgmtReview.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('POST / create is called with orgId from auth', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    mockPrisma.mgmtReview.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'T' });
+    await request(app).post('/api/reviews').send({ title: 'T' });
+    expect(mockPrisma.mgmtReview.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ orgId: 'org-1' }),
+      })
+    );
+  });
+
+  it('DELETE / update is called with deletedAt Date', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.mgmtReview.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.mgmtReview.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+});

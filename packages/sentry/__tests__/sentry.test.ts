@@ -246,3 +246,86 @@ describe('sentry — additional coverage', () => {
     expect(mockExpressErrorHandler).toHaveBeenCalledTimes(2);
   });
 });
+
+// ─── Extended coverage ────────────────────────────────────────────────────────
+
+describe('sentry — extended coverage', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env = { ...originalEnv };
+    delete process.env.SENTRY_DSN;
+    delete process.env.NODE_ENV;
+    delete process.env.npm_package_version;
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  it('initSentry does not throw when SENTRY_DSN is empty string', () => {
+    process.env.SENTRY_DSN = '';
+    expect(() => initSentry('test-svc')).not.toThrow();
+    expect(mockInit).not.toHaveBeenCalled();
+  });
+
+  it('tracesSampleRate parses floating-point env var correctly', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    process.env.SENTRY_TRACES_SAMPLE_RATE = '0.25';
+    initSentry('svc');
+    expect(mockInit.mock.calls[0][0].tracesSampleRate).toBe(0.25);
+  });
+
+  it('release uses serviceName when npm_package_version is set', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    process.env.npm_package_version = '3.0.0';
+    initSentry('my-service');
+    expect(mockInit.mock.calls[0][0].release).toBe('my-service@3.0.0');
+  });
+
+  it('sentryErrorHandler returns a callable function', () => {
+    const handler = sentryErrorHandler();
+    expect(typeof handler).toBe('function');
+  });
+
+  it('Sentry re-export exposes expressErrorHandler', () => {
+    expect(typeof Sentry.expressErrorHandler).toBe('function');
+  });
+
+  it('beforeSend strips x-api-key header', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    initSentry('svc');
+    const beforeSend = mockInit.mock.calls[0][0].beforeSend;
+    const event = { request: { headers: { 'x-api-key': 'secret-key', host: 'example.com' } } };
+    const result = beforeSend(event);
+    expect(result.request.headers).not.toHaveProperty('x-api-key');
+    expect(result.request.headers.host).toBe('example.com');
+  });
+
+  it('beforeSend redacts token query param in request url', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    initSentry('svc');
+    const beforeSend = mockInit.mock.calls[0][0].beforeSend;
+    const event = { request: { headers: {}, url: 'https://example.com/api?token=supersecret' } };
+    const result = beforeSend(event);
+    // URL-encoded form %5BREDACTED%5D or literal [REDACTED] both indicate redaction
+    expect(result.request.url).toMatch(/\[REDACTED\]|%5BREDACTED%5D/);
+    expect(result.request.url).not.toContain('supersecret');
+  });
+
+  it('beforeSend handles event with no request property', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    initSentry('svc');
+    const beforeSend = mockInit.mock.calls[0][0].beforeSend;
+    const event = { message: 'bare error event' };
+    expect(() => beforeSend(event)).not.toThrow();
+    expect(beforeSend(event)).toEqual(event);
+  });
+
+  it('initSentry passes the service name as serverName to Sentry.init', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    initSentry('api-crm');
+    expect(mockInit.mock.calls[0][0].serverName).toBe('api-crm');
+  });
+});

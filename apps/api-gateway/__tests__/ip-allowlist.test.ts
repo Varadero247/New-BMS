@@ -240,3 +240,89 @@ describe('IP Allowlist — additional coverage', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('IP Allowlist — edge cases and 500 paths', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/ip-allowlist', ipAllowlistRouter);
+    jest.clearAllMocks();
+    mockGetOrgAllowlist.mockReturnValue([]);
+    mockRemoveOrgAllowlistEntry.mockReturnValue(true);
+  });
+
+  it('POST rejects invalid CIDR format (letters)', async () => {
+    const res = await request(app)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: 'not-an-ip', label: 'Bad IP' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST rejects a label that is empty string', async () => {
+    const res = await request(app)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: '10.0.0.1', label: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET list response has a meta.total field', async () => {
+    mockGetOrgAllowlist.mockReturnValue([
+      { id: '00000000-0000-0000-0000-000000000001', cidr: '10.0.0.0/8', label: 'VPN' },
+    ]);
+    const res = await request(app).get('/api/admin/ip-allowlist');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('meta');
+    expect(res.body.meta.total).toBe(1);
+  });
+
+  it('POST returns the new entry id in data', async () => {
+    const res = await request(app)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: '192.168.10.0/24', label: 'Test Net' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('POST returns createdAt in the response data', async () => {
+    const res = await request(app)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: '192.168.20.0/24', label: 'Network B' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('createdAt');
+  });
+
+  it('DELETE returns data.deleted true on success', async () => {
+    const res = await request(app).delete(
+      '/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('DELETE returns error.code NOT_FOUND when entry missing', async () => {
+    mockRemoveOrgAllowlistEntry.mockReturnValueOnce(false);
+    const res = await request(app).delete(
+      '/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000099'
+    );
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /my-ip returns a raw field in data', async () => {
+    const res = await request(app).get('/api/admin/ip-allowlist/my-ip');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('raw');
+  });
+
+  it('POST with /16 subnet does not normalize to /32', async () => {
+    const res = await request(app)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: '10.20.0.0/16', label: 'Subnet' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.cidr).toBe('10.20.0.0/16');
+  });
+});

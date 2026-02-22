@@ -313,3 +313,136 @@ describe('baselines — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('baselines — extended edge cases', () => {
+  const BASELINE_ID = 'e6000000-0000-4000-a000-000000000001';
+
+  it('GET / returns pagination metadata', async () => {
+    (prisma.energyBaseline.findMany as jest.Mock).mockResolvedValue([{ id: BASELINE_ID, name: 'Baseline', year: 2025 }]);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/baselines');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('GET / with page=2 applies correct pagination', async () => {
+    (prisma.energyBaseline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(50);
+
+    const res = await request(app).get('/api/baselines?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(10);
+    expect(res.body.pagination.total).toBe(50);
+  });
+
+  it('PUT /:id/approve returns 500 when update fails', async () => {
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({ id: BASELINE_ID, status: 'DRAFT', deletedAt: null });
+    (prisma.energyBaseline.update as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).put(`/api/baselines/${BASELINE_ID}/approve`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (prisma.energyBaseline.findFirst as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).get(`/api/baselines/${BASELINE_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 on DB error', async () => {
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({ id: BASELINE_ID, deletedAt: null });
+    (prisma.energyBaseline.update as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).delete(`/api/baselines/${BASELINE_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({ id: BASELINE_ID, deletedAt: null });
+    (prisma.energyBaseline.update as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).put(`/api/baselines/${BASELINE_ID}`).send({ name: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / creates baseline with description and adjustmentFactors', async () => {
+    (prisma.energyBaseline.create as jest.Mock).mockResolvedValue({
+      id: BASELINE_ID,
+      name: 'Full Baseline',
+      year: 2025,
+      status: 'DRAFT',
+      description: 'Full test baseline',
+      adjustmentFactors: { heating: 1.1, cooling: 0.9 },
+    });
+
+    const res = await request(app).post('/api/baselines').send({
+      name: 'Full Baseline',
+      year: 2025,
+      totalConsumption: 60000,
+      unit: 'MWh',
+      methodology: 'Statistical regression',
+      description: 'Full test baseline',
+      adjustmentFactors: { heating: 1.1, cooling: 0.9 },
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.description).toBe('Full test baseline');
+  });
+
+  it('PUT /:id approves to ACTIVE status', async () => {
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({
+      id: BASELINE_ID,
+      status: 'DRAFT',
+      deletedAt: null,
+    });
+    (prisma.energyBaseline.update as jest.Mock).mockResolvedValue({
+      id: BASELINE_ID,
+      status: 'ACTIVE',
+      approvedBy: '00000000-0000-4000-a000-000000000123',
+    });
+
+    const res = await request(app).put(`/api/baselines/${BASELINE_ID}/approve`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('ACTIVE');
+    expect(res.body.data.approvedBy).toBeDefined();
+  });
+
+  it('DELETE /:id returns id and deleted:true in data', async () => {
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({ id: BASELINE_ID, deletedAt: null });
+    (prisma.energyBaseline.update as jest.Mock).mockResolvedValue({ id: BASELINE_ID, deletedAt: new Date() });
+
+    const res = await request(app).delete(`/api/baselines/${BASELINE_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(BASELINE_ID);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('POST / rejects year out of valid range', async () => {
+    const res = await request(app).post('/api/baselines').send({
+      name: 'Old Baseline',
+      year: 1999,
+      totalConsumption: 10000,
+      unit: 'kWh',
+      methodology: 'Manual',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+});

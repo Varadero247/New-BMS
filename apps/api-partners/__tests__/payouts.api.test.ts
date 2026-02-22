@@ -257,3 +257,108 @@ describe('payouts.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Payouts — edge cases and field validation', () => {
+  const appWithPartner = express();
+  appWithPartner.use(express.json());
+  appWithPartner.use((req: any, _res: any, next: any) => {
+    req.partner = { id: 'partner-1' };
+    next();
+  });
+  appWithPartner.use('/api/payouts', payoutsRouter);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns 200 when deals list has multiple entries', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd-1', commissionValue: 150 },
+      { id: 'd-2', commissionValue: 250 },
+      { id: 'd-3', commissionValue: 100 },
+    ]);
+    const res = await request(appWithPartner).get('/api/payouts');
+    expect(res.status).toBe(200);
+    expect(res.body.data.availableBalance).toBe(500);
+  });
+
+  it('GET / canRequestPayout is true when balance equals minimum exactly', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd-1', commissionValue: 100 },
+    ]);
+    const res = await request(appWithPartner).get('/api/payouts');
+    expect(res.status).toBe(200);
+    expect(res.body.data.canRequestPayout).toBe(true);
+  });
+
+  it('GET / returns 401 when no partner auth is provided', async () => {
+    const appNoAuth = express();
+    appNoAuth.use(express.json());
+    appNoAuth.use('/api/payouts', payoutsRouter);
+    const res = await request(appNoAuth).get('/api/payouts');
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('POST /request returns 401 when no partner auth is provided', async () => {
+    const appNoAuth = express();
+    appNoAuth.use(express.json());
+    appNoAuth.use('/api/payouts', payoutsRouter);
+    const res = await request(appNoAuth).post('/api/payouts/request');
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('POST /request response success is true on 201', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd-1', commissionValue: 200 },
+    ]);
+    (prisma.mktPartnerPayout.create as jest.Mock).mockResolvedValue({
+      id: 'p-new',
+      amount: 200,
+      status: 'PENDING',
+    });
+    (prisma.mktPartnerDeal.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+    const res = await request(appWithPartner).post('/api/payouts/request');
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /request BELOW_MINIMUM error message includes minimum amount', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd-1', commissionValue: 50 },
+    ]);
+    const res = await request(appWithPartner).post('/api/payouts/request');
+    expect(res.status).toBe(400);
+    expect(res.body.error.message).toContain('100');
+  });
+
+  it('GET / mktPartnerPayout.findMany is called with correct partnerId', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    await request(appWithPartner).get('/api/payouts');
+    expect(prisma.mktPartnerPayout.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { partnerId: 'partner-1' } })
+    );
+  });
+
+  it('GET / mktPartnerDeal.findMany filters commissionPaid: false', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    await request(appWithPartner).get('/api/payouts');
+    expect(prisma.mktPartnerDeal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ commissionPaid: false }),
+      })
+    );
+  });
+
+  it('GET / minPayoutAmount is always 100', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(appWithPartner).get('/api/payouts');
+    expect(res.body.data.minPayoutAmount).toBe(100);
+  });
+});

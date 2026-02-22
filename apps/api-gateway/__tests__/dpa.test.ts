@@ -321,3 +321,93 @@ describe('DPA Routes — additional coverage', () => {
     expect(res.body.data).toHaveProperty('title', 'Data Processing Agreement v1.0');
   });
 });
+
+describe('DPA Routes — 500 paths and extra field validation', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/dpa', dpaRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetActiveDpa.mockReturnValue({
+      id: 'dpa-1',
+      version: '1.0',
+      title: 'Data Processing Agreement v1.0',
+      content: '<p>DPA Terms</p>',
+      isActive: true,
+    });
+    mockAcceptDpa.mockReturnValue({
+      id: 'acc-1',
+      orgId: 'org-1',
+      dpaId: 'dpa-1',
+      dpaVersion: '1.0',
+      signerName: 'John Smith',
+      signerTitle: 'DPO',
+      signedAt: new Date().toISOString(),
+    });
+    mockHasAcceptedDpa.mockReturnValue(false);
+    mockGetDpaAcceptance.mockReturnValue(null);
+  });
+
+  it('GET /api/admin/dpa returns 500 when getActiveDpa throws', async () => {
+    mockGetActiveDpa.mockImplementationOnce(() => { throw new Error('DPA store error'); });
+    const res = await request(app).get('/api/admin/dpa');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/admin/dpa/accept returns 500 when acceptDpa throws', async () => {
+    mockAcceptDpa.mockImplementationOnce(() => { throw new Error('DB error'); });
+    const res = await request(app)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: 'John Smith', signerTitle: 'DPO' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/admin/dpa/acceptance returns 500 when getDpaAcceptance throws', async () => {
+    mockGetDpaAcceptance.mockImplementationOnce(() => { throw new Error('Store unavailable'); });
+    const res = await request(app).get('/api/admin/dpa/acceptance');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/admin/dpa/accept rejects empty signerName string', async () => {
+    const res = await request(app)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: '', signerTitle: 'DPO' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/admin/dpa/accept rejects empty signerTitle string', async () => {
+    const res = await request(app)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: 'John Smith', signerTitle: '' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/admin/dpa response success is true', async () => {
+    const res = await request(app).get('/api/admin/dpa');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/admin/dpa/accept response returns dpaVersion in data', async () => {
+    const res = await request(app)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: 'Jane Doe', signerTitle: 'CFO' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('dpaVersion', '1.0');
+  });
+
+  it('GET /api/admin/dpa/acceptance data.acceptance is null when not yet signed', async () => {
+    const res = await request(app).get('/api/admin/dpa/acceptance');
+    expect(res.status).toBe(200);
+    expect(res.body.data.acceptance).toBeNull();
+  });
+});

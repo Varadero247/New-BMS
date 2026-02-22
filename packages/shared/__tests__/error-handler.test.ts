@@ -237,3 +237,74 @@ describe('errorHandler — additional coverage', () => {
     expect(capturedNext).toBe(nextFn);
   });
 });
+
+// ─── Further edge-case coverage ───────────────────────────────────────────────
+
+describe('errorHandler — further edge cases', () => {
+  it('handles error with statusCode 403 and code FORBIDDEN', () => {
+    const err = Object.assign(new Error('Forbidden'), { statusCode: 403, code: 'FORBIDDEN' });
+    const { res, status, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(status).toHaveBeenCalledWith(403);
+    expect(json.mock.calls[0][0].error.code).toBe('FORBIDDEN');
+  });
+
+  it('uses error message in body for non-500 statusCode errors', () => {
+    const err = Object.assign(new Error('Not allowed here'), { statusCode: 403, code: 'FORBIDDEN' });
+    const { res, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(json.mock.calls[0][0].error.message).toBe('Not allowed here');
+  });
+
+  it('returns INTERNAL_ERROR code when no code is set and no statusCode', () => {
+    const err = new Error('bare error');
+    const { res, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(json.mock.calls[0][0].error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('ZodError with empty issues array still returns 400', () => {
+    const zodErr = Object.assign(new Error('Zod'), { issues: [] });
+    const { res, status } = makeRes();
+    errorHandler(zodErr as any, req, res, next);
+    expect(status).toHaveBeenCalledWith(400);
+  });
+
+  it('ZodError details length matches the issues array length', () => {
+    const issues = [
+      { message: 'Required', path: ['name'] },
+      { message: 'Too short', path: ['bio'] },
+      { message: 'Invalid email', path: ['email'] },
+    ];
+    const zodErr = Object.assign(new Error('Zod'), { issues });
+    const { res, json } = makeRes();
+    errorHandler(zodErr as any, req, res, next);
+    expect(json.mock.calls[0][0].error.details).toHaveLength(3);
+  });
+
+  it('response body always has top-level success property', () => {
+    const err = new Error('test');
+    const { res, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(json.mock.calls[0][0]).toHaveProperty('success');
+  });
+
+  it('asyncHandler does not call next when handler resolves to a value', async () => {
+    const nextFn = jest.fn();
+    const handler = asyncHandler(async () => 'some-return-value');
+    await handler(req, {} as any, nextFn);
+    expect(nextFn).not.toHaveBeenCalled();
+  });
+
+  it('multiple asyncHandler calls are independent', async () => {
+    const nextFn1 = jest.fn();
+    const nextFn2 = jest.fn();
+    const err = new Error('only-second');
+    const h1 = asyncHandler(async () => { /* no error */ });
+    const h2 = asyncHandler(async () => { throw err; });
+    await h1(req, {} as any, nextFn1);
+    await h2(req, {} as any, nextFn2);
+    expect(nextFn1).not.toHaveBeenCalled();
+    expect(nextFn2).toHaveBeenCalledWith(err);
+  });
+});

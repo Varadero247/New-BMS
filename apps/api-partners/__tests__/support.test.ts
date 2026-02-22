@@ -270,3 +270,106 @@ describe('support — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('support — edge cases and extended coverage', () => {
+  it('GET / returns empty array when no tickets exist', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/support');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / passes partnerId to findMany where clause', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/support');
+    expect(portalPrisma.mktPartnerSupportTicket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ partnerId: 'partner-1' }) })
+    );
+  });
+
+  it('POST / returns 400 for invalid priority value', async () => {
+    const res = await request(app)
+      .post('/api/support')
+      .send({ subject: 'Help', description: 'Details', priority: 'SUPER_URGENT' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / responds 201 when creating with valid priority LOW', async () => {
+    (portalPrisma.mktPartnerSupportTicket.create as jest.Mock).mockResolvedValue({
+      ...mockTicket,
+      status: 'OPEN',
+      priority: 'LOW',
+    });
+    const res = await request(app)
+      .post('/api/support')
+      .send({ subject: 'New Issue', description: 'Some detail', priority: 'LOW' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns 404 when ticket does not exist', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/support/00000000-0000-0000-0000-000000000002');
+    expect(res.status).toBe(404);
+  });
+
+  it('POST /:id/messages returns 404 if ticket not found', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/support/00000000-0000-0000-0000-000000000002/messages')
+      .send({ body: 'Hello' });
+    expect(res.status).toBe(404);
+  });
+
+  it('POST /:id/messages returns 500 when message create fails', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(mockTicket);
+    (portalPrisma.mktTicketMessage.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/support/00000000-0000-0000-0000-000000000001/messages')
+      .send({ body: 'Test message' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id/close returns non-200 when ticket already closed', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue({
+      ...mockTicket,
+      status: 'CLOSED',
+    });
+    const res = await request(app).patch('/api/support/00000000-0000-0000-0000-000000000001/close');
+    expect([400, 404, 409, 500]).toContain(res.status);
+  });
+
+  it('GET /:id returns success true on found ticket', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(mockTicket);
+    const res = await request(app).get('/api/support/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / filters by OPEN status correctly', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findMany as jest.Mock).mockResolvedValue([mockTicket]);
+    const res = await request(app).get('/api/support?status=OPEN');
+    expect(res.status).toBe(200);
+    expect(portalPrisma.mktPartnerSupportTicket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'OPEN' }) })
+    );
+  });
+
+  it('PATCH /:id/close sets resolvedAt on successful close', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(mockTicket);
+    (portalPrisma.mktPartnerSupportTicket.update as jest.Mock).mockResolvedValue({
+      ...mockTicket,
+      status: 'CLOSED',
+      resolvedAt: new Date(),
+    });
+    const res = await request(app).patch('/api/support/00000000-0000-0000-0000-000000000001/close');
+    expect(res.status).toBe(200);
+    expect(portalPrisma.mktPartnerSupportTicket.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'CLOSED' }),
+      })
+    );
+  });
+});

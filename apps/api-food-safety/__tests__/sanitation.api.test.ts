@@ -262,3 +262,99 @@ describe('sanitation.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('sanitation.api — edge cases and extended coverage', () => {
+  it('GET /api/sanitation returns pagination metadata', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(40);
+
+    const res = await request(app).get('/api/sanitation?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toMatchObject({ page: 2, limit: 10, total: 40, totalPages: 4 });
+  });
+
+  it('GET /api/sanitation filters by combined status and frequency', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(0);
+
+    await request(app).get('/api/sanitation?status=COMPLETED&frequency=WEEKLY');
+    expect(mockPrisma.fsSanitation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'COMPLETED', frequency: 'WEEKLY' }),
+      })
+    );
+  });
+
+  it('POST /api/sanitation rejects missing procedure', async () => {
+    const res = await request(app).post('/api/sanitation').send({
+      area: 'Kitchen',
+      frequency: 'DAILY',
+      scheduledDate: '2026-02-15',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/sanitation/:id handles 500 on update', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSanitation.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/sanitation/00000000-0000-0000-0000-000000000001')
+      .send({ area: 'Storage' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/sanitation/:id returns confirmation message', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSanitation.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).delete('/api/sanitation/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('DELETE /api/sanitation/:id handles 500 on update', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSanitation.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/sanitation/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/sanitation/:id/complete handles 500 on update', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SCHEDULED',
+    });
+    mockPrisma.fsSanitation.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/sanitation/00000000-0000-0000-0000-000000000001/complete')
+      .send({ result: 'PASS' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/sanitation/:id handles 500 on findFirst', async () => {
+    mockPrisma.fsSanitation.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/sanitation/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/sanitation/overdue returns empty array when none overdue', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/sanitation/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

@@ -244,3 +244,93 @@ describe('stripe-dunning — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('stripe-dunning — edge cases and field validation', () => {
+  it('stores customerEmail from invoice.customer_email', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'dun-ec-1' } as any);
+    await request(app).post('/api/webhooks/stripe-dunning').send(validPaymentFailedEvent);
+    const createCall = mockPrisma.dunningSequence.create.mock.calls[0][0];
+    expect(createCall.data.customerEmail).toBe('billing@acme.com');
+  });
+
+  it('stores customerName from invoice.customer_name', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'dun-ec-2' } as any);
+    await request(app).post('/api/webhooks/stripe-dunning').send(validPaymentFailedEvent);
+    const createCall = mockPrisma.dunningSequence.create.mock.calls[0][0];
+    expect(createCall.data.customerName).toBe('Acme Corp');
+  });
+
+  it('stores stripeCustomerId from invoice.customer', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'dun-ec-3' } as any);
+    await request(app).post('/api/webhooks/stripe-dunning').send(validPaymentFailedEvent);
+    const createCall = mockPrisma.dunningSequence.create.mock.calls[0][0];
+    expect(createCall.data.stripeCustomerId).toBe('cus_001');
+  });
+
+  it('stores currency from invoice', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'dun-ec-4' } as any);
+    await request(app).post('/api/webhooks/stripe-dunning').send(validPaymentFailedEvent);
+    const createCall = mockPrisma.dunningSequence.create.mock.calls[0][0];
+    expect(createCall.data.currency).toBe('gbp');
+  });
+
+  it('findFirst is called with the invoice id as stripeInvoiceId', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'dun-ec-5' } as any);
+    await request(app).post('/api/webhooks/stripe-dunning').send(validPaymentFailedEvent);
+    expect(mockPrisma.dunningSequence.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ stripeInvoiceId: 'in_001' }) })
+    );
+  });
+
+  it('returns 200 with ignored message for invoice.paid event type', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe-dunning')
+      .send({ id: 'evt_paid', type: 'invoice.paid', data: { object: {} } });
+    expect(res.status).toBe(200);
+    expect(res.body.data.type).toBe('invoice.paid');
+  });
+
+  it('returns 200 for invoice.voided event type', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe-dunning')
+      .send({ id: 'evt_void', type: 'invoice.voided', data: {} });
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Event type ignored');
+  });
+
+  it('GET /active returns ordered sequences (array is ordered)', async () => {
+    const seq = [
+      { id: 'seq-z', createdAt: new Date('2026-01-02') },
+      { id: 'seq-a', createdAt: new Date('2026-01-01') },
+    ];
+    mockPrisma.dunningSequence.findMany.mockResolvedValue(seq as any);
+    const res = await request(app).get('/api/webhooks/stripe-dunning/active');
+    expect(res.status).toBe(200);
+    expect(res.body.data.sequences[0].id).toBe('seq-z');
+  });
+
+  it('create receives nextActionAt as a Date', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'dun-ec-8' } as any);
+    await request(app).post('/api/webhooks/stripe-dunning').send(validPaymentFailedEvent);
+    const createCall = mockPrisma.dunningSequence.create.mock.calls[0][0];
+    expect(createCall.data.nextActionAt).toBeInstanceOf(Date);
+  });
+
+  it('zero amount_due is stored as 0 amountDue', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'dun-ec-9' } as any);
+    const event = {
+      ...validPaymentFailedEvent,
+      data: { object: { ...validPaymentFailedEvent.data.object, amount_due: 0 } },
+    };
+    await request(app).post('/api/webhooks/stripe-dunning').send(event);
+    const createCall = mockPrisma.dunningSequence.create.mock.calls[0][0];
+    expect(createCall.data.amountDue).toBe(0);
+  });
+});

@@ -284,3 +284,111 @@ describe('customers.api — additional coverage', () => {
     }
   });
 });
+
+// ─── Extended coverage ───────────────────────────────────────────────────────
+
+describe('customers.api — extended edge cases', () => {
+  it('GET / applies page and limit to query', async () => {
+    mockPrisma.fsSvcCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcCustomer.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customers?page=3&limit=5');
+
+    expect(mockPrisma.fsSvcCustomer.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('GET / returns correct pagination total', async () => {
+    mockPrisma.fsSvcCustomer.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Alpha' },
+    ]);
+    mockPrisma.fsSvcCustomer.count.mockResolvedValue(42);
+
+    const res = await request(app).get('/api/customers');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('GET / filters by isActive=false', async () => {
+    mockPrisma.fsSvcCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcCustomer.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customers?isActive=false');
+
+    expect(mockPrisma.fsSvcCustomer.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ isActive: false }),
+      })
+    );
+  });
+
+  it('POST / returns 400 when name is missing entirely', async () => {
+    const res = await request(app).post('/api/customers').send({ address: { city: 'Paris' } });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /:id/sites returns 500 on DB error', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcSite.findMany.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001/sites');
+
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /:id/jobs returns 404 if customer not found', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000099/jobs');
+
+    expect(res.status).toBe(404);
+  });
+
+  it('PUT /:id calls update with the correct id', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002' });
+    mockPrisma.fsSvcCustomer.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', name: 'Beta' });
+
+    await request(app)
+      .put('/api/customers/00000000-0000-0000-0000-000000000002')
+      .send({ name: 'Beta' });
+
+    expect(mockPrisma.fsSvcCustomer.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000002' } })
+    );
+  });
+
+  it('DELETE /:id returns success:true', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003' });
+    mockPrisma.fsSvcCustomer.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/customers/00000000-0000-0000-0000-000000000003');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id/jobs returns pagination metadata', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([{ id: 'job-1' }, { id: 'job-2' }]);
+    mockPrisma.fsSvcJob.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001/jobs');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination.total).toBe(2);
+  });
+
+  it('DELETE /:id returns 500 when update rejects', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004' });
+    mockPrisma.fsSvcCustomer.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/customers/00000000-0000-0000-0000-000000000004');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

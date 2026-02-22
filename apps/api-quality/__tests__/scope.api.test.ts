@@ -316,3 +316,163 @@ describe('scope.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Quality Scope — additional edge cases', () => {
+  const validBody = {
+    scope: 'Full manufacturing scope covering all production lines.',
+    purpose: 'Define QMS applicability.',
+    exclusions: 'Offsite design activities',
+    boundaries: 'Main plant only',
+    applicableStandards: 'ISO 9001:2015',
+    version: '2.0',
+    status: 'APPROVED',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/scope returns boundaries from parsed keyChanges', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue({
+      id: 'doc-uuid-3',
+      referenceNumber: 'QMS-SCP-2601-002',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: 'All processes.',
+      purpose: 'Define scope.',
+      keyChanges: JSON.stringify({ exclusions: 'None', boundaries: 'All sites', applicableStandards: 'ISO 9001' }),
+      version: '1.0',
+      status: 'APPROVED',
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data.boundaries).toBe('All sites');
+  });
+
+  it('PUT /api/scope returns 400 when scope is empty string', async () => {
+    const res = await request(app).put('/api/scope').send({ ...validBody, scope: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/scope returns success:true on successful update', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue({
+      id: 'doc-uuid-2',
+      referenceNumber: 'QMS-SCP-2601-001',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: 'Old scope',
+      purpose: 'Old purpose',
+      keyChanges: null,
+      version: '1.0',
+      status: 'DRAFT',
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    mockPrisma.qualDocument.update.mockResolvedValue({
+      id: 'doc-uuid-2',
+      referenceNumber: 'QMS-SCP-2601-001',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: validBody.scope,
+      purpose: validBody.purpose,
+      keyChanges: JSON.stringify({ exclusions: validBody.exclusions, boundaries: validBody.boundaries, applicableStandards: validBody.applicableStandards }),
+      version: validBody.version,
+      status: validBody.status,
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    const res = await request(app).put('/api/scope').send(validBody);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/scope data.id is null when no document exists', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBeNull();
+  });
+
+  it('GET /api/scope returns exclusions from keyChanges', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue({
+      id: 'doc-uuid-4',
+      referenceNumber: 'QMS-SCP-2601-003',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: 'Scope text.',
+      purpose: 'Purpose text.',
+      keyChanges: JSON.stringify({ exclusions: 'Design at HQ only', boundaries: 'All', applicableStandards: 'ISO 9001:2015' }),
+      version: '1.0',
+      status: 'DRAFT',
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data.exclusions).toBe('Design at HQ only');
+  });
+
+  it('PUT /api/scope calls create when document does not exist', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.qualDocument.count.mockResolvedValue(0);
+    mockPrisma.qualDocument.create.mockResolvedValue({
+      id: 'new-doc',
+      referenceNumber: 'QMS-SCP-2601-004',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: validBody.scope,
+      purpose: validBody.purpose,
+      keyChanges: JSON.stringify({ exclusions: validBody.exclusions, boundaries: validBody.boundaries, applicableStandards: validBody.applicableStandards }),
+      version: validBody.version,
+      status: validBody.status,
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await request(app).put('/api/scope').send(validBody);
+    expect(mockPrisma.qualDocument.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/scope INTERNAL_ERROR code returned on 500', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.qualDocument.count.mockResolvedValue(0);
+    mockPrisma.qualDocument.create.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).put('/api/scope').send(validBody);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/scope INTERNAL_ERROR code returned on 500', async () => {
+    mockPrisma.qualDocument.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

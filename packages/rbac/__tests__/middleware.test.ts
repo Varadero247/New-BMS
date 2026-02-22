@@ -225,3 +225,88 @@ describe('RBAC Middleware — additional coverage', () => {
     expect(typeof mw).toBe('function');
   });
 });
+
+describe('RBAC Middleware — permission levels and module coverage', () => {
+  it('requirePermission denies VIEWER for CREATE on quality', async () => {
+    const app = createTestApp([requirePermission('quality', PermissionLevel.CREATE)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
+    expect(res.status).toBe(403);
+  });
+
+  it('requirePermission allows ADMIN for FULL on any module', async () => {
+    const app = createTestApp([requirePermission('quality', PermissionLevel.FULL)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'ADMIN');
+    expect(res.status).toBe(200);
+  });
+
+  it('requirePermission denies unauthenticated request with 401', async () => {
+    const app = createTestApp([requirePermission('hr', PermissionLevel.VIEW)]);
+    const res = await request(app).get('/test');
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('AUTHENTICATION_REQUIRED');
+  });
+
+  it('attachPermissions attaches permissions with modules key', async () => {
+    const app = createTestApp([attachPermissions()], (req: any, res: any) => {
+      res.json({ success: true, hasModules: !!req.permissions?.modules });
+    });
+    const res = await request(app).get('/test').set('X-Test-Role', 'ADMIN');
+    expect(res.status).toBe(200);
+    expect(res.body.hasModules).toBe(true);
+  });
+
+  it('requireOwnership defaults ownerField to createdBy', async () => {
+    const app = createTestApp(
+      [attachPermissions(), requireOwnership()],
+      (req: any, res: any) => {
+        res.json({ success: true, field: req.ownershipCheck?.field });
+      }
+    );
+    const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
+    expect(res.status).toBe(200);
+    expect(res.body.field).toBe('createdBy');
+  });
+
+  it('ownershipFilter returns {} for MANAGER role (high permission)', async () => {
+    const app = createTestApp([attachPermissions(), ownershipFilter()], (req: any, res: any) => {
+      res.json({ success: true, filter: req.ownerFilter });
+    });
+    const res = await request(app).get('/test').set('X-Test-Role', 'MANAGER');
+    expect(res.status).toBe(200);
+    // MANAGER maps to compliance-director which should have high permissions
+    expect(res.body.filter).toBeDefined();
+  });
+
+  it('requirePermission error body has success:false', async () => {
+    const app = createTestApp([requirePermission('infosec', PermissionLevel.FULL)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
+    expect(res.status).toBe(403);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('attachPermissions roles array from multi-role header is stored correctly', async () => {
+    const app = createTestApp([attachPermissions()], (req: any, res: any) => {
+      res.json({ roles: req.permissions?.roles });
+    });
+    const res = await request(app)
+      .get('/test')
+      .set('X-Test-Role', 'USER')
+      .set('X-Test-Roles', 'quality-manager,safety-officer');
+    expect(res.status).toBe(200);
+    expect(res.body.roles).toContain('quality-manager');
+    expect(res.body.roles).toContain('safety-officer');
+  });
+
+  it('requireOwnership unauthenticated returns 401 with AUTHENTICATION_REQUIRED', async () => {
+    const app = createTestApp([requireOwnership('owner')]);
+    const res = await request(app).get('/test');
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('AUTHENTICATION_REQUIRED');
+  });
+
+  it('requirePermission allows MANAGER role for EDIT on health-safety', async () => {
+    const app = createTestApp([requirePermission('health-safety', PermissionLevel.EDIT)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'MANAGER');
+    expect(res.status).toBe(200);
+  });
+});

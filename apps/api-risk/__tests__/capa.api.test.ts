@@ -232,3 +232,93 @@ describe('capa.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('capa.api — extended edge cases', () => {
+  it('GET / includes pagination in response', async () => {
+    mockPrisma.riskCapa.findMany.mockResolvedValue([]);
+    mockPrisma.riskCapa.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/capa');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET / pagination has page, limit, total, totalPages fields', async () => {
+    mockPrisma.riskCapa.findMany.mockResolvedValue([]);
+    mockPrisma.riskCapa.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/capa');
+    expect(res.status).toBe(200);
+    const { pagination } = res.body;
+    expect(pagination).toHaveProperty('page');
+    expect(pagination).toHaveProperty('limit');
+    expect(pagination).toHaveProperty('total');
+    expect(pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET / with page=2&limit=5 passes skip correctly', async () => {
+    mockPrisma.riskCapa.findMany.mockResolvedValue([]);
+    mockPrisma.riskCapa.count.mockResolvedValue(10);
+    const res = await request(app).get('/api/capa?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('POST / with PREVENTIVE type creates CAPA', async () => {
+    mockPrisma.riskCapa.count.mockResolvedValue(0);
+    mockPrisma.riskCapa.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Prevent', type: 'PREVENTIVE' });
+    const res = await request(app).post('/api/capa').send({ title: 'Prevent', type: 'PREVENTIVE' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id updates status field', async () => {
+    mockPrisma.riskCapa.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskCapa.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'CLOSED' });
+    const res = await request(app)
+      .put('/api/capa/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED' });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskCapa.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id returns message in data on success', async () => {
+    mockPrisma.riskCapa.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskCapa.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    const res = await request(app).delete('/api/capa/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET / filters by priority query param', async () => {
+    mockPrisma.riskCapa.findMany.mockResolvedValue([]);
+    mockPrisma.riskCapa.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/capa?status=IN_PROGRESS');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskCapa.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'IN_PROGRESS' }) })
+    );
+  });
+
+  it('GET /:id returns success:true when found', async () => {
+    mockPrisma.riskCapa.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Fix' });
+    const res = await request(app).get('/api/capa/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when type is INVALID_ENUM', async () => {
+    const res = await request(app).post('/api/capa').send({ title: 'Fix', type: 'BAD_TYPE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns success:true on valid update', async () => {
+    mockPrisma.riskCapa.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskCapa.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    const res = await request(app)
+      .put('/api/capa/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

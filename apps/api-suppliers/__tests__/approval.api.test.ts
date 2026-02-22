@@ -228,3 +228,59 @@ describe('approval.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('approval.api — status field and update payload', () => {
+  it('approve update payload sets status APPROVED', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000006', status: 'APPROVED' });
+    await request(app).post('/api/approval/00000000-0000-0000-0000-000000000006/approve');
+    const call = mockPrisma.suppSupplier.update.mock.calls[0][0];
+    expect(call.data.status).toBe('APPROVED');
+  });
+
+  it('suspend update payload sets status SUSPENDED', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000007', status: 'SUSPENDED' });
+    await request(app).post('/api/approval/00000000-0000-0000-0000-000000000007/suspend');
+    const call = mockPrisma.suppSupplier.update.mock.calls[0][0];
+    expect(call.data.status).toBe('SUSPENDED');
+  });
+
+  it('approve response body has data.status equal to APPROVED', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000008', status: 'APPROVED' });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000008/approve');
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+
+  it('suspend response body has data.status equal to SUSPENDED', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000009', status: 'SUSPENDED' });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000009/suspend');
+    expect(res.body.data.status).toBe('SUSPENDED');
+  });
+
+  it('both approve and suspend return HTTP 200 on success', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', status: 'APPROVED' });
+    const approveRes = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000010/approve');
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', status: 'SUSPENDED' });
+    const suspendRes = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000010/suspend');
+    expect(approveRes.status).toBe(200);
+    expect(suspendRes.status).toBe(200);
+  });
+
+  it('each POST action only calls update once', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000011', status: 'APPROVED' });
+    await request(app).post('/api/approval/00000000-0000-0000-0000-000000000011/approve');
+    expect(mockPrisma.suppSupplier.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('error response success field is false', async () => {
+    mockPrisma.suppSupplier.update.mockRejectedValue(new Error('network error'));
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('response body is a JSON object for approve', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED' });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    expect(typeof res.body).toBe('object');
+    expect(res.body).not.toBeNull();
+  });
+});

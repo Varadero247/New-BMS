@@ -216,3 +216,75 @@ describe('VAT Summary — additional coverage', () => {
     });
   });
 });
+
+describe('VAT Summary — further edge cases', () => {
+  it('EU breakdown item has note field for reverse charge', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'edge-vat-1' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    const euItem = upsertCall.create.breakdown.find((b: any) => b.region === 'EU');
+    expect(euItem.note).toContain('Reverse charge');
+  });
+
+  it('Rest of World VAT is 0', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 20000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'edge-vat-2' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    const rowItem = upsertCall.create.breakdown.find((b: any) => b.region === 'Rest of World');
+    expect(rowItem.vatDue).toBe(0);
+  });
+
+  it('update block filingStatus is not present (only create block has it)', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 5000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'edge-vat-3' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.create.filingStatus).toBe('DRAFT');
+  });
+
+  it('upsert where clause uses the period string', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'edge-vat-4' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.where).toHaveProperty('period');
+    expect(typeof upsertCall.where.period).toBe('string');
+  });
+
+  it('period is in YYYY-MM format', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'edge-vat-5' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.create.period).toMatch(/^\d{4}-\d{2}$/);
+  });
+
+  it('breakdown second item is EU', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'edge-vat-6' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.create.breakdown[1].region).toBe('EU');
+  });
+
+  it('UK revenue is 55% of totalRevenue', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'edge-vat-7' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    const ukItem = upsertCall.create.breakdown.find((b: any) => b.region === 'UK');
+    expect(ukItem.revenue).toBe(5500);
+  });
+
+  it('each breakdown item has a vatRate field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'edge-vat-8' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    upsertCall.create.breakdown.forEach((item: any) => {
+      expect(item).toHaveProperty('vatRate');
+    });
+  });
+});

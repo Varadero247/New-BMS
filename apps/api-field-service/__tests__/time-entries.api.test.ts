@@ -293,3 +293,96 @@ describe('time-entries.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+// ===================================================================
+// Field Service Time Entries — edge cases and validation
+// ===================================================================
+describe('Field Service Time Entries — edge cases and validation', () => {
+  it('GET / pagination total matches count mock', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(99);
+    const res = await request(app).get('/api/time-entries');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(99);
+  });
+
+  it('GET / success flag is true on valid response', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/time-entries');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / rejects missing jobId', async () => {
+    const res = await request(app).post('/api/time-entries').send({
+      technicianId: '00000000-0000-0000-0000-000000000002',
+      type: 'WORK',
+      startTime: '2026-02-21T08:00:00Z',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / rejects missing technicianId', async () => {
+    const res = await request(app).post('/api/time-entries').send({
+      jobId: '00000000-0000-0000-0000-000000000001',
+      type: 'WORK',
+      startTime: '2026-02-21T08:00:00Z',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /summary returns empty array when no entries exist', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/time-entries/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /summary groups multiple entries per technician', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([
+      { technicianId: 'tech-a', type: 'WORK', duration: 3, billable: true, technician: { name: 'Alice' } },
+      { technicianId: 'tech-a', type: 'WORK', duration: 2, billable: true, technician: { name: 'Alice' } },
+      { technicianId: 'tech-b', type: 'TRAVEL', duration: 1, billable: false, technician: { name: 'Bob' } },
+    ]);
+    const res = await request(app).get('/api/time-entries/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('PUT /:id update passes correct id in where clause', async () => {
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000007' });
+    mockPrisma.fsSvcTimeEntry.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000007', type: 'TRAVEL' });
+    await request(app)
+      .put('/api/time-entries/00000000-0000-0000-0000-000000000007')
+      .send({ type: 'TRAVEL' });
+    expect(mockPrisma.fsSvcTimeEntry.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000007' }) })
+    );
+  });
+
+  it('DELETE /:id returns message Time entry deleted', async () => {
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000008' });
+    mockPrisma.fsSvcTimeEntry.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000008', deletedAt: new Date() });
+    const res = await request(app).delete('/api/time-entries/00000000-0000-0000-0000-000000000008');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Time entry deleted');
+  });
+
+  it('GET / data array is always an array', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/time-entries');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / filters by both jobId and technicianId together', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(0);
+    await request(app).get('/api/time-entries?jobId=job-x&technicianId=tech-y');
+    expect(mockPrisma.fsSvcTimeEntry.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ jobId: 'job-x', technicianId: 'tech-y' }),
+      })
+    );
+  });
+});

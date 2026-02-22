@@ -232,3 +232,104 @@ describe('PUT /api/stakeholder-plans/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ── Extended coverage ──────────────────────────────────────────────────────
+
+describe('stakeholder-plans — extended coverage', () => {
+  it('GET / returns pagination metadata with total and totalPages', async () => {
+    (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mockResolvedValue([mockPlan]);
+    (mockPrisma.esgStakeholderPlan.count as jest.Mock).mockResolvedValue(25);
+    const res = await request(app).get('/api/stakeholder-plans?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(25);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET / filters by both reportingYear and returns correct count', async () => {
+    (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgStakeholderPlan.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/stakeholder-plans?reportingYear=2025');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    const [call] = (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.reportingYear).toBe(2025);
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (mockPrisma.esgStakeholderPlan.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/stakeholder-plans/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / with optional date fields succeeds', async () => {
+    (mockPrisma.esgStakeholderPlan.create as jest.Mock).mockResolvedValue(mockPlan);
+    const res = await request(app).post('/api/stakeholder-plans').send({
+      stakeholderGroup: 'Employees',
+      engagementPurpose: 'Annual survey',
+      frequency: 'ANNUAL',
+      methods: ['SURVEY'],
+      reportingYear: 2026,
+      responsibleTeam: 'HR',
+      lastEngagementDate: '2025-12-01',
+      nextEngagementDate: '2026-06-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when stakeholderGroup is missing', async () => {
+    const res = await request(app).post('/api/stakeholder-plans').send({
+      engagementPurpose: 'Some purpose',
+      frequency: 'ANNUAL',
+      methods: ['MEETING'],
+      reportingYear: 2026,
+      responsibleTeam: 'Risk',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 when responsibleTeam is missing', async () => {
+    const res = await request(app).post('/api/stakeholder-plans').send({
+      stakeholderGroup: 'NGOs',
+      engagementPurpose: 'Engage NGOs',
+      frequency: 'QUARTERLY',
+      methods: ['MEETING'],
+      reportingYear: 2026,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id returns 404 for soft-deleted plan', async () => {
+    (mockPrisma.esgStakeholderPlan.findUnique as jest.Mock).mockResolvedValue({
+      ...mockPlan,
+      deletedAt: new Date(),
+    });
+    const res = await request(app)
+      .put('/api/stakeholder-plans/00000000-0000-0000-0000-000000000001')
+      .send({ frequency: 'MONTHLY' });
+    expect(res.status).toBe(404);
+  });
+
+  it('GET / success field is true on 200 response', async () => {
+    (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgStakeholderPlan.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/stakeholder-plans');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT / accepts ONGOING frequency', async () => {
+    (mockPrisma.esgStakeholderPlan.findUnique as jest.Mock).mockResolvedValue(mockPlan);
+    (mockPrisma.esgStakeholderPlan.update as jest.Mock).mockResolvedValue({
+      ...mockPlan,
+      frequency: 'ONGOING',
+    });
+    const res = await request(app)
+      .put('/api/stakeholder-plans/00000000-0000-0000-0000-000000000001')
+      .send({ frequency: 'ONGOING' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.frequency).toBe('ONGOING');
+  });
+});

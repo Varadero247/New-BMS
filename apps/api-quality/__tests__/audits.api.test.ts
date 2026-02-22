@@ -280,3 +280,96 @@ describe('audits.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('Quality Audits API — extended edge cases', () => {
+  const mockAudit = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-AUD-2026-001',
+    title: 'Internal QMS Audit',
+    auditType: 'INTERNAL',
+    scope: 'Full QMS scope review',
+    leadAuditor: 'Jane Auditor',
+    status: 'PLANNED',
+    deletedAt: null,
+  };
+
+  it('GET / returns correct pagination metadata', async () => {
+    mockPrisma.qualAudit.findMany.mockResolvedValue([]);
+    mockPrisma.qualAudit.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/audits?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(10);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('GET / pagination object has page, limit, total, totalPages', async () => {
+    mockPrisma.qualAudit.findMany.mockResolvedValue([]);
+    mockPrisma.qualAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('DELETE /:id returns id and deleted:true in data', async () => {
+    mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
+    mockPrisma.qualAudit.update.mockResolvedValue({ ...mockAudit, deletedAt: new Date() });
+    const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('PUT /:id validates and rejects invalid auditType in update', async () => {
+    mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
+    const res = await request(app).put('/api/audits/00000000-0000-0000-0000-000000000001').send({ auditType: 'BOGUS' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / creates audit with scheduled date', async () => {
+    mockPrisma.qualAudit.count.mockResolvedValue(1);
+    mockPrisma.qualAudit.create.mockResolvedValue(mockAudit);
+    const res = await request(app).post('/api/audits').send({
+      title: 'Scheduled Audit',
+      auditType: 'EXTERNAL',
+      scope: 'Supplier scope',
+      leadAuditor: 'Bob',
+      scheduledDate: '2026-06-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / filters by both status and auditType', async () => {
+    mockPrisma.qualAudit.findMany.mockResolvedValue([mockAudit]);
+    mockPrisma.qualAudit.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/audits?status=PLANNED&auditType=INTERNAL');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / returns empty data array when no audits match filters', async () => {
+    mockPrisma.qualAudit.findMany.mockResolvedValue([]);
+    mockPrisma.qualAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits?status=CANCELLED');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('PUT /:id updates status to COMPLETED successfully', async () => {
+    mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
+    mockPrisma.qualAudit.update.mockResolvedValue({ ...mockAudit, status: 'COMPLETED' });
+    const res = await request(app).put('/api/audits/00000000-0000-0000-0000-000000000001').send({ status: 'COMPLETED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLETED');
+  });
+
+  it('GET /:id returns success true on found audit', async () => {
+    mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
+    const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.referenceNumber).toBe('QMS-AUD-2026-001');
+  });
+});

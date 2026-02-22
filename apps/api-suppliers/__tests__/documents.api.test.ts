@@ -235,3 +235,93 @@ describe('documents.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('documents.api — pagination and extended paths', () => {
+  it('GET / pagination object contains page, limit, total, totalPages', async () => {
+    mockPrisma.suppDocument.findMany.mockResolvedValue([]);
+    mockPrisma.suppDocument.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/documents?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET / pagination total equals the count mock', async () => {
+    mockPrisma.suppDocument.findMany.mockResolvedValue([]);
+    mockPrisma.suppDocument.count.mockResolvedValue(88);
+    const res = await request(app).get('/api/documents');
+    expect(res.body.pagination.total).toBe(88);
+  });
+
+  it('POST / with fileUrl and expiryDate succeeds', async () => {
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'ISO Cert',
+      supplierId: 'sup-1',
+    });
+    const res = await request(app).post('/api/documents').send({
+      supplierId: 'sup-1',
+      title: 'ISO Cert',
+      type: 'CERTIFICATE',
+      fileUrl: 'https://example.com/cert.pdf',
+      expiryDate: '2027-01-01T00:00:00.000Z',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / with page=1 limit=5 returns 200 and data array', async () => {
+    mockPrisma.suppDocument.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Doc A' },
+    ]);
+    mockPrisma.suppDocument.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/documents?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id returns message document deleted successfully', async () => {
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('document deleted successfully');
+  });
+
+  it('POST / returns 400 when title is empty string', async () => {
+    const res = await request(app).post('/api/documents').send({
+      supplierId: 'sup-1',
+      title: '',
+      type: 'CERTIFICATE',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id with isVerified:true succeeds', async () => {
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppDocument.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      isVerified: true,
+    });
+    const res = await request(app)
+      .put('/api/documents/00000000-0000-0000-0000-000000000001')
+      .send({ isVerified: true, verifiedBy: 'auditor@example.com' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('count error causes 500 on POST', async () => {
+    mockPrisma.suppDocument.count.mockRejectedValue(new Error('count failed'));
+    const res = await request(app).post('/api/documents').send({
+      supplierId: 'sup-1',
+      title: 'Doc',
+      type: 'LICENSE',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

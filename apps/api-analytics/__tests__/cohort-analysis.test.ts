@@ -220,3 +220,74 @@ describe('Cohort Analysis — additional edge cases', () => {
     await expect(runCohortAnalysis(1, '2026-03')).rejects.toThrow('DB unavailable');
   });
 });
+
+// ===================================================================
+// Cohort Analysis — further edge cases and property assertions
+// ===================================================================
+describe('Cohort Analysis — further edge cases', () => {
+  it('monthNumber=10 creates exactly 10 upsert calls', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(10, '2026-12');
+    expect((prisma.cohortData.upsert as jest.Mock).mock.calls).toHaveLength(10);
+  });
+
+  it('all create.cohortAge values are non-negative integers', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(5, '2026-07');
+    for (const call of (prisma.cohortData.upsert as jest.Mock).mock.calls) {
+      const age = call[0].create.cohortAge;
+      expect(age).toBeGreaterThanOrEqual(0);
+      expect(Number.isInteger(age)).toBe(true);
+    }
+  });
+
+  it('all ndrPct values are between 0 and 200 (inclusive)', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(8, '2026-10');
+    for (const call of (prisma.cohortData.upsert as jest.Mock).mock.calls) {
+      const ndr = call[0].create.ndrPct;
+      expect(ndr).toBeGreaterThanOrEqual(0);
+      expect(ndr).toBeLessThanOrEqual(200);
+    }
+  });
+
+  it('update block contains retentionPct and ndrPct for all upsert calls', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(3, '2026-05');
+    for (const call of (prisma.cohortData.upsert as jest.Mock).mock.calls) {
+      expect(call[0].update).toHaveProperty('retentionPct');
+      expect(call[0].update).toHaveProperty('ndrPct');
+    }
+  });
+
+  it('measureMonth for the last upsert call equals the supplied currentMonth', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(4, '2026-06');
+    const calls = (prisma.cohortData.upsert as jest.Mock).mock.calls;
+    const lastCall = calls[calls.length - 1][0];
+    expect(lastCall.create.measureMonth).toBe('2026-06');
+  });
+
+  it('monthNumber=2 generates cohortAge values [1, 0] in order', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(2, '2026-04');
+    const calls = (prisma.cohortData.upsert as jest.Mock).mock.calls;
+    expect(calls[0][0].create.cohortAge).toBe(1);
+    expect(calls[1][0].create.cohortAge).toBe(0);
+  });
+
+  it('throws original error message when upsert rejects on monthNumber=5', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockRejectedValue(new Error('timeout'));
+    await expect(runCohortAnalysis(5, '2026-07')).rejects.toThrow('timeout');
+  });
+
+  it('all upsert where clauses are plain objects (not null/undefined)', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(3, '2026-05');
+    for (const call of (prisma.cohortData.upsert as jest.Mock).mock.calls) {
+      expect(call[0].where).toBeDefined();
+      expect(typeof call[0].where).toBe('object');
+      expect(call[0].where).not.toBeNull();
+    }
+  });
+});

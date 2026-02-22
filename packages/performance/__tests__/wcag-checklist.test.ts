@@ -148,3 +148,66 @@ describe('WCAG 2.2 AA Checklist — additional coverage', () => {
     expect(count1).toBe(count2);
   });
 });
+
+describe('WCAG 2.2 AA Checklist — deeper validation', () => {
+  it('criterion 1.1.1 Non-text Content is present and Level A', () => {
+    const criterion = WCAG_22_AA_CHECKLIST.find((c) => c.id === '1.1.1');
+    expect(criterion).toBeDefined();
+    expect(criterion!.level).toBe('A');
+  });
+
+  it('criterion 1.4.3 Contrast (Minimum) is Level AA', () => {
+    const criterion = WCAG_22_AA_CHECKLIST.find((c) => c.id === '1.4.3');
+    expect(criterion).toBeDefined();
+    expect(criterion!.level).toBe('AA');
+  });
+
+  it('IDs are sorted in ascending order', () => {
+    const ids = WCAG_22_AA_CHECKLIST.map((c) => c.id);
+    const sorted = [...ids].sort((a, b) => {
+      const [a1, a2, a3] = a.split('.').map(Number);
+      const [b1, b2, b3] = b.split('.').map(Number);
+      return a1 - b1 || a2 - b2 || a3 - b3;
+    });
+    expect(ids).toEqual(sorted);
+  });
+
+  it('all criterion names are unique', () => {
+    const names = WCAG_22_AA_CHECKLIST.map((c) => c.name);
+    const unique = new Set(names);
+    expect(unique.size).toBe(names.length);
+  });
+
+  it('at least one criterion is automated=true and Level A', () => {
+    const found = WCAG_22_AA_CHECKLIST.find((c) => c.automated && c.level === 'A');
+    expect(found).toBeDefined();
+  });
+
+  it('at least one criterion is automated=false and Level AA', () => {
+    const found = WCAG_22_AA_CHECKLIST.find((c) => !c.automated && c.level === 'AA');
+    expect(found).toBeDefined();
+  });
+
+  it('principle 2 has at least 5 guidelines (2.X)', () => {
+    const guidelines = new Set(
+      WCAG_22_AA_CHECKLIST.filter((c) => c.id.startsWith('2.')).map((c) => c.id.split('.')[1])
+    );
+    expect(guidelines.size).toBeGreaterThanOrEqual(5);
+  });
+
+  it('every description is a string type', () => {
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      expect(typeof criterion.description).toBe('string');
+    }
+  });
+
+  it('criterion 4.1.2 Name, Role, Value is present', () => {
+    const criterion = WCAG_22_AA_CHECKLIST.find((c) => c.id === '4.1.2');
+    expect(criterion).toBeDefined();
+    expect(criterion!.name).toContain('Name');
+  });
+
+  it('WCAG_22_AA_CHECKLIST is an array', () => {
+    expect(Array.isArray(WCAG_22_AA_CHECKLIST)).toBe(true);
+  });
+});

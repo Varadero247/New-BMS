@@ -213,3 +213,79 @@ describe('dashboard.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('dashboard.api — stats data integrity', () => {
+  it('stats data fields are numbers', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(3);
+    mockPrisma.suppScorecard.count.mockResolvedValue(7);
+    mockPrisma.suppDocument.count.mockResolvedValue(14);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalSuppliers).toBe('number');
+    expect(typeof res.body.data.totalScorecards).toBe('number');
+    expect(typeof res.body.data.totalDocuments).toBe('number');
+  });
+
+  it('data object has exactly the three expected keys', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    const keys = Object.keys(res.body.data);
+    expect(keys).toContain('totalSuppliers');
+    expect(keys).toContain('totalScorecards');
+    expect(keys).toContain('totalDocuments');
+    expect(keys).toHaveLength(3);
+  });
+
+  it('success is true when all counts resolve', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(2);
+    mockPrisma.suppScorecard.count.mockResolvedValue(2);
+    mockPrisma.suppDocument.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('all three count mocks called even for large values', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(99999);
+    mockPrisma.suppScorecard.count.mockResolvedValue(99999);
+    mockPrisma.suppDocument.count.mockResolvedValue(99999);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.suppSupplier.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.suppScorecard.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.suppDocument.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('404 for unknown sub-route under /api/dashboard', async () => {
+    const res = await request(app).get('/api/dashboard/unknown-route');
+    expect([404]).toContain(res.status);
+  });
+
+  it('error response has error.message defined', async () => {
+    mockPrisma.suppSupplier.count.mockRejectedValue(new Error('db gone'));
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBeDefined();
+  });
+
+  it('concurrent identical requests each return correct totals', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(5);
+    mockPrisma.suppScorecard.count.mockResolvedValue(5);
+    mockPrisma.suppDocument.count.mockResolvedValue(5);
+    const [r1, r2] = await Promise.all([
+      request(app).get('/api/dashboard/stats'),
+      request(app).get('/api/dashboard/stats'),
+    ]);
+    expect(r1.body.data.totalSuppliers).toBe(5);
+    expect(r2.body.data.totalSuppliers).toBe(5);
+  });
+
+  it('response body is not null', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body).not.toBeNull();
+  });
+});

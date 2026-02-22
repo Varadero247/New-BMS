@@ -274,3 +274,89 @@ describe('competences — additional coverage', () => {
     }
   });
 });
+
+describe('Competences — extended edge cases', () => {
+  it('GET / returns correct pagination totalPages', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(75);
+    const res = await request(app).get('/api/competences?page=1&limit=25');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET / filters by department param', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([mockCompetence]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/competences?department=Quality');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET / supports search by employee name', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([mockCompetence]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/competences?search=John');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns id and deleted:true in data', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
+    (prisma.qualCompetence.update as jest.Mock).mockResolvedValue({ ...mockCompetence, deletedAt: new Date() });
+    const res = await request(app).delete('/api/competences/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('POST / creates competence with COMPETENT status', async () => {
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(1);
+    (prisma.qualCompetence.create as jest.Mock).mockResolvedValue({ ...mockCompetence, status: 'COMPETENT' });
+    const res = await request(app).post('/api/competences').send({
+      employeeName: 'Jane Doe',
+      competencyArea: 'Welding',
+      status: 'COMPETENT',
+      assessmentDate: '2026-01-15',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id updates competency area', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
+    (prisma.qualCompetence.update as jest.Mock).mockResolvedValue({ ...mockCompetence, competencyArea: 'Advanced QC' });
+    const res = await request(app).put('/api/competences/00000000-0000-0000-0000-000000000001').send({ competencyArea: 'Advanced QC' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.competencyArea).toBe('Advanced QC');
+  });
+
+  it('GET /:id returns referenceNumber in data', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
+    const res = await request(app).get('/api/competences/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data.referenceNumber).toBe('COMP-2026-001');
+  });
+
+  it('DELETE /:id returns 500 when update throws', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
+    (prisma.qualCompetence.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).delete('/api/competences/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / returns empty data array when no records match', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/competences?status=EXPIRED');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST / validation rejects invalid status enum value', async () => {
+    const res = await request(app).post('/api/competences').send({
+      employeeName: 'Test User',
+      competencyArea: 'Safety',
+      status: 'INVALID_STATUS',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+});

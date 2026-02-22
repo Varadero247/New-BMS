@@ -414,3 +414,151 @@ describe('Tasks API Routes', () => {
     });
   });
 });
+
+describe('tasks.api — edge cases and extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tasks', tasksRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/tasks returns empty array when project has no tasks', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get(
+      '/api/tasks?projectId=44000000-0000-4000-a000-000000000001'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/tasks filters by status=IN_PROGRESS', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([
+      { ...mockTask, status: 'IN_PROGRESS' },
+    ]);
+    (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get(
+      '/api/tasks?projectId=44000000-0000-4000-a000-000000000001&status=IN_PROGRESS'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].status).toBe('IN_PROGRESS');
+  });
+
+  it('GET /api/tasks/gantt/:projectId returns empty array when no tasks', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    const res = await request(app).get('/api/tasks/gantt/44000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/tasks supports page and limit pagination params', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([mockTask]);
+    (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(30);
+
+    const res = await request(app).get(
+      '/api/tasks?projectId=44000000-0000-4000-a000-000000000001&page=3&limit=10'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(3);
+    expect(res.body.meta.limit).toBe(10);
+    expect(res.body.meta.total).toBe(30);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('POST /api/tasks defaults status to NOT_STARTED', async () => {
+    (mockPrisma.projectTask.create as jest.Mock).mockResolvedValueOnce(mockTask);
+
+    const res = await request(app).post('/api/tasks').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      taskCode: 'TSK-010',
+      taskName: 'New Task',
+    });
+
+    expect(res.status).toBe(201);
+    expect(mockPrisma.projectTask.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'NOT_STARTED' }),
+      })
+    );
+  });
+
+  it('PUT /api/tasks/:id returns 500 when update throws after findUnique succeeds', async () => {
+    (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
+    (mockPrisma.projectTask.update as jest.Mock).mockRejectedValueOnce(
+      new Error('Constraint violation')
+    );
+
+    const res = await request(app)
+      .put('/api/tasks/3d000000-0000-4000-a000-000000000001')
+      .send({ taskName: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/tasks/:id performs soft-delete with deletedAt', async () => {
+    (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
+    (mockPrisma.projectTask.update as jest.Mock).mockResolvedValueOnce({
+      ...mockTask,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/tasks/3d000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(204);
+    expect(mockPrisma.projectTask.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '3d000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+
+  it('GET /api/tasks/:id returns task with childTasks and parentTask relations', async () => {
+    const taskWithRelations = {
+      ...mockTask,
+      childTasks: [{ id: '3d000000-0000-4000-a000-000000000002', taskName: 'Sub-task' }],
+      parentTask: null,
+      timesheets: [],
+    };
+    (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(taskWithRelations);
+
+    const res = await request(app).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.childTasks).toHaveLength(1);
+    expect(res.body.data.childTasks[0].taskName).toBe('Sub-task');
+  });
+
+  it('PUT /api/tasks/:id does not auto-set actualStartDate if already set', async () => {
+    const alreadyStarted = {
+      ...mockTask,
+      status: 'NOT_STARTED',
+      actualStartDate: new Date('2025-02-05'),
+    };
+    (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(alreadyStarted);
+    (mockPrisma.projectTask.update as jest.Mock).mockResolvedValueOnce({
+      ...alreadyStarted,
+      status: 'IN_PROGRESS',
+    });
+
+    const res = await request(app)
+      .put('/api/tasks/3d000000-0000-4000-a000-000000000001')
+      .send({ status: 'IN_PROGRESS' });
+
+    expect(res.status).toBe(200);
+    const updateCall = (mockPrisma.projectTask.update as jest.Mock).mock.calls[0][0];
+    // actualStartDate should NOT be overwritten since it was already set
+    expect(updateCall.data.actualStartDate).toBeUndefined();
+  });
+});

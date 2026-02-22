@@ -246,3 +246,99 @@ describe('release-notes.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Release Notes — edge cases and extended coverage', () => {
+  it('GET list with page=1 limit=1 returns correct pagination', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', version: '1.0.0', title: 'v1', publishedAt: new Date() },
+    ]);
+    mockPrisma.changelog.count.mockResolvedValue(5);
+
+    const res = await request(app).get('/api/release-notes?page=1&limit=1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.total).toBe(5);
+    expect(res.body.data.pagination.totalPages).toBe(5);
+    expect(res.body.data.changelogs).toHaveLength(1);
+  });
+
+  it('GET list findMany is called with skip offset for page 3', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(100);
+
+    await request(app).get('/api/release-notes?page=3&limit=10');
+
+    expect(mockPrisma.changelog.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET list with limit=0 uses default minimum', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/release-notes?limit=0');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.limit).toBeGreaterThanOrEqual(1);
+  });
+
+  it('GET /:id returns correct version and title', async () => {
+    mockPrisma.changelog.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      version: '3.5.2',
+      title: 'Patch release',
+      publishedAt: new Date(),
+    });
+
+    const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.changelog.version).toBe('3.5.2');
+    expect(res.body.data.changelog.title).toBe('Patch release');
+  });
+
+  it('GET list 500 error code is INTERNAL_ERROR', async () => {
+    mockPrisma.changelog.findMany.mockRejectedValue(new Error('Unexpected DB error'));
+
+    const res = await request(app).get('/api/release-notes');
+
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id findUnique called with correct id', async () => {
+    mockPrisma.changelog.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      version: '2.0.0',
+      title: 'Major',
+      publishedAt: new Date(),
+    });
+
+    await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000002');
+
+    expect(mockPrisma.changelog.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000002' } })
+    );
+  });
+
+  it('GET list success is true when data is returned', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', version: '1.0.0', title: 't', publishedAt: new Date() },
+    ]);
+    mockPrisma.changelog.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/release-notes');
+
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list pagination page defaults to 1 when not provided', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/release-notes');
+
+    expect(res.body.data.pagination.page).toBe(1);
+  });
+});

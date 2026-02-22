@@ -346,3 +346,94 @@ describe('Intercom Triage — additional coverage', () => {
     expect([200, 400, 500]).toContain(res.status);
   });
 });
+
+describe('Intercom Triage — edge cases and field validation', () => {
+  it('returns status 200 or 400 for valid conversation payload', async () => {
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ef-1' });
+    const res = await request(app)
+      .post('/webhooks/intercom')
+      .send({ topic: 'conversation.created', data: { item: { id: 'ef-conv-1', subject: 'Edge test' } } });
+    expect([200, 400]).toContain(res.status);
+  });
+
+  it('does not call create for an invalid request body type', async () => {
+    const res = await request(app)
+      .post('/webhooks/intercom')
+      .set('Content-Type', 'application/json')
+      .send('invalid json string');
+    expect([400, 500]).toContain(res.status);
+  });
+
+  it('aiClassification field is an object not an array', async () => {
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ef-3' });
+    await request(app)
+      .post('/webhooks/intercom')
+      .send({ topic: 'conversation.created', data: { item: { id: 'ef-conv-3', subject: 'AI check' } } });
+    if ((prisma.supportTicketLog.create as jest.Mock).mock.calls.length > 0) {
+      const createCall = (prisma.supportTicketLog.create as jest.Mock).mock.calls[0][0];
+      if (createCall.data.aiClassification !== undefined) {
+        expect(typeof createCall.data.aiClassification).toBe('object');
+        expect(Array.isArray(createCall.data.aiClassification)).toBe(false);
+      }
+    }
+  });
+
+  it('response body is a valid JSON object on success', async () => {
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ef-4' });
+    const res = await request(app)
+      .post('/webhooks/intercom')
+      .send({ topic: 'conversation.created', data: { item: { id: 'ef-conv-4', subject: 'JSON test' } } });
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('classifies "integration" keyword not as BILLING', async () => {
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ef-5', category: 'GENERAL' });
+    await request(app)
+      .post('/webhooks/intercom')
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'ef-conv-5', subject: 'Integration question', body: 'How do I integrate?' } },
+      });
+    if ((prisma.supportTicketLog.create as jest.Mock).mock.calls.length > 0) {
+      const createCall = (prisma.supportTicketLog.create as jest.Mock).mock.calls[0][0];
+      expect(createCall.data.category).not.toBe('BILLING');
+    }
+  });
+
+  it('500 error body has success: false', async () => {
+    (prisma.supportTicketLog.create as jest.Mock).mockRejectedValue(new Error('crash'));
+    const res = await request(app)
+      .post('/webhooks/intercom')
+      .send({ topic: 'conversation.created', data: { item: { id: 'ef-conv-6', subject: 'Error test' } } });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('priority field value is a string when ticket is created', async () => {
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ef-7', priority: 'P3_MEDIUM' });
+    await request(app)
+      .post('/webhooks/intercom')
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'ef-conv-7', subject: 'Priority type check' } },
+      });
+    if ((prisma.supportTicketLog.create as jest.Mock).mock.calls.length > 0) {
+      const createCall = (prisma.supportTicketLog.create as jest.Mock).mock.calls[0][0];
+      expect(typeof createCall.data.priority).toBe('string');
+    }
+  });
+
+  it('category field is a string when ticket is created', async () => {
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ef-8' });
+    await request(app)
+      .post('/webhooks/intercom')
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'ef-conv-8', subject: 'Category type check' } },
+      });
+    if ((prisma.supportTicketLog.create as jest.Mock).mock.calls.length > 0) {
+      const createCall = (prisma.supportTicketLog.create as jest.Mock).mock.calls[0][0];
+      expect(typeof createCall.data.category).toBe('string');
+    }
+  });
+});

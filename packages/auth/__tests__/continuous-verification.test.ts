@@ -227,3 +227,89 @@ describe('Continuous Verification — additional coverage', () => {
     expect(list.size).toBe(0);
   });
 });
+
+describe('Continuous Verification — extended edge cases', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('continuousVerification() returns a function (middleware factory)', () => {
+    const mw = continuousVerification();
+    expect(typeof mw).toBe('function');
+  });
+
+  it('calls next() when Authorization header is undefined', async () => {
+    const mw = continuousVerification();
+    const next = jest.fn();
+    const req = { headers: {} } as unknown as Request;
+    await mw(req, makeRes(), next as unknown as NextFunction);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('InMemoryRevocationList: multiple different tokens can be revoked independently', () => {
+    const list = new InMemoryRevocationList();
+    list.revoke('token-a');
+    list.revoke('token-b');
+    list.clear('token-a');
+    expect(list.isRevoked('token-a')).toBe(false);
+    expect(list.isRevoked('token-b')).toBe(true);
+    expect(list.size).toBe(1);
+  });
+
+  it('responds 401 TOKEN_INVALID when verifyToken returns payload with no userId and no sub', async () => {
+    mockVerifyToken.mockReturnValueOnce({ email: 'test@test.com' } as never);
+    const mw = continuousVerification();
+    const next = jest.fn();
+    const res = makeRes();
+    await mw(makeReq('Bearer some-token'), res, next as unknown as NextFunction);
+    expect(res.statusCode).toBe(401);
+    expect((res.body as { error: string }).error).toBe('TOKEN_INVALID');
+  });
+
+  it('isUserActive is not called when token verify throws', async () => {
+    mockVerifyToken.mockImplementationOnce(() => { throw new Error('bad token'); });
+    const isUserActive = jest.fn().mockResolvedValue(true);
+    const mw = continuousVerification({ isUserActive });
+    const next = jest.fn();
+    await mw(makeReq('Bearer bad'), makeRes(), next as unknown as NextFunction);
+    expect(isUserActive).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('isTokenRevoked receives the raw token string after Bearer prefix', async () => {
+    mockVerifyToken.mockReturnValueOnce({ userId: 'u-42', role: 'user' } as never);
+    const isTokenRevoked = jest.fn().mockResolvedValue(false);
+    const mw = continuousVerification({ isTokenRevoked });
+    const next = jest.fn();
+    await mw(makeReq('Bearer exact-token-value'), makeRes(), next as unknown as NextFunction);
+    expect(isTokenRevoked).toHaveBeenCalledWith('exact-token-value', 'u-42');
+  });
+
+  it('short-circuits after isUserActive returns false (does not call isTokenRevoked)', async () => {
+    mockVerifyToken.mockReturnValue({ userId: 'u-1' } as never);
+    const isUserActive = jest.fn().mockResolvedValue(false);
+    const isTokenRevoked = jest.fn().mockResolvedValue(false);
+    const mw = continuousVerification({ isUserActive, isTokenRevoked });
+    const next = jest.fn();
+    const res = makeRes();
+    await mw(makeReq('Bearer tok'), res, next as unknown as NextFunction);
+    expect(res.statusCode).toBe(401);
+    expect(isTokenRevoked).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('InMemoryRevocationList clear on non-existent token does not throw', () => {
+    const list = new InMemoryRevocationList();
+    expect(() => list.clear('never-added')).not.toThrow();
+    expect(list.size).toBe(0);
+  });
+
+  it('continuousVerification passes sub as userId to isTokenRevoked when no userId field', async () => {
+    mockVerifyToken.mockReturnValueOnce({ sub: 'sub-007' } as never);
+    const isTokenRevoked = jest.fn().mockResolvedValue(false);
+    const mw = continuousVerification({ isTokenRevoked });
+    const next = jest.fn();
+    await mw(makeReq('Bearer tok'), makeRes(), next as unknown as NextFunction);
+    expect(isTokenRevoked).toHaveBeenCalledWith('tok', 'sub-007');
+  });
+});

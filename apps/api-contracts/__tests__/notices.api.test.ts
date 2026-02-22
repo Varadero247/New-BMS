@@ -264,3 +264,102 @@ describe('notices.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('notices.api — pagination, filter and edge cases', () => {
+  it('GET / supports status filter', async () => {
+    mockPrisma.contNotice.findMany.mockResolvedValue([]);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/notices?status=ACKNOWLEDGED');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contNotice.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACKNOWLEDGED' }) })
+    );
+  });
+
+  it('GET / returns pagination metadata with totalPages', async () => {
+    mockPrisma.contNotice.findMany.mockResolvedValue([]);
+    mockPrisma.contNotice.count.mockResolvedValue(60);
+    const res = await request(app).get('/api/notices?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.total).toBe(60);
+    expect(res.body.pagination.totalPages).toBe(6);
+  });
+
+  it('GET / returns empty data array and zero total when no notices exist', async () => {
+    mockPrisma.contNotice.findMany.mockResolvedValue([]);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/notices');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST / creates notice with CRITICAL priority', async () => {
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    mockPrisma.contNotice.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      contractId: 'c-5',
+      title: 'Urgent Notice',
+      priority: 'CRITICAL',
+      dueDate: '2026-04-01',
+    });
+    const res = await request(app).post('/api/notices').send({
+      contractId: 'c-5',
+      title: 'Urgent Notice',
+      priority: 'CRITICAL',
+      dueDate: '2026-04-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.priority).toBe('CRITICAL');
+  });
+
+  it('PUT / updates acknowledged flag to true', async () => {
+    mockPrisma.contNotice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contNotice.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      acknowledged: true,
+      acknowledgedBy: 'user@example.com',
+    });
+    const res = await request(app)
+      .put('/api/notices/00000000-0000-0000-0000-000000000001')
+      .send({ acknowledged: true, acknowledgedBy: 'user@example.com' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE / returns message containing deleted in response data', async () => {
+    mockPrisma.contNotice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contNotice.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    const res = await request(app).delete('/api/notices/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('GET /:id returns correct id in data', async () => {
+    mockPrisma.contNotice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Test Notice',
+    });
+    const res = await request(app).get('/api/notices/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('GET / content-type is application/json', async () => {
+    mockPrisma.contNotice.findMany.mockResolvedValue([]);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/notices');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST / returns 400 when all required fields missing', async () => {
+    const res = await request(app).post('/api/notices').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

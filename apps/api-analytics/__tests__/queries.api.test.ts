@@ -318,3 +318,88 @@ describe('queries.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('Queries — edge cases and extended coverage', () => {
+  it('GET /api/queries with search param calls findMany with name filter', async () => {
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/queries?search=safety');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsQuery.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ name: expect.any(Object) }) })
+    );
+  });
+
+  it('GET /api/queries returns pagination with totalPages', async () => {
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(30);
+
+    const res = await request(app).get('/api/queries?limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /api/queries with isPublic=false filters correctly', async () => {
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/queries?isPublic=false');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsQuery.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isPublic: false }) })
+    );
+  });
+
+  it('POST /api/queries missing sql returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/queries').send({ name: 'No SQL' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/queries missing name returns 400', async () => {
+    const res = await request(app).post('/api/queries').send({ sql: 'SELECT 1' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/queries DB error returns 500', async () => {
+    mockPrisma.analyticsQuery.create.mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).post('/api/queries').send({ name: 'Test', sql: 'SELECT 1' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/queries/:id 500 on DB error', async () => {
+    mockPrisma.analyticsQuery.findFirst.mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).get('/api/queries/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/queries/:id DB error on update returns 500', async () => {
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsQuery.update.mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).delete('/api/queries/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/queries/:id/execute returns 500 on transaction error', async () => {
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      sql: 'SELECT 1',
+    });
+    mockPrisma.$transaction.mockRejectedValue(new Error('TX error'));
+    const res = await request(app).post('/api/queries/00000000-0000-0000-0000-000000000001/execute');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/queries pagination total matches count mock', async () => {
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(99);
+    const res = await request(app).get('/api/queries');
+    expect(res.body.pagination.total).toBe(99);
+  });
+});

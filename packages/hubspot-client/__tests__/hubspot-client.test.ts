@@ -231,3 +231,65 @@ describe('HubSpotClient — additional coverage', () => {
     expect(mockFetch.mock.calls[0][0]).toContain('my-pipeline-456');
   });
 });
+
+describe('HubSpotClient — further edge cases', () => {
+  it('createDeal returns null when fetch throws', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockRejectedValueOnce(new Error('timeout'));
+    const result = await client.createDeal({ dealname: 'Test Deal' });
+    expect(result).toBeNull();
+  });
+
+  it('updateDeal returns null when response is not ok', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(err(404));
+    const result = await client.updateDeal('d-99', { dealstage: 'closed_lost' });
+    expect(result).toBeNull();
+  });
+
+  it('getDeals returns null when fetch throws', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockRejectedValueOnce(new Error('network error'));
+    const result = await client.getDeals();
+    expect(result).toBeNull();
+  });
+
+  it('getDeals with limit=0 sends limit=0 in URL', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ results: [] }));
+    await client.getDeals(0);
+    expect(mockFetch.mock.calls[0][0]).toContain('limit=0');
+  });
+
+  it('getDealsByStage returns null when fetch throws', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockRejectedValueOnce(new Error('DNS failure'));
+    const result = await client.getDealsByStage('pipe-abc');
+    expect(result).toBeNull();
+  });
+
+  it('createTask sends correct JSON body with properties wrapper', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ id: 't-2' }));
+    await client.createTask({ hs_task_subject: 'Review contract', hs_task_status: 'NOT_STARTED' });
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.properties.hs_task_subject).toBe('Review contract');
+    expect(body.properties.hs_task_status).toBe('NOT_STARTED');
+  });
+
+  it('updateContact sends correct PATCH body', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ id: 'c-updated' }));
+    await client.updateContact('c-42', { lastname: 'Smith', phone: '123456' });
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.properties.lastname).toBe('Smith');
+    expect(body.properties.phone).toBe('123456');
+  });
+
+  it('all requests include Content-Type application/json header', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({}));
+    await client.createDeal({ dealname: 'X' });
+    expect(mockFetch.mock.calls[0][1].headers['Content-Type']).toBe('application/json');
+  });
+});

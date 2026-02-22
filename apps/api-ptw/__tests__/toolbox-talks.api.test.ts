@@ -285,3 +285,76 @@ describe('toolbox-talks.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('toolbox-talks.api — extended edge cases', () => {
+  it('GET / returns correct pagination totalPages', async () => {
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/toolbox-talks?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(6);
+  });
+
+  it('GET / returns empty array when no records exist', async () => {
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/toolbox-talks');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST / returns 500 when create throws', async () => {
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.create.mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).post('/api/toolbox-talks').send({ topic: 'Safety' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns data object on found record', async () => {
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', topic: 'Safety Brief' });
+    const res = await request(app).get('/api/toolbox-talks/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('PUT /:id updates multiple fields at once', async () => {
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', topic: 'Old' });
+    mockPrisma.ptwToolboxTalk.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', topic: 'New Topic', notes: 'New Note' });
+    const res = await request(app).put('/api/toolbox-talks/00000000-0000-0000-0000-000000000001').send({ topic: 'New Topic', notes: 'New Note' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id soft-deletes by setting deletedAt', async () => {
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', topic: 'Safety' });
+    mockPrisma.ptwToolboxTalk.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    const res = await request(app).delete('/api/toolbox-talks/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.ptwToolboxTalk.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET / success is true when list is returned', async () => {
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([{ id: '1', topic: 'Talk 1' }]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/toolbox-talks');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / findMany and count each called once', async () => {
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    await request(app).get('/api/toolbox-talks');
+    expect(mockPrisma.ptwToolboxTalk.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.ptwToolboxTalk.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id 500 when findFirst throws', async () => {
+    mockPrisma.ptwToolboxTalk.findFirst.mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).put('/api/toolbox-talks/00000000-0000-0000-0000-000000000001').send({ topic: 'X' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -269,3 +269,114 @@ describe('recalls.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('recalls.api — edge cases and extended coverage', () => {
+  it('GET /api/recalls returns pagination metadata', async () => {
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+    mockPrisma.fsRecall.count.mockResolvedValue(20);
+
+    const res = await request(app).get('/api/recalls?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toMatchObject({ page: 2, limit: 5, total: 20, totalPages: 4 });
+  });
+
+  it('GET /api/recalls filters by combined status and type', async () => {
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+    mockPrisma.fsRecall.count.mockResolvedValue(0);
+
+    await request(app).get('/api/recalls?status=IN_PROGRESS&type=MANDATORY');
+    expect(mockPrisma.fsRecall.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'IN_PROGRESS', type: 'MANDATORY' }),
+      })
+    );
+  });
+
+  it('POST /api/recalls rejects missing productName', async () => {
+    const res = await request(app).post('/api/recalls').send({
+      batchNumber: 'B001',
+      reason: 'Contamination',
+      type: 'VOLUNTARY',
+      severity: 'HIGH',
+      initiatedDate: '2026-02-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/recalls/:id handles 500 on update', async () => {
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsRecall.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/recalls/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'IN_PROGRESS' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/recalls/:id returns confirmation message', async () => {
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsRecall.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).delete('/api/recalls/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('DELETE /api/recalls/:id handles 500 on update', async () => {
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsRecall.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/recalls/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/recalls/:id/complete handles 500 on update', async () => {
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'IN_PROGRESS',
+    });
+    mockPrisma.fsRecall.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/recalls/00000000-0000-0000-0000-000000000001/complete')
+      .send({ unitsRecovered: 100 });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/recalls/:id handles 500 on findFirst', async () => {
+    mockPrisma.fsRecall.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/recalls/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/recalls/active returns empty array when no active recalls', async () => {
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/recalls/active');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/recalls returns success:true with data array', async () => {
+    mockPrisma.fsRecall.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', productName: 'Butter' },
+      { id: '00000000-0000-0000-0000-000000000002', productName: 'Cream' },
+    ]);
+    mockPrisma.fsRecall.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/recalls');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

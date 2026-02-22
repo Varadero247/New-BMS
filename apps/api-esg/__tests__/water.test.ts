@@ -254,3 +254,98 @@ describe('water — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+// ── Extended coverage ──────────────────────────────────────────────────────
+
+describe('water — extended coverage', () => {
+  it('GET / returns pagination metadata', async () => {
+    (prisma.esgWater.findMany as jest.Mock).mockResolvedValue([mockWater]);
+    (prisma.esgWater.count as jest.Mock).mockResolvedValue(20);
+    const res = await request(app).get('/api/water?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('POST / creates records with all usageTypes', async () => {
+    const types = ['INTAKE', 'DISCHARGE', 'RECYCLED', 'CONSUMED'];
+    for (const usageType of types) {
+      (prisma.esgWater.create as jest.Mock).mockResolvedValue({ ...mockWater, usageType });
+      const res = await request(app).post('/api/water').send({
+        usageType,
+        quantity: 5000,
+        unit: 'liters',
+        periodStart: '2026-01-01',
+        periodEnd: '2026-01-31',
+      });
+      expect(res.status).toBe(201);
+    }
+  });
+
+  it('POST / returns 400 for negative quantity', async () => {
+    const res = await request(app).post('/api/water').send({
+      usageType: 'INTAKE',
+      quantity: -100,
+      unit: 'liters',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / accepts optional source field', async () => {
+    (prisma.esgWater.create as jest.Mock).mockResolvedValue({ ...mockWater, source: 'Borehole' });
+    const res = await request(app).post('/api/water').send({
+      usageType: 'INTAKE',
+      quantity: 8000,
+      unit: 'liters',
+      source: 'Borehole',
+      periodStart: '2026-02-01',
+      periodEnd: '2026-02-28',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id returns 500 on DB error during update', async () => {
+    (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
+    (prisma.esgWater.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/water/00000000-0000-0000-0000-000000000001')
+      .send({ quantity: 15000 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns water record with usageType field', async () => {
+    (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
+    const res = await request(app).get('/api/water/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.usageType).toBe('INTAKE');
+  });
+
+  it('PUT /:id updates usageType successfully', async () => {
+    (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
+    (prisma.esgWater.update as jest.Mock).mockResolvedValue({ ...mockWater, usageType: 'DISCHARGE' });
+    const res = await request(app)
+      .put('/api/water/00000000-0000-0000-0000-000000000001')
+      .send({ usageType: 'DISCHARGE' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.usageType).toBe('DISCHARGE');
+  });
+
+  it('DELETE /:id returns 500 on DB error during soft delete', async () => {
+    (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
+    (prisma.esgWater.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/water/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / success is true on 200 response', async () => {
+    (prisma.esgWater.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgWater.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/water');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

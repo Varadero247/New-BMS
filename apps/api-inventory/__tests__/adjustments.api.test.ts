@@ -304,3 +304,80 @@ describe('adjustments.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('Adjustments — edge cases and deeper coverage', () => {
+  const outerApp = express();
+  outerApp.use(express.json());
+  outerApp.use('/api/adjustments', router);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/adjustments returns meta with totalPages', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(outerApp).get('/api/adjustments');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/adjustments filters by adjustmentType query param', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(outerApp).get('/api/adjustments?adjustmentType=DAMAGE');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/adjustments filters by startDate and endDate', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(outerApp).get(
+      '/api/adjustments?startDate=2026-01-01&endDate=2026-01-31'
+    );
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/adjustments/:id data has product field', async () => {
+    (mockPrisma.inventoryTransaction.findFirst as jest.Mock).mockResolvedValue(mockTransaction);
+    const res = await request(outerApp).get(`/api/adjustments/${ADJ_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('product');
+  });
+
+  it('GET /api/adjustments/:id data has warehouse field', async () => {
+    (mockPrisma.inventoryTransaction.findFirst as jest.Mock).mockResolvedValue(mockTransaction);
+    const res = await request(outerApp).get(`/api/adjustments/${ADJ_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('warehouse');
+  });
+
+  it('POST /api/adjustments returns 400 when quantity is negative', async () => {
+    const res = await request(outerApp).post('/api/adjustments').send({
+      productId: PRODUCT_ID,
+      warehouseId: WAREHOUSE_ID,
+      adjustmentType: 'ADJUSTMENT_IN',
+      quantity: -5,
+      reason: 'Bad value',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/adjustments returns 400 when reason is missing', async () => {
+    const res = await request(outerApp).post('/api/adjustments').send({
+      productId: PRODUCT_ID,
+      warehouseId: WAREHOUSE_ID,
+      adjustmentType: 'ADJUSTMENT_IN',
+      quantity: 5,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/adjustments meta page defaults to 1', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(outerApp).get('/api/adjustments');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(1);
+  });
+});

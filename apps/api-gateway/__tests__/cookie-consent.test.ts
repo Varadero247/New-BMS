@@ -274,3 +274,74 @@ describe('Cookie Consent Handler — additional coverage', () => {
     expect(call.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Cookie Consent Handler — boundary and field validation', () => {
+  it('returns functional=true when explicitly set to true', () => {
+    const req = mockRequest({ essential: true, analytics: false, functional: true });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.data.functional).toBe(true);
+  });
+
+  it('error message describes the problem for invalid body', () => {
+    const req = mockRequest(null);
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(typeof call.error.message).toBe('string');
+    expect(call.error.message.length).toBeGreaterThan(0);
+  });
+
+  it('rejects boolean body (true) with 400', () => {
+    const req = mockRequest(true as unknown);
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('accepts all-false preferences (only essential forced true by caller)', () => {
+    const req = mockRequest({ essential: false, analytics: false, functional: false });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    // essential resolves as boolean (false is still a boolean value)
+    expect(typeof call.data.essential).toBe('boolean');
+    expect(call.data.analytics).toBe(false);
+    expect(call.data.functional).toBe(false);
+  });
+
+  it('ignores non-boolean functional value and defaults to false', () => {
+    const req = mockRequest({ essential: true, analytics: false, functional: 'yes' });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.data.functional).toBe(false);
+  });
+
+  it('handles empty object body — all values default', () => {
+    const req = mockRequest({});
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.success).toBe(true);
+    expect(call.data.essential).toBe(true);
+    expect(call.data.analytics).toBe(false);
+    expect(call.data.functional).toBe(false);
+  });
+
+  it('response data contains message key equal to "Cookie preferences saved"', () => {
+    const req = mockRequest({ essential: true, analytics: true, functional: true });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.data.message).toBe('Cookie preferences saved');
+  });
+
+  it('res.json is called exactly once per invocation', () => {
+    const req = mockRequest({ essential: true });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    expect((res.json as jest.Mock).mock.calls).toHaveLength(1);
+  });
+});

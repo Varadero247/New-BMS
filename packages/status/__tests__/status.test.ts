@@ -174,3 +174,80 @@ describe('Status Package — additional coverage', () => {
     expect(SERVICE_REGISTRY.length).toBeGreaterThan(0);
   });
 });
+
+describe('Status Package — extended coverage', () => {
+  beforeEach(() => {
+    _resetStores();
+  });
+
+  it('setServiceHealth returns an object with the correct name and port', () => {
+    const h = setServiceHealth('Quality', 4003, 'operational', 12);
+    expect(h.name).toBe('Quality');
+    expect(h.port).toBe(4003);
+  });
+
+  it('setServiceHealth lastChecked is a valid ISO date string', () => {
+    const h = setServiceHealth('HR', 4006, 'operational', 10);
+    expect(() => new Date(h.lastChecked)).not.toThrow();
+    expect(new Date(h.lastChecked).toString()).not.toBe('Invalid Date');
+  });
+
+  it('checkServiceHealth latencyMs is between 5 and 45', () => {
+    for (let i = 0; i < 20; i++) {
+      const h = checkServiceHealth('Finance', 4013);
+      expect(h.latencyMs).toBeGreaterThanOrEqual(5);
+      expect(h.latencyMs).toBeLessThanOrEqual(45);
+    }
+  });
+
+  it('getOverallStatus returns down when multiple services are down', () => {
+    for (const svc of SERVICE_REGISTRY) {
+      setServiceHealth(svc.name, svc.port, 'operational', 5);
+    }
+    setServiceHealth('CRM', 4014, 'down', 0);
+    setServiceHealth('Inventory', 4005, 'down', 0);
+    expect(getOverallStatus()).toBe('down');
+  });
+
+  it('getPlatformStatus timestamp is a valid ISO date', () => {
+    const ps = getPlatformStatus();
+    expect(() => new Date(ps.timestamp)).not.toThrow();
+    expect(new Date(ps.timestamp).toString()).not.toBe('Invalid Date');
+  });
+
+  it('getPlatformStatus returns degraded when one service is degraded and none down', () => {
+    for (const svc of SERVICE_REGISTRY) {
+      setServiceHealth(svc.name, svc.port, 'operational', 5);
+    }
+    setServiceHealth('AI Analysis', 4004, 'degraded', 200);
+    const ps = getPlatformStatus();
+    expect(ps.status).toBe('degraded');
+  });
+
+  it('getAllServiceStatus returns same count as SERVICE_REGISTRY', () => {
+    const statuses = getAllServiceStatus();
+    expect(statuses).toHaveLength(SERVICE_REGISTRY.length);
+  });
+
+  it('SERVICE_REGISTRY entries each have a name string and numeric port', () => {
+    for (const entry of SERVICE_REGISTRY) {
+      expect(typeof entry.name).toBe('string');
+      expect(typeof entry.port).toBe('number');
+    }
+  });
+
+  it('getUptime 7d is less than 100 and greater than 0', () => {
+    const u = getUptime();
+    expect(u['7d']).toBeLessThan(100);
+    expect(u['7d']).toBeGreaterThan(0);
+  });
+
+  it('setServiceHealth with down status is reflected in getOverallStatus', () => {
+    for (const svc of SERVICE_REGISTRY) {
+      setServiceHealth(svc.name, svc.port, 'operational', 5);
+    }
+    const first = SERVICE_REGISTRY[0];
+    setServiceHealth(first.name, first.port, 'down', 0);
+    expect(getOverallStatus()).toBe('down');
+  });
+});

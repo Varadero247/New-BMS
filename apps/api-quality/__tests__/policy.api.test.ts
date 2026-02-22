@@ -295,3 +295,101 @@ describe('policy.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Quality Policy — edge cases and validation', () => {
+  const validBody = {
+    policyStatement: 'Quality is everyone\'s responsibility.',
+    purpose: 'Establish quality standards.',
+    commitments: 'Zero defect mindset',
+    objectives: 'Achieve ISO 9001 certification',
+    applicability: 'All sites',
+    version: '4.0',
+    status: 'DRAFT',
+  };
+
+  const mockPolicyDoc = {
+    id: 'doc-uuid-edge',
+    referenceNumber: 'QMS-POL-2601-009',
+    title: 'Quality Policy',
+    documentType: 'POLICY',
+    scope: 'Quality is everyone\'s responsibility.',
+    purpose: 'Establish quality standards.',
+    keyChanges: JSON.stringify({
+      commitments: 'Zero defect mindset',
+      objectives: 'Achieve ISO 9001 certification',
+      applicability: 'All sites',
+    }),
+    version: '4.0',
+    status: 'DRAFT',
+    author: 'user-1',
+    approvedBy: null,
+    effectiveDate: null,
+    nextReviewDate: null,
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  it('GET /api/policy returns objectives from parsed keyChanges', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('objectives');
+  });
+
+  it('GET /api/policy returns applicability from parsed keyChanges', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('applicability');
+  });
+
+  it('PUT /api/policy with DRAFT status succeeds', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.qualDocument.count.mockResolvedValue(0);
+    mockPrisma.qualDocument.create.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).put('/api/policy').send(validBody);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/policy count is called to generate reference number when creating', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.qualDocument.count.mockResolvedValue(5);
+    mockPrisma.qualDocument.create.mockResolvedValue(mockPolicyDoc);
+    await request(app).put('/api/policy').send(validBody);
+    expect(mockPrisma.qualDocument.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/policy does not call create when existing doc found', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    mockPrisma.qualDocument.update.mockResolvedValue(mockPolicyDoc);
+    await request(app).put('/api/policy').send(validBody);
+    expect(mockPrisma.qualDocument.create).not.toHaveBeenCalled();
+  });
+
+  it('PUT /api/policy returns 400 when policyStatement is empty string', async () => {
+    const res = await request(app).put('/api/policy').send({ ...validBody, policyStatement: '' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/policy returns effectiveDate field', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue({
+      ...mockPolicyDoc,
+      effectiveDate: new Date('2026-01-01').toISOString(),
+    });
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('effectiveDate');
+  });
+
+  it('GET /api/policy returns nextReviewDate field', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue({
+      ...mockPolicyDoc,
+      nextReviewDate: new Date('2027-01-01').toISOString(),
+    });
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('nextReviewDate');
+  });
+});

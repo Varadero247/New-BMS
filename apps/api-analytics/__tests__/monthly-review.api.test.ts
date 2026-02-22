@@ -305,3 +305,81 @@ describe('monthly-review.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Monthly Review — further edge cases', () => {
+  it('GET /api/monthly-review pagination total is a number', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/monthly-review');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.pagination.total).toBe('number');
+  });
+
+  it('GET /api/monthly-review snapshots field is an array', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/monthly-review');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.snapshots)).toBe(true);
+  });
+
+  it('POST /api/monthly-review/trigger returns snapshotId as string', async () => {
+    const res = await request(app).post('/api/monthly-review/trigger').send({});
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.snapshotId).toBe('string');
+  });
+
+  it('POST /api/monthly-review/:snapshotId/approve returns 400 for missing action field', async () => {
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      month: '2026-05',
+      monthNumber: 3,
+      targetsApproved: false,
+      aiRecommendations: [],
+    });
+    const res = await request(app)
+      .post('/api/monthly-review/00000000-0000-0000-0000-000000000001/approve')
+      .send({});
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/monthly-review/:snapshotId 500 on DB error', async () => {
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/monthly-review/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/monthly-review/seed-targets success property is true', async () => {
+    (prisma.planTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.planTarget.createMany as jest.Mock).mockResolvedValue({ count: 36 });
+    const res = await request(app).post('/api/monthly-review/seed-targets').send({});
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/monthly-review?page=2&limit=5 passes correct skip', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/monthly-review?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(prisma.monthlySnapshot.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST /api/monthly-review/:snapshotId/approve 500 on snapshot update error', async () => {
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      month: '2026-05',
+      monthNumber: 3,
+      targetsApproved: false,
+      aiRecommendations: [{ metric: 'MRR', current: 1500, suggested: 2800, rationale: 'test' }],
+    });
+    (prisma.monthlySnapshot.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+    (prisma.planTarget.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app)
+      .post('/api/monthly-review/00000000-0000-0000-0000-000000000001/approve')
+      .send({ action: 'approve' });
+    expect(res.status).toBe(500);
+  });
+});

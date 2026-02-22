@@ -304,3 +304,132 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('bills — extended coverage', () => {
+  it('GET /api/bills returns pagination metadata', async () => {
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', provider: 'EDF' },
+      { id: '00000000-0000-0000-0000-000000000002', provider: 'British Gas' },
+    ]);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(25);
+
+    const res = await request(app).get('/api/bills?page=1&limit=2');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(25);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /api/bills filters by provider using search', async () => {
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/bills?provider=EDF');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/bills defaults page to 1 when not supplied', async () => {
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/bills');
+
+    expect(res.status).toBe(200);
+    expect(prisma.energyBill.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('PUT /api/bills/:id returns 500 when update throws', async () => {
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyBill.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/bills/00000000-0000-0000-0000-000000000001')
+      .send({ cost: 5000 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/bills/:id returns 500 when update throws', async () => {
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyBill.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/bills/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/bills/:id/verify returns 500 when update throws', async () => {
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PENDING',
+    });
+    (prisma.energyBill.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).put('/api/bills/00000000-0000-0000-0000-000000000001/verify');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/bills/summary returns 500 when aggregate throws', async () => {
+    (prisma.energyBill.aggregate as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/bills/summary');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/bills accepts valid meter that exists', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyBill.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      provider: 'EON',
+      status: 'PENDING',
+    });
+
+    const res = await request(app).post('/api/bills').send({
+      provider: 'EON',
+      periodStart: '2025-02-01',
+      periodEnd: '2025-02-28',
+      consumption: 8000,
+      unit: 'kWh',
+      cost: 1200,
+      meterId: '00000000-0000-0000-0000-000000000001',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.provider).toBe('EON');
+  });
+
+  it('GET /api/bills/:id returns 500 when findFirst throws', async () => {
+    (prisma.energyBill.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/bills/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/bills success field is true on 200', async () => {
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/bills');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -268,3 +268,80 @@ describe('obligations.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('Obligations — extended edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/obligations returns empty array when none exist', async () => {
+    mockPrisma.regObligation.findMany.mockResolvedValue([]);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/obligations');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/obligations returns correct totalPages in pagination', async () => {
+    mockPrisma.regObligation.findMany.mockResolvedValue([]);
+    mockPrisma.regObligation.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/obligations?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /api/obligations filters by frequency query param', async () => {
+    mockPrisma.regObligation.findMany.mockResolvedValue([]);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/obligations?frequency=QUARTERLY');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST /api/obligations data has id on success', async () => {
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    mockPrisma.regObligation.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'EHS Filing' });
+    const res = await request(app).post('/api/obligations').send({ title: 'EHS Filing' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('PUT /api/obligations/:id returns updated data', async () => {
+    mockPrisma.regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old' });
+    mockPrisma.regObligation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New Obligation' });
+    const res = await request(app)
+      .put('/api/obligations/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New Obligation' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('New Obligation');
+  });
+
+  it('DELETE /api/obligations/:id message contains "deleted successfully"', async () => {
+    mockPrisma.regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.regObligation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/obligations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted successfully');
+  });
+
+  it('GET /api/obligations/:id returns NOT_FOUND code on 404', async () => {
+    mockPrisma.regObligation.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/obligations/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/obligations INTERNAL_ERROR code on create failure', async () => {
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    mockPrisma.regObligation.create.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).post('/api/obligations').send({ title: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/obligations INTERNAL_ERROR code on findMany failure', async () => {
+    mockPrisma.regObligation.findMany.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/obligations');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

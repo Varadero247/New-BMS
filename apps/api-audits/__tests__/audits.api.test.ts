@@ -219,6 +219,91 @@ describe('GET /api/audits — filtering', () => {
   });
 });
 
+describe('audits.api — extended edge cases', () => {
+  it('POST with valid type INTERNAL creates audit', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audAudit.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Internal Audit',
+      type: 'INTERNAL',
+    });
+    const res = await request(app)
+      .post('/api/audits')
+      .send({ title: 'Internal Audit', type: 'INTERNAL' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST with invalid type enum returns 400', async () => {
+    const res = await request(app)
+      .post('/api/audits')
+      .send({ title: 'Test', type: 'INVALID_TYPE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST with invalid status enum returns 400', async () => {
+    const res = await request(app)
+      .post('/api/audits')
+      .send({ title: 'Test', status: 'UNKNOWN' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET filters by type query param', async () => {
+    mockPrisma.audAudit.findMany.mockResolvedValue([]);
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits?type=EXTERNAL');
+    expect(res.status).toBe(200);
+  });
+
+  it('DELETE response message contains deleted', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.audAudit.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('GET /:id returns correct id in data', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      title: 'Audit Three',
+    });
+    const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000003');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000003');
+  });
+
+  it('GET returns empty data array when no audits match', async () => {
+    mockPrisma.audAudit.findMany.mockResolvedValue([]);
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT with valid status COMPLETED updates successfully', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.audAudit.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+    });
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
 describe('audits.api — additional coverage', () => {
   let app: express.Express;
 

@@ -322,3 +322,114 @@ describe('Analytics Datasets — additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Analytics Datasets — extended field, error, and filter coverage
+// ===================================================================
+describe('Analytics Datasets — extended field and filter coverage', () => {
+  it('GET /datasets pagination has totalPages as a number', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/datasets');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.pagination.totalPages).toBe('number');
+  });
+
+  it('GET /datasets?source=HEALTH_SAFETY filters correctly', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+    await request(app).get('/api/datasets?source=HEALTH_SAFETY');
+    expect(mockPrisma.analyticsDataset.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ source: 'HEALTH_SAFETY' }) })
+    );
+  });
+
+  it('PUT /api/datasets/:id returns 500 on update failure', async () => {
+    mockPrisma.analyticsDataset.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsDataset.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/datasets/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Name' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/datasets/:id returns 500 on update failure', async () => {
+    mockPrisma.analyticsDataset.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsDataset.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete(
+      '/api/datasets/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/datasets returns 400 when name is missing', async () => {
+    const res = await request(app).post('/api/datasets').send({
+      source: 'QUALITY',
+      query: 'SELECT * FROM quality',
+      schema: {},
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/datasets returns 400 for invalid source enum value', async () => {
+    const res = await request(app).post('/api/datasets').send({
+      name: 'Bad Source',
+      source: 'INVALID_SOURCE',
+      query: 'SELECT 1',
+      schema: {},
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/datasets/:id returns 500 on DB error', async () => {
+    mockPrisma.analyticsDataset.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get(
+      '/api/datasets/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/datasets/:id returns success message', async () => {
+    mockPrisma.analyticsDataset.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsDataset.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    const res = await request(app).delete(
+      '/api/datasets/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Dataset deleted');
+  });
+
+  it('POST /api/datasets with description stores it', async () => {
+    const created = {
+      id: 'ds-desc',
+      name: 'Described',
+      description: 'A dataset with description',
+      source: 'HR',
+      isActive: true,
+    };
+    mockPrisma.analyticsDataset.create.mockResolvedValue(created);
+    const res = await request(app).post('/api/datasets').send({
+      name: 'Described',
+      description: 'A dataset with description',
+      source: 'HR',
+      query: 'SELECT * FROM employees',
+      schema: { columns: ['id'] },
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.description).toBe('A dataset with description');
+  });
+});

@@ -284,3 +284,140 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('audits — extended edge cases', () => {
+  const AUDIT_ID = '00000000-0000-0000-0000-000000000001';
+
+  it('GET / filters by facility', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/audits?facility=Building+A');
+
+    expect(prisma.energyAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ facility: expect.objectContaining({ contains: 'Building A' }) }),
+      })
+    );
+  });
+
+  it('GET / returns pagination metadata', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([{ id: AUDIT_ID, title: 'Audit' }]);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/audits');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(1);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST / creates EXTERNAL audit type', async () => {
+    (prisma.energyAudit.create as jest.Mock).mockResolvedValue({
+      id: AUDIT_ID,
+      title: 'External Audit',
+      type: 'EXTERNAL',
+      status: 'PLANNED',
+    });
+
+    const res = await request(app).post('/api/audits').send({
+      title: 'External Audit',
+      type: 'EXTERNAL',
+      auditor: 'External Auditor',
+      scheduledDate: '2026-06-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.type).toBe('EXTERNAL');
+  });
+
+  it('POST / creates ISO_50001 audit type', async () => {
+    (prisma.energyAudit.create as jest.Mock).mockResolvedValue({
+      id: AUDIT_ID,
+      title: 'ISO 50001 Audit',
+      type: 'ISO_50001',
+      status: 'PLANNED',
+    });
+
+    const res = await request(app).post('/api/audits').send({
+      title: 'ISO 50001 Audit',
+      type: 'ISO_50001',
+      auditor: 'Certification Body',
+      scheduledDate: '2026-09-15',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.type).toBe('ISO_50001');
+  });
+
+  it('PUT /:id/complete with findings and recommendations', async () => {
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({
+      id: AUDIT_ID,
+      status: 'IN_PROGRESS',
+      score: null,
+      findings: null,
+      recommendations: null,
+    });
+    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({
+      id: AUDIT_ID,
+      status: 'COMPLETED',
+      score: 92,
+      findings: ['HVAC inefficiency'],
+      recommendations: ['Upgrade HVAC system'],
+    });
+
+    const res = await request(app)
+      .put(`/api/audits/${AUDIT_ID}/complete`)
+      .send({ score: 92, findings: ['HVAC inefficiency'], recommendations: ['Upgrade HVAC system'] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLETED');
+  });
+
+  it('DELETE /:id returns 200 with deleted:true', async () => {
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: AUDIT_ID });
+    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({ id: AUDIT_ID });
+
+    const res = await request(app).delete(`/api/audits/${AUDIT_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+    expect(res.body.data.id).toBe(AUDIT_ID);
+  });
+
+  it('PUT /:id updates status to IN_PROGRESS', async () => {
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: AUDIT_ID, status: 'PLANNED' });
+    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({ id: AUDIT_ID, status: 'IN_PROGRESS' });
+
+    const res = await request(app)
+      .put(`/api/audits/${AUDIT_ID}`)
+      .send({ status: 'IN_PROGRESS' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('IN_PROGRESS');
+  });
+
+  it('POST / rejects INVALID audit type', async () => {
+    const res = await request(app).post('/api/audits').send({
+      title: 'Invalid Type Audit',
+      type: 'INVALID_TYPE',
+      auditor: 'Someone',
+      scheduledDate: '2026-06-01',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / with page=2 and limit=5 applies correct pagination', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(20);
+
+    const res = await request(app).get('/api/audits?page=2&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+    expect(res.body.pagination.total).toBe(20);
+  });
+});

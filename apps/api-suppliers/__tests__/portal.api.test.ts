@@ -175,3 +175,76 @@ describe('portal.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('portal.api — profile extended paths', () => {
+  it('profile response data contains all mock fields', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'GlobalCorp',
+      email: 'supplier@example.com',
+      status: 'APPROVED',
+    });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('APPROVED');
+    expect(res.body.data.name).toBe('GlobalCorp');
+  });
+
+  it('findFirst is called with email filter from auth user', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: '1',
+      name: 'Test',
+      email: 'supplier@example.com',
+    });
+    await request(app).get('/api/portal/profile');
+    const callArg = mockPrisma.suppSupplier.findFirst.mock.calls[0][0];
+    expect(callArg.where.email).toBe('supplier@example.com');
+  });
+
+  it('findFirst called with deletedAt null filter', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '1', name: 'X', email: 'supplier@example.com' });
+    await request(app).get('/api/portal/profile');
+    const callArg = mockPrisma.suppSupplier.findFirst.mock.calls[0][0];
+    expect(callArg.where.deletedAt).toBeNull();
+  });
+
+  it('profile response body has data key on 200', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '99', name: 'Y', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('not found error body has error property with code and message', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(404);
+    expect(res.body.error).toHaveProperty('code');
+    expect(res.body.error).toHaveProperty('message');
+  });
+
+  it('internal error body has error.code INTERNAL_ERROR', async () => {
+    mockPrisma.suppSupplier.findFirst.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('success:true is boolean true on 200', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '1', name: 'A', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.body.success).toStrictEqual(true);
+  });
+
+  it('GET /api/portal/profile returns 200 when supplier exists with category field', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'PartsCo',
+      email: 'supplier@example.com',
+      category: 'Manufacturing',
+    });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data.category).toBe('Manufacturing');
+  });
+});

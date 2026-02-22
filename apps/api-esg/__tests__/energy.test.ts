@@ -255,3 +255,98 @@ describe('energy — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+// ─── Extended edge cases ────────────────────────────────────────────────────
+
+describe('energy — extended edge cases', () => {
+  it('GET / returns pagination with totalPages', async () => {
+    (prisma.esgEnergy.findMany as jest.Mock).mockResolvedValue([mockEnergy]);
+    (prisma.esgEnergy.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/energy');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('GET / page=3 limit=5 uses correct skip', async () => {
+    (prisma.esgEnergy.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEnergy.count as jest.Mock).mockResolvedValue(20);
+    await request(app).get('/api/energy?page=3&limit=5');
+    expect(prisma.esgEnergy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('POST / creates NATURAL_GAS energy record', async () => {
+    (prisma.esgEnergy.create as jest.Mock).mockResolvedValue({ ...mockEnergy, energyType: 'NATURAL_GAS' });
+    const res = await request(app).post('/api/energy').send({
+      energyType: 'NATURAL_GAS',
+      quantity: 3000,
+      unit: 'm3',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / creates WIND energy with renewable=true', async () => {
+    (prisma.esgEnergy.create as jest.Mock).mockResolvedValue({ ...mockEnergy, energyType: 'WIND', renewable: true });
+    const res = await request(app).post('/api/energy').send({
+      energyType: 'WIND',
+      quantity: 10000,
+      unit: 'kWh',
+      renewable: true,
+      periodStart: '2026-02-01',
+      periodEnd: '2026-02-28',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when quantity is zero (not positive)', async () => {
+    const res = await request(app).post('/api/energy').send({
+      energyType: 'ELECTRICITY',
+      quantity: 0,
+      unit: 'kWh',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT / update with SOLAR type succeeds', async () => {
+    (prisma.esgEnergy.findFirst as jest.Mock).mockResolvedValue(mockEnergy);
+    (prisma.esgEnergy.update as jest.Mock).mockResolvedValue({ ...mockEnergy, energyType: 'SOLAR' });
+    const res = await request(app)
+      .put('/api/energy/00000000-0000-0000-0000-000000000001')
+      .send({ energyType: 'SOLAR' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE / returns success message in data', async () => {
+    (prisma.esgEnergy.findFirst as jest.Mock).mockResolvedValue(mockEnergy);
+    (prisma.esgEnergy.update as jest.Mock).mockResolvedValue({ ...mockEnergy, deletedAt: new Date() });
+    const res = await request(app).delete('/api/energy/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('DELETE / 500 when findFirst throws', async () => {
+    (prisma.esgEnergy.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/energy/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / filter renewable=false passes false to query', async () => {
+    (prisma.esgEnergy.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEnergy.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/energy?renewable=false');
+    expect(prisma.esgEnergy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ renewable: false }) })
+    );
+  });
+});

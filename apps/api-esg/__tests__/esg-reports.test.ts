@@ -312,3 +312,71 @@ describe('ESG Reports — additional coverage', () => {
     expect(res.body.data.status).toBe('DRAFT');
   });
 });
+
+// ─── Extended edge cases ────────────────────────────────────────────────────
+
+describe('ESG Reports — extended edge cases', () => {
+  it('GET / response is JSON content-type', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/esg-reports');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / body is an object', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/esg-reports');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('POST /generate with TCFD framework creates report', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(1);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue({ ...mockEsgReport, framework: 'TCFD' });
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: 'TCFD',
+      period: '2026',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /generate with SASB framework creates report', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue({ ...mockEsgReport, framework: 'SASB' });
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: 'SASB',
+      period: '2025',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /generate without period field returns 400', async () => {
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: 'GRI',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / data[0] has orgId field when results exist', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([mockEsgReport]);
+    const res = await request(app).get('/api/esg-reports');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('orgId');
+  });
+
+  it('POST /generate create is called once per request', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue(mockEsgReport);
+    await request(app).post('/api/esg-reports/generate').send({ framework: 'GRI', period: '2026' });
+    expect(prisma.esgReport.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / returns multiple reports when DB has multiple records', async () => {
+    const secondReport = { ...mockEsgReport, id: '00000000-0000-0000-0000-000000000002', referenceNumber: 'ESGR-2026-0002' };
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([mockEsgReport, secondReport]);
+    const res = await request(app).get('/api/esg-reports');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

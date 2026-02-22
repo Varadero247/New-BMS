@@ -220,6 +220,109 @@ describe('GET /api/findings — filtering', () => {
   });
 });
 
+describe('findings.api — extended edge cases', () => {
+  it('POST with valid severity MAJOR_NC creates finding', async () => {
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audFinding.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'NC Finding',
+      severity: 'MAJOR_NC',
+    });
+    const res = await request(app)
+      .post('/api/findings')
+      .send({
+        title: 'NC Finding',
+        auditId: '00000000-0000-0000-0000-000000000001',
+        severity: 'MAJOR_NC',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST with valid severity MINOR_NC creates finding', async () => {
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audFinding.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      title: 'Minor NC',
+      severity: 'MINOR_NC',
+    });
+    const res = await request(app)
+      .post('/api/findings')
+      .send({
+        title: 'Minor NC',
+        auditId: '00000000-0000-0000-0000-000000000001',
+        severity: 'MINOR_NC',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET returns pagination metadata', async () => {
+    mockPrisma.audFinding.findMany.mockResolvedValue([]);
+    mockPrisma.audFinding.count.mockResolvedValue(40);
+    const res = await request(app).get('/api/findings?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(40);
+    expect(res.body.pagination.totalPages).toBe(4);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('GET search filter passes contains to findMany', async () => {
+    mockPrisma.audFinding.findMany.mockResolvedValue([]);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/findings?search=nonconformance');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.audFinding.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ title: expect.objectContaining({ contains: 'nonconformance' }) }),
+      })
+    );
+  });
+
+  it('DELETE returns message containing deleted', async () => {
+    mockPrisma.audFinding.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.audFinding.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/findings/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('PUT with valid status CLOSED updates successfully', async () => {
+    mockPrisma.audFinding.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.audFinding.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'CLOSED',
+    });
+    const res = await request(app)
+      .put('/api/findings/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET returns empty data array when no findings exist', async () => {
+    mockPrisma.audFinding.findMany.mockResolvedValue([]);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/findings');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id 404 response has NOT_FOUND code', async () => {
+    mockPrisma.audFinding.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/findings/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
 describe('findings.api — additional coverage', () => {
   let app: express.Express;
 

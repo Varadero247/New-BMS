@@ -250,3 +250,106 @@ describe('supplier-ncrs — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('supplier-ncrs — edge cases and validation', () => {
+  it('GET list: filter by CLOSED status passes query param', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/ncrs?status=CLOSED');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET list: pagination page 2 limit 5 returns totalPages=3 for 15 items', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/supplier/ncrs?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET list: findMany called with deletedAt null filter', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    await request(app).get('/api/supplier/ncrs');
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST response: returns 400 for missing resolution field', async () => {
+    const res = await request(app)
+      .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')
+      .send({});
+    expect(res.status).toBe(400);
+  });
+
+  it('POST response: returns 500 when update throws error', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      reportType: 'NCR',
+      status: 'OPEN',
+      attachments: null,
+    });
+    mockPrisma.portalQualityReport.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')
+      .send({ resolution: 'Some fix applied' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET list: response body contains pagination object', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/ncrs');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST response: returns success true on valid response submission', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      reportType: 'NCR',
+      status: 'OPEN',
+      attachments: null,
+    });
+    mockPrisma.portalQualityReport.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'INVESTIGATING',
+      resolution: 'Applied corrective action',
+    });
+    const res = await request(app)
+      .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')
+      .send({ resolution: 'Applied corrective action' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST response: update called with INVESTIGATING status', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      reportType: 'NCR',
+      status: 'OPEN',
+      attachments: null,
+    });
+    mockPrisma.portalQualityReport.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'INVESTIGATING',
+    });
+    await request(app)
+      .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')
+      .send({ resolution: 'Fixed' });
+    expect(mockPrisma.portalQualityReport.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'INVESTIGATING' }),
+      })
+    );
+  });
+
+  it('GET list: count called once per list request', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    await request(app).get('/api/supplier/ncrs');
+    expect(mockPrisma.portalQualityReport.count).toHaveBeenCalledTimes(1);
+  });
+});

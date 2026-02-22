@@ -236,6 +236,7 @@ describe('DEFRA Factors — additional coverage', () => {
     expect(authenticate).toHaveBeenCalled();
   });
 
+
   it('empty list response: GET returns [] and success true when no records exist', async () => {
     (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
     const res = await request(app).get('/api/defra-factors');
@@ -286,5 +287,101 @@ describe('DEFRA Factors — additional coverage', () => {
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});
+
+// ─── Extended edge cases ────────────────────────────────────────────────────
+
+describe('DEFRA Factors — extended edge cases', () => {
+  it('GET / response body has success property', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('GET / response is JSON content-type', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / with subcategory field stores it correctly', async () => {
+    (prisma.esgDefraFactor.create as jest.Mock).mockResolvedValue({
+      ...mockDefraFactor,
+      subcategory: 'UK Grid Average',
+    });
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Electricity',
+      subcategory: 'UK Grid Average',
+      activity: 'Grid electricity',
+      factor: 0.233,
+      unit: 'kgCO2e/kWh',
+      year: 2026,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / without source field still succeeds', async () => {
+    (prisma.esgDefraFactor.create as jest.Mock).mockResolvedValue(mockDefraFactor);
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Transport',
+      activity: 'Short haul flight',
+      factor: 0.255,
+      unit: 'kgCO2e/km',
+      year: 2026,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / missing factor field returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Electricity',
+      activity: 'Grid electricity',
+      unit: 'kgCO2e/kWh',
+      year: 2026,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / missing unit field returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Electricity',
+      activity: 'Grid electricity',
+      factor: 0.233,
+      year: 2026,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / returns multiple factors when DB has multiple records', async () => {
+    const secondFactor = { ...mockDefraFactor, id: '00000000-0000-0000-0000-000000000002', category: 'Transport' };
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([mockDefraFactor, secondFactor]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.data[1].category).toBe('Transport');
+  });
+
+  it('POST / year field must be an integer (string year returns 400)', async () => {
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Electricity',
+      activity: 'Grid electricity',
+      factor: 0.233,
+      unit: 'kgCO2e/kWh',
+      year: 'twenty-twenty-six',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / returned data items have id field', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([mockDefraFactor]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
   });
 });

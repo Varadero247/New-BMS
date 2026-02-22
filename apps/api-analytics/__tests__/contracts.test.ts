@@ -309,3 +309,109 @@ describe('Contracts — additional edge cases', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Contracts — extended field validation and route coverage
+// ===================================================================
+describe('Contracts — extended coverage', () => {
+  it('GET /api/contracts pagination contains page, limit, total, totalPages', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination).toHaveProperty('page');
+    expect(res.body.data.pagination).toHaveProperty('limit');
+    expect(res.body.data.pagination).toHaveProperty('total');
+    expect(res.body.data.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/contracts?page=2&limit=10 uses correct skip', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/contracts?page=2&limit=10');
+    expect(prisma.contract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('POST /api/contracts defaults status to ACTIVE when not supplied', async () => {
+    const newContract = {
+      id: 'c-status',
+      name: 'Status Test',
+      vendor: 'Vendor',
+      category: 'SOFTWARE',
+      startDate: new Date('2026-01-01'),
+      endDate: new Date('2027-01-01'),
+      annualCost: 0,
+      status: 'ACTIVE',
+    };
+    (prisma.contract.create as jest.Mock).mockResolvedValue(newContract);
+    const res = await request(app).post('/api/contracts').send({
+      name: 'Status Test',
+      vendor: 'Vendor',
+      category: 'SOFTWARE',
+      startDate: '2026-01-01',
+      endDate: '2027-01-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.contract.status).toBe('ACTIVE');
+  });
+
+  it('GET /api/contracts/:id returns 404 with NOT_FOUND code for missing contract', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/contracts/:id returns 500 on DB error', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get(
+      '/api/contracts/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/contracts/:id returns success message on deletion', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.contract.delete as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete(
+      '/api/contracts/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Contract deleted');
+  });
+
+  it('PATCH /api/contracts/:id returns 400 on invalid endDate format', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    const res = await request(app)
+      .patch('/api/contracts/00000000-0000-0000-0000-000000000001')
+      .send({ endDate: 'not-a-date' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/contracts/seed returns 500 on DB error', async () => {
+    (prisma.contract.createMany as jest.Mock).mockRejectedValue(new Error('seed fail'));
+    const res = await request(app).get('/api/contracts/seed');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /api/contracts/:id returns NOT_FOUND code for missing contract', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .patch('/api/contracts/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'EXPIRED' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

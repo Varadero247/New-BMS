@@ -280,3 +280,88 @@ describe('eight-d.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('eight-d.api — extended edge cases', () => {
+  it('GET /api/eight-d returns meta pagination block with expected fields', async () => {
+    (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([mockReport]);
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/eight-d');
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('limit');
+    expect(res.body.meta).toHaveProperty('total');
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/eight-d calculates totalPages correctly', async () => {
+    (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(25);
+    const res = await request(app).get('/api/eight-d?limit=10');
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('GET /api/eight-d/stats returns openCritical field', async () => {
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.eightDReport.groupBy as jest.Mock).mockResolvedValue([
+      { status: 'D4_ROOT_CAUSE', _count: { id: 2 } },
+    ]);
+    const res = await request(app).get('/api/eight-d/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('openCritical');
+  });
+
+  it('POST /api/eight-d returns 400 when teamLeader is missing', async () => {
+    const res = await request(app).post('/api/eight-d').send({
+      title: 'Test 8D Report',
+      problemStatement: 'Part out of tolerance',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/eight-d returns 400 when title is empty string', async () => {
+    const res = await request(app).post('/api/eight-d').send({
+      title: '',
+      problemStatement: 'Some problem',
+      teamLeader: 'Jane',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/eight-d/:id returns 400 on invalid severity value', async () => {
+    (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    const res = await request(app)
+      .put(`/api/eight-d/${REPORT_ID}`)
+      .send({ severity: 'EXTREME' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/eight-d/:id accepts valid D-step statuses through D8_CLOSURE', async () => {
+    (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    (mockPrisma.eightDReport.update as jest.Mock).mockResolvedValue({
+      ...mockReport,
+      status: 'D8_CLOSURE',
+    });
+    const res = await request(app)
+      .put(`/api/eight-d/${REPORT_ID}`)
+      .send({ status: 'D8_CLOSURE' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('D8_CLOSURE');
+  });
+
+  it('DELETE /api/eight-d/:id calls update with deletedAt', async () => {
+    (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    (mockPrisma.eightDReport.update as jest.Mock).mockResolvedValue({ ...mockReport, deletedAt: new Date() });
+    await request(app).delete(`/api/eight-d/${REPORT_ID}`);
+    expect(mockPrisma.eightDReport.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/eight-d/:id returns 500 on DB error', async () => {
+    (mockPrisma.eightDReport.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get(`/api/eight-d/${REPORT_ID}`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -235,3 +235,115 @@ describe('Automation Rules — additional coverage', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Automation Rules — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/automation-rules', automationRulesRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListRules.mockReturnValue([
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        name: 'Critical NCR → Auto-CAPA',
+        description: 'Auto-creates CAPA',
+        enabled: false,
+        isBuiltIn: true,
+      },
+    ]);
+    mockGetRuleById.mockReturnValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Critical NCR → Auto-CAPA',
+    });
+    mockEnableRule.mockReturnValue(true);
+    mockDisableRule.mockReturnValue(true);
+    mockGetExecutionLog.mockReturnValue([]);
+  });
+
+  it('GET /api/automation-rules response contains success true', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /:id/enable data contains rule name when rule exists', async () => {
+    // Reset to a fresh mock state for this test
+    mockGetRuleById.mockReset();
+    mockGetRuleById.mockReturnValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Critical NCR → Auto-CAPA',
+    });
+    mockEnableRule.mockReset();
+    mockEnableRule.mockReturnValue(true);
+    const res = await request(app).post(
+      '/api/automation-rules/00000000-0000-0000-0000-000000000001/enable'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.name).toBe('Critical NCR → Auto-CAPA');
+  });
+
+  it('POST /:id/disable responds with enabled field false in data', async () => {
+    const res = await request(app).post(
+      '/api/automation-rules/00000000-0000-0000-0000-000000000001/disable'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.enabled).toBe(false);
+  });
+
+  it('GET /:id/log returns array data when log has entries', async () => {
+    mockGetExecutionLog.mockReturnValue([
+      { id: 'log-2', ruleId: '00000000-0000-0000-0000-000000000001', status: 'FAILURE' },
+    ]);
+    const res = await request(app).get(
+      '/api/automation-rules/00000000-0000-0000-0000-000000000001/log'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET /api/automation-rules returns rules with description field', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('description');
+  });
+
+  it('returns 401 when auth fails on POST /:id/disable', async () => {
+    mockAuthenticate.mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED' } });
+    });
+    const res = await request(app).post(
+      '/api/automation-rules/00000000-0000-0000-0000-000000000001/disable'
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /disable returns 404 when rule not found', async () => {
+    mockGetRuleById.mockReturnValueOnce(null);
+    const res = await request(app).post(
+      '/api/automation-rules/00000000-0000-0000-0000-000000000099/disable'
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/automation-rules returns content-type json', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /:id/enable with non-existent rule returns 404', async () => {
+    mockGetRuleById.mockReturnValueOnce(null);
+    const res = await request(app).post(
+      '/api/automation-rules/00000000-0000-0000-0000-000000000099/enable'
+    );
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

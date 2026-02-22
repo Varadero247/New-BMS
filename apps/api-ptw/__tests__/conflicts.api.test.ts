@@ -301,3 +301,90 @@ describe('conflicts.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('PTW Conflicts — extended edge cases', () => {
+  it('permits with same location but one null area do not conflict with each other', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: 'p1', title: 'A', location: 'Site X', area: null, startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: 'p2', title: 'B', location: 'Site X', area: 'Zone 1', startDate: new Date(), endDate: new Date(), type: 'ELECTRICAL' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('findMany is called with status ACTIVE filter', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    await request(app).get('/api/conflicts');
+    expect(mockPrisma.ptwPermit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('findMany is called with deletedAt null filter', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    await request(app).get('/api/conflicts');
+    expect(mockPrisma.ptwPermit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('conflict data array length matches C(n,2) for n permits all in same location/area', async () => {
+    const permits = [
+      { id: '1', title: 'P1', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: '2', title: 'P2', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'CONFINED_SPACE' },
+      { id: '3', title: 'P3', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'ELECTRICAL' },
+      { id: '4', title: 'P4', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'GENERAL' },
+      { id: '5', title: 'P5', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'EXCAVATION' },
+    ];
+    mockPrisma.ptwPermit.findMany.mockResolvedValue(permits);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    // C(5,2) = 10
+    expect(res.body.data).toHaveLength(10);
+  });
+
+  it('two permits with different types but same location and area still conflict', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: 'p1', title: 'A', location: 'Site Q', area: 'Zone Q', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: 'p2', title: 'B', location: 'Site Q', area: 'Zone Q', startDate: new Date(), endDate: new Date(), type: 'GENERAL' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('response body error message is defined on 500', async () => {
+    mockPrisma.ptwPermit.findMany.mockRejectedValue(new Error('connection refused'));
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBeDefined();
+  });
+
+  it('success is false on DB failure', async () => {
+    mockPrisma.ptwPermit.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/conflicts');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('conflict objects contain permit1.id and permit2.id as strings', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'A', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'B', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'ELECTRICAL' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].permit1.id).toBe('string');
+    expect(typeof res.body.data[0].permit2.id).toBe('string');
+  });
+
+  it('two permits in different areas but same location produce no conflict', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: 'x1', title: 'A', location: 'Building 5', area: 'Floor 1', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: 'x2', title: 'B', location: 'Building 5', area: 'Floor 2', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

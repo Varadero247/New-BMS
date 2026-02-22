@@ -206,3 +206,80 @@ describe('Automotive Templates — additional coverage', () => {
     expect(tpl).toHaveProperty('version');
   });
 });
+
+describe('Automotive Templates — extended edge cases', () => {
+  it('GET / returns MSA category templates when filtering by MSA', async () => {
+    const res = await request(app).get('/api/templates?category=MSA');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    for (const tpl of res.body.data) {
+      expect(tpl.category).toBe('MSA');
+    }
+  });
+
+  it('GET / returns SPC category templates when filtering by SPC', async () => {
+    const res = await request(app).get('/api/templates?category=SPC');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    for (const tpl of res.body.data) {
+      expect(tpl.category).toBe('SPC');
+    }
+  });
+
+  it('GET / returns PPAP category templates with at least 2 items', async () => {
+    const res = await request(app).get('/api/templates?category=PPAP');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('GET / returns LPA templates when filtering by LPA category', async () => {
+    const res = await request(app).get('/api/templates?category=LPA');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    expect(res.body.data[0].category).toBe('LPA');
+  });
+
+  it('GET / returns EIGHT_D template when filtering by EIGHT_D category', async () => {
+    const res = await request(app).get('/api/templates?category=EIGHT_D');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    expect(res.body.data[0].id).toBe('tpl-8d-01');
+  });
+
+  it('GET /:id returns template with downloadUrl field', async () => {
+    const res = await request(app).get('/api/templates/tpl-apqp-01');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('downloadUrl');
+  });
+
+  it('GET /:id returns template with createdAt field', async () => {
+    const res = await request(app).get('/api/templates/tpl-fmea-02');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('createdAt');
+    expect(res.body.data.id).toBe('tpl-fmea-02');
+  });
+
+  it('GET / combined category and search returns only matching items', async () => {
+    const res = await request(app).get('/api/templates?category=APQP&search=project');
+    expect(res.status).toBe(200);
+    for (const tpl of res.body.data) {
+      expect(tpl.category).toBe('APQP');
+      const matches = tpl.name.toLowerCase().includes('project') || tpl.description.toLowerCase().includes('project');
+      expect(matches).toBe(true);
+    }
+  });
+
+  it('GET / returns GENERAL category template when filtering by GENERAL', async () => {
+    const res = await request(app).get('/api/templates?category=GENERAL');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    expect(res.body.data[0].category).toBe('GENERAL');
+  });
+
+  it('GET /:id for SUPPLIER template returns correct category', async () => {
+    const res = await request(app).get('/api/templates/tpl-sup-01');
+    expect(res.status).toBe(200);
+    expect(res.body.data.category).toBe('SUPPLIER');
+    expect(res.body.data.format).toBe('DOCX');
+  });
+});

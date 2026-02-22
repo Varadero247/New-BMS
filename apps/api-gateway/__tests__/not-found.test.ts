@@ -262,3 +262,82 @@ describe('Not Found Handler — additional coverage', () => {
     expect((res.json as jest.Mock).mock.calls).toHaveLength(1);
   });
 });
+
+describe('Not Found Handler — further edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('handles PATCH method in the error message', () => {
+    const req = mockRequest({ method: 'PATCH', path: '/api/resource' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toContain('PATCH');
+  });
+
+  it('handles HEAD method without throwing', () => {
+    expect(() => {
+      const req = mockRequest({ method: 'HEAD', path: '/api/resource' });
+      const res = mockResponse();
+      notFoundHandler(req as Request, res as Response);
+    }).not.toThrow();
+  });
+
+  it('returns 404 for deeply nested path', () => {
+    const req = mockRequest({ method: 'GET', path: '/api/a/b/c/d/e' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    expect(res.status).toHaveBeenCalledWith(404);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toContain('/api/a/b/c/d/e');
+  });
+
+  it('res.status is called with exactly 404', () => {
+    const req = mockRequest({ method: 'POST', path: '/api/anything' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    expect((res.status as jest.Mock).mock.calls[0][0]).toBe(404);
+  });
+
+  it('error code is NOT_FOUND for all HTTP methods', () => {
+    const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'];
+    methods.forEach((method) => {
+      const req = mockRequest({ method, path: '/api/test' });
+      const res = mockResponse();
+      notFoundHandler(req as Request, res as Response);
+      const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+      expect(jsonArg.error.code).toBe('NOT_FOUND');
+    });
+  });
+
+  it('success field is always false regardless of method', () => {
+    const methods = ['GET', 'POST', 'PUT', 'DELETE'];
+    methods.forEach((method) => {
+      const req = mockRequest({ method, path: '/api/test' });
+      const res = mockResponse();
+      notFoundHandler(req as Request, res as Response);
+      const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+      expect(jsonArg.success).toBe(false);
+    });
+  });
+
+  it('handles path with UUID segment correctly', () => {
+    const req = mockRequest({
+      method: 'GET',
+      path: '/api/resources/00000000-0000-0000-0000-000000000001',
+    });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toContain('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('message format includes both method and path joined with a space', () => {
+    const req = mockRequest({ method: 'DELETE', path: '/api/items/99' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toMatch(/Route DELETE \/api\/items\/99 not found/);
+  });
+});

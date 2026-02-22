@@ -244,3 +244,115 @@ describe('analytics.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('analytics.api — extended edge cases', () => {
+  it('dashboard byCategory is an array', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.byCategory)).toBe(true);
+  });
+
+  it('dashboard overdueActions is a number', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(4);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.overdueActions).toBe('number');
+  });
+
+  it('dashboard topRisks is an array', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.topRisks)).toBe(true);
+  });
+
+  it('dashboard recentlyChanged is an array', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.recentlyChanged)).toBe(true);
+  });
+
+  it('dashboard exceedsAppetite is a number', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(5);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.exceedsAppetite).toBe('number');
+  });
+
+  it('by-module entry module field is the sourceModule value', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([{ sourceModule: 'CHEMICAL_COSHH', _count: 2 }]);
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].module).toBe('CHEMICAL_COSHH');
+  });
+
+  it('dashboard heatmap cell consequence values range from 1 to 5', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    const consequences = res.body.data.heatmapData.map((c: { consequence: number }) => c.consequence);
+    expect(Math.min(...consequences)).toBe(1);
+    expect(Math.max(...consequences)).toBe(5);
+  });
+
+  it('dashboard heatmap cell likelihood values range from 1 to 5', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    const likelihoods = res.body.data.heatmapData.map((c: { likelihood: number }) => c.likelihood);
+    expect(Math.min(...likelihoods)).toBe(1);
+    expect(Math.max(...likelihoods)).toBe(5);
+  });
+
+  it('dashboard newThisMonth is a number', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(3);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.newThisMonth).toBe('number');
+  });
+
+  it('dashboard kriWarnings is a number', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.kriWarnings).toBe('number');
+  });
+});

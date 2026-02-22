@@ -353,3 +353,108 @@ describe('dashboard.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('Dashboard API Routes — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/dashboard', dashboardRoutes);
+    jest.clearAllMocks();
+
+    // Default mock setup for stats endpoint
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([
+      { standard: 'ISO_45001', overallScore: 80 },
+      { standard: 'ISO_14001', overallScore: 80 },
+      { standard: 'ISO_9001', overallScore: 80 },
+    ]);
+    (mockPrisma.risk.count as jest.Mock).mockResolvedValue(0);
+    mockPrisma.risk.groupBy.mockResolvedValue([]);
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.incident.count as jest.Mock).mockResolvedValue(0);
+    mockPrisma.incident.groupBy.mockResolvedValue([]);
+    (mockPrisma.action.count as jest.Mock).mockResolvedValue(0);
+    mockPrisma.action.findMany.mockResolvedValue([]);
+    (mockPrisma.aIAnalysis.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValue([]);
+  });
+
+  it('GET /api/dashboard/stats overall compliance rounds correctly for equal scores', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValueOnce([
+      { standard: 'ISO_45001', overallScore: 90 },
+      { standard: 'ISO_14001', overallScore: 90 },
+      { standard: 'ISO_9001', overallScore: 90 },
+    ]);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.compliance.overall).toBe(90);
+  });
+
+  it('GET /api/dashboard/stats returns compliance.overall as 0 when all scores are 0', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.compliance.overall).toBe(0);
+  });
+
+  it('GET /api/dashboard/stats returns risks.total from count', async () => {
+    (mockPrisma.risk.count as jest.Mock).mockResolvedValue(42);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.risks.total).toBe(42);
+  });
+
+  it('GET /api/dashboard/compliance returns array of scores ordered by standard', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValueOnce([
+      { standard: 'ISO_14001', overallScore: 75 },
+      { standard: 'ISO_45001', overallScore: 85 },
+    ]);
+    const res = await request(app)
+      .get('/api/dashboard/compliance')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.data[0].standard).toBe('ISO_14001');
+  });
+
+  it('GET /api/dashboard/trends returns empty array when no trend data', async () => {
+    (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app)
+      .get('/api/dashboard/trends')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /api/dashboard/trends passes both standard and metric filters together', async () => {
+    (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app)
+      .get('/api/dashboard/trends?standard=ISO_9001&metric=INCIDENTS&year=2025')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.monthlyTrend.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          standard: 'ISO_9001',
+          metric: 'INCIDENTS',
+          year: 2025,
+        }),
+      })
+    );
+  });
+
+  it('GET /api/dashboard/stats returns actions.overdue count', async () => {
+    (mockPrisma.action.count as jest.Mock).mockResolvedValue(3);
+    mockPrisma.action.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.actions.overdue).toBe('number');
+  });
+
+  it('GET /api/dashboard/stats returns incidents.thisMonth count', async () => {
+    (mockPrisma.incident.count as jest.Mock).mockResolvedValue(7);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.incidents.thisMonth).toBe('number');
+  });
+});

@@ -208,3 +208,75 @@ describe('POST /api/pre-audit/:id/generate', () => {
     expect(recs.some((r) => r.includes('Review all processes within scope'))).toBe(false);
   });
 });
+
+describe('POST /api/pre-audit/:id/generate — additional edge cases', () => {
+  it('returns success:true in response body', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit());
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('response includes standard field from the audit record', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ standard: 'ISO 9001:2015' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.data.standard).toBe('ISO 9001:2015');
+  });
+
+  it('response includes type field from the audit record', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'EXTERNAL' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.data.type).toBe('EXTERNAL');
+  });
+
+  it('ISO 50001 audit falls through to generic recommendations', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ standard: 'ISO 50001:2018' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('procedures') || r.toLowerCase().includes('management system'))).toBe(true);
+  });
+
+  it('SURVEILLANCE type includes process owner notification recommendation', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'SURVEILLANCE' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('process owner'))).toBe(true);
+  });
+
+  it('SURVEILLANCE type returns 8 hours estimated duration', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'SURVEILLANCE' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.data.estimatedDurationHours).toBe(8);
+  });
+
+  it('checklist always includes document pack compilation step', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit());
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    const checklist: string[] = res.body.data.checklist;
+    expect(checklist.some((c) => c.toLowerCase().includes('document'))).toBe(true);
+  });
+
+  it('recommendations always include best-practice entries for any audit type', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'INTERNAL', standard: 'ISO 9001:2015' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('availability') || r.toLowerCase().includes('personnel'))).toBe(true);
+    expect(recs.some((r) => r.toLowerCase().includes('document evidence') || r.toLowerCase().includes('evidence pack'))).toBe(true);
+  });
+
+  it('scope exactly 10 chars does not add scope recommendation', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ scope: '1234567890' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.includes('Review all processes within scope'))).toBe(false);
+  });
+
+  it('generatedAt field is an ISO string', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit());
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(() => new Date(res.body.data.generatedAt)).not.toThrow();
+    expect(new Date(res.body.data.generatedAt).toISOString()).toBe(res.body.data.generatedAt);
+  });
+});

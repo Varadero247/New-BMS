@@ -240,3 +240,109 @@ describe('PUT /api/whistleblowing/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ── Extended coverage ──────────────────────────────────────────────────────
+
+describe('whistleblowing — extended coverage', () => {
+  it('GET / returns pagination metadata with total', async () => {
+    (mockPrisma.esgWhistleblow.findMany as jest.Mock).mockResolvedValue([mockReport]);
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(15);
+    const res = await request(app).get('/api/whistleblowing?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(15);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET / filters by both status and category', async () => {
+    (mockPrisma.esgWhistleblow.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/whistleblowing?status=CLOSED&category=CORRUPTION');
+    const [call] = (mockPrisma.esgWhistleblow.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.status).toBe('CLOSED');
+    expect(call[0].where.category).toBe('CORRUPTION');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (mockPrisma.esgWhistleblow.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/whistleblowing/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error during update', async () => {
+    (mockPrisma.esgWhistleblow.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    (mockPrisma.esgWhistleblow.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/whistleblowing/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 404 for soft-deleted report', async () => {
+    (mockPrisma.esgWhistleblow.findUnique as jest.Mock).mockResolvedValue({
+      ...mockReport,
+      deletedAt: new Date(),
+    });
+    const res = await request(app)
+      .put('/api/whistleblowing/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED' });
+    expect(res.status).toBe(404);
+  });
+
+  it('POST / with non-anonymous report sets anonymous to false', async () => {
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.esgWhistleblow.create as jest.Mock).mockResolvedValue({
+      ...mockReport,
+      anonymous: false,
+      reporterName: 'John Doe',
+    });
+    const res = await request(app).post('/api/whistleblowing').send({
+      category: 'SAFETY',
+      summary: 'Unsafe equipment in use',
+      reportedDate: '2026-02-01',
+      channel: 'EMAIL',
+      anonymous: false,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /stats returns openCases count', async () => {
+    (mockPrisma.esgWhistleblow.count as jest.Mock)
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(4);
+    (mockPrisma.esgWhistleblow.groupBy as jest.Mock)
+      .mockResolvedValueOnce([{ status: 'UNDER_INVESTIGATION', _count: { id: 4 } }])
+      .mockResolvedValueOnce([{ category: 'SAFETY', _count: { id: 4 } }]);
+    const res = await request(app).get('/api/whistleblowing/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total');
+  });
+
+  it('POST / with THIRD_PARTY channel creates report successfully', async () => {
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(2);
+    (mockPrisma.esgWhistleblow.create as jest.Mock).mockResolvedValue({
+      ...mockReport,
+      channel: 'THIRD_PARTY',
+      referenceNumber: 'WB-2026-0003',
+    });
+    const res = await request(app).post('/api/whistleblowing').send({
+      category: 'HUMAN_RIGHTS',
+      summary: 'Reported via external hotline',
+      reportedDate: '2026-02-10',
+      channel: 'THIRD_PARTY',
+      anonymous: true,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.channel).toBe('THIRD_PARTY');
+  });
+
+  it('GET / returns empty list when no reports match status filter', async () => {
+    (mockPrisma.esgWhistleblow.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/whistleblowing?status=DISMISSED');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

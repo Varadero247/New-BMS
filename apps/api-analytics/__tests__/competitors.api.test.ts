@@ -337,3 +337,115 @@ describe('competitors.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+// ===================================================================
+// Competitors API — extended field validation and pagination coverage
+// ===================================================================
+describe('Competitors API — extended coverage', () => {
+  it('GET /api/competitors pagination contains page, limit, total, totalPages', async () => {
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination).toHaveProperty('page');
+    expect(res.body.data.pagination).toHaveProperty('limit');
+    expect(res.body.data.pagination).toHaveProperty('total');
+    expect(res.body.data.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/competitors returns empty competitors array when none exist', async () => {
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(200);
+    expect(res.body.data.competitors).toEqual([]);
+    expect(res.body.data.pagination.total).toBe(0);
+  });
+
+  it('POST /api/competitors defaults category to GENERAL when not provided', async () => {
+    const created = { id: 'comp-def', name: 'Default Cat', category: 'GENERAL', intel: [] };
+    mockPrisma.competitorMonitor.create.mockResolvedValue(created);
+    const res = await request(app).post('/api/competitors').send({ name: 'Default Cat' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toBe('GENERAL');
+  });
+
+  it('POST /api/competitors/:id/intel returns 400 when detail is empty', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Comp',
+      intel: [],
+    });
+    const res = await request(app)
+      .post('/api/competitors/00000000-0000-0000-0000-000000000001/intel')
+      .send({ type: 'NEWS', detail: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PATCH /api/competitors/:id returns 500 when update throws', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Comp',
+      intel: [],
+    });
+    mockPrisma.competitorMonitor.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .patch('/api/competitors/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/competitors/:id/intel returns 500 on update failure', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Comp',
+      intel: [],
+    });
+    mockPrisma.competitorMonitor.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .post('/api/competitors/00000000-0000-0000-0000-000000000001/intel')
+      .send({ type: 'PRICING', detail: 'Price drop' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/competitors/:id returns competitor data property success=true', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Test Comp',
+      intel: [],
+    });
+    const res = await request(app).get(
+      '/api/competitors/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/competitors?page=1&limit=50 sets correct take value', async () => {
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(0);
+    await request(app).get('/api/competitors?page=1&limit=50');
+    expect(mockPrisma.competitorMonitor.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 50 })
+    );
+  });
+
+  it('POST /api/competitors stores website when provided', async () => {
+    const created = {
+      id: 'comp-web',
+      name: 'Web Comp',
+      website: 'https://competitor.com',
+      category: 'GENERAL',
+      intel: [],
+    };
+    mockPrisma.competitorMonitor.create.mockResolvedValue(created);
+    const res = await request(app)
+      .post('/api/competitors')
+      .send({ name: 'Web Comp', website: 'https://competitor.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.website).toBe('https://competitor.com');
+  });
+});

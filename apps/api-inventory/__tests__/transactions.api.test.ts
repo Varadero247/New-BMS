@@ -444,3 +444,92 @@ describe('Inventory Transactions — additional coverage', () => {
     expect(res.body.meta).toHaveProperty('total', 10);
   });
 });
+
+describe('Inventory Transactions — edge cases and deeper coverage', () => {
+  let localApp: express.Express;
+
+  beforeAll(() => {
+    localApp = express();
+    localApp.use(express.json());
+    localApp.use('/api/inventory/transactions', transactionsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/inventory/transactions responds with JSON content-type', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(localApp).get('/api/inventory/transactions');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/inventory/transactions meta has totalPages field', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(localApp).get('/api/inventory/transactions');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/inventory/transactions filters by performedById', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    const uid = '20000000-0000-4000-a000-000000000123';
+    await request(localApp).get(`/api/inventory/transactions?performedById=${uid}`);
+    expect(mockPrisma.inventoryTransaction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ performedById: uid }),
+      })
+    );
+  });
+
+  it('GET /api/inventory/transactions 500 has INTERNAL_ERROR code', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockRejectedValueOnce(
+      new Error('crash')
+    );
+    const res = await request(localApp).get('/api/inventory/transactions');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/inventory/transactions/:id 404 has NOT_FOUND code', async () => {
+    (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(localApp).get(
+      '/api/inventory/transactions/00000000-0000-4000-a000-ffffffffffff'
+    );
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/inventory/transactions/:id 500 has INTERNAL_ERROR code', async () => {
+    (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockRejectedValueOnce(
+      new Error('timeout')
+    );
+    const res = await request(localApp).get(
+      '/api/inventory/transactions/29000000-0000-4000-a000-000000000001'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/inventory/transactions/product/:productId 500 has INTERNAL_ERROR code', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockRejectedValueOnce(
+      new Error('db error')
+    );
+    const res = await request(localApp).get(
+      '/api/inventory/transactions/product/27000000-0000-4000-a000-000000000001'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/inventory/transactions with page=2&limit=10 has totalPages calculated correctly', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(50);
+    const res = await request(localApp).get('/api/inventory/transactions?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(5);
+  });
+});

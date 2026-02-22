@@ -378,3 +378,148 @@ describe('Audit Routes — additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Audit Routes — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/audit', auditRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockQuery.mockResolvedValue({ entries: [], total: 0, page: 1, limit: 50 });
+    mockGetResourceHistory.mockResolvedValue({ entries: [], total: 0 });
+    mockVerifyEntry.mockResolvedValue({ valid: true, entryId: 'entry-1' });
+    mockCreateEnhancedAuditService.mockReturnValue({
+      query: (...args: any[]) => mockQuery(...args),
+      getResourceHistory: (...args: any[]) => mockGetResourceHistory(...args),
+      verifyEntry: (...args: any[]) => mockVerifyEntry(...args),
+      createEntry: (...args: any[]) => mockCreateEntry(...args),
+    });
+    mockUserFindUnique.mockResolvedValue({
+      id: 'user-1',
+      email: 'admin@ims.local',
+      firstName: 'Admin',
+      lastName: 'User',
+      password: 'hashed-password',
+    });
+    mockESignatureCreate.mockResolvedValue({ id: 'sig-1' });
+    mockESignatureFindUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      userId: 'user-1',
+      userEmail: 'admin@ims.local',
+      userFullName: 'Admin User',
+      meaning: 'APPROVED',
+      reason: 'Approving document',
+      resourceType: 'Document',
+      resourceId: 'doc-1',
+      resourceRef: 'DOC-001',
+      ipAddress: '127.0.0.1',
+      userAgent: 'test',
+      checksum: 'abc123',
+      valid: true,
+      createdAt: new Date(),
+    });
+    mockIsValidMeaning.mockReturnValue(true);
+    mockCreateSignature.mockResolvedValue({
+      signature: {
+        id: 'sig-1',
+        userId: 'user-1',
+        userEmail: 'admin@ims.local',
+        userFullName: 'Admin User',
+        meaning: 'APPROVED',
+        reason: 'Approving document',
+        resourceType: 'Document',
+        resourceId: 'doc-1',
+        resourceRef: 'DOC-001',
+        ipAddress: '127.0.0.1',
+        userAgent: 'test',
+        checksum: 'abc123',
+        valid: true,
+      },
+      error: null,
+    });
+    mockVerifySignature.mockReturnValue({ valid: true, tampered: false });
+  });
+
+  it('GET /api/audit/trail returns entries array in data', async () => {
+    mockQuery.mockResolvedValueOnce({ entries: [{ id: 'e-1' }], total: 1, page: 1, limit: 50 });
+    const res = await request(app).get('/api/audit/trail');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.entries)).toBe(true);
+  });
+
+  it('GET /api/audit/trail filters by resourceType', async () => {
+    mockQuery.mockResolvedValueOnce({ entries: [], total: 0, page: 1, limit: 50 });
+    const res = await request(app).get('/api/audit/trail?resourceType=Document');
+    expect(res.status).toBe(200);
+    expect(mockQuery).toHaveBeenCalled();
+  });
+
+  it('GET /api/audit/trail filters by action', async () => {
+    mockQuery.mockResolvedValueOnce({ entries: [], total: 0, page: 1, limit: 50 });
+    const res = await request(app).get('/api/audit/trail?action=CREATE');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/audit/trail/Document/:id returns entries and total', async () => {
+    mockGetResourceHistory.mockResolvedValueOnce({ entries: [{ id: 'h-1' }], total: 1 });
+    const res = await request(app).get(
+      '/api/audit/trail/Document/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data.entries).toHaveLength(1);
+    expect(res.body.data.total).toBe(1);
+  });
+
+  it('POST /api/audit/esignature with all fields creates signature', async () => {
+    const res = await request(app).post('/api/audit/esignature').send({
+      password: 'MyPassword123',
+      meaning: 'REVIEWED',
+      reason: 'Reviewing document',
+      resourceType: 'Risk',
+      resourceId: 'risk-1',
+      resourceRef: 'RISK-001',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/audit/esignature/:id returns tampered field', async () => {
+    const res = await request(app).get(
+      '/api/audit/esignature/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('tampered');
+  });
+
+  it('GET /api/audit/trail returns success false on query error', async () => {
+    mockQuery.mockRejectedValueOnce(new Error('Connection timeout'));
+    const res = await request(app).get('/api/audit/trail');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/audit/esignature with missing resourceId returns 400', async () => {
+    const res = await request(app).post('/api/audit/esignature').send({
+      password: 'pass',
+      meaning: 'APPROVED',
+      reason: 'test',
+      resourceType: 'Doc',
+      resourceRef: 'DOC-001',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/audit/trail returns page and limit in data', async () => {
+    mockQuery.mockResolvedValueOnce({ entries: [], total: 0, page: 2, limit: 25 });
+    const res = await request(app).get('/api/audit/trail?page=2&limit=25');
+    expect(res.status).toBe(200);
+    expect(res.body.data.page).toBe(2);
+    expect(res.body.data.limit).toBe(25);
+  });
+});

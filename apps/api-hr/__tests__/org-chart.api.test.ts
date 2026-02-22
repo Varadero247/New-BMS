@@ -344,3 +344,79 @@ describe('HR Org Chart — additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('HR Org Chart — error and filter paths', () => {
+  it('GET / response body has success and data keys', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue(mockEmployees);
+    const res = await request(app).get('/api/org-chart');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET / chart array has one root node for single manager-less employee', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue([mockEmployees[0]]);
+    const res = await request(app).get('/api/org-chart');
+    expect(res.status).toBe(200);
+    expect(res.body.data.chart).toHaveLength(1);
+  });
+
+  it('GET / root node has children array', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue(mockEmployees);
+    const res = await request(app).get('/api/org-chart');
+    expect(res.status).toBe(200);
+    expect(res.body.data.chart[0]).toHaveProperty('children');
+    expect(Array.isArray(res.body.data.chart[0].children)).toBe(true);
+  });
+
+  it('GET /flat employee objects have id, firstName, lastName', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue([
+      { ...mockEmployees[0], manager: null, _count: { subordinates: 0 } },
+    ]);
+    const res = await request(app).get('/api/org-chart/flat');
+    expect(res.status).toBe(200);
+    const emp = res.body.data[0];
+    expect(emp).toHaveProperty('id');
+    expect(emp).toHaveProperty('firstName');
+    expect(emp).toHaveProperty('lastName');
+  });
+
+  it('GET /by-department returns array with department name', async () => {
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValue([
+      { id: DEPT_ID, name: 'Finance', code: 'FIN', isActive: true, employees: [], manager: null },
+    ]);
+    const res = await request(app).get('/api/org-chart/by-department');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('name', 'Finance');
+  });
+
+  it('GET /reporting-chain returns 500 on DB error', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get(`/api/org-chart/reporting-chain/${EMP_ID_1}`);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / error code is INTERNAL_ERROR on 500', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockRejectedValue(new Error('db crash'));
+    const res = await request(app).get('/api/org-chart');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /flat error code is INTERNAL_ERROR on 500', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockRejectedValue(new Error('db crash'));
+    const res = await request(app).get('/api/org-chart/flat');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /by-department headCount is 0 for department with no employees', async () => {
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValue([
+      { id: DEPT_ID, name: 'Empty Dept', code: 'EMPTY', isActive: true, employees: [], manager: null },
+    ]);
+    const res = await request(app).get('/api/org-chart/by-department');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].headCount).toBe(0);
+  });
+});

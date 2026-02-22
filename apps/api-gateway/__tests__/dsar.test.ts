@@ -309,3 +309,87 @@ describe('dsar — additional coverage', () => {
     }
   });
 });
+
+describe('DSAR Routes — 500 paths and extended edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/privacy/dsar', dsarRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListRequests.mockReturnValue([]);
+    mockGetRequest.mockReturnValue({ id: 'dsar-1', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com' });
+    mockCreateRequest.mockReturnValue({ id: 'dsar-1', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com', orgId: 'org-1', requestedById: 'user-1' });
+    mockProcessExportRequest.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'COMPLETE', downloadUrl: '/downloads/dsar-1.zip' });
+    mockProcessErasureRequest.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', type: 'ERASURE', status: 'COMPLETE' });
+  });
+
+  it('GET /api/admin/privacy/dsar returns meta.total equal to requests length', async () => {
+    mockListRequests.mockReturnValueOnce([
+      { id: 'dsar-1', type: 'EXPORT', status: 'PENDING', subjectEmail: 'a@b.com' },
+      { id: 'dsar-2', type: 'ERASURE', status: 'PENDING', subjectEmail: 'c@d.com' },
+    ]);
+    const res = await request(app).get('/api/admin/privacy/dsar');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(2);
+  });
+
+  it('POST /api/admin/privacy/dsar returns subjectEmail in response data', async () => {
+    const res = await request(app).post('/api/admin/privacy/dsar').send({
+      type: 'EXPORT',
+      subjectEmail: 'target@example.com',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.subjectEmail).toBe('user@example.com');
+  });
+
+  it('GET /api/admin/privacy/dsar/:id returns type EXPORT in data', async () => {
+    const res = await request(app).get('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.type).toBe('EXPORT');
+  });
+
+  it('POST /api/admin/privacy/dsar/:id/process returns status COMPLETE for EXPORT', async () => {
+    const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLETE');
+  });
+
+  it('POST /api/admin/privacy/dsar/:id/process 500 when processExportRequest throws', async () => {
+    mockProcessExportRequest.mockRejectedValueOnce(new Error('Export service unavailable'));
+    const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/admin/privacy/dsar/:id/process 500 when processErasureRequest throws', async () => {
+    mockGetRequest.mockReturnValueOnce({ id: 'dsar-1', type: 'ERASURE', status: 'PENDING', subjectEmail: 'user@example.com' });
+    mockProcessErasureRequest.mockRejectedValueOnce(new Error('Erasure service down'));
+    const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/admin/privacy/dsar/:id returns status PENDING', async () => {
+    const res = await request(app).get('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('PENDING');
+  });
+
+  it('POST /api/admin/privacy/dsar accepts optional notes field', async () => {
+    const res = await request(app).post('/api/admin/privacy/dsar').send({
+      type: 'ERASURE',
+      subjectEmail: 'user@example.com',
+      notes: 'User deletion request per GDPR Art. 17',
+    });
+    expect(res.status).toBe(201);
+    expect(mockCreateRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ notes: 'User deletion request per GDPR Art. 17' })
+    );
+  });
+});

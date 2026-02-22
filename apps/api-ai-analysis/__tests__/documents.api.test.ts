@@ -357,3 +357,134 @@ describe('POST /api/documents/analyze — additional coverage', () => {
     expect(res.body.data.result.documentType).toBe('Procedure');
   });
 });
+
+// ── Document Analysis — further edge cases ────────────────────────────────
+
+describe('Document Analysis — further edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(mockSettings);
+    (prisma.aISettings.update as jest.Mock).mockResolvedValue(mockSettings);
+  });
+
+  it('POST /api/documents/analyze returns 502 when AI provider returns non-ok response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: { message: 'Rate limit exceeded' } }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Document text', analysisType: 'SUMMARIZE' });
+    expect([500, 502]).toContain(res.status);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/documents/analyze returns 400 when AI config has empty apiKey', async () => {
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({ ...mockSettings, apiKey: '' });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Some content', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('NO_AI_CONFIG');
+  });
+
+  it('POST /api/documents/analyze FULL_ANALYSIS returns summary in result', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({
+          summary: 'Full analysis summary text',
+          keyTerm: { term: 'ISO', definition: 'International Standards Organisation' },
+          classification: { documentType: 'Standard', department: 'Quality' },
+          complianceInsight: 'Meets ISO 9001 clause 7.5',
+          recommendation: 'Annual review required',
+        }) } }],
+        usage: { total_tokens: 400 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'ISO quality management document.', analysisType: 'FULL_ANALYSIS' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.result.summary).toBe('Full analysis summary text');
+    expect(res.body.data.result.complianceInsight).toBeDefined();
+  });
+
+  it('POST /api/documents/analyze token count accumulated correctly on update call', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'Accumulate tokens' }) } }],
+        usage: { total_tokens: 250 },
+      }),
+    });
+    await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Text', analysisType: 'SUMMARIZE' });
+    expect(prisma.aISettings.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ totalTokensUsed: 1000 + 250 }),
+      })
+    );
+  });
+
+  it('POST /api/documents/analyze EXTRACT_KEY_TERMS returns 200 with totalTermsFound', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({
+          terms: { ppe: { term: 'PPE', type: 'acronym', definition: 'Personal Protective Equipment', frequency: 3 } },
+          totalTermsFound: 1,
+        }) } }],
+        usage: { total_tokens: 150 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Workers must use PPE at all times.', analysisType: 'EXTRACT_KEY_TERMS' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.result.totalTermsFound).toBe(1);
+    expect(res.body.data.result.terms.ppe.definition).toBe('Personal Protective Equipment');
+  });
+
+  it('POST /api/documents/analyze content exceeding 50000 chars returns VALIDATION_ERROR', async () => {
+    const longContent = 'A'.repeat(50001);
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: longContent, analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/documents/analyze response body has success:true on successful call', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'Test' }) } }],
+        usage: { total_tokens: 10 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Valid content here', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('result');
+  });
+
+  it('POST /api/documents/analyze does not expose raw apiKey in response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'No key leak' }) } }],
+        usage: { total_tokens: 5 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Content', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(200);
+    const bodyStr = JSON.stringify(res.body);
+    expect(bodyStr).not.toContain('sk-test-key');
+  });
+});

@@ -247,3 +247,68 @@ describe('Dual Loan Model — additional coverage', () => {
     expect(result.starterLoanPayment).toBeGreaterThan(0);
   });
 });
+
+// ─── Dual Loan Model — edge cases and field validation ───────────────────────
+describe('Dual Loan Model — edge cases and field validation', () => {
+  it('calculateAmortisation total payment exceeds interest component', () => {
+    const result = calculateAmortisation(50000, 0.05, 24, 5);
+    expect(result.payment).toBeGreaterThan(result.interest);
+    expect(result.principalPaid).toBeGreaterThan(0);
+  });
+
+  it('calculateAmortisation at month 1 interest equals principal * monthly rate', () => {
+    const principal = 120000;
+    const annualRate = 0.06;
+    const result = calculateAmortisation(principal, annualRate, 12, 1);
+    const expectedInterest = principal * (annualRate / 12);
+    expect(result.interest).toBeCloseTo(expectedInterest, 2);
+  });
+
+  it('calculateFounderIncome month 4 is between M3 and M5 for dirLoanInterest', () => {
+    const m3 = calculateFounderIncome(3);
+    const m4 = calculateFounderIncome(4);
+    const m5 = calculateFounderIncome(5);
+    // Interest must be monotonically decreasing as principal is repaid
+    expect(m4.dirLoanInterest).toBeLessThan(m3.dirLoanInterest);
+    expect(m5.dirLoanInterest).toBeLessThan(m4.dirLoanInterest);
+  });
+
+  it('calculateFounderIncome starter loan balance decreases each month from M2 to M25', () => {
+    const balanceM2 = calculateFounderIncome(2).starterLoanBalance;
+    const balanceM10 = calculateFounderIncome(10).starterLoanBalance;
+    const balanceM25 = calculateFounderIncome(25).starterLoanBalance;
+    expect(balanceM10).toBeLessThan(balanceM2);
+    expect(balanceM25).toBeLessThan(balanceM10);
+  });
+
+  it('calculateFounderIncome month 0 has all loan fields as zero', () => {
+    const result = calculateFounderIncome(0);
+    expect(result.dirLoanPayment).toBe(0);
+    expect(result.starterLoanPayment).toBe(0);
+    expect(result.loanPayment).toBe(0);
+  });
+
+  it('calculateAmortisation with 1-month term completes in single payment', () => {
+    const result = calculateAmortisation(1000, 0.12, 1, 1);
+    expect(result.balance).toBeCloseTo(0, 0);
+    expect(result.payment).toBeGreaterThan(1000);
+  });
+
+  it('calculateFounderIncome total field is a finite number for months 1-40', () => {
+    for (const month of [1, 5, 10, 20, 30, 38, 40]) {
+      const result = calculateFounderIncome(month);
+      expect(Number.isFinite(result.total)).toBe(true);
+    }
+  });
+
+  it('calculateAmortisation high rate (50% annual) still produces positive principal paid', () => {
+    const result = calculateAmortisation(100000, 0.5, 12, 1);
+    expect(result.principalPaid).toBeGreaterThan(0);
+    expect(result.payment).toBeGreaterThan(0);
+  });
+
+  it('calculateFounderIncome dir loan balance at M38 is approximately zero', () => {
+    const result = calculateFounderIncome(38);
+    expect(result.dirLoanBalance).toBeCloseTo(0, 0);
+  });
+});

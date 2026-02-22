@@ -247,3 +247,95 @@ describe('suppliers.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('suppliers.api — edge cases and extended coverage', () => {
+  it('GET /api/suppliers returns pagination metadata', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(45);
+
+    const res = await request(app).get('/api/suppliers?page=3&limit=15');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toMatchObject({ page: 3, limit: 15, total: 45, totalPages: 3 });
+  });
+
+  it('GET /api/suppliers filters by combined status and category', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(0);
+
+    await request(app).get('/api/suppliers?status=APPROVED&category=PACKAGING');
+    expect(mockPrisma.fsSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'APPROVED', category: 'PACKAGING' }),
+      })
+    );
+  });
+
+  it('POST /api/suppliers rejects missing category', async () => {
+    const res = await request(app).post('/api/suppliers').send({ name: 'Test Supplier' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/suppliers/:id handles 500 on update', async () => {
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSupplier.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/suppliers/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Supplier' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/suppliers/:id returns confirmation message', async () => {
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('DELETE /api/suppliers/:id handles 500 on update', async () => {
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSupplier.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/suppliers/:id handles 500 on findFirst', async () => {
+    mockPrisma.fsSupplier.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/suppliers/due-audit returns empty array when none due', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/suppliers/due-audit');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/suppliers returns multiple suppliers with success:true', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Supplier A' },
+      { id: '00000000-0000-0000-0000-000000000002', name: 'Supplier B' },
+    ]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/suppliers');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

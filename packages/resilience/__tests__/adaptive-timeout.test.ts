@@ -171,3 +171,87 @@ describe('withAdaptiveTimeout()', () => {
     ).rejects.toThrow('Database call timed out');
   });
 });
+
+// ── Additional edge cases ─────────────────────────────────────────────────────
+
+describe('AdaptiveTimeout — edge cases and boundary conditions', () => {
+  it('percentile(0) returns the minimum value', () => {
+    const t = new AdaptiveTimeout();
+    [10, 20, 30, 40, 50].forEach((v) => t.record(v));
+    expect(t.percentile(0)).toBe(10);
+  });
+
+  it('percentile(100) with single sample returns that sample', () => {
+    const t = new AdaptiveTimeout();
+    t.record(777);
+    expect(t.percentile(100)).toBe(777);
+  });
+
+  it('windowSize=1 only retains the latest sample', () => {
+    const t = new AdaptiveTimeout({ windowSize: 1 });
+    t.record(100);
+    t.record(200);
+    t.record(300);
+    expect(t.sampleCount).toBe(1);
+    expect(t.percentile(50)).toBe(300);
+  });
+
+  it('getTimeout with exactly minSamples samples uses adaptive logic', () => {
+    const t = new AdaptiveTimeout({ minSamples: 3, marginFactor: 1, baseTimeoutMs: 9999 });
+    t.record(200);
+    t.record(200);
+    t.record(200);
+    // exactly minSamples — should use adaptive (p95=200, *1=200)
+    expect(t.getTimeout()).toBe(200);
+  });
+
+  it('getTimeout rounds to integer (no decimals)', () => {
+    const t = new AdaptiveTimeout({ minSamples: 1, marginFactor: 1.333, maxTimeoutMs: 60000 });
+    t.record(300);
+    const timeout = t.getTimeout();
+    expect(Number.isInteger(timeout)).toBe(true);
+  });
+
+  it('reset allows fresh samples to be recorded', () => {
+    const t = new AdaptiveTimeout({ minSamples: 2 });
+    t.record(100);
+    t.record(100);
+    t.reset();
+    t.record(500);
+    // Only 1 sample after reset, below minSamples=2, so falls back to base
+    expect(t.getTimeout()).toBe(t['cfg'].baseTimeoutMs);
+  });
+
+  it('multiple records do not exceed windowSize=10', () => {
+    const t = new AdaptiveTimeout({ windowSize: 10 });
+    for (let i = 0; i < 20; i++) t.record(i * 5);
+    expect(t.sampleCount).toBe(10);
+  });
+
+  it('withAdaptiveTimeout records exactly 1 sample per invocation', async () => {
+    const t = new AdaptiveTimeout({ baseTimeoutMs: 5000 });
+    await withAdaptiveTimeout(t, async () => 'result1');
+    await withAdaptiveTimeout(t, async () => 'result2');
+    expect(t.sampleCount).toBe(2);
+  });
+
+  it('percentile with all identical samples returns that sample', () => {
+    const t = new AdaptiveTimeout();
+    [50, 50, 50, 50, 50].forEach((v) => t.record(v));
+    expect(t.percentile(95)).toBe(50);
+    expect(t.percentile(50)).toBe(50);
+  });
+
+  it('getTimeout clamps below minTimeoutMs=200', () => {
+    const t = new AdaptiveTimeout({
+      minSamples: 2,
+      marginFactor: 0.1,
+      minTimeoutMs: 200,
+      maxTimeoutMs: 5000,
+    });
+    t.record(50);
+    t.record(50);
+    // p95=50 * 0.1 = 5, clamped up to 200
+    expect(t.getTimeout()).toBe(200);
+  });
+});

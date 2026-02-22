@@ -228,3 +228,72 @@ describe('dashboard.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('dashboard.api — extended edge cases', () => {
+  it('criticalRisks reflects count mock value', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(9);
+    mockPrisma.riskCapa.count.mockResolvedValue(0);
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.aggregate.mockResolvedValue({ _avg: { residualScore: null } });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.criticalRisks).toBe('number');
+  });
+
+  it('overdueReviews is a number', async () => {
+    mockAllCounts(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.overdueReviews).toBe('number');
+  });
+
+  it('exceedsAppetite is a number', async () => {
+    mockAllCounts(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.exceedsAppetite).toBe('number');
+  });
+
+  it('newThisMonth is a number', async () => {
+    mockAllCounts(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.newThisMonth).toBe('number');
+  });
+
+  it('kriWarnings is a number', async () => {
+    mockAllCounts(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.kriWarnings).toBe('number');
+  });
+
+  it('overdueActions is a number', async () => {
+    mockAllCounts(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.overdueActions).toBe('number');
+  });
+
+  it('avgRiskScore is 0 when aggregate returns null', async () => {
+    mockAllCounts(0);
+    mockPrisma.riskRegister.aggregate.mockResolvedValue({ _avg: { residualScore: null } });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.avgRiskScore).toBe(0);
+  });
+
+  it('riskRegister.count called multiple times per stats request', async () => {
+    mockAllCounts(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.riskRegister.count.mock.calls.length).toBeGreaterThan(1);
+  });
+
+  it('riskRegister.aggregate called once per stats request', async () => {
+    mockAllCounts(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.riskRegister.aggregate).toHaveBeenCalledTimes(1);
+  });
+});

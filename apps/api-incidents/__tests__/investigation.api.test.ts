@@ -270,3 +270,103 @@ describe('Investigation — additional coverage', () => {
     expect(callWhere.id).toBe('00000000-0000-0000-0000-000000000003');
   });
 });
+
+describe('Investigation — field validation and response shape', () => {
+  it('assign with investigator as whitespace only returns 400', async () => {
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: '   ' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('report update data contains correctiveActions when provided', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      correctiveActions: 'Replace faulty parts',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ correctiveActions: 'Replace faulty parts' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData.correctiveActions).toBe('Replace faulty parts');
+  });
+
+  it('report update data contains preventiveActions when provided', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      preventiveActions: 'Regular audits',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ preventiveActions: 'Regular audits' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData.preventiveActions).toBe('Regular audits');
+  });
+
+  it('assign response has status code 200 on success', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001', investigator: 'inv1', status: 'INVESTIGATING',
+    });
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'inv1' });
+    expect(res.status).toBe(200);
+  });
+
+  it('report update response has status code 200 on success', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001', status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    const res = await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ rootCause: 'Equipment wear' });
+    expect(res.status).toBe(200);
+  });
+
+  it('report update investigationReport is mapped from report field', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigationReport: 'Detailed findings here',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ report: 'Detailed findings here' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData.investigationReport).toBe('Detailed findings here');
+  });
+
+  it('assign data includes updatedBy from req.user.id', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001', investigator: 'inv2', status: 'INVESTIGATING',
+    });
+    await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'inv2' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData).toHaveProperty('updatedBy');
+  });
+
+  it('report update data includes investigationDate', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001', status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ rootCause: 'Human error' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData.investigationDate).toBeInstanceOf(Date);
+  });
+
+  it('error message is INTERNAL_ERROR on DB failure for assign', async () => {
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'inv3' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBeDefined();
+  });
+});

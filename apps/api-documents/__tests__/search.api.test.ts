@@ -213,3 +213,69 @@ describe('Search — additional coverage', () => {
     );
   });
 });
+
+// ─── Search — take limit and response shape coverage ─────────────────────────
+
+describe('Search — take limit and response shape coverage', () => {
+  it('findMany called with take: 20 to enforce result limit', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    await request(app).get('/api/search?q=limit');
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 20 }),
+    );
+  });
+
+  it('findMany called with deletedAt: null to exclude soft-deleted docs', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    await request(app).get('/api/search?q=active');
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      }),
+    );
+  });
+
+  it('response body has success property on 200', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=test');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('response body has data property on 200', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=test');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('500 response has error.message field', async () => {
+    mockPrisma.docDocument.findMany.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/api/search?q=fail');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('message');
+  });
+
+  it('returns multiple documents with correct id and title fields', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000010', title: 'Policy A', description: 'desc a' },
+      { id: '00000000-0000-0000-0000-000000000011', title: 'Policy B', description: 'desc b' },
+    ]);
+    const res = await request(app).get('/api/search?q=policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000010');
+    expect(res.body.data[1].id).toBe('00000000-0000-0000-0000-000000000011');
+  });
+
+  it('response content-type is JSON', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=json');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('findMany called with orderBy: createdAt desc', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    await request(app).get('/api/search?q=order');
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: 'desc' } }),
+    );
+  });
+});

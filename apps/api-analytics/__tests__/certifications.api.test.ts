@@ -299,3 +299,112 @@ describe('certifications.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+// ===================================================================
+// Certifications API — extended field validation and pagination coverage
+// ===================================================================
+describe('Certifications API — extended coverage', () => {
+  it('GET /api/certifications pagination object contains page, limit, total, totalPages', async () => {
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination).toHaveProperty('page');
+    expect(res.body.data.pagination).toHaveProperty('limit');
+    expect(res.body.data.pagination).toHaveProperty('total');
+    expect(res.body.data.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/certifications default page is 1', async () => {
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.body.data.pagination.page).toBe(1);
+  });
+
+  it('GET /api/certifications?page=2&limit=5 uses correct skip value', async () => {
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
+    await request(app).get('/api/certifications?page=2&limit=5');
+    expect(mockPrisma.complianceDeadline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST /api/certifications with all optional fields returns 201', async () => {
+    mockPrisma.complianceDeadline.create.mockResolvedValue({
+      id: 'dl-opt',
+      name: 'Full Fields',
+      category: 'REGULATORY',
+      dueDate: new Date('2026-09-01'),
+      renewalFrequency: 'ANNUAL',
+      ownerEmail: 'owner@example.com',
+      status: 'UPCOMING',
+      notes: 'Some notes',
+    });
+    const res = await request(app).post('/api/certifications').send({
+      name: 'Full Fields',
+      category: 'REGULATORY',
+      dueDate: '2026-09-01',
+      renewalFrequency: 'ANNUAL',
+      ownerEmail: 'owner@example.com',
+      status: 'UPCOMING',
+      notes: 'Some notes',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.deadline.notes).toBe('Some notes');
+  });
+
+  it('GET /api/certifications/seed returns created=0 when createMany returns count 0', async () => {
+    mockPrisma.complianceDeadline.createMany.mockResolvedValue({ count: 0 });
+    const res = await request(app).get('/api/certifications/seed');
+    expect(res.status).toBe(200);
+    expect(res.body.data.created).toBe(0);
+  });
+
+  it('GET /api/certifications/seed returns 500 on DB error', async () => {
+    mockPrisma.complianceDeadline.createMany.mockRejectedValue(new Error('seed failed'));
+    const res = await request(app).get('/api/certifications/seed');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/certifications/:id returns 500 on DB error', async () => {
+    mockPrisma.complianceDeadline.findUnique.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get(
+      '/api/certifications/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /api/certifications/:id updates ownerEmail field', async () => {
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Cert',
+      category: 'COMPLIANCE',
+      dueDate: new Date('2026-06-01'),
+      status: 'UPCOMING',
+    });
+    mockPrisma.complianceDeadline.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      ownerEmail: 'new@owner.com',
+    });
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ ownerEmail: 'new@owner.com' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.deadline.ownerEmail).toBe('new@owner.com');
+  });
+
+  it('GET /api/certifications filters by status=COMPLETED', async () => {
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
+    await request(app).get('/api/certifications?status=COMPLETED');
+    expect(mockPrisma.complianceDeadline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'COMPLETED' }),
+      })
+    );
+  });
+});

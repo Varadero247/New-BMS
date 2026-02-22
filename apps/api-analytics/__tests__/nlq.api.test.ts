@@ -287,3 +287,75 @@ describe('nlq.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('NLQ API — edge cases and extended validation', () => {
+  it('POST /api/nlq/query returns 400 when query is whitespace only', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: '   ' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/nlq/query response data has results object', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: 'show me all open CAPAs' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.results).toBeDefined();
+    expect(typeof res.body.data.results).toBe('object');
+  });
+
+  it('POST /api/nlq/query results.columns is an array', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: 'show me all open CAPAs' });
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.results.columns)).toBe(true);
+  });
+
+  it('POST /api/nlq/query results.rows is an array', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: 'show me all open CAPAs' });
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.results.rows)).toBe(true);
+  });
+
+  it('POST /api/nlq/query results.totalCount is a number', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: 'show me all open CAPAs' });
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.results.totalCount).toBe('number');
+  });
+
+  it('GET /api/nlq/examples returns array with query and description fields', async () => {
+    const res = await request(app).get('/api/nlq/examples');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    if (res.body.data.length > 0) {
+      expect(res.body.data[0]).toHaveProperty('query');
+      expect(res.body.data[0]).toHaveProperty('description');
+    }
+  });
+
+  it('GET /api/nlq/history each entry has resultCount as number', async () => {
+    const res = await request(app).get('/api/nlq/history');
+    expect(res.status).toBe(200);
+    if (res.body.data.length > 0) {
+      expect(typeof res.body.data[0].resultCount).toBe('number');
+    }
+  });
+
+  it('POST /api/nlq/query query.original matches request query text', async () => {
+    const queryText = 'show me all open CAPAs';
+    const res = await request(app).post('/api/nlq/query').send({ query: queryText });
+    expect(res.status).toBe(200);
+    expect(res.body.data.query.original).toBe(queryText);
+  });
+
+  it('POST /api/nlq/query query.confidence is between 0 and 1', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: 'show me all open CAPAs' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.query.confidence).toBeGreaterThanOrEqual(0);
+    expect(res.body.data.query.confidence).toBeLessThanOrEqual(1);
+  });
+
+  it('POST /api/nlq/query unrecognised query has empty rows array', async () => {
+    const res = await request(app).post('/api/nlq/query').send({ query: 'xyzzy frobnicate quux' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.results.rows).toEqual([]);
+    expect(res.body.data.results.totalCount).toBe(0);
+  });
+});

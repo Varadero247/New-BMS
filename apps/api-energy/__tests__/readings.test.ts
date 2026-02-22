@@ -298,3 +298,119 @@ describe('readings — additional coverage', () => {
     }
   });
 });
+
+describe('readings — extended coverage', () => {
+  it('GET /api/readings returns pagination metadata', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', value: 500 },
+    ]);
+    (prisma.energyReading.count as jest.Mock).mockResolvedValue(50);
+
+    const res = await request(app).get('/api/readings?page=1&limit=1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(50);
+  });
+
+  it('GET /api/readings filters by both meterId and source', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyReading.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get(
+      '/api/readings?meterId=00000000-0000-0000-0000-000000000001&source=SMART_METER'
+    );
+
+    expect(prisma.energyReading.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          meterId: '00000000-0000-0000-0000-000000000001',
+          source: 'SMART_METER',
+        }),
+      })
+    );
+  });
+
+  it('GET /api/readings/:id returns 500 when findFirst throws', async () => {
+    (prisma.energyReading.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/readings/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/readings/:id returns 500 when update throws', async () => {
+    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyReading.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/readings/00000000-0000-0000-0000-000000000001')
+      .send({ value: 300 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/readings/:id returns 500 when update throws', async () => {
+    (prisma.energyReading.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.energyReading.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/readings/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/readings/summary returns 500 when aggregate throws', async () => {
+    (prisma.energyReading.aggregate as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/readings/summary');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/readings success field is true on 200', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyReading.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/readings');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/readings rejects missing readingDate', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).post('/api/readings').send({
+      meterId: '00000000-0000-0000-0000-000000000001',
+      value: 100,
+      source: 'MANUAL',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/readings/summary readingCount matches mock count', async () => {
+    (prisma.energyReading.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { value: 1000, cost: 200 },
+      _avg: { value: 100 },
+      _count: 10,
+      _min: { readingDate: new Date('2025-01-01') },
+      _max: { readingDate: new Date('2025-10-01') },
+    });
+
+    const res = await request(app).get('/api/readings/summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.readingCount).toBe(10);
+    expect(res.body.data.totalConsumption).toBe(1000);
+  });
+});

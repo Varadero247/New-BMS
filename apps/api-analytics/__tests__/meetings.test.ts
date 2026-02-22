@@ -276,3 +276,75 @@ describe('meetings — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('Meetings — further edge cases and validation', () => {
+  it('GET /api/meetings pagination has total field as number', async () => {
+    (prisma.meetingNote.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.meetingNote.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/meetings');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.pagination.total).toBe('number');
+  });
+
+  it('POST /api/meetings returns 400 when date is missing', async () => {
+    const res = await request(app)
+      .post('/api/meetings')
+      .send({ title: 'No date meeting', type: 'TEAM', attendees: ['Alice'], summary: 'Test' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/meetings succeeds without attendees (attendees is optional)', async () => {
+    (prisma.meetingNote.create as jest.Mock).mockResolvedValue({
+      ...sampleMeeting,
+      title: 'No attendees meeting',
+      attendees: [],
+    });
+    const res = await request(app)
+      .post('/api/meetings')
+      .send({ title: 'No attendees', type: 'TEAM', date: '2026-02-22', summary: 'Test' });
+    expect([200, 201]).toContain(res.status);
+  });
+
+  it('PATCH /api/meetings/:id returns 404 when meeting not found', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .patch('/api/meetings/00000000-0000-0000-0000-000000000099')
+      .send({ summary: 'Updated' });
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/meetings?page=2&limit=5 passes correct skip to findMany', async () => {
+    (prisma.meetingNote.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.meetingNote.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/meetings?page=2&limit=5');
+    expect(prisma.meetingNote.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET /api/meetings with multiple results returns correct count', async () => {
+    const meetings = [
+      { ...sampleMeeting, id: '00000000-0000-0000-0000-000000000001' },
+      { ...sampleMeeting, id: '00000000-0000-0000-0000-000000000002', title: 'Monthly Review' },
+    ];
+    (prisma.meetingNote.findMany as jest.Mock).mockResolvedValue(meetings);
+    (prisma.meetingNote.count as jest.Mock).mockResolvedValue(2);
+    const res = await request(app).get('/api/meetings');
+    expect(res.status).toBe(200);
+    expect(res.body.data.meetings).toHaveLength(2);
+  });
+
+  it('GET /api/meetings/:id 500 error on findUnique failure', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/meetings/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PATCH /api/meetings/:id/actions/:actionIndex returns 404 when meeting not found', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).patch(
+      '/api/meetings/00000000-0000-0000-0000-000000000099/actions/0'
+    );
+    expect(res.status).toBe(404);
+  });
+});

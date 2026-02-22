@@ -253,3 +253,111 @@ describe('profile.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Partner Profile — edge cases and field validation', () => {
+  const appWithPartner = express();
+  appWithPartner.use(express.json());
+  appWithPartner.use((req: any, _res: any, next: any) => {
+    req.partner = { id: 'partner-1' };
+    next();
+  });
+  appWithPartner.use('/api/profile', profileRouter);
+
+  const appNoAuth = express();
+  appNoAuth.use(express.json());
+  appNoAuth.use('/api/profile', profileRouter);
+
+  const mockPartnerFull = {
+    id: 'partner-1',
+    email: 'partner@example.com',
+    name: 'Test Partner',
+    company: 'Partner Co',
+    phone: '+44 1234 567890',
+    tier: 'REFERRAL',
+    isoSpecialisms: ['9001', '14001'],
+    referralCode: 'REF-ABC123',
+    referralUrl: 'https://nexara.io/ref/REF-ABC123',
+    status: 'ACTIVE',
+    createdAt: new Date('2026-01-01'),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /profile returns tier field', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartnerFull);
+    const res = await request(appWithPartner).get('/api/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('tier');
+  });
+
+  it('GET /profile returns status field', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartnerFull);
+    const res = await request(appWithPartner).get('/api/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('status');
+  });
+
+  it('GET /profile returns referralUrl field', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartnerFull);
+    const res = await request(appWithPartner).get('/api/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('referralUrl');
+  });
+
+  it('PUT /profile with phone update calls update with phone in data', async () => {
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue({
+      ...mockPartnerFull,
+      phone: '+44 9999 123456',
+    });
+    await request(appWithPartner).put('/api/profile').send({ phone: '+44 9999 123456' });
+    expect(prisma.mktPartner.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ phone: '+44 9999 123456' }),
+      })
+    );
+  });
+
+  it('PUT /profile returns 401 when unauthenticated', async () => {
+    const res = await request(appNoAuth).put('/api/profile').send({ name: 'New Name' });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('GET /profile findUnique is called with a select clause', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartnerFull);
+    await request(appWithPartner).get('/api/profile');
+    expect(prisma.mktPartner.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ select: expect.any(Object) })
+    );
+  });
+
+  it('PUT /profile returns updated data on success', async () => {
+    const updated = { ...mockPartnerFull, name: 'Renamed Partner' };
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(updated);
+    const res = await request(appWithPartner)
+      .put('/api/profile')
+      .send({ name: 'Renamed Partner' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Renamed Partner');
+  });
+
+  it('PUT /profile error code is VALIDATION_ERROR for empty name', async () => {
+    const res = await request(appWithPartner).put('/api/profile').send({ name: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /profile with only isoSpecialisms succeeds when array is valid', async () => {
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue({
+      ...mockPartnerFull,
+      isoSpecialisms: ['45001'],
+    });
+    const res = await request(appWithPartner)
+      .put('/api/profile')
+      .send({ isoSpecialisms: ['45001'] });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

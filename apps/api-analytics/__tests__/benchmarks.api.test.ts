@@ -296,3 +296,69 @@ describe('benchmarks.api.test.ts — additional coverage', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('benchmarks.api — extended edge cases', () => {
+  it('GET /api/benchmarks industry has HEALTH_SAFETY key', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry).toHaveProperty('HEALTH_SAFETY');
+  });
+
+  it('GET /api/benchmarks industry has QUALITY key', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry).toHaveProperty('QUALITY');
+  });
+
+  it('GET /api/benchmarks industry ENVIRONMENT returns 4 items', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry.ENVIRONMENT).toHaveLength(4);
+  });
+
+  it('GET /api/benchmarks/:module returns organization array', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/ENVIRONMENT');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.organization)).toBe(true);
+  });
+
+  it('POST /api/benchmarks rejects missing name field with 400', async () => {
+    const res = await request(app).post('/api/benchmarks').send({
+      module: 'QUALITY',
+      metric: 'something',
+      industryAverage: 50,
+      topPerformer: 90,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/benchmarks rejects missing industryAverage with 400', async () => {
+    const res = await request(app).post('/api/benchmarks').send({
+      name: 'Test',
+      module: 'HR',
+      metric: 'Test',
+      topPerformer: 90,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/benchmarks/:module HR returns 3 industry items', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/HR');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry).toHaveLength(3);
+  });
+
+  it('GET /api/benchmarks/:module FINANCE returns 3 industry items', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/FINANCE');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry).toHaveLength(3);
+  });
+});

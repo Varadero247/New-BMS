@@ -235,3 +235,100 @@ describe('assets.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('Assets API — extended field validation and edge cases', () => {
+  it('GET / pagination has totalPages field', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assets');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET / with page and limit params returns correct pagination', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/assets?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(10);
+  });
+
+  it('GET / with search param returns 200', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assets?search=forklift');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST / creates asset with all optional fields', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(3);
+    mockPrisma.assetRegister.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      name: 'Crane',
+      referenceNumber: 'AST-2026-0004',
+      category: 'Heavy Equipment',
+      location: 'Site A',
+    });
+    const res = await request(app).post('/api/assets').send({
+      name: 'Crane',
+      category: 'Heavy Equipment',
+      location: 'Site A',
+      status: 'ACTIVE',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT / updates asset status to DECOMMISSIONED', async () => {
+    mockPrisma.assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DECOMMISSIONED' });
+    const res = await request(app)
+      .put('/api/assets/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DECOMMISSIONED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE / data.message confirms deletion', async () => {
+    mockPrisma.assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('GET / pagination total matches mocked count', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.count.mockResolvedValue(77);
+    const res = await request(app).get('/api/assets');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(77);
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Pump' },
+    ]);
+    mockPrisma.assetRegister.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/assets');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / returns 400 for invalid status enum value', async () => {
+    const res = await request(app).post('/api/assets').send({ name: 'Asset', status: 'UNKNOWN_STATUS' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns 500 on findFirst DB error', async () => {
+    mockPrisma.assetRegister.findFirst.mockRejectedValue(new Error('DB timeout'));
+    const res = await request(app)
+      .put('/api/assets/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

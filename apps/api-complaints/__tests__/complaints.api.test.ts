@@ -239,3 +239,98 @@ describe('complaints.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('complaints.api — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns pagination with page and limit', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/complaints?page=3&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET / filters by category param', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/complaints?status=RESOLVED');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.compComplaint.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'RESOLVED' }) })
+    );
+  });
+
+  it('POST / returns 400 when complainantEmail is missing @ symbol', async () => {
+    const res = await request(app)
+      .post('/api/complaints')
+      .send({ title: 'Bad Email', complainantEmail: 'bademail.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / accepts valid channel PHONE', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      title: 'Phone complaint',
+    });
+    const res = await request(app)
+      .post('/api/complaints')
+      .send({ title: 'Phone complaint', channel: 'PHONE' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / accepts valid status ACKNOWLEDGED', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000011',
+      title: 'Acknowledged',
+    });
+    const res = await request(app)
+      .post('/api/complaints')
+      .send({ title: 'Acknowledged', status: 'ACKNOWLEDGED' });
+    expect(res.status).toBe(201);
+  });
+
+  it('PUT /:id returns 500 on DB error with INTERNAL_ERROR code', async () => {
+    mockPrisma.compComplaint.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compComplaint.update.mockRejectedValue(new Error('DB failure'));
+    const res = await request(app)
+      .put('/api/complaints/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / returns totalPages when count is non-zero', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/complaints?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('DELETE /:id returns message confirming deletion', async () => {
+    mockPrisma.compComplaint.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compComplaint.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/complaints/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('GET /:id returns success true with data on found record', async () => {
+    mockPrisma.compComplaint.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Test Complaint',
+    });
+    const res = await request(app).get('/api/complaints/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

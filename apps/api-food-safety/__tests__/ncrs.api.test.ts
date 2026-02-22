@@ -267,3 +267,110 @@ describe('ncrs.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('ncrs.api — edge cases and extended coverage', () => {
+  it('GET /api/ncrs returns pagination metadata', async () => {
+    mockPrisma.fsNcr.findMany.mockResolvedValue([]);
+    mockPrisma.fsNcr.count.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/ncrs?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toMatchObject({ page: 2, limit: 10, total: 50, totalPages: 5 });
+  });
+
+  it('GET /api/ncrs filters by combined status and severity', async () => {
+    mockPrisma.fsNcr.findMany.mockResolvedValue([]);
+    mockPrisma.fsNcr.count.mockResolvedValue(0);
+
+    await request(app).get('/api/ncrs?status=OPEN&severity=CRITICAL');
+    expect(mockPrisma.fsNcr.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'OPEN', severity: 'CRITICAL' }),
+      })
+    );
+  });
+
+  it('POST /api/ncrs rejects invalid severity', async () => {
+    const res = await request(app).post('/api/ncrs').send({
+      title: 'Bad NCR',
+      category: 'PRODUCT',
+      severity: 'FATAL',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/ncrs rejects invalid category', async () => {
+    const res = await request(app).post('/api/ncrs').send({
+      title: 'Bad Category NCR',
+      category: 'UNKNOWN',
+      severity: 'HIGH',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/ncrs/:id handles 500 on update', async () => {
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsNcr.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/ncrs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'INVESTIGATING' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/ncrs/:id returns confirmation message', async () => {
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsNcr.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+
+    const res = await request(app).delete('/api/ncrs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('DELETE /api/ncrs/:id handles 500 on update', async () => {
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsNcr.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/ncrs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/ncrs/:id/close handles 500 on update', async () => {
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'OPEN',
+    });
+    mockPrisma.fsNcr.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/ncrs/00000000-0000-0000-0000-000000000001/close')
+      .send({ rootCause: 'Equipment failure' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/ncrs/:id handles 500 on findFirst', async () => {
+    mockPrisma.fsNcr.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/ncrs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/ncrs/open returns success:true with data array', async () => {
+    mockPrisma.fsNcr.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', status: 'INVESTIGATING' },
+      { id: '00000000-0000-0000-0000-000000000002', status: 'CORRECTIVE_ACTION' },
+    ]);
+
+    const res = await request(app).get('/api/ncrs/open');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

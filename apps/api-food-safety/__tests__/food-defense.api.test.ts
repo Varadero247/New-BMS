@@ -257,3 +257,135 @@ describe('food-defense.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('food-defense.api — edge cases and extended coverage', () => {
+  it('GET /api/food-defense returns pagination metadata', async () => {
+    mockPrisma.fsFoodDefense.findMany.mockResolvedValue([]);
+    mockPrisma.fsFoodDefense.count.mockResolvedValue(25);
+
+    const res = await request(app).get('/api/food-defense?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toMatchObject({ page: 1, limit: 10, total: 25, totalPages: 3 });
+  });
+
+  it('GET /api/food-defense filters by combined threatType and riskLevel', async () => {
+    mockPrisma.fsFoodDefense.findMany.mockResolvedValue([]);
+    mockPrisma.fsFoodDefense.count.mockResolvedValue(0);
+
+    await request(app).get('/api/food-defense?threatType=TAMPERING&riskLevel=CRITICAL');
+    expect(mockPrisma.fsFoodDefense.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ threatType: 'TAMPERING', riskLevel: 'CRITICAL' }),
+      })
+    );
+  });
+
+  it('POST /api/food-defense with INTENTIONAL_CONTAMINATION threat type succeeds', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000002',
+      title: 'Contamination Threat',
+      threatType: 'INTENTIONAL_CONTAMINATION',
+      riskLevel: 'CRITICAL',
+    };
+    mockPrisma.fsFoodDefense.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/food-defense').send({
+      title: 'Contamination Threat',
+      threatType: 'INTENTIONAL_CONTAMINATION',
+      riskLevel: 'CRITICAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.threatType).toBe('INTENTIONAL_CONTAMINATION');
+  });
+
+  it('POST /api/food-defense with CYBER threat type and MEDIUM risk succeeds', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000003',
+      title: 'Cyber Threat',
+      threatType: 'CYBER',
+      riskLevel: 'MEDIUM',
+    };
+    mockPrisma.fsFoodDefense.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/food-defense').send({
+      title: 'Cyber Threat',
+      threatType: 'CYBER',
+      riskLevel: 'MEDIUM',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/food-defense rejects missing riskLevel', async () => {
+    const res = await request(app).post('/api/food-defense').send({
+      title: 'Threat',
+      threatType: 'SABOTAGE',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/food-defense/:id can update to ASSESSED status', async () => {
+    mockPrisma.fsFoodDefense.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsFoodDefense.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'ASSESSED',
+    });
+
+    const res = await request(app)
+      .put('/api/food-defense/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ASSESSED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('ASSESSED');
+  });
+
+  it('PUT /api/food-defense/:id rejects invalid riskLevel value', async () => {
+    mockPrisma.fsFoodDefense.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app)
+      .put('/api/food-defense/00000000-0000-0000-0000-000000000001')
+      .send({ riskLevel: 'EXTREME' });
+    expect(res.status).toBe(400);
+  });
+
+  it('DELETE /api/food-defense/:id returns confirmation message', async () => {
+    mockPrisma.fsFoodDefense.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsFoodDefense.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).delete('/api/food-defense/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET /api/food-defense returns empty array when no records exist', async () => {
+    mockPrisma.fsFoodDefense.findMany.mockResolvedValue([]);
+    mockPrisma.fsFoodDefense.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/food-defense');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('GET /api/food-defense/:id returns success:true with data', async () => {
+    mockPrisma.fsFoodDefense.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      title: 'Bioterrorism Assessment',
+      threatType: 'BIOTERRORISM',
+      riskLevel: 'HIGH',
+    });
+
+    const res = await request(app).get('/api/food-defense/00000000-0000-0000-0000-000000000005');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('threatType', 'BIOTERRORISM');
+  });
+});

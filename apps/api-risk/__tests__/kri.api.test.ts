@@ -289,3 +289,102 @@ describe('kri.api — additional coverage', () => {
     }
   });
 });
+
+describe('kri.api — edge cases and extended paths', () => {
+  it('PUT /:riskId/kri/:id returns 404 when KRI not found', async () => {
+    mockPrisma.riskKri.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000099')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /:riskId/kri/:id/reading returns 404 when KRI not found', async () => {
+    mockPrisma.riskKri.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000099/reading')
+      .send({ value: 5 });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /kri/breaches returns empty array when no breaches', async () => {
+    mockPrisma.riskKri.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/kri/breaches');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /kri/due returns empty array when nothing due', async () => {
+    mockPrisma.riskKri.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/kri/due');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST /:id/kri success response has success:true', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskKri.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      name: 'Revenue KRI',
+    });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri')
+      .send({ name: 'Revenue KRI', unit: 'USD' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('PUT /:riskId/kri/:id success response has success:true', async () => {
+    mockPrisma.riskKri.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskKri.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Renamed' });
+    const res = await request(app)
+      .put('/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Renamed' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id/kri returns success:true and an array', async () => {
+    mockPrisma.riskKri.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'KRI A' },
+      { id: '00000000-0000-0000-0000-000000000002', name: 'KRI B' },
+    ]);
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/kri');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('reading status DECREASING_IS_WORSE: low value is RED', async () => {
+    mockPrisma.riskKri.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      greenThreshold: 80,
+      amberThreshold: 60,
+      redThreshold: 40,
+      thresholdDirection: 'DECREASING_IS_WORSE',
+    });
+    mockPrisma.riskKriReading.create.mockResolvedValue({ id: 'rd4', value: 30, status: 'RED' });
+    mockPrisma.riskKri.update.mockResolvedValue({});
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000001/reading')
+      .send({ value: 30 });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('RED');
+  });
+
+  it('POST /:id/kri validates description field is optional', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskKri.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', name: 'Safety KRI' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri')
+      .send({ name: 'Safety KRI', description: 'Tracks safety incidents', unit: 'count' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

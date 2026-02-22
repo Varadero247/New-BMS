@@ -233,3 +233,74 @@ describe('Documents Dashboard — additional coverage', () => {
     expect(res.body.data.totalVersions).toBe(200);
   });
 });
+
+// ─── Stats endpoint — boundary and edge-case coverage ────────────────────────
+
+describe('Documents Dashboard — boundary and edge-case coverage', () => {
+  it('totalDocuments and totalVersions match mock when single document and version exist', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(1);
+    mockPrisma.docVersion.count.mockResolvedValue(1);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDocuments).toBe(1);
+    expect(res.body.data.totalVersions).toBe(1);
+  });
+
+  it('GET /stats is not found on wrong path /api/dashboard/wrong', async () => {
+    const res = await request(app).get('/api/dashboard/wrong');
+    expect(res.status).toBe(404);
+  });
+
+  it('response is JSON content-type', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('error has message field on 500 response', async () => {
+    mockPrisma.docDocument.count.mockRejectedValue(new Error('timeout'));
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('message');
+  });
+
+  it('totalVersions is a number on success', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(2);
+    mockPrisma.docVersion.count.mockResolvedValue(6);
+    mockPrisma.docApproval.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalVersions).toBe('number');
+  });
+
+  it('pendingApprovals is a number on success', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(2);
+    mockPrisma.docVersion.count.mockResolvedValue(4);
+    mockPrisma.docApproval.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.pendingApprovals).toBe('number');
+  });
+
+  it('error code is INTERNAL_ERROR when docApproval count rejects', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(1);
+    mockPrisma.docVersion.count.mockResolvedValue(2);
+    mockPrisma.docApproval.count.mockRejectedValue(new Error('approval fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/dashboard/stats each count query is called once', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(3);
+    mockPrisma.docVersion.count.mockResolvedValue(7);
+    mockPrisma.docApproval.count.mockResolvedValue(2);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.docDocument.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.docVersion.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.docApproval.count).toHaveBeenCalledTimes(1);
+  });
+});

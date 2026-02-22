@@ -194,3 +194,81 @@ describe('treatments.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('treatments.api — aggregation edge cases', () => {
+  it('single AVOID entry produces one result with count 1', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ treatment: 'AVOID' }]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].treatment).toBe('AVOID');
+    expect(res.body.data[0].count).toBe(1);
+  });
+
+  it('five identical TRANSFER entries produce count 5', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { treatment: 'TRANSFER' },
+      { treatment: 'TRANSFER' },
+      { treatment: 'TRANSFER' },
+      { treatment: 'TRANSFER' },
+      { treatment: 'TRANSFER' },
+    ]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].count).toBe(5);
+  });
+
+  it('error.message is defined on 500', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('disk full'));
+    const res = await request(app).get('/api/treatments');
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBeDefined();
+  });
+
+  it('response success is false on 500', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/treatments');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('all five standard treatment types appear when each present once', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { treatment: 'MITIGATE' },
+      { treatment: 'ACCEPT' },
+      { treatment: 'TRANSFER' },
+      { treatment: 'AVOID' },
+      { treatment: 'REDUCE' },
+    ]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(5);
+  });
+
+  it('findMany receives where clause filtering deletedAt', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/treatments');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('mixed treatment set returns correct distinct count', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { treatment: 'MITIGATE' },
+      { treatment: 'ACCEPT' },
+      { treatment: 'MITIGATE' },
+      { treatment: 'AVOID' },
+      { treatment: 'ACCEPT' },
+      { treatment: 'ACCEPT' },
+    ]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.body.data).toHaveLength(3);
+    const accept = res.body.data.find((d: any) => d.treatment === 'ACCEPT');
+    expect(accept.count).toBe(3);
+  });
+
+  it('HTTP method POST returns 404 for unregistered POST /', async () => {
+    const res = await request(app).post('/api/treatments').send({});
+    expect([404, 405]).toContain(res.status);
+  });
+});

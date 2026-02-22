@@ -325,3 +325,118 @@ describe('premises — additional coverage', () => {
     }
   });
 });
+
+describe('premises — extended edge cases', () => {
+  it('POST /api/premises returns 500 when create fails', async () => {
+    mockPremises.create.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).post('/api/premises').send({
+      name: 'New Building',
+      address: '5 Test Street',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/premises/:id returns 500 on update DB error', async () => {
+    mockPremises.findFirst.mockResolvedValue(fakePremises);
+    mockPremises.update.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).put(`/api/premises/${PREMISES_ID}`).send({ name: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/premises/:id/dashboard returns 500 on DB error', async () => {
+    mockPremises.findUnique.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).get(`/api/premises/${PREMISES_ID}/dashboard`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/premises supports page and limit params', async () => {
+    mockPremises.findMany.mockResolvedValue([fakePremises]);
+    mockPremises.count.mockResolvedValue(30);
+
+    const res = await request(app).get('/api/premises?page=2&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(30);
+  });
+
+  it('creates premises with building type WAREHOUSE', async () => {
+    const warehouse = { ...fakePremises, buildingType: 'WAREHOUSE', address: '10 Dock Road' };
+    mockPremises.create.mockResolvedValue(warehouse);
+
+    const res = await request(app).post('/api/premises').send({
+      name: 'Warehouse A',
+      address: '10 Dock Road',
+      buildingType: 'WAREHOUSE',
+      numberOfFloors: 1,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.buildingType).toBe('WAREHOUSE');
+  });
+
+  it('dashboard marks drillOverdue false when recent drill exists', async () => {
+    const recentDrill = {
+      id: 'drill-recent',
+      drillDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+    };
+    mockPremises.findUnique.mockResolvedValue(fakePremises);
+    mockFra.count.mockResolvedValue(0);
+    mockIncident.count.mockResolvedValue(0);
+    mockWarden.count.mockResolvedValue(0);
+    mockEquipment.count.mockResolvedValue(0);
+    mockPeep.count.mockResolvedValue(0);
+    mockDrill.findFirst.mockResolvedValue(recentDrill);
+
+    const res = await request(app).get(`/api/premises/${PREMISES_ID}/dashboard`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.drillOverdue).toBe(false);
+  });
+
+  it('PUT /api/premises/:id updates multiple fields at once', async () => {
+    const updated = { ...fakePremises, name: 'Renovated HQ', maxOccupancy: 250, numberOfFloors: 4 };
+    mockPremises.findFirst.mockResolvedValue(fakePremises);
+    mockPremises.update.mockResolvedValue(updated);
+
+    const res = await request(app).put(`/api/premises/${PREMISES_ID}`).send({
+      name: 'Renovated HQ',
+      maxOccupancy: 250,
+      numberOfFloors: 4,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Renovated HQ');
+    expect(res.body.data.maxOccupancy).toBe(250);
+  });
+
+  it('GET /api/premises/:id returns full includes structure', async () => {
+    const detailedPremises = {
+      ...fakePremises,
+      fireRiskAssessments: [{ id: 'fra-1', assessmentDate: '2026-01-01T00:00:00.000Z' }],
+      wardens: [{ id: 'warden-1', name: 'Alice', isActive: true }],
+      activeIncidents: [],
+      drillRecords: [],
+      assemblyPoints: [],
+      evacuationRoutes: [],
+      emergencyContacts: [],
+      emergencyEquipment: [],
+      _count: { peeps: 2 },
+    };
+    mockPremises.findFirst.mockResolvedValue(detailedPremises);
+
+    const res = await request(app).get(`/api/premises/${PREMISES_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.fireRiskAssessments).toHaveLength(1);
+    expect(res.body.data._count.peeps).toBe(2);
+  });
+});

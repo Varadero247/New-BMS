@@ -277,3 +277,92 @@ describe('Food Safety Allergens — additional coverage', () => {
     expect(res.body.data).toHaveProperty('name', 'Soy');
   });
 });
+
+// ===================================================================
+// Food Safety Allergens — edge cases and error paths
+// ===================================================================
+describe('Food Safety Allergens — edge cases and error paths', () => {
+  it('GET /allergens data array is always an array', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/allergens');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /allergens filters by both type and isActive simultaneously', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
+    await request(app).get('/api/allergens?type=MAJOR&isActive=true');
+    expect(mockPrisma.fsAllergen.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'MAJOR', isActive: true }),
+      })
+    );
+  });
+
+  it('POST /allergens create call includes the name and type', async () => {
+    mockPrisma.fsAllergen.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      name: 'Mustard',
+      type: 'MAJOR',
+    });
+    await request(app).post('/api/allergens').send({ name: 'Mustard', type: 'MAJOR' });
+    expect(mockPrisma.fsAllergen.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ name: 'Mustard', type: 'MAJOR' }),
+      })
+    );
+  });
+
+  it('PUT /allergens/:id returns 500 on DB error', async () => {
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsAllergen.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/allergens/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /allergens/:id returns 500 on DB error', async () => {
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsAllergen.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/allergens/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /allergens/:id returns 500 on DB error', async () => {
+    mockPrisma.fsAllergen.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/allergens/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /allergens pagination page defaults to 1', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/allergens');
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('PUT /allergens/:id update uses correct where id', async () => {
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000011' });
+    mockPrisma.fsAllergen.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000011', name: 'Tree Nut' });
+    await request(app)
+      .put('/api/allergens/00000000-0000-0000-0000-000000000011')
+      .send({ name: 'Tree Nut' });
+    expect(mockPrisma.fsAllergen.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000011' }) })
+    );
+  });
+
+  it('POST /allergens missing name returns 400', async () => {
+    const res = await request(app).post('/api/allergens').send({ type: 'MAJOR' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /allergens success is true', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/allergens');
+    expect(res.body.success).toBe(true);
+  });
+});

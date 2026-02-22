@@ -298,3 +298,117 @@ describe('CSRF Protection Middleware — additional coverage', () => {
     expect(tokenStore.isValid(token)).toBe(false);
   });
 });
+
+describe('CSRF Protection Middleware — extended edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    tokenStore.cleanup();
+  });
+
+  it('generateCsrfToken generates a token of sufficient length', () => {
+    const handler = generateCsrfToken();
+    const req = mockRequest();
+    const res = mockResponse();
+
+    handler(req as Request, res as Response, mockNext);
+
+    const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonCall.data.csrfToken.length).toBeGreaterThanOrEqual(16);
+  });
+
+  it('generateCsrfToken sets cookie name _csrf by default', () => {
+    const handler = generateCsrfToken();
+    const req = mockRequest();
+    const res = mockResponse();
+
+    handler(req as Request, res as Response, mockNext);
+
+    const cookieCall = (res.cookie as jest.Mock).mock.calls[0];
+    expect(cookieCall[0]).toBe('_csrf');
+  });
+
+  it('csrfProtection with matching tokens passes through on PUT', () => {
+    const token = 'put-matching-token-12345';
+    tokenStore.set(token);
+
+    const middleware = csrfProtection();
+    const req = mockRequest({
+      method: 'PUT',
+      path: '/api/users/1',
+      cookies: { _csrf: token },
+      headers: { 'x-csrf-token': token },
+    });
+    const res = mockResponse();
+
+    middleware(req as Request, res as Response, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('csrfProtection with matching tokens passes through on DELETE', () => {
+    const token = 'delete-matching-token-12345';
+    tokenStore.set(token);
+
+    const middleware = csrfProtection();
+    const req = mockRequest({
+      method: 'DELETE',
+      path: '/api/users/1',
+      cookies: { _csrf: token },
+      headers: { 'x-csrf-token': token },
+    });
+    const res = mockResponse();
+
+    middleware(req as Request, res as Response, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('tokenStore.cleanup removes only expired tokens', () => {
+    // Insert tokens with old timestamps (well past the 1-hour TTL)
+    (tokenStore as any).tokens.set('tok-a', { createdAt: Date.now() - 2 * 60 * 60 * 1000 });
+    (tokenStore as any).tokens.set('tok-b', { createdAt: Date.now() - 2 * 60 * 60 * 1000 });
+    tokenStore.cleanup();
+    expect(tokenStore.isValid('tok-a')).toBe(false);
+    expect(tokenStore.isValid('tok-b')).toBe(false);
+  });
+
+  it('csrfProtection error response body contains success: false (implied by missing field)', () => {
+    const middleware = csrfProtection();
+    const req = mockRequest({ method: 'POST', path: '/api/data' });
+    const res = mockResponse();
+
+    middleware(req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.code).toBe('CSRF_TOKEN_MISSING');
+  });
+
+  it('generateCsrfToken response shape has success: true and data.csrfToken', () => {
+    const handler = generateCsrfToken();
+    const req = mockRequest();
+    const res = mockResponse();
+
+    handler(req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.success).toBe(true);
+    expect(payload.data).toHaveProperty('csrfToken');
+  });
+
+  it('two successive generateCsrfToken calls produce different tokens', () => {
+    const handler = generateCsrfToken();
+    const req1 = mockRequest();
+    const res1 = mockResponse();
+    const req2 = mockRequest();
+    const res2 = mockResponse();
+
+    handler(req1 as Request, res1 as Response, mockNext);
+    handler(req2 as Request, res2 as Response, mockNext);
+
+    const token1 = (res1.json as jest.Mock).mock.calls[0][0].data.csrfToken;
+    const token2 = (res2.json as jest.Mock).mock.calls[0][0].data.csrfToken;
+    expect(token1).not.toBe(token2);
+  });
+});

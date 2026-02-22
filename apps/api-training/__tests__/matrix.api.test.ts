@@ -253,3 +253,111 @@ describe('matrix.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('matrix.api — edge cases and extended coverage', () => {
+  it('GET /api/matrix supports pagination params', async () => {
+    mockPrisma.trainMatrix.findMany.mockResolvedValue([]);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/matrix?page=3&limit=15');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(15);
+  });
+
+  it('GET /api/matrix pagination includes totalPages', async () => {
+    mockPrisma.trainMatrix.findMany.mockResolvedValue([]);
+    mockPrisma.trainMatrix.count.mockResolvedValue(40);
+    const res = await request(app).get('/api/matrix?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET /api/matrix returns data as array', async () => {
+    mockPrisma.trainMatrix.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', competencyId: 'c1', employeeId: 'e1' },
+    ]);
+    mockPrisma.trainMatrix.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/matrix');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/matrix returns 400 when both ids are missing', async () => {
+    const res = await request(app).post('/api/matrix').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/matrix with gap=true creates successfully', async () => {
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      competencyId: 'comp-1',
+      employeeId: 'emp-1',
+      gap: true,
+    });
+    const res = await request(app).post('/api/matrix').send({
+      competencyId: 'comp-1',
+      employeeId: 'emp-1',
+      gap: true,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/matrix/:id returns correct success message', async () => {
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainMatrix.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/matrix/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('matrix entry deleted successfully');
+  });
+
+  it('PUT /api/matrix/:id with gap=false succeeds', async () => {
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainMatrix.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      gap: false,
+    });
+    const res = await request(app)
+      .put('/api/matrix/00000000-0000-0000-0000-000000000001')
+      .send({ gap: false });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/matrix/:id returns correct data id', async () => {
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      competencyId: 'comp-5',
+    });
+    const res = await request(app).get('/api/matrix/00000000-0000-0000-0000-000000000005');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000005');
+  });
+
+  it('POST /api/matrix returns 400 when currentLevel is invalid enum', async () => {
+    const res = await request(app).post('/api/matrix').send({
+      competencyId: 'comp-1',
+      employeeId: 'emp-1',
+      currentLevel: 'SUPER_EXPERT',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/matrix supports search filter', async () => {
+    mockPrisma.trainMatrix.findMany.mockResolvedValue([]);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/matrix?search=John');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

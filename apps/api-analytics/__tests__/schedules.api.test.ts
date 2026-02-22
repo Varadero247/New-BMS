@@ -305,3 +305,95 @@ describe('schedules.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Schedules — edge cases and extended coverage', () => {
+  it('GET /api/schedules pagination has totalPages', async () => {
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(15);
+
+    const res = await request(app).get('/api/schedules');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/schedules filters by type=EXPORT', async () => {
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/schedules?type=EXPORT');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsSchedule.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'EXPORT' }) })
+    );
+  });
+
+  it('GET /api/schedules with isActive=false filters inactive schedules', async () => {
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/schedules?isActive=false');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsSchedule.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('POST /api/schedules missing cronExpression returns 400', async () => {
+    const res = await request(app).post('/api/schedules').send({
+      name: 'No Cron',
+      type: 'REPORT',
+      referenceId: '550e8400-e29b-41d4-a716-446655440000',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/schedules invalid referenceId (non-UUID) returns 400', async () => {
+    const res = await request(app).post('/api/schedules').send({
+      name: 'Bad Ref',
+      type: 'REPORT',
+      referenceId: 'not-a-uuid',
+      cronExpression: '0 8 * * *',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/schedules DB error returns 500', async () => {
+    mockPrisma.analyticsSchedule.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/schedules').send({
+      name: 'DB Fail',
+      type: 'REPORT',
+      referenceId: '550e8400-e29b-41d4-a716-446655440000',
+      cronExpression: '0 8 * * *',
+    });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/schedules/:id 500 on DB update error', async () => {
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsSchedule.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/schedules/:id/toggle 404 returns error body', async () => {
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue(null);
+    const res = await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000099/toggle');
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('GET /api/schedules/:id returns name field', async () => {
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Morning Report',
+    });
+    const res = await request(app).get('/api/schedules/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Morning Report');
+  });
+});

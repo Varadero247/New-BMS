@@ -289,3 +289,86 @@ describe('CSR Routes', () => {
     });
   });
 });
+
+describe('CSR Routes — additional edge cases', () => {
+  it('GET /api/csr/gaps returns success:false and INTERNAL_ERROR on db error', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockRejectedValue(new Error('timeout'));
+    (mockPrisma.csrRequirement.count as jest.Mock).mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/csr/gaps');
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/csr/oems returns success:true with data array', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ oem: 'Honda' }, { oem: 'Nissan' }]);
+    const res = await request(app).get('/api/csr/oems');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toEqual(['Honda', 'Nissan']);
+  });
+
+  it('GET /api/csr/oems/:oem returns meta with totalPages', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(30);
+    const res = await request(app).get('/api/csr/oems/BMW?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('GET /api/csr/gaps returns empty data with total 0 when no gaps', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/csr/gaps');
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+
+  it('PUT /api/csr/:id/status returns 400 when body is empty', async () => {
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app)
+      .put('/api/csr/00000000-0000-0000-0000-000000000001/status')
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/csr/:id/status returns 400 for completely invalid status string', async () => {
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app)
+      .put('/api/csr/00000000-0000-0000-0000-000000000001/status')
+      .send({ complianceStatus: 'UNKNOWN_VALUE' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/csr/oems/:oem returns 500 when db throws', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockRejectedValue(new Error('crash'));
+    (mockPrisma.csrRequirement.count as jest.Mock).mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/csr/oems/BMW');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/csr/gaps page defaults to 1 when not specified', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/csr/gaps');
+    expect(res.body.meta.page).toBe(1);
+  });
+
+  it('PUT /api/csr/:id/status update call passes correct id in where', async () => {
+    const cid = '00000000-0000-0000-0000-000000000002';
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: cid });
+    (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: cid, complianceStatus: 'COMPLIANT' });
+    await request(app)
+      .put(`/api/csr/${cid}/status`)
+      .send({ complianceStatus: 'COMPLIANT' });
+    expect(mockPrisma.csrRequirement.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: cid } })
+    );
+  });
+});

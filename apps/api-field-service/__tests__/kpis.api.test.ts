@@ -312,3 +312,106 @@ describe('kpis.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+// ─── Extended coverage ───────────────────────────────────────────────────────
+
+describe('kpis.api — extended edge cases', () => {
+  it('GET / returns pagination metadata', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', metricType: 'UTILIZATION', value: 75, unit: '%', technician: {} },
+    ]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(20);
+
+    const res = await request(app).get('/api/kpis');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination.total).toBe(20);
+  });
+
+  it('GET / applies page and limit to query', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(0);
+
+    await request(app).get('/api/kpis?page=2&limit=10');
+
+    expect(mockPrisma.fsSvcKpi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET / filters by both technicianId and metricType simultaneously', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(0);
+
+    await request(app).get('/api/kpis?technicianId=tech-99&metricType=FIRST_TIME_FIX');
+
+    expect(mockPrisma.fsSvcKpi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ technicianId: 'tech-99', metricType: 'FIRST_TIME_FIX' }),
+      })
+    );
+  });
+
+  it('GET /dashboard returns 500 when fsSvcJob.count rejects', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJob.count.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/kpis/dashboard');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 400 when periodStart is missing', async () => {
+    const res = await request(app).post('/api/kpis').send({
+      metricType: 'FIRST_TIME_FIX',
+      value: 88,
+      unit: '%',
+      periodEnd: '2026-02-28',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id returns success:true with updated value', async () => {
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002' });
+    mockPrisma.fsSvcKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', value: 99 });
+
+    const res = await request(app)
+      .put('/api/kpis/00000000-0000-0000-0000-000000000002')
+      .send({ value: 99 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns success:true', async () => {
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003' });
+    mockPrisma.fsSvcKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', deletedAt: new Date() });
+
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000003');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 when update rejects', async () => {
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004' });
+    mockPrisma.fsSvcKpi.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000004');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcKpi.findFirst.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/kpis/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

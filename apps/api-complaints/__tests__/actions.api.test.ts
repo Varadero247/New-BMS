@@ -241,3 +241,93 @@ describe('actions route — additional coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000002');
   });
 });
+
+describe('actions route — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns pagination object with page and limit', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(10);
+  });
+
+  it('GET / filters actions by status query param', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions?status=CLOSED');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.compAction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'CLOSED' }) })
+    );
+  });
+
+  it('GET / filters actions by search query param', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions?search=refund');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.compAction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ action: expect.objectContaining({ contains: 'refund' }) }) })
+    );
+  });
+
+  it('GET /:id returns 404 with NOT_FOUND code', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/actions/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST / generates a referenceNumber via count', async () => {
+    mockPrisma.compAction.count.mockResolvedValue(5);
+    mockPrisma.compAction.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      referenceNumber: 'CMA-2026-0006',
+    });
+    const res = await request(app).post('/api/actions').send({ complaintId: 'comp-1', action: 'Refund' });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.compAction.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id updates action field', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compAction.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      action: 'Revised action',
+    });
+    const res = await request(app)
+      .put('/api/actions/00000000-0000-0000-0000-000000000001')
+      .send({ action: 'Revised action' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.action).toBe('Revised action');
+  });
+
+  it('DELETE /:id response message confirms deletion', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/actions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('GET / returns totalPages in pagination', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(40);
+    const res = await request(app).get('/api/actions?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it('GET / success is true on 200 response', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

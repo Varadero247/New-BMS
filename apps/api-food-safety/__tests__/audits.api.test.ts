@@ -259,3 +259,102 @@ describe('audits.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+// ===================================================================
+// Food Safety Audits — edge cases and error paths
+// ===================================================================
+describe('Food Safety Audits — edge cases and error paths', () => {
+  it('GET /audits data array is always an array', async () => {
+    mockPrisma.fsAudit.findMany.mockResolvedValue([]);
+    mockPrisma.fsAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /audits pagination total reflects mock count', async () => {
+    mockPrisma.fsAudit.findMany.mockResolvedValue([]);
+    mockPrisma.fsAudit.count.mockResolvedValue(33);
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(33);
+  });
+
+  it('GET /audits filters by both type and status', async () => {
+    mockPrisma.fsAudit.findMany.mockResolvedValue([]);
+    mockPrisma.fsAudit.count.mockResolvedValue(0);
+    await request(app).get('/api/audits?type=EXTERNAL&status=COMPLETED');
+    expect(mockPrisma.fsAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'EXTERNAL', status: 'COMPLETED' }),
+      })
+    );
+  });
+
+  it('POST /audits create call includes required fields', async () => {
+    mockPrisma.fsAudit.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      title: 'External Audit',
+      type: 'EXTERNAL',
+    });
+    await request(app).post('/api/audits').send({
+      title: 'External Audit',
+      type: 'EXTERNAL',
+      auditor: 'Jane',
+      scheduledDate: '2026-04-01',
+    });
+    expect(mockPrisma.fsAudit.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ title: 'External Audit' }),
+      })
+    );
+  });
+
+  it('GET /audits/:id returns 500 on DB error', async () => {
+    mockPrisma.fsAudit.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /audits/:id returns 500 on DB error after finding audit', async () => {
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsAudit.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /audits/:id returns 500 on DB error', async () => {
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsAudit.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /audits/:id/complete returns 500 on DB error after finding audit', async () => {
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS' });
+    mockPrisma.fsAudit.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001/complete')
+      .send({ score: 90 });
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /audits/:id update uses the correct where id clause', async () => {
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000025' });
+    mockPrisma.fsAudit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000025', title: 'New Title' });
+    await request(app).put('/api/audits/00000000-0000-0000-0000-000000000025').send({ title: 'New Title' });
+    expect(mockPrisma.fsAudit.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000025' }) })
+    );
+  });
+
+  it('POST /audits missing auditor returns 400', async () => {
+    const res = await request(app).post('/api/audits').send({
+      title: 'Audit',
+      type: 'INTERNAL',
+      scheduledDate: '2026-03-01',
+    });
+    expect(res.status).toBe(400);
+  });
+});

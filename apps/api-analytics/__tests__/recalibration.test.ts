@@ -200,3 +200,67 @@ describe('Recalibration — additional coverage', () => {
     expect(result[0]).toBeCloseTo(5500, 0);
   });
 });
+
+describe('Recalibration — edge cases and further coverage', () => {
+  it('calculateRollingAverages with single snapshot returns its own values', () => {
+    const result = calculateRollingAverages([{ mrrGrowthPct: 5, revenueChurnPct: 1, newCustomers: 2 }]);
+    expect(result.avgMrrGrowth).toBe(5);
+    expect(result.avgChurnPct).toBe(1);
+    expect(result.avgNewCustomers).toBe(2);
+  });
+
+  it('calculateRollingAverages window larger than snapshots uses all snapshots', () => {
+    const snapshots = [
+      { mrrGrowthPct: 10, revenueChurnPct: 2, newCustomers: 4 },
+      { mrrGrowthPct: 20, revenueChurnPct: 4, newCustomers: 8 },
+    ];
+    const result = calculateRollingAverages(snapshots, 10);
+    expect(result.avgMrrGrowth).toBe(15);
+    expect(result.avgChurnPct).toBe(3);
+    expect(result.avgNewCustomers).toBe(6);
+  });
+
+  it('projectForward result values are all numbers', () => {
+    const result = projectForward(8000, 5, 4);
+    result.forEach((v) => expect(typeof v).toBe('number'));
+  });
+
+  it('projectForward with large growth still returns finite values', () => {
+    const result = projectForward(100, 100, 5);
+    result.forEach((v) => expect(Number.isFinite(v)).toBe(true));
+  });
+
+  it('classifyTrajectory is BEHIND when projected is 0 and planned is positive', () => {
+    expect(classifyTrajectory([0], [10000])).toBe('BEHIND');
+  });
+
+  it('blendTargets with actualWeight=1 returns actual value', () => {
+    const result = blendTargets(10000, 5000, 1);
+    expect(result).toBe(10000);
+  });
+
+  it('blendTargets with actualWeight=0 returns plan value', () => {
+    const result = blendTargets(10000, 5000, 0);
+    expect(result).toBe(5000);
+  });
+
+  it('runRecalibration does nothing if monthlySnapshot.findMany returns empty array', async () => {
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
+      id: 'snap-x',
+      monthNumber: 2,
+      mrr: 1000,
+      aiRecommendations: [],
+    });
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    await runRecalibration('snap-x');
+    expect(prisma.monthlySnapshot.update).not.toHaveBeenCalled();
+  });
+
+  it('runRecalibration calls findUnique with the given id', async () => {
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue(null);
+    await runRecalibration('my-snap-id');
+    expect(prisma.monthlySnapshot.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'my-snap-id' } })
+    );
+  });
+});

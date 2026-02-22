@@ -460,3 +460,137 @@ describe('AI Settings — additional coverage', () => {
     expect(mockPrisma.aISettings.deleteMany).toHaveBeenCalledTimes(1);
   });
 });
+
+// ── AI Settings — further edge cases ─────────────────────────────────────
+
+describe('AI Settings — further edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/settings', settingsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/settings returns 200 and hasApiKey:true when existing settings found', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockExistingSettings);
+    const res = await request(app)
+      .get('/api/settings')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.hasApiKey).toBe(true);
+  });
+
+  it('GET /api/settings does not return apiKey field in response', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockExistingSettings);
+    const res = await request(app)
+      .get('/api/settings')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.apiKey).toBeUndefined();
+  });
+
+  it('POST /api/settings uses GROK default model when no model provided', async () => {
+    const createdSettings = {
+      id: 'mock-uuid-456',
+      provider: 'GROK',
+      apiKey: 'grok-api-key',
+      model: 'grok-beta',
+      defaultPrompt: null,
+      totalTokensUsed: 0,
+    };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.aISettings.create.mockResolvedValueOnce(createdSettings);
+    await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer test-token')
+      .send({ provider: 'GROK', apiKey: 'grok-api-key' });
+    expect(mockPrisma.aISettings.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ model: 'grok-beta' }),
+    });
+  });
+
+  it('POST /api/settings stores defaultPrompt when provided', async () => {
+    const createdSettings = {
+      id: 'mock-uuid-456',
+      provider: 'OPENAI',
+      apiKey: 'sk-key',
+      model: 'gpt-4',
+      defaultPrompt: 'Custom system prompt',
+      totalTokensUsed: 0,
+    };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.aISettings.create.mockResolvedValueOnce(createdSettings);
+    const res = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer test-token')
+      .send({ provider: 'OPENAI', apiKey: 'sk-key', defaultPrompt: 'Custom system prompt' });
+    expect(res.status).toBe(200);
+    expect(mockPrisma.aISettings.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ defaultPrompt: 'Custom system prompt' }),
+    });
+  });
+
+  it('DELETE /api/settings returns 500 when deleteMany throws', async () => {
+    mockPrisma.aISettings.deleteMany.mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .delete('/api/settings')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/settings response has hasApiKey:true after create', async () => {
+    const createdSettings = {
+      id: 'mock-uuid-456',
+      provider: 'OPENAI',
+      apiKey: 'sk-brand-new-key',
+      model: 'gpt-4',
+      defaultPrompt: null,
+      totalTokensUsed: 0,
+    };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.aISettings.create.mockResolvedValueOnce(createdSettings);
+    const res = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer test-token')
+      .send({ provider: 'OPENAI', apiKey: 'sk-brand-new-key' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.hasApiKey).toBe(true);
+  });
+
+  it('POST /api/settings response does not expose raw apiKey after update', async () => {
+    const updatedSettings = { ...mockExistingSettings, provider: 'OPENAI', apiKey: 'sk-secret-key' };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockExistingSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(updatedSettings);
+    const res = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer test-token')
+      .send({ provider: 'OPENAI', apiKey: 'sk-secret-key' });
+    expect(res.status).toBe(200);
+    const bodyStr = JSON.stringify(res.body);
+    expect(bodyStr).not.toContain('sk-secret-key');
+  });
+
+  it('GET /api/settings response includes lastUsedAt when settings exist', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockExistingSettings);
+    const res = await request(app)
+      .get('/api/settings')
+      .set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.lastUsedAt).toBeDefined();
+  });
+
+  it('POST /api/settings returns 400 for empty string apiKey', async () => {
+    const res = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer test-token')
+      .send({ provider: 'OPENAI', apiKey: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

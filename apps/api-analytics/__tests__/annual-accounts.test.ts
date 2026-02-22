@@ -276,3 +276,74 @@ describe('annual-accounts.test.ts — additional coverage', () => {
     expect(findCall.where.month.lte).toBe('2024-03');
   });
 });
+
+describe('annual-accounts — extended edge cases', () => {
+  it('sections.summary is defined in the created pack', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'edge-2' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.summary).toBeDefined();
+  });
+
+  it('sections.expenseBreakdown is defined in the created pack', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'edge-3' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.expenseBreakdown).toBeDefined();
+  });
+
+  it('total revenue sums all months mrr values', async () => {
+    const snaps = [{month:'2025-04',mrr:1000,arr:12000,founderSalary:0,founderLoanPayment:0,arpu:100,customers:10},{month:'2025-05',mrr:1000,arr:12000,founderSalary:0,founderLoanPayment:0,arpu:100,customers:10}];
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue(snaps);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'edge-4' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(Number(createCall.data.totalRevenue)).toBe(2000);
+  });
+
+  it('create receives a data object', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'edge-5' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data).toBeDefined();
+    expect(typeof createCall.data).toBe('object');
+  });
+
+  it('result is the id returned by create', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'returned-id-xyz' });
+    const result = await runAnnualAccountsJob('2025-2026');
+    expect(result).toBe('returned-id-xyz');
+  });
+
+  it('findMany receives an orderBy clause', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'edge-6' });
+    await runAnnualAccountsJob('2025-2026');
+    const findCall = (prisma.monthlySnapshot.findMany as jest.Mock).mock.calls[0][0];
+    expect(findCall.orderBy).toBeDefined();
+  });
+
+  it('sections.keyMetrics contains avgMrr key', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 3000, arr: 36000, founderSalary: 1000, founderLoanPayment: 500, arpu: 300, customers: 10 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'edge-7' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.keyMetrics).toHaveProperty('avgMrr');
+  });
+
+  it('netProfit is negative when expenses exceed revenue', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 1000, arr: 12000, founderSalary: 5000, founderLoanPayment: 2000, arpu: 100, customers: 10 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'edge-8' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(Number(createCall.data.netProfit)).toBeLessThan(0);
+  });
+});

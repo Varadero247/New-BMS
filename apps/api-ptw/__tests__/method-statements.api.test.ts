@@ -223,3 +223,86 @@ describe('method-statements.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('method-statements.api — extended edge cases', () => {
+  it('GET / returns correct pagination metadata', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([]);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(100);
+    const res = await request(app).get('/api/method-statements?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(10);
+    expect(res.body.pagination.total).toBe(100);
+    expect(res.body.pagination.totalPages).toBe(10);
+  });
+
+  it('GET / filters by status query param', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([]);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/method-statements?status=APPROVED');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.ptwMethodStatement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'APPROVED' }) })
+    );
+  });
+
+  it('GET / filters by search query param', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([]);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/method-statements?search=excavation');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.ptwMethodStatement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ title: expect.objectContaining({ contains: 'excavation' }) }) })
+    );
+  });
+
+  it('POST / returns 400 when title is empty string', async () => {
+    const res = await request(app).post('/api/method-statements').send({ title: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /:id returns success message on soft delete', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwMethodStatement.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/method-statements/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('method statement deleted successfully');
+  });
+
+  it('GET /:id returns success true with data on found record', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'MS1' });
+    const res = await request(app).get('/api/method-statements/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('PUT /:id returns updated data', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwMethodStatement.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New Title' });
+    const res = await request(app).put('/api/method-statements/00000000-0000-0000-0000-000000000001').send({ title: 'New Title' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.title).toBe('New Title');
+  });
+
+  it('GET / returns success false on DB error', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/method-statements');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / creates with optional fields included', async () => {
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(3);
+    mockPrisma.ptwMethodStatement.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', title: 'Full MS' });
+    const res = await request(app).post('/api/method-statements').send({
+      title: 'Full MS',
+      steps: 'Step 1, Step 2',
+      hazards: 'Slipping',
+      controls: 'Non-slip boots',
+      ppe: 'Hard hat, boots',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

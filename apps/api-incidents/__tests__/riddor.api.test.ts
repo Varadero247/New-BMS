@@ -242,3 +242,97 @@ describe('RIDDOR — additional coverage', () => {
     expect(callArg.orderBy).toEqual({ dateOccurred: 'desc' });
   });
 });
+
+describe('RIDDOR — edge cases and deeper coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET responds with JSON content-type', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET query sets deletedAt: null to exclude soft-deleted records', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    await request(app).get('/api/riddor');
+    const callArg = mockPrisma.incIncident.findMany.mock.calls[0][0];
+    expect(callArg.where.deletedAt).toBeNull();
+  });
+
+  it('GET query sets take: 500 to limit results', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    await request(app).get('/api/riddor');
+    const callArg = mockPrisma.incIncident.findMany.mock.calls[0][0];
+    expect(callArg.take).toBe(500);
+  });
+
+  it('assess with riddorRef undefined still succeeds', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      riddorReportable: 'YES',
+      riddorRef: null,
+    });
+    const res = await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: true });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('assess with reportable=false sets riddorReportable to NO', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      riddorReportable: 'NO',
+    });
+    const res = await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000002/assess')
+      .send({ reportable: false });
+    expect(res.status).toBe(200);
+    const callArg = mockPrisma.incIncident.update.mock.calls[0][0];
+    expect(callArg.data.riddorReportable).toBe('NO');
+  });
+
+  it('assess passes riddorRef string when provided', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      riddorReportable: 'YES',
+      riddorRef: 'RIDDOR-2026-999',
+    });
+    await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: true, riddorRef: 'RIDDOR-2026-999' });
+    const callArg = mockPrisma.incIncident.update.mock.calls[0][0];
+    expect(callArg.data.riddorRef).toBe('RIDDOR-2026-999');
+  });
+
+  it('GET with five incidents returns data length 5', async () => {
+    const incidents = Array.from({ length: 5 }, (_, i) => ({
+      id: `00000000-0000-0000-0000-00000000000${i + 1}`,
+      title: `Incident ${i + 1}`,
+      riddorReportable: 'YES',
+    }));
+    mockPrisma.incIncident.findMany.mockResolvedValue(incidents);
+    const res = await request(app).get('/api/riddor');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(5);
+  });
+
+  it('assess 400 response has VALIDATION_ERROR code for missing reportable', async () => {
+    const res = await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('assess 500 response error code is INTERNAL_ERROR', async () => {
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('timeout'));
+    const res = await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: true });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -330,3 +330,97 @@ describe('Sessions API — additional coverage', () => {
     });
   });
 });
+
+describe('Sessions API — more edge cases', () => {
+  let app: import('express').Express;
+
+  beforeAll(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/sessions', sessionsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/sessions includes expiresAt on each session', async () => {
+    const future = new Date(Date.now() + 86400_000);
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000003', userAgent: 'Firefox', ipAddress: '10.0.0.1',
+        createdAt: new Date(), lastActivityAt: new Date(), expiresAt: future },
+    ]);
+    const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data[0]).toHaveProperty('expiresAt');
+  });
+
+  it('GET /api/sessions includes ipAddress on each session', async () => {
+    const future = new Date(Date.now() + 86400_000);
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000004', userAgent: 'Chrome', ipAddress: '172.16.0.1',
+        createdAt: new Date(), lastActivityAt: new Date(), expiresAt: future },
+    ]);
+    const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data[0]).toHaveProperty('ipAddress');
+  });
+
+  it('GET /api/sessions includes userAgent on each session', async () => {
+    const future = new Date(Date.now() + 86400_000);
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000005', userAgent: 'Safari', ipAddress: '10.0.0.2',
+        createdAt: new Date(), lastActivityAt: new Date(), expiresAt: future },
+    ]);
+    const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data[0]).toHaveProperty('userAgent');
+  });
+
+  it('DELETE /api/sessions/:id returns 400 when trying to revoke current session', async () => {
+    const response = await request(app)
+      .delete('/api/sessions/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('CANNOT_REVOKE_CURRENT');
+  });
+
+  it('DELETE /api/sessions excludes current session from deleteMany query', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValueOnce({ count: 2 });
+    await request(app).delete('/api/sessions').set('Authorization', 'Bearer token');
+    expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: { not: '00000000-0000-0000-0000-000000000001' } }),
+      })
+    );
+  });
+
+  it('GET /api/sessions returns empty array when no sessions found', async () => {
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+  });
+
+  it('DELETE /api/sessions/:id returns 500 when delete throws', async () => {
+    mockPrisma.session.findFirst.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000002',
+      userId: '20000000-0000-4000-a000-000000000123',
+    });
+    (mockPrisma.session.delete as jest.Mock).mockRejectedValueOnce(new Error('disk full'));
+    const response = await request(app)
+      .delete('/api/sessions/00000000-0000-0000-0000-000000000002')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/sessions orders by lastActivityAt desc', async () => {
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(mockPrisma.session.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { lastActivityAt: 'desc' } })
+    );
+  });
+});

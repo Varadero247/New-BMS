@@ -505,3 +505,99 @@ describe('Automotive CSR API Routes', () => {
     });
   });
 });
+
+describe('Automotive CSR API Routes — additional edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/csr', csrRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/csr/oems returns data array of OEM names as strings', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([
+      { oem: 'Stellantis' }, { oem: 'Volkswagen' },
+    ]);
+    const response = await request(app).get('/api/csr/oems');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toContain('Stellantis');
+    expect(response.body.data).toContain('Volkswagen');
+  });
+
+  it('GET /api/csr/gaps page 1 limit 20 is the default', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const response = await request(app).get('/api/csr/gaps');
+    expect(response.body.meta.page).toBe(1);
+    expect(response.body.meta.limit).toBe(20);
+  });
+
+  it('GET /api/csr/oems/:oem returns correct totalPages calculation', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(45);
+    const response = await request(app).get('/api/csr/oems/Toyota?limit=20');
+    expect(response.body.meta.totalPages).toBe(3);
+  });
+
+  it('GET /api/csr/oems/:oem with no results returns empty data and total 0', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const response = await request(app).get('/api/csr/oems/UnknownOEM');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toEqual([]);
+    expect(response.body.meta.total).toBe(0);
+  });
+
+  it('PUT /api/csr/:id/status returns error.fields array on validation failure', async () => {
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue(mockCsr1);
+    const response = await request(app)
+      .put(`/api/csr/${mockCsr1.id}/status`)
+      .send({ complianceStatus: 'WRONG' });
+    expect(response.status).toBe(400);
+    expect(Array.isArray(response.body.error.fields)).toBe(true);
+  });
+
+  it('GET /api/csr/gaps returns 500 with INTERNAL_ERROR code on DB failure', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockRejectedValue(new Error('Query failed'));
+    const response = await request(app).get('/api/csr/gaps');
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/csr/:id/status with only gapNotes in data includes gapNotes in update', async () => {
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue(mockCsr4);
+    (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({
+      ...mockCsr4,
+      complianceStatus: 'NOT_ASSESSED',
+      gapNotes: 'Under review',
+    });
+    const response = await request(app)
+      .put(`/api/csr/${mockCsr4.id}/status`)
+      .send({ complianceStatus: 'NOT_ASSESSED', gapNotes: 'Under review' });
+    expect(response.status).toBe(200);
+    expect(mockPrisma.csrRequirement.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ gapNotes: 'Under review' }),
+      })
+    );
+  });
+
+  it('GET /api/csr/oems returns 500 with INTERNAL_ERROR on DB failure', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const response = await request(app).get('/api/csr/oems');
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/csr/:id/status returns 404 with NOT_FOUND code when record is missing', async () => {
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue(null);
+    const response = await request(app)
+      .put('/api/csr/00000000-0000-0000-0000-999999999999/status')
+      .send({ complianceStatus: 'COMPLIANT' });
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+});

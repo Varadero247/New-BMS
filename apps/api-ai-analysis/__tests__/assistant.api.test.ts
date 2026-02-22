@@ -326,3 +326,125 @@ describe('POST /api/assistant — additional coverage', () => {
     expect(res.body.data.answer.length).toBeGreaterThan(0);
   });
 });
+
+// ── POST /api/assistant — further edge cases ──────────────────────────────
+
+describe('POST /api/assistant — further edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('returns 200 with a non-empty answer for a risk keyword without AI', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'How does risk assessment work?' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.answer.length).toBeGreaterThan(0);
+  });
+
+  it('returns 200 with a non-empty answer for an environment keyword without AI', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'What are environmental aspects under ISO 14001?' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.answer.length).toBeGreaterThan(0);
+  });
+
+  it('handles Grok provider with choices response format', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue({
+      provider: 'GROK',
+      apiKey: 'grok-test-key',
+      model: 'grok-beta',
+      isActive: true,
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: 'Grok answer about quality management' } }],
+      }),
+    });
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'What is quality management?' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.answer).toBe('Grok answer about quality management');
+  });
+
+  it('falls back gracefully when AI provider returns empty content', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue({
+      provider: 'OPENAI',
+      apiKey: 'sk-test',
+      model: 'gpt-4',
+      isActive: true,
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: '' } }],
+      }),
+    });
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'Tell me about compliance modules' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.answer).toBeTruthy();
+  });
+
+  it('returns 200 with suggestedModules as array for any valid question', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'What is an IMS?' });
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.suggestedModules)).toBe(true);
+  });
+
+  it('returns 400 for question that is exactly one space character', async () => {
+    const app = createApp();
+    const res = await request(app).post('/api/assistant').send({ question: ' ' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns 200 for document management question without AI', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'How does document control work?' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('answer from AI is used verbatim in response data', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue({
+      provider: 'OPENAI',
+      apiKey: 'sk-test',
+      model: 'gpt-4',
+      isActive: true,
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: 'Exact verbatim answer from AI system' } }],
+      }),
+    });
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'Some test question about the system' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.answer).toBe('Exact verbatim answer from AI system');
+  });
+});

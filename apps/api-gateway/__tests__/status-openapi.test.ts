@@ -213,3 +213,90 @@ describe('status-openapi — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('status-openapi — error paths and spec details', () => {
+  let statusApp: express.Express;
+  let openapiApp: express.Express;
+
+  beforeEach(() => {
+    statusApp = express();
+    statusApp.use(express.json());
+    statusApp.use('/api/health/status', statusRouter);
+
+    openapiApp = express();
+    openapiApp.use(express.json());
+    openapiApp.use('/api/docs', openapiRouter);
+
+    jest.clearAllMocks();
+    mockGetPlatformStatus.mockReturnValue({
+      status: 'operational',
+      timestamp: new Date().toISOString(),
+      services: [{ name: 'api-gateway', status: 'operational', latencyMs: 5 }],
+      uptime: { '24h': 99.98, '7d': 99.95, '30d': 99.91 },
+    });
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: '3.0.3',
+      info: { title: 'Nexara IMS API', version: '1.0.0' },
+      paths: {},
+    });
+  });
+
+  it('GET /api/health/status returns 500 when getPlatformStatus throws', async () => {
+    mockGetPlatformStatus.mockImplementationOnce(() => { throw new Error('status unavailable'); });
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/health/status success is false on 500', async () => {
+    mockGetPlatformStatus.mockImplementationOnce(() => { throw new Error('boom'); });
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/docs/openapi.json returns 500 when generateOpenApiSpec throws', async () => {
+    mockGenerateOpenApiSpec.mockImplementationOnce(() => { throw new Error('spec error'); });
+    const res = await request(openapiApp).get('/api/docs/openapi.json');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/docs returns HTML documentation page', async () => {
+    const res = await request(openapiApp).get('/api/docs');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/html/);
+  });
+
+  it('GET /api/docs HTML contains api-reference script tag', async () => {
+    const res = await request(openapiApp).get('/api/docs');
+    expect(res.text).toContain('api-reference');
+  });
+
+  it('GET /api/docs HTML references openapi.json', async () => {
+    const res = await request(openapiApp).get('/api/docs');
+    expect(res.text).toContain('openapi.json');
+  });
+
+  it('GET /api/health/status services array entries have latencyMs field', async () => {
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.services[0]).toHaveProperty('latencyMs');
+  });
+
+  it('getPlatformStatus is called exactly once per request', async () => {
+    await request(statusApp).get('/api/health/status');
+    expect(mockGetPlatformStatus).toHaveBeenCalledTimes(1);
+  });
+
+  it('generateOpenApiSpec is called exactly once per /openapi.json request', async () => {
+    await request(openapiApp).get('/api/docs/openapi.json');
+    expect(mockGenerateOpenApiSpec).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/docs/openapi.json content-type is application/json', async () => {
+    const res = await request(openapiApp).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+});

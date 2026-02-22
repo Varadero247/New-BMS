@@ -290,3 +290,94 @@ describe('releases — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('Releases Routes — extended edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/releases returns pagination metadata', async () => {
+    (prisma.qualRelease.findMany as jest.Mock).mockResolvedValue([mockRelease]);
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(10);
+    const res = await request(app).get('/api/releases?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(10);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it('GET /api/releases filters by search keyword', async () => {
+    (prisma.qualRelease.findMany as jest.Mock).mockResolvedValue([mockRelease]);
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/releases?search=Widget');
+    expect(res.status).toBe(200);
+    expect(prisma.qualRelease.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
+    );
+  });
+
+  it('GET /api/releases filters by APPROVED decision', async () => {
+    (prisma.qualRelease.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/releases?decision=APPROVED');
+    expect(res.status).toBe(200);
+    expect(prisma.qualRelease.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ decision: 'APPROVED' }) })
+    );
+  });
+
+  it('GET /api/releases/:id returns NOT_FOUND error code on 404', async () => {
+    (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/releases/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/releases returns INTERNAL_ERROR code on 500', async () => {
+    (prisma.qualRelease.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/releases');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/releases defaults decision to ON_HOLD when omitted', async () => {
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(0);
+    (prisma.qualRelease.create as jest.Mock).mockResolvedValue({ ...mockRelease });
+    const res = await request(app).post('/api/releases').send({
+      productName: 'Widget Assembly B',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/releases/:id/authorise returns 400 for invalid decision', async () => {
+    (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
+    const res = await request(app)
+      .put('/api/releases/00000000-0000-0000-0000-000000000001/authorise')
+      .send({ decision: 'ON_HOLD' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/releases/:id returns deleted:true in response', async () => {
+    (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
+    (prisma.qualRelease.update as jest.Mock).mockResolvedValue({ ...mockRelease, deletedAt: new Date() });
+    const res = await request(app).delete('/api/releases/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('PUT /api/releases/:id/authorise sets authorisedAt on success', async () => {
+    (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
+    (prisma.qualRelease.update as jest.Mock).mockResolvedValue({
+      ...mockRelease,
+      decision: 'REJECTED',
+      authorisedBy: 'user-123',
+      authorisedAt: new Date().toISOString(),
+    });
+    const res = await request(app)
+      .put('/api/releases/00000000-0000-0000-0000-000000000001/authorise')
+      .send({ decision: 'REJECTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.decision).toBe('REJECTED');
+  });
+});

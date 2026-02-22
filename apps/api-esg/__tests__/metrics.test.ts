@@ -305,3 +305,88 @@ describe('Metrics — additional coverage', () => {
     expect(res.body.data.status).toBe('VERIFIED');
   });
 });
+
+// ─── Extended edge cases ────────────────────────────────────────────────────
+
+describe('metrics — extended edge cases', () => {
+  it('GET /:id/data-points response body is an object', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /:id/data-points pagination page defaults to 1', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST /:id/data-points with source and notes fields succeeds', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.create as jest.Mock).mockResolvedValue({ ...mockDataPoint, source: 'Meter', notes: 'Checked' });
+    const res = await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({
+        periodStart: '2026-01-01',
+        periodEnd: '2026-03-31',
+        value: 750,
+        unit: 'tCO2e',
+        source: 'Meter',
+        notes: 'Checked',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /:id/data-points create is called with correct metricId', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.create as jest.Mock).mockResolvedValue(mockDataPoint);
+    await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({ periodStart: '2026-01-01', periodEnd: '2026-03-31', value: 500, unit: 'tCO2e' });
+    expect(prisma.esgDataPoint.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ metricId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /:id/data-points with page=2 uses skip=20 by default limit', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(50);
+    await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points?page=2');
+    expect(prisma.esgDataPoint.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20 })
+    );
+  });
+
+  it('POST /:id/data-points missing periodEnd returns 400', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    const res = await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({ periodStart: '2026-01-01', value: 100, unit: 'tCO2e' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id/data-points 500 when metric findFirst throws', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/data-points 404 returns NOT_FOUND error code', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000099/data-points')
+      .send({ periodStart: '2026-01-01', periodEnd: '2026-03-31', value: 100, unit: 'tCO2e' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

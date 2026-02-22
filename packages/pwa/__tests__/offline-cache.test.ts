@@ -309,3 +309,69 @@ describe('OfflineCache — additional coverage', () => {
     expect(Array.isArray(urls)).toBe(true);
   });
 });
+
+describe('OfflineCache — priority URL patterns', () => {
+  beforeEach(() => {
+    cacheInstances.clear();
+  });
+
+  test('isPriorityUrl identifies work-orders URL', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/cmms/work-orders')).toBe(true);
+  });
+
+  test('isPriorityUrl identifies checklists URL', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/food-safety/checklists')).toBe(true);
+  });
+
+  test('isPriorityUrl returns false for /api/users path', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/users')).toBe(false);
+  });
+
+  test('isPriorityUrl returns false for root path', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/')).toBe(false);
+  });
+
+  test('cacheResponse updates existing URL response', async () => {
+    const cache = new OfflineCache();
+    await cache.cacheResponse('https://app.example.com/api/hs/tasks', makeResponse({ v: 1 }));
+    await cache.cacheResponse('https://app.example.com/api/hs/tasks', makeResponse({ v: 2 }));
+    const urls = await cache.getTrackedUrls();
+    expect(urls).toHaveLength(1);
+    const cached = await cache.getCachedResponse('https://app.example.com/api/hs/tasks');
+    expect(cached).not.toBeNull();
+  });
+
+  test('getTrackedUrls order is maintained after update', async () => {
+    const cache = new OfflineCache();
+    await cache.cacheResponse('https://app.example.com/api/a', makeResponse({ a: 1 }));
+    await cache.cacheResponse('https://app.example.com/api/b', makeResponse({ b: 1 }));
+    await cache.cacheResponse('https://app.example.com/api/a', makeResponse({ a: 2 }));
+    const urls = await cache.getTrackedUrls();
+    // 'a' was updated, so it moves to end (most recent)
+    expect(urls[urls.length - 1]).toBe('https://app.example.com/api/a');
+  });
+
+  test('getCachedResponse returns correct data for multiple cached items', async () => {
+    const cache = new OfflineCache();
+    await cache.cacheResponse('https://app.example.com/api/p', makeResponse({ p: 99 }));
+    await cache.cacheResponse('https://app.example.com/api/q', makeResponse({ q: 77 }));
+    const cached = await cache.getCachedResponse('https://app.example.com/api/p');
+    expect(cached).not.toBeNull();
+    const body = await cached!.json();
+    expect(body.p).toBe(99);
+  });
+
+  test('clear after multiple caches leaves getTrackedUrls empty', async () => {
+    const cache = new OfflineCache();
+    for (let i = 0; i < 5; i++) {
+      await cache.cacheResponse(`https://app.example.com/api/item/${i}`, makeResponse({ i }));
+    }
+    await cache.clear();
+    const urls = await cache.getTrackedUrls();
+    expect(urls).toEqual([]);
+  });
+
+  test('isPriorityUrl returns false for /api/settings/profile', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/settings/profile')).toBe(false);
+  });
+});

@@ -373,3 +373,98 @@ describe('PUT /api/monitoring/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('monitoring.api — edge cases and field validation', () => {
+  it('GET /monitoring returns success: true on 200', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([mockMonitoring]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /monitoring pagination contains total, page, limit fields', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /monitoring?page=3&limit=5 returns correct page and limit', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/monitoring?page=3&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(5);
+    expect(res.body.pagination.total).toBe(30);
+  });
+
+  it('GET /monitoring?welResult=BELOW_WEL filters by welResult', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/monitoring?welResult=BELOW_WEL');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.chemMonitoring.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ resultVsWel: 'BELOW_WEL' }),
+      })
+    );
+  });
+
+  it('POST /monitoring returns 400 when monitoringType is missing', async () => {
+    const res = await request(app).post('/api/monitoring').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      sampledAt: '2026-02-01T10:00:00.000Z',
+      resultValue: 5,
+      resultUnit: 'mg/m3',
+      welTwaLimit: 10,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /monitoring/overdue returns 500 on DB error with INTERNAL_ERROR code', async () => {
+    mockPrisma.chemMonitoring.findMany.mockRejectedValue(new Error('Overdue fail'));
+    const res = await request(app).get('/api/monitoring/overdue');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /monitoring/dashboard returns aboveWel and atWel fields', async () => {
+    mockPrisma.chemMonitoring.count
+      .mockResolvedValueOnce(50)  // total
+      .mockResolvedValueOnce(2)   // aboveWel
+      .mockResolvedValueOnce(8)   // atWel
+      .mockResolvedValueOnce(40)  // belowWel
+      .mockResolvedValueOnce(1);  // overdue
+    const res = await request(app).get('/api/monitoring/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('aboveWel', 2);
+    expect(res.body.data).toHaveProperty('atWel', 8);
+    expect(res.body.data).toHaveProperty('belowWel', 40);
+  });
+
+  it('PUT /monitoring/:id 500 response has success: false', async () => {
+    mockPrisma.chemMonitoring.findFirst.mockResolvedValue(mockMonitoring);
+    mockPrisma.chemMonitoring.update.mockRejectedValue(new Error('Update crash'));
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000040')
+      .send({ notes: 'Updated notes' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /monitoring/:id returns 404 with NOT_FOUND code when record missing', async () => {
+    mockPrisma.chemMonitoring.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000099')
+      .send({ location: 'Lab C' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

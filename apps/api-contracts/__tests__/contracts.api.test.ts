@@ -239,3 +239,99 @@ describe('contracts.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('contracts.api — extended field and edge case coverage', () => {
+  it('POST / creates contract with all optional fields', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(3);
+    mockPrisma.contContract.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      title: 'Full Contract',
+      type: 'SUPPLIER',
+      status: 'ACTIVE',
+      counterparty: 'Acme Corp',
+      value: 100000,
+    });
+    const res = await request(app).post('/api/contracts').send({
+      title: 'Full Contract',
+      type: 'SUPPLIER',
+      status: 'ACTIVE',
+      counterparty: 'Acme Corp',
+      value: 100000,
+      currency: 'GBP',
+      startDate: '2026-01-01',
+      endDate: '2027-01-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000010');
+  });
+
+  it('POST / returns 400 when fileUrl is invalid URL format', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app).post('/api/contracts').send({ title: 'Test', fileUrl: 'not-a-url' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT / returns 404 with NOT_FOUND error code when contract is missing', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/contracts/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE / returns message in data on successful soft delete', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contContract.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET / filters by status EXPIRED', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts?status=EXPIRED');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'EXPIRED' }) })
+    );
+  });
+
+  it('GET / returns pagination with limit and totalPages', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(100);
+    const res = await request(app).get('/api/contracts?page=5&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+    expect(res.body.pagination.page).toBe(5);
+  });
+
+  it('GET /:id response data contains id field', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Service Agreement',
+    });
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('GET / content-type is application/json', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / returns empty data array and zero total when no contracts exist', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+  });
+});

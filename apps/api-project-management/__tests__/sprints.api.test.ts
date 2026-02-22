@@ -399,3 +399,143 @@ describe('sprints.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('sprints.api — edge cases and extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/sprints', sprintsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/sprints returns empty array when project has no sprints', async () => {
+    (mockPrisma.projectSprint.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectSprint.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app)
+      .get('/api/sprints')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/sprints supports pagination (page=2, limit=3)', async () => {
+    (mockPrisma.projectSprint.findMany as jest.Mock).mockResolvedValueOnce([mockSprint]);
+    (mockPrisma.projectSprint.count as jest.Mock).mockResolvedValueOnce(9);
+
+    const res = await request(app)
+      .get('/api/sprints')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001', page: '2', limit: '3' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(3);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('GET /api/sprints/:id/stories returns 500 when userStory findMany throws', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValueOnce(mockSprint);
+    (mockPrisma.projectUserStory.findMany as jest.Mock).mockRejectedValueOnce(
+      new Error('DB error')
+    );
+
+    const res = await request(app).get(
+      '/api/sprints/45000000-0000-4000-a000-000000000001/stories'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/sprints creates sprint with ACTIVE status when status is set', async () => {
+    const activeSprint = { ...mockSprint, status: 'ACTIVE' };
+    (mockPrisma.projectSprint.create as jest.Mock).mockResolvedValueOnce(activeSprint);
+
+    const res = await request(app).post('/api/sprints').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      sprintNumber: 3,
+      sprintName: 'Sprint 3',
+      sprintGoal: 'Build reporting module',
+      startDate: '2025-03-01',
+      endDate: '2025-03-15',
+      duration: 14,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/sprints/:id updates committedStoryPoints', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValueOnce(mockSprint);
+    (mockPrisma.projectSprint.update as jest.Mock).mockResolvedValueOnce({
+      ...mockSprint,
+      committedStoryPoints: 30,
+    });
+
+    const res = await request(app)
+      .put('/api/sprints/45000000-0000-4000-a000-000000000001')
+      .send({ committedStoryPoints: 30 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.committedStoryPoints).toBe(30);
+  });
+
+  it('DELETE /api/sprints/:id performs soft-delete with deletedAt', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValueOnce(mockSprint);
+    (mockPrisma.projectSprint.update as jest.Mock).mockResolvedValueOnce({
+      ...mockSprint,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/sprints/45000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(204);
+    expect(mockPrisma.projectSprint.update).toHaveBeenCalledWith({
+      where: { id: '45000000-0000-4000-a000-000000000001' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+
+  it('GET /api/sprints/:id/stories returns empty array when sprint has no stories', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValueOnce(mockSprint);
+    (mockPrisma.projectUserStory.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    const res = await request(app).get(
+      '/api/sprints/45000000-0000-4000-a000-000000000001/stories'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST /api/sprints returns 400 for missing duration field', async () => {
+    const res = await request(app).post('/api/sprints').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      sprintNumber: 4,
+      sprintName: 'Sprint 4',
+      startDate: '2025-04-01',
+      endDate: '2025-04-15',
+      // missing duration
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/sprints/:id returns 500 when findUnique throws', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockRejectedValueOnce(
+      new Error('Connection failed')
+    );
+
+    const res = await request(app)
+      .put('/api/sprints/45000000-0000-4000-a000-000000000001')
+      .send({ status: 'COMPLETED' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

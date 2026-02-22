@@ -317,3 +317,83 @@ describe('supplier-dev — additional coverage', () => {
     }
   });
 });
+
+describe('supplier-dev — extended edge cases', () => {
+  it('GET /api/supplier-dev returns empty array when search matches nothing', async () => {
+    const records = [makeRecord({ supplierName: 'ACME Automotive' })];
+    (mockPrisma.supplierDevelopment.findMany as jest.Mock).mockResolvedValue(records);
+    const res = await request(app).get('/api/supplier-dev?search=XYZNoMatch');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/supplier-dev filters by both status and tier simultaneously', async () => {
+    (mockPrisma.supplierDevelopment.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/supplier-dev?status=APPROVED&tier=TIER_2');
+    expect(mockPrisma.supplierDevelopment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'APPROVED', tier: 'TIER_2' }),
+      })
+    );
+  });
+
+  it('POST /api/supplier-dev uses score of 70 when score is not provided', async () => {
+    (mockPrisma.supplierDevelopment.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.supplierDevelopment.create as jest.Mock).mockResolvedValue(makeRecord({ score: 70 }));
+    const res = await request(app).post('/api/supplier-dev').send({ supplierName: 'Delta Parts' });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.supplierDevelopment.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ score: 70 }) })
+    );
+  });
+
+  it('POST /api/supplier-dev uses TIER_1 when tier is not provided', async () => {
+    (mockPrisma.supplierDevelopment.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.supplierDevelopment.create as jest.Mock).mockResolvedValue(makeRecord());
+    await request(app).post('/api/supplier-dev').send({ supplierName: 'Gamma Parts' });
+    expect(mockPrisma.supplierDevelopment.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ tier: 'TIER_1' }) })
+    );
+  });
+
+  it('POST /api/supplier-dev uses UNDER_DEVELOPMENT as default status', async () => {
+    (mockPrisma.supplierDevelopment.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.supplierDevelopment.create as jest.Mock).mockResolvedValue(makeRecord());
+    await request(app).post('/api/supplier-dev').send({ supplierName: 'Epsilon Parts' });
+    expect(mockPrisma.supplierDevelopment.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'UNDER_DEVELOPMENT' }) })
+    );
+  });
+
+  it('GET /api/supplier-dev/:id returns 500 on DB error', async () => {
+    (mockPrisma.supplierDevelopment.findFirst as jest.Mock).mockRejectedValue(new Error('crash'));
+    const res = await request(app).get(`/api/supplier-dev/${ID1}`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/supplier-dev/:id updates supplierCode to null when set to empty', async () => {
+    const updated = makeRecord({ supplierCode: null });
+    (mockPrisma.supplierDevelopment.update as jest.Mock).mockResolvedValue(updated);
+    const res = await request(app)
+      .put(`/api/supplier-dev/${ID1}`)
+      .send({ supplierCode: '' });
+    expect(res.status).toBe(200);
+  });
+
+  it('DELETE /api/supplier-dev/:id returns success:true with correct id', async () => {
+    (mockPrisma.supplierDevelopment.update as jest.Mock).mockResolvedValue({ id: ID1, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/supplier-dev/${ID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(ID1);
+  });
+
+  it('GET /api/supplier-dev returns success:false and INTERNAL_ERROR on DB failure', async () => {
+    (mockPrisma.supplierDevelopment.findMany as jest.Mock).mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/supplier-dev');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

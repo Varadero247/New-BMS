@@ -274,3 +274,104 @@ describe('environmental-monitoring.api — additional coverage', () => {
     }
   });
 });
+
+// ===================================================================
+// Food Safety Environmental Monitoring — edge cases and error paths
+// ===================================================================
+describe('Food Safety Environmental Monitoring — edge cases and error paths', () => {
+  it('GET / pagination total reflects mock count', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(77);
+    const res = await request(app).get('/api/environmental-monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(77);
+  });
+
+  it('GET / data is always an array', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/environmental-monitoring');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / filters by both testType and withinSpec simultaneously', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(0);
+    await request(app).get('/api/environmental-monitoring?testType=AIR&withinSpec=true');
+    expect(mockPrisma.fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ testType: 'AIR', withinSpec: true }),
+      })
+    );
+  });
+
+  it('POST / create call includes the required fields', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000040',
+      location: 'Zone B',
+      testType: 'AIR',
+    });
+    await request(app).post('/api/environmental-monitoring').send({
+      location: 'Zone B',
+      testType: 'AIR',
+      parameter: 'Salmonella',
+      result: 'Absent',
+      withinSpec: true,
+      testedAt: '2026-02-15T10:00:00Z',
+    });
+    expect(mockPrisma.fsEnvironmentalMonitoring.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ location: 'Zone B', testType: 'AIR' }),
+      })
+    );
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/environmental-monitoring/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id returns 500 on DB error after finding record', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsEnvironmentalMonitoring.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/environmental-monitoring/00000000-0000-0000-0000-000000000001')
+      .send({ result: 'Positive' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id returns 500 on DB error', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsEnvironmentalMonitoring.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/environmental-monitoring/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id update uses correct where id clause', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000041' });
+    mockPrisma.fsEnvironmentalMonitoring.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000041', result: 'Negative' });
+    await request(app)
+      .put('/api/environmental-monitoring/00000000-0000-0000-0000-000000000041')
+      .send({ result: 'Negative' });
+    expect(mockPrisma.fsEnvironmentalMonitoring.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000041' }) })
+    );
+  });
+
+  it('GET /out-of-spec returns pagination metadata', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/environmental-monitoring/out-of-spec');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST / missing required fields returns 400', async () => {
+    const res = await request(app).post('/api/environmental-monitoring').send({
+      location: 'Zone C',
+      testType: 'SWAB',
+    });
+    expect(res.status).toBe(400);
+  });
+});

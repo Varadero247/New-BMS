@@ -323,3 +323,67 @@ describe('Board Packs — additional coverage', () => {
     expect(res.body.data.status).toBe('FINAL');
   });
 });
+
+describe('board-pack.test.ts — extended edge cases', () => {
+  it('runBoardPackJob calls monthlySnapshot.findMany once', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'bp-ext-1', status: 'DRAFT' });
+    await runBoardPackJob();
+    expect(prisma.monthlySnapshot.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('runBoardPackJob calls boardPack.create once', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'bp-ext-2', status: 'DRAFT' });
+    await runBoardPackJob();
+    expect(prisma.boardPack.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('runBoardPackJob passes sections object to create', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'bp-ext-3', status: 'DRAFT' });
+    await runBoardPackJob();
+    const createArg = (prisma.boardPack.create as jest.Mock).mock.calls[0][0];
+    expect(createArg.data.sections).toBeDefined();
+    expect(typeof createArg.data.sections).toBe('object');
+  });
+
+  it('GET /api/board-packs returns 500 with INTERNAL_ERROR when findMany throws', async () => {
+    (prisma.boardPack.findMany as jest.Mock).mockRejectedValue(new Error('timeout'));
+    (prisma.boardPack.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /api/board-packs/:id with FINAL status calls update exactly once', async () => {
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' });
+    (prisma.boardPack.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'FINAL' });
+    await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'FINAL' });
+    expect(prisma.boardPack.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/board-packs pagination.page is 1 by default', async () => {
+    (prisma.boardPack.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.page).toBe(1);
+  });
+
+  it('GET /api/board-packs/:id returns 500 with INTERNAL_ERROR on DB error', async () => {
+    (prisma.boardPack.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('runBoardPackJob returns the id from the created boardPack', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'bp-return-id', status: 'DRAFT' });
+    const id = await runBoardPackJob();
+    expect(id).toBe('bp-return-id');
+  });
+});

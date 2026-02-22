@@ -283,3 +283,140 @@ describe('Certifications — additional coverage', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('Certifications — extended edge cases', () => {
+  let app: express.Express;
+
+  const readinessResult = {
+    score: 85,
+    maxScore: 100,
+    grade: 'B',
+    blockers: [],
+    lastCalculatedAt: new Date('2026-01-01T00:00:00.000Z'),
+  };
+
+  const certBase = {
+    id: '00000000-0000-0000-0000-000000000001',
+    standard: 'ISO 9001:2015',
+    scope: 'Manufacturing',
+    certificationBody: 'BSI',
+    certificateNumber: 'FS-123456',
+    status: 'ACTIVE',
+    issueDate: new Date('2024-01-15'),
+    expiryDate: new Date('2027-01-14'),
+    lastSurveillanceDate: null,
+    nextSurveillanceDate: null,
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/certifications', certificationsRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockRequireRole.mockImplementation((...roles: string[]) => {
+      return (req: any, res: any, next: any) => {
+        if (!roles.includes(req.user?.role)) {
+          return res.status(403).json({ success: false, error: { code: 'FORBIDDEN' } });
+        }
+        next();
+      };
+    });
+    mockListCertificates.mockReturnValue([certBase]);
+    mockGetCertificate.mockReturnValue(certBase);
+    mockCreateCertificate.mockReturnValue({ ...certBase, id: '00000000-0000-0000-0000-000000000002' });
+    mockUpdateCertificate.mockReturnValue({ ...certBase, status: 'EXPIRED' });
+    mockDeleteCertificate.mockReturnValue(true);
+    mockCalculateReadinessScore.mockReturnValue(readinessResult);
+  });
+
+  it('GET /api/admin/certifications returns data array', async () => {
+    const res = await request(app).get('/api/admin/certifications');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST creates ISO 45001 certificate successfully', async () => {
+    mockCreateCertificate.mockReturnValue({
+      ...certBase,
+      id: '00000000-0000-0000-0000-000000000002',
+      standard: 'ISO 45001:2018',
+    });
+    const res = await request(app).post('/api/admin/certifications').send({
+      standard: 'ISO 45001:2018',
+      scope: 'Occupational health and safety',
+      certificationBody: "Lloyd's Register",
+      certificateNumber: 'OHS-789012',
+      issueDate: '2024-06-01',
+      expiryDate: '2027-05-31',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id updates status to EXPIRED', async () => {
+    const res = await request(app)
+      .put('/api/admin/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'EXPIRED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('readiness score grade field is a string', async () => {
+    mockGetCertificate.mockReset();
+    mockGetCertificate.mockReturnValue(certBase);
+    mockCalculateReadinessScore.mockReset();
+    mockCalculateReadinessScore.mockReturnValue(readinessResult);
+    const res = await request(app).get(
+      '/api/admin/certifications/00000000-0000-0000-0000-000000000001/readiness'
+    );
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.readiness.grade).toBe('string');
+  });
+
+  it('readiness score blockers is an array', async () => {
+    mockGetCertificate.mockReturnValueOnce(certBase);
+    mockCalculateReadinessScore.mockReturnValueOnce(readinessResult);
+    const res = await request(app).get(
+      '/api/admin/certifications/00000000-0000-0000-0000-000000000001/readiness'
+    );
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.readiness.blockers)).toBe(true);
+  });
+
+  it('DELETE /:id calls deleteCertificate with correct id', async () => {
+    await request(app).delete('/api/admin/certifications/00000000-0000-0000-0000-000000000001');
+    expect(mockDeleteCertificate).toHaveBeenCalledWith('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('GET /api/admin/certifications list includes readinessScore field', async () => {
+    const res = await request(app).get('/api/admin/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('readinessScore');
+  });
+
+  it('returns 403 for VIEWER role on POST /api/admin/certifications', async () => {
+    mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-v', email: 'viewer@ims.local', role: 'VIEWER', orgId: 'org-1' };
+      next();
+    });
+    const res = await request(app).post('/api/admin/certifications').send({
+      standard: 'ISO 9001:2015',
+      scope: 'Test',
+      certificationBody: 'BSI',
+      certificateNumber: 'FS-000',
+      issueDate: '2024-01-01',
+      expiryDate: '2027-01-01',
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it('GET /api/admin/certifications returns success true', async () => {
+    const res = await request(app).get('/api/admin/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

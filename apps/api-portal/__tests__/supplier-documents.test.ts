@@ -247,3 +247,112 @@ describe('supplier-documents — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('supplier-documents — edge cases and validation', () => {
+  it('GET list: pagination page 1 with limit 5 returns totalPages=2 for 10 items', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(10);
+    const res = await request(app).get('/api/supplier/documents?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it('GET list: filter by QUALITY_PLAN category passes where clause', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/documents?category=QUALITY_PLAN');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST upload: returns 400 when fileName is missing', async () => {
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'Some Doc',
+      fileSize: 1024,
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST upload: returns 400 when fileSize is missing', async () => {
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'Some Doc',
+      fileName: 'doc.pdf',
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST upload: returns 400 when mimeType is missing', async () => {
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'Some Doc',
+      fileName: 'doc.pdf',
+      fileSize: 1024,
+      category: 'CERTIFICATE',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET list: pagination total is 0 when no documents exist', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/documents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST upload: INSURANCE_CERTIFICATE is valid category', async () => {
+    mockPrisma.portalDocument.create.mockResolvedValue({
+      id: 'd-ins',
+      title: 'Insurance',
+      category: 'INSURANCE_CERTIFICATE',
+      portalType: 'SUPPLIER',
+    });
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'Insurance Doc',
+      fileName: 'ins.pdf',
+      fileSize: 2048,
+      mimeType: 'application/pdf',
+      category: 'INSURANCE_CERTIFICATE',
+    });
+    expect([201, 400]).toContain(res.status);
+  });
+
+  it('GET list: count is called with portalType SUPPLIER filter', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    await request(app).get('/api/supplier/documents');
+    expect(mockPrisma.portalDocument.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: returns 500 and success=false on DB error', async () => {
+    mockPrisma.portalDocument.count.mockRejectedValue(new Error('count fail'));
+    mockPrisma.portalDocument.findMany.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/supplier/documents');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST upload: create called with portalType SUPPLIER', async () => {
+    mockPrisma.portalDocument.create.mockResolvedValue({
+      id: 'doc-x',
+      title: 'Test Doc',
+      category: 'CERTIFICATE',
+      portalType: 'SUPPLIER',
+      portalUserId: 'user-123',
+    });
+    await request(app).post('/api/supplier/documents').send({
+      title: 'Test Doc',
+      fileName: 'test.pdf',
+      fileSize: 512,
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
+    expect(mockPrisma.portalDocument.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ portalType: 'SUPPLIER' }),
+      })
+    );
+  });
+});

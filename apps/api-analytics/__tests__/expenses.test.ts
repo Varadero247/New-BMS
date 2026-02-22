@@ -307,3 +307,104 @@ describe('expenses — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+// ─── Expenses — pagination, filter combinations and 500 paths ────────────────
+describe('Expenses — pagination, filter combinations and 500 paths', () => {
+  it('GET /api/expenses honours page and limit query params', async () => {
+    (prisma.expense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.expense.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/expenses?page=3&limit=5');
+
+    expect(prisma.expense.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('GET /api/expenses with status and category filter passes both to where clause', async () => {
+    (prisma.expense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.expense.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/expenses?status=SUBMITTED&category=TRAVEL');
+
+    expect(prisma.expense.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'SUBMITTED', category: 'TRAVEL' }),
+      })
+    );
+  });
+
+  it('GET /api/expenses includes pagination object in response', async () => {
+    (prisma.expense.findMany as jest.Mock).mockResolvedValue([sampleExpense]);
+    (prisma.expense.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/expenses');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('pagination');
+    expect(res.body.data.pagination).toHaveProperty('total', 1);
+    expect(res.body.data.pagination).toHaveProperty('page', 1);
+  });
+
+  it('PATCH /api/expenses/:id updates title and amount', async () => {
+    (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'DRAFT' });
+    (prisma.expense.update as jest.Mock).mockResolvedValue({
+      ...sampleExpense,
+      title: 'Updated Title',
+      amount: 300,
+    });
+
+    const res = await request(app)
+      .patch('/api/expenses/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Title', amount: 300, category: 'SOFTWARE' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Updated Title');
+  });
+
+  it('PATCH /api/expenses/:id returns 404 for missing expense', async () => {
+    (prisma.expense.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app)
+      .patch('/api/expenses/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'No such expense', category: 'SOFTWARE' });
+
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/expenses/:id/submit returns 404 for missing expense', async () => {
+    (prisma.expense.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).post(
+      '/api/expenses/00000000-0000-0000-0000-000000000099/submit'
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it('POST /api/expenses/:id/approve returns 404 for missing expense', async () => {
+    (prisma.expense.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).post(
+      '/api/expenses/00000000-0000-0000-0000-000000000099/approve'
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/expenses/summary returns 500 on groupBy failure', async () => {
+    (prisma.expense.groupBy as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/expenses/summary');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/expenses returns empty expenses array when DB has no records', async () => {
+    (prisma.expense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.expense.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/expenses');
+    expect(res.status).toBe(200);
+    expect(res.body.data.expenses).toHaveLength(0);
+    expect(res.body.data.pagination.total).toBe(0);
+  });
+});

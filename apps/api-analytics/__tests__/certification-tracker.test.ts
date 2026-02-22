@@ -302,3 +302,109 @@ describe('Certifications — additional edge cases', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+// ===================================================================
+// Certification Tracker — extended job and route coverage
+// ===================================================================
+describe('Certification Tracker — extended coverage', () => {
+  it('runCertificationTrackerJob does not call update when no deadlines exist', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+
+    await runCertificationTrackerJob();
+
+    expect(prisma.complianceDeadline.update).not.toHaveBeenCalled();
+  });
+
+  it('runCertificationTrackerJob skips already OVERDUE deadlines', async () => {
+    const pastDate = new Date('2020-01-01');
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        name: 'Already Overdue',
+        dueDate: pastDate,
+        status: 'OVERDUE',
+        lastCompletedAt: null,
+      },
+    ]);
+    (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({});
+
+    await runCertificationTrackerJob();
+
+    // Should not re-update already OVERDUE records
+    expect(prisma.complianceDeadline.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/certifications pagination.page defaults to 1', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.page).toBe(1);
+  });
+
+  it('GET /api/certifications?page=3&limit=10 passes correct skip', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/certifications?page=3&limit=10');
+    expect(prisma.complianceDeadline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('POST /api/certifications with renewalFrequency stores it correctly', async () => {
+    (prisma.complianceDeadline.create as jest.Mock).mockResolvedValue({
+      id: 'cd-rf',
+      name: 'Quarterly Cert',
+      category: 'REGULATORY',
+      dueDate: new Date('2026-04-01'),
+      renewalFrequency: 'QUARTERLY',
+      status: 'UPCOMING',
+    });
+
+    const res = await request(app).post('/api/certifications').send({
+      name: 'Quarterly Cert',
+      category: 'REGULATORY',
+      dueDate: '2026-04-01',
+      renewalFrequency: 'QUARTERLY',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.deadline.renewalFrequency).toBe('QUARTERLY');
+  });
+
+  it('GET /api/certifications/:id returns NOT_FOUND error code for missing item', async () => {
+    (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get(
+      '/api/certifications/00000000-0000-0000-0000-000000000099'
+    );
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PATCH /api/certifications/:id returns NOT_FOUND error code for missing item', async () => {
+    (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/certifications returns 400 when name is empty string', async () => {
+    const res = await request(app).post('/api/certifications').send({
+      name: '',
+      category: 'COMPLIANCE',
+      dueDate: '2026-12-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/certifications/seed 500 on createMany DB error', async () => {
+    (prisma.complianceDeadline.createMany as jest.Mock).mockRejectedValue(
+      new Error('createMany failed')
+    );
+    const res = await request(app).get('/api/certifications/seed');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

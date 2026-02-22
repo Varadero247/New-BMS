@@ -366,3 +366,160 @@ describe('resources.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('resources.api — edge cases and extended coverage', () => {
+  let app: express.Express;
+
+  const mockResource = {
+    id: '47000000-0000-4000-a000-000000000001',
+    projectId: 'project-1',
+    resourceType: 'HUMAN',
+    resourceName: 'John Doe',
+    resourceRole: 'Engineer',
+    responsibility: 'RESPONSIBLE',
+    allocationPercentage: 100,
+    allocatedFrom: new Date('2025-01-01'),
+    allocatedTo: new Date('2025-06-30'),
+    actualHours: 80,
+    plannedHours: 160,
+    utilization: 50,
+    status: 'ASSIGNED',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/resources', resourcesRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/resources returns empty array when project has no resources', async () => {
+    (mockPrisma.projectResource.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectResource.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/resources?projectId=project-1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/resources supports pagination (page=2, limit=5)', async () => {
+    (mockPrisma.projectResource.findMany as jest.Mock).mockResolvedValueOnce([mockResource]);
+    (mockPrisma.projectResource.count as jest.Mock).mockResolvedValueOnce(15);
+
+    const res = await request(app).get('/api/resources?projectId=project-1&page=2&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+    expect(res.body.meta.total).toBe(15);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('POST /api/resources handles EQUIPMENT resource type', async () => {
+    const equipmentResource = {
+      ...mockResource,
+      id: '47000000-0000-4000-a000-000000000002',
+      resourceType: 'EQUIPMENT',
+      resourceName: 'Test Server',
+    };
+    (mockPrisma.projectResource.create as jest.Mock).mockResolvedValueOnce(equipmentResource);
+
+    const res = await request(app)
+      .post('/api/resources')
+      .send({
+        projectId: 'project-1',
+        resourceType: 'EQUIPMENT',
+        resourceName: 'Test Server',
+        allocatedFrom: '2025-01-01',
+        allocatedTo: '2025-06-30',
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.resourceType).toBe('EQUIPMENT');
+  });
+
+  it('PUT /api/resources/:id returns 500 when update fails after successful findUnique', async () => {
+    (mockPrisma.projectResource.findUnique as jest.Mock).mockResolvedValueOnce(mockResource);
+    (mockPrisma.projectResource.update as jest.Mock).mockRejectedValueOnce(
+      new Error('Write conflict')
+    );
+
+    const res = await request(app)
+      .put('/api/resources/47000000-0000-4000-a000-000000000001')
+      .send({ resourceName: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/resources/:id performs soft-delete with deletedAt', async () => {
+    (mockPrisma.projectResource.findUnique as jest.Mock).mockResolvedValueOnce(mockResource);
+    (mockPrisma.projectResource.update as jest.Mock).mockResolvedValueOnce({
+      ...mockResource,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app)
+      .delete('/api/resources/47000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(204);
+    expect(mockPrisma.projectResource.update).toHaveBeenCalledWith({
+      where: { id: '47000000-0000-4000-a000-000000000001' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+
+  it('DELETE /api/resources/:id returns 500 when update throws', async () => {
+    (mockPrisma.projectResource.findUnique as jest.Mock).mockResolvedValueOnce(mockResource);
+    (mockPrisma.projectResource.update as jest.Mock).mockRejectedValueOnce(
+      new Error('Database locked')
+    );
+
+    const res = await request(app)
+      .delete('/api/resources/47000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/resources filters by resourceType when passed as query param', async () => {
+    (mockPrisma.projectResource.findMany as jest.Mock).mockResolvedValueOnce([mockResource]);
+    (mockPrisma.projectResource.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get(
+      '/api/resources?projectId=project-1&resourceType=HUMAN'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/resources/:id preserves existing status when not updated', async () => {
+    (mockPrisma.projectResource.findUnique as jest.Mock).mockResolvedValueOnce(mockResource);
+    (mockPrisma.projectResource.update as jest.Mock).mockResolvedValueOnce({
+      ...mockResource,
+      resourceRole: 'Senior Engineer',
+    });
+
+    const res = await request(app)
+      .put('/api/resources/47000000-0000-4000-a000-000000000001')
+      .send({ resourceRole: 'Senior Engineer' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('ASSIGNED');
+  });
+
+  it('GET /api/resources meta totalPages is 1 for small result sets', async () => {
+    (mockPrisma.projectResource.findMany as jest.Mock).mockResolvedValueOnce([mockResource]);
+    (mockPrisma.projectResource.count as jest.Mock).mockResolvedValueOnce(3);
+
+    const res = await request(app).get('/api/resources?projectId=project-1&limit=50');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(1);
+  });
+});

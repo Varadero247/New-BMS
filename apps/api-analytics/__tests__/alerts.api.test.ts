@@ -337,3 +337,83 @@ describe('alerts.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('alerts.api — extended edge cases', () => {
+  it('GET /api/alerts returns success:true with empty data list', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/alerts');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/alerts filters by metric query param', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/alerts?metric=trir');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsAlert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ metric: expect.any(Object) }) })
+    );
+  });
+
+  it('GET /api/alerts supports search query param', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/alerts?search=TRIR');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsAlert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ name: expect.any(Object) }) })
+    );
+  });
+
+  it('GET /api/alerts pagination page=2 adjusts skip correctly', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(100);
+    const res = await request(app).get('/api/alerts?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsAlert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('POST /api/alerts with condition BELOW creates alert successfully', async () => {
+    const created = { id: 'a-new', name: 'Low FPY', metric: 'fpy', condition: 'BELOW', threshold: 95, status: 'ACTIVE' };
+    mockPrisma.analyticsAlert.create.mockResolvedValue(created);
+    const res = await request(app).post('/api/alerts').send({
+      name: 'Low FPY',
+      metric: 'fpy',
+      condition: 'BELOW',
+      threshold: 95,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.condition).toBe('BELOW');
+  });
+
+  it('POST /api/alerts rejects invalid condition enum', async () => {
+    const res = await request(app).post('/api/alerts').send({
+      name: 'Test Alert',
+      metric: 'trir',
+      condition: 'INVALID_COND',
+      threshold: 5,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/alerts/:id returns success:true message', async () => {
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsAlert.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    const res = await request(app).delete('/api/alerts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/alerts/triggered returns empty array when none triggered', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/alerts/triggered');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

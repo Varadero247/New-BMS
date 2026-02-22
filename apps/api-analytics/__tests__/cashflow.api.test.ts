@@ -239,3 +239,79 @@ describe('Cashflow — additional edge cases', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('cashflow.api — extended edge cases', () => {
+  it('GET /api/cashflow findMany is called with take: 260', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
+    await request(app).get('/api/cashflow');
+    expect(mockPrisma.cashFlowForecast.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 260 })
+    );
+  });
+
+  it('GET /api/cashflow findMany is called with orderBy: { weekStart: "asc" }', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
+    await request(app).get('/api/cashflow');
+    expect(mockPrisma.cashFlowForecast.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { weekStart: 'asc' } })
+    );
+  });
+
+  it('GET /api/cashflow/position findFirst ordered by date desc', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue({
+      id: 'pos-order',
+      date: new Date(),
+      balance: 100,
+      currency: 'USD',
+    });
+    await request(app).get('/api/cashflow/position');
+    expect(mockPrisma.companyCashPosition.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { date: 'desc' } })
+    );
+  });
+
+  it('GET /api/cashflow with single forecast returns total=1', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([
+      { id: 'cf-only', weekStart: new Date(), inflow: 10000, outflow: 5000 },
+    ]);
+    const res = await request(app).get('/api/cashflow');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(1);
+    expect(res.body.data.forecasts).toHaveLength(1);
+  });
+
+  it('GET /api/cashflow error response has success:false', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/cashflow');
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('GET /api/cashflow/position success:true when position exists', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue({
+      id: 'pos-ok',
+      date: new Date(),
+      balance: 99999,
+      currency: 'USD',
+    });
+    const res = await request(app).get('/api/cashflow/position');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.position.id).toBe('pos-ok');
+  });
+
+  it('GET /api/cashflow data structure always has forecasts and total keys', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/cashflow');
+    expect(res.body.data).toHaveProperty('forecasts');
+    expect(res.body.data).toHaveProperty('total');
+  });
+
+  it('GET /api/cashflow/position 404 response has error.message field', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/cashflow/position');
+    expect(res.status).toBe(404);
+    expect(res.body.error.message).toBeDefined();
+    expect(typeof res.body.error.message).toBe('string');
+  });
+});

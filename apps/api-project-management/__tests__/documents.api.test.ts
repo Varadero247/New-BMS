@@ -374,3 +374,173 @@ describe('documents.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Project Management Documents — edge cases and validation', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/documents', documentsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /documents: meta.page defaults to 1', async () => {
+    (mockPrisma.projectDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectDocument.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/documents?projectId=project-1')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.meta.page).toBe(1);
+  });
+
+  it('GET /documents: count called once per request', async () => {
+    (mockPrisma.projectDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectDocument.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app)
+      .get('/api/documents?projectId=project-1')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectDocument.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /documents: returns empty data array when no documents found', async () => {
+    (mockPrisma.projectDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectDocument.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/documents?projectId=project-1')
+      .set('Authorization', 'Bearer token');
+    expect(Array.isArray(response.body.data)).toBe(true);
+    expect(response.body.data).toHaveLength(0);
+  });
+
+  it('POST /documents: returns 400 for missing documentCode', async () => {
+    const response = await request(app)
+      .post('/api/documents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'project-1',
+        documentTitle: 'Project Plan',
+        documentType: 'PLAN',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /documents: createdBy is set to authenticated user id', async () => {
+    (mockPrisma.projectDocument.create as jest.Mock).mockResolvedValueOnce({
+      id: 'doc-new',
+      projectId: 'project-1',
+      documentCode: 'DOC-003',
+      documentTitle: 'Spec',
+      documentType: 'SPECIFICATION',
+      version: '1.0',
+      status: 'DRAFT',
+      createdBy: '20000000-0000-4000-a000-000000000123',
+    });
+    await request(app)
+      .post('/api/documents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'project-1',
+        documentCode: 'DOC-003',
+        documentTitle: 'Spec',
+        documentType: 'SPECIFICATION',
+      });
+    expect(mockPrisma.projectDocument.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ createdBy: '20000000-0000-4000-a000-000000000123' }),
+      })
+    );
+  });
+
+  it('DELETE /documents/:id: soft-deletes by setting deletedAt', async () => {
+    (mockPrisma.projectDocument.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '1e000000-0000-4000-a000-000000000001',
+      projectId: 'project-1',
+    });
+    (mockPrisma.projectDocument.update as jest.Mock).mockResolvedValueOnce({});
+    const response = await request(app)
+      .delete('/api/documents/1e000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(204);
+    expect(mockPrisma.projectDocument.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('PUT /documents/:id: findUnique called with correct id', async () => {
+    (mockPrisma.projectDocument.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .put('/api/documents/1e000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ documentTitle: 'Updated' });
+    expect(mockPrisma.projectDocument.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '1e000000-0000-4000-a000-000000000001' } })
+    );
+  });
+
+  it('GET /documents: success true in response on valid request', async () => {
+    (mockPrisma.projectDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectDocument.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/documents?projectId=project-1')
+      .set('Authorization', 'Bearer token');
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST /documents: version defaults to 1.0', async () => {
+    (mockPrisma.projectDocument.create as jest.Mock).mockResolvedValueOnce({
+      id: 'doc-v',
+      projectId: 'project-1',
+      documentCode: 'DOC-010',
+      documentTitle: 'New Doc',
+      documentType: 'REPORT',
+      version: '1.0',
+      status: 'DRAFT',
+      createdBy: '20000000-0000-4000-a000-000000000123',
+    });
+    await request(app)
+      .post('/api/documents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'project-1',
+        documentCode: 'DOC-010',
+        documentTitle: 'New Doc',
+        documentType: 'REPORT',
+      });
+    expect(mockPrisma.projectDocument.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ version: '1.0' }),
+      })
+    );
+  });
+
+  it('PUT /documents/:id: status defaults remain when not changed', async () => {
+    (mockPrisma.projectDocument.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '1e000000-0000-4000-a000-000000000001',
+      projectId: 'project-1',
+      documentCode: 'DOC-001',
+      documentTitle: 'Project Charter',
+      documentType: 'CHARTER',
+      version: '1.0',
+      status: 'DRAFT',
+    });
+    (mockPrisma.projectDocument.update as jest.Mock).mockResolvedValueOnce({
+      id: '1e000000-0000-4000-a000-000000000001',
+      documentTitle: 'Revised Charter',
+      status: 'DRAFT',
+    });
+    const response = await request(app)
+      .put('/api/documents/1e000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ documentTitle: 'Revised Charter' });
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+});

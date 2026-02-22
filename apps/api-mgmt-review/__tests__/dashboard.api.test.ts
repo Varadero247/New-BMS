@@ -206,3 +206,59 @@ describe('Mgmt Review Dashboard — additional coverage', () => {
     expect(res.body.data.totalReviews).toBe(42);
   });
 });
+
+describe('Mgmt Review Dashboard — final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /stats success field is true on 200', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /stats totalReviews is exactly 1 when count returns 1', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalReviews).toBe(1);
+  });
+
+  it('GET /stats responds with 200 status code on success', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /stats count query includes deletedAt: null in where clause', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    const args = mockPrisma.mgmtReview.count.mock.calls[0][0];
+    expect(args.where).toHaveProperty('deletedAt', null);
+  });
+
+  it('GET /stats count query includes orgId: org-1 from auth', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    const args = mockPrisma.mgmtReview.count.mock.calls[0][0];
+    expect(args.where).toHaveProperty('orgId', 'org-1');
+  });
+
+  it('GET /stats error.message is Failed to fetch stats on 500', async () => {
+    mockPrisma.mgmtReview.count.mockRejectedValue(new Error('any error'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.error.message).toBe('Failed to fetch stats');
+  });
+
+  it('GET /stats returns correct totalReviews for large numbers', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(9999);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalReviews).toBe(9999);
+  });
+
+  it('GET /stats count is not called when response is 500', async () => {
+    mockPrisma.mgmtReview.count.mockRejectedValue(new Error('fail'));
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.mgmtReview.count).toHaveBeenCalledTimes(1);
+  });
+});

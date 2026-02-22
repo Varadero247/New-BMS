@@ -618,3 +618,136 @@ describe('automotive-ai.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+// ── automotive-ai.api — edge cases ────────────────────────────────────────
+
+describe('automotive-ai.api — edge cases', () => {
+  let app: express.Express;
+
+  const apqpResult = {
+    overallRiskLevel: 'LOW',
+    overallRiskScore: 20,
+    criticalDeliverable: 'Control Plan',
+    criticalDeliverablePriority: 'HIGH',
+    recommendedMitigation: 'Early supplier involvement',
+    mitigationPhase: 'PLANNING',
+    mitigationResponsible: 'Program Management',
+    typicalTimeline: { totalWeeks: 24, firstPhase: 'Plan and Define', firstPhaseDuration: 3 },
+    oemConsideration: 'Ford requires Q1S certification',
+    lessonLearned: 'Engage tooling supplier early',
+  };
+
+  const ppapResult = {
+    readinessScore: 90,
+    readinessLevel: 'READY',
+    elementsStatus: { complete: 16, incomplete: 2, notApplicable: 0, total: 18 },
+    estimatedCompletionDays: 5,
+    recommendation1: 'Complete remaining MSA studies',
+    recommendation2: 'Finalize PSW signature',
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyze', analyzeRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT returns 401 without auth token', async () => {
+    const res = await request(app)
+      .post('/api/analyze')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: {} });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('AUTOMOTIVE_PPAP_READINESS returns correct type in response data', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(ppapResult)));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: { partName: 'Valve Cover' } });
+    expect(res.status).toBe(200);
+    expect(res.body.data.type).toBe('AUTOMOTIVE_PPAP_READINESS');
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT result has typicalTimeline.totalWeeks', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(apqpResult)));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: { productDescription: 'Gear shaft' } });
+    expect(res.status).toBe(200);
+    expect(res.body.data.result.typicalTimeline.totalWeeks).toBe(24);
+  });
+
+  it('AUTOMOTIVE_PPAP_READINESS result has readinessScore', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(ppapResult)));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: { partName: 'Bearing housing' } });
+    expect(res.status).toBe(200);
+    expect(res.body.data.result.readinessScore).toBe(90);
+    expect(res.body.data.result.readinessLevel).toBe('READY');
+  });
+
+  it('AUTOMOTIVE_PPAP_READINESS returns PARSE_ERROR on plain text response', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse('Plain text no json no braces no brackets'));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: {} });
+    expect(res.status).toBe(502);
+    expect(res.body.error.code).toBe('PARSE_ERROR');
+  });
+
+  it('updates token count after PPAP with Anthropic response tokens', async () => {
+    const anthropicSettings = { ...mockSettings, provider: 'ANTHROPIC', model: 'claude-3-sonnet-20240229' };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(anthropicSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(anthropicSettings);
+    mockFetch.mockResolvedValueOnce(mockAnthropicResponse(JSON.stringify(ppapResult), 100, 150));
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: { partName: 'Test part' } });
+    expect(mockPrisma.aISettings.update).toHaveBeenCalledWith({
+      where: { id: 'settings-1' },
+      data: {
+        totalTokensUsed: 750, // 500 + (100+150)
+        lastUsedAt: expect.any(Date),
+      },
+    });
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT returns 400 when AI config is missing', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: {} });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('NO_AI_CONFIG');
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT returns 502 when AI parse fails', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse('invalid plain text without any json'));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: { productDescription: 'Part X' } });
+    expect(res.status).toBe(502);
+    expect(res.body.error.code).toBe('PARSE_ERROR');
+  });
+});

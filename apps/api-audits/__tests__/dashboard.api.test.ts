@@ -230,3 +230,82 @@ describe('Audits Dashboard — final coverage', () => {
     expect(res.body.error).toHaveProperty('code');
   });
 });
+
+describe('Audits Dashboard — boundary and combination coverage', () => {
+  it('returns correct stats when all counts are 1', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(1);
+    mockPrisma.audFinding.count.mockResolvedValue(1);
+    mockPrisma.audChecklist.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalAudits).toBe(1);
+    expect(res.body.data.totalFindings).toBe(1);
+    expect(res.body.data.totalChecklists).toBe(1);
+  });
+
+  it('only totalAudits is non-zero when just audits exist', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(5);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalAudits).toBe(5);
+    expect(res.body.data.totalFindings).toBe(0);
+    expect(res.body.data.totalChecklists).toBe(0);
+  });
+
+  it('success flag is true when all counts succeed', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(2);
+    mockPrisma.audFinding.count.mockResolvedValue(3);
+    mockPrisma.audChecklist.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('route GET /api/dashboard/stats is accessible and returns known status', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect([200, 500]).toContain(res.status);
+  });
+
+  it('totalAudits and totalFindings are independent values', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(11);
+    mockPrisma.audFinding.count.mockResolvedValue(22);
+    mockPrisma.audChecklist.count.mockResolvedValue(33);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalAudits).not.toBe(res.body.data.totalFindings);
+    expect(res.body.data.totalFindings).not.toBe(res.body.data.totalChecklists);
+  });
+
+  it('error message is present on 500 error', async () => {
+    mockPrisma.audAudit.count.mockRejectedValue(new Error('something broke'));
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('message');
+  });
+
+  it('three count queries are each called exactly once per request', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.audAudit.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.audFinding.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.audChecklist.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('data property is an object (not array) in successful response', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+    expect(Array.isArray(res.body.data)).toBe(false);
+  });
+});

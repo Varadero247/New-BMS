@@ -332,3 +332,105 @@ describe('suppliers — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('suppliers — extended edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / both qualificationStatus and riskLevel filters are applied together', async () => {
+    mockPrisma.medicalSupplier.findMany.mockResolvedValue([mockSupplier]);
+
+    const res = await request(app).get('/api/suppliers?qualificationStatus=APPROVED&riskLevel=LOW');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.medicalSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          qualificationStatus: 'APPROVED',
+          riskLevel: 'LOW',
+        }),
+      })
+    );
+  });
+
+  it('GET / search is case-insensitive', async () => {
+    mockPrisma.medicalSupplier.findMany.mockResolvedValue([
+      mockSupplier,
+      { ...mockSupplier, id: '00000000-0000-0000-0000-000000000003', name: 'Unrelated Corp' },
+    ]);
+
+    const res = await request(app).get('/api/suppliers?search=medtech');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].name).toBe('MedTech Components Ltd');
+  });
+
+  it('GET /:id query uses id and deletedAt null', async () => {
+    mockPrisma.medicalSupplier.findFirst.mockResolvedValue(mockSupplier);
+
+    await request(app).get(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(mockPrisma.medicalSupplier.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: SUPPLIER_ID, deletedAt: null },
+      })
+    );
+  });
+
+  it('DELETE / calls update with deletedAt date', async () => {
+    mockPrisma.medicalSupplier.update.mockResolvedValue({ ...mockSupplier, deletedAt: new Date() });
+
+    await request(app).delete(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(mockPrisma.medicalSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: SUPPLIER_ID },
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('PUT / returns 500 with INTERNAL_ERROR when update throws', async () => {
+    mockPrisma.medicalSupplier.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).put(`/api/suppliers/${SUPPLIER_ID}`).send({ name: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / iso13485Certified defaults to false when not provided', async () => {
+    mockPrisma.medicalSupplier.count.mockResolvedValue(0);
+    mockPrisma.medicalSupplier.create.mockResolvedValue({ ...mockSupplier, iso13485Certified: false });
+
+    const res = await request(app).post('/api/suppliers').send({ name: 'Simple Supplier' });
+
+    expect(res.status).toBe(201);
+    expect(mockPrisma.medicalSupplier.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ iso13485Certified: false }),
+      })
+    );
+  });
+
+  it('GET / returns success:true even when data is empty', async () => {
+    mockPrisma.medicalSupplier.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/suppliers');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.medicalSupplier.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

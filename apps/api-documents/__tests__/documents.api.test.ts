@@ -238,3 +238,88 @@ describe('documents.api — additional coverage', () => {
     }
   });
 });
+
+// ─── Additional field-validation and pagination coverage ─────────────────────
+
+describe('Documents — additional field-validation and pagination coverage', () => {
+  it('GET / returns pagination with page=1 and limit=20 by default', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+    expect(res.body.pagination.limit).toBe(20);
+  });
+
+  it('GET / with page=3&limit=10 reflects params in pagination', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(10);
+  });
+
+  it('GET / with status=DRAFT passes status filter to findMany', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    await request(app).get('/api/documents?status=DRAFT');
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'DRAFT' }) }),
+    );
+  });
+
+  it('GET / response data is an array', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / with invalid fileUrl returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app)
+      .post('/api/documents')
+      .send({ title: 'Doc A', fileUrl: 'not-a-url' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / with valid fields returns 201 and referenceNumber in data', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(3);
+    mockPrisma.docDocument.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000007',
+      title: 'Another Doc',
+      referenceNumber: 'DOC-2026-0004',
+    });
+    const res = await request(app).post('/api/documents').send({ title: 'Another Doc' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('DELETE /:id success response message contains "deleted"', async () => {
+    mockPrisma.docDocument.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docDocument.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted');
+  });
+
+  it('PUT /:id with status=PUBLISHED updates successfully', async () => {
+    mockPrisma.docDocument.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docDocument.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PUBLISHED',
+    });
+    const res = await request(app)
+      .put('/api/documents/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'PUBLISHED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

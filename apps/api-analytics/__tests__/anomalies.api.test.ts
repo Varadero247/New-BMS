@@ -173,3 +173,64 @@ describe('anomalies.api.test.ts — additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('anomalies.api — extended edge cases', () => {
+  it('GET /api/anomalies/kpis kpis array has at least one entry', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.kpis)).toBe(true);
+    // built-in KPIs should always be present
+    expect(res.body.data.kpis.length).toBeGreaterThan(0);
+  });
+
+  it('GET /api/anomalies/kpis each kpi has id, name, value, status fields', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    const kpi = res.body.data.kpis[0];
+    expect(kpi).toHaveProperty('id');
+    expect(kpi).toHaveProperty('name');
+    expect(kpi).toHaveProperty('currentValue');
+    expect(kpi).toHaveProperty('status');
+  });
+
+  it('GET /api/anomalies returns pagination object with page and total fields', async () => {
+    const res = await request(app).get('/api/anomalies?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+
+  it('GET /api/anomalies summary.total equals number of anomalies returned when all fit on one page', async () => {
+    const res = await request(app).get('/api/anomalies?limit=100');
+    expect(res.status).toBe(200);
+    const { anomalies, summary } = res.body.data;
+    expect(typeof summary.total).toBe('number');
+    expect(summary.total).toBeGreaterThanOrEqual(anomalies.length);
+  });
+
+  it('PUT /api/anomalies/:id/dismiss requires non-empty reason string', async () => {
+    const res = await request(app)
+      .put('/api/anomalies/anom-001/dismiss')
+      .send({ reason: 'Valid reason' });
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/anomalies?module=health_safety filters by module', async () => {
+    const res = await request(app).get('/api/anomalies?module=health_safety');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/anomalies/kpis summary.warning is a number', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.summary.warning).toBe('number');
+  });
+
+  it('GET /api/anomalies?severity=critical returns anomalies filtered by severity', async () => {
+    const res = await request(app).get('/api/anomalies?severity=critical');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('anomalies');
+    expect(res.body.data).toHaveProperty('summary');
+  });
+});

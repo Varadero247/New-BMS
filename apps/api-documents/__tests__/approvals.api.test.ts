@@ -229,3 +229,83 @@ describe('Approvals — additional coverage', () => {
     expect(res.body.data.status).toBe('APPROVED');
   });
 });
+
+// ─── Pagination and filter coverage ──────────────────────────────────────────
+
+describe('Approvals — pagination and filter coverage', () => {
+  it('GET / returns pagination object with total', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001' },
+    ]);
+    mockPrisma.docApproval.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('GET / with page=2&limit=5 returns correct pagination values', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([]);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET / with status=PENDING passes filter to findMany', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([]);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals?status=PENDING');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.docApproval.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'PENDING' }) }),
+    );
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([]);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / returns 400 when approver is missing', async () => {
+    const res = await request(app).post('/api/approvals').send({ documentId: 'doc-1' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 when documentId is missing', async () => {
+    const res = await request(app).post('/api/approvals').send({ approver: 'user-1' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /:id success message contains "deleted"', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docApproval.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted');
+  });
+
+  it('PUT /:id with REJECTED status succeeds', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docApproval.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'REJECTED',
+    });
+    const res = await request(app)
+      .put('/api/approvals/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'REJECTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

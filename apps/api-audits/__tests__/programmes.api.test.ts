@@ -259,3 +259,87 @@ describe('programmes.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('programmes.api — extended edge cases', () => {
+  it('GET /api/programmes returns totalPages = 0 when total is 0', async () => {
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/programmes');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(0);
+  });
+
+  it('GET /api/programmes returns correct totalPages for multiple pages', async () => {
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(25);
+    const res = await request(app).get('/api/programmes?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /api/programmes filters by status and returns empty array', async () => {
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/programmes?status=CLOSED');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST /api/programmes returns 400 when year is not a number', async () => {
+    const res = await request(app).post('/api/programmes').send({ title: 'Programme', year: 'not-a-year' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/programmes/:id returns 400 on invalid year type', async () => {
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app)
+      .put('/api/programmes/00000000-0000-0000-0000-000000000001')
+      .send({ year: 'bad-year' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/programmes/:id sets deletedAt in the soft-delete call', async () => {
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audProgramme.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    await request(app).delete('/api/programmes/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.audProgramme.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/programmes/:id returns 500 on database error', async () => {
+    mockPrisma.audProgramme.findFirst.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/programmes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/programmes returns success:true with data array on empty result', async () => {
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/programmes');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/programmes creates programme with description field', async () => {
+    mockPrisma.audProgramme.count.mockResolvedValue(2);
+    mockPrisma.audProgramme.create.mockResolvedValue({
+      id: 'new-2',
+      title: 'Audit Programme 2027',
+      year: 2027,
+      description: 'Next year plan',
+      referenceNumber: 'APR-2026-0003',
+    });
+    const res = await request(app).post('/api/programmes').send({
+      title: 'Audit Programme 2027',
+      year: 2027,
+      description: 'Next year plan',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.title).toBe('Audit Programme 2027');
+  });
+});

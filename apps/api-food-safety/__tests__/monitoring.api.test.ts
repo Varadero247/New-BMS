@@ -262,3 +262,96 @@ describe('monitoring.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('monitoring.api — edge cases and extended coverage', () => {
+  it('GET /api/monitoring returns pagination metadata', async () => {
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(30);
+
+    const res = await request(app).get('/api/monitoring?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toMatchObject({ page: 2, limit: 10, total: 30, totalPages: 3 });
+  });
+
+  it('GET /api/monitoring filters withinLimits=true', async () => {
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(0);
+
+    await request(app).get('/api/monitoring?withinLimits=true');
+    expect(mockPrisma.fsMonitoringRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ withinLimits: true }) })
+    );
+  });
+
+  it('POST /api/monitoring rejects missing ccpId', async () => {
+    const res = await request(app).post('/api/monitoring').send({
+      monitoredAt: '2026-01-15T10:00:00Z',
+      value: '76C',
+      withinLimits: true,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/monitoring rejects non-boolean withinLimits', async () => {
+    const res = await request(app).post('/api/monitoring').send({
+      ccpId: '550e8400-e29b-41d4-a716-446655440000',
+      monitoredAt: '2026-01-15T10:00:00Z',
+      value: '76C',
+      withinLimits: 'yes',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/monitoring/:id handles 500 on update', async () => {
+    mockPrisma.fsMonitoringRecord.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsMonitoringRecord.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000001')
+      .send({ value: '80C' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/monitoring/:id returns confirmation message', async () => {
+    mockPrisma.fsMonitoringRecord.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsMonitoringRecord.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).delete('/api/monitoring/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('DELETE /api/monitoring/:id handles 500 on update', async () => {
+    mockPrisma.fsMonitoringRecord.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsMonitoringRecord.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/monitoring/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/monitoring/:id handles 500 on findFirst', async () => {
+    mockPrisma.fsMonitoringRecord.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/monitoring/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/monitoring/deviations returns pagination object', async () => {
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(5);
+
+    const res = await request(app).get('/api/monitoring/deviations');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(5);
+  });
+});

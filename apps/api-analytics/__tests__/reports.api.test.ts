@@ -325,3 +325,92 @@ describe('reports.api — additional coverage', () => {
     }
   });
 });
+
+describe('Reports — edge cases and extended coverage', () => {
+  it('GET /api/reports pagination includes totalPages', async () => {
+    mockPrisma.analyticsReport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReport.count.mockResolvedValue(20);
+
+    const res = await request(app).get('/api/reports');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/reports filters by isActive=true', async () => {
+    mockPrisma.analyticsReport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/reports?isActive=true');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isActive: true }) })
+    );
+  });
+
+  it('POST /api/reports missing name returns 400', async () => {
+    const res = await request(app)
+      .post('/api/reports')
+      .send({ type: 'AD_HOC', format: 'PDF', query: {} });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/reports DB error returns 500', async () => {
+    mockPrisma.analyticsReport.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .post('/api/reports')
+      .send({ name: 'Fail Report', type: 'AD_HOC', format: 'PDF', query: { table: 'test' } });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/reports/:id DB error on update returns 500', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsReport.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/reports/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/reports/:id 500 on DB error', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsReport.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/reports/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/reports/:id/runs returns correct count in pagination', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsReportRun.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReportRun.count.mockResolvedValue(7);
+
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001/runs');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(7);
+  });
+
+  it('POST /api/reports/:id/run 500 on DB error creating run', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsReportRun.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/reports/00000000-0000-0000-0000-000000000001/run');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/reports/:id/runs/:runId 404 returns NOT_FOUND error code', async () => {
+    mockPrisma.analyticsReportRun.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get(
+      '/api/reports/00000000-0000-0000-0000-000000000001/runs/00000000-0000-0000-0000-000000000099'
+    );
+
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

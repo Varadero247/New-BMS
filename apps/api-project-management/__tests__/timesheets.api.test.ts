@@ -437,3 +437,155 @@ describe('timesheets.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('timesheets.api — edge cases and extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/timesheets', timesheetsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/timesheets returns empty array when no entries exist', async () => {
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app)
+      .get('/api/timesheets')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/timesheets supports pagination (page=2, limit=5)', async () => {
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValueOnce([mockTimesheet]);
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValueOnce(10);
+
+    const res = await request(app)
+      .get('/api/timesheets')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001', page: '2', limit: '5' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+    expect(res.body.meta.totalPages).toBe(2);
+  });
+
+  it('GET /api/timesheets filters by taskId when passed as query param', async () => {
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValueOnce([mockTimesheet]);
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app)
+      .get('/api/timesheets')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001', taskId: '3d000000-0000-4000-a000-000000000001' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/timesheets sets isBillable=true by default', async () => {
+    (mockPrisma.projectTimesheet.create as jest.Mock).mockResolvedValueOnce({
+      ...mockTimesheet,
+      isBillable: true,
+    });
+
+    const res = await request(app).post('/api/timesheets').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      employeeId: 'emp-001',
+      workDate: '2025-03-12',
+      hoursWorked: 8,
+      activityType: 'DEVELOPMENT',
+    });
+
+    expect(res.status).toBe(201);
+    expect(mockPrisma.projectTimesheet.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ isBillable: true }),
+      })
+    );
+  });
+
+  it('PUT /api/timesheets/:id returns 500 when findUnique throws', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockRejectedValueOnce(
+      new Error('Connection timeout')
+    );
+
+    const res = await request(app)
+      .put('/api/timesheets/48000000-0000-4000-a000-000000000001')
+      .send({ hoursWorked: 6 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/timesheets/:id/approve returns 500 when findUnique throws', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockRejectedValueOnce(
+      new Error('DB unavailable')
+    );
+
+    const res = await request(app)
+      .put('/api/timesheets/48000000-0000-4000-a000-000000000001/approve')
+      .send();
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/timesheets/:id performs soft-delete with deletedAt', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValueOnce(mockTimesheet);
+    (mockPrisma.projectTimesheet.update as jest.Mock).mockResolvedValueOnce({
+      ...mockTimesheet,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete(
+      '/api/timesheets/48000000-0000-4000-a000-000000000001'
+    );
+
+    expect(res.status).toBe(204);
+    expect(mockPrisma.projectTimesheet.update).toHaveBeenCalledWith({
+      where: { id: '48000000-0000-4000-a000-000000000001' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+
+  it('POST /api/timesheets sets status to PENDING by default', async () => {
+    (mockPrisma.projectTimesheet.create as jest.Mock).mockResolvedValueOnce({
+      ...mockTimesheet,
+      status: 'PENDING',
+    });
+
+    const res = await request(app).post('/api/timesheets').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      employeeId: 'emp-002',
+      workDate: '2025-04-01',
+      hoursWorked: 7.5,
+      activityType: 'TESTING',
+    });
+
+    expect(res.status).toBe(201);
+    expect(mockPrisma.projectTimesheet.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'PENDING' }),
+      })
+    );
+  });
+
+  it('GET /api/timesheets meta has correct totalPages for multiple pages', async () => {
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValueOnce(
+      Array(10).fill(mockTimesheet)
+    );
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValueOnce(50);
+
+    const res = await request(app)
+      .get('/api/timesheets')
+      .query({ employeeId: 'emp-001', limit: '10' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(5);
+  });
+});

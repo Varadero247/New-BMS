@@ -399,3 +399,148 @@ describe('milestones.api — additional coverage', () => {
     }
   });
 });
+
+describe('milestones.api — edge cases and extended coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/milestones', milestonesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/milestones returns empty array when no milestones exist', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get(
+      '/api/milestones?projectId=44000000-0000-4000-a000-000000000001'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/milestones supports pagination (page=2, limit=5)', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([mockMilestone]);
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(12);
+
+    const res = await request(app).get(
+      '/api/milestones?projectId=44000000-0000-4000-a000-000000000001&page=2&limit=5'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+    expect(res.body.meta.total).toBe(12);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('GET /api/milestones filters by status=ACHIEVED', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([
+      { ...mockMilestone, status: 'ACHIEVED' },
+    ]);
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get(
+      '/api/milestones?projectId=44000000-0000-4000-a000-000000000001&status=ACHIEVED'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].status).toBe('ACHIEVED');
+  });
+
+  it('POST /api/milestones stores baselineDate when provided', async () => {
+    (mockPrisma.projectMilestone.create as jest.Mock).mockResolvedValueOnce({
+      ...mockMilestone,
+      baselineDate: '2025-07-01T00:00:00.000Z',
+    });
+
+    const res = await request(app).post('/api/milestones').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      milestoneName: 'Phase 2',
+      plannedDate: '2025-07-01',
+      baselineDate: '2025-07-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/milestones/:id returns 500 when findUnique throws on approve route', async () => {
+    (mockPrisma.projectMilestone.findUnique as jest.Mock).mockRejectedValueOnce(
+      new Error('Connection lost')
+    );
+
+    const res = await request(app).put(
+      '/api/milestones/1b000000-0000-4000-a000-000000000001/approve'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/milestones/:id calls soft-delete (update with deletedAt)', async () => {
+    (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
+    (mockPrisma.projectMilestone.update as jest.Mock).mockResolvedValueOnce({
+      ...mockMilestone,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete(
+      '/api/milestones/1b000000-0000-4000-a000-000000000001'
+    );
+
+    expect(res.status).toBe(204);
+    expect(mockPrisma.projectMilestone.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '1b000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+
+  it('GET /api/milestones filters by isCritical=true', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([mockMilestone]);
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get(
+      '/api/milestones?projectId=44000000-0000-4000-a000-000000000001&isCritical=true'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/milestones/:id updates milestoneDescription successfully', async () => {
+    (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
+    (mockPrisma.projectMilestone.update as jest.Mock).mockResolvedValueOnce({
+      ...mockMilestone,
+      milestoneDescription: 'Updated description text',
+    });
+
+    const res = await request(app)
+      .put('/api/milestones/1b000000-0000-4000-a000-000000000001')
+      .send({ milestoneDescription: 'Updated description text' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.milestoneDescription).toBe('Updated description text');
+  });
+
+  it('GET /api/milestones returns meta with correct totalPages for multiple pages', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce(
+      Array(10).fill(mockMilestone)
+    );
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(100);
+
+    const res = await request(app).get(
+      '/api/milestones?projectId=44000000-0000-4000-a000-000000000001&limit=10'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(10);
+  });
+});

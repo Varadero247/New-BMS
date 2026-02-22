@@ -256,3 +256,102 @@ describe('waste — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+// ── Extended coverage ──────────────────────────────────────────────────────
+
+describe('waste — extended coverage', () => {
+  it('GET / returns pagination metadata with totalPages', async () => {
+    (prisma.esgWaste.findMany as jest.Mock).mockResolvedValue([mockWaste]);
+    (prisma.esgWaste.count as jest.Mock).mockResolvedValue(30);
+    const res = await request(app).get('/api/waste?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('GET / filters by both wasteType and disposalMethod', async () => {
+    (prisma.esgWaste.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgWaste.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/waste?wasteType=RECYCLABLE&disposalMethod=RECYCLED');
+    expect(prisma.esgWaste.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ wasteType: 'RECYCLABLE', disposalMethod: 'RECYCLED' }),
+      })
+    );
+  });
+
+  it('POST / creates record with all disposal methods', async () => {
+    const methods = ['LANDFILL', 'RECYCLED', 'INCINERATED', 'COMPOSTED', 'REUSED'];
+    for (const disposalMethod of methods) {
+      (prisma.esgWaste.create as jest.Mock).mockResolvedValue({ ...mockWaste, disposalMethod });
+      const res = await request(app).post('/api/waste').send({
+        wasteType: 'NON_HAZARDOUS',
+        quantity: 100,
+        unit: 'kg',
+        disposalMethod,
+        periodStart: '2026-01-01',
+        periodEnd: '2026-01-31',
+      });
+      expect(res.status).toBe(201);
+    }
+  });
+
+  it('POST / returns 400 for negative quantity', async () => {
+    const res = await request(app).post('/api/waste').send({
+      wasteType: 'HAZARDOUS',
+      quantity: -50,
+      unit: 'kg',
+      disposalMethod: 'LANDFILL',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id returns 500 on DB error during update', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(mockWaste);
+    (prisma.esgWaste.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/waste/00000000-0000-0000-0000-000000000001')
+      .send({ quantity: 999 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns waste record with all fields', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(mockWaste);
+    const res = await request(app).get('/api/waste/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.wasteType).toBe('HAZARDOUS');
+    expect(res.body.data.disposalMethod).toBe('INCINERATED');
+  });
+
+  it('PUT /:id updates disposalMethod successfully', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(mockWaste);
+    (prisma.esgWaste.update as jest.Mock).mockResolvedValue({ ...mockWaste, disposalMethod: 'RECYCLED' });
+    const res = await request(app)
+      .put('/api/waste/00000000-0000-0000-0000-000000000001')
+      .send({ disposalMethod: 'RECYCLED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.disposalMethod).toBe('RECYCLED');
+  });
+
+  it('POST / returns 400 for invalid disposalMethod', async () => {
+    const res = await request(app).post('/api/waste').send({
+      wasteType: 'HAZARDOUS',
+      quantity: 100,
+      unit: 'kg',
+      disposalMethod: 'OCEAN_DUMP',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / success is true on 200 response', async () => {
+    (prisma.esgWaste.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgWaste.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/waste');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

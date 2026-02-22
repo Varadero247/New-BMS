@@ -241,3 +241,88 @@ describe('approvals route — additional coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000005');
   });
 });
+
+describe('approvals.api — pagination and filter coverage', () => {
+  it('GET / supports status filter query param', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals?status=PENDING');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contApproval.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'PENDING' }) })
+    );
+  });
+
+  it('GET / supports search filter query param', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals?search=john');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contApproval.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ approverName: expect.objectContaining({ contains: 'john' }) }) })
+    );
+  });
+
+  it('GET / returns pagination metadata with total', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(40);
+    const res = await request(app).get('/api/approvals?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.total).toBe(40);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET / returns response with success true and data array', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', contractId: 'c-1', approver: 'u-1' },
+    ]);
+    mockPrisma.contApproval.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / returns 400 when contractId field is missing', async () => {
+    const res = await request(app).post('/api/approvals').send({ approver: 'user@example.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT / updates status field to REJECTED', async () => {
+    mockPrisma.contApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contApproval.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'REJECTED',
+    });
+    const res = await request(app)
+      .put('/api/approvals/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'REJECTED', comments: 'Not acceptable' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe('REJECTED');
+  });
+
+  it('DELETE / returns message in data on success', async () => {
+    mockPrisma.contApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contApproval.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET /:id returns NOT_FOUND error code on 404', async () => {
+    mockPrisma.contApproval.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/approvals/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET / content-type is application/json', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+});

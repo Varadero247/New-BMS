@@ -381,3 +381,101 @@ describe('medical-suppliers — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('medical-suppliers — error paths and edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns 500 with INTERNAL_ERROR when findMany throws', async () => {
+    (mockPrisma.medicalSupplier.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).get('/api/suppliers');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 with INTERNAL_ERROR when findFirst throws', async () => {
+    (mockPrisma.medicalSupplier.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).get(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 with INTERNAL_ERROR when create throws', async () => {
+    (mockPrisma.medicalSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.medicalSupplier.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).post('/api/suppliers').send({ name: 'New Supplier' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE / returns 500 with INTERNAL_ERROR when update throws', async () => {
+    (mockPrisma.medicalSupplier.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).delete(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / search filter — non-matching term returns empty array', async () => {
+    (mockPrisma.medicalSupplier.findMany as jest.Mock).mockResolvedValueOnce([mockSupplier]);
+
+    const res = await request(app).get('/api/suppliers?search=zzznomatch');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('PUT /:id updates the notes field', async () => {
+    const updatedSupplier = { ...mockSupplier, notes: 'Updated notes' };
+    (mockPrisma.medicalSupplier.update as jest.Mock).mockResolvedValueOnce(updatedSupplier);
+
+    const res = await request(app)
+      .put(`/api/suppliers/${SUPPLIER_ID}`)
+      .send({ notes: 'Updated notes' });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.medicalSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ notes: 'Updated notes' }),
+      })
+    );
+  });
+
+  it('DELETE / response data id matches the deleted supplier id', async () => {
+    (mockPrisma.medicalSupplier.update as jest.Mock).mockResolvedValueOnce({
+      ...mockSupplier,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(SUPPLIER_ID);
+  });
+
+  it('POST / createdBy is set from authenticated user email', async () => {
+    (mockPrisma.medicalSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.medicalSupplier.create as jest.Mock).mockResolvedValueOnce(mockSupplier);
+
+    await request(app).post('/api/suppliers').send({ name: 'Any Supplier' });
+
+    expect(mockPrisma.medicalSupplier.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ createdBy: 'test@test.com' }),
+      })
+    );
+  });
+});

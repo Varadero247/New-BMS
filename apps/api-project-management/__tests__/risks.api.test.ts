@@ -389,3 +389,165 @@ describe('risks.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('risks.api — edge cases and extended coverage', () => {
+  let app: express.Express;
+
+  const baseRisk = {
+    id: '10000000-0000-4000-a000-000000000001',
+    riskCode: 'RSK-001',
+    riskTitle: 'Budget overrun risk',
+    riskDescription: 'Project may exceed allocated budget',
+    riskCategory: 'BUDGET',
+    probability: 4,
+    impact: 5,
+    riskScore: 20,
+    riskLevel: 'CRITICAL',
+    status: 'IDENTIFIED',
+    residualProbability: null,
+    residualImpact: null,
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', risksRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risks returns empty array when no risks exist', async () => {
+    (mockPrisma.projectRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectRisk.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/risks?projectId=proj-1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/risks supports pagination (page=2, limit=5)', async () => {
+    (mockPrisma.projectRisk.findMany as jest.Mock).mockResolvedValueOnce([baseRisk]);
+    (mockPrisma.projectRisk.count as jest.Mock).mockResolvedValueOnce(10);
+
+    const res = await request(app).get('/api/risks?projectId=proj-1&page=2&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+    expect(res.body.meta.totalPages).toBe(2);
+  });
+
+  it('POST /api/risks sets LOW riskLevel when probability=1 and impact=1', async () => {
+    (mockPrisma.projectRisk.create as jest.Mock).mockResolvedValueOnce({
+      ...baseRisk,
+      probability: 1,
+      impact: 1,
+      riskScore: 1,
+      riskLevel: 'LOW',
+    });
+
+    const res = await request(app).post('/api/risks').send({
+      projectId: 'proj-1',
+      riskCode: 'RSK-999',
+      riskTitle: 'Minor risk',
+      riskDescription: 'Very minor risk',
+      riskCategory: 'TECHNICAL',
+      probability: 1,
+      impact: 1,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.riskLevel).toBe('LOW');
+  });
+
+  it('PUT /api/risks/:id recalculates riskScore when impact changes', async () => {
+    (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(baseRisk);
+    (mockPrisma.projectRisk.update as jest.Mock).mockResolvedValueOnce({
+      ...baseRisk,
+      impact: 2,
+      riskScore: 8,
+      riskLevel: 'MEDIUM',
+    });
+
+    await request(app)
+      .put('/api/risks/10000000-0000-4000-a000-000000000001')
+      .send({ impact: 2 });
+
+    expect(mockPrisma.projectRisk.update).toHaveBeenCalledWith({
+      where: { id: '10000000-0000-4000-a000-000000000001' },
+      data: expect.objectContaining({
+        riskScore: 8,
+      }),
+    });
+  });
+
+  it('DELETE /api/risks/:id performs soft-delete with deletedAt', async () => {
+    (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(baseRisk);
+    (mockPrisma.projectRisk.update as jest.Mock).mockResolvedValueOnce({
+      ...baseRisk,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/risks/10000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(204);
+    expect(mockPrisma.projectRisk.update).toHaveBeenCalledWith({
+      where: { id: '10000000-0000-4000-a000-000000000001' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+
+  it('PUT /api/risks/:id returns 500 when update fails after findUnique succeeds', async () => {
+    (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(baseRisk);
+    (mockPrisma.projectRisk.update as jest.Mock).mockRejectedValueOnce(
+      new Error('Constraint violation')
+    );
+
+    const res = await request(app)
+      .put('/api/risks/10000000-0000-4000-a000-000000000001')
+      .send({ riskTitle: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/risks filters by riskCategory=TECHNICAL', async () => {
+    (mockPrisma.projectRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectRisk.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app).get('/api/risks?projectId=proj-1&riskCategory=TECHNICAL');
+
+    expect(mockPrisma.projectRisk.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ projectId: 'proj-1' }),
+      })
+    );
+  });
+
+  it('DELETE /api/risks/:id returns 500 when findUnique throws', async () => {
+    (mockPrisma.projectRisk.findUnique as jest.Mock).mockRejectedValueOnce(
+      new Error('DB timeout')
+    );
+
+    const res = await request(app).delete('/api/risks/10000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/risks returns 400 for invalid riskCategory enum', async () => {
+    const res = await request(app).post('/api/risks').send({
+      projectId: 'proj-1',
+      riskCode: 'RSK-BAD',
+      riskTitle: 'Invalid category',
+      riskDescription: 'Has bad category',
+      riskCategory: 'INVALID_CATEGORY',
+      probability: 3,
+      impact: 3,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

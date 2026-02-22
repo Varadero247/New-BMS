@@ -257,3 +257,98 @@ describe('preventive-plans — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('preventive-plans — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns pagination metadata with correct totalPages', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([mockPlan]);
+    prisma.cmmsPreventivePlan.count.mockResolvedValue(60);
+    const res = await request(app).get('/api/preventive-plans?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(6);
+    expect(res.body.pagination.total).toBe(60);
+  });
+
+  it('GET / filters by isActive=false', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([]);
+    prisma.cmmsPreventivePlan.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/preventive-plans?isActive=false');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET / returns INTERNAL_ERROR when count rejects', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([]);
+    prisma.cmmsPreventivePlan.count.mockRejectedValue(new Error('count error'));
+    const res = await request(app).get('/api/preventive-plans');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / accepts WEEKLY frequency', async () => {
+    prisma.cmmsPreventivePlan.create.mockResolvedValue({ ...mockPlan, frequency: 'WEEKLY' });
+    const res = await request(app).post('/api/preventive-plans').send({
+      name: 'Weekly Check',
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      frequency: 'WEEKLY',
+      tasks: [],
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / accepts ANNUALLY frequency', async () => {
+    prisma.cmmsPreventivePlan.create.mockResolvedValue({ ...mockPlan, frequency: 'ANNUALLY' });
+    const res = await request(app).post('/api/preventive-plans').send({
+      name: 'Annual Inspection',
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      frequency: 'ANNUALLY',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('POST / returns 400 when assetId is not a valid UUID', async () => {
+    const res = await request(app).post('/api/preventive-plans').send({
+      name: 'Test Plan',
+      assetId: 'not-a-uuid',
+      frequency: 'MONTHLY',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns 404 with NOT_FOUND code', async () => {
+    prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/preventive-plans/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE /:id response message confirms deletion', async () => {
+    prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
+    prisma.cmmsPreventivePlan.update.mockResolvedValue({ ...mockPlan, deletedAt: new Date() });
+    const res = await request(app).delete('/api/preventive-plans/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('GET / search filter returns matching plans', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([mockPlan]);
+    prisma.cmmsPreventivePlan.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/preventive-plans?search=Lubrication');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET / returns page and limit in pagination', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([]);
+    prisma.cmmsPreventivePlan.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/preventive-plans?page=4&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(4);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+});

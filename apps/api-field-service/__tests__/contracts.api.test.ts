@@ -285,3 +285,151 @@ describe('contracts.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+// ─── Extended coverage ───────────────────────────────────────────────────────
+
+describe('contracts.api — extended edge cases', () => {
+  it('GET / returns pagination metadata', async () => {
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'C1', status: 'ACTIVE' },
+    ]);
+    mockPrisma.fsSvcContract.count.mockResolvedValue(15);
+
+    const res = await request(app).get('/api/contracts?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination.total).toBe(15);
+  });
+
+  it('GET / applies page and limit correctly', async () => {
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcContract.count.mockResolvedValue(0);
+
+    await request(app).get('/api/contracts?page=2&limit=5');
+
+    expect(mockPrisma.fsSvcContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET / filters by both type and customerId simultaneously', async () => {
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcContract.count.mockResolvedValue(0);
+
+    await request(app).get(
+      '/api/contracts?type=MAINTENANCE&customerId=00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(mockPrisma.fsSvcContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          type: 'MAINTENANCE',
+          customerId: '00000000-0000-0000-0000-000000000001',
+        }),
+      })
+    );
+  });
+
+  it('GET /expiring returns 500 when DB rejects', async () => {
+    mockPrisma.fsSvcContract.findMany.mockRejectedValue(new Error('Timeout'));
+
+    const res = await request(app).get('/api/contracts/expiring');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 400 when required field customerId is missing', async () => {
+    const res = await request(app).post('/api/contracts').send({
+      title: 'No Customer',
+      type: 'SLA',
+      startDate: '2026-01-01',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id returns success:true with updated data', async () => {
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+    });
+    mockPrisma.fsSvcContract.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      title: 'Renewed Contract',
+      status: 'ACTIVE',
+    });
+
+    const res = await request(app)
+      .put('/api/contracts/00000000-0000-0000-0000-000000000002')
+      .send({ title: 'Renewed Contract', status: 'ACTIVE' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id calls update with deletedAt set', async () => {
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+    });
+    mockPrisma.fsSvcContract.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      deletedAt: new Date(),
+    });
+
+    await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000003');
+
+    expect(mockPrisma.fsSvcContract.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '00000000-0000-0000-0000-000000000003' },
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET /:id returns success:true when record is found', async () => {
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000004',
+      title: 'Found',
+      customer: {},
+      jobs: [],
+    });
+
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000004');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / stores provided endDate in create call', async () => {
+    mockPrisma.fsSvcContract.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      endDate: new Date('2026-12-31'),
+    });
+
+    await request(app).post('/api/contracts').send({
+      customerId: '00000000-0000-0000-0000-000000000001',
+      title: 'Annual Contract',
+      type: 'SLA',
+      startDate: '2026-01-01',
+      endDate: '2026-12-31',
+    });
+
+    expect(mockPrisma.fsSvcContract.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ customerId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /expiring with days=30 uses a date window', async () => {
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000006', endDate: new Date() },
+    ]);
+
+    const res = await request(app).get('/api/contracts/expiring?days=30');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+});

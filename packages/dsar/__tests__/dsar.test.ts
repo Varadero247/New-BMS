@@ -210,3 +210,71 @@ describe('processErasureRequest', () => {
     expect(result!.notes).toContain('erase@me.com');
   });
 });
+
+// ─── Extended scenarios ───────────────────────────────────────────────────────
+
+describe('dsar — extended scenarios', () => {
+  it('createRequest id is a valid UUID', () => {
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    expect(req.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+  });
+
+  it('createRequest createdAt is a valid ISO 8601 string', () => {
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    expect(new Date(req.createdAt).toISOString()).toBe(req.createdAt);
+  });
+
+  it('createRequest updatedAt equals createdAt initially', () => {
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    expect(req.updatedAt).toBe(req.createdAt);
+  });
+
+  it('updateRequest sets completedAt when provided', () => {
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    const completedAt = new Date().toISOString();
+    const updated = updateRequest(req.id, { completedAt });
+    expect(updated!.completedAt).toBe(completedAt);
+  });
+
+  it('getRequest returns the same object as returned by createRequest', () => {
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    const fetched = getRequest(req.id);
+    expect(fetched!.id).toBe(req.id);
+    expect(fetched!.orgId).toBe(req.orgId);
+  });
+
+  it('listRequests returns ERASURE request type correctly', () => {
+    const org = uniqueOrg();
+    createRequest({ orgId: org, type: 'ERASURE', subjectEmail: 'a@b.com', requestedById: 'u' });
+    const list = listRequests(org);
+    expect(list[0].type).toBe('ERASURE');
+  });
+
+  it('updateRequest does not affect other fields not mentioned in update', () => {
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    updateRequest(req.id, { status: 'IN_PROGRESS' });
+    const after = getRequest(req.id)!;
+    expect(after.subjectEmail).toBe(BASE.subjectEmail);
+    expect(after.type).toBe(BASE.type);
+  });
+
+  it('processExportRequest downloadUrl contains the request id', async () => {
+    jest.useFakeTimers();
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    const promise = processExportRequest(req.id);
+    jest.runAllTimers();
+    const result = await promise;
+    expect(result!.downloadUrl).toContain(req.id);
+    jest.useRealTimers();
+  });
+
+  it('processErasureRequest does not set downloadUrl (erasures have no file)', async () => {
+    jest.useFakeTimers();
+    const req = createRequest({ orgId: uniqueOrg(), type: 'ERASURE', subjectEmail: 'del@ims.local', requestedById: 'u' });
+    const promise = processErasureRequest(req.id);
+    jest.runAllTimers();
+    const result = await promise;
+    expect(result!.downloadUrl).toBeNull();
+    jest.useRealTimers();
+  });
+});

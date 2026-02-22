@@ -241,3 +241,127 @@ describe('Graceful Shutdown — additional coverage', () => {
     gs.destroy();
   });
 });
+
+// ── Further edge-case coverage ─────────────────────────────────────────────────
+
+describe('createGracefulShutdown — further edge cases', () => {
+  let server: import('http').Server;
+
+  beforeEach(async () => {
+    server = await (async () => {
+      const { createServer } = await import('http');
+      return new Promise<import('http').Server>((resolve) => {
+        const s = createServer((_req, res) => res.end('ok'));
+        s.listen(0, () => resolve(s));
+      });
+    })();
+  });
+
+  afterEach((done) => {
+    if (server.listening) server.close(done); else done();
+  });
+
+  function stubResLocal() {
+    const obj: {
+      statusCode: number; body: unknown; headers: Record<string, unknown>;
+      setHeader(k: string, v: unknown): void;
+      status(code: number): typeof obj;
+      json(body: unknown): typeof obj;
+      on(ev: string, cb: () => void): typeof obj;
+      _finishCb?: () => void;
+    } = {
+      statusCode: 200,
+      body: null as unknown,
+      headers: {},
+      setHeader(k, v) { this.headers[k] = v; },
+      status(code) { this.statusCode = code; return this; },
+      json(body) { this.body = body; return this; },
+      on(ev, cb) { if (ev === 'finish') this._finishCb = cb; return this; },
+    };
+    return obj;
+  }
+
+  it('isShuttingDown is false before trigger is called', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    expect(gs.isShuttingDown).toBe(false);
+    gs.destroy();
+  });
+
+  it('inFlightRequests increments for each middleware call', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    gs.middleware({} as any, stubResLocal() as any, jest.fn());
+    gs.middleware({} as any, stubResLocal() as any, jest.fn());
+    expect(gs.inFlightRequests).toBe(2);
+    gs.destroy();
+  });
+
+  it('inFlightRequests decrements to zero after finish events', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    const r1 = stubResLocal();
+    const r2 = stubResLocal();
+    gs.middleware({} as any, r1 as any, jest.fn());
+    gs.middleware({} as any, r2 as any, jest.fn());
+    r1._finishCb?.();
+    r2._finishCb?.();
+    expect(gs.inFlightRequests).toBe(0);
+    gs.destroy();
+  });
+
+  it('middleware 503 response body has success: false', async () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false, drainTimeoutMs: 30 });
+    const p = gs.trigger('SIGTERM');
+    const res = stubResLocal();
+    gs.middleware({} as any, res as any, jest.fn());
+    expect((res.body as any).success).toBe(false);
+    await p;
+    gs.destroy();
+  });
+
+  it('onShutdown callback receives the signal string', async () => {
+    const onShutdown = jest.fn();
+    const gs = createGracefulShutdown(server, {
+      exitAfterShutdown: false,
+      drainTimeoutMs: 30,
+      onShutdown,
+    });
+    await gs.trigger('SIGINT');
+    expect(onShutdown).toHaveBeenCalledWith('SIGINT');
+    gs.destroy();
+  });
+
+  it('trigger with custom signal string calls onShutdown with that signal', async () => {
+    const onShutdown = jest.fn();
+    const gs = createGracefulShutdown(server, {
+      exitAfterShutdown: false,
+      drainTimeoutMs: 30,
+      onShutdown,
+    });
+    await gs.trigger('CUSTOM_SIGNAL');
+    expect(onShutdown).toHaveBeenCalledWith('CUSTOM_SIGNAL');
+    gs.destroy();
+  });
+
+  it('multiple hooks all run in order', async () => {
+    const calls: string[] = [];
+    const gs = createGracefulShutdown(server, {
+      exitAfterShutdown: false,
+      drainTimeoutMs: 30,
+      hooks: [
+        async () => { calls.push('first'); },
+        async () => { calls.push('second'); },
+        async () => { calls.push('third'); },
+      ],
+    });
+    await gs.trigger('SIGTERM');
+    expect(calls).toEqual(['first', 'second', 'third']);
+    gs.destroy();
+  });
+
+  it('isShuttingDown is true immediately after trigger is called', async () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false, drainTimeoutMs: 50 });
+    const p = gs.trigger('SIGTERM');
+    expect(gs.isShuttingDown).toBe(true);
+    await p;
+    gs.destroy();
+  });
+});

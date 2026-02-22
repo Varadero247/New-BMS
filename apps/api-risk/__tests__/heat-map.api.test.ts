@@ -193,3 +193,79 @@ describe('heat-map.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('heat-map.api — extended edge cases', () => {
+  it('findMany called with status not CLOSED filter', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/heat-map');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: expect.objectContaining({ not: 'CLOSED' }) }),
+      })
+    );
+  });
+
+  it('single high-risk entry is included in risks array', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: 'r-critical', title: 'Critical asset loss', likelihood: 5, consequence: 5, inherentScore: 25 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.status).toBe(200);
+    expect(res.body.data.risks[0].inherentScore).toBe(25);
+  });
+
+  it('total is 0 when findMany returns empty array', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.body.data.total).toBe(0);
+  });
+
+  it('all risk fields are present in each entry', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: 'r1', title: 'Test', likelihood: 2, consequence: 3, inherentScore: 6 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    const r = res.body.data.risks[0];
+    expect(r).toHaveProperty('id');
+    expect(r).toHaveProperty('title');
+    expect(r).toHaveProperty('likelihood');
+    expect(r).toHaveProperty('consequence');
+    expect(r).toHaveProperty('inherentScore');
+  });
+
+  it('inherentScore value is preserved exactly', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: 'r1', title: 'Risk', likelihood: 3, consequence: 4, inherentScore: 12 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.body.data.risks[0].inherentScore).toBe(12);
+  });
+
+  it('returns 500 with INTERNAL_ERROR code on DB failure', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/heat-map');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('data object has exactly risks and total keys', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.status).toBe(200);
+    expect(Object.keys(res.body.data)).toEqual(expect.arrayContaining(['risks', 'total']));
+  });
+
+  it('multiple risk entries all appear in risks array', async () => {
+    const mockData = [
+      { id: 'r1', title: 'A', likelihood: 1, consequence: 2, inherentScore: 2 },
+      { id: 'r2', title: 'B', likelihood: 2, consequence: 3, inherentScore: 6 },
+      { id: 'r3', title: 'C', likelihood: 3, consequence: 4, inherentScore: 12 },
+      { id: 'r4', title: 'D', likelihood: 4, consequence: 5, inherentScore: 20 },
+    ];
+    mockPrisma.riskRegister.findMany.mockResolvedValue(mockData);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.status).toBe(200);
+    expect(res.body.data.risks).toHaveLength(4);
+    expect(res.body.data.total).toBe(4);
+  });
+});

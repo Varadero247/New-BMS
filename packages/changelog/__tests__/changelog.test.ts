@@ -226,3 +226,65 @@ describe('Changelog — additional coverage', () => {
     expect(Array.isArray(result.entries)).toBe(true);
   });
 });
+
+describe('Changelog — extended scenarios', () => {
+  it('listAllEntries returns an object with total and entries properties', () => {
+    const result = listAllEntries();
+    expect(typeof result.total).toBe('number');
+    expect(Array.isArray(result.entries)).toBe(true);
+  });
+
+  it('createEntry defaults isPublished to true when not specified', () => {
+    const entry = createEntry({ title: 'T', description: 'D', category: 'bug_fix', modules: [] });
+    expect(entry.isPublished).toBe(true);
+  });
+
+  it('createEntry respects explicit isPublished: false', () => {
+    const entry = createEntry({ title: 'T', description: 'D', category: 'improvement', modules: [], isPublished: false });
+    expect(entry.isPublished).toBe(false);
+  });
+
+  it('createEntry sets publishedAt to a valid ISO date string', () => {
+    const entry = createEntry({ title: 'T', description: 'D', category: 'security', modules: [] });
+    expect(new Date(entry.publishedAt).toISOString()).toBe(entry.publishedAt);
+  });
+
+  it('createEntry sets modules correctly when passed multiple values', () => {
+    const entry = createEntry({ title: 'T', description: 'D', category: 'new_feature', modules: ['A', 'B', 'C'] });
+    expect(entry.modules).toEqual(['A', 'B', 'C']);
+  });
+
+  it('listEntries with offset larger than total returns empty entries but correct total', () => {
+    const { total } = listEntries();
+    const result = listEntries(10, total + 100);
+    expect(result.entries).toHaveLength(0);
+    expect(result.total).toBe(total);
+  });
+
+  it('listAllEntries total includes unpublished entries', () => {
+    createEntry({ title: 'Draft X', description: 'TBD', category: 'improvement', modules: [], isPublished: false });
+    const { total } = listAllEntries();
+    expect(total).toBeGreaterThanOrEqual(1);
+  });
+
+  it('getUnreadCount increments after a new published entry is added post-markAsRead', () => {
+    jest.useFakeTimers();
+    const now = Date.now();
+    jest.setSystemTime(now);
+
+    markAsRead('user-count-test');
+    expect(getUnreadCount('user-count-test')).toBe(0);
+
+    jest.setSystemTime(now + 100);
+    createEntry({ title: 'Brand new', description: 'After mark', category: 'new_feature', modules: [] });
+
+    const count = getUnreadCount('user-count-test');
+    jest.useRealTimers();
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+
+  it('markAsRead for unknown user creates a read timestamp so count becomes 0', () => {
+    markAsRead('brand-new-user-999');
+    expect(getUnreadCount('brand-new-user-999')).toBe(0);
+  });
+});

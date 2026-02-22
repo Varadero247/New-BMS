@@ -344,3 +344,125 @@ describe('drills — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('drills — extended edge cases', () => {
+  it('returns analytics with multiple premises stats', async () => {
+    const drills = [
+      { ...fakeDrill, premises: { name: 'Site A' }, evacuationTimeMinutes: 3, targetAchieved: true },
+      { ...fakeDrill, id: '00000000-0000-0000-0000-000000000003', premises: { name: 'Site B' }, evacuationTimeMinutes: 6, targetAchieved: false },
+      { ...fakeDrill, id: '00000000-0000-0000-0000-000000000004', premises: { name: 'Site A' }, evacuationTimeMinutes: 5, targetAchieved: true },
+    ];
+    mockDrill.findMany.mockResolvedValue(drills);
+
+    const res = await request(app).get('/api/drills/analytics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDrills).toBe(3);
+    expect(res.body.data.premisesStats['Site A']).toBeDefined();
+    expect(res.body.data.premisesStats['Site B']).toBeDefined();
+  });
+
+  it('analytics recentDrills is limited to 10', async () => {
+    const drills = Array.from({ length: 15 }, (_, i) => ({
+      ...fakeDrill,
+      id: `00000000-0000-0000-0000-00000000000${i + 1}`,
+      premises: { name: 'HQ' },
+    }));
+    mockDrill.findMany.mockResolvedValue(drills);
+
+    const res = await request(app).get('/api/drills/analytics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.recentDrills.length).toBeLessThanOrEqual(10);
+  });
+
+  it('POST returns 500 when database create fails', async () => {
+    mockDrill.create.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app)
+      .post(`/api/drills/premises/${PREMISES_ID}`)
+      .send(validCreateBody);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('creates drill with HORIZONTAL_EVACUATION type', async () => {
+    const horizDrill = { ...fakeDrill, evacuationType: 'HORIZONTAL_EVACUATION' };
+    mockDrill.create.mockResolvedValue(horizDrill);
+
+    const res = await request(app).post(`/api/drills/premises/${PREMISES_ID}`).send({
+      drillDate: '2026-03-01',
+      drillType: 'FIRE',
+      evacuationType: 'HORIZONTAL_EVACUATION',
+      alarmedOrSilent: 'ALARMED',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.evacuationType).toBe('HORIZONTAL_EVACUATION');
+  });
+
+  it('creates drill with SHELTER_IN_PLACE type', async () => {
+    const shelterDrill = { ...fakeDrill, evacuationType: 'SHELTER_IN_PLACE' };
+    mockDrill.create.mockResolvedValue(shelterDrill);
+
+    const res = await request(app).post(`/api/drills/premises/${PREMISES_ID}`).send({
+      drillDate: '2026-03-15',
+      drillType: 'LOCKDOWN',
+      evacuationType: 'SHELTER_IN_PLACE',
+      alarmedOrSilent: 'SILENT',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.evacuationType).toBe('SHELTER_IN_PLACE');
+  });
+
+  it('PUT returns success field in response body', async () => {
+    mockDrill.findFirst.mockResolvedValue(fakeDrill);
+    mockDrill.update.mockResolvedValue({ ...fakeDrill, completedBy: 'Test User' });
+
+    const res = await request(app).put(`/api/drills/${DRILL_ID}`).send({ completedBy: 'Test User' });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('premises drills endpoint returns success:true with data array', async () => {
+    mockDrill.findMany.mockResolvedValue([fakeDrill, { ...fakeDrill, id: '00000000-0000-0000-0000-000000000005' }]);
+
+    const res = await request(app).get(`/api/drills/premises/${PREMISES_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('rejects STAY_PUT as drillType but accepts as evacuationType', async () => {
+    const stayPutDrill = { ...fakeDrill, evacuationType: 'STAY_PUT' };
+    mockDrill.create.mockResolvedValue(stayPutDrill);
+
+    const res = await request(app).post(`/api/drills/premises/${PREMISES_ID}`).send({
+      drillDate: '2026-04-01',
+      drillType: 'FIRE',
+      evacuationType: 'STAY_PUT',
+      alarmedOrSilent: 'ALARMED',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.evacuationType).toBe('STAY_PUT');
+  });
+
+  it('analytics targetsMet rate is 0 when no drills met target', async () => {
+    const drills = [
+      { ...fakeDrill, evacuationTimeMinutes: 10, targetAchieved: false, premises: { name: 'Site X' } },
+      { ...fakeDrill, id: '00000000-0000-0000-0000-000000000006', evacuationTimeMinutes: 12, targetAchieved: false, premises: { name: 'Site X' } },
+    ];
+    mockDrill.findMany.mockResolvedValue(drills);
+
+    const res = await request(app).get('/api/drills/analytics');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.premisesStats['Site X'].targetMetRate).toBe(0);
+  });
+});

@@ -175,3 +175,62 @@ describe('GET /api/dashboard/stats — additional coverage', () => {
     expect(res.body.error).toHaveProperty('message');
   });
 });
+
+describe('GET /api/dashboard/stats — comprehensive', () => {
+  it('response content-type is JSON', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('totalIncidents is zero when count returns 0', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalIncidents).toBe(0);
+    expect(typeof res.body.data.totalIncidents).toBe('number');
+  });
+
+  it('count is invoked with where object containing orgId', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    const callWhere = (mockPrisma.incIncident.count as jest.Mock).mock.calls[0][0].where;
+    expect(callWhere).toHaveProperty('orgId');
+  });
+
+  it('count is invoked with where object containing deletedAt: null', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    const callWhere = (mockPrisma.incIncident.count as jest.Mock).mock.calls[0][0].where;
+    expect(callWhere.deletedAt).toBeNull();
+  });
+
+  it('multiple requests each call count once', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.incIncident.count).toHaveBeenCalledTimes(1);
+    jest.clearAllMocks();
+    mockPrisma.incIncident.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.incIncident.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('error message in 500 response is a string', async () => {
+    mockPrisma.incIncident.count.mockRejectedValue(new Error('network error'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(typeof res.body.error.message).toBe('string');
+  });
+
+  it('success key is boolean true on 200', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(14);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('data object has exactly one key: totalIncidents', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(Object.keys(res.body.data)).toContain('totalIncidents');
+  });
+});

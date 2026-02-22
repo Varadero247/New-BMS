@@ -250,3 +250,96 @@ describe('Import Routes — additional coverage', () => {
     expect(res.body.error.code).toBe('INVALID_RECORD_TYPE');
   });
 });
+
+describe('Import Routes — edge cases and 500 paths', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/import', importRouter);
+    jest.clearAllMocks();
+    // Restore default mock implementations after clearAllMocks
+    mockGetImportSchema.mockReturnValue({
+      recordType: 'suppliers',
+      label: 'Suppliers',
+      fields: [{ name: 'name', required: true }, { name: 'code', required: true }],
+    });
+    mockGetTemplateHeaders.mockReturnValue('name,code,type,status,country,contact');
+    mockParseCSV.mockReturnValue({ valid: [{ name: 'Test' }], errors: [], totalRows: 1 });
+    mockImportRecords.mockReturnValue({ imported: 5, skipped: 0, errors: [] });
+  });
+
+  it('GET /schemas returns requiredFields in each schema entry', async () => {
+    const res = await request(app).get('/api/admin/import/schemas');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('requiredFields');
+  });
+
+  it('GET /schemas returns fieldCount in each schema entry', async () => {
+    const res = await request(app).get('/api/admin/import/schemas');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].fieldCount).toBe('number');
+  });
+
+  it('POST /validate returns totalRows in data', async () => {
+    const res = await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'suppliers', csvData: 'name,code\nTest Inc,TST-001' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('totalRows');
+  });
+
+  it('POST /validate returns valid array in data', async () => {
+    const res = await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'suppliers', csvData: 'name,code\nTest Inc,TST-001' });
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.valid)).toBe(true);
+  });
+
+  it('POST /validate returns 400 when csvData is empty string', async () => {
+    const res = await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'suppliers', csvData: '' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /execute returns 400 when rows is an empty array', async () => {
+    const res = await request(app)
+      .post('/api/admin/import/execute')
+      .send({ recordType: 'suppliers', rows: [] });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /templates/:type returns fields array in data', async () => {
+    const res = await request(app).get('/api/admin/import/templates/suppliers');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('fields');
+  });
+
+  it('GET /templates/:type returns label in data', async () => {
+    const res = await request(app).get('/api/admin/import/templates/suppliers');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('label');
+  });
+
+  it('POST /execute calls importRecords with the correct recordType', async () => {
+    await request(app)
+      .post('/api/admin/import/execute')
+      .send({ recordType: 'suppliers', rows: [{ name: 'Acme', code: 'ACM-001' }] });
+    expect(mockImportRecords).toHaveBeenCalledWith(
+      expect.any(Array),
+      'suppliers',
+      expect.any(String)
+    );
+  });
+
+  it('POST /validate calls parseCSV with csvData and recordType', async () => {
+    await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'employees', csvData: 'firstName\nAlice' });
+    expect(mockParseCSV).toHaveBeenCalledWith('firstName\nAlice', 'employees');
+  });
+});

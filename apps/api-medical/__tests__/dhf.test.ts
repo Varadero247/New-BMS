@@ -414,3 +414,92 @@ describe('DHF — additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('DHF — deeper edge cases', () => {
+  let deepApp: express.Express;
+
+  beforeAll(() => {
+    deepApp = express();
+    deepApp.use(express.json());
+    deepApp.use('/api/dhf', dhfRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /dhf success is true on 200', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    const res = await request(deepApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /dhf findMany is called exactly once per request', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    await request(deepApp).get('/api/dhf');
+
+    expect(mockPrisma.designProject.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /dhf each document has an approver field', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+
+    const res = await request(deepApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].documents[0]).toHaveProperty('approver');
+  });
+
+  it('GET /dhf document lastModified field is present', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+
+    const res = await request(deepApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].documents[0]).toHaveProperty('lastModified');
+  });
+
+  it('GET /dhf document status is always approved', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+
+    const res = await request(deepApp).get('/api/dhf');
+
+    expect(res.body.data[0].documents[0].status).toBe('approved');
+  });
+
+  it('POST /dhf data object in response matches created file', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce(mockHistoryFile);
+
+    const res = await request(deepApp).post('/api/dhf').send({
+      projectId: PROJECT_ID,
+      title: 'Design Input Specification',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe(FILE_ID);
+  });
+
+  it('POST /dhf without projectId returns VALIDATION_ERROR code', async () => {
+    const res = await request(deepApp).post('/api/dhf').send({ title: 'No Project' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /dhf with multiple documents calculates completeness proportionally', async () => {
+    const projectWith3Files = {
+      ...mockProject,
+      historyFiles: new Array(3).fill(null).map((_, i) => ({ ...mockHistoryFile, id: `file-${i}` })),
+    };
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([projectWith3Files]);
+
+    const res = await request(deepApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].completeness).toBe(30);
+  });
+});

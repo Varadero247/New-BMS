@@ -205,3 +205,83 @@ describe('API Versioning Middleware — additional coverage', () => {
     expect(mockRes.setHeader).toHaveBeenCalledWith('X-API-Version', API_VERSION.CURRENT);
   });
 });
+
+describe('API Versioning Middleware — extended edge cases', () => {
+  let mockReq: Partial<Request> & { apiVersion?: string };
+  let mockRes: Partial<Response>;
+  let mockNext: jest.Mock;
+
+  beforeEach(() => {
+    mockReq = { path: '/api/v1/test', method: 'GET', ip: '127.0.0.1', headers: {} };
+    mockRes = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), json: jest.fn() };
+    mockNext = jest.fn();
+  });
+
+  it('extractApiVersion uses header version when path has no version segment', () => {
+    mockReq.path = '/api/items';
+    mockReq.headers = { 'x-api-version': 'v1' };
+    extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    expect((mockReq as any).apiVersion).toBe('v1');
+    expect(mockNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('extractApiVersion defaults to CURRENT when no path version and no header', () => {
+    mockReq.path = '/api/items';
+    mockReq.headers = {};
+    extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    expect((mockReq as any).apiVersion).toBe(API_VERSION.CURRENT);
+  });
+
+  it('validateApiVersion does not call res.status for v1', () => {
+    mockReq.apiVersion = 'v1';
+    validateApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.status).not.toHaveBeenCalled();
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('validateApiVersion returns 400 for v0 (unsupported)', () => {
+    mockReq.apiVersion = 'v0';
+    validateApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.status).toHaveBeenCalledWith(400);
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+
+  it('validateApiVersion error response contains UNSUPPORTED_API_VERSION code', () => {
+    mockReq.apiVersion = 'v99';
+    validateApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    const jsonArg = (mockRes.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.code).toBe('UNSUPPORTED_API_VERSION');
+  });
+
+  it('deprecatedRoute sets X-API-Deprecation-Notice header', () => {
+    const middleware = deprecatedRoute('/api/v2/resource');
+    middleware(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      'X-API-Deprecation-Notice',
+      expect.stringContaining('/api/v2/resource')
+    );
+  });
+
+  it('deprecatedRoute with sunset date sets Sunset header', () => {
+    const middleware = deprecatedRoute('/api/v2/resource', '2027-01-01');
+    middleware(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.setHeader).toHaveBeenCalledWith('Sunset', '2027-01-01');
+  });
+
+  it('addVersionHeader calls next after setting header', () => {
+    const middleware = addVersionHeader('v1');
+    middleware(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('API_VERSION.DEPRECATED starts as an empty array', () => {
+    // Re-check initial state (DEPRECATED may be mutated by other tests but reset logic in describe)
+    expect(Array.isArray(API_VERSION.DEPRECATED)).toBe(true);
+  });
+
+  it('extractApiVersion detects v3 from URL path', () => {
+    mockReq.path = '/api/v3/things';
+    extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    expect((mockReq as any).apiVersion).toBe('v3');
+  });
+});

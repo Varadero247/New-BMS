@@ -227,3 +227,94 @@ describe('Presence — additional coverage', () => {
     expect(res.body.data).toHaveProperty('refreshed', true);
   });
 });
+
+describe('Presence — edge cases and error paths', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/presence', presenceRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/presence returns 400 when both params are missing', async () => {
+    const res = await request(app).get('/api/presence');
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/presence returns 500 when getPresence throws', async () => {
+    mockGetPresence.mockImplementationOnce(() => { throw new Error('storage failure'); });
+    const res = await request(app).get('/api/presence?recordType=ncr&recordId=r1');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/presence/lock returns 400 when recordId is missing', async () => {
+    const res = await request(app)
+      .post('/api/presence/lock')
+      .send({ recordType: 'ncr' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/presence/lock returns 500 when acquireLock throws', async () => {
+    mockAcquireLock.mockImplementationOnce(() => { throw new Error('lock store error'); });
+    const res = await request(app)
+      .post('/api/presence/lock')
+      .send({ recordType: 'ncr', recordId: 'r1' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/presence/lock returns 400 when recordType is missing', async () => {
+    const res = await request(app)
+      .delete('/api/presence/lock')
+      .send({ recordId: 'r1' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/presence/lock returns 500 when releaseLock throws', async () => {
+    mockReleaseLock.mockImplementationOnce(() => { throw new Error('release error'); });
+    const res = await request(app)
+      .delete('/api/presence/lock')
+      .send({ recordType: 'ncr', recordId: 'r1' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/presence/refresh returns 400 when recordId is missing', async () => {
+    const res = await request(app)
+      .put('/api/presence/refresh')
+      .send({ recordType: 'ncr' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/presence/refresh returns 500 when refreshLock throws', async () => {
+    mockRefreshLock.mockImplementationOnce(() => { throw new Error('refresh error'); });
+    const res = await request(app)
+      .put('/api/presence/refresh')
+      .send({ recordType: 'ncr', recordId: 'r1' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/presence viewers array is empty when no one is present', async () => {
+    mockGetPresence.mockReturnValue([]);
+    const res = await request(app).get('/api/presence?recordType=capa&recordId=c1');
+    expect(res.status).toBe(200);
+    expect(res.body.data.viewers).toHaveLength(0);
+  });
+
+  it('POST /api/presence/lock with force flag passes through to acquireLock', async () => {
+    mockAcquireLock.mockReturnValue({ acquired: true });
+    await request(app)
+      .post('/api/presence/lock')
+      .send({ recordType: 'ncr', recordId: 'r1', force: true });
+    expect(mockAcquireLock).toHaveBeenCalledTimes(1);
+  });
+});

@@ -301,3 +301,93 @@ describe('sds.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('sds.api — edge cases and field validation', () => {
+  it('GET /sds returns success: true on 200', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([mockSds]);
+    mockPrisma.chemSds.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/sds');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /sds pagination includes total, page, and limit fields', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/sds');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /sds?page=2&limit=5 returns correct pagination metadata', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/sds?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+    expect(res.body.pagination.total).toBe(20);
+  });
+
+  it('GET /sds?status=SUPERSEDED filter is applied in findMany call', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/sds?status=SUPERSEDED');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.chemSds.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'SUPERSEDED' }),
+      })
+    );
+  });
+
+  it('GET /sds 500 response has error.code INTERNAL_ERROR', async () => {
+    mockPrisma.chemSds.findMany.mockRejectedValue(new Error('Connection lost'));
+    const res = await request(app).get('/api/sds');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /sds supersedes existing CURRENT SDS before creating new one', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemSds.updateMany.mockResolvedValue({ count: 1 });
+    mockPrisma.chemSds.create.mockResolvedValue({ ...mockSds, version: '2.0' });
+    await request(app).post('/api/sds').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      version: '2.0',
+      issueDate: '2026-02-01T00:00:00.000Z',
+      nextReviewDate: '2027-02-01T00:00:00.000Z',
+    });
+    expect(mockPrisma.chemSds.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { status: 'SUPERSEDED' } })
+    );
+  });
+
+  it('PUT /sds/:id returns 500 when update throws', async () => {
+    mockPrisma.chemSds.findFirst.mockResolvedValue(mockSds);
+    mockPrisma.chemSds.update.mockRejectedValue(new Error('Update failed'));
+    const res = await request(app)
+      .put('/api/sds/00000000-0000-0000-0000-000000000010')
+      .send({ version: '3.0' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /sds/:id returns data with version field', async () => {
+    mockPrisma.chemSds.findFirst.mockResolvedValue({ ...mockSds, chemical: mockChemical });
+    const res = await request(app).get('/api/sds/00000000-0000-0000-0000-000000000010');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('version', '1.0');
+  });
+
+  it('GET /sds/overdue returns success: true with empty data when no overdue records', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/sds/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+});

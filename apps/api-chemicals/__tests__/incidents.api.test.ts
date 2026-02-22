@@ -336,3 +336,94 @@ describe('incidents.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+describe('incidents.api — edge cases and field validation', () => {
+  it('GET /incidents returns success: true on 200', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([mockIncident]);
+    mockPrisma.chemIncident.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /incidents pagination includes total, page and limit fields', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /incidents?page=2&limit=5 returns correct pagination metadata', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(25);
+    const res = await request(app).get('/api/incidents?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+    expect(res.body.pagination.total).toBe(25);
+  });
+
+  it('GET /incidents?type=FIRE filter is applied in findMany call', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents?type=FIRE');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.chemIncident.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ incidentType: 'FIRE' }),
+      })
+    );
+  });
+
+  it('GET /incidents/:id 500 returns INTERNAL_ERROR code', async () => {
+    mockPrisma.chemIncident.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /incidents sets orgId and createdBy from authenticated user', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemIncident.create.mockResolvedValue(mockIncident);
+    await request(app).post('/api/incidents').send(validIncidentBody);
+    expect(mockPrisma.chemIncident.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ orgId: 'org-1', createdBy: 'user-1' }),
+      })
+    );
+  });
+
+  it('PUT /incidents/:id 500 response has success: false', async () => {
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.chemIncident.update.mockRejectedValue(new Error('Update error'));
+    const res = await request(app)
+      .put('/api/incidents/00000000-0000-0000-0000-000000000050')
+      .send({ description: 'Updated desc' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /incidents/:id returns data with incidentType field', async () => {
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(mockIncident);
+    const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000050');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('incidentType', 'SPILL');
+  });
+
+  it('POST /incidents returns 400 when dateTime is missing', async () => {
+    const res = await request(app).post('/api/incidents').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      incidentType: 'SPILL',
+      severity: 'MINOR',
+      location: 'Lab A',
+      description: 'A spill occurred',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

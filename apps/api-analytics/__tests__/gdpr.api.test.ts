@@ -310,3 +310,111 @@ describe('gdpr.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+// ===================================================================
+// GDPR API — pagination, field validation and 500 path coverage
+// ===================================================================
+describe('GDPR API — pagination, field validation and 500 path coverage', () => {
+  it('GET /gdpr/categories returns categories as array', async () => {
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([
+      { id: 'cat-1', category: 'PII', legalBasis: 'CONSENT', complianceStatus: 'COMPLIANT' },
+    ]);
+
+    const res = await request(app).get('/api/gdpr/categories');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.categories)).toBe(true);
+  });
+
+  it('GET /gdpr/dpas returns dpas as array', async () => {
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue([
+      { id: 'dpa-1', processorName: 'AWS', purpose: 'hosting', isActive: true },
+    ]);
+
+    const res = await request(app).get('/api/gdpr/dpas');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.dpas)).toBe(true);
+  });
+
+  it('GET /gdpr/report pendingRequests equals received + verified + processing', async () => {
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([]);
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue([]);
+    mockPrisma.dataRequest.findMany.mockResolvedValue([
+      { id: 'dr-1', status: 'RECEIVED' },
+      { id: 'dr-2', status: 'VERIFIED' },
+      { id: 'dr-3', status: 'PROCESSING' },
+      { id: 'dr-4', status: 'COMPLETED' },
+    ]);
+
+    const res = await request(app).get('/api/gdpr/report');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.pendingRequests).toBe(3);
+  });
+
+  it('POST /gdpr/categories with optional retentionDays creates successfully', async () => {
+    const created = {
+      id: 'cat-ret',
+      category: 'Audit Logs',
+      legalBasis: 'LEGAL_OBLIGATION',
+      retentionDays: 2190,
+      complianceStatus: 'COMPLIANT',
+    };
+    mockPrisma.gdprDataCategory.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/gdpr/categories').send({
+      category: 'Audit Logs',
+      legalBasis: 'LEGAL_OBLIGATION',
+      retentionDays: 2190,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.category.id).toBe('cat-ret');
+  });
+
+  it('POST /gdpr/dpas with optional documentUrl creates successfully', async () => {
+    const created = {
+      id: 'dpa-doc',
+      processorName: 'Datadog',
+      purpose: 'Monitoring',
+      isActive: true,
+      documentUrl: 'https://docs.example.com/dpa.pdf',
+    };
+    mockPrisma.dataProcessingAgreement.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/gdpr/dpas').send({
+      processorName: 'Datadog',
+      purpose: 'Monitoring',
+      documentUrl: 'https://docs.example.com/dpa.pdf',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.dpa.processorName).toBe('Datadog');
+  });
+
+  it('GET /gdpr/report requestStats.received matches RECEIVED data requests', async () => {
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([]);
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue([]);
+    mockPrisma.dataRequest.findMany.mockResolvedValue([
+      { id: 'dr-r1', status: 'RECEIVED' },
+      { id: 'dr-r2', status: 'RECEIVED' },
+    ]);
+
+    const res = await request(app).get('/api/gdpr/report');
+    expect(res.status).toBe(200);
+    expect(res.body.data.requestStats.received).toBe(2);
+  });
+
+  it('GET /gdpr/categories returns success:false and 500 on DB error', async () => {
+    mockPrisma.gdprDataCategory.findMany.mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).get('/api/gdpr/categories');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /gdpr/categories returns 400 for empty body', async () => {
+    const res = await request(app).post('/api/gdpr/categories').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

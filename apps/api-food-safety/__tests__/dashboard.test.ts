@@ -342,3 +342,89 @@ describe('Food Safety Dashboard — final coverage', () => {
     expect(res.body.error).toHaveProperty('message');
   });
 });
+
+// ===================================================================
+// Food Safety Dashboard — comprehensive edge cases
+// ===================================================================
+describe('Food Safety Dashboard — comprehensive edge cases', () => {
+  const setupDefaultMocks = () => {
+    (prisma.fsHazard.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsAudit.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsNcr.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsRecall.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsProduct.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.fsNcr.findMany as jest.Mock).mockResolvedValue([]);
+  };
+
+  it('fsProduct.count is called at least once per request', async () => {
+    setupDefaultMocks();
+    await request(app).get('/api/dashboard');
+    expect(prisma.fsProduct.count).toHaveBeenCalled();
+  });
+
+  it('fsAudit.count is called at least once per request', async () => {
+    setupDefaultMocks();
+    await request(app).get('/api/dashboard');
+    expect(prisma.fsAudit.count).toHaveBeenCalled();
+  });
+
+  it('fsHazard.count is called at least once per request', async () => {
+    setupDefaultMocks();
+    await request(app).get('/api/dashboard');
+    expect(prisma.fsHazard.count).toHaveBeenCalled();
+  });
+
+  it('fsNcr.findMany is called at least once per request', async () => {
+    setupDefaultMocks();
+    await request(app).get('/api/dashboard');
+    expect(prisma.fsNcr.findMany).toHaveBeenCalled();
+  });
+
+  it('response body has a data key on success', async () => {
+    setupDefaultMocks();
+    const res = await request(app).get('/api/dashboard');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('summary.audits is a number', async () => {
+    setupDefaultMocks();
+    (prisma.fsAudit.count as jest.Mock).mockResolvedValue(7);
+    const res = await request(app).get('/api/dashboard');
+    expect(typeof res.body.data.summary.audits).toBe('number');
+    expect(res.body.data.summary.audits).toBe(7);
+  });
+
+  it('summary.recalls is a number', async () => {
+    setupDefaultMocks();
+    (prisma.fsRecall.count as jest.Mock).mockResolvedValueOnce(4).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/dashboard');
+    expect(typeof res.body.data.summary.recalls).toBe('number');
+  });
+
+  it('recentAudits entries have expected audit fields when data is provided', async () => {
+    setupDefaultMocks();
+    (prisma.fsAudit.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000050', title: 'Q1 Audit', type: 'INTERNAL', status: 'PLANNED', scheduledDate: new Date() },
+    ]);
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.recentAudits[0]).toHaveProperty('id');
+    expect(res.body.data.recentAudits[0]).toHaveProperty('title');
+  });
+
+  it('fsCcp.count is called at least once per request', async () => {
+    setupDefaultMocks();
+    await request(app).get('/api/dashboard');
+    expect(prisma.fsCcp.count).toHaveBeenCalled();
+  });
+
+  it('500 error from fsCcp.count results in 500 response', async () => {
+    (prisma.fsHazard.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.count as jest.Mock).mockRejectedValue(new Error('ccp count failed'));
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

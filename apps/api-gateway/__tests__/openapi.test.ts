@@ -230,3 +230,89 @@ describe('OpenAPI — additional coverage', () => {
     expect(res.body.components.securitySchemes.bearerAuth.type).toBe('http');
   });
 });
+
+describe('OpenAPI — further coverage and 500 path', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/docs', openapiRouter);
+    jest.clearAllMocks();
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: '3.0.3',
+      info: {
+        title: 'Nexara IMS API',
+        version: '1.0.0',
+        description: 'Integrated Management System API',
+      },
+      paths: {
+        '/api/auth/login': { post: { summary: 'Login', operationId: 'login' } },
+        '/api/health': { get: { summary: 'Health check' } },
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        },
+      },
+    });
+  });
+
+  it('GET /api/docs/openapi.json returns 500 when spec generation throws on second call', async () => {
+    mockGenerateOpenApiSpec.mockImplementationOnce(() => {
+      throw new Error('second-call failure');
+    });
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('spec contains more than one path when mock returns multiple', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(Object.keys(res.body.paths).length).toBeGreaterThan(1);
+  });
+
+  it('bearerAuth scheme has a bearer scheme value', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.components.securitySchemes.bearerAuth.scheme).toBe('bearer');
+  });
+
+  it('GET /api/docs returns 200 with HTML', async () => {
+    const res = await request(app).get('/api/docs');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/html/);
+  });
+
+  it('GET /api/docs HTML includes script tag for api-reference', async () => {
+    const res = await request(app).get('/api/docs');
+    expect(res.text).toContain('api-reference');
+  });
+
+  it('GET /api/docs/openapi.json spec version field equals 1.0.0', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.info.version).toBe('1.0.0');
+  });
+
+  it('GET /api/docs/openapi.json openapi version starts with 3', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.openapi.startsWith('3')).toBe(true);
+  });
+
+  it('generateOpenApiSpec is not called for GET /api/docs (HTML route)', async () => {
+    await request(app).get('/api/docs');
+    expect(mockGenerateOpenApiSpec).not.toHaveBeenCalled();
+  });
+
+  it('error response for 500 contains error.message field', async () => {
+    mockGenerateOpenApiSpec.mockImplementationOnce(() => {
+      throw new Error('Deliberate error');
+    });
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('message');
+  });
+});

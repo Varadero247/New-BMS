@@ -250,3 +250,100 @@ describe('meters — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('meters — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns pagination metadata with correct totalPages', async () => {
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([mockReading]);
+    prisma.cmmsMeterReading.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/meters?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+    expect(res.body.pagination.total).toBe(50);
+  });
+
+  it('GET / filters by MILES meterType', async () => {
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([]);
+    prisma.cmmsMeterReading.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/meters?meterType=MILES');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET / returns success false with INTERNAL_ERROR when count fails', async () => {
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([]);
+    prisma.cmmsMeterReading.count.mockRejectedValue(new Error('count error'));
+    const res = await request(app).get('/api/meters');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / accepts KILOMETERS as valid meterType', async () => {
+    prisma.cmmsMeterReading.create.mockResolvedValue({ ...mockReading, meterType: 'KILOMETERS' });
+    const res = await request(app).post('/api/meters').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      meterType: 'KILOMETERS',
+      reading: 1000,
+      readingDate: '2026-02-13T00:00:00Z',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / accepts CYCLES as valid meterType', async () => {
+    prisma.cmmsMeterReading.create.mockResolvedValue({ ...mockReading, meterType: 'CYCLES' });
+    const res = await request(app).post('/api/meters').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      meterType: 'CYCLES',
+      reading: 250,
+      readingDate: '2026-02-13T00:00:00Z',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('POST / returns 400 when readingDate is invalid', async () => {
+    const res = await request(app).post('/api/meters').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      meterType: 'HOURS',
+      reading: 5000,
+      readingDate: 'not-a-date',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns 404 with NOT_FOUND code', async () => {
+    prisma.cmmsMeterReading.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/meters/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE /:id response message confirms deletion', async () => {
+    prisma.cmmsMeterReading.findFirst.mockResolvedValue(mockReading);
+    prisma.cmmsMeterReading.update.mockResolvedValue({ ...mockReading, deletedAt: new Date() });
+    const res = await request(app).delete('/api/meters/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    prisma.cmmsMeterReading.findFirst.mockResolvedValue(mockReading);
+    prisma.cmmsMeterReading.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/meters/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / returns page and limit in pagination object', async () => {
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([]);
+    prisma.cmmsMeterReading.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/meters?page=2&limit=25');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(25);
+  });
+});

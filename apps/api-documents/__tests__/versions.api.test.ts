@@ -233,3 +233,84 @@ describe('versions.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+// ─── Versions — extended error and field coverage ────────────────────────────
+
+describe('Versions — extended error and field coverage', () => {
+  it('GET / returns pagination totalPages calculated from total and limit', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([]);
+    mockPrisma.docVersion.count.mockResolvedValue(25);
+    const res = await request(app).get('/api/versions?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET / with search passes filter to findMany via changeNotes', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([]);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    await request(app).get('/api/versions?search=breaking');
+    expect(mockPrisma.docVersion.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ changeNotes: expect.any(Object) }),
+      }),
+    );
+  });
+
+  it('POST / with fileUrl as invalid URL returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app)
+      .post('/api/versions')
+      .send({ documentId: 'doc-1', version: 1, fileUrl: 'not-a-url' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update throws', async () => {
+    mockPrisma.docVersion.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docVersion.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/versions/00000000-0000-0000-0000-000000000001')
+      .send({ version: 2 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update throws', async () => {
+    mockPrisma.docVersion.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docVersion.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/versions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.docVersion.findFirst.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/versions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / data array has correct length matching mocked results', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', documentId: 'doc-1', version: 1 },
+      { id: '00000000-0000-0000-0000-000000000002', documentId: 'doc-1', version: 2 },
+    ]);
+    mockPrisma.docVersion.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/versions');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / create called exactly once per request', async () => {
+    mockPrisma.docVersion.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      documentId: 'doc-2',
+      version: 1,
+    });
+    await request(app).post('/api/versions').send({ documentId: 'doc-2', version: 1 });
+    expect(mockPrisma.docVersion.create).toHaveBeenCalledTimes(1);
+  });
+});

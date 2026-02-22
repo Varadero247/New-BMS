@@ -272,3 +272,77 @@ describe('calibrations — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('Calibrations — extended edge cases', () => {
+  it('GET / returns correct pagination totalPages', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(60);
+    const res = await request(app).get('/api/calibrations?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(6);
+  });
+
+  it('GET / supports search by equipment name', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockResolvedValue([mockCalibration]);
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/calibrations?search=Caliper');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET / returns empty array when no calibrations match', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/calibrations?status=OVERDUE');
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('DELETE /:id returns id and deleted:true', async () => {
+    (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(mockCalibration);
+    (prisma.qualCalibration.update as jest.Mock).mockResolvedValue({ ...mockCalibration, deletedAt: new Date() });
+    const res = await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('POST / creates calibration with optional calibration dates', async () => {
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(2);
+    (prisma.qualCalibration.create as jest.Mock).mockResolvedValue(mockCalibration);
+    const res = await request(app).post('/api/calibrations').send({
+      equipmentName: 'Pressure Gauge',
+      lastCalibrationDate: '2026-01-01',
+      nextCalibrationDate: '2027-01-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id returns updated equipment name', async () => {
+    (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(mockCalibration);
+    (prisma.qualCalibration.update as jest.Mock).mockResolvedValue({ ...mockCalibration, equipmentName: 'Updated Gauge' });
+    const res = await request(app).put('/api/calibrations/00000000-0000-0000-0000-000000000001').send({ equipmentName: 'Updated Gauge' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.equipmentName).toBe('Updated Gauge');
+  });
+
+  it('GET /:id returns referenceNumber in data', async () => {
+    (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(mockCalibration);
+    const res = await request(app).get('/api/calibrations/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data.referenceNumber).toBe('CAL-2026-001');
+  });
+
+  it('DELETE /:id returns 500 when update throws', async () => {
+    (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(mockCalibration);
+    (prisma.qualCalibration.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / pagination has total field equal to mocked count', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(7);
+    const res = await request(app).get('/api/calibrations');
+    expect(res.body.pagination.total).toBe(7);
+  });
+});

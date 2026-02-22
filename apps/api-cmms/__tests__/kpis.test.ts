@@ -262,3 +262,94 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('kpis — edge cases and field validation', () => {
+  it('GET /kpis returns success: true on 200', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([mockKpi]);
+    prisma.cmmsKpi.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /kpis pagination includes total, page, and limit fields', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([]);
+    prisma.cmmsKpi.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /kpis?page=3&limit=5 returns correct pagination metadata', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([]);
+    prisma.cmmsKpi.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/kpis?page=3&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(5);
+    expect(res.body.pagination.total).toBe(30);
+  });
+
+  it('GET /kpis data items include id and metricType fields', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([mockKpi]);
+    prisma.cmmsKpi.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id', '00000000-0000-0000-0000-000000000001');
+    expect(res.body.data[0]).toHaveProperty('metricType', 'MTBF');
+  });
+
+  it('POST /kpis sets createdBy from authenticated user', async () => {
+    prisma.cmmsKpi.create.mockResolvedValue(mockKpi);
+    await request(app).post('/api/kpis').send({
+      name: 'OEE - Press',
+      metricType: 'OEE',
+      value: 85.5,
+      unit: '%',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(prisma.cmmsKpi.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ createdBy: 'user-123' }),
+      })
+    );
+  });
+
+  it('DELETE /kpis/:id returns 500 on update error', async () => {
+    prisma.cmmsKpi.findFirst.mockResolvedValue(mockKpi);
+    prisma.cmmsKpi.update.mockRejectedValue(new Error('DB write error'));
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /kpis/dashboard summary contains totalAssets and openWorkOrders', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([mockKpi]);
+    prisma.cmmsAsset.count.mockResolvedValue(30);
+    prisma.cmmsWorkOrder.count.mockResolvedValue(8);
+    prisma.cmmsPart.count.mockResolvedValue(100);
+    const res = await request(app).get('/api/kpis/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary).toHaveProperty('totalAssets', 30);
+  });
+
+  it('PUT /kpis/:id response data contains updated value field', async () => {
+    prisma.cmmsKpi.findFirst.mockResolvedValue(mockKpi);
+    prisma.cmmsKpi.update.mockResolvedValue({ ...mockKpi, value: 850 });
+    const res = await request(app)
+      .put('/api/kpis/00000000-0000-0000-0000-000000000001')
+      .send({ value: 850 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.value).toBe(850);
+  });
+
+  it('GET /kpis/:id 500 response has error.code INTERNAL_ERROR', async () => {
+    prisma.cmmsKpi.findFirst.mockRejectedValue(new Error('Read error'));
+    const res = await request(app).get('/api/kpis/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

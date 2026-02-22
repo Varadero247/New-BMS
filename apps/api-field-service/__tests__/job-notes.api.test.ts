@@ -271,3 +271,118 @@ describe('job-notes.api — additional coverage', () => {
     }
   });
 });
+
+// ─── Extended coverage ───────────────────────────────────────────────────────
+
+describe('job-notes.api — extended edge cases', () => {
+  it('GET / returns pagination metadata', async () => {
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', type: 'NOTE', content: 'c1' },
+    ]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(7);
+
+    const res = await request(app).get('/api/job-notes');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination.total).toBe(7);
+  });
+
+  it('GET / applies page and limit to query', async () => {
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(0);
+
+    await request(app).get('/api/job-notes?page=2&limit=10');
+
+    expect(mockPrisma.fsSvcJobNote.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET / filters by both jobId and type simultaneously', async () => {
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(0);
+
+    await request(app).get('/api/job-notes?jobId=job-123&type=PHOTO');
+
+    expect(mockPrisma.fsSvcJobNote.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ jobId: 'job-123', type: 'PHOTO' }),
+      })
+    );
+  });
+
+  it('POST / returns 400 when jobId is missing', async () => {
+    const res = await request(app).post('/api/job-notes').send({ content: 'No jobId here' });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / stores authorId from authenticated user', async () => {
+    mockPrisma.fsSvcJobNote.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      type: 'NOTE',
+      content: 'Test',
+      jobId: '00000000-0000-0000-0000-000000000001',
+      authorId: 'user-123',
+    });
+
+    await request(app).post('/api/job-notes').send({
+      jobId: '00000000-0000-0000-0000-000000000001',
+      content: 'Test',
+    });
+
+    expect(mockPrisma.fsSvcJobNote.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ authorId: 'user-123' }),
+      })
+    );
+  });
+
+  it('PUT /:id returns success:true with updated content', async () => {
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002' });
+    mockPrisma.fsSvcJobNote.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      content: 'Updated content',
+    });
+
+    const res = await request(app)
+      .put('/api/job-notes/00000000-0000-0000-0000-000000000002')
+      .send({ content: 'Updated content' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns success:true', async () => {
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003' });
+    mockPrisma.fsSvcJobNote.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/job-notes/00000000-0000-0000-0000-000000000003');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcJobNote.findFirst.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/job-notes/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update rejects', async () => {
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004' });
+    mockPrisma.fsSvcJobNote.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).delete('/api/job-notes/00000000-0000-0000-0000-000000000004');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

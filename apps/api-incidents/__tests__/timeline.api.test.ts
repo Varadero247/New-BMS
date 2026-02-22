@@ -286,3 +286,97 @@ describe('Timeline — additional coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('Timeline — edge cases and deeper coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('findFirst query includes deletedAt: null', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date(),
+      reportedDate: new Date(),
+      investigationDate: null,
+      closedDate: null,
+    });
+    await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    const callArg = mockPrisma.incIncident.findFirst.mock.calls[0][0];
+    expect(callArg.where.deletedAt).toBeNull();
+  });
+
+  it('findFirst query includes requested id in where clause', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      dateOccurred: new Date(),
+      reportedDate: new Date(),
+      investigationDate: null,
+      closedDate: null,
+    });
+    await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000002');
+    const callArg = mockPrisma.incIncident.findFirst.mock.calls[0][0];
+    expect(callArg.where.id).toBe('00000000-0000-0000-0000-000000000002');
+  });
+
+  it('Closed event has correct date when closedDate is set', async () => {
+    const closedDate = new Date('2026-04-01T10:00:00Z');
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-03-01T08:00:00Z'),
+      reportedDate: new Date('2026-03-01T09:00:00Z'),
+      investigationDate: new Date('2026-03-15T10:00:00Z'),
+      closedDate,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    const closed = res.body.data.find((e: { event: string }) => e.event === 'Closed');
+    expect(closed).toBeDefined();
+  });
+
+  it('Investigation completed event has correct event label', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-01-01T08:00:00Z'),
+      reportedDate: new Date('2026-01-01T09:00:00Z'),
+      investigationDate: new Date('2026-01-10T12:00:00Z'),
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    const inv = res.body.data.find((e: { event: string }) => e.event === 'Investigation completed');
+    expect(inv).toBeDefined();
+    expect(inv.event).toBe('Investigation completed');
+  });
+
+  it('500 response success property is false', async () => {
+    mockPrisma.incIncident.findFirst.mockRejectedValue(new Error('Connection refused'));
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('500 response has INTERNAL_ERROR error code', async () => {
+    mockPrisma.incIncident.findFirst.mockRejectedValue(new Error('Connection refused'));
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('response is JSON content-type on 404', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000099');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('two separate requests each call findFirst once', async () => {
+    const incident = {
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date(),
+      reportedDate: new Date(),
+      investigationDate: null,
+      closedDate: null,
+    };
+    mockPrisma.incIncident.findFirst.mockResolvedValue(incident);
+    await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.incIncident.findFirst).toHaveBeenCalledTimes(1);
+  });
+});

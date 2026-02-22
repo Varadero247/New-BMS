@@ -292,3 +292,103 @@ describe('scope-emissions — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+// ─── Extended edge cases ────────────────────────────────────────────────────
+
+describe('scope-emissions — extended edge cases', () => {
+  it('GET / filters by scope=2 and passes integer 2 to query', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/scope-emissions?scope=2');
+    expect(res.status).toBe(200);
+    expect(prisma.esgScopeEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ scope: 2 }) })
+    );
+  });
+
+  it('GET / filters by scope=3 and passes integer 3 to query', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/scope-emissions?scope=3');
+    expect(prisma.esgScopeEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ scope: 3 }) })
+    );
+  });
+
+  it('POST / creates scope=2 emission with purchased electricity', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue({ ...mockScopeEmission, scope: 2 });
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 2,
+      category: 'Purchased Electricity',
+      quantity: 10000,
+      unit: 'kWh',
+      period: '2026-02',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / creates scope=3 emission with business travel', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(2);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue({ ...mockScopeEmission, scope: 3 });
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 3,
+      category: 'Business Travel',
+      quantity: 500,
+      unit: 'km',
+      period: '2026-03',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when scope is out of range (scope=4)', async () => {
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 4,
+      category: 'Invalid',
+      quantity: 100,
+      unit: 'kWh',
+      period: '2026-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 when scope is 0 (out of range)', async () => {
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 0,
+      category: 'Invalid',
+      period: '2026-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / returns data in array format', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / count is called once to generate reference number', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue(mockScopeEmission);
+    await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Combustion',
+      period: '2026-01',
+    });
+    expect(prisma.esgScopeEmission.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / 500 when count fails before create', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockRejectedValue(new Error('DB count error'));
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Combustion',
+      period: '2026-01',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

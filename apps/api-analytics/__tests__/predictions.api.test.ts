@@ -181,3 +181,66 @@ describe('predictions.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Predictions — edge cases and extended coverage', () => {
+  it('GET /api/predictions/capa-overrun summary has highRisk count', async () => {
+    const res = await request(app).get('/api/predictions/capa-overrun');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary).toHaveProperty('highRisk');
+    expect(typeof res.body.data.summary.highRisk).toBe('number');
+  });
+
+  it('GET /api/predictions/capa-overrun summary has moderateRisk count', async () => {
+    const res = await request(app).get('/api/predictions/capa-overrun');
+    expect(res.body.data.summary).toHaveProperty('moderateRisk');
+    expect(typeof res.body.data.summary.moderateRisk).toBe('number');
+  });
+
+  it('GET /api/predictions/capa-overrun summary has lowRisk count', async () => {
+    const res = await request(app).get('/api/predictions/capa-overrun');
+    expect(res.body.data.summary).toHaveProperty('lowRisk');
+  });
+
+  it('GET /api/predictions/capa-overrun aiDisclosure has provider field', async () => {
+    const res = await request(app).get('/api/predictions/capa-overrun');
+    expect(res.body.data.aiDisclosure).toHaveProperty('provider');
+    expect(typeof res.body.data.aiDisclosure.provider).toBe('string');
+  });
+
+  it('GET /api/predictions/audit-forecast summary has totalClauses', async () => {
+    const res = await request(app).get('/api/predictions/audit-forecast');
+    expect(res.body.data.summary).toHaveProperty('totalClauses');
+    expect(typeof res.body.data.summary.totalClauses).toBe('number');
+  });
+
+  it('GET /api/predictions/audit-forecast has auditDate field', async () => {
+    const res = await request(app).get('/api/predictions/audit-forecast');
+    expect(res.body.data).toHaveProperty('auditDate');
+  });
+
+  it('GET /api/predictions/ncr-forecast nextMonthForecast has trend', async () => {
+    const res = await request(app).get('/api/predictions/ncr-forecast');
+    expect(res.body.data.nextMonthForecast).toHaveProperty('trend');
+  });
+
+  it('POST /api/predictions/generate with ncr_forecast returns 202', async () => {
+    const res = await request(app)
+      .post('/api/predictions/generate')
+      .send({ type: 'ncr_forecast' });
+    expect(res.status).toBe(202);
+    expect(res.body.data.type).toBe('ncr_forecast');
+  });
+
+  it('POST /api/predictions/generate missing type returns 400', async () => {
+    const res = await request(app)
+      .post('/api/predictions/generate')
+      .send({ parameters: { foo: 'bar' } });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/predictions returns pagination object', async () => {
+    const res = await request(app).get('/api/predictions');
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+});

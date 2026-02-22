@@ -200,3 +200,66 @@ describe('singleton functions', () => {
     });
   });
 });
+
+describe('EmailService — extended edge cases', () => {
+  beforeEach(() => {
+    mockSendMail.mockReset();
+    mockVerify.mockReset();
+  });
+
+  it('send passes "to" field to transporter', async () => {
+    mockSendMail.mockResolvedValue({ messageId: 'msg-1' });
+    const service = new EmailService(SMTP_CONFIG);
+    await service.send({ to: 'recipient@example.com', subject: 'Subj', text: 'Body' });
+    expect(mockSendMail.mock.calls[0][0].to).toBe('recipient@example.com');
+  });
+
+  it('send passes "subject" field to transporter', async () => {
+    mockSendMail.mockResolvedValue({ messageId: 'msg-2' });
+    const service = new EmailService(SMTP_CONFIG);
+    await service.send({ to: 'x@y.com', subject: 'My Subject' });
+    expect(mockSendMail.mock.calls[0][0].subject).toBe('My Subject');
+  });
+
+  it('send passes "html" field to transporter when provided', async () => {
+    mockSendMail.mockResolvedValue({ messageId: 'msg-3' });
+    const service = new EmailService(SMTP_CONFIG);
+    const html = '<h1>Hello</h1>';
+    await service.send({ to: 'x@y.com', subject: 'Subj', html });
+    expect(mockSendMail.mock.calls[0][0].html).toBe(html);
+  });
+
+  it('send passes "text" field to transporter when provided', async () => {
+    mockSendMail.mockResolvedValue({ messageId: 'msg-4' });
+    const service = new EmailService(SMTP_CONFIG);
+    await service.send({ to: 'x@y.com', subject: 'Subj', text: 'Plain text body' });
+    expect(mockSendMail.mock.calls[0][0].text).toBe('Plain text body');
+  });
+
+  it('isConfigured returns false after constructing with no host', () => {
+    const service = new EmailService({ port: 587 }); // no host
+    expect(service.isConfigured()).toBe(false);
+  });
+
+  it('templates.passwordReset with 30-minute expiry includes "30 minutes" in text', () => {
+    const template = templates.passwordReset('https://test.com/reset', 30);
+    expect(template.text).toContain('30 minutes');
+    expect(template.html).toContain('30 minutes');
+  });
+
+  it('templates.passwordReset html contains a reset anchor tag', () => {
+    const url = 'https://app.ims.local/reset?token=xyz';
+    const template = templates.passwordReset(url);
+    expect(template.html).toContain(`href="${url}"`);
+  });
+
+  it('templates.passwordResetConfirmation subject is correct', () => {
+    const template = templates.passwordResetConfirmation();
+    expect(template.subject).toBe('Password Successfully Reset - IMS');
+  });
+
+  it('initEmailService returns an EmailService instance', () => {
+    const service = initEmailService({ host: 'smtp.x.com' });
+    expect(service).toBeInstanceOf(EmailService);
+  });
+});

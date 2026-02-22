@@ -303,3 +303,98 @@ describe('Field Service Sites — additional coverage', () => {
     );
   });
 });
+
+// ===================================================================
+// Field Service Sites — edge cases and validation
+// ===================================================================
+describe('Field Service Sites — edge cases and validation', () => {
+  it('GET / uses default page 1 and limit 50 when no query params', async () => {
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSite.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/sites');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page', 1);
+    expect(res.body.pagination).toHaveProperty('limit', 50);
+  });
+
+  it('GET / pagination total matches count mock value', async () => {
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000031', name: 'Site A', customer: { name: 'X' } },
+      { id: '00000000-0000-0000-0000-000000000032', name: 'Site B', customer: { name: 'Y' } },
+    ]);
+    mockPrisma.fsSvcSite.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/sites');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('POST / returns 400 when name is missing', async () => {
+    const res = await request(app).post('/api/sites').send({
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / returns 400 when customerId is missing', async () => {
+    const res = await request(app).post('/api/sites').send({ name: 'Some Site' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/sites/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcSite.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/sites/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id returns 200 and updated site data', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000033' });
+    mockPrisma.fsSvcSite.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000033',
+      name: 'West Site',
+      address: { city: 'Liverpool' },
+    });
+    const res = await request(app)
+      .put('/api/sites/00000000-0000-0000-0000-000000000033')
+      .send({ name: 'West Site', address: { city: 'Liverpool' } });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('name', 'West Site');
+  });
+
+  it('GET / success flag is true on success', async () => {
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSite.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/sites');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / create call includes the name in data', async () => {
+    mockPrisma.fsSvcSite.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000034',
+      name: 'South Site',
+    });
+    await request(app).post('/api/sites').send({
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      name: 'South Site',
+      address: { city: 'Bristol' },
+    });
+    expect(mockPrisma.fsSvcSite.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ name: 'South Site' }),
+      })
+    );
+  });
+
+  it('GET / response body contains a data array', async () => {
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSite.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/sites');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

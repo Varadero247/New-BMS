@@ -254,3 +254,99 @@ describe('DELETE /api/tna/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('TNA — extended edge cases', () => {
+  it('GET /api/tna returns pagination with correct total', async () => {
+    mockPrisma.trainTNA.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'TNA 1' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'TNA 2' },
+    ]);
+    mockPrisma.trainTNA.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/tna');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(2);
+  });
+
+  it('GET /api/tna supports page and limit query params', async () => {
+    mockPrisma.trainTNA.findMany.mockResolvedValue([]);
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/tna?page=3&limit=15');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(15);
+  });
+
+  it('POST /api/tna generates a referenceNumber', async () => {
+    mockPrisma.trainTNA.count.mockResolvedValue(5);
+    mockPrisma.trainTNA.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000006',
+      title: 'TNA Ref Test',
+      referenceNumber: 'TNA-2026-0006',
+    });
+    const res = await request(app).post('/api/tna').send({ title: 'TNA Ref Test' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toBeDefined();
+  });
+
+  it('PUT /api/tna/:id can update budget field', async () => {
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainTNA.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      budget: 10000,
+    });
+    const res = await request(app)
+      .put('/api/tna/00000000-0000-0000-0000-000000000001')
+      .send({ budget: 10000 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/tna/:id calls update with deletedAt', async () => {
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainTNA.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    await request(app).delete('/api/tna/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.trainTNA.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/tna count is called once per list request', async () => {
+    mockPrisma.trainTNA.findMany.mockResolvedValue([]);
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    await request(app).get('/api/tna');
+    expect(mockPrisma.trainTNA.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/tna with LOW priority succeeds', async () => {
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    mockPrisma.trainTNA.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000007',
+      title: 'Low Priority TNA',
+      priority: 'LOW',
+      referenceNumber: 'TNA-2026-0001',
+    });
+    const res = await request(app)
+      .post('/api/tna')
+      .send({ title: 'Low Priority TNA', priority: 'LOW' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/tna/:id with MEDIUM priority succeeds', async () => {
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainTNA.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      priority: 'MEDIUM',
+    });
+    const res = await request(app)
+      .put('/api/tna/00000000-0000-0000-0000-000000000001')
+      .send({ priority: 'MEDIUM' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

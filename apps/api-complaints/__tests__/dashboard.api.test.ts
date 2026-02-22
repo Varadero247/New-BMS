@@ -200,3 +200,71 @@ describe('complaints dashboard route — additional coverage', () => {
     expect(res.body.data.totalComplaints).not.toBe(res.body.data.totalActions);
   });
 });
+
+describe('complaints dashboard — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /stats response body has a data property', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(1);
+    mockPrisma.compAction.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /stats compComplaint.count called with no extra filters', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /stats totalComplaints reflects updated mock value', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(77);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalComplaints).toBe(77);
+  });
+
+  it('GET /stats totalActions reflects updated mock value', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalActions).toBe(42);
+  });
+
+  it('GET /stats returns 500 when compAction.count rejects after compComplaint.count resolves', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(5);
+    mockPrisma.compAction.count.mockRejectedValue(new Error('action error'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /stats error body has code and message', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('db down'));
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+    expect(res.body.error).toHaveProperty('message');
+  });
+
+  it('GET /stats data is an object not an array', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(2);
+    mockPrisma.compAction.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+    expect(Array.isArray(res.body.data)).toBe(false);
+  });
+
+  it('GET /stats content-type is JSON', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

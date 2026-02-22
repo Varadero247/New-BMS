@@ -226,6 +226,93 @@ describe('DELETE /api/checklists/:id', () => {
   });
 });
 
+describe('checklists.api — extended edge cases', () => {
+  it('POST with standard field creates checklist', async () => {
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      auditId: '00000000-0000-0000-0000-000000000001',
+      title: 'ISO 14001 Checklist',
+      standard: 'ISO 14001',
+    });
+    const res = await request(app)
+      .post('/api/checklists')
+      .send({
+        auditId: '00000000-0000-0000-0000-000000000001',
+        title: 'ISO 14001 Checklist',
+        standard: 'ISO 14001',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET pagination page and limit are reflected in response', async () => {
+    mockPrisma.audChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.audChecklist.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/checklists?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET search filter returns matching checklists', async () => {
+    mockPrisma.audChecklist.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Safety Checklist' },
+    ]);
+    mockPrisma.audChecklist.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/checklists?search=Safety');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET returns empty array when no checklists match search', async () => {
+    mockPrisma.audChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/checklists?search=nonexistent');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('PUT updates title and returns updated value', async () => {
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Old Title',
+    });
+    mockPrisma.audChecklist.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'New Title',
+    });
+    const res = await request(app)
+      .put('/api/checklists/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New Title' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('New Title');
+  });
+
+  it('DELETE /:id returns 500 when update rejects', async () => {
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.audChecklist.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id 500 returns error object with code', async () => {
+    mockPrisma.audChecklist.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+  });
+
+  it('POST missing both auditId and title returns 400 with VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/checklists').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
 describe('checklists.api — additional coverage', () => {
   let app: express.Express;
 

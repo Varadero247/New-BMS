@@ -299,3 +299,84 @@ describe('ccps.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+// ===================================================================
+// Food Safety CCPs — edge cases and error paths
+// ===================================================================
+describe('Food Safety CCPs — edge cases and error paths', () => {
+  it('GET /ccps pagination total reflects mock count', async () => {
+    mockPrisma.fsCcp.findMany.mockResolvedValue([]);
+    mockPrisma.fsCcp.count.mockResolvedValue(12);
+    const res = await request(app).get('/api/ccps');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(12);
+  });
+
+  it('GET /ccps data is always an array', async () => {
+    mockPrisma.fsCcp.findMany.mockResolvedValue([]);
+    mockPrisma.fsCcp.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/ccps');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /ccps create is not called when input is invalid', async () => {
+    await request(app).post('/api/ccps').send({});
+    expect(mockPrisma.fsCcp.create).not.toHaveBeenCalled();
+  });
+
+  it('GET /ccps/:id returns 500 on DB error', async () => {
+    mockPrisma.fsCcp.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/ccps/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /ccps/:id returns 500 on DB error after finding CCP', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsCcp.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/ccps/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /ccps/:id returns 500 on DB error', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsCcp.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/ccps/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /ccps/:id/monitoring-records returns 500 on DB error after finding CCP', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsMonitoringRecord.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/ccps/00000000-0000-0000-0000-000000000001/monitoring-records');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /ccps/:id update uses correct where id clause', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030' });
+    mockPrisma.fsCcp.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030', name: 'Chilling CCP' });
+    await request(app)
+      .put('/api/ccps/00000000-0000-0000-0000-000000000030')
+      .send({ name: 'Chilling CCP' });
+    expect(mockPrisma.fsCcp.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000030' }) })
+    );
+  });
+
+  it('POST /ccps/:id/monitoring-records returns 500 on DB error after finding CCP', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsMonitoringRecord.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/ccps/00000000-0000-0000-0000-000000000001/monitoring-records')
+      .send({ monitoredAt: '2026-02-01T10:00:00Z', value: '80C', withinLimits: true });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /ccps success flag is true', async () => {
+    mockPrisma.fsCcp.findMany.mockResolvedValue([]);
+    mockPrisma.fsCcp.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/ccps');
+    expect(res.body.success).toBe(true);
+  });
+});

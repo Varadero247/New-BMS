@@ -316,3 +316,98 @@ describe('Field Service Parts Used — additional coverage', () => {
     );
   });
 });
+
+// ─── Extended coverage ───────────────────────────────────────────────────────
+
+describe('parts-used.api — extended edge cases', () => {
+  it('GET / applies page and limit to query', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(0);
+
+    await request(app).get('/api/parts-used?page=3&limit=5');
+
+    expect(mockPrisma.fsSvcPartUsed.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('GET / returns correct pagination total', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', partName: 'Belt', quantity: 1, job: {} },
+    ]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(12);
+
+    const res = await request(app).get('/api/parts-used');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(12);
+  });
+
+  it('POST / returns 400 when jobId is missing', async () => {
+    const res = await request(app).post('/api/parts-used').send({
+      partName: 'Seal',
+      partNumber: 'SL-001',
+      quantity: 1,
+      unitCost: 25,
+      totalCost: 25,
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST / returns 400 when quantity is missing', async () => {
+    const res = await request(app).post('/api/parts-used').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      partName: 'Seal',
+      unitCost: 25,
+      totalCost: 25,
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030' });
+    mockPrisma.fsSvcPartUsed.update.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app)
+      .put('/api/parts-used/00000000-0000-0000-0000-000000000030')
+      .send({ quantity: 2 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/parts-used/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns success:true', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000031' });
+    mockPrisma.fsSvcPartUsed.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000031',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/parts-used/00000000-0000-0000-0000-000000000031');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / response contains success:true on empty result', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/parts-used');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

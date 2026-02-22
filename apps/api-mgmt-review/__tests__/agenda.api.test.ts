@@ -286,3 +286,98 @@ describe('Agenda — additional coverage', () => {
     expect(lastItem).toMatch(/next review/i);
   });
 });
+
+describe('Agenda — validation and serialisation', () => {
+  const reviewId = '00000000-0000-0000-0000-000000000001';
+  const mockReview = { id: reviewId, title: 'Validation Review', deletedAt: null };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('saved JSON agenda items array is non-empty', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    await request(app).post(`/api/agenda/${reviewId}/generate`);
+
+    const updateCall = (prisma.mgmtReview.update as jest.Mock).mock.calls[0][0];
+    const parsed = JSON.parse(updateCall.data.aiGeneratedAgenda);
+    expect(parsed.items.length).toBeGreaterThan(0);
+  });
+
+  it('data.reviewType defaults to ANNUAL when review has no reviewType', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue({ ...mockReview, reviewType: undefined });
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.reviewType).toBe('ANNUAL');
+  });
+
+  it('data.location is null when review has no location', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue({ ...mockReview, location: undefined });
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.location).toBeNull();
+  });
+
+  it('data.chairperson is null when review has no chairperson', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue({ ...mockReview, chairperson: undefined });
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.chairperson).toBeNull();
+  });
+
+  it('multiple customItems each appear in generated agenda items', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app)
+      .post(`/api/agenda/${reviewId}/generate`)
+      .send({ customItems: ['Vendor review', 'Budget overview'] });
+
+    expect(res.status).toBe(200);
+    const items: string[] = res.body.data.items;
+    expect(items.some((i) => i.includes('Vendor review'))).toBe(true);
+    expect(items.some((i) => i.includes('Budget overview'))).toBe(true);
+  });
+
+  it('agenda has 14 base items when no customItems provided', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.items).toHaveLength(14);
+  });
+
+  it('agenda with 2 customItems has 16 total items', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app)
+      .post(`/api/agenda/${reviewId}/generate`)
+      .send({ customItems: ['Topic A', 'Topic B'] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.items).toHaveLength(16);
+  });
+
+  it('returns 400 when customItems is not an array', async () => {
+    const res = await request(app)
+      .post(`/api/agenda/${reviewId}/generate`)
+      .send({ customItems: 'not-an-array' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

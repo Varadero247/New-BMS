@@ -401,3 +401,94 @@ describe('metrics.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('metrics.api — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/metrics/safety', metricsRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns data array on success', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/metrics/safety');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / calls findMany with orderBy month asc', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/metrics/safety');
+    expect(mockPrisma.safetyMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { month: 'asc' } })
+    );
+  });
+
+  it('GET /summary returns totalNearMisses when metrics exist', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: 'm1', year: 2025, month: 1, hoursWorked: 10000, lostTimeInjuries: 0, totalRecordableInjuries: 0, daysLost: 0, nearMisses: 5 },
+    ]);
+    const res = await request(app).get('/api/metrics/safety/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('totalNearMisses', 5);
+  });
+
+  it('GET /summary averageLTIFR is numeric', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: 'm1', year: 2025, month: 1, hoursWorked: 100000, lostTimeInjuries: 2, totalRecordableInjuries: 4, daysLost: 20, nearMisses: 3 },
+    ]);
+    const res = await request(app).get('/api/metrics/safety/summary');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.ltifr).toBe('number');
+  });
+
+  it('POST / returns 400 for negative lostTimeInjuries', async () => {
+    const res = await request(app)
+      .post('/api/metrics/safety')
+      .send({ year: 2025, month: 6, hoursWorked: 50000, lostTimeInjuries: -1 });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / accepts all valid optional fields', async () => {
+    (mockPrisma.safetyMetric.upsert as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      year: 2025, month: 5, hoursWorked: 40000,
+      lostTimeInjuries: 0, totalRecordableInjuries: 1, daysLost: 0,
+      nearMisses: 2, firstAidCases: 1, ltifr: 0, trir: 5, severityRate: 0,
+    });
+    const res = await request(app)
+      .post('/api/metrics/safety')
+      .send({ year: 2025, month: 5, hoursWorked: 40000, lostTimeInjuries: 0, totalRecordableInjuries: 1, daysLost: 0, nearMisses: 2, firstAidCases: 1 });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / response data has ltifr property', async () => {
+    (mockPrisma.safetyMetric.upsert as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      year: 2025, month: 7, hoursWorked: 60000, ltifr: 16.67, trir: 6.67, severityRate: 0,
+    });
+    const res = await request(app)
+      .post('/api/metrics/safety')
+      .send({ year: 2025, month: 7, hoursWorked: 60000 });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('ltifr');
+  });
+
+  it('GET / with invalid year string still returns 200 (uses current year as fallback)', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/metrics/safety?year=notanumber');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /summary success is true on 200', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/metrics/safety/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

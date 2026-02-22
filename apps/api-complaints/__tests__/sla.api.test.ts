@@ -181,3 +181,81 @@ describe('sla.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('sla.api — edge cases and field validation', () => {
+  it('returns correct overdue count with high volumes', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(9999).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overdue).toBe(9999);
+    expect(res.body.data.onTrack).toBe(1);
+  });
+
+  it('count is invoked exactly twice per request', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+    await request(app).get('/api/sla');
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(2);
+  });
+
+  it('response body has a data property on success', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(1).mockResolvedValueOnce(2);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('error object has code property on 500', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('network error'));
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(500);
+    expect(res.body).toHaveProperty('error');
+    expect(res.body.error).toHaveProperty('code');
+  });
+
+  it('response content-type is application/json', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/sla');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('both fields are non-negative numbers', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(3).mockResolvedValueOnce(7);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overdue).toBeGreaterThanOrEqual(0);
+    expect(res.body.data.onTrack).toBeGreaterThanOrEqual(0);
+  });
+
+  it('success is false when second count call rejects', async () => {
+    mockPrisma.compComplaint.count
+      .mockResolvedValueOnce(2)
+      .mockRejectedValueOnce(new Error('partial failure'));
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('error message is defined on 500', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('db crashed'));
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBeDefined();
+  });
+
+  it('data overdue and onTrack match mock values exactly', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(17).mockResolvedValueOnce(83);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overdue).toBe(17);
+    expect(res.body.data.onTrack).toBe(83);
+  });
+
+  it('success is true on 200 with equal overdue and onTrack', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(5).mockResolvedValueOnce(5);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.overdue).toBe(5);
+    expect(res.body.data.onTrack).toBe(5);
+  });
+});

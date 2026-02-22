@@ -352,3 +352,95 @@ describe('SyncQueue — additional coverage', () => {
     expect(typeof q.flush).toBe('function');
   });
 });
+
+describe('SyncQueue — extended edge cases', () => {
+  let queue: SyncQueue;
+
+  const makeRequest = (id: string, timestamp: number, retryCount = 0): QueuedRequest => ({
+    id,
+    url: `https://example.com/api/ext/${id}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+    timestamp,
+    retryCount,
+  });
+
+  beforeEach(() => {
+    sharedStore.data.clear();
+    mockFetch.mockReset();
+    queue = new SyncQueue();
+  });
+
+  test('getAll returns empty array for empty queue', async () => {
+    const all = await queue.getAll();
+    expect(all).toEqual([]);
+  });
+
+  test('remove on non-existent id does not throw', async () => {
+    await expect(queue.remove('non-existent-id')).resolves.not.toThrow();
+  });
+
+  test('getQueueLength returns 1 after single enqueue', async () => {
+    await queue.enqueue(makeRequest('single', 100));
+    expect(await queue.getQueueLength()).toBe(1);
+  });
+
+  test('enqueue with null body stores null correctly', async () => {
+    const req: QueuedRequest = {
+      id: 'null-body',
+      url: 'https://example.com/api/delete/1',
+      method: 'DELETE',
+      headers: {},
+      body: null,
+      timestamp: 500,
+      retryCount: 0,
+    };
+    await queue.enqueue(req);
+    expect(sharedStore.data.get('null-body').body).toBeNull();
+  });
+
+  test('flush with single successful request returns succeeded:1', async () => {
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+    await queue.enqueue(makeRequest('one', 100));
+    const result = await queue.flush();
+    expect(result.succeeded).toBe(1);
+    expect(result.failed).toBe(0);
+  });
+
+  test('getQueueLength returns 0 after clear', async () => {
+    await queue.enqueue(makeRequest('a', 1));
+    await queue.enqueue(makeRequest('b', 2));
+    await queue.clear();
+    expect(await queue.getQueueLength()).toBe(0);
+  });
+
+  test('dequeue does not remove the entry from store (peek semantics)', async () => {
+    await queue.enqueue(makeRequest('pop', 100));
+    await queue.dequeue();
+    // dequeue is a read-only peek — entry stays in the store
+    expect(sharedStore.data.has('pop')).toBe(true);
+  });
+
+  test('flush sends request with correct URL', async () => {
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+    await queue.enqueue(makeRequest('url-test', 100));
+    await queue.flush();
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://example.com/api/ext/url-test',
+      expect.any(Object)
+    );
+  });
+
+  test('enqueue stores retryCount=0 for new requests', async () => {
+    await queue.enqueue(makeRequest('new-req', 200));
+    expect(sharedStore.data.get('new-req').retryCount).toBe(0);
+  });
+
+  test('flush result has succeeded + failed + dropped properties', async () => {
+    const result = await queue.flush();
+    expect(result).toHaveProperty('succeeded');
+    expect(result).toHaveProperty('failed');
+    expect(result).toHaveProperty('dropped');
+  });
+});

@@ -315,3 +315,102 @@ describe('Changelog Routes — additional coverage', () => {
     expect(res.body.data.unreadCount).toBe(7);
   });
 });
+
+describe('Changelog Routes — extended edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changelog', changelogRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    mockListAllEntries.mockReturnValue({ entries: [], total: 0 });
+    mockGetUnreadCount.mockReturnValue(0);
+    mockCreateEntry.mockReturnValue({
+      id: 'cl-1',
+      title: 'New Feature',
+      description: 'Details here',
+      category: 'new_feature',
+      modules: ['quality'],
+      isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+  });
+
+  it('GET /api/changelog returns total as number', async () => {
+    mockListEntries.mockReturnValue({ entries: [], total: 5 });
+    const res = await request(app).get('/api/changelog');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.total).toBe('number');
+  });
+
+  it('GET /api/changelog/all returns entries array', async () => {
+    mockListAllEntries.mockReturnValue({
+      entries: [{ id: 'cl-draft', title: 'Draft', isPublished: false }],
+      total: 1,
+    });
+    const res = await request(app).get('/api/changelog/all');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.entries)).toBe(true);
+  });
+
+  it('POST /api/changelog with bug_fix category succeeds', async () => {
+    mockCreateEntry.mockReturnValue({
+      id: 'cl-fix2',
+      title: 'Another Bug Fix',
+      category: 'bug_fix',
+      isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+    const res = await request(app)
+      .post('/api/changelog')
+      .send({ title: 'Another Bug Fix', description: 'Fixed issue', category: 'bug_fix', modules: ['gateway'] });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/changelog with default limit calls listEntries with limit 20', async () => {
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    await request(app).get('/api/changelog');
+    expect(mockListEntries).toHaveBeenCalledWith(20, 0);
+  });
+
+  it('POST /api/changelog/mark-read returns 200 with success true', async () => {
+    const res = await request(app).post('/api/changelog/mark-read');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/changelog returns 401 when auth fails', async () => {
+    mockAuthenticate.mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED' } });
+    });
+    const res = await request(app)
+      .post('/api/changelog')
+      .send({ title: 'Fail', description: 'x', category: 'new_feature', modules: ['hr'] });
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/changelog returns success true', async () => {
+    const res = await request(app).get('/api/changelog');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/changelog/unread-count returns success true', async () => {
+    const res = await request(app).get('/api/changelog/unread-count');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('createEntry called once per POST request', async () => {
+    await request(app)
+      .post('/api/changelog')
+      .send({ title: 'Title', description: 'Desc', category: 'new_feature', modules: ['quality'] });
+    expect(mockCreateEntry).toHaveBeenCalledTimes(1);
+  });
+});

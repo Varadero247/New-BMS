@@ -301,3 +301,91 @@ describe('technicians.api — additional coverage', () => {
     expect([200, 400, 401, 404, 500]).toContain(res.status);
   });
 });
+
+// ===================================================================
+// Field Service Technicians — edge cases and validation
+// ===================================================================
+describe('Field Service Technicians — edge cases and validation', () => {
+  it('GET / pagination total matches count mock value', async () => {
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/technicians');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(15);
+  });
+
+  it('GET / response data array is returned', async () => {
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/technicians');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/technicians').send({});
+    expect(mockPrisma.fsSvcTechnician.create).not.toHaveBeenCalled();
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/technicians/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcTechnician.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/technicians/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /available returns empty array when no technicians are available', async () => {
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/technicians/available');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /:id/schedule returns 500 on DB error', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcJob.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/technicians/00000000-0000-0000-0000-000000000001/schedule');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id update is called with correct id', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005' });
+    mockPrisma.fsSvcTechnician.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      name: 'Updated Tech',
+    });
+    await request(app)
+      .put('/api/technicians/00000000-0000-0000-0000-000000000005')
+      .send({ name: 'Updated Tech' });
+    expect(mockPrisma.fsSvcTechnician.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000005' }) })
+    );
+  });
+
+  it('GET / filters by both status and zone simultaneously', async () => {
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(0);
+    await request(app).get('/api/technicians?status=AVAILABLE&zone=South');
+    expect(mockPrisma.fsSvcTechnician.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'AVAILABLE', zone: 'South' }),
+      })
+    );
+  });
+
+  it('DELETE /:id returns message Technician deleted in data', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000006' });
+    mockPrisma.fsSvcTechnician.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000006',
+      deletedAt: new Date(),
+    });
+    const res = await request(app).delete('/api/technicians/00000000-0000-0000-0000-000000000006');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Technician deleted');
+  });
+});

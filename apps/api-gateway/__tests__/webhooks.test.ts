@@ -262,3 +262,113 @@ describe('webhooks — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('webhooks — error paths and field validation', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/webhooks', webhooksRouter);
+    jest.clearAllMocks();
+    mockGetEndpoint.mockReturnValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      orgId: 'org-1',
+      name: 'Test',
+      url: 'https://example.com/hook',
+      secret: 'whsec_abcdefghijklmnop',
+      events: ['ncr.created'],
+      enabled: true,
+      headers: null,
+      lastTriggeredAt: null,
+      failureCount: 0,
+    });
+  });
+
+  it('GET /api/admin/webhooks returns 500 when listEndpoints throws', async () => {
+    mockListEndpoints.mockImplementationOnce(() => { throw new Error('store error'); });
+    const res = await request(app).get('/api/admin/webhooks');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/admin/webhooks returns 500 when createEndpoint throws', async () => {
+    mockCreateEndpoint.mockImplementationOnce(() => { throw new Error('creation failed'); });
+    const res = await request(app)
+      .post('/api/admin/webhooks')
+      .send({ name: 'Failing Hook', url: 'https://fail.example.com/hook', events: ['ncr.created'] });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /api/admin/webhooks/:id returns 404 when endpoint not found', async () => {
+    mockGetEndpoint.mockReturnValueOnce(undefined);
+    const res = await request(app)
+      .patch('/api/admin/webhooks/00000000-0000-0000-0000-000000000099')
+      .send({ enabled: false });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/admin/webhooks/:id/test returns 404 when endpoint not found', async () => {
+    mockGetEndpoint.mockReturnValueOnce(undefined);
+    const res = await request(app).post('/api/admin/webhooks/00000000-0000-0000-0000-000000000099/test');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/admin/webhooks/:id/deliveries returns 404 when endpoint not found', async () => {
+    mockGetEndpoint.mockReturnValueOnce(undefined);
+    const res = await request(app).get('/api/admin/webhooks/00000000-0000-0000-0000-000000000099/deliveries');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/admin/webhooks rejects invalid URL', async () => {
+    const res = await request(app)
+      .post('/api/admin/webhooks')
+      .send({ name: 'Bad URL', url: 'not-a-url', events: ['ncr.created'] });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/admin/webhooks rejects missing name', async () => {
+    const res = await request(app)
+      .post('/api/admin/webhooks')
+      .send({ url: 'https://example.com/hook', events: ['ncr.created'] });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/admin/webhooks secrets in list are masked', async () => {
+    mockListEndpoints.mockReturnValueOnce([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Hook', url: 'https://example.com',
+        secret: 'whsec_supersecretvalue', events: ['ncr.created'], enabled: true,
+        orgId: 'org-1', headers: null, lastTriggeredAt: null, failureCount: 0 },
+    ]);
+    const res = await request(app).get('/api/admin/webhooks');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].secret).not.toBe('whsec_supersecretvalue');
+    expect(res.body.data[0].secret).toContain('...');
+  });
+
+  it('PATCH /api/admin/webhooks/:id secret is masked in response', async () => {
+    mockUpdateEndpoint.mockReturnValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Updated',
+      secret: 'whsec_abcdefghijklmnop',
+      orgId: 'org-1',
+    });
+    const res = await request(app)
+      .patch('/api/admin/webhooks/00000000-0000-0000-0000-000000000001')
+      .send({ enabled: true });
+    expect(res.status).toBe(200);
+    expect(res.body.data.secret).toContain('...');
+  });
+
+  it('GET /api/admin/webhooks/events returns at least one event', async () => {
+    const res = await request(app).get('/api/admin/webhooks/events');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+  });
+});

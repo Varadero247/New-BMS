@@ -312,3 +312,118 @@ describe('peep — additional coverage', () => {
     }
   });
 });
+
+describe('peep — extended edge cases', () => {
+  it('POST /api/peep/premises/:id returns 500 when create fails', async () => {
+    mockPeep.create.mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send(validCreateBody);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('creates PEEP with HEARING_IMPAIRMENT mobility level', async () => {
+    const hearingPeep = { ...fakePeep, mobilityLevel: 'HEARING_IMPAIRMENT' };
+    mockPeep.create.mockResolvedValue(hearingPeep);
+
+    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send({
+      personName: 'Tom Green',
+      mobilityLevel: 'HEARING_IMPAIRMENT',
+      reviewDate: '2027-06-01',
+      communicationNeeds: 'Written instructions only',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.mobilityLevel).toBe('HEARING_IMPAIRMENT');
+  });
+
+  it('creates PEEP with COGNITIVE_IMPAIRMENT mobility level', async () => {
+    const cognitivePeep = { ...fakePeep, mobilityLevel: 'COGNITIVE_IMPAIRMENT' };
+    mockPeep.create.mockResolvedValue(cognitivePeep);
+
+    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send({
+      personName: 'Sam White',
+      mobilityLevel: 'COGNITIVE_IMPAIRMENT',
+      reviewDate: '2027-01-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.mobilityLevel).toBe('COGNITIVE_IMPAIRMENT');
+  });
+
+  it('PUT /api/peep/:id updates namedAssistants list', async () => {
+    const updated = { ...fakePeep, namedAssistants: ['Alice', 'Bob', 'Carol'] };
+    mockPeep.findFirst.mockResolvedValue(fakePeep);
+    mockPeep.update.mockResolvedValue(updated);
+
+    const res = await request(app).put(`/api/peep/${PEEP_ID}`).send({
+      namedAssistants: ['Alice', 'Bob', 'Carol'],
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.namedAssistants).toHaveLength(3);
+  });
+
+  it('due-review endpoint returns multiple PEEPs', async () => {
+    const overdueList = [
+      { ...fakePeep, reviewDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), premises: { name: 'HQ' } },
+      { ...fakePeep, id: '00000000-0000-0000-0000-000000000003', personName: 'Amy Jones', reviewDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), premises: { name: 'Site B' } },
+    ];
+    mockPeep.findMany.mockResolvedValue(overdueList);
+
+    const res = await request(app).get('/api/peep/due-review');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('premises PEEPs endpoint returns multiple PEEPs', async () => {
+    mockPeep.findMany.mockResolvedValue([fakePeep, { ...fakePeep, id: '00000000-0000-0000-0000-000000000004' }]);
+
+    const res = await request(app).get(`/api/peep/premises/${PREMISES_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('creates PEEP with ASSISTED mobility level', async () => {
+    const assistedPeep = { ...fakePeep, mobilityLevel: 'ASSISTED' };
+    mockPeep.create.mockResolvedValue(assistedPeep);
+
+    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send({
+      personName: 'Olivia Brown',
+      mobilityLevel: 'ASSISTED',
+      reviewDate: '2027-09-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.mobilityLevel).toBe('ASSISTED');
+  });
+
+  it('creates PEEP with DEPENDENT mobility level', async () => {
+    const dependentPeep = { ...fakePeep, mobilityLevel: 'DEPENDENT' };
+    mockPeep.create.mockResolvedValue(dependentPeep);
+
+    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send({
+      personName: 'Peter Hall',
+      mobilityLevel: 'DEPENDENT',
+      reviewDate: '2027-12-01',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.mobilityLevel).toBe('DEPENDENT');
+  });
+
+  it('POST /api/peep/premises/:id returns 201 with correct structure', async () => {
+    mockPeep.create.mockResolvedValue(fakePeep);
+
+    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send(validCreateBody);
+
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body.data.personName).toBe('David Brown');
+  });
+});

@@ -239,3 +239,80 @@ describe('Assets Dashboard — additional coverage', () => {
     expect(keys).toContain('data');
   });
 });
+
+describe('Assets Dashboard — boundary and stress tests', () => {
+  it('handles maximum expected counts without overflow', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(999999);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(999999);
+    mockPrisma.assetCalibration.count.mockResolvedValue(999999);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalAssets).toBe(999999);
+  });
+
+  it('all three counts are called on each request (no caching)', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.assetRegister.count).toHaveBeenCalledTimes(2);
+    expect(mockPrisma.assetWorkOrder.count).toHaveBeenCalledTimes(2);
+    expect(mockPrisma.assetCalibration.count).toHaveBeenCalledTimes(2);
+  });
+
+  it('data.totalAssets is a non-negative integer', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(10);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(5);
+    mockPrisma.assetCalibration.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(Number.isInteger(res.body.data.totalAssets)).toBe(true);
+    expect(res.body.data.totalAssets).toBeGreaterThanOrEqual(0);
+  });
+
+  it('data.totalWorkOrders is a non-negative integer', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(10);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(7);
+    mockPrisma.assetCalibration.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(Number.isInteger(res.body.data.totalWorkOrders)).toBe(true);
+    expect(res.body.data.totalWorkOrders).toBeGreaterThanOrEqual(0);
+  });
+
+  it('data.totalCalibrations is a non-negative integer', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(10);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(5);
+    mockPrisma.assetCalibration.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(Number.isInteger(res.body.data.totalCalibrations)).toBe(true);
+    expect(res.body.data.totalCalibrations).toBeGreaterThanOrEqual(0);
+  });
+
+  it('route returns 404 for unknown endpoint', async () => {
+    const res = await request(app).get('/api/dashboard/unknown-endpoint');
+    expect(res.status).toBe(404);
+  });
+
+  it('assetRegister count called with orgId filter', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.assetRegister.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('assetCalibration count is called with deletedAt null filter', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.assetCalibration.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+});

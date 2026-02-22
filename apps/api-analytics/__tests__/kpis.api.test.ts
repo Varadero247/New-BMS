@@ -323,3 +323,77 @@ describe('kpis.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('KPIs — edge cases and error paths', () => {
+  it('GET /api/kpis returns pagination object with page and limit', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /api/kpis?page=3&limit=10 passes correct skip to findMany', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
+    await request(app).get('/api/kpis?page=3&limit=10');
+    expect(mockPrisma.analyticsKpi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('POST /api/kpis returns 400 when name is missing', async () => {
+    const res = await request(app).post('/api/kpis').send({ module: 'HR', trend: 'UP', frequency: 'DAILY' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/kpis 500 error path when create throws', async () => {
+    mockPrisma.analyticsKpi.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/kpis').send({
+      name: 'Error KPI',
+      module: 'HR',
+      trend: 'STABLE',
+      frequency: 'MONTHLY',
+    });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/kpis/executive-dashboard returns success true', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/kpis/executive-dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/kpis/modules/:module returns empty array for unknown module', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/kpis/modules/UNKNOWN_MODULE');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('PUT /api/kpis/:id 500 error path when update throws', async () => {
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsKpi.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/kpis/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Fail Update' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/kpis/:id 500 error path when update throws', async () => {
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsKpi.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/kpis/:id/calculate 500 error path when update throws', async () => {
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', currentValue: 10 });
+    mockPrisma.analyticsKpi.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/kpis/00000000-0000-0000-0000-000000000001/calculate');
+    expect(res.status).toBe(500);
+  });
+});

@@ -220,3 +220,58 @@ describe('Monthly Snapshot — additional coverage', () => {
     expect(typeof metrics.customers).toBe('number');
   });
 });
+
+describe('Monthly Snapshot — edge cases and extended validation', () => {
+  it('calculateFounderIncome month 2 salary is 1500', () => {
+    const result = calculateFounderIncome(2);
+    expect(result.salary).toBe(1500);
+  });
+
+  it('calculateFounderIncome month 5 salary is 2500', () => {
+    const result = calculateFounderIncome(5);
+    expect(result.salary).toBe(2500);
+  });
+
+  it('calculateFounderIncome month 8 salary is 3500', () => {
+    const result = calculateFounderIncome(8);
+    expect(result.salary).toBe(3500);
+  });
+
+  it('calculateFounderIncome total is sum of components', () => {
+    const result = calculateFounderIncome(1);
+    const expected = result.salary + result.loanPayment + result.dividend + result.savingsInterest;
+    expect(result.total).toBeCloseTo(expected, 2);
+  });
+
+  it('calculateFounderIncome loanPayment is non-negative for all months', () => {
+    for (const month of [1, 5, 10, 15, 25, 36]) {
+      const result = calculateFounderIncome(month);
+      expect(result.loanPayment).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it('collectHubSpotMetrics returns pipelineValue as number', async () => {
+    const metrics = await collectHubSpotMetrics();
+    expect(typeof metrics.pipelineValue).toBe('number');
+  });
+
+  it('collectHubSpotMetrics returns pipelineDeals as number', async () => {
+    const metrics = await collectHubSpotMetrics();
+    expect(typeof metrics.pipelineDeals).toBe('number');
+  });
+
+  it('collectStripeMetrics returns mrr as number', async () => {
+    const metrics = await collectStripeMetrics();
+    expect(typeof metrics.mrr).toBe('number');
+  });
+
+  it('collectStripeMetrics returns arr as number', async () => {
+    const metrics = await collectStripeMetrics();
+    expect(typeof metrics.arr).toBe('number');
+  });
+
+  it('collectDatabaseMetrics returns trialConversionPct as number', async () => {
+    const metrics = await collectDatabaseMetrics();
+    expect(typeof metrics.trialConversionPct).toBe('number');
+  });
+});

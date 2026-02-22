@@ -215,6 +215,106 @@ describe('DELETE /api/inspections/:id', () => {
   });
 });
 
+describe('inspections.api — edge cases and pagination', () => {
+  it('returns pagination metadata on successful list', async () => {
+    mockPrisma.assetInspection.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', referenceNumber: 'AIN-2026-0001' },
+      { id: '00000000-0000-0000-0000-000000000002', referenceNumber: 'AIN-2026-0002' },
+    ]);
+    mockPrisma.assetInspection.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/inspections');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total', 2);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('pagination totalPages is calculated correctly', async () => {
+    mockPrisma.assetInspection.findMany.mockResolvedValue([]);
+    mockPrisma.assetInspection.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/inspections?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('supports page and limit query params', async () => {
+    mockPrisma.assetInspection.findMany.mockResolvedValue([]);
+    mockPrisma.assetInspection.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/inspections?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('POST with EXCELLENT condition creates record', async () => {
+    mockPrisma.assetInspection.count.mockResolvedValue(0);
+    mockPrisma.assetInspection.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      referenceNumber: 'AIN-2026-0001',
+      condition: 'EXCELLENT',
+    });
+    const res = await request(app).post('/api/inspections').send({
+      assetId: '00000000-0000-0000-0000-000000000001',
+      condition: 'EXCELLENT',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST with POOR condition creates record', async () => {
+    mockPrisma.assetInspection.count.mockResolvedValue(0);
+    mockPrisma.assetInspection.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      referenceNumber: 'AIN-2026-0002',
+      condition: 'POOR',
+    });
+    const res = await request(app).post('/api/inspections').send({
+      assetId: '00000000-0000-0000-0000-000000000001',
+      condition: 'POOR',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE returns message containing deleted', async () => {
+    mockPrisma.assetInspection.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.assetInspection.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/inspections/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toMatch(/deleted/i);
+  });
+
+  it('GET /:id response has success: true and data property', async () => {
+    mockPrisma.assetInspection.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      referenceNumber: 'AIN-2026-0001',
+    });
+    const res = await request(app).get('/api/inspections/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET returns empty data array when no inspections exist', async () => {
+    mockPrisma.assetInspection.findMany.mockResolvedValue([]);
+    mockPrisma.assetInspection.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/inspections');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET 404 response has NOT_FOUND error code', async () => {
+    mockPrisma.assetInspection.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/inspections/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
 describe('inspections.api — additional coverage', () => {
   let app: express.Express;
 

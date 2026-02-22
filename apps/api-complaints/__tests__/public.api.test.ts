@@ -215,3 +215,81 @@ describe('public.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('public.api — extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /submit accepts BILLING category', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'id-1', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({
+      title: 'Billing issue',
+      category: 'BILLING',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /submit accepts SAFETY category', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'id-2', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({
+      title: 'Safety concern',
+      category: 'SAFETY',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('POST /submit accepts CRITICAL priority', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'id-3', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({
+      title: 'Critical complaint',
+      priority: 'CRITICAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /submit returns 400 when body is completely empty', async () => {
+    const res = await request(app).post('/api/public/submit').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /submit response data does not expose full complaint object', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'id-4', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Minimal' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).not.toHaveProperty('id');
+  });
+
+  it('POST /submit count is queried before create', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(10);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'id-5', referenceNumber: 'CMP-2026-0011' });
+    await request(app).post('/api/public/submit').send({ title: 'Order check' });
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.compComplaint.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /submit sets channel to WEB_FORM implicitly', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'id-6', referenceNumber: 'CMP-2026-0001' });
+    await request(app).post('/api/public/submit').send({ title: 'Web form check' });
+    expect(mockPrisma.compComplaint.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ channel: 'WEB_FORM' }) })
+    );
+  });
+
+  it('POST /submit returns 400 when INVALID category sent', async () => {
+    const res = await request(app).post('/api/public/submit').send({
+      title: 'Cat test',
+      category: 'UNKNOWN',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

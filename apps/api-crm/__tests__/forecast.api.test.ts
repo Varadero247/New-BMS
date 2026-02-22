@@ -301,3 +301,77 @@ describe('DELETE /api/forecast/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ─── Additional edge-case and field-validation coverage ─────────────────────
+
+describe('Forecast — additional coverage', () => {
+  it('GET / returns success:true when deals list is empty', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/forecast');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / weightedValue is 0 when probability is 0', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([makeDeal(ID1, 0, 5000)]);
+    const res = await request(app).get('/api/forecast');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].weightedValue).toBe(0);
+  });
+
+  it('GET / weightedValue is equal to value when probability is 100', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([makeDeal(ID1, 100, 12000)]);
+    const res = await request(app).get('/api/forecast');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].weightedValue).toBe(12000);
+  });
+
+  it('GET / returns multiple deals in order provided by mock', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([
+      makeDeal(ID1, 80, 10000),
+      makeDeal(ID2, 50, 20000),
+      makeDeal(ID3, 30, 5000),
+    ]);
+    const res = await request(app).get('/api/forecast');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe(ID1);
+    expect(res.body.data[1].id).toBe(ID2);
+    expect(res.body.data[2].id).toBe(ID3);
+  });
+
+  it('POST / returns 400 when probability is missing and dealId is also absent', async () => {
+    const res = await request(app).post('/api/forecast').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id clamps probability above 100 to exactly 100', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID2, probability: 100 });
+    await request(app).put(`/api/forecast/${ID2}`).send({ probability: 200 });
+    expect(mockPrisma.crmDeal.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { probability: 100 } }),
+    );
+  });
+
+  it('PUT /:id clamps probability below 0 to exactly 0', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID2, probability: 0 });
+    await request(app).put(`/api/forecast/${ID2}`).send({ probability: -50 });
+    expect(mockPrisma.crmDeal.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { probability: 0 } }),
+    );
+  });
+
+  it('DELETE /:id returns data with id matching the param', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID3, status: 'LOST' });
+    const res = await request(app).delete(`/api/forecast/${ID3}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(ID3);
+  });
+
+  it('GET / response body has data array property', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/forecast');
+    expect(res.body).toHaveProperty('data');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

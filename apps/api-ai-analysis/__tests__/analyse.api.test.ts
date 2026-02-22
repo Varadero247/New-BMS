@@ -635,3 +635,190 @@ describe('analyse.api — additional coverage', () => {
     }
   });
 });
+
+// ── analyse.api — edge cases and extended paths ───────────────────────────
+
+describe('analyse.api — edge cases', () => {
+  let app: express.Express;
+
+  const mockSettings = {
+    id: 'settings-edge-1',
+    provider: 'OPENAI',
+    apiKey: 'sk-edge-key',
+    model: 'gpt-4',
+    defaultPrompt: null,
+    totalTokensUsed: 0,
+    lastUsedAt: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const mockRiskSource = {
+    id: 'source-edge-1',
+    title: 'Ergonomic strain',
+    description: 'Repetitive motion injury risk',
+    likelihood: 3,
+    severity: 3,
+    riskScore: 9,
+    riskLevel: 'MEDIUM',
+    status: 'ACTIVE',
+  };
+
+  const mockAnalysis = {
+    id: '52000000-0000-4000-a000-000000000099',
+    userId: '20000000-0000-4000-a000-000000000001',
+    sourceType: 'risk',
+    sourceId: 'source-edge-1',
+    sourceData: mockRiskSource,
+    prompt: 'edge prompt',
+    provider: 'OPENAI',
+    model: 'gpt-4',
+    response: { content: 'Edge AI response' },
+    suggestedRootCause: 'Repetitive motion.',
+    suggestedActions: [],
+    complianceGaps: [],
+    highlights: [],
+    status: 'COMPLETED',
+    createdAt: new Date(),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyse', analyseRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('returns 201 and stores analysis with zero tokens when usage is missing', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(mockRiskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(mockAnalysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: ergonomics.' } }],
+        // no usage field
+      }),
+    });
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-edge-1' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 400 when apiKey is null in settings', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce({ ...mockSettings, apiKey: null });
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-edge-1' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('NO_AI_CONFIG');
+  });
+
+  it('POST /api/analyse sends Authorization header to OpenAI fetch call', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(mockRiskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(mockAnalysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: ergonomics.' } }],
+        usage: { total_tokens: 50 },
+      }),
+    });
+    await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-edge-1' });
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('openai.com'),
+      expect.objectContaining({ method: 'POST' })
+    );
+  });
+
+  it('returns 400 for sourceType "aspect" when source not found', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'aspect', sourceId: '00000000-0000-0000-0000-000000000099' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 400 for sourceType "nonconformance" when source not found', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.incident.findUnique.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'nonconformance', sourceId: '00000000-0000-0000-0000-000000000099' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('stores response status COMPLETED in created analysis', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(mockRiskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(mockAnalysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: ergonomics.' } }],
+        usage: { total_tokens: 30 },
+      }),
+    });
+    await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-edge-1' });
+    const createCall = (mockPrisma.aIAnalysis.create as jest.Mock).mock.calls[0];
+    expect(createCall[0].data.status).toBe('COMPLETED');
+  });
+
+  it('updates totalTokensUsed by adding new tokens to existing count', async () => {
+    const settingsWithTokens = { ...mockSettings, totalTokensUsed: 500 };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settingsWithTokens);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(mockRiskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(mockAnalysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(settingsWithTokens);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: test.' } }],
+        usage: { total_tokens: 100 },
+      }),
+    });
+    await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-edge-1' });
+    expect(mockPrisma.aISettings.update).toHaveBeenCalledWith({
+      where: { id: 'settings-edge-1' },
+      data: expect.objectContaining({ totalTokensUsed: 600 }),
+    });
+  });
+
+  it('returns 502 with AI_ERROR code when provider returns non-ok response', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(mockRiskSource);
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      json: jest.fn().mockResolvedValue({ error: { message: 'Token limit' } }),
+    });
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-edge-1' });
+    expect(res.status).toBe(502);
+    expect(res.body.error.code).toBe('AI_ERROR');
+  });
+});

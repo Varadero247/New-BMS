@@ -289,3 +289,112 @@ describe('Feature Requests — additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Feature Requests — edge cases, filter combinations and field validation
+// ===================================================================
+describe('Feature Requests — edge cases, filter combinations and field validation', () => {
+  it('GET /aggregate returns statusCounts object with numeric values', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.featureRequest.groupBy as jest.Mock).mockResolvedValue([
+      { status: 'SUBMITTED', _count: { id: 5 } },
+      { status: 'SHIPPED', _count: { id: 2 } },
+    ]);
+
+    const res = await request(app).get('/api/feature-requests/aggregate');
+    expect(res.status).toBe(200);
+    expect(res.body.data.statusCounts.SUBMITTED).toBe(5);
+    expect(res.body.data.statusCounts.SHIPPED).toBe(2);
+  });
+
+  it('GET /aggregate returns 500 on DB error', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/feature-requests/aggregate');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /feature-requests sets default status to SUBMITTED', async () => {
+    const created = { id: 'fr-status', title: 'New feature', votes: 0, status: 'SUBMITTED' };
+    (prisma.featureRequest.create as jest.Mock).mockResolvedValue(created);
+
+    const res = await request(app).post('/api/feature-requests').send({
+      title: 'New feature',
+      description: 'desc',
+      requestedBy: 'user@test.com',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.featureRequest.status).toBe('SUBMITTED');
+  });
+
+  it('POST /feature-requests sets default votes to 0', async () => {
+    const created = { id: 'fr-votes', title: 'Another feature', votes: 0, status: 'SUBMITTED' };
+    (prisma.featureRequest.create as jest.Mock).mockResolvedValue(created);
+
+    const res = await request(app).post('/api/feature-requests').send({
+      title: 'Another feature',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.featureRequest.votes).toBe(0);
+  });
+
+  it('PATCH /feature-requests/:id with only priority updates successfully', async () => {
+    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.featureRequest.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      priority: 5,
+    });
+
+    const res = await request(app)
+      .patch('/api/feature-requests/00000000-0000-0000-0000-000000000001')
+      .send({ priority: 5 });
+
+    expect(res.status).toBe(200);
+    expect(prisma.featureRequest.update).toHaveBeenCalled();
+  });
+
+  it('POST /:id/vote increments vote count by exactly 1', async () => {
+    const currentVotes = 42;
+    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      votes: currentVotes,
+    });
+    (prisma.featureRequest.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      votes: currentVotes + 1,
+    });
+
+    await request(app).post('/api/feature-requests/00000000-0000-0000-0000-000000000001/vote');
+
+    expect(prisma.featureRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { votes: currentVotes + 1 } })
+    );
+  });
+
+  it('GET /feature-requests filters by PLANNED status correctly', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Planned feature', status: 'PLANNED' },
+    ]);
+    (prisma.featureRequest.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/feature-requests?status=PLANNED');
+    expect(res.status).toBe(200);
+    expect(res.body.data.featureRequests).toHaveLength(1);
+  });
+
+  it('GET /feature-requests orderBy is set to votes desc', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.featureRequest.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/feature-requests');
+
+    expect(prisma.featureRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { votes: 'desc' } })
+    );
+  });
+});

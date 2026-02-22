@@ -243,3 +243,106 @@ describe('competencies.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('competencies.api — edge cases and extended coverage', () => {
+  it('GET /api/competencies supports pagination params', async () => {
+    mockPrisma.trainCompetency.findMany.mockResolvedValue([]);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/competencies?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(10);
+  });
+
+  it('GET /api/competencies pagination includes totalPages', async () => {
+    mockPrisma.trainCompetency.findMany.mockResolvedValue([]);
+    mockPrisma.trainCompetency.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/competencies?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET /api/competencies returns data as array', async () => {
+    mockPrisma.trainCompetency.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Leadership' },
+    ]);
+    mockPrisma.trainCompetency.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/competencies');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/competencies returns 400 when name is empty string', async () => {
+    const res = await request(app).post('/api/competencies').send({ name: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/competencies creates with isActive false', async () => {
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Inactive Competency',
+      isActive: false,
+    });
+    const res = await request(app).post('/api/competencies').send({
+      name: 'Inactive Competency',
+      isActive: false,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/competencies/:id returns correct message', async () => {
+    mockPrisma.trainCompetency.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainCompetency.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/competencies/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('competency deleted successfully');
+  });
+
+  it('PUT /api/competencies/:id with valid requiredLevel EXPERT succeeds', async () => {
+    mockPrisma.trainCompetency.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.trainCompetency.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      requiredLevel: 'EXPERT',
+    });
+    const res = await request(app)
+      .put('/api/competencies/00000000-0000-0000-0000-000000000001')
+      .send({ requiredLevel: 'EXPERT' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/competencies/:id returns correct data id', async () => {
+    mockPrisma.trainCompetency.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000004',
+      name: 'Specific Competency',
+    });
+    const res = await request(app).get('/api/competencies/00000000-0000-0000-0000-000000000004');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000004');
+  });
+
+  it('POST /api/competencies with EXPIRED requiredLevel succeeds', async () => {
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Expired Role',
+      requiredLevel: 'EXPIRED',
+    });
+    const res = await request(app).post('/api/competencies').send({
+      name: 'Expired Role',
+      requiredLevel: 'EXPIRED',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -397,3 +397,176 @@ describe('stakeholders.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('stakeholders.api — edge cases and extended coverage', () => {
+  let app: express.Express;
+
+  const mockStakeholder = {
+    id: '46000000-0000-4000-a000-000000000001',
+    projectId: 'project-1',
+    stakeholderName: 'Alice Johnson',
+    stakeholderRole: 'Project Sponsor',
+    stakeholderType: 'SPONSOR',
+    powerLevel: 5,
+    interestLevel: 5,
+    stakeholderCategory: 'MANAGE_CLOSELY',
+    status: 'ACTIVE',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/stakeholders', stakeholdersRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/stakeholders returns empty array when project has no stakeholders', async () => {
+    (mockPrisma.projectStakeholder.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectStakeholder.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/stakeholders?projectId=project-1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/stakeholders supports pagination (page=2, limit=5)', async () => {
+    (mockPrisma.projectStakeholder.findMany as jest.Mock).mockResolvedValueOnce([mockStakeholder]);
+    (mockPrisma.projectStakeholder.count as jest.Mock).mockResolvedValueOnce(10);
+
+    const res = await request(app).get('/api/stakeholders?projectId=project-1&page=2&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+    expect(res.body.meta.totalPages).toBe(2);
+  });
+
+  it('POST /api/stakeholders creates KEEP_INFORMED category (low power, high interest)', async () => {
+    const payload = {
+      projectId: 'project-1',
+      stakeholderName: 'Carol Davis',
+      stakeholderRole: 'End User',
+      stakeholderType: 'EXTERNAL',
+      powerLevel: 2,
+      interestLevel: 5,
+    };
+    (mockPrisma.projectStakeholder.create as jest.Mock).mockResolvedValueOnce({
+      id: '46000000-0000-4000-a000-000000000005',
+      ...payload,
+      stakeholderCategory: 'KEEP_INFORMED',
+      status: 'ACTIVE',
+    });
+
+    const res = await request(app)
+      .post('/api/stakeholders')
+      .send(payload);
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.stakeholderCategory).toBe('KEEP_INFORMED');
+    expect(mockPrisma.projectStakeholder.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ stakeholderCategory: 'KEEP_INFORMED' }),
+    });
+  });
+
+  it('PUT /api/stakeholders/:id returns 500 when update fails after findUnique', async () => {
+    (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(mockStakeholder);
+    (mockPrisma.projectStakeholder.update as jest.Mock).mockRejectedValueOnce(
+      new Error('Deadlock detected')
+    );
+
+    const res = await request(app)
+      .put('/api/stakeholders/46000000-0000-4000-a000-000000000001')
+      .send({ stakeholderName: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/stakeholders/:id performs soft-delete with deletedAt', async () => {
+    (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(mockStakeholder);
+    (mockPrisma.projectStakeholder.update as jest.Mock).mockResolvedValueOnce({
+      ...mockStakeholder,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete(
+      '/api/stakeholders/46000000-0000-4000-a000-000000000001'
+    );
+
+    expect(res.status).toBe(204);
+    expect(mockPrisma.projectStakeholder.update).toHaveBeenCalledWith({
+      where: { id: '46000000-0000-4000-a000-000000000001' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+
+  it('DELETE /api/stakeholders/:id returns 500 when update throws', async () => {
+    (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(mockStakeholder);
+    (mockPrisma.projectStakeholder.update as jest.Mock).mockRejectedValueOnce(
+      new Error('Write failed')
+    );
+
+    const res = await request(app).delete(
+      '/api/stakeholders/46000000-0000-4000-a000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/stakeholders/:id recalculates category when interestLevel changes', async () => {
+    const existing = {
+      ...mockStakeholder,
+      powerLevel: 5,
+      interestLevel: 2,
+      stakeholderCategory: 'KEEP_SATISFIED',
+    };
+    (mockPrisma.projectStakeholder.findUnique as jest.Mock).mockResolvedValueOnce(existing);
+    (mockPrisma.projectStakeholder.update as jest.Mock).mockResolvedValueOnce({
+      ...existing,
+      interestLevel: 5,
+      stakeholderCategory: 'MANAGE_CLOSELY',
+    });
+
+    await request(app)
+      .put('/api/stakeholders/46000000-0000-4000-a000-000000000001')
+      .send({ interestLevel: 5 });
+
+    expect(mockPrisma.projectStakeholder.update).toHaveBeenCalledWith({
+      where: { id: '46000000-0000-4000-a000-000000000001' },
+      data: expect.objectContaining({ stakeholderCategory: 'MANAGE_CLOSELY' }),
+    });
+  });
+
+  it('POST /api/stakeholders returns 400 for invalid stakeholderType enum', async () => {
+    const res = await request(app)
+      .post('/api/stakeholders')
+      .send({
+        projectId: 'project-1',
+        stakeholderName: 'Invalid Type',
+        stakeholderRole: 'Unknown',
+        stakeholderType: 'INVALID_TYPE',
+        powerLevel: 3,
+        interestLevel: 3,
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/stakeholders filters by status=ACTIVE', async () => {
+    (mockPrisma.projectStakeholder.findMany as jest.Mock).mockResolvedValueOnce([mockStakeholder]);
+    (mockPrisma.projectStakeholder.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get(
+      '/api/stakeholders?projectId=project-1&status=ACTIVE'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

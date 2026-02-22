@@ -207,3 +207,93 @@ describe('Activity Routes — additional coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('Activity Routes — edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/activity', activityRoutes);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+  });
+
+  it('GET /api/activity supports limit query param', async () => {
+    mockGetActivity.mockResolvedValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/activity?recordType=ncr&recordId=r1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/activity supports offset query param', async () => {
+    mockGetActivity.mockResolvedValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/activity?recordType=ncr&recordId=r1&offset=10');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/activity/recent returns entries array in data', async () => {
+    mockGetRecentActivity.mockResolvedValue([{ id: 'a2', action: 'updated' }]);
+    const res = await request(app).get('/api/activity/recent');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.entries)).toBe(true);
+    expect(res.body.data.entries).toHaveLength(1);
+  });
+
+  it('GET /api/activity/recent total matches entries length', async () => {
+    mockGetRecentActivity.mockResolvedValue([{ id: 'a1' }, { id: 'a2' }]);
+    const res = await request(app).get('/api/activity/recent');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(2);
+  });
+
+  it('POST /api/activity with status_changed action succeeds', async () => {
+    mockLogActivity.mockResolvedValue(undefined);
+    const res = await request(app).post('/api/activity').send({
+      recordType: 'risk',
+      recordId: 'r-10',
+      action: 'status_changed',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/activity with approved action succeeds', async () => {
+    mockLogActivity.mockResolvedValue(undefined);
+    const res = await request(app).post('/api/activity').send({
+      recordType: 'document',
+      recordId: 'doc-5',
+      action: 'approved',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.message).toBe('Activity logged successfully');
+  });
+
+  it('POST /api/activity returns 500 when logActivity throws', async () => {
+    mockLogActivity.mockRejectedValueOnce(new Error('Log failed'));
+    const res = await request(app).post('/api/activity').send({
+      recordType: 'ncr',
+      recordId: 'r1',
+      action: 'created',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/activity/recent returns 500 when getRecentActivity throws', async () => {
+    mockGetRecentActivity.mockRejectedValueOnce(new Error('Recent activity failed'));
+    const res = await request(app).get('/api/activity/recent');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/activity with missing recordId returns 400', async () => {
+    const res = await request(app).get('/api/activity?recordType=ncr');
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+});

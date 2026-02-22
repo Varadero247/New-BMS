@@ -163,3 +163,56 @@ describe('Password utilities — additional coverage', () => {
     expect(result.errors.length).toBeGreaterThan(0);
   });
 });
+
+describe('Password utilities — extended edge cases', () => {
+  it('hashPassword returns a string longer than the input', async () => {
+    const password = 'MyPass1!Secure';
+    const hash = await hashPassword(password);
+    expect(hash.length).toBeGreaterThan(password.length);
+  });
+
+  it('hashPassword produces 60-character bcrypt hash', async () => {
+    const hash = await hashPassword('TestPassword1!');
+    expect(hash.length).toBe(60);
+  });
+
+  it('comparePassword returns false when hash is incorrect format', async () => {
+    // Comparing against a random non-hash string throws internally; bcryptjs returns false
+    const result = await comparePassword('anything', '$2b$12$invalidhashstring');
+    expect(result).toBe(false);
+  });
+
+  it('validatePasswordStrength treats numbers as satisfying number requirement', () => {
+    const result = validatePasswordStrength('ValidPass!Abc1');
+    expect(result.errors).not.toContain('Password must contain at least one number');
+  });
+
+  it('validatePasswordStrength treats uppercase as satisfying uppercase requirement', () => {
+    const result = validatePasswordStrength('Valid1!pass');
+    // Has uppercase V
+    expect(result.errors).not.toContain('Password must contain at least one uppercase letter');
+  });
+
+  it('validatePasswordStrength returns valid true for boundary 72-char password', () => {
+    const result = validatePasswordStrength('Aa1!' + 'x'.repeat(68));
+    expect(result.valid).toBe(true);
+  });
+
+  it('validatePasswordStrength errors array is always an array even for valid passwords', () => {
+    const result = validatePasswordStrength('ValidPassword1!');
+    expect(Array.isArray(result.errors)).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('hashPassword with numeric-only content still produces valid bcrypt hash', async () => {
+    // bcrypt doesn't enforce password policies; just hashes whatever is given
+    const hash = await hashPassword('1234567890');
+    expect(hash).toMatch(/^\$2[ab]\$/);
+  });
+
+  it('comparePassword is case-sensitive', async () => {
+    const hash = await hashPassword('MyPassword1!');
+    const result = await comparePassword('mypassword1!', hash);
+    expect(result).toBe(false);
+  });
+});

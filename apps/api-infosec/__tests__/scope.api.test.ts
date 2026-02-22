@@ -311,3 +311,91 @@ describe('InfoSec Scope — additional coverage', () => {
     );
   });
 });
+
+describe('InfoSec Scope — edge cases and deeper coverage', () => {
+  const baseScope = {
+    id: 'c9000000-0000-4000-a000-000000000003',
+    name: 'Edge Case Scope',
+    description: 'Testing edge cases',
+    boundaries: 'HQ only',
+    inclusions: 'Servers',
+    exclusions: 'Printers',
+    justification: 'Compliance',
+    interestedParties: [],
+    applicableRequirements: [],
+    interfaces: [],
+    status: 'DRAFT',
+    createdBy: '00000000-0000-4000-a000-000000000123',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/scope responds with JSON content-type', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(baseScope);
+    const res = await request(app).get('/api/scope');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/scope findFirst is called with orderBy createdAt desc', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).get('/api/scope');
+    expect(mockPrisma.isScope.findFirst).toHaveBeenCalledWith({
+      orderBy: { createdAt: 'desc' },
+    });
+  });
+
+  it('PUT /api/scope with empty body succeeds (all fields optional)', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(baseScope);
+    (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce(baseScope);
+    const res = await request(app).put('/api/scope').send({});
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/scope with DRAFT status is accepted', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(baseScope);
+    (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce({ ...baseScope, status: 'DRAFT' });
+    const res = await request(app).put('/api/scope').send({ status: 'DRAFT' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/scope 500 error code is INTERNAL_ERROR', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(baseScope);
+    (mockPrisma.isScope.update as jest.Mock).mockRejectedValueOnce(new Error('network issue'));
+    const res = await request(app).put('/api/scope').send({ name: 'Fail' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/scope 400 for name longer than 200 chars has success false', async () => {
+    const res = await request(app).put('/api/scope').send({ name: 'x'.repeat(201) });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/scope description max 5000 chars is accepted', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(baseScope);
+    (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce(baseScope);
+    const res = await request(app).put('/api/scope').send({ description: 'a'.repeat(5000) });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/scope description over 5000 chars returns 400', async () => {
+    const res = await request(app).put('/api/scope').send({ description: 'a'.repeat(5001) });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/scope 500 error code is INTERNAL_ERROR', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

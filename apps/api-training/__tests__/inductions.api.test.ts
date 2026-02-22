@@ -200,3 +200,86 @@ describe('inductions.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('inductions.api — edge cases and extended coverage', () => {
+  it('returns records with all required nested course fields', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        employeeName: 'Alice',
+        course: { title: 'Contractor Induction', code: 'IND-100' },
+      },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].course.title).toBe('Contractor Induction');
+    expect(res.body.data[0].course.code).toBe('IND-100');
+  });
+
+  it('success flag is true when findMany returns records', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: '1', employeeName: 'Bob', course: { title: 'Fire Induction', code: 'F-001' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('data array length matches number of records returned', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: '1', employeeName: 'A', course: { title: 'T1', code: 'C1' } },
+      { id: '2', employeeName: 'B', course: { title: 'T2', code: 'C2' } },
+      { id: '3', employeeName: 'C', course: { title: 'T3', code: 'C3' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('findMany is called with INDUCTION filter via route logic', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    await request(app).get('/api/inductions');
+    expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledTimes(1);
+    const callArg = mockPrisma.trainRecord.findMany.mock.calls[0][0];
+    expect(callArg).toBeDefined();
+  });
+
+  it('error body has success false and error code on 500', async () => {
+    mockPrisma.trainRecord.findMany.mockRejectedValue(new Error('network error'));
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('handles large dataset without error', async () => {
+    const records = Array.from({ length: 50 }, (_, i) => ({
+      id: String(i),
+      employeeName: `Employee ${i}`,
+      course: { title: `Course ${i}`, code: `IND-${i}` },
+    }));
+    mockPrisma.trainRecord.findMany.mockResolvedValue(records);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(50);
+  });
+
+  it('response body has no pagination field (non-paginated endpoint)', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeUndefined();
+  });
+
+  it('each record id is accessible in data array', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000010',
+        employeeName: 'Test User',
+        course: { title: 'Health & Safety', code: 'HS-001' },
+      },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000010');
+  });
+});

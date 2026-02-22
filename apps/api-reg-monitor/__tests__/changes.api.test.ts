@@ -234,3 +234,84 @@ describe('changes.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('Regulatory Changes — extended edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/changes returns pagination metadata', async () => {
+    mockPrisma.regChange.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'GDPR Update' }]);
+    mockPrisma.regChange.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/changes?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(20);
+  });
+
+  it('GET /api/changes pagination page 2 skips correctly', async () => {
+    mockPrisma.regChange.findMany.mockResolvedValue([]);
+    mockPrisma.regChange.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/changes?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.regChange.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10 })
+    );
+  });
+
+  it('GET /api/changes filters by jurisdiction query param', async () => {
+    mockPrisma.regChange.findMany.mockResolvedValue([]);
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/changes?jurisdiction=UK');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST /api/changes returns data with id', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regChange.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New Change' });
+    const res = await request(app).post('/api/changes').send({ title: 'New Change' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('PUT /api/changes/:id returns updated data', async () => {
+    mockPrisma.regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old' });
+    mockPrisma.regChange.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New Title' });
+    const res = await request(app)
+      .put('/api/changes/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New Title' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('New Title');
+  });
+
+  it('DELETE /api/changes/:id returns success:true', async () => {
+    mockPrisma.regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.regChange.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/changes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/changes/:id returns success:true with correct id', async () => {
+    mockPrisma.regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Test' });
+    const res = await request(app).get('/api/changes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/changes returns empty array when no results', async () => {
+    mockPrisma.regChange.findMany.mockResolvedValue([]);
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/changes');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST /api/changes 500 returns INTERNAL_ERROR code', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regChange.create.mockRejectedValue(new Error('crash'));
+    const res = await request(app).post('/api/changes').send({ title: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

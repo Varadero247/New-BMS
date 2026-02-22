@@ -238,3 +238,105 @@ describe('nps — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('NPS Routes — edge cases and 500 paths', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/nps', npsRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = {
+        id: 'user-1',
+        email: 'admin@ims.local',
+        role: 'ADMIN',
+        orgId: 'org-1',
+        organisationId: 'org-1',
+      };
+      next();
+    });
+    mockSubmitResponse.mockReturnValue({
+      id: 'nps-1',
+      userId: 'user-1',
+      orgId: 'org-1',
+      score: 9,
+      category: 'promoter',
+      createdAt: new Date().toISOString(),
+    });
+    mockGetAnalytics.mockReturnValue({
+      npsScore: 42,
+      total: 10,
+      promoters: 6,
+      passives: 2,
+      detractors: 2,
+      promoterPct: 60,
+      detractorPct: 20,
+    });
+    mockListResponses.mockReturnValue({ responses: [], total: 0 });
+  });
+
+  it('POST /api/nps returns 500 when submitResponse throws', async () => {
+    mockSubmitResponse.mockImplementationOnce(() => {
+      throw new Error('NPS store error');
+    });
+    const res = await request(app).post('/api/nps').send({ score: 8 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/nps/analytics returns 500 when getAnalytics throws', async () => {
+    mockGetAnalytics.mockImplementationOnce(() => {
+      throw new Error('Analytics store error');
+    });
+    const res = await request(app).get('/api/nps/analytics');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/nps/responses returns 500 when listResponses throws', async () => {
+    mockListResponses.mockImplementationOnce(() => {
+      throw new Error('List store error');
+    });
+    const res = await request(app).get('/api/nps/responses');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/nps/analytics returns passives in data', async () => {
+    const res = await request(app).get('/api/nps/analytics');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('passives');
+  });
+
+  it('GET /api/nps/analytics promoterPct is a number', async () => {
+    const res = await request(app).get('/api/nps/analytics');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.promoterPct).toBe('number');
+  });
+
+  it('GET /api/nps/responses returns total field in data', async () => {
+    mockListResponses.mockReturnValueOnce({ responses: [], total: 5 });
+    const res = await request(app).get('/api/nps/responses');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total');
+  });
+
+  it('POST /api/nps response data has userId field', async () => {
+    const res = await request(app).post('/api/nps').send({ score: 9 });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('userId');
+  });
+
+  it('GET /api/nps/responses default limit of 50 is accepted', async () => {
+    const res = await request(app).get('/api/nps/responses');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST /api/nps with score 5 returns 201', async () => {
+    mockSubmitResponse.mockReturnValueOnce({ id: 'nps-x', score: 5, category: 'passive' });
+    const res = await request(app).post('/api/nps').send({ score: 5 });
+    expect(res.status).toBe(201);
+  });
+});

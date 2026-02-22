@@ -246,3 +246,111 @@ describe('spend.api — additional coverage', () => {
     }
   });
 });
+
+describe('spend.api — edge cases and extended coverage', () => {
+  it('GET /api/spend supports pagination query params', async () => {
+    mockPrisma.suppSpend.findMany.mockResolvedValue([]);
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/spend?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.limit).toBe(10);
+  });
+
+  it('GET /api/spend supports search query param', async () => {
+    mockPrisma.suppSpend.findMany.mockResolvedValue([]);
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/spend?search=PO-001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/spend pagination includes totalPages', async () => {
+    mockPrisma.suppSpend.findMany.mockResolvedValue([]);
+    mockPrisma.suppSpend.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/spend?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('POST /api/spend returns 400 when period is missing', async () => {
+    const res = await request(app).post('/api/spend').send({
+      supplierId: 'sup-1',
+      amount: 1000,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/spend with optional fields creates successfully', async () => {
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    mockPrisma.suppSpend.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      supplierId: 'sup-1',
+      period: '2026-Q2',
+      amount: 2500,
+      currency: 'GBP',
+    });
+    const res = await request(app).post('/api/spend').send({
+      supplierId: 'sup-1',
+      period: '2026-Q2',
+      amount: 2500,
+      currency: 'GBP',
+      category: 'Materials',
+      poNumber: 'PO-0042',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/spend returns data as array', async () => {
+    mockPrisma.suppSpend.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', amount: 1000 },
+      { id: '00000000-0000-0000-0000-000000000002', amount: 2000 },
+    ]);
+    mockPrisma.suppSpend.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/spend');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('PUT /api/spend/:id with optional currency field succeeds', async () => {
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.suppSpend.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      currency: 'EUR',
+    });
+    const res = await request(app)
+      .put('/api/spend/00000000-0000-0000-0000-000000000001')
+      .send({ currency: 'EUR' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/spend/:id returns success message', async () => {
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.suppSpend.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app).delete('/api/spend/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('spend deleted successfully');
+  });
+
+  it('GET /api/spend/:id returns success true on found record', async () => {
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      amount: 9999,
+    });
+    const res = await request(app).get('/api/spend/00000000-0000-0000-0000-000000000002');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.amount).toBe(9999);
+  });
+});

@@ -251,3 +251,80 @@ describe('actions.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('Risk Actions — extended edge cases', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /:id/actions returns empty array when no actions exist', async () => {
+    mockPrisma.riskAction.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /:id/actions returns success:true', async () => {
+    mockPrisma.riskAction.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', actionTitle: 'Mitigate' }]);
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /:id/actions returns 400 when actionType is missing', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions')
+      .send({ actionTitle: 'Test', description: 'Desc', targetDate: '2026-06-01T00:00:00Z' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /:id/actions returns 400 when targetDate is missing', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions')
+      .send({ actionTitle: 'Test', description: 'Desc', actionType: 'PREVENTIVE' });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:riskId/actions/:id success body has data', async () => {
+    mockPrisma.riskAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', priority: 'LOW' });
+    const res = await request(app)
+      .put('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001')
+      .send({ priority: 'LOW' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('POST /complete sets status to COMPLETED', async () => {
+    mockPrisma.riskAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001/complete')
+      .send({ evidenceOfCompletion: 'Signed off', effectiveness: 'Fully effective' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLETED');
+  });
+
+  it('GET /actions/overdue returns empty array when none overdue', async () => {
+    mockPrisma.riskAction.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/actions/overdue');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /actions/due-soon returns success:true', async () => {
+    mockPrisma.riskAction.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', status: 'OPEN' }]);
+    const res = await request(app).get('/api/risks/actions/due-soon');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /actions/overdue 500 returns INTERNAL_ERROR code', async () => {
+    mockPrisma.riskAction.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/risks/actions/overdue');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

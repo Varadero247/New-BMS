@@ -235,3 +235,83 @@ describe('HIPAA Security Routes', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('HIPAA Security — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns pagination object with page, limit, total, totalPages', async () => {
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue([mockControl]);
+    prisma.hipaaSecurityControl.count.mockResolvedValue(41);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total', 41);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET / with page=2&limit=5 passes correct skip to findMany', async () => {
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue([]);
+    prisma.hipaaSecurityControl.count.mockResolvedValue(41);
+    const res = await request(app).get('/?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(prisma.hipaaSecurityControl.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET /dashboard partiallyImplemented count is correct', async () => {
+    const controls = [
+      { ...mockControl, id: 'c1', implementationStatus: 'PARTIALLY_IMPLEMENTED' },
+      { ...mockControl, id: 'c2', implementationStatus: 'PARTIALLY_IMPLEMENTED' },
+      { ...mockControl, id: 'c3', implementationStatus: 'FULLY_IMPLEMENTED' },
+    ];
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue(controls);
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.partiallyImplemented).toBe(2);
+  });
+
+  it('GET /dashboard notImplemented count is correct', async () => {
+    const controls = [
+      { ...mockControl, id: 'c1', implementationStatus: 'NOT_IMPLEMENTED' },
+      { ...mockControl, id: 'c2', implementationStatus: 'FULLY_IMPLEMENTED' },
+    ];
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue(controls);
+    const res = await request(app).get('/dashboard');
+    expect(res.body.data.notImplemented).toBe(1);
+  });
+
+  it('GET /:id success is true on found control', async () => {
+    prisma.hipaaSecurityControl.findUnique.mockResolvedValue(mockControl);
+    const res = await request(app).get('/ctrl-1');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id/implementation returns 500 on DB error during update', async () => {
+    prisma.hipaaSecurityControl.findUnique.mockResolvedValue(mockControl);
+    prisma.hipaaSecurityControl.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/ctrl-1/implementation').send({ implementationStatus: 'FULLY_IMPLEMENTED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /seed returns 500 on DB error during count', async () => {
+    prisma.hipaaSecurityControl.count.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/seed');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / with implementationStatus filter passes it to query', async () => {
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue([mockControl]);
+    prisma.hipaaSecurityControl.count.mockResolvedValue(1);
+    const res = await request(app).get('/?implementationStatus=NOT_IMPLEMENTED');
+    expect(res.status).toBe(200);
+    expect(prisma.hipaaSecurityControl.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ implementationStatus: 'NOT_IMPLEMENTED' }),
+      })
+    );
+  });
+});
