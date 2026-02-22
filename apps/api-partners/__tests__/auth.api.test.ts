@@ -428,6 +428,84 @@ describe('Partners Auth — new edge cases', () => {
   });
 });
 
+describe('Partners Auth — supplemental coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /register bcrypt.hash is called with correct saltRounds', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+    await request(app).post('/api/auth/register').send({
+      email: 'extra@partner.com',
+      password: 'securepass123',
+      name: 'Extra Partner',
+      company: 'ExtraCo',
+    });
+    const bcryptMod = require('bcryptjs');
+    expect(bcryptMod.hash).toHaveBeenCalledWith('securepass123', 12);
+  });
+
+  it('POST /login bcrypt.compare called with provided password', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (require('bcryptjs').compare as jest.Mock).mockResolvedValue(true);
+    await request(app).post('/api/auth/login').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+    });
+    expect(require('bcryptjs').compare).toHaveBeenCalledWith('securepass123', mockPartner.passwordHash);
+  });
+
+  it('POST /register response includes token field', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'token@partner.com',
+      password: 'securepass123',
+      name: 'Token Partner',
+      company: 'TokenCo',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('token');
+  });
+
+  it('POST /login response success is true on 200', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (require('bcryptjs').compare as jest.Mock).mockResolvedValue(true);
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /login success is false on 401', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'ghost@partner.com',
+      password: 'securepass123',
+    });
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /register $transaction called once', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+    await request(app).post('/api/auth/register').send({
+      email: 'txn@partner.com',
+      password: 'securepass123',
+      name: 'Txn Partner',
+      company: 'TxnCo',
+    });
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('Partners Auth — exhaustive coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

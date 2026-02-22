@@ -407,3 +407,47 @@ describe('energy — final coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('energy — extra coverage', () => {
+  it('GET / response body has pagination.total', async () => {
+    (prisma.esgEnergy.findMany as jest.Mock).mockResolvedValue([mockEnergy]);
+    (prisma.esgEnergy.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/energy');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('POST / missing periodStart returns 400', async () => {
+    const res = await request(app).post('/api/energy').send({
+      energyType: 'ELECTRICITY',
+      quantity: 1000,
+      unit: 'kWh',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / data items have energyType field', async () => {
+    (prisma.esgEnergy.findMany as jest.Mock).mockResolvedValue([mockEnergy]);
+    (prisma.esgEnergy.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/energy');
+    expect(res.body.data[0]).toHaveProperty('energyType');
+  });
+
+  it('PUT /:id update with cost field succeeds', async () => {
+    (prisma.esgEnergy.findFirst as jest.Mock).mockResolvedValue(mockEnergy);
+    (prisma.esgEnergy.update as jest.Mock).mockResolvedValue({ ...mockEnergy, cost: 7500 });
+    const res = await request(app)
+      .put('/api/energy/00000000-0000-0000-0000-000000000001')
+      .send({ cost: 7500 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.cost).toBe(7500);
+  });
+
+  it('GET /:id data has quantity field', async () => {
+    (prisma.esgEnergy.findFirst as jest.Mock).mockResolvedValue(mockEnergy);
+    const res = await request(app).get('/api/energy/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('quantity');
+  });
+});

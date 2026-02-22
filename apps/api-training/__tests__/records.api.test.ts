@@ -404,3 +404,50 @@ describe('records.api — final coverage expansion', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('records.api — boundary and method coverage', () => {
+  it('GET /api/records passes orgId filter from authenticated user', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/records');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/records count is called once to generate reference number', async () => {
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    mockPrisma.trainRecord.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      referenceNumber: 'TRN-2026-0001',
+    });
+    await request(app).post('/api/records').send({ courseId: 'c1', employeeId: 'e1' });
+    expect(mockPrisma.trainRecord.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/records/:id calls findFirst before update', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainRecord.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app)
+      .put('/api/records/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(mockPrisma.trainRecord.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.trainRecord.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/records/:id calls update with deletedAt set', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainRecord.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/records/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.trainRecord.update).toHaveBeenCalledTimes(1);
+    const callArg = (mockPrisma.trainRecord.update as jest.Mock).mock.calls[0][0];
+    expect(callArg.data).toHaveProperty('deletedAt');
+  });
+
+  it('GET /api/records with employeeId query returns 200', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/records?employeeId=emp-5');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

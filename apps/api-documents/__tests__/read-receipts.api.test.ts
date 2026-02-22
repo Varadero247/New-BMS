@@ -406,3 +406,54 @@ describe('Read Receipts — call argument and edge case coverage', () => {
     expect(mockPrisma.docReadReceipt.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Read Receipts — final boundary coverage', () => {
+  it('GET / with page=1 returns page 1 in pagination', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/read-receipts?page=1');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET / totalPages is 0 when total is 0', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/read-receipts');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(0);
+  });
+
+  it('POST / body missing both documentId and userId returns 400', async () => {
+    const res = await request(app).post('/api/read-receipts').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id response body has data property on 200', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      documentId: 'doc-1',
+      userId: 'user-1',
+      status: 'READ',
+    });
+    const res = await request(app).get('/api/read-receipts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('PUT /:id with READ status returns 200 when found', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.docReadReceipt.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'READ',
+    });
+    const res = await request(app)
+      .put('/api/read-receipts/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'READ' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

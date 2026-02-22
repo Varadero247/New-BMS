@@ -281,3 +281,58 @@ describe('isValidId — further edge cases', () => {
     expect(isValidId('00000000000000000000000000000000')).toBe(false);
   });
 });
+
+describe('isValidId — comprehensive boundary coverage', () => {
+  const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
+  const VALID_CUID = 'cjld2cyuq0000t3rmniod1foy';
+
+  it('accepts UUID with all-lowercase hex digits', () => {
+    expect(isValidId('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')).toBe(true);
+  });
+
+  it('accepts UUID with all-uppercase hex digits', () => {
+    expect(isValidId('AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE')).toBe(true);
+  });
+
+  it('rejects UUID with a non-hex character in last segment', () => {
+    expect(isValidId('550e8400-e29b-41d4-a716-44665544000g')).toBe(false);
+  });
+
+  it('rejects UUID with 5-char first segment', () => {
+    expect(isValidId('550e8-e29b-41d4-a716-446655440000')).toBe(false);
+  });
+
+  it('rejects UUID with space inside it', () => {
+    expect(isValidId('550e8400-e29b-41d4-a716-44665544 000')).toBe(false);
+  });
+
+  it('rejects CUID containing a hyphen', () => {
+    expect(isValidId('cjld2-yuq0000t3rmniod1foy')).toBe(false);
+  });
+
+  it('accepts a 30-character CUID', () => {
+    expect(isValidId('c' + 'a'.repeat(29))).toBe(true);
+  });
+
+  it('isValidId returns boolean true for valid UUID (strict type)', () => {
+    expect(isValidId(VALID_UUID)).toBe(true);
+    expect(typeof isValidId(VALID_UUID)).toBe('boolean');
+  });
+
+  it('isValidId returns boolean false for invalid string (strict type)', () => {
+    expect(isValidId('bad')).toBe(false);
+    expect(typeof isValidId('bad')).toBe('boolean');
+  });
+
+  it('accepts a second distinct valid UUID', () => {
+    expect(isValidId('6ba7b810-9dad-11d1-80b4-00c04fd430c8')).toBe(true);
+  });
+
+  it('accepts VALID_CUID in isValidId', () => {
+    expect(isValidId(VALID_CUID)).toBe(true);
+  });
+
+  it('rejects a number converted to string', () => {
+    expect(isValidId(String(12345))).toBe(false);
+  });
+});

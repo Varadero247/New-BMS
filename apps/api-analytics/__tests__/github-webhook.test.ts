@@ -510,3 +510,64 @@ describe("GitHub Webhook — remaining coverage", () => {
     expect(Number.isInteger(createCall.data.details.commitCount)).toBe(true);
   });
 });
+
+// ===================================================================
+// GitHub Webhook — supplemental coverage
+// ===================================================================
+describe("GitHub Webhook — supplemental coverage", () => {
+  it("response body is a JSON object on success", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "sc-1" });
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "sc1", message: "fix: body check" }],
+        head_commit: { message: "fix: body check" },
+      });
+    expect(typeof res.body).toBe("object");
+  });
+
+  it("create is called with details.shas being an array of strings", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "sc-2" });
+    await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "sha-str-1", message: "test" }, { id: "sha-str-2", message: "test2" }],
+        head_commit: { message: "test2" },
+      });
+    const createCall = (prisma.changelog.create as jest.Mock).mock.calls[0][0];
+    expect(Array.isArray(createCall.data.details.shas)).toBe(true);
+    createCall.data.details.shas.forEach((sha: any) => expect(typeof sha).toBe("string"));
+  });
+
+  it("changelog.create is called with a non-empty summary for main branch", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "sc-3" });
+    await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "sc3", message: "docs: update readme" }],
+        head_commit: { message: "docs: update readme" },
+      });
+    const createCall = (prisma.changelog.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.summary.length).toBeGreaterThan(0);
+  });
+
+  it("changelog.create is not called for branches other than main or master", async () => {
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({ ref: "refs/heads/hotfix/patch", commits: [{ id: "hf1", message: "fix" }] });
+    expect(res.status).toBe(200);
+    expect(res.body.data.skipped).toBe(true);
+    expect(prisma.changelog.create).not.toHaveBeenCalled();
+  });
+
+  it("skipped response data.reason is Not main branch for dev branch", async () => {
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({ ref: "refs/heads/dev", commits: [{ id: "dev1", message: "wip" }] });
+    expect(res.status).toBe(200);
+    expect(res.body.data.reason).toBe("Not main branch");
+  });
+});

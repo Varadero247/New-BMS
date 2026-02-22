@@ -431,6 +431,67 @@ describe('Quality Context Factors — additional coverage', () => {
   });
 });
 
+describe('Quality Context Factors — extra coverage', () => {
+  const mockIssue = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-CTX-2601-001',
+    issueOfConcern: 'Market competition increasing',
+    bias: 'OPPORTUNITY',
+    processesAffected: 'Sales',
+    treatmentMethod: 'Market analysis',
+    priority: 'HIGH',
+    status: 'OPEN',
+    notes: null,
+    deletedAt: null,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / count called once per list request', async () => {
+    mockPrisma.qualIssue.findMany.mockResolvedValue([]);
+    mockPrisma.qualIssue.count.mockResolvedValue(0);
+    await request(app).get('/api/context-factors');
+    expect(mockPrisma.qualIssue.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / EXTERNAL factorType maps to OPPORTUNITY bias in create data', async () => {
+    mockPrisma.qualIssue.count.mockResolvedValue(0);
+    mockPrisma.qualIssue.create.mockResolvedValue({ ...mockIssue, bias: 'OPPORTUNITY' });
+    const res = await request(app).post('/api/context-factors').send({
+      factorName: 'Climate regulation change',
+      factorType: 'EXTERNAL',
+      impact: 'HIGH',
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.qualIssue.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ bias: 'OPPORTUNITY' }) })
+    );
+  });
+
+  it('GET /:id returns 500 on database error', async () => {
+    mockPrisma.qualIssue.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/context-factors/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id returns 500 on findFirst error', async () => {
+    mockPrisma.qualIssue.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/context-factors/00000000-0000-0000-0000-000000000001')
+      .send({ factorName: 'Updated' });
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /:id returns 500 on findFirst error', async () => {
+    mockPrisma.qualIssue.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).delete('/api/context-factors/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+});
+
 describe('Quality Context Factors — final coverage', () => {
   const mockIssue = {
     id: '00000000-0000-0000-0000-000000000001',

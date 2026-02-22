@@ -538,3 +538,35 @@ describe('ISO 42001 Controls — final batch coverage', () => {
     expect(res.body.data.summary.statusCounts).toHaveProperty('FULLY_IMPLEMENTED');
   });
 });
+
+describe('ISO 42001 Controls — extended final batch', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data items have domain field', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([mockControl]);
+    mockPrisma.aiControl.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/controls');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('domain');
+  });
+
+  it('GET / data items have implementationStatus field', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([mockControl]);
+    mockPrisma.aiControl.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/controls');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('implementationStatus');
+  });
+
+  it('PUT /:id/status with PARTIALLY_IMPLEMENTED returns 200', async () => {
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl);
+    mockPrisma.aiControl.update.mockResolvedValue({ ...mockControl, implementationStatus: 'PARTIALLY_IMPLEMENTED' });
+    const res = await request(app)
+      .put(`/api/controls/${UUID1}/status`)
+      .send({ implementationStatus: 'PARTIALLY_IMPLEMENTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

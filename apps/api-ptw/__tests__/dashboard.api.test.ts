@@ -346,3 +346,52 @@ describe('dashboard.api — final extended coverage', () => {
     expect(res.body.data).not.toBeNull();
   });
 });
+
+describe('dashboard.api — extra boundary coverage', () => {
+  it('stats returns exact values from each count mock', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(99);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(55);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(22);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalPermits).toBe(99);
+    expect(res.body.data.totalMethodStatements).toBe(55);
+    expect(res.body.data.totalToolboxTalks).toBe(22);
+  });
+
+  it('data property is an object (not array)', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data).toBe('object');
+    expect(Array.isArray(res.body.data)).toBe(false);
+  });
+
+  it('500 response has error object with code INTERNAL_ERROR', async () => {
+    mockPrisma.ptwPermit.count.mockRejectedValue(new Error('DB out'));
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBeDefined();
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('ptwToolboxTalk.count called once per stats request', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.ptwToolboxTalk.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('all count values are non-negative numbers', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(3);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(1);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalPermits).toBeGreaterThanOrEqual(0);
+    expect(res.body.data.totalMethodStatements).toBeGreaterThanOrEqual(0);
+    expect(res.body.data.totalToolboxTalks).toBeGreaterThanOrEqual(0);
+  });
+});

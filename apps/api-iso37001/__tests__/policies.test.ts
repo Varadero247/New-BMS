@@ -542,3 +542,38 @@ describe('ISO 37001 Policies — final batch coverage', () => {
     expect(res.body.data).toHaveProperty('id');
   });
 });
+
+describe('ISO 37001 Policies — extended final batch', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data items have status field', async () => {
+    (mockPrisma.abPolicy.findMany as jest.Mock).mockResolvedValueOnce([mockPolicy]);
+    (mockPrisma.abPolicy.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('status');
+  });
+
+  it('POST / auto-assigns DRAFT status on create', async () => {
+    (mockPrisma.abPolicy.create as jest.Mock).mockResolvedValueOnce(mockPolicy);
+    await request(app).post('/api/policies').send({
+      title: 'Status Test Policy',
+      content: 'Some content',
+      policyType: 'ANTI_BRIBERY_POLICY',
+    });
+    expect(mockPrisma.abPolicy.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'DRAFT' }),
+      })
+    );
+  });
+
+  it('GET /:id: returns 500 on DB error', async () => {
+    (mockPrisma.abPolicy.findFirst as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(app).get('/api/policies/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

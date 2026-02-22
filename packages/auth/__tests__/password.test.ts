@@ -254,3 +254,39 @@ describe('Password utilities — boundary and comprehensive checks', () => {
     expect(result).toBe(true);
   });
 });
+
+// ── Password utilities — final coverage ──────────────────────────────────────
+
+describe('Password utilities — final coverage', () => {
+  it('hashPassword produces unique hashes across three calls', async () => {
+    const h1 = await hashPassword('SomePass1!');
+    const h2 = await hashPassword('SomePass1!');
+    const h3 = await hashPassword('SomePass1!');
+    expect(new Set([h1, h2, h3]).size).toBe(3);
+  });
+
+  it('comparePassword returns false when provided an entirely different password', async () => {
+    const hash = await hashPassword('Original1!Pass');
+    const result = await comparePassword('Different1!Pass', hash);
+    expect(result).toBe(false);
+  });
+
+  it('validatePasswordStrength valid:true when exactly 4 required chars + 8 padding', () => {
+    const pwd = 'Ab1!' + 'x'.repeat(8);
+    expect(pwd.length).toBe(12);
+    const result = validatePasswordStrength(pwd);
+    expect(result.valid).toBe(true);
+  });
+
+  it('validatePasswordStrength rejects password with only whitespace characters', () => {
+    const result = validatePasswordStrength(' '.repeat(15));
+    expect(result.valid).toBe(false);
+  });
+
+  it('comparePassword with correct password after multiple hashes still returns true', async () => {
+    const password = 'Check1!Password';
+    const hash = await hashPassword(password);
+    expect(await comparePassword(password, hash)).toBe(true);
+    expect(await comparePassword(password, hash)).toBe(true);
+  });
+});

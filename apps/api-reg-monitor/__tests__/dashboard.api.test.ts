@@ -364,3 +364,55 @@ describe('Dashboard Stats — additional final cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Dashboard Stats — absolute final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/dashboard/stats data object is not null', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).not.toBeNull();
+  });
+
+  it('GET /api/dashboard/stats success:true on all three counts defined', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(12);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(8);
+    mockPrisma.regObligation.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.totalChanges).toBe(12);
+  });
+
+  it('GET /api/dashboard/stats count queries all called once each', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.regChange.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.regLegalRegister.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.regObligation.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/dashboard/stats 500 on regObligation error has error.code', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/dashboard/stats content-type is json', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

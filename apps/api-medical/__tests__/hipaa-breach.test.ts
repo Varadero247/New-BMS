@@ -339,3 +339,59 @@ describe('HIPAA Breach Notification Routes — extended coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('HIPAA Breach Notification — further boundary coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns empty array when no breaches', async () => {
+    prisma.hipaaBreachNotification.findMany.mockResolvedValue([]);
+    prisma.hipaaBreachNotification.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST / create is called once on valid payload', async () => {
+    prisma.hipaaBreachNotification.count.mockResolvedValue(1);
+    prisma.hipaaBreachNotification.create.mockResolvedValue(mockBreach);
+    await request(app).post('/').send(breachPayload);
+    expect(prisma.hipaaBreachNotification.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id/close with CLOSED status returns success', async () => {
+    prisma.hipaaBreachNotification.findUnique.mockResolvedValue(mockBreach);
+    prisma.hipaaBreachNotification.update.mockResolvedValue({ ...mockBreach, status: 'CLOSED', closedAt: new Date() });
+    const res = await request(app).put('/breach-1/close').send({ status: 'CLOSED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /dashboard closed count is computed as total minus open minus notified', async () => {
+    prisma.hipaaBreachNotification.count
+      .mockResolvedValueOnce(20)
+      .mockResolvedValueOnce(12)
+      .mockResolvedValueOnce(5);
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.closed).toBe(3); // 20 - 12 - 5
+  });
+
+  it('GET /:id returns 500 on DB error during findUnique', async () => {
+    prisma.hipaaBreachNotification.findUnique.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/breach-1');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id/notify-hhs calls update with hhsNotifiedAt', async () => {
+    prisma.hipaaBreachNotification.findUnique.mockResolvedValue(mockBreach);
+    prisma.hipaaBreachNotification.update.mockResolvedValue({
+      ...mockBreach,
+      hhsNotifiedAt: new Date(),
+      status: 'NOTIFICATION_COMPLETE',
+    });
+    await request(app).put('/breach-1/notify-hhs');
+    expect(prisma.hipaaBreachNotification.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ hhsNotifiedAt: expect.any(Date) }) })
+    );
+  });
+});

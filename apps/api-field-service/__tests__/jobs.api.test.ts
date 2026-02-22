@@ -520,3 +520,47 @@ describe('jobs.api — further coverage', () => {
     );
   });
 });
+
+describe('jobs.api — final coverage', () => {
+  it('GET / applies skip=20 for page=3 limit=10', async () => {
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJob.count.mockResolvedValue(0);
+    await request(app).get('/api/jobs?page=3&limit=10');
+    expect(mockPrisma.fsSvcJob.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('DELETE /:id returns message Job deleted in data', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020' });
+    mockPrisma.fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020', deletedAt: new Date() });
+    const res = await request(app).delete('/api/jobs/00000000-0000-0000-0000-000000000020');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Job deleted');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/jobs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /unassigned returns 500 on DB error', async () => {
+    mockPrisma.fsSvcJob.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/jobs/unassigned');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id/assign returns 500 on DB error during update', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'UNASSIGNED' });
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: 'tech-1' });
+    mockPrisma.fsSvcJob.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/jobs/00000000-0000-0000-0000-000000000001/assign')
+      .send({ technicianId: 'tech-1' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

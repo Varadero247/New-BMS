@@ -541,3 +541,73 @@ describe('HMRC Calendar — final coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// HMRC Calendar — extra coverage to reach 40 tests
+// ===================================================================
+describe('HMRC Calendar — extra coverage', () => {
+  const extraDeadline = {
+    title: 'Extra Deadline',
+    dueDate: '2026-10-01',
+    type: 'PAYE',
+    description: 'Extra test deadline',
+    status: 'PENDING',
+  };
+
+  it('GET / findMany is called with orderBy dueDate asc', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/hmrc-calendar');
+
+    expect(mockPrisma.finHmrcDeadline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { dueDate: 'asc' } })
+    );
+  });
+
+  it('GET / response body has both success and data keys', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/hmrc-calendar');
+
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST / create is called with status from request body', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000040',
+      ...extraDeadline,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    await request(app).post('/api/hmrc-calendar').send(extraDeadline);
+
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'PENDING' }),
+      })
+    );
+  });
+
+  it('POST / response success is true on 201', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000041',
+      ...extraDeadline,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    const res = await request(app).post('/api/hmrc-calendar').send(extraDeadline);
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data is an array even on empty result', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/hmrc-calendar');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

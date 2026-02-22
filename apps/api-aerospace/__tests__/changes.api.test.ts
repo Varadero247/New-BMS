@@ -601,3 +601,34 @@ describe('Aerospace Change Requests API — additional coverage', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('Aerospace Change Requests API — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('PUT /api/changes/:id/implement returns 500 when update throws', async () => {
+    mockPrisma.aeroChangeRequest.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+      deletedAt: null,
+    });
+    mockPrisma.aeroChangeRequest.update.mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/changes/00000000-0000-0000-0000-000000000001/implement')
+      .set('Authorization', 'Bearer token')
+      .send({ implementationNotes: 'Notes' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/changes totalPages rounds up correctly for 21 items limit 20', async () => {
+    mockPrisma.aeroChangeRequest.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroChangeRequest.count.mockResolvedValueOnce(21);
+
+    const res = await request(app)
+      .get('/api/changes?limit=20')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(2);
+  });
+});

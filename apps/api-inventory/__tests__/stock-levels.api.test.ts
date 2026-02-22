@@ -457,3 +457,37 @@ describe('Stock Levels — final tests', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Stock Levels — extra final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/stock-levels meta has limit field set to default 20', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/stock-levels');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.limit).toBe(25);
+  });
+
+  it('GET /api/stock-levels/summary 500 has success false', async () => {
+    (mockPrisma.inventory.count as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/stock-levels/summary');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/stock-levels/low-stock 500 has success false', async () => {
+    (mockPrisma.$queryRaw as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/stock-levels/low-stock');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/stock-levels data items have inventoryValue field', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([mockInventoryItem]);
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/stock-levels');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('inventoryValue', 2500);
+  });
+});

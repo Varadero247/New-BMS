@@ -612,3 +612,68 @@ describe('sprints.api — final extended coverage', () => {
     expect(res.body.data).toHaveLength(1);
   });
 });
+
+describe('sprints.api — extra boundary coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/sprints', sprintsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/sprints returns success:true with multiple sprints', async () => {
+    const sprint2 = { ...mockSprint, id: '45000000-0000-4000-a000-000000000002', sprintNumber: 2 };
+    (mockPrisma.projectSprint.findMany as jest.Mock).mockResolvedValueOnce([mockSprint, sprint2]);
+    (mockPrisma.projectSprint.count as jest.Mock).mockResolvedValueOnce(2);
+    const res = await request(app)
+      .get('/api/sprints')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('PUT /api/sprints/:id updates sprintName correctly', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValueOnce(mockSprint);
+    (mockPrisma.projectSprint.update as jest.Mock).mockResolvedValueOnce({
+      ...mockSprint,
+      sprintName: 'Renamed Sprint',
+    });
+    const res = await request(app)
+      .put('/api/sprints/45000000-0000-4000-a000-000000000001')
+      .send({ sprintName: 'Renamed Sprint' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.sprintName).toBe('Renamed Sprint');
+  });
+
+  it('POST /api/sprints returns 400 for empty projectId', async () => {
+    const res = await request(app).post('/api/sprints').send({
+      projectId: '',
+      sprintNumber: 5,
+      sprintName: 'Sprint 5',
+      startDate: '2025-05-01',
+      endDate: '2025-05-15',
+      duration: 14,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/sprints/:id returns 500 when update throws after findUnique', async () => {
+    (mockPrisma.projectSprint.findUnique as jest.Mock).mockResolvedValueOnce(mockSprint);
+    (mockPrisma.projectSprint.update as jest.Mock).mockRejectedValueOnce(new Error('Write failed'));
+    const res = await request(app).delete('/api/sprints/45000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/sprints count is called once per request', async () => {
+    (mockPrisma.projectSprint.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectSprint.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app)
+      .get('/api/sprints')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(mockPrisma.projectSprint.count).toHaveBeenCalledTimes(1);
+  });
+});

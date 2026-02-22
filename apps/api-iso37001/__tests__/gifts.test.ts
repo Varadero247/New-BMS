@@ -549,3 +549,77 @@ describe('ISO 37001 Gifts API — extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('ISO 37001 Gifts API — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/gifts: data items have giftType field', async () => {
+    (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
+    (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/gifts');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('giftType');
+  });
+
+  it('GET /api/gifts: data items have direction field', async () => {
+    (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
+    (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/gifts');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('direction');
+  });
+
+  it('GET /api/gifts/:id: returns 500 on DB error', async () => {
+    (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(app).get('/api/gifts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/gifts: auto-sets status PENDING on create', async () => {
+    (mockPrisma.abGiftRegister.create as jest.Mock).mockResolvedValueOnce(mockGift);
+    await request(app).post('/api/gifts').send({
+      description: 'Status test gift',
+      giftType: 'GIFT',
+      direction: 'GIVEN',
+      value: 50,
+      recipientOrGiver: 'Bob Test',
+      date: '2026-03-01',
+    });
+    expect(mockPrisma.abGiftRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'PENDING' }),
+      })
+    );
+  });
+
+  it('PUT /api/gifts/:id/approve: sets approvedAt timestamp', async () => {
+    (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+    (mockPrisma.abGiftRegister.update as jest.Mock).mockResolvedValueOnce({
+      ...mockGift,
+      status: 'APPROVED',
+      approvedBy: 'user-123',
+      approvedAt: new Date(),
+    });
+    const res = await request(app).put('/api/gifts/00000000-0000-0000-0000-000000000001/approve');
+    expect(mockPrisma.abGiftRegister.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ approvedAt: expect.any(Date) }),
+      })
+    );
+    expect(res.status).toBe(200);
+  });
+
+  it('DELETE /api/gifts/:id: uses soft delete with deletedAt timestamp', async () => {
+    (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+    (mockPrisma.abGiftRegister.update as jest.Mock).mockResolvedValueOnce({ ...mockGift, deletedAt: new Date() });
+    await request(app).delete('/api/gifts/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.abGiftRegister.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+});

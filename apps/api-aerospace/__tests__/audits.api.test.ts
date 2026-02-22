@@ -599,3 +599,38 @@ describe('Aerospace Audits API — additional coverage', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Aerospace Audits API — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / filters by both status and auditType simultaneously', async () => {
+    mockPrisma.aeroAudit.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroAudit.count.mockResolvedValueOnce(0);
+    await request(app)
+      .get('/api/audits?status=COMPLETED&auditType=INTERNAL')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.aeroAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'COMPLETED', auditType: 'INTERNAL' }),
+      })
+    );
+  });
+
+  it('POST /findings returns 400 for missing description field', async () => {
+    const res = await request(app)
+      .post('/api/audits/findings')
+      .set('Authorization', 'Bearer token')
+      .send({ auditId: 'a1', findingType: 'NONCONFORMITY' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / response shape has success:true and meta block', async () => {
+    mockPrisma.aeroAudit.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroAudit.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/audits').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+});

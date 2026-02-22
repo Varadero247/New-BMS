@@ -483,3 +483,40 @@ describe('training.api — final coverage pass', () => {
     );
   });
 });
+
+describe('training.api — comprehensive additional coverage', () => {
+  it('GET /api/training response body is an object', async () => {
+    mockPrisma.fsTraining.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraining.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/training');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/training returns content-type JSON', async () => {
+    mockPrisma.fsTraining.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraining.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/training');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/training returns 500 on DB error', async () => {
+    mockPrisma.fsTraining.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/training').send({
+      title: 'HACCP Training',
+      type: 'HACCP',
+      scheduledDate: '2026-06-01',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/training/:id returns correct id in data', async () => {
+    mockPrisma.fsTraining.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000042',
+      title: 'Allergen Awareness',
+    });
+    const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000042');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000042');
+  });
+});

@@ -476,4 +476,25 @@ describe('Service Auth Package', () => {
       expect(decoded.payload.iss).toBe('ims-api-gateway');
     });
   });
+
+  describe('generateServiceToken — additional coverage', () => {
+    it('generates a token with iat claim', () => {
+      const token = generateServiceToken('api-quality');
+      const decoded = jwt.decode(token) as Record<string, unknown>;
+      expect(typeof decoded.iat).toBe('number');
+    });
+
+    it('generates a token with exp claim', () => {
+      const token = generateServiceToken('api-hr');
+      const decoded = jwt.decode(token) as Record<string, unknown>;
+      expect(typeof decoded.exp).toBe('number');
+      expect(decoded.exp as number).toBeGreaterThan(decoded.iat as number);
+    });
+
+    it('serviceId is derived from serviceName', () => {
+      const token = generateServiceToken('my-service');
+      const decoded = jwt.decode(token) as Record<string, unknown>;
+      expect(decoded.serviceId).toBe('service-my-service');
+    });
+  });
 });

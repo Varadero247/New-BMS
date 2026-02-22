@@ -686,3 +686,89 @@ describe('Quality Opportunities API — extended edge cases', () => {
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Quality Opportunities API — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/opportunities', opportunitiesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/opportunities — success:true in body', async () => {
+    (mockPrisma.qualOpportunity.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/opportunities').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/opportunities — correct totalPages for 100 items at limit 20', async () => {
+    (mockPrisma.qualOpportunity.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(100);
+
+    const response = await request(app)
+      .get('/api/opportunities?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(5);
+  });
+
+  it('POST /api/opportunities — count is called once for ref number generation', async () => {
+    (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualOpportunity.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-OPP-2026-001',
+      process: 'IT',
+      opportunityDescription: 'Automate',
+      status: 'IDENTIFIED',
+    });
+
+    await request(app)
+      .post('/api/opportunities')
+      .set('Authorization', 'Bearer token')
+      .send({
+        process: 'IT',
+        opportunityDescription: 'Automate',
+        likelihood: 2,
+        newBusiness: 1,
+        expansionOfCurrent: 1,
+        satisfyingRegs: 1,
+        internalQmsImprovement: 1,
+        reputationImprovement: 2,
+      });
+
+    expect(mockPrisma.qualOpportunity.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/opportunities/:id — 500 on update error after findUnique', async () => {
+    (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '23000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.qualOpportunity.update as jest.Mock).mockRejectedValueOnce(new Error('write fail'));
+
+    const response = await request(app)
+      .delete('/api/opportunities/23000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/opportunities data.items is array', async () => {
+    (mockPrisma.qualOpportunity.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/opportunities')
+      .set('Authorization', 'Bearer token');
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+});

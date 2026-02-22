@@ -659,3 +659,75 @@ describe('timesheets.api — final extended coverage', () => {
     );
   });
 });
+
+describe('timesheets.api — extra boundary coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/timesheets', timesheetsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/timesheets returns multiple timesheets', async () => {
+    const ts2 = { ...mockTimesheet, id: '48000000-0000-4000-a000-000000000002' };
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValueOnce([mockTimesheet, ts2]);
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValueOnce(2);
+    const res = await request(app)
+      .get('/api/timesheets')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /api/timesheets returns 400 when workDate is missing', async () => {
+    const res = await request(app).post('/api/timesheets').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      employeeId: 'emp-001',
+      hoursWorked: 8,
+      activityType: 'DEVELOPMENT',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/timesheets/:id updates overtime field', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValueOnce(mockTimesheet);
+    (mockPrisma.projectTimesheet.update as jest.Mock).mockResolvedValueOnce({
+      ...mockTimesheet,
+      overtime: 2,
+    });
+    const res = await request(app)
+      .put('/api/timesheets/48000000-0000-4000-a000-000000000001')
+      .send({ overtime: 2 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.overtime).toBe(2);
+  });
+
+  it('PUT /api/timesheets/:id/approve sets status APPROVED and approvedBy user id', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValueOnce(mockTimesheet);
+    (mockPrisma.projectTimesheet.update as jest.Mock).mockResolvedValueOnce({
+      ...mockTimesheet,
+      status: 'APPROVED',
+      approvedBy: '20000000-0000-4000-a000-000000000123',
+    });
+    const res = await request(app)
+      .put('/api/timesheets/48000000-0000-4000-a000-000000000001/approve')
+      .send();
+    expect(res.status).toBe(200);
+    expect(mockPrisma.projectTimesheet.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'APPROVED' }),
+      })
+    );
+  });
+
+  it('DELETE /api/timesheets/:id success is false on DB error', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValueOnce(mockTimesheet);
+    (mockPrisma.projectTimesheet.update as jest.Mock).mockRejectedValueOnce(new Error('write failed'));
+    const res = await request(app).delete('/api/timesheets/48000000-0000-4000-a000-000000000001');
+    expect(res.body.success).toBe(false);
+    expect(res.status).toBe(500);
+  });
+});

@@ -606,3 +606,79 @@ describe('resources.api — final extended coverage', () => {
     expect(res.body.meta.page).toBe(1);
   });
 });
+
+describe('resources.api — boundary and extra coverage', () => {
+  let app: express.Express;
+
+  const mockResource = {
+    id: '47000000-0000-4000-a000-000000000001',
+    projectId: 'project-1',
+    resourceType: 'HUMAN',
+    resourceName: 'John Doe',
+    resourceRole: 'Engineer',
+    responsibility: 'RESPONSIBLE',
+    allocationPercentage: 100,
+    allocatedFrom: new Date('2025-01-01'),
+    allocatedTo: new Date('2025-06-30'),
+    actualHours: 80,
+    plannedHours: 160,
+    utilization: 50,
+    status: 'ASSIGNED',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/resources', resourcesRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/resources: data is an array when projectId is provided', async () => {
+    (mockPrisma.projectResource.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectResource.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/resources?projectId=project-1');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/resources: findMany not called when projectId missing', async () => {
+    await request(app).get('/api/resources');
+    expect(mockPrisma.projectResource.findMany).not.toHaveBeenCalled();
+  });
+
+  it('POST /api/resources: create called once on valid submission', async () => {
+    (mockPrisma.projectResource.create as jest.Mock).mockResolvedValueOnce({
+      ...mockResource,
+      id: '47000000-0000-4000-a000-000000000099',
+    });
+    await request(app).post('/api/resources').send({
+      projectId: 'project-1',
+      resourceType: 'HUMAN',
+      resourceName: 'Once Resource',
+      allocatedFrom: '2025-01-01',
+      allocatedTo: '2025-06-30',
+    });
+    expect(mockPrisma.projectResource.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/resources: meta total matches count value', async () => {
+    (mockPrisma.projectResource.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectResource.count as jest.Mock).mockResolvedValueOnce(23);
+    const res = await request(app).get('/api/resources?projectId=project-1');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(23);
+  });
+
+  it('PUT /api/resources/:id: success true in response body on update', async () => {
+    (mockPrisma.projectResource.findUnique as jest.Mock).mockResolvedValueOnce(mockResource);
+    (mockPrisma.projectResource.update as jest.Mock).mockResolvedValueOnce({
+      ...mockResource,
+      resourceRole: 'Lead Engineer',
+    });
+    const res = await request(app)
+      .put('/api/resources/47000000-0000-4000-a000-000000000001')
+      .send({ resourceRole: 'Lead Engineer' });
+    expect(res.body.success).toBe(true);
+  });
+});

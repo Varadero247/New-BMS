@@ -537,3 +537,49 @@ describe('ISO 42001 AI Systems — extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('ISO 42001 AI Systems — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/ai-systems: data items have name field', async () => {
+    mockPrisma.aiSystem.findMany.mockResolvedValue([mockSystem]);
+    mockPrisma.aiSystem.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/ai-systems');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('name');
+  });
+
+  it('GET /api/ai-systems: data items have riskTier field', async () => {
+    mockPrisma.aiSystem.findMany.mockResolvedValue([mockSystem]);
+    mockPrisma.aiSystem.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/ai-systems');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('riskTier');
+  });
+
+  it('GET /api/ai-systems: pagination has limit field', async () => {
+    mockPrisma.aiSystem.findMany.mockResolvedValue([]);
+    mockPrisma.aiSystem.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/ai-systems');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('DELETE /api/ai-systems/:id: response has deleted:true', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiSystem.update.mockResolvedValue({ ...mockSystem, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/ai-systems/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('GET /api/ai-systems/:id/risks: returns 500 on DB error', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiRiskAssessment.findMany.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get(`/api/ai-systems/${UUID1}/risks`);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -492,3 +492,53 @@ describe('Contracts — final coverage', () => {
     );
   });
 });
+
+describe('contracts — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/contracts data.contracts is an array', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.contracts)).toBe(true);
+  });
+
+  it('GET /api/contracts pagination.total reflects count value', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(15);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.total).toBe(15);
+  });
+
+  it('DELETE /api/contracts/:id returns 404 with NOT_FOUND code when missing', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/contracts/:id data.contract.name is correct', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Azure Cloud',
+      vendor: 'Microsoft',
+      status: 'ACTIVE',
+      deletedAt: null,
+    });
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.contract.name).toBe('Azure Cloud');
+  });
+
+  it('GET /api/contracts/seed success:true and data.created is a number', async () => {
+    (prisma.contract.createMany as jest.Mock).mockResolvedValue({ count: 8 });
+    const res = await request(app).get('/api/contracts/seed');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(typeof res.body.data.created).toBe('number');
+  });
+});

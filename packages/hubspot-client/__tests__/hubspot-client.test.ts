@@ -360,3 +360,43 @@ describe('HubSpotClient — comprehensive edge cases', () => {
     expect(body.properties.email).toBe('updated@test.com');
   });
 });
+
+describe('HubSpotClient — final coverage', () => {
+  it('createContact returns the parsed response data on success', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ id: 'c-final', email: 'final@ims.local' }));
+    const result = await client.createContact({ email: 'final@ims.local' });
+    expect(result).toEqual({ id: 'c-final', email: 'final@ims.local' });
+  });
+
+  it('createDeal returns the parsed response data on success', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ id: 'd-final', dealname: 'Final Deal' }));
+    const result = await client.createDeal({ dealname: 'Final Deal' });
+    expect(result).toEqual({ id: 'd-final', dealname: 'Final Deal' });
+  });
+
+  it('updateDeal returns the parsed response data on success', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(ok({ id: 'd-upd', dealstage: 'closed_won' }));
+    const result = await client.updateDeal('d-upd', { dealstage: 'closed_won' });
+    expect(result).toEqual({ id: 'd-upd', dealstage: 'closed_won' });
+  });
+
+  it('env var HUBSPOT_API_KEY is used when no constructor key provided', async () => {
+    process.env.HUBSPOT_API_KEY = 'env-final-key';
+    const client = new HubSpotClient();
+    mockFetch.mockReturnValueOnce(ok({ id: 'env-c' }));
+    await client.createContact({ email: 'env@ims.local' });
+    expect(mockFetch.mock.calls[0][1].headers.Authorization).toBe('Bearer env-final-key');
+    delete process.env.HUBSPOT_API_KEY;
+  });
+
+  it('getDealsByStage returns the parsed response data on success', async () => {
+    const client = new HubSpotClient('test-key');
+    const mockData = { results: [{ id: 's-1', label: 'Open' }] };
+    mockFetch.mockReturnValueOnce(ok(mockData));
+    const result = await client.getDealsByStage('pipe-final');
+    expect(result).toEqual(mockData);
+  });
+});

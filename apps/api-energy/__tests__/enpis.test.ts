@@ -555,3 +555,53 @@ describe('enpis — additional edge cases', () => {
     );
   });
 });
+
+describe('enpis — additional coverage', () => {
+  it('GET /api/enpis pagination page defaults to 1', async () => {
+    (prisma.energyEnpi.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyEnpi.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/enpis');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST /api/enpis rejects missing unit field', async () => {
+    const res = await request(app).post('/api/enpis').send({
+      name: 'No Unit EnPI',
+      formula: 'kWh/person',
+      frequency: 'MONTHLY',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/enpis/:id/data-points returns empty list when no data', async () => {
+    (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyEnpiData.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyEnpiData.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/enpis/e2000000-0000-4000-a000-000000000001/data-points');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('DELETE /api/enpis/:id returns success:true', async () => {
+    (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyEnpi.update as jest.Mock).mockResolvedValue({
+      id: 'e2000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/enpis/e2000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -253,3 +253,31 @@ describe('Password policy — final coverage', () => {
     expect(result.valid).toBe(false);
   });
 });
+
+describe('Password policy — additional edge cases', () => {
+  it('rejects empty string', () => {
+    const { valid } = validatePasswordStrength('');
+    expect(valid).toBe(false);
+  });
+
+  it('rejects exactly 11-char password (below minimum)', () => {
+    const result = validatePasswordStrength('Aa1!xxxxxxx');
+    expect(result.valid).toBe(false);
+  });
+
+  it('accepts exactly 12-char password with all required types', () => {
+    const result = validatePasswordStrength('Aa1!xxxxxxxx');
+    expect(result.valid).toBe(true);
+  });
+
+  it('rejects password with only digits and special chars', () => {
+    const result = validatePasswordStrength('12345678!@#$');
+    expect(result.valid).toBe(false);
+  });
+
+  it('returns valid:false with non-empty errors for weak input', () => {
+    const result = validatePasswordStrength('weak');
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+});

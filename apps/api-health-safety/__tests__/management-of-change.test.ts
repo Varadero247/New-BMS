@@ -373,3 +373,30 @@ describe('Management of Change — final coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Management of Change — extra paths', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / findMany called once per request', async () => {
+    prisma.hSChangeRequest.findMany.mockResolvedValue([]);
+    prisma.hSChangeRequest.count.mockResolvedValue(0);
+    await request(app).get('/');
+    expect(prisma.hSChangeRequest.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / count called to generate reference number', async () => {
+    prisma.hSChangeRequest.count.mockResolvedValue(5);
+    prisma.hSChangeRequest.create.mockResolvedValue({ ...mockChange, referenceNumber: 'MOC-2026-006' });
+    await request(app).post('/').send(changePayload);
+    expect(prisma.hSChangeRequest.count).toHaveBeenCalled();
+  });
+
+  it('DELETE /:id calls update with deletedAt field', async () => {
+    prisma.hSChangeRequest.findUnique.mockResolvedValue(mockChange);
+    prisma.hSChangeRequest.update.mockResolvedValue({ ...mockChange, deletedAt: new Date() });
+    await request(app).delete('/chg-1');
+    expect(prisma.hSChangeRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

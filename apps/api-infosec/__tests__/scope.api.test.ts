@@ -480,3 +480,78 @@ describe('InfoSec Scope — final boundary tests', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('InfoSec Scope — extra final coverage', () => {
+  const scopeRecord = {
+    id: 'e2000000-0000-4000-a000-000000000020',
+    name: 'Extra Final Scope',
+    description: 'Extra coverage tests',
+    boundaries: 'HQ',
+    inclusions: 'All IT',
+    exclusions: 'None',
+    justification: 'Audit',
+    interestedParties: ['Auditors'],
+    applicableRequirements: ['ISO 27001'],
+    interfaces: ['IdP'],
+    status: 'ACTIVE',
+    createdBy: '00000000-0000-4000-a000-000000000123',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('PUT /api/scope exclusions field is persisted in create call', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce(scopeRecord);
+
+    await request(app).put('/api/scope').send({ name: 'New Scope', exclusions: 'Third-party SaaS' });
+
+    const createCall = (mockPrisma.isScope.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.exclusions).toBe('Third-party SaaS');
+  });
+
+  it('PUT /api/scope justification field is persisted in update call as justifications', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(scopeRecord);
+    (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce({
+      ...scopeRecord,
+      justifications: 'Updated justification',
+    });
+
+    await request(app).put('/api/scope').send({ justification: 'Updated justification' });
+
+    const updateCall = (mockPrisma.isScope.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data.justifications).toBe('Updated justification');
+  });
+
+  it('GET /api/scope returns inclusions field in data', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(scopeRecord);
+
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('inclusions', 'All IT');
+  });
+
+  it('PUT /api/scope with applicableRequirements array succeeds and calls create', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce(scopeRecord);
+
+    const res = await request(app).put('/api/scope').send({
+      name: 'New Scope',
+      applicableRequirements: ['ISO 27001', 'GDPR'],
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.isScope.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/scope findFirst is called once before create when no existing scope', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce(scopeRecord);
+
+    await request(app).put('/api/scope').send({ name: 'Brand New Scope' });
+
+    expect(mockPrisma.isScope.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.isScope.create).toHaveBeenCalledTimes(1);
+  });
+});

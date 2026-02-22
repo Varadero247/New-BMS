@@ -565,3 +565,53 @@ describe('Aerospace FOD API — additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Aerospace FOD API — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('DELETE /api/fod/:id already deleted returns 404', async () => {
+    mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    const res = await request(app)
+      .delete('/api/fod/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/fod/inspections/:id/complete returns 500 when update throws', async () => {
+    mockPrisma.aeroFodInspection.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SCHEDULED',
+      notes: null,
+      deletedAt: null,
+    });
+    mockPrisma.aeroFodInspection.update.mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/fod/inspections/00000000-0000-0000-0000-000000000001/complete')
+      .set('Authorization', 'Bearer token')
+      .send({ result: 'PASS', fodFound: false });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/fod response shape has success:true and meta block', async () => {
+    mockPrisma.aeroFodIncident.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroFodIncident.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/fod').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('POST /api/fod/inspections returns 400 when area is missing', async () => {
+    const res = await request(app)
+      .post('/api/fod/inspections')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Walk', scheduledDate: '2026-02-15', inspector: 'Smith' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

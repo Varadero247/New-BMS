@@ -339,3 +339,29 @@ describe('Automotive Templates — additional coverage 2', () => {
     expect(uniqueIds.size).toBe(ids.length);
   });
 });
+
+describe('Automotive Templates — comprehensive coverage', () => {
+  it('GET / returns a version field on each template', async () => {
+    const res = await request(app).get('/api/templates');
+    expect(res.status).toBe(200);
+    for (const tpl of res.body.data) {
+      expect(tpl).toHaveProperty('version');
+      expect(typeof tpl.version).toBe('string');
+    }
+  });
+
+  it('GET / returns a format field that is one of known formats (XLSX, DOCX, PDF)', async () => {
+    const res = await request(app).get('/api/templates');
+    expect(res.status).toBe(200);
+    const validFormats = new Set(['XLSX', 'DOCX', 'PDF', 'PPTX']);
+    for (const tpl of res.body.data) {
+      expect(validFormats.has(tpl.format)).toBe(true);
+    }
+  });
+
+  it('GET /:id for tpl-spc-01 returns 200 with SPC category', async () => {
+    const res = await request(app).get('/api/templates/tpl-spc-01');
+    expect(res.status).toBe(200);
+    expect(res.body.data.category).toBe('SPC');
+  });
+});

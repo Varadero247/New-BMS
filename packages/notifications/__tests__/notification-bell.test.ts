@@ -353,3 +353,35 @@ describe('NotificationBellState — integration and edge cases', () => {
     expect(page1.totalPages).toBe(2);
   });
 });
+
+describe('NotificationBellState — final coverage', () => {
+  it('getUnreadCount after adding mix of read and unread returns correct count', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ read: true }));
+    state.addNotification('u1', makeNotification({ read: true }));
+    state.addNotification('u1', makeNotification({ read: false }));
+    expect(state.getUnreadCount('u1')).toBe(1);
+  });
+
+  it('getAll for a user with exactly 20 notifications has totalPages=1 with default limit', () => {
+    const state = new NotificationBellState();
+    for (let i = 0; i < 20; i++) state.addNotification('u1', makeNotification());
+    const result = state.getAll('u1');
+    expect(result.totalPages).toBe(1);
+    expect(result.items).toHaveLength(20);
+  });
+
+  it('markRead on already-read notification returns true (notification found)', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'already-read', read: true }));
+    const result = state.markRead('u1', 'already-read');
+    expect(result).toBe(true);
+  });
+
+  it('markAllRead with 5 unread returns count of 5', () => {
+    const state = new NotificationBellState();
+    for (let i = 0; i < 5; i++) state.addNotification('u1', makeNotification({ read: false }));
+    const count = state.markAllRead('u1');
+    expect(count).toBe(5);
+  });
+});

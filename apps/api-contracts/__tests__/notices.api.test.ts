@@ -438,3 +438,45 @@ describe('notices.api — response shape and method call coverage', () => {
     );
   });
 });
+
+describe('notices.api — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data array has correct length when multiple notices returned', async () => {
+    mockPrisma.contNotice.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Notice A', dueDate: '2026-04-01' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Notice B', dueDate: '2026-05-01' },
+    ]);
+    mockPrisma.contNotice.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/notices');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / create called with correct contractId and title', async () => {
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    mockPrisma.contNotice.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', contractId: 'c-1', title: 'Expiry Notice', dueDate: '2026-12-01' });
+    await request(app).post('/api/notices').send({ contractId: 'c-1', title: 'Expiry Notice', dueDate: '2026-12-01' });
+    expect(mockPrisma.contNotice.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ contractId: 'c-1', title: 'Expiry Notice' }) })
+    );
+  });
+
+  it('GET / pagination limit is a positive number', async () => {
+    mockPrisma.contNotice.findMany.mockResolvedValue([]);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/notices');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('GET /:id returns success true and correct id when notice found', async () => {
+    mockPrisma.contNotice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Renewal Notice' });
+    const res = await request(app).get('/api/notices/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

@@ -481,3 +481,38 @@ describe('fireRiskAssessment — final coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('fireRiskAssessment — final boundary coverage', () => {
+  it('GET /api/fra response body has pagination.limit', async () => {
+    mockFra.findMany.mockResolvedValue([]);
+    mockFra.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/fra');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('POST /api/fra calls create with assessorName in data', async () => {
+    mockFra.count.mockResolvedValue(0);
+    mockFra.create.mockResolvedValue(fakeFra);
+    await request(app).post('/api/fra').send(validCreateBody);
+    expect(mockFra.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ assessorName: 'Jane Smith' }) }),
+    );
+  });
+
+  it('PUT /api/fra/:id calls update with correct where.id', async () => {
+    mockFra.findFirst.mockResolvedValue(fakeFra);
+    mockFra.update.mockResolvedValue({ ...fakeFra, assessorName: 'Updated' });
+    await request(app).put(`/api/fra/${FRA_ID}`).send({ assessorName: 'Updated' });
+    expect(mockFra.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: FRA_ID } }),
+    );
+  });
+
+  it('GET /api/fra/:id body has success:true when found', async () => {
+    mockFra.findFirst.mockResolvedValue(fakeFra);
+    const res = await request(app).get(`/api/fra/${FRA_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+});

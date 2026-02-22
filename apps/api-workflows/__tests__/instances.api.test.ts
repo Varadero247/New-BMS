@@ -617,3 +617,74 @@ describe('Workflow Instances API — further coverage', () => {
     );
   });
 });
+
+describe('Workflow Instances API — final boundary coverage', () => {
+  let appFinal: express.Express;
+
+  beforeAll(() => {
+    appFinal = express();
+    appFinal.use(express.json());
+    appFinal.use('/api/instances', instancesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns content-type json', async () => {
+    (mockPrisma.workflowInstance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.workflowInstance.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(appFinal).get('/api/instances');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / meta.totalPages is 0 when total is 0', async () => {
+    (mockPrisma.workflowInstance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.workflowInstance.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(appFinal).get('/api/instances');
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+
+  it('POST / calls workflowHistory.create after instance create', async () => {
+    (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '11111111-1111-1111-1111-111111111111',
+      status: 'ACTIVE',
+    });
+    (mockPrisma.workflowInstance.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.workflowInstance.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000001',
+      referenceNumber: 'WF-2026-000001',
+    });
+    (mockPrisma.workflowHistory.create as jest.Mock).mockResolvedValueOnce({});
+    await request(appFinal).post('/api/instances').send({
+      definitionId: '11111111-1111-1111-1111-111111111111',
+      initiatedById: '22222222-2222-2222-2222-222222222222',
+      priority: 'NORMAL',
+    });
+    expect(mockPrisma.workflowHistory.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id/advance calls workflowHistory.create with STEP_COMPLETED event', async () => {
+    (mockPrisma.workflowInstance.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '3c000000-0000-4000-a000-000000000001',
+      currentStepId: 'step-1',
+    });
+    (mockPrisma.workflowInstance.update as jest.Mock).mockResolvedValueOnce({
+      id: '3c000000-0000-4000-a000-000000000001',
+      currentStepId: 'step-2',
+    });
+    (mockPrisma.workflowHistory.create as jest.Mock).mockResolvedValueOnce({});
+    await request(appFinal)
+      .put('/api/instances/3c000000-0000-4000-a000-000000000001/advance')
+      .send({ nextStepId: 'step-2', actionBy: '20000000-0000-4000-a000-000000000001' });
+    expect(mockPrisma.workflowHistory.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /stats/summary response is 200 with success:true', async () => {
+    (mockPrisma.workflowInstance.groupBy as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    (mockPrisma.workflowInstance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(appFinal).get('/api/instances/stats/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

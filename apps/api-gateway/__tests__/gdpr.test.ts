@@ -679,3 +679,90 @@ describe('GDPR API Routes', () => {
     });
   });
 });
+
+describe('GDPR API Routes — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/v1/gdpr', gdprRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /data-export/:userId response data has exportDate as string', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+    (mockPrisma.auditLog.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValue([]);
+
+    const response = await request(app)
+      .get('/api/v1/gdpr/data-export/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(typeof response.body.data.exportDate).toBe('string');
+  });
+
+  it('GET /data-export/:userId data.dataSubject has email field', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+    (mockPrisma.auditLog.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValue([]);
+
+    const response = await request(app)
+      .get('/api/v1/gdpr/data-export/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.data.dataSubject).toHaveProperty('email', 'john@example.com');
+  });
+
+  it('POST /erasure-request returns data with status PENDING', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+    (mockPrisma.erasureRequest.create as jest.Mock).mockResolvedValue(mockErasureRequest);
+
+    const response = await request(app)
+      .post('/api/v1/gdpr/erasure-request')
+      .set('Authorization', 'Bearer token')
+      .send({ userId: 'user-1', userEmail: 'john@example.com', reason: 'Test' });
+
+    expect(response.status).toBe(201);
+    expect(response.body.data.status).toBe('PENDING');
+  });
+
+  it('GET /erasure-request returns success: true', async () => {
+    (mockPrisma.erasureRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.erasureRequest.count as jest.Mock).mockResolvedValue(0);
+
+    const response = await request(app)
+      .get('/api/v1/gdpr/erasure-request')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /retention-policies returns success: true', async () => {
+    (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.dataRetentionPolicy.count as jest.Mock).mockResolvedValue(0);
+
+    const response = await request(app)
+      .get('/api/v1/gdpr/retention-policies')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /data-map returns success: true', async () => {
+    (mockPrisma.dataRetentionPolicy.findMany as jest.Mock).mockResolvedValue([]);
+
+    const response = await request(app)
+      .get('/api/v1/gdpr/data-map')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+});

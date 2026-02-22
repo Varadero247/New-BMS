@@ -590,3 +590,36 @@ describe('PUT /api/leads/:id/disqualify', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('CRM Leads — additional coverage', () => {
+  it('GET / returns content-type application/json', async () => {
+    mockPrisma.crmLead.findMany.mockResolvedValue([]);
+    mockPrisma.crmLead.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/leads');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.crmLead.findMany.mockResolvedValue([]);
+    mockPrisma.crmLead.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/leads');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / response data has a refNumber field', async () => {
+    mockPrisma.crmLead.count.mockResolvedValue(0);
+    mockPrisma.crmLead.create.mockResolvedValue(mockLead);
+    const res = await request(app)
+      .post('/api/leads')
+      .send({ firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+
+  it('GET /:id returns data with id property', async () => {
+    mockPrisma.crmLead.findFirst.mockResolvedValue(mockLead);
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

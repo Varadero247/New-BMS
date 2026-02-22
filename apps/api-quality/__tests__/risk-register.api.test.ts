@@ -457,3 +457,72 @@ describe('Quality Risk Register API Routes — extended coverage', () => {
     expect(Array.isArray(res.body.data.byStatus)).toBe(true);
   });
 });
+
+describe('Quality Risk Register API Routes — final coverage', () => {
+  const mockRisk = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-RR-2026-001',
+    title: 'Supplier quality failure',
+    description: 'Key supplier may fail quality requirements',
+    category: 'Supply Chain',
+    likelihood: 'POSSIBLE',
+    impact: 'MAJOR',
+    riskScore: 12,
+    residualScore: null,
+    status: 'OPEN',
+    owner: 'Supply Manager',
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risk-register supports page and limit query params', async () => {
+    mockPrisma.qualRiskRegister.findMany.mockResolvedValue([mockRisk]);
+    mockPrisma.qualRiskRegister.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/risk-register?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(30);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('GET /api/risk-register/:id data has title field', async () => {
+    mockPrisma.qualRiskRegister.findFirst.mockResolvedValue(mockRisk);
+    const res = await request(app).get('/api/risk-register/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Supplier quality failure');
+  });
+
+  it('POST /api/risk-register creates risk with correct status=OPEN by default', async () => {
+    mockPrisma.qualRiskRegister.count.mockResolvedValue(0);
+    mockPrisma.qualRiskRegister.create.mockResolvedValue({ ...mockRisk, status: 'OPEN' });
+    const res = await request(app).post('/api/risk-register').send({
+      title: 'Another risk',
+      description: 'Risk desc',
+      likelihood: 'UNLIKELY',
+      impact: 'MINOR',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('OPEN');
+  });
+
+  it('PUT /api/risk-register/:id updates owner field', async () => {
+    mockPrisma.qualRiskRegister.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.qualRiskRegister.update.mockResolvedValue({ ...mockRisk, owner: 'New Owner' });
+    const res = await request(app)
+      .put('/api/risk-register/00000000-0000-0000-0000-000000000001')
+      .send({ owner: 'New Owner' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/risk-register/:id NOT_FOUND code on 404', async () => {
+    mockPrisma.qualRiskRegister.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/risk-register/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

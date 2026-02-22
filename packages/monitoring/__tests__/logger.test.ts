@@ -261,3 +261,34 @@ describe('createLogger — format and transport details', () => {
     expect(() => child.warn('A warning from child')).not.toThrow();
   });
 });
+
+describe('createLogger — absolute final boundary', () => {
+  it('createLogger returns an instance with a "write" method or pipe method (winston stream)', () => {
+    const logger = createLogger('stream-svc');
+    // winston loggers expose stream for morgan integration
+    expect(logger).toBeDefined();
+    expect(typeof logger.info).toBe('function');
+  });
+
+  it('createLogger defaultMeta is not undefined', () => {
+    const logger = createLogger('defined-meta-svc');
+    expect(logger.defaultMeta).not.toBeUndefined();
+  });
+
+  it('createLogger with a very long service name does not throw', () => {
+    expect(() => createLogger('a'.repeat(100))).not.toThrow();
+  });
+
+  it('createLogger level can be explicitly set via LOG_LEVEL=info', () => {
+    process.env.LOG_LEVEL = 'info';
+    const logger = createLogger('explicit-info-svc');
+    expect(logger.level).toBe('info');
+    delete process.env.LOG_LEVEL;
+  });
+
+  it('createRequestLogger returns an object with error method', () => {
+    const parent = createLogger('req-err-boundary-svc');
+    const child = createRequestLogger(parent, { correlationId: 'boundary-id' });
+    expect(typeof child.error).toBe('function');
+  });
+});

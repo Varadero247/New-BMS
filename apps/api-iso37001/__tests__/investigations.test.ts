@@ -660,3 +660,35 @@ describe('ISO 37001 Investigations API — extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('ISO 37001 Investigations API — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/investigations: data items have allegationType field', async () => {
+    (mockPrisma.abInvestigation.findMany as jest.Mock).mockResolvedValueOnce([mockInvestigation]);
+    (mockPrisma.abInvestigation.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/investigations');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('allegationType');
+  });
+
+  it('PUT /api/investigations/:id/close: returns 500 on DB update error', async () => {
+    (mockPrisma.abInvestigation.findFirst as jest.Mock).mockResolvedValueOnce(mockInvestigation2);
+    (mockPrisma.abInvestigation.update as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/investigations/00000000-0000-0000-0000-000000000002/close')
+      .send({ outcome: 'UNSUBSTANTIATED', findings: 'No evidence found' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/investigations: pagination has limit field', async () => {
+    (mockPrisma.abInvestigation.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abInvestigation.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/investigations');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+});

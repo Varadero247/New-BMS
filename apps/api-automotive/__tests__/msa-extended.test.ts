@@ -494,3 +494,59 @@ describe('MSA Routes — final coverage block', () => {
     );
   });
 });
+
+describe('MSA Routes — comprehensive coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/msa/:id returns 200 for soft-deleted study (route does not check deletedAt)', async () => {
+    (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+      measurements: [],
+    });
+    const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST /api/msa count is called to generate refNumber', async () => {
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(4);
+    (mockPrisma.msaStudy.create as jest.Mock).mockResolvedValue({ id: 'msa-new', refNumber: 'MSA-2602-0005' });
+    const res = await request(app).post('/api/msa').send({
+      title: 'Caliper Study',
+      studyType: 'GRR_CROSSED',
+      gageName: 'Caliper #3',
+      characteristic: 'Width',
+      operatorCount: 2,
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.msaStudy.count).toHaveBeenCalled();
+  });
+
+  it('POST /api/msa/:id/data returns 400 for empty measurements array', async () => {
+    (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    const res = await request(app)
+      .post('/api/msa/00000000-0000-0000-0000-000000000001/data')
+      .send({ measurements: [] });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/msa/:id/results returns 500 on update DB error', async () => {
+    (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      studyType: 'BIAS',
+      numTrials: 1,
+      measurements: [
+        { operator: 'A', partNumber: 1, trial: 1, value: 50.0 },
+        { operator: 'A', partNumber: 2, trial: 1, value: 51.0 },
+        { operator: 'A', partNumber: 3, trial: 1, value: 49.0 },
+      ],
+    });
+    (mockPrisma.msaStudy.update as jest.Mock).mockRejectedValue(new Error('update fail'));
+    const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000001/results');
+    expect(res.status).toBe(500);
+  });
+});

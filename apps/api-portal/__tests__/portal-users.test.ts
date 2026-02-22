@@ -484,3 +484,104 @@ describe('Portal Users — final coverage', () => {
     );
   });
 });
+
+describe('portal-users — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: data length matches mock return', async () => {
+    mockPrisma.portalUser.findMany.mockResolvedValue([
+      { id: 'u-1', email: 'a@test.com', name: 'Alice', portalType: 'CUSTOMER', status: 'ACTIVE' },
+      { id: 'u-2', email: 'b@test.com', name: 'Bob', portalType: 'SUPPLIER', status: 'ACTIVE' },
+    ]);
+    mockPrisma.portalUser.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/portal/users');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET list: total in pagination matches count mock', async () => {
+    mockPrisma.portalUser.findMany.mockResolvedValue([]);
+    mockPrisma.portalUser.count.mockResolvedValue(33);
+
+    const res = await request(app).get('/api/portal/users');
+    expect(res.body.pagination.total).toBe(33);
+  });
+
+  it('POST create: create called with portalType in data', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({
+      id: 'u-new',
+      email: 'newuser@test.com',
+      name: 'New User',
+      portalType: 'CUSTOMER',
+      role: 'CUSTOMER_USER',
+      status: 'PENDING',
+    });
+
+    await request(app).post('/api/portal/users').send({
+      email: 'newuser@test.com',
+      name: 'New User',
+      company: 'TestCo',
+      role: 'CUSTOMER_USER',
+      portalType: 'CUSTOMER',
+    });
+
+    expect(mockPrisma.portalUser.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ portalType: 'CUSTOMER' }),
+      })
+    );
+  });
+
+  it('PUT /:id returns 500 on DB update error', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.portalUser.update.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app)
+      .put('/api/portal/users/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET list: page=1 limit=20 uses skip=0', async () => {
+    mockPrisma.portalUser.findMany.mockResolvedValue([]);
+    mockPrisma.portalUser.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/users?page=1&limit=20');
+
+    expect(mockPrisma.portalUser.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 20 })
+    );
+  });
+
+  it('POST invite: create called with email in data', async () => {
+    const invitation = { id: 'inv-x', email: 'invited@test.com', token: 'mock-uuid-token' };
+    mockPrisma.portalInvitation.create.mockResolvedValue(invitation);
+
+    await request(app).post('/api/portal/users/invite').send({
+      email: 'invited@test.com',
+      name: 'Invited Person',
+      company: 'InvCo',
+      role: 'CUSTOMER_USER',
+      portalType: 'CUSTOMER',
+    });
+
+    expect(mockPrisma.portalInvitation.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ email: 'invited@test.com' }),
+      })
+    );
+  });
+
+  it('GET /:id: success false on 404', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/portal/users/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});

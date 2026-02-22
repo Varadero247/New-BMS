@@ -563,3 +563,29 @@ describe('Rate Limiter — final coverage batch', () => {
     expect(client).toBeNull();
   });
 });
+
+describe('Rate Limiter — extended final batch', () => {
+  afterAll(async () => { await closeRedisConnection(); });
+
+  it('createRateLimiter with custom message option returns a function', () => {
+    const lim = createRateLimiter({ windowMs: 60_000, max: 10, message: 'Too many requests' });
+    expect(typeof lim).toBe('function');
+  });
+
+  it('createRateLimiter with keyGenerator option returns a function', () => {
+    const lim = createRateLimiter({ windowMs: 60_000, max: 10, keyGenerator: () => 'fixed' });
+    expect(typeof lim).toBe('function');
+  });
+
+  it('authLimiter is not undefined', () => {
+    expect(authLimiter).not.toBeUndefined();
+  });
+
+  it('apiLimiter is not undefined', () => {
+    expect(apiLimiter).not.toBeUndefined();
+  });
+
+  it('strictApiLimiter is not undefined', () => {
+    expect(strictApiLimiter).not.toBeUndefined();
+  });
+});

@@ -679,3 +679,58 @@ describe('projects.api — final extended coverage', () => {
     );
   });
 });
+
+describe('projects.api — boundary and extra coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/projects', projectsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/projects: findMany called once per request', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.project.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/projects');
+    expect(mockPrisma.project.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/projects: meta total matches count mock value', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.project.count as jest.Mock).mockResolvedValueOnce(13);
+    const res = await request(app).get('/api/projects');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(13);
+  });
+
+  it('POST /api/projects: create called once on valid submission', async () => {
+    (mockPrisma.project.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.project.create as jest.Mock).mockResolvedValueOnce({ ...mockProject, projectCode: 'PRJ0001' });
+    await request(app).post('/api/projects').send({
+      projectName: 'Once Project',
+      projectType: 'INTERNAL',
+      plannedEndDate: '2025-12-31',
+      methodology: 'AGILE',
+      priority: 'MEDIUM',
+    });
+    expect(mockPrisma.project.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/projects/:id: success true when project found', async () => {
+    (mockPrisma.project.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+    const res = await request(app).get('/api/projects/44000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/projects/:id: success true in response body on update', async () => {
+    (mockPrisma.project.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+    (mockPrisma.project.update as jest.Mock).mockResolvedValueOnce({ ...mockProject, projectName: 'Renamed' });
+    const res = await request(app)
+      .put('/api/projects/44000000-0000-4000-a000-000000000001')
+      .send({ projectName: 'Renamed' });
+    expect(res.body.success).toBe(true);
+  });
+});

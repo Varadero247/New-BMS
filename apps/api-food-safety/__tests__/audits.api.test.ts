@@ -360,6 +360,65 @@ describe('Food Safety Audits — edge cases and error paths', () => {
 });
 
 // ===================================================================
+// Food Safety Audits — extra coverage to reach ≥40 tests
+// ===================================================================
+describe('Food Safety Audits — extra coverage', () => {
+  it('GET /audits returns pagination.limit equal to requested limit', async () => {
+    mockPrisma.fsAudit.findMany.mockResolvedValue([]);
+    mockPrisma.fsAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits?limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(20);
+  });
+
+  it('POST /audits missing scheduledDate returns 400', async () => {
+    const res = await request(app).post('/api/audits').send({
+      title: 'Incomplete Audit',
+      type: 'INTERNAL',
+      auditor: 'Alice',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /audits page=2 limit=5 applies skip 5 take 5 to findMany', async () => {
+    mockPrisma.fsAudit.findMany.mockResolvedValue([]);
+    mockPrisma.fsAudit.count.mockResolvedValue(0);
+    await request(app).get('/api/audits?page=2&limit=5');
+    expect(mockPrisma.fsAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST /audits success returns data with id from DB', async () => {
+    mockPrisma.fsAudit.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000040',
+      title: 'Traceability Audit',
+      type: 'INTERNAL',
+      auditor: 'Tom',
+      scheduledDate: '2026-06-01',
+    });
+    const res = await request(app).post('/api/audits').send({
+      title: 'Traceability Audit',
+      type: 'INTERNAL',
+      auditor: 'Tom',
+      scheduledDate: '2026-06-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id', '00000000-0000-0000-0000-000000000040');
+  });
+
+  it('GET /audits/:id data has title field on found record', async () => {
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000041',
+      title: 'Sanitation Audit',
+    });
+    const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000041');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('title', 'Sanitation Audit');
+  });
+});
+
+// ===================================================================
 // Food Safety Audits — final coverage block
 // ===================================================================
 describe('Food Safety Audits — final coverage', () => {

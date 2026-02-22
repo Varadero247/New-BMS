@@ -314,6 +314,59 @@ describe('Medical Design Validation API Routes', () => {
     });
   });
 
+  describe('Medical Design Validation — initial supplemental', () => {
+    it('GET /api/validation returns success:true', async () => {
+      mockPrisma.designValidation.findMany.mockResolvedValue([]);
+      mockPrisma.designValidation.count.mockResolvedValue(0);
+      const res = await request(app).get('/api/validation');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
+
+  describe('Medical Design Validation — supplemental coverage', () => {
+    it('POST /api/validation with protocol field returns 201', async () => {
+      mockPrisma.designProject.findUnique.mockResolvedValue(mockProject);
+      mockPrisma.designValidation.create.mockResolvedValue({
+        ...mockValidation,
+        protocol: 'Protocol V2.0',
+      });
+      const res = await request(app).post('/api/validation').send({
+        projectId: 'project-uuid-1',
+        title: 'Clinical Validation with Protocol',
+        testMethod: 'Clinical trial phase III',
+        protocol: 'Protocol V2.0',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('PUT /api/validation/:id update is called with correct id in where clause', async () => {
+      mockPrisma.designValidation.findUnique.mockResolvedValue(mockValidation);
+      mockPrisma.designValidation.update.mockResolvedValue({ ...mockValidation });
+      await request(app)
+        .put('/api/validation/00000000-0000-0000-0000-000000000001')
+        .send({ title: 'New Title' });
+      expect(mockPrisma.designValidation.update).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+      );
+    });
+
+    it('DELETE /api/validation/:id delete is called exactly once', async () => {
+      mockPrisma.designValidation.findUnique.mockResolvedValue(mockValidation);
+      mockPrisma.designValidation.delete.mockResolvedValue(mockValidation);
+      await request(app).delete('/api/validation/00000000-0000-0000-0000-000000000001');
+      expect(mockPrisma.designValidation.delete).toHaveBeenCalledTimes(1);
+    });
+
+    it('GET /api/validation/:id returns data.projectId matching created project', async () => {
+      mockPrisma.designValidation.findUnique.mockResolvedValue(mockValidation);
+      const res = await request(app).get('/api/validation/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(200);
+      expect(res.body.data.projectId).toBe('project-uuid-1');
+    });
+  });
+
   describe('Medical Design Validation — extended coverage', () => {
     it('GET /api/validation returns correct totalPages in meta', async () => {
       mockPrisma.designValidation.findMany.mockResolvedValue([]);

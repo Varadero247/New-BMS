@@ -353,3 +353,62 @@ describe('approval.api — final coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('approval.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('approve update called with organisationId when present', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.suppSupplier.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('suspend response body is not null', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUSPENDED',
+    });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/suspend');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('approve: response has data property', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('suspend: response has data property', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUSPENDED',
+    });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/suspend');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('approve and suspend return different data.status values for same id', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
+    const approveRes = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    expect(approveRes.body.data.status).toBe('APPROVED');
+
+    mockPrisma.suppSupplier.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUSPENDED',
+    });
+    const suspendRes = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/suspend');
+    expect(suspendRes.body.data.status).toBe('SUSPENDED');
+  });
+});

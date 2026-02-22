@@ -410,6 +410,67 @@ describe('GET /api/goals — pagination and filter coverage', () => {
   });
 });
 
+describe('GET /api/goals — category filter coverage', () => {
+  it('GET / with category filter forwards it to Prisma where clause', async () => {
+    (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.performanceGoal.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/goals?category=PERFORMANCE');
+    expect(mockPrisma.performanceGoal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ category: 'PERFORMANCE' }),
+      })
+    );
+  });
+
+  it('GET /api/goals/overdue returns empty array when no overdue goals', async () => {
+    (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/goals/overdue');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/goals/:id returns error.code NOT_FOUND when goal is missing', async () => {
+    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get(`/api/goals/${GOAL_ID}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/goals/stats byCategory field is present in response', async () => {
+    (mockPrisma.performanceGoal.count as jest.Mock).mockResolvedValue(10);
+    (mockPrisma.performanceGoal.groupBy as jest.Mock).mockResolvedValue([
+      { category: 'PERFORMANCE', _count: { id: 5 } },
+    ]);
+    (mockPrisma.performanceGoal.aggregate as jest.Mock).mockResolvedValue({ _avg: { progress: 60 } });
+    const res = await request(app).get('/api/goals/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('byCategory');
+  });
+
+  it('DELETE /api/goals/:id returns 404 when goal not found', async () => {
+    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).delete(`/api/goals/${GOAL_ID}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/goals/:id update with valid COMPLETED status succeeds', async () => {
+    (mockPrisma.performanceGoal.findUnique as jest.Mock).mockResolvedValue(mockGoal);
+    (mockPrisma.performanceGoal.update as jest.Mock).mockResolvedValue({
+      ...mockGoal,
+      status: 'COMPLETED',
+      progress: 100,
+    });
+    const res = await request(app)
+      .put(`/api/goals/${GOAL_ID}`)
+      .send({ status: 'COMPLETED', progress: 100 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe('COMPLETED');
+  });
+});
+
 describe('GET /api/goals — further pagination and filter coverage', () => {
   it('GET / with cycleId filter forwards it to Prisma where clause', async () => {
     (mockPrisma.performanceGoal.findMany as jest.Mock).mockResolvedValue([]);

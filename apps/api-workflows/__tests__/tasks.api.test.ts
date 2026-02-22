@@ -606,3 +606,66 @@ describe('Workflow Tasks API — further coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Workflow Tasks API — final boundary coverage', () => {
+  let appFinal: express.Express;
+
+  beforeAll(() => {
+    appFinal = express();
+    appFinal.use(express.json());
+    appFinal.use('/api/tasks', tasksRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/tasks returns content-type json', async () => {
+    (mockPrisma.workflowTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(appFinal).get('/api/tasks');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/tasks calls create with status PENDING', async () => {
+    (mockPrisma.workflowTask.create as jest.Mock).mockResolvedValueOnce({
+      id: 'task-new', status: 'PENDING',
+      instance: { referenceNumber: 'WF-001' },
+    });
+    await request(appFinal).post('/api/tasks').send({
+      instanceId: '11111111-1111-1111-1111-111111111111',
+      assignedToId: '22222222-2222-2222-2222-222222222222',
+      taskType: 'REVIEW',
+      title: 'New Task',
+    });
+    expect(mockPrisma.workflowTask.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'PENDING' }) })
+    );
+  });
+
+  it('PUT /api/tasks/:id/claim updates assignedToId', async () => {
+    (mockPrisma.workflowTask.update as jest.Mock).mockResolvedValueOnce({
+      id: '3d000000-0000-4000-a000-000000000001',
+      assignedToId: '20000000-0000-4000-a000-000000000001',
+      status: 'IN_PROGRESS',
+    });
+    await request(appFinal)
+      .put('/api/tasks/3d000000-0000-4000-a000-000000000001/claim')
+      .send({ userId: '20000000-0000-4000-a000-000000000001' });
+    expect(mockPrisma.workflowTask.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ assignedToId: '20000000-0000-4000-a000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /api/tasks/my/:userId returns success:true', async () => {
+    (mockPrisma.workflowTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(appFinal).get('/api/tasks/my/20000000-0000-4000-a000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/tasks/:id 500 on DB error returns INTERNAL_ERROR', async () => {
+    (mockPrisma.workflowTask.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB fail'));
+    const res = await request(appFinal).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

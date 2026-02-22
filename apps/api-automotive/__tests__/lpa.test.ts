@@ -873,3 +873,87 @@ describe('Automotive LPA — additional coverage', () => {
     expect(response.body).toHaveProperty('meta');
   });
 });
+
+describe('Automotive LPA — comprehensive coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/lpa', lpaRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/lpa/audits with status=IN_PROGRESS filter returns matching audits', async () => {
+    (mockPrisma.lpaAudit.findMany as jest.Mock).mockResolvedValue([{ id: 'audit-001', status: 'IN_PROGRESS' }]);
+    (mockPrisma.lpaAudit.count as jest.Mock).mockResolvedValue(1);
+    const response = await request(app)
+      .get('/api/lpa/audits?status=IN_PROGRESS')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(1);
+  });
+
+  it('GET /api/lpa/schedules returns meta.totalPages=0 when count is 0', async () => {
+    (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(0);
+    const response = await request(app)
+      .get('/api/lpa/schedules')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.meta.totalPages).toBe(0);
+  });
+
+  it('POST /api/lpa/schedules layer=4 is valid and creates schedule', async () => {
+    const mockTx = {
+      lpaSchedule: {
+        create: jest.fn().mockResolvedValue({ id: 'sch-layer4' }),
+        findUnique: jest.fn().mockResolvedValue({ id: 'sch-layer4', questions: [] }),
+      },
+      lpaQuestion: {
+        create: jest.fn().mockResolvedValue({}),
+      },
+    };
+    (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => cb(mockTx));
+    const response = await request(app)
+      .post('/api/lpa/schedules')
+      .set('Authorization', 'Bearer token')
+      .send({
+        processArea: 'Final Inspection',
+        layer: 4,
+        frequency: 'MONTHLY',
+        questions: [{ questionText: 'Is the product labeled correctly?' }],
+      });
+    expect(response.status).toBe(201);
+  });
+
+  it('GET /api/lpa/dashboard returns totalAudits=0 when no audits exist', async () => {
+    (mockPrisma.lpaAudit.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.lpaAudit.findMany as jest.Mock).mockResolvedValue([]);
+    const response = await request(app)
+      .get('/api/lpa/dashboard')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalAudits).toBe(0);
+  });
+
+  it('POST /api/lpa/audits/:id/complete returns 500 on DB update error', async () => {
+    const mockAuditData = {
+      id: 'audit-001',
+      status: 'IN_PROGRESS',
+      totalQuestions: 2,
+      responses: [{ result: 'PASS' }, { result: 'FAIL' }],
+    };
+    (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue(mockAuditData);
+    (mockPrisma.lpaAudit.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const response = await request(app)
+      .post('/api/lpa/audits/audit-001/complete')
+      .set('Authorization', 'Bearer token')
+      .send({});
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

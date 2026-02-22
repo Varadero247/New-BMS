@@ -407,3 +407,49 @@ describe('preventive-plans — business logic and response structure', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('preventive-plans — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /preventive-plans data items include name field', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([mockPlan]);
+    prisma.cmmsPreventivePlan.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/preventive-plans');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('name', 'Monthly Lubrication');
+  });
+
+  it('GET /preventive-plans response content-type is application/json', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([]);
+    prisma.cmmsPreventivePlan.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/preventive-plans');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('DELETE /preventive-plans/:id returns 404 with NOT_FOUND code', async () => {
+    prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/preventive-plans/00000000-0000-0000-0000-000000000077');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /preventive-plans returns 400 when name is missing', async () => {
+    const res = await request(app).post('/api/preventive-plans').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      frequency: 'MONTHLY',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /preventive-plans?assetId filters findMany by assetId', async () => {
+    prisma.cmmsPreventivePlan.findMany.mockResolvedValue([]);
+    prisma.cmmsPreventivePlan.count.mockResolvedValue(0);
+    const aid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    await request(app).get(`/api/preventive-plans?assetId=${aid}`);
+    expect(prisma.cmmsPreventivePlan.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ assetId: aid }) })
+    );
+  });
+});

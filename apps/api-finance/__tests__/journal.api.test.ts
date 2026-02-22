@@ -638,3 +638,60 @@ describe('Journal API — additional coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// Journal API — extra coverage to reach 40 tests
+// ===================================================================
+describe('Journal API — extra coverage', () => {
+  it('GET /api/journal data array is always an array', async () => {
+    mockPrisma.finJournalEntry.findMany.mockResolvedValue([]);
+    mockPrisma.finJournalEntry.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/journal');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/journal count is called once per list request', async () => {
+    mockPrisma.finJournalEntry.findMany.mockResolvedValue([]);
+    mockPrisma.finJournalEntry.count.mockResolvedValue(0);
+
+    await request(app).get('/api/journal');
+
+    expect(mockPrisma.finJournalEntry.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/journal/:id/post update sets status to POSTED', async () => {
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
+      id: 'f2200000-0000-4000-a000-000000000001',
+      status: 'DRAFT',
+      period: { id: PERIOD_UUID, status: 'OPEN' },
+    });
+    mockPrisma.finJournalEntry.update.mockResolvedValue({
+      id: 'f2200000-0000-4000-a000-000000000001',
+      status: 'POSTED',
+      lines: [],
+      period: { id: PERIOD_UUID, name: 'Jan 2026' },
+    });
+
+    await request(app).post('/api/journal/f2200000-0000-4000-a000-000000000001/post');
+
+    expect(mockPrisma.finJournalEntry.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'POSTED' }),
+      })
+    );
+  });
+
+  it('GET /api/journal response body includes success and pagination keys', async () => {
+    mockPrisma.finJournalEntry.findMany.mockResolvedValue([]);
+    mockPrisma.finJournalEntry.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/journal');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body).toHaveProperty('data');
+  });
+});

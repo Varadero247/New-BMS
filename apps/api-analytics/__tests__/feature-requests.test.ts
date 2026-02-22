@@ -481,3 +481,70 @@ describe('Feature Requests — response structure and remaining edge cases', () 
     expect([201, 400]).toContain(res.status);
   });
 });
+
+// ===================================================================
+// Feature Requests — supplemental coverage
+// ===================================================================
+describe('Feature Requests — supplemental coverage', () => {
+  it('GET /feature-requests response data is an object', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.featureRequest.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/feature-requests');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+  });
+
+  it('GET /feature-requests success is true on 200 response', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.featureRequest.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/feature-requests');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /feature-requests create is called once on valid input', async () => {
+    const created = { id: 'call-once', title: 'Call once test', votes: 0, status: 'SUBMITTED' };
+    (prisma.featureRequest.create as jest.Mock).mockResolvedValue(created);
+
+    await request(app).post('/api/feature-requests').send({
+      title: 'Call once test',
+      description: 'Test create call count',
+      requestedBy: 'tester@test.com',
+    });
+
+    expect(prisma.featureRequest.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PATCH /feature-requests/:id update called with correct where id', async () => {
+    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.featureRequest.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'IN_PROGRESS',
+    });
+
+    await request(app)
+      .patch('/api/feature-requests/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'IN_PROGRESS' });
+
+    expect(prisma.featureRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /aggregate topByVotes limit is at most 10', async () => {
+    const topItems = Array.from({ length: 10 }, (_, i) => ({
+      id: `fr-top-${i}`,
+      title: `Feature ${i}`,
+      votes: 100 - i,
+    }));
+    (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue(topItems);
+    (prisma.featureRequest.groupBy as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/feature-requests/aggregate');
+    expect(res.status).toBe(200);
+    expect(res.body.data.topByVotes.length).toBeLessThanOrEqual(10);
+  });
+});

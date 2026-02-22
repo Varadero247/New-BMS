@@ -474,3 +474,52 @@ describe('Architecture Fix — risk CRUD additional paths', () => {
     );
   });
 });
+
+describe('Architecture Fix — extra edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', risksRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risks response body is JSON', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/risks');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/risks findMany called exactly once per request', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    await request(app).get('/api/risks');
+    expect(mockPrisma.risk.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE non-existing risk does not call delete', async () => {
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(null);
+    await request(app).delete('/api/risks/10000000-0000-4000-a000-000000000099');
+    expect(mockPrisma.risk.delete).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/risks count called exactly once per request', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    await request(app).get('/api/risks');
+    expect(mockPrisma.risk.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('F-014: limit 200 is capped to 100', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/risks?limit=200');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.limit).toBe(100);
+  });
+});

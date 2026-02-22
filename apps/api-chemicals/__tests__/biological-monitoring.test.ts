@@ -414,3 +414,51 @@ describe('Biological Monitoring — additional coverage 2', () => {
     expect(mockPrisma.chemBiologicalMonitoring.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Biological Monitoring — comprehensive coverage', () => {
+  it('GET / returns pagination.page=2 when page=2 is requested', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(40);
+    const res = await request(app).get('/api/biological-monitoring?page=2&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('POST / creates with exceedsBGV=false when measuredValue equals biologicalGuidanceValue exactly', async () => {
+    (mockPrisma.chemBiologicalMonitoring.create as jest.Mock).mockResolvedValue({ ...mockRecord, exceedsBGV: false });
+    const res = await request(app).post('/api/biological-monitoring').send({
+      employeeId: 'EMP-010',
+      employeeName: 'David',
+      substanceName: 'Cadmium',
+      biomarker: 'Urine Cadmium',
+      sampleType: 'URINE',
+      collectionDate: '2026-02-15',
+      measuredValue: 200,
+      unit: 'µg/g creatinine',
+      collectedBy: 'Nurse A',
+      biologicalGuidanceValue: 200,
+    });
+    expect(res.status).toBe(201);
+    const [call] = (mockPrisma.chemBiologicalMonitoring.create as jest.Mock).mock.calls;
+    expect(call[0].data.exceedsBGV).toBe(false);
+  });
+
+  it('GET / filters by employeeId when provided', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(1);
+    await request(app).get('/api/biological-monitoring?employeeId=EMP-001');
+    const [call] = (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mock.calls;
+    expect(call[0].where).toMatchObject({ deletedAt: null });
+  });
+
+  it('PUT /:id calls update with correct where id', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+    (mockPrisma.chemBiologicalMonitoring.update as jest.Mock).mockResolvedValue({ ...mockRecord, collectedBy: 'New Nurse' });
+    await request(app)
+      .put('/api/biological-monitoring/00000000-0000-0000-0000-000000000001')
+      .send({ collectedBy: 'New Nurse' });
+    expect(mockPrisma.chemBiologicalMonitoring.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});

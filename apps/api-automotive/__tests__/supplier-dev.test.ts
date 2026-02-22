@@ -462,3 +462,35 @@ describe('supplier-dev — additional coverage 2', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+describe('supplier-dev — comprehensive coverage', () => {
+  it('POST /api/supplier-dev passes createdBy from authenticated user email', async () => {
+    (mockPrisma.supplierDevelopment.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.supplierDevelopment.create as jest.Mock).mockResolvedValue(makeRecord());
+    await request(app).post('/api/supplier-dev').send({ supplierName: 'Omega Parts' });
+    expect(mockPrisma.supplierDevelopment.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 't@t.com' }) })
+    );
+  });
+
+  it('PUT /api/supplier-dev/:id updates score field', async () => {
+    (mockPrisma.supplierDevelopment.update as jest.Mock).mockResolvedValue(makeRecord({ score: 95 }));
+    const res = await request(app).put(`/api/supplier-dev/${ID1}`).send({ score: 95 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.score).toBe(95);
+  });
+
+  it('GET /api/supplier-dev returns meta with total when count is available', async () => {
+    (mockPrisma.supplierDevelopment.findMany as jest.Mock).mockResolvedValue([makeRecord()]);
+    const res = await request(app).get('/api/supplier-dev');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('DELETE /api/supplier-dev/:id returns 500 on generic DB error', async () => {
+    (mockPrisma.supplierDevelopment.update as jest.Mock).mockRejectedValue(new Error('network timeout'));
+    const res = await request(app).delete(`/api/supplier-dev/${ID1}`);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

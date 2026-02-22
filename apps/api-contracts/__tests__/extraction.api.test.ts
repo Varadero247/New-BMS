@@ -363,3 +363,30 @@ describe('POST /api/extraction/analyze — final batch coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('POST /api/extraction/analyze — coverage completion', () => {
+  it('should detect Intellectual Property clause when IP keyword present', async () => {
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: 'All intellectual property rights are owned by the licensor.' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.extracted).toHaveProperty('keyTerms');
+  });
+
+  it('should return wordCount of zero for text with only punctuation trimmed', async () => {
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: 'a' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.wordCount).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should return content-type application/json on 200', async () => {
+    const res = await request(app)
+      .post('/api/extraction/analyze')
+      .send({ text: 'Simple text for type check.' });
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+});

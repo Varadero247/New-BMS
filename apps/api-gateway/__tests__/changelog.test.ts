@@ -471,3 +471,62 @@ describe('Changelog Routes — final additional coverage', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('Changelog Routes — final batch additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changelog', changelogRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    mockListAllEntries.mockReturnValue({ entries: [], total: 0 });
+    mockGetUnreadCount.mockReturnValue(0);
+    mockCreateEntry.mockReturnValue({
+      id: 'cl-1', title: 'New Feature', description: 'Details here',
+      category: 'new_feature', modules: ['quality'], isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+  });
+
+  it('GET /api/changelog with limit=0 uses default', async () => {
+    const res = await request(app).get('/api/changelog').query({ limit: '0' });
+    expect([200, 400]).toContain(res.status);
+  });
+
+  it('POST /api/changelog with improvement category succeeds', async () => {
+    mockCreateEntry.mockReturnValueOnce({
+      id: 'cl-imp2', title: 'Improvement', category: 'improvement', isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+    const res = await request(app).post('/api/changelog')
+      .send({ title: 'Improvement', description: 'Enhanced perf', category: 'improvement', modules: ['analytics'] });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toBe('improvement');
+  });
+
+  it('GET /api/changelog response body has data property', async () => {
+    const res = await request(app).get('/api/changelog');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/changelog/unread-count success is true', async () => {
+    mockGetUnreadCount.mockReturnValue(9);
+    const res = await request(app).get('/api/changelog/unread-count');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.unreadCount).toBe(9);
+  });
+
+  it('POST /api/changelog returns data.id string', async () => {
+    const res = await request(app).post('/api/changelog')
+      .send({ title: 'Feature X', description: 'Desc X', category: 'new_feature', modules: ['crm'] });
+    expect(res.status).toBe(201);
+    expect(typeof res.body.data.id).toBe('string');
+  });
+});

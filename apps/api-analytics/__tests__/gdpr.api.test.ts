@@ -508,3 +508,58 @@ describe('GDPR API — response integrity and remaining scenarios', () => {
     expect(Array.isArray(res.body.data.dpas)).toBe(true);
   });
 });
+
+// ===================================================================
+// GDPR API — supplemental coverage
+// ===================================================================
+describe('GDPR API — supplemental coverage', () => {
+  it('GET /gdpr/categories calls findMany once', async () => {
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([]);
+    await request(app).get('/api/gdpr/categories');
+    expect(mockPrisma.gdprDataCategory.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /gdpr/dpas calls findMany once', async () => {
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue([]);
+    await request(app).get('/api/gdpr/dpas');
+    expect(mockPrisma.dataProcessingAgreement.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /gdpr/categories create is called once on valid input', async () => {
+    mockPrisma.gdprDataCategory.create.mockResolvedValue({
+      id: 'cat-once',
+      category: 'Once',
+      legalBasis: 'CONSENT',
+    });
+
+    await request(app).post('/api/gdpr/categories').send({ category: 'Once', legalBasis: 'CONSENT' });
+    expect(mockPrisma.gdprDataCategory.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /gdpr/dpas create is called once on valid input', async () => {
+    mockPrisma.dataProcessingAgreement.create.mockResolvedValue({
+      id: 'dpa-once',
+      processorName: 'OnceVendor',
+      purpose: 'Testing',
+      isActive: true,
+    });
+
+    await request(app).post('/api/gdpr/dpas').send({ processorName: 'OnceVendor', purpose: 'Testing' });
+    expect(mockPrisma.dataProcessingAgreement.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /gdpr/report summary has all required keys', async () => {
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([]);
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue([]);
+    mockPrisma.dataRequest.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/gdpr/report');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary).toHaveProperty('totalCategories');
+    expect(res.body.data.summary).toHaveProperty('atRiskCategories');
+    expect(res.body.data.summary).toHaveProperty('totalDpas');
+    expect(res.body.data.summary).toHaveProperty('activeDpas');
+    expect(res.body.data.summary).toHaveProperty('totalRequests');
+    expect(res.body.data.summary).toHaveProperty('pendingRequests');
+  });
+});

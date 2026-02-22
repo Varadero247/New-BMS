@@ -416,3 +416,42 @@ describe('inspections — business logic and response structure', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('inspections — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /inspections?result=FAIL filters findMany by result', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([]);
+    prisma.cmmsInspection.count.mockResolvedValue(0);
+    await request(app).get('/api/inspections?result=FAIL');
+    expect(prisma.cmmsInspection.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ result: 'FAIL' }) })
+    );
+  });
+
+  it('POST /inspections returns 400 when assetId is missing', async () => {
+    const res = await request(app).post('/api/inspections').send({
+      inspectionType: 'Safety Inspection',
+      inspector: 'John Smith',
+      scheduledDate: '2026-03-01T00:00:00Z',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /inspections response includes pagination with totalPages', async () => {
+    prisma.cmmsInspection.findMany.mockResolvedValue([]);
+    prisma.cmmsInspection.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/inspections?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('DELETE /inspections/:id returns 404 with NOT_FOUND code', async () => {
+    prisma.cmmsInspection.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/inspections/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

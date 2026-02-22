@@ -275,3 +275,43 @@ describe('DashboardMetrics — additional coverage', () => {
     expect(t.errorRate).toBe(0);
   });
 });
+
+describe('DashboardMetrics — absolute final boundary', () => {
+  const startTime = new Date(Date.now() - 2_000);
+
+  it('RollingCounter increment by 0 keeps total at 0', () => {
+    const c = new RollingCounter(60_000, 60);
+    c.increment(0);
+    expect(c.total).toBe(0);
+  });
+
+  it('LatencyTracker avg with EMA alpha=0.5 converges toward new value', () => {
+    const t = new LatencyTracker(0.5);
+    t.record(100);
+    t.record(0);
+    // EMA: 100 * 0.5 + 0 * 0.5 = 50
+    expect(t.avg).toBeCloseTo(50, 0);
+  });
+
+  it('DashboardMetrics getSystemHealth returns healthy with no check functions', async () => {
+    const m = new DashboardMetrics({ startTime });
+    const snap = await m.getSystemHealth();
+    expect(snap.overall).toBe('healthy');
+  });
+
+  it('DashboardMetrics getBusinessKpis requestsLastMinute is 0 initially', () => {
+    const m = new DashboardMetrics({ startTime });
+    const kpi = m.getBusinessKpis();
+    expect(kpi.requestsLastMinute).toBe(0);
+  });
+
+  it('DashboardMetrics marks cache unhealthy when checkCache throws', async () => {
+    const m = new DashboardMetrics({
+      startTime,
+      checkCache: async () => { throw new Error('cache down'); },
+    });
+    const snap = await m.getSystemHealth();
+    const cache = snap.components.find((c) => c.name === 'cache');
+    expect(cache?.status).toBe('unhealthy');
+  });
+});

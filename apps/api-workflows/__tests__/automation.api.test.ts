@@ -621,3 +621,37 @@ describe('Workflows Automation API Routes', () => {
     });
   });
 });
+
+describe('Workflows Automation API — final boundary coverage', () => {
+  let appFinal: express.Express;
+
+  beforeAll(() => {
+    appFinal = express();
+    appFinal.use(express.json());
+    appFinal.use('/api/automation', automationRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/automation/rules returns success:true with data array', async () => {
+    (mockPrisma.automationRule.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(appFinal).get('/api/automation/rules');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /api/automation/rules/:id returns 204 on success', async () => {
+    (mockPrisma.automationRule.update as jest.Mock).mockResolvedValueOnce({});
+    const res = await request(appFinal).delete(
+      '/api/automation/rules/42000000-0000-4000-a000-000000000001'
+    );
+    expect(res.status).toBe(204);
+  });
+
+  it('GET /api/automation/executions returns pagination object', async () => {
+    (mockPrisma.automationExecution.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.automationExecution.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(appFinal).get('/api/automation/executions');
+    expect(res.body.pagination).toBeDefined();
+  });
+});

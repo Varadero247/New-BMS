@@ -333,3 +333,29 @@ describe('createServiceClient', () => {
     expect(typeof client.breaker.fire).toBe('function');
   });
 });
+
+describe('circuit breaker — extended coverage', () => {
+  it('getCircuitBreakerStats returns empty object when clearCircuitBreakers was called', () => {
+    clearCircuitBreakers();
+    const stats = getCircuitBreakerStats();
+    expect(Object.keys(stats).length).toBe(0);
+  });
+
+  it('createCircuitBreaker with enabled:true behaves the same as default', async () => {
+    const fn = jest.fn().mockResolvedValue('active');
+    const breaker = createCircuitBreaker(fn, { name: 'enabled-true', enabled: true });
+    const result = await breaker.fire();
+    expect(result).toBe('active');
+  });
+
+  it('resetCircuitBreaker returns true for a breaker that was just registered', () => {
+    createCircuitBreaker(async () => 'x', { name: 'fresh-reset' });
+    expect(resetCircuitBreaker('fresh-reset')).toBe(true);
+  });
+
+  it('getAllCircuitBreakers has the correct count after creating two breakers', () => {
+    createCircuitBreaker(async () => 'a', { name: 'count-a' });
+    createCircuitBreaker(async () => 'b', { name: 'count-b' });
+    expect(getAllCircuitBreakers().size).toBe(2);
+  });
+});

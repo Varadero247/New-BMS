@@ -329,6 +329,51 @@ describe('Depreciation — additional coverage', () => {
   });
 });
 
+describe('Depreciation — comprehensive coverage', () => {
+  it('returns data where all items have purchaseCost > 0', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Asset A', purchaseCost: 5000, currentValue: 3000, purchaseDate: '2023-01-01' },
+      { id: 'a-2', name: 'Asset B', purchaseCost: 8000, currentValue: 6000, purchaseDate: '2024-01-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    for (const asset of res.body.data) {
+      expect(asset.purchaseCost).toBeGreaterThan(0);
+    }
+  });
+
+  it('findMany called once per GET request', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/depreciation');
+    await request(app).get('/api/depreciation');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledTimes(2);
+  });
+
+  it('data items id field matches the mocked id', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'specific-comp-id', name: 'Machine X', purchaseCost: 10000, currentValue: 7000, purchaseDate: '2023-06-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('specific-comp-id');
+  });
+
+  it('success is false when DB error occurs', async () => {
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/depreciation');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('handles an asset with very high purchase cost correctly', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-high', name: 'Turbine', purchaseCost: 10000000, currentValue: 8000000, purchaseDate: '2020-01-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].purchaseCost).toBe(10000000);
+  });
+});
+
 describe('Depreciation — final coverage block', () => {
   it('POST is not supported — returns 404', async () => {
     const res = await request(app).post('/api/depreciation').send({});

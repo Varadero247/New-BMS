@@ -403,3 +403,46 @@ describe('toolbox-talks.api — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('toolbox-talks.api — extra boundary coverage', () => {
+  it('GET / returns multiple toolbox talks', async () => {
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', topic: 'Talk 1' },
+      { id: '00000000-0000-0000-0000-000000000002', topic: 'Talk 2' },
+    ]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/toolbox-talks');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / returns 400 for empty body', async () => {
+    const res = await request(app).post('/api/toolbox-talks').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id updates status field successfully', async () => {
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', topic: 'Safety' });
+    mockPrisma.ptwToolboxTalk.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', topic: 'Safety', status: 'COMPLETED' });
+    const res = await request(app)
+      .put('/api/toolbox-talks/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('COMPLETED');
+  });
+
+  it('DELETE /:id does not call update when not found', async () => {
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue(null);
+    await request(app).delete('/api/toolbox-talks/00000000-0000-0000-0000-000000000099');
+    expect(mockPrisma.ptwToolboxTalk.update).not.toHaveBeenCalled();
+  });
+
+  it('GET / findMany and count each called once', async () => {
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    await request(app).get('/api/toolbox-talks');
+    expect(mockPrisma.ptwToolboxTalk.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.ptwToolboxTalk.count).toHaveBeenCalledTimes(1);
+  });
+});

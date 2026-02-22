@@ -814,3 +814,104 @@ describe('Aerospace Human Factors — extended coverage 2', () => {
     expect(response.body.data.totals.FATIGUE).toBe(2);
   });
 });
+
+describe('Aerospace Human Factors — extra final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/human-factors', humanFactorsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/human-factors/incidents returns data with refNumber', async () => {
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(5);
+    (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValueOnce({
+      id: 'hf-final',
+      refNumber: 'HF-2602-0006',
+      title: 'Test Incident',
+      category: 'FATIGUE',
+      status: 'REPORTED',
+      incidentDate: new Date('2026-01-10'),
+    });
+
+    const response = await request(app)
+      .post('/api/human-factors/incidents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Test Incident',
+        description: 'Details about fatigue incident',
+        category: 'FATIGUE',
+        incidentDate: '2026-01-10T08:00:00Z',
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.data).toHaveProperty('refNumber');
+  });
+
+  it('GET /api/human-factors/incidents returns data array', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app)
+      .get('/api/human-factors/incidents')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('POST /api/human-factors/fatigue persists riskLevel field correctly', async () => {
+    (mockPrisma.fatigueAssessment.create as jest.Mock).mockResolvedValueOnce({
+      id: 'fa-final',
+      personnelId: 'P-FINAL',
+      personnelName: 'Final Test',
+      fatigueScore: 5,
+      riskLevel: 'MODERATE',
+      fitForDuty: true,
+    });
+
+    const response = await request(app)
+      .post('/api/human-factors/fatigue')
+      .set('Authorization', 'Bearer token')
+      .send({
+        personnelId: 'P-FINAL',
+        personnelName: 'Final Test',
+        assessmentDate: '2026-02-10T08:00:00Z',
+        hoursWorked: 8,
+        restHours: 9,
+        fatigueScore: 5,
+        riskLevel: 'MODERATE',
+        fitForDuty: true,
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.data.riskLevel).toBe('MODERATE');
+  });
+
+  it('GET /api/human-factors/dashboard returns fatigueStats with averageScore property', async () => {
+    (mockPrisma.humanFactorIncident.count as jest.Mock)
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(2);
+    (mockPrisma.humanFactorIncident.groupBy as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    (mockPrisma.fatigueAssessment.findMany as jest.Mock).mockResolvedValueOnce([
+      { fatigueScore: 4, riskLevel: 'LOW', fitForDuty: true },
+      { fatigueScore: 6, riskLevel: 'MODERATE', fitForDuty: true },
+    ]);
+
+    const response = await request(app)
+      .get('/api/human-factors/dashboard')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.fatigueStats).toHaveProperty('averageScore');
+    expect(response.body.data.fatigueStats.totalAssessments).toBe(2);
+  });
+});

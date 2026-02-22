@@ -470,3 +470,85 @@ describe('Medical CAPA — final coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Medical CAPA — ≥40 coverage', () => {
+  const baseCapa = {
+    id: '00000000-0000-0000-0000-000000000001',
+    refNumber: 'CAPA-2601-0001',
+    title: 'Fix device failure',
+    capaType: 'CORRECTIVE',
+    source: 'COMPLAINT',
+    sourceRef: 'CMP-001',
+    description: 'Device fails under stress',
+    deviceName: 'Device A',
+    deviceId: 'DEV-001',
+    severity: 'MAJOR',
+    status: 'OPEN',
+    createdBy: 'user-1',
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/capa with no query params returns 200 and success:true', async () => {
+    mockPrisma.medCapa.findMany.mockResolvedValue([baseCapa]);
+    mockPrisma.medCapa.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/capa');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/capa create called with title in data', async () => {
+    mockPrisma.medCapa.count.mockResolvedValue(0);
+    mockPrisma.medCapa.create.mockResolvedValue(baseCapa);
+
+    await request(app)
+      .post('/api/capa')
+      .send({ title: 'New CAPA', source: 'COMPLAINT', description: 'Something went wrong' });
+
+    expect(mockPrisma.medCapa.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ title: 'New CAPA' }),
+      })
+    );
+  });
+
+  it('GET /api/capa/stats response data has bySeverity field', async () => {
+    mockPrisma.medCapa.count.mockResolvedValueOnce(5).mockResolvedValueOnce(0);
+    mockPrisma.medCapa.groupBy
+      .mockResolvedValueOnce([{ status: 'OPEN', _count: { id: 3 } }])
+      .mockResolvedValueOnce([{ capaType: 'CORRECTIVE', _count: { id: 3 } }])
+      .mockResolvedValueOnce([{ severity: 'MAJOR', _count: { id: 2 } }]);
+
+    const res = await request(app).get('/api/capa/stats');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('bySeverity');
+  });
+
+  it('PUT /api/capa/:id returns 500 when update throws', async () => {
+    mockPrisma.medCapa.findUnique.mockResolvedValue(baseCapa);
+    mockPrisma.medCapa.update.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app)
+      .put('/api/capa/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Crash Test' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/capa/:id success:true when CAPA exists', async () => {
+    mockPrisma.medCapa.findUnique.mockResolvedValue(baseCapa);
+
+    const res = await request(app).get('/api/capa/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.refNumber).toBe('CAPA-2601-0001');
+  });
+});

@@ -420,3 +420,49 @@ describe('eight-d.api — final coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('eight-d.api — comprehensive coverage', () => {
+  it('GET /api/eight-d filters by customer wired into findMany where', async () => {
+    (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/eight-d?customer=BMW');
+    expect(mockPrisma.eightDReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ customer: { contains: 'BMW', mode: 'insensitive' } }) })
+    );
+  });
+
+  it('GET /api/eight-d filters by severity wired into findMany where', async () => {
+    (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/eight-d?severity=CRITICAL');
+    expect(mockPrisma.eightDReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ severity: 'CRITICAL' }) })
+    );
+  });
+
+  it('POST /api/eight-d count is called to generate refNumber', async () => {
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.eightDReport.create as jest.Mock).mockResolvedValue({ ...mockReport, refNumber: '8D-2601-0004' });
+    const res = await request(app).post('/api/eight-d').send({
+      title: 'Dimensional non-conformance on Part A',
+      problemStatement: 'Part A outer diameter out of tolerance',
+      teamLeader: 'Jane Smith',
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.eightDReport.count).toHaveBeenCalled();
+  });
+
+  it('PUT /api/eight-d/:id returns 404 when soft-deleted', async () => {
+    (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue({ ...mockReport, deletedAt: new Date() });
+    const res = await request(app).put(`/api/eight-d/${REPORT_ID}`).send({ status: 'D2_PROBLEM_DESCRIPTION' });
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/eight-d returns data array with expected length', async () => {
+    (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([mockReport, mockReport]);
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(2);
+    const res = await request(app).get('/api/eight-d');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

@@ -619,3 +619,69 @@ describe('Inventory Transactions — final tests', () => {
     expect(res.body.meta.limit).toBe(50);
   });
 });
+
+describe('Inventory Transactions — extended final coverage', () => {
+  let xApp: express.Express;
+
+  beforeAll(() => {
+    xApp = express();
+    xApp.use(express.json());
+    xApp.use('/api/inventory/transactions', transactionsRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/inventory/transactions with startDate only applies gte filter', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(xApp).get('/api/inventory/transactions?startDate=2024-01-01');
+    expect(mockPrisma.inventoryTransaction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          transactionDate: expect.objectContaining({ gte: expect.any(Date) }),
+        }),
+      })
+    );
+  });
+
+  it('GET /api/inventory/transactions with endDate only applies lte filter', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(xApp).get('/api/inventory/transactions?endDate=2024-12-31');
+    expect(mockPrisma.inventoryTransaction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          transactionDate: expect.objectContaining({ lte: expect.any(Date) }),
+        }),
+      })
+    );
+  });
+
+  it('GET /api/inventory/transactions findMany called once per request', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(xApp).get('/api/inventory/transactions');
+    expect(mockPrisma.inventoryTransaction.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/inventory/transactions meta page defaults to 1', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(xApp).get('/api/inventory/transactions');
+    expect(res.body.meta.page).toBe(1);
+  });
+
+  it('GET /api/inventory/transactions/:id returns 200 for valid record', async () => {
+    (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '29000000-0000-4000-a000-000000000001',
+      transactionType: 'TRANSFER',
+      quantityChange: 10,
+      product: { id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget A', barcode: null },
+      warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
+      fromWarehouse: { id: '28000000-0000-4000-a000-000000000002', code: 'WH2', name: 'Secondary Warehouse' },
+    });
+    const res = await request(xApp).get('/api/inventory/transactions/29000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.transactionType).toBe('TRANSFER');
+  });
+});

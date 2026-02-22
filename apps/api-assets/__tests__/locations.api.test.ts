@@ -369,3 +369,47 @@ describe('Locations API — final coverage block', () => {
     );
   });
 });
+
+describe('Locations API — extra coverage', () => {
+  it('success:true is present in body on 200', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([{ location: 'Area 51' }]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('six assets at two locations each produce two entries with count 3', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'X' }, { location: 'X' }, { location: 'X' },
+      { location: 'Y' }, { location: 'Y' }, { location: 'Y' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    const x = res.body.data.find((d: any) => d.location === 'X');
+    expect(x.count).toBe(3);
+  });
+
+  it('error body has error.message on 500', async () => {
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('fatal'));
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('message');
+  });
+
+  it('response data length equals number of distinct non-empty locations', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'A' }, { location: 'B' }, { location: 'C' },
+      { location: null }, { location: '' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('response content-type is application/json', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/locations');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+});

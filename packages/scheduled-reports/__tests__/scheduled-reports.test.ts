@@ -312,3 +312,40 @@ describe('scheduled-reports — further coverage', () => {
     expect(updateSchedule('', { name: 'Nope' })).toBeNull();
   });
 });
+
+describe('scheduled-reports — final coverage', () => {
+  it('createSchedule with safety_kpi reportType stores it correctly', () => {
+    const org = uniqueOrg();
+    const sched = createSchedule({ orgId: org, ...BASE_PARAMS, reportType: 'safety_kpi' as const });
+    expect(sched.reportType).toBe('safety_kpi');
+  });
+
+  it('runScheduleNow returns null for empty string id', () => {
+    expect(runScheduleNow('')).toBeNull();
+  });
+
+  it('createSchedule with multiple recipients stores all of them', () => {
+    const org = uniqueOrg();
+    const sched = createSchedule({
+      orgId: org,
+      ...BASE_PARAMS,
+      recipients: ['a@b.com', 'c@d.com', 'e@f.com'],
+    });
+    expect(sched.recipients).toHaveLength(3);
+    expect(sched.recipients).toContain('c@d.com');
+  });
+
+  it('updateSchedule merges partial fields (other fields stay unchanged)', () => {
+    const org = uniqueOrg();
+    const sched = createSchedule({ orgId: org, ...BASE_PARAMS, name: 'Original' });
+    updateSchedule(sched.id, { enabled: false });
+    const updated = getSchedule(sched.id)!;
+    expect(updated.name).toBe('Original');
+    expect(updated.enabled).toBe(false);
+  });
+
+  it('REPORT_TYPES has at least one entry with value quality_kpi', () => {
+    const found = REPORT_TYPES.find((t) => t.value === 'quality_kpi');
+    expect(found).toBeDefined();
+  });
+});

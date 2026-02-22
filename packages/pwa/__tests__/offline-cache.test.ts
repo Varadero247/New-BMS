@@ -427,3 +427,40 @@ describe('OfflineCache — cache isolation and extended scenarios', () => {
     expect(urls.length).toBeLessThanOrEqual(50);
   });
 });
+
+describe('OfflineCache — exported singleton and advanced patterns', () => {
+  beforeEach(() => {
+    cacheInstances.clear();
+  });
+
+  test('offlineCache singleton is exported from module', () => {
+    const mod = require('../src/offline-cache');
+    expect(mod.offlineCache).toBeDefined();
+    expect(typeof mod.offlineCache.cacheResponse).toBe('function');
+  });
+
+  test('isPriorityUrl returns false for /api/reports path', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/reports')).toBe(false);
+  });
+
+  test('isPriorityUrl returns true for nested tasks path', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/field-service/tasks')).toBe(true);
+  });
+
+  test('cacheResponse stores response accessible via getCachedResponse', async () => {
+    const cache = new OfflineCache();
+    await cache.cacheResponse('https://app.example.com/api/hs/tasks', makeResponse({ done: true }));
+    const result = await cache.getCachedResponse('https://app.example.com/api/hs/tasks');
+    expect(result).not.toBeNull();
+    const body = await result!.json();
+    expect(body.done).toBe(true);
+  });
+
+  test('getTrackedUrls returns non-empty list after cacheResponse call', async () => {
+    const cache = new OfflineCache();
+    await cache.cacheResponse('https://app.example.com/api/one', makeResponse(1));
+    const urls = await cache.getTrackedUrls();
+    expect(urls.length).toBeGreaterThan(0);
+    expect(urls).toContain('https://app.example.com/api/one');
+  });
+});

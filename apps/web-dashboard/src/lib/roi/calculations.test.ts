@@ -257,3 +257,41 @@ describe('calculateRoi — boundary and formula checks', () => {
     expect(r.totalValue).toBe(0);
   });
 });
+
+describe('calculateRoi — final plan and formula checks', () => {
+  it('employees=25 boundary: Starter plan', () => {
+    const r = calculateRoi({ ...DEFAULT_INPUTS, employees: 25 });
+    expect(r.recommendedPlan).toBe('Starter');
+  });
+
+  it('employees=26 boundary: Growth plan', () => {
+    const r = calculateRoi({ ...DEFAULT_INPUTS, employees: 26 });
+    expect(r.recommendedPlan).toBe('Growth');
+  });
+
+  it('employees=200 boundary: Growth plan', () => {
+    const r = calculateRoi({ ...DEFAULT_INPUTS, employees: 200 });
+    expect(r.recommendedPlan).toBe('Growth');
+  });
+
+  it('netBenefit can be negative when cost exceeds value', () => {
+    const r = calculateRoi({
+      employees: 25,
+      adminHoursPerWeek: 0,
+      annualSalary: 0,
+      numberOfAudits: 0,
+      auditPrepDays: 1,
+      activeSuppliers: 0,
+      enterpriseContractPursuit: false,
+      dailyRateOverride: 0,
+    });
+    // nexaraCost is 299*12=3588, totalValue is 0, netBenefit is -3588
+    expect(r.netBenefit).toBeLessThan(0);
+  });
+
+  it('adminHoursSaved is proportional: 20 hrs/wk = 2x of 10 hrs/wk', () => {
+    const r10 = calculateRoi({ ...DEFAULT_INPUTS, adminHoursPerWeek: 10 });
+    const r20 = calculateRoi({ ...DEFAULT_INPUTS, adminHoursPerWeek: 20 });
+    expect(r20.adminHoursSaved).toBeCloseTo(r10.adminHoursSaved * 2, 5);
+  });
+});

@@ -574,3 +574,56 @@ describe('HR Attendance — final coverage', () => {
     );
   });
 });
+
+describe('HR Attendance — extra edge cases', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/attendance', attendanceRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/attendance findMany called exactly once', async () => {
+    (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.attendance.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/attendance');
+    expect(mockPrisma.attendance.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /clock-in upsert called when employee exists and not clocked in', async () => {
+    (mockPrisma.attendance.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValueOnce({ id: '11111111-1111-1111-1111-111111111111', shiftId: null, shift: null });
+    (mockPrisma.attendance.upsert as jest.Mock).mockResolvedValueOnce({
+      id: 'att-1', employeeId: '11111111-1111-1111-1111-111111111111', clockIn: new Date(), status: 'PRESENT',
+      employee: { firstName: 'Test', lastName: 'User' },
+    });
+    await request(app).post('/api/attendance/clock-in').send({ employeeId: '11111111-1111-1111-1111-111111111111', method: 'WEB_PORTAL' });
+    expect(mockPrisma.attendance.upsert).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /clock-out update called with clockOut field', async () => {
+    (mockPrisma.attendance.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: 'att-1', clockIn: new Date(Date.now() - 3600000), clockOut: null, scheduledHours: 8,
+    });
+    (mockPrisma.attendance.update as jest.Mock).mockResolvedValueOnce({
+      id: 'att-1', clockOut: new Date(), workedHours: 1, overtimeHours: 0,
+      employee: { firstName: 'Test', lastName: 'User' },
+    });
+    await request(app).post('/api/attendance/clock-out').send({ employeeId: '11111111-1111-1111-1111-111111111111', method: 'WEB_PORTAL' });
+    expect(mockPrisma.attendance.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ clockOut: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /shifts/all data is an array', async () => {
+    (mockPrisma.workShift.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/attendance/shifts/all');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

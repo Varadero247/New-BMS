@@ -444,3 +444,59 @@ describe('nadcap-scope — extended coverage 2', () => {
     expect(call[0].data.scopeGaps).toEqual([]);
   });
 });
+
+describe('nadcap-scope — additional final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / response has success:true and data array', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.aeroNadcapScope.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/nadcap-scope');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /gaps returns success:true and data.scopeGaps array', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock)
+      .mockResolvedValueOnce([mockRecord])
+      .mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/nadcap-scope/gaps');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('scopeGaps');
+    expect(res.body.data).toHaveProperty('expiringSoon');
+  });
+
+  it('POST / returns 400 when nadcapCertRef is missing', async () => {
+    const res = await request(app).post('/api/nadcap-scope').send({
+      supplierName: 'Acme',
+      certExpiryDate: '2027-01-01',
+      commodityCodes: ['AC7102'],
+      commodityCodesRequired: ['AC7102'],
+      processDescription: 'NDT',
+      verifiedBy: 'Jane',
+      verificationDate: '2026-02-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns 404 for soft-deleted record', async () => {
+    (mockPrisma.aeroNadcapScope.findUnique as jest.Mock).mockResolvedValue({
+      ...mockRecord,
+      deletedAt: new Date(),
+    });
+    const res = await request(app)
+      .put('/api/nadcap-scope/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'EXPIRED' });
+    expect(res.status).toBe(404);
+  });
+
+  it('GET / handles page=1 limit=100 without error', async () => {
+    (mockPrisma.aeroNadcapScope.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroNadcapScope.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/nadcap-scope?page=1&limit=100');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(100);
+  });
+});

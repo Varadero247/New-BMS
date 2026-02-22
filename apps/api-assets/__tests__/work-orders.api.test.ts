@@ -389,3 +389,46 @@ describe('Work Orders API — final coverage block', () => {
     expect(res.body.pagination.total).toBe(88);
   });
 });
+
+describe('Work Orders API — extra coverage', () => {
+  it('GET / returns success:true and data array on success', async () => {
+    mockPrisma.assetWorkOrder.findMany.mockResolvedValue([]);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/work-orders');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST returns 201 with success:true for valid minimal payload', async () => {
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005', title: 'Minimal' });
+    const res = await request(app).post('/api/work-orders').send({ assetId: 'asset-min', title: 'Minimal' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns success:true and message on soft delete', async () => {
+    mockPrisma.assetWorkOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetWorkOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/work-orders/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET /:id returns 500 when findFirst rejects', async () => {
+    mockPrisma.assetWorkOrder.findFirst.mockRejectedValue(new Error('network error'));
+    const res = await request(app).get('/api/work-orders/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / response has pagination property on success', async () => {
+    mockPrisma.assetWorkOrder.findMany.mockResolvedValue([]);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/work-orders');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+  });
+});

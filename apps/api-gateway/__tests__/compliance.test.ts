@@ -600,4 +600,12 @@ describe('Compliance Regulatory Intelligence — additional coverage', () => {
     expect(response.body.data).toHaveProperty('category');
     expect(response.body.data).toHaveProperty('impactLevel');
   });
+
+  it('GET /summary response content-type is JSON', async () => {
+    const response = await request(app2)
+      .get('/api/compliance/summary')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+  });
 });

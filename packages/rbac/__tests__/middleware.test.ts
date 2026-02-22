@@ -353,3 +353,40 @@ describe('RBAC Middleware — further coverage', () => {
     expect(res.body.field).toBe('createdBy');
   });
 });
+
+describe('RBAC Middleware — final coverage', () => {
+  it('requirePermission denies VIEWER for DELETE-level on environment', async () => {
+    const app = createTestApp([requirePermission('environment', PermissionLevel.DELETE)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
+    expect(res.status).toBe(403);
+  });
+
+  it('requirePermission allows ADMIN for DELETE on environment', async () => {
+    const app = createTestApp([requirePermission('environment', PermissionLevel.DELETE)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'ADMIN');
+    expect(res.status).toBe(200);
+  });
+
+  it('attachPermissions sets permissions.roles to an array', async () => {
+    const app = createTestApp([attachPermissions()], (req: any, res: any) => {
+      res.json({ isArray: Array.isArray(req.permissions?.roles) });
+    });
+    const res = await request(app).get('/test').set('X-Test-Role', 'ADMIN');
+    expect(res.body.isArray).toBe(true);
+  });
+
+  it('ownershipFilter with no user still passes (next) without crashing', async () => {
+    const app = createTestApp([attachPermissions(), ownershipFilter()], (req: any, res: any) => {
+      res.json({ filter: req.ownerFilter ?? null });
+    });
+    const res = await request(app).get('/test');
+    expect(res.status).toBe(200);
+  });
+
+  it('requirePermission CREATE level returns 403 for VIEWER on hr module', async () => {
+    const app = createTestApp([requirePermission('hr', PermissionLevel.CREATE)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
+    expect(res.status).toBe(403);
+    expect(res.body.success).toBe(false);
+  });
+});

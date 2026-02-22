@@ -764,3 +764,84 @@ describe('Environment LCA — final coverage', () => {
     expect(response.body.data.severity).toBe(3);
   });
 });
+
+describe('Environment LCA — boundary coverage', () => {
+  let app3: express.Express;
+
+  beforeAll(() => {
+    app3 = express();
+    app3.use(express.json());
+    app3.use('/api/lifecycle', lifecycleRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /assessments returns meta.page=1 by default', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app3)
+      .get('/api/lifecycle/assessments')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.page).toBe(1);
+  });
+
+  it('POST /assessments returns 400 for empty string productProcess', async () => {
+    const response = await request(app3)
+      .post('/api/lifecycle/assessments')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Valid Title', productProcess: '' });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /assessments filters by status=DRAFT passed to findMany', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app3)
+      .get('/api/lifecycle/assessments?status=DRAFT')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.lifeCycleAssessment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'DRAFT' }),
+      })
+    );
+  });
+
+  it('GET /assessments/:id returns 404 error code NOT_FOUND', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    const response = await request(app3)
+      .get('/api/lifecycle/assessments/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /assessments/:id/stages/DISTRIBUTION accepts supplierReqs field', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '40000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.lifeCycleStage.upsert as jest.Mock).mockResolvedValueOnce({
+      stageName: 'DISTRIBUTION',
+      aspects: 'Logistics',
+      supplierReqs: 'Carbon footprint data required',
+    });
+
+    const response = await request(app3)
+      .put('/api/lifecycle/assessments/40000000-0000-4000-a000-000000000001/stages/DISTRIBUTION')
+      .set('Authorization', 'Bearer token')
+      .send({ aspects: 'Logistics', supplierReqs: 'Carbon footprint data required' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.supplierReqs).toBe('Carbon footprint data required');
+  });
+});

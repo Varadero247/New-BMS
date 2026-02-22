@@ -365,3 +365,51 @@ describe('errorHandler — boundary and type coverage', () => {
     expect(json.mock.calls[0][0].success).toBe(false);
   });
 });
+
+describe('errorHandler — complete final coverage', () => {
+  it('handles statusCode 429 with custom code RATE_LIMITED', () => {
+    const err = Object.assign(new Error('Too many requests'), { statusCode: 429, code: 'RATE_LIMITED' });
+    const { res, status, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(status).toHaveBeenCalledWith(429);
+    expect(json.mock.calls[0][0].error.code).toBe('RATE_LIMITED');
+  });
+
+  it('error response body always has an error.code field', () => {
+    const errs = [
+      new Error('generic'),
+      Object.assign(new Error(), { code: 'P2002' }),
+      Object.assign(new Error(), { code: 'P2025' }),
+      Object.assign(new Error(), { issues: [{ message: 'x', path: [] }] }),
+    ];
+    for (const e of errs) {
+      const { res, json } = makeRes();
+      errorHandler(e as any, req, res, next);
+      expect(json.mock.calls[0][0].error).toHaveProperty('code');
+    }
+  });
+
+  it('asyncHandler does not suppress synchronous errors thrown inside handler', async () => {
+    const nextFn = jest.fn();
+    const err = new SyntaxError('bad syntax');
+    const handler = asyncHandler(async () => { throw err; });
+    await handler(req, {} as any, nextFn);
+    expect(nextFn).toHaveBeenCalledWith(err);
+  });
+
+  it('statusCode 503 with SERVICE_UNAVAILABLE code is preserved', () => {
+    const err = Object.assign(new Error('Down'), { statusCode: 503, code: 'SERVICE_UNAVAILABLE' });
+    const { res, status } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(status).toHaveBeenCalledWith(503);
+  });
+
+  it('Prisma P2025 error message exposed as NOT_FOUND is safe (no DB internals)', () => {
+    const err = Object.assign(new Error('Record to update not found'), { code: 'P2025' });
+    const { res, json } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(json.mock.calls[0][0].error.code).toBe('NOT_FOUND');
+    // The DB error message is NOT exposed
+    expect(json.mock.calls[0][0].error.message).not.toContain('Record to update');
+  });
+});

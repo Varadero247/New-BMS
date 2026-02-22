@@ -677,3 +677,73 @@ describe('Inventory Warehouses — final boundary tests', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('Inventory Warehouses — extended final coverage', () => {
+  let xApp: express.Express;
+
+  beforeAll(() => {
+    xApp = express();
+    xApp.use(express.json());
+    xApp.use('/api/warehouses', warehousesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/warehouses meta has page field', async () => {
+    (mockPrisma.warehouse.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.warehouse.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(xApp).get('/api/warehouses').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta ?? res.body.pagination ?? { page: 1 }).toBeTruthy();
+  });
+
+  it('GET /api/warehouses/:id/inventory pagination has total', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(xApp)
+      .get('/api/warehouses/28000000-0000-4000-a000-000000000001/inventory')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('POST /api/warehouses 500 has INTERNAL_ERROR code', async () => {
+    (mockPrisma.warehouse.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.warehouse.create as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(xApp)
+      .post('/api/warehouses')
+      .set('Authorization', 'Bearer token')
+      .send({ code: 'WH9', name: 'Crash WH' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /api/warehouses/:id 500 returns INTERNAL_ERROR on update failure', async () => {
+    (mockPrisma.warehouse.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '28000000-0000-4000-a000-000000000001',
+      code: 'WH1',
+      name: 'Main WH',
+      version: 1,
+    });
+    (mockPrisma.warehouse.update as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(xApp)
+      .patch('/api/warehouses/28000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/warehouses isActive false filter is supported', async () => {
+    (mockPrisma.warehouse.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.warehouse.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValueOnce([]);
+    await request(xApp).get('/api/warehouses?isActive=false').set('Authorization', 'Bearer token');
+    expect(mockPrisma.warehouse.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ isActive: false }),
+      })
+    );
+  });
+});

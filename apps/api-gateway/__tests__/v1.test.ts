@@ -397,6 +397,26 @@ describe('V1 Router — response shape and edge-case coverage', () => {
   });
 });
 
+describe('V1 Router — final single test', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/v1', v1Router);
+  });
+
+  it('GET /api/v1/unified-audit/standards returns array of standards with code field', async () => {
+    const res = await request(app)
+      .get('/api/v1/unified-audit/standards')
+      .set('Authorization', 'Bearer mock-token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data[0]).toHaveProperty('code');
+  });
+});
+
 describe('V1 Router — mount verification coverage', () => {
   let app: express.Express;
 

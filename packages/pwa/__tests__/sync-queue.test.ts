@@ -496,3 +496,78 @@ describe('SyncQueue — additional method coverage', () => {
     expect(sharedStore.data.get('highRetry').retryCount).toBe(2);
   });
 });
+
+describe('SyncQueue — syncQueue singleton and flush token injection', () => {
+  const makeReq = (id: string, timestamp: number, retryCount = 0): QueuedRequest => ({
+    id,
+    url: `https://example.com/api/singleton/${id}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+    timestamp,
+    retryCount,
+  });
+
+  beforeEach(() => {
+    sharedStore.data.clear();
+    mockFetch.mockReset();
+  });
+
+  test('syncQueue singleton is exported from module', () => {
+    const mod = require('../src/sync-queue');
+    expect(mod.syncQueue).toBeDefined();
+    expect(typeof mod.syncQueue.enqueue).toBe('function');
+  });
+
+  test('flush attaches Authorization header from localStorage token', async () => {
+    const getItemSpy = jest.spyOn(Storage.prototype, 'getItem').mockReturnValue('test-token-abc');
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+    const q = new SyncQueue();
+    await q.enqueue(makeReq('token-test', 100));
+    await q.flush();
+    getItemSpy.mockRestore();
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: 'Bearer test-token-abc' }),
+      })
+    );
+  });
+
+  test('getAll returns QueuedRequest objects with all required fields', async () => {
+    const q = new SyncQueue();
+    await q.enqueue(makeReq('field-check', 300));
+    const all = await q.getAll();
+    expect(all[0]).toHaveProperty('id');
+    expect(all[0]).toHaveProperty('url');
+    expect(all[0]).toHaveProperty('method');
+    expect(all[0]).toHaveProperty('headers');
+    expect(all[0]).toHaveProperty('body');
+    expect(all[0]).toHaveProperty('timestamp');
+    expect(all[0]).toHaveProperty('retryCount');
+  });
+
+  test('flush with 404 response increments retryCount (non-ok)', async () => {
+    mockFetch.mockResolvedValue({ ok: false, status: 404 });
+    const q = new SyncQueue();
+    await q.enqueue(makeReq('not-found', 100));
+    const result = await q.flush();
+    expect(result.failed).toBe(1);
+    expect(result.succeeded).toBe(0);
+  });
+
+  test('enqueue with DELETE method stores method correctly', async () => {
+    const q = new SyncQueue();
+    const req: QueuedRequest = {
+      id: 'del-1',
+      url: 'https://example.com/api/singleton/del-1',
+      method: 'DELETE',
+      headers: {},
+      body: null,
+      timestamp: 100,
+      retryCount: 0,
+    };
+    await q.enqueue(req);
+    expect(sharedStore.data.get('del-1').method).toBe('DELETE');
+  });
+});

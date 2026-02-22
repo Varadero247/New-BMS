@@ -604,3 +604,17 @@ describe('GET /api/tax/report', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// Tax — extra coverage to reach 40 tests
+// ===================================================================
+describe('Tax — extra coverage', () => {
+  it('GET /api/tax/rates data is always an array', async () => {
+    mockPrisma.finTaxRate.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/tax/rates');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

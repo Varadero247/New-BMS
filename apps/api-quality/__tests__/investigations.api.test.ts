@@ -520,3 +520,69 @@ describe('Quality Investigations API — extended coverage', () => {
     expect(res.body.data.status).toBe('CLOSED');
   });
 });
+
+describe('Quality Investigations API — final coverage', () => {
+  const mockInvestigation = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-INV-2026-001',
+    title: 'Customer complaint investigation',
+    description: 'Investigate root cause of product failure',
+    source: 'COMPLAINT',
+    severity: 'HIGH',
+    status: 'OPEN',
+    assignedTo: 'Jane Investigator',
+    dueDate: new Date('2026-04-01').toISOString(),
+    deletedAt: null,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / findMany and count each called once per request', async () => {
+    mockPrisma.qualInvestigation.findMany.mockResolvedValue([]);
+    mockPrisma.qualInvestigation.count.mockResolvedValue(0);
+    await request(app).get('/api/investigations');
+    expect(mockPrisma.qualInvestigation.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.qualInvestigation.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / count called before create for reference number generation', async () => {
+    mockPrisma.qualInvestigation.count.mockResolvedValue(3);
+    mockPrisma.qualInvestigation.create.mockResolvedValue({ ...mockInvestigation, referenceNumber: 'QMS-INV-2026-004' });
+    await request(app).post('/api/investigations').send({
+      title: 'Fourth investigation',
+      description: 'Root cause needed',
+      severity: 'MEDIUM',
+    });
+    expect(mockPrisma.qualInvestigation.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id returns referenceNumber in response data', async () => {
+    mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
+    const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data.referenceNumber).toBe('QMS-INV-2026-001');
+  });
+
+  it('DELETE /:id calls update once with deletedAt', async () => {
+    mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
+    mockPrisma.qualInvestigation.update.mockResolvedValue({ ...mockInvestigation, deletedAt: new Date() });
+    await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.qualInvestigation.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / returns empty data array when no investigations exist', async () => {
+    mockPrisma.qualInvestigation.findMany.mockResolvedValue([]);
+    mockPrisma.qualInvestigation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/investigations');
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('PUT /:id update called once on success', async () => {
+    mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
+    mockPrisma.qualInvestigation.update.mockResolvedValue({ ...mockInvestigation, title: 'Updated' });
+    await request(app).put('/api/investigations/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+    expect(mockPrisma.qualInvestigation.update).toHaveBeenCalledTimes(1);
+  });
+});

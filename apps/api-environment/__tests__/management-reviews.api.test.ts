@@ -801,3 +801,29 @@ describe('Environment Management Reviews API Routes', () => {
     });
   });
 });
+
+describe('Environment Management Reviews — boundary coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/management-reviews', managementReviewsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/management-reviews returns success:true in response body', async () => {
+    (mockPrisma.envManagementReview.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envManagementReview.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/management-reviews')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+});

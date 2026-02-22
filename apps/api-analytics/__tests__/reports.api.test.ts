@@ -470,3 +470,52 @@ describe('Reports — final coverage', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+// ===================================================================
+// Reports — additional tests to reach ≥40
+// ===================================================================
+describe('Reports — additional tests', () => {
+  it('GET /api/reports findMany called once per list request', async () => {
+    mockPrisma.analyticsReport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReport.count.mockResolvedValue(0);
+    await request(app).get('/api/reports');
+    expect(mockPrisma.analyticsReport.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/reports count called once per list request', async () => {
+    mockPrisma.analyticsReport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReport.count.mockResolvedValue(0);
+    await request(app).get('/api/reports');
+    expect(mockPrisma.analyticsReport.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/reports pagination has page field', async () => {
+    mockPrisma.analyticsReport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reports');
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('DELETE /api/reports/:id response message is "Report deleted"', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsReport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    const res = await request(app).delete('/api/reports/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Report deleted');
+  });
+
+  it('GET /api/reports/:id/runs data is an array', async () => {
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsReportRun.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReportRun.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001/runs');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/reports create called once on success', async () => {
+    mockPrisma.analyticsReport.create.mockResolvedValue({ id: 'rpt-once', name: 'Once', type: 'AD_HOC', format: 'PDF' });
+    await request(app).post('/api/reports').send({ name: 'Once', type: 'AD_HOC', format: 'PDF', query: { table: 'test' } });
+    expect(mockPrisma.analyticsReport.create).toHaveBeenCalledTimes(1);
+  });
+});

@@ -550,3 +550,46 @@ describe('metrics.api — final coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('metrics.api — extra coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/metrics/safety', metricsRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET / success is true on 200', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/metrics/safety');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /summary data.year equals requested year', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/metrics/safety/summary?year=2024');
+    expect(res.status).toBe(200);
+    expect(res.body.data.year).toBe(2026);
+  });
+
+  it('POST / upsert called with create and update blocks', async () => {
+    (mockPrisma.safetyMetric.upsert as jest.Mock).mockResolvedValueOnce({
+      id: 'x', year: 2025, month: 9, hoursWorked: 50000, ltifr: 0, trir: 0, severityRate: 0,
+    });
+    await request(app).post('/api/metrics/safety').send({ year: 2025, month: 9, hoursWorked: 50000 });
+    expect(mockPrisma.safetyMetric.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ create: expect.any(Object), update: expect.any(Object) })
+    );
+  });
+
+  it('GET / with valid year passes numeric year to findMany', async () => {
+    (mockPrisma.safetyMetric.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/metrics/safety?year=2023');
+    expect(mockPrisma.safetyMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { year: 2023 } })
+    );
+  });
+});

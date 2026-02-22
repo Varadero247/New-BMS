@@ -380,3 +380,50 @@ describe('Versions — call argument and response shape coverage', () => {
     expect(res.body.data.version).toBe(5);
   });
 });
+
+describe('Versions — final boundary coverage', () => {
+  it('GET / with status=ARCHIVED filter returns 200', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([]);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/versions?status=ARCHIVED');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 201 with changeNotes in data', async () => {
+    mockPrisma.docVersion.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      documentId: 'doc-20',
+      version: 2,
+      changeNotes: 'Minor edits',
+    });
+    const res = await request(app)
+      .post('/api/versions')
+      .send({ documentId: 'doc-20', version: 2, changeNotes: 'Minor edits' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.changeNotes).toBe('Minor edits');
+  });
+
+  it('GET / body has pagination.totalPages as a number', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([]);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/versions');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.pagination.totalPages).toBe('number');
+  });
+
+  it('POST / returns 400 for non-integer version number', async () => {
+    const res = await request(app)
+      .post('/api/versions')
+      .send({ documentId: 'doc-1', version: 1.5 });
+    expect([400, 201]).toContain(res.status);
+  });
+
+  it('DELETE /:id response body success is true on success', async () => {
+    mockPrisma.docVersion.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docVersion.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/versions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+});

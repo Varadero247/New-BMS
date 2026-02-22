@@ -456,3 +456,45 @@ describe('traceability.api — final coverage pass', () => {
     );
   });
 });
+
+describe('traceability.api — comprehensive additional coverage', () => {
+  it('GET /api/traceability response body is an object', async () => {
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/traceability');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/traceability returns content-type JSON', async () => {
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/traceability');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('PUT /api/traceability/:id returns 200 with success true', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsTraceability.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DISTRIBUTED',
+    });
+    const res = await request(app)
+      .put('/api/traceability/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DISTRIBUTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/traceability/:id returns success true when found', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000007',
+      productName: 'Cheese',
+      batchNumber: 'CH-001',
+    });
+    const res = await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000007');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

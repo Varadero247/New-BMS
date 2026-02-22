@@ -510,3 +510,68 @@ describe('Auth Middleware — final coverage', () => {
     expect(localNext).toHaveBeenCalled();
   });
 });
+
+// ── Auth Middleware — comprehensive coverage ──────────────────────────────────
+
+describe('Auth Middleware — comprehensive coverage', () => {
+  let localReq: Partial<AuthRequest>;
+  let localRes: any;
+  let localNext: jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    localReq = { headers: {} };
+    localRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+    };
+    localNext = jest.fn();
+  });
+
+  it('authenticate sets req.user to the user object from session', async () => {
+    const token = generateToken({ userId: 'user-setuser', email: 'su@su.com', role: 'USER' });
+    localReq.headers = { authorization: `Bearer ${token}` };
+    const mockUser = { id: 'user-setuser', isActive: true, email: 'su@su.com' };
+    (mockPrisma.session.findFirst as jest.Mock).mockResolvedValue({
+      id: 'sess-setuser',
+      userId: 'user-setuser',
+      token,
+      user: mockUser,
+    });
+    (mockPrisma.session.update as jest.Mock).mockResolvedValue({});
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(localReq.user).toBe(mockUser);
+  });
+
+  it('authenticate 401 response shape is { success, error: { code, message } }', async () => {
+    localReq.headers = {};
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    const jsonArg = localRes.json.mock.calls[0][0];
+    expect(jsonArg).toHaveProperty('success', false);
+    expect(jsonArg.error).toHaveProperty('code');
+    expect(jsonArg.error).toHaveProperty('message');
+  });
+
+  it('requireRole does not call next when user role is case-mismatched', () => {
+    localReq.user = { id: 'u', role: 'admin' } as unknown; // lowercase
+    const middleware = requireRole('ADMIN'); // uppercase expected
+    middleware(localReq as AuthRequest, localRes, localNext);
+    expect(localNext).not.toHaveBeenCalled();
+    expect(localRes.status).toHaveBeenCalledWith(403);
+  });
+
+  it('optionalAuth continues without user when authorization scheme is Basic', () => {
+    localReq.headers = { authorization: 'Basic base64creds' };
+    optionalAuth(localReq as AuthRequest, localRes, localNext);
+    expect(localNext).toHaveBeenCalled();
+    expect(localReq.user).toBeUndefined();
+  });
+
+  it('authenticate handles malformed JWT gracefully with 401', async () => {
+    localReq.headers = { authorization: 'Bearer not.a.jwt' };
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(localRes.status).toHaveBeenCalledWith(401);
+    expect(localNext).not.toHaveBeenCalled();
+  });
+});

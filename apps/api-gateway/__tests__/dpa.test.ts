@@ -491,3 +491,62 @@ describe('DPA Routes — final coverage', () => {
     expect(mockGetActiveDpa).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('DPA Routes — extra batch coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/dpa', dpaRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetActiveDpa.mockReturnValue({
+      id: 'dpa-1', version: '1.0', title: 'Data Processing Agreement v1.0',
+      content: '<p>DPA Terms</p>', isActive: true,
+    });
+    mockAcceptDpa.mockReturnValue({
+      id: 'acc-1', orgId: 'org-1', dpaId: 'dpa-1', dpaVersion: '1.0',
+      signerName: 'John Smith', signerTitle: 'DPO', signedAt: new Date().toISOString(),
+    });
+    mockHasAcceptedDpa.mockReturnValue(false);
+    mockGetDpaAcceptance.mockReturnValue(null);
+  });
+
+  it('GET /api/admin/dpa response content-type is JSON', async () => {
+    const res = await request(app).get('/api/admin/dpa');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/admin/dpa/accept calls acceptDpa with dpaId from active DPA', async () => {
+    const res = await request(app)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: 'Test Signer', signerTitle: 'CEO' });
+    expect(res.status).toBe(201);
+    expect(mockAcceptDpa).toHaveBeenCalledWith(
+      expect.objectContaining({ orgId: 'org-1', signerName: 'Test Signer', signerTitle: 'CEO' })
+    );
+  });
+
+  it('GET /api/admin/dpa/acceptance response data.accepted is boolean', async () => {
+    const res = await request(app).get('/api/admin/dpa/acceptance');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.accepted).toBe('boolean');
+  });
+
+  it('GET /api/admin/dpa returns DPA id in response data', async () => {
+    const res = await request(app).get('/api/admin/dpa');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('dpa-1');
+  });
+
+  it('POST /api/admin/dpa/accept hasAcceptedDpa called once to check for duplicate', async () => {
+    await request(app)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: 'Alice', signerTitle: 'CFO' });
+    expect(mockHasAcceptedDpa).toHaveBeenCalled();
+  });
+});

@@ -610,3 +610,56 @@ describe('milestones.api — final extended coverage', () => {
     );
   });
 });
+
+describe('milestones.api — boundary and extra coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/milestones', milestonesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/milestones: data is an array when projectId is provided', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/milestones?projectId=44000000-0000-4000-a000-000000000001');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/milestones: findMany not called when projectId is missing', async () => {
+    await request(app).get('/api/milestones');
+    expect(mockPrisma.projectMilestone.findMany).not.toHaveBeenCalled();
+  });
+
+  it('POST /api/milestones: create called once on valid submission', async () => {
+    (mockPrisma.projectMilestone.create as jest.Mock).mockResolvedValueOnce(mockMilestone);
+    await request(app).post('/api/milestones').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      milestoneName: 'Once Milestone',
+      plannedDate: '2025-10-01',
+    });
+    expect(mockPrisma.projectMilestone.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/milestones: meta total matches count mock value', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(7);
+    const res = await request(app).get('/api/milestones?projectId=44000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(7);
+  });
+
+  it('PUT /api/milestones/:id: success true in response body on update', async () => {
+    (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(mockMilestone);
+    (mockPrisma.projectMilestone.update as jest.Mock).mockResolvedValueOnce({
+      ...mockMilestone,
+      milestoneName: 'Updated Name',
+    });
+    const res = await request(app)
+      .put('/api/milestones/1b000000-0000-4000-a000-000000000001')
+      .send({ milestoneName: 'Updated Name' });
+    expect(res.body.success).toBe(true);
+  });
+});

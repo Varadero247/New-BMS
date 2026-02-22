@@ -868,3 +868,109 @@ describe('automotive-ai.api — final additional coverage', () => {
     expect(mockFetch).toHaveBeenCalledWith('https://api.x.ai/v1/chat/completions', expect.any(Object));
   });
 });
+
+// ── automotive-ai.api — extra coverage ────────────────────────────────────────
+
+describe('automotive-ai.api — extra coverage', () => {
+  let app: express.Express;
+
+  const ppapResult = {
+    readinessScore: 60,
+    readinessLevel: 'PARTIALLY_READY',
+    elementsStatus: { complete: 11, incomplete: 7, notApplicable: 0, total: 18 },
+    estimatedCompletionDays: 20,
+    recommendation1: 'Complete PFMEA',
+    recommendation2: 'Run SPC studies',
+  };
+
+  const apqpResult = {
+    overallRiskLevel: 'MEDIUM',
+    overallRiskScore: 45,
+    criticalDeliverable: 'DFMEA',
+    criticalDeliverablePriority: 'HIGH',
+    recommendedMitigation: 'Conduct DVP early',
+    mitigationPhase: 'PRODUCT_DESIGN',
+    mitigationResponsible: 'Quality',
+    typicalTimeline: { totalWeeks: 28, firstPhase: 'Plan and Define', firstPhaseDuration: 4 },
+    oemConsideration: 'Toyota requires zero-defect launch',
+    lessonLearned: 'Begin MSA early in program',
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyze', analyzeRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('AUTOMOTIVE_PPAP_READINESS response data.result.estimatedCompletionDays is a number', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(ppapResult)));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: { partName: 'Control arm' } });
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.result.estimatedCompletionDays).toBe('number');
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT response data.result.mitigationPhase is defined', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(apqpResult)));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: { productDescription: 'Exhaust manifold' } });
+    expect(res.status).toBe(200);
+    expect(res.body.data.result.mitigationPhase).toBeDefined();
+  });
+
+  it('AUTOMOTIVE_PPAP_READINESS fetch is called with correct OpenAI URL', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(ppapResult)));
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: { partName: 'Oil pan gasket' } });
+    expect(mockFetch).toHaveBeenCalledWith('https://api.openai.com/v1/chat/completions', expect.any(Object));
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT aISettings.update called with correct id', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(apqpResult), 50));
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: { productDescription: 'Fuel rail' } });
+    expect(mockPrisma.aISettings.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'settings-1' } })
+    );
+  });
+
+  it('AUTOMOTIVE_PPAP_READINESS with no AI config returns 400', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_PPAP_READINESS', context: {} });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('NO_AI_CONFIG');
+  });
+
+  it('AUTOMOTIVE_APQP_RISK_ASSESSMENT response body has success:true', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce(mockOpenAIResponse(JSON.stringify(apqpResult)));
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT', context: { productDescription: 'Success test' } });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

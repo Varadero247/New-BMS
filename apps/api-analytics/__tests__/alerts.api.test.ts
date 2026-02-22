@@ -487,3 +487,43 @@ describe('alerts.api — final additional coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ── alerts.api — extra coverage ───────────────────────────────────────────────
+
+describe('alerts.api — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/alerts returns pagination object with total field', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/alerts');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination.total).toBe(5);
+  });
+
+  it('POST /api/alerts response data.metric matches request metric', async () => {
+    const created = { id: 'alrt-x', name: 'High Churn', metric: 'churn_rate', condition: 'ABOVE', threshold: 5, status: 'ACTIVE' };
+    mockPrisma.analyticsAlert.create.mockResolvedValue(created);
+    const res = await request(app).post('/api/alerts').send({ name: 'High Churn', metric: 'churn_rate', condition: 'ABOVE', threshold: 5 });
+    expect(res.status).toBe(201);
+    expect(res.body.data.metric).toBe('churn_rate');
+  });
+
+  it('GET /api/alerts/:id response data.name matches mock name', async () => {
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Critical TRIR' });
+    const res = await request(app).get('/api/alerts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Critical TRIR');
+  });
+
+  it('PUT /api/alerts/:id 500 when update throws after findFirst succeeds', async () => {
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsAlert.update.mockRejectedValue(new Error('Update failed'));
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000001').send({ name: 'Fail update' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

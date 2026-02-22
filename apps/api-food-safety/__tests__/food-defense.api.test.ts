@@ -390,6 +390,50 @@ describe('food-defense.api — edge cases and extended coverage', () => {
   });
 });
 
+describe('food-defense.api — extra coverage to reach ≥40 tests', () => {
+  it('GET /api/food-defense returns success:true', async () => {
+    mockPrisma.fsFoodDefense.findMany.mockResolvedValue([]);
+    mockPrisma.fsFoodDefense.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/food-defense');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/food-defense data is always an array', async () => {
+    mockPrisma.fsFoodDefense.findMany.mockResolvedValue([]);
+    mockPrisma.fsFoodDefense.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/food-defense');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/food-defense/:id success:true with correct threatType', async () => {
+    mockPrisma.fsFoodDefense.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      title: 'Theft Assessment',
+      threatType: 'THEFT',
+      riskLevel: 'LOW',
+    });
+    const res = await request(app).get('/api/food-defense/00000000-0000-0000-0000-000000000020');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('threatType', 'THEFT');
+  });
+
+  it('POST /api/food-defense create is called once per valid POST', async () => {
+    mockPrisma.fsFoodDefense.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000021',
+      title: 'Vandalism',
+      threatType: 'SABOTAGE',
+      riskLevel: 'MEDIUM',
+    });
+    await request(app).post('/api/food-defense').send({
+      title: 'Vandalism',
+      threatType: 'SABOTAGE',
+      riskLevel: 'MEDIUM',
+    });
+    expect(mockPrisma.fsFoodDefense.create).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('food-defense.api — final coverage pass', () => {
   it('GET /api/food-defense default page=1 applies skip 0', async () => {
     mockPrisma.fsFoodDefense.findMany.mockResolvedValue([]);

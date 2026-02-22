@@ -331,3 +331,58 @@ describe('treatments.api — final coverage', () => {
     expect(reduce.count).toBe(2);
   });
 });
+
+describe('treatments.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('response content-type is JSON', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('findMany receives organisationId in where clause', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/treatments');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('GET / returns success:false on 500', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/treatments');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('ACCEPT and AVOID both counted when each appears once', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { treatment: 'ACCEPT' },
+      { treatment: 'AVOID' },
+    ]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    const accept = res.body.data.find((d: any) => d.treatment === 'ACCEPT');
+    const avoid = res.body.data.find((d: any) => d.treatment === 'AVOID');
+    expect(accept.count).toBe(1);
+    expect(avoid.count).toBe(1);
+  });
+
+  it('data entries all have count as a positive integer', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { treatment: 'MITIGATE' },
+      { treatment: 'MITIGATE' },
+      { treatment: 'TRANSFER' },
+    ]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.status).toBe(200);
+    for (const entry of res.body.data) {
+      expect(Number.isInteger(entry.count)).toBe(true);
+      expect(entry.count).toBeGreaterThan(0);
+    }
+  });
+});

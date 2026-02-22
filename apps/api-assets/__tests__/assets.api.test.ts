@@ -333,6 +333,38 @@ describe('Assets API — extended field validation and edge cases', () => {
   });
 });
 
+describe('Assets API — comprehensive coverage', () => {
+  it('GET / response content-type is json', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assets');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / create called with correct name field in data', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(1);
+    mockPrisma.assetRegister.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030', name: 'Crane', referenceNumber: 'AST-2026-0002' });
+    await request(app).post('/api/assets').send({ name: 'Crane' });
+    expect(mockPrisma.assetRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ name: 'Crane' }) })
+    );
+  });
+
+  it('DELETE /:id findFirst is called once per request', async () => {
+    mockPrisma.assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.assetRegister.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / findMany is called once per list request', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    await request(app).get('/api/assets');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('Assets API — final coverage block', () => {
   it('GET / count is called once per list request', async () => {
     mockPrisma.assetRegister.findMany.mockResolvedValue([]);

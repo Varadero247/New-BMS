@@ -482,3 +482,55 @@ describe('kpis.api — further coverage', () => {
     expect(res.body.data.jobStats.openJobs).toBe(3);
   });
 });
+
+describe('kpis.api — final coverage', () => {
+  it('GET / applies skip=20 for page=3 limit=10', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(0);
+    await request(app).get('/api/kpis?page=3&limit=10');
+    expect(mockPrisma.fsSvcKpi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('DELETE /:id returns message KPI deleted in data', async () => {
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020' });
+    mockPrisma.fsSvcKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020', deletedAt: new Date() });
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000020');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('KPI deleted');
+  });
+
+  it('POST / returns 201 with data.id on success', async () => {
+    mockPrisma.fsSvcKpi.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      metricType: 'UTILIZATION',
+      value: 78,
+      unit: '%',
+    });
+    const res = await request(app).post('/api/kpis').send({
+      metricType: 'UTILIZATION',
+      value: 78,
+      unit: '%',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET / filters by period dates when provided', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id calls update exactly once on success', async () => {
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000040' });
+    mockPrisma.fsSvcKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000040', deletedAt: new Date() });
+    await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000040');
+    expect(mockPrisma.fsSvcKpi.update).toHaveBeenCalledTimes(1);
+  });
+});

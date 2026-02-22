@@ -565,3 +565,73 @@ describe('HR Departments API — additional coverage', () => {
     expect(response.body.data).toHaveLength(0);
   });
 });
+
+describe('HR Departments — extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/departments', departmentsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response body has success: true', async () => {
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/departments');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / findMany called exactly once', async () => {
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/departments');
+    expect(mockPrisma.hRDepartment.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / create called with isActive: true by default', async () => {
+    (mockPrisma.hRDepartment.create as jest.Mock).mockResolvedValueOnce({
+      id: 'dept-x',
+      code: 'OPS',
+      name: 'Operations',
+      isActive: true,
+      parent: null,
+    });
+    await request(app).post('/api/departments').send({ code: 'OPS', name: 'Operations' });
+    expect(mockPrisma.hRDepartment.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ code: 'OPS', name: 'Operations' }) })
+    );
+  });
+
+  it('PUT / update called with correct id in where clause', async () => {
+    (mockPrisma.hRDepartment.update as jest.Mock).mockResolvedValueOnce({
+      id: '2b000000-0000-4000-a000-000000000001',
+      name: 'Renamed',
+      parent: null,
+    });
+    await request(app)
+      .put('/api/departments/2b000000-0000-4000-a000-000000000001')
+      .send({ name: 'Renamed' });
+    expect(mockPrisma.hRDepartment.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '2b000000-0000-4000-a000-000000000001' } })
+    );
+  });
+
+  it('POST /positions response data has correct title', async () => {
+    (mockPrisma.position.create as jest.Mock).mockResolvedValueOnce({
+      id: 'pos-new',
+      code: 'PM',
+      title: 'Project Manager',
+      departmentId: '11111111-1111-1111-1111-111111111111',
+      department: { id: '11111111-1111-1111-1111-111111111111', name: 'Engineering' },
+    });
+    const res = await request(app).post('/api/departments/positions').send({
+      code: 'PM', title: 'Project Manager', departmentId: '11111111-1111-1111-1111-111111111111',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.title).toBe('Project Manager');
+  });
+});

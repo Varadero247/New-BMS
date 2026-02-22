@@ -486,3 +486,61 @@ describe('VaultClient — additional coverage', () => {
     expect(client).toBeNull();
   });
 });
+
+describe('VaultClient — final coverage', () => {
+  const config = { address: 'http://vault:8200', token: 'final-token' };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('healthCheck returns false on non-2xx/429 status (e.g. 503)', async () => {
+    mockFetch.mockResolvedValueOnce({ status: 503 });
+    const client = new VaultClient(config);
+    const healthy = await client.healthCheck();
+    expect(healthy).toBe(false);
+  });
+
+  it('getSecrets with a custom secretPath uses that path prefix', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ data: { data: { KEY: 'val' } } }),
+    });
+    const client = new VaultClient({ ...config, secretPath: 'kv/data' });
+    await client.getSecrets('myapp/secrets');
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('kv/data'),
+      expect.any(Object)
+    );
+  });
+
+  it('throws an error with a message describing the status on non-404/403 failure', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Internal Server Error' });
+    const client = new VaultClient(config);
+    await expect(client.getSecrets('ims/config')).rejects.toThrow();
+  });
+
+  it('setSecrets sends X-Vault-Token header', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: true });
+    const client = new VaultClient(config);
+    await client.setSecrets('ims/config', { FOO: 'bar' });
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'X-Vault-Token': 'final-token' }),
+      })
+    );
+  });
+
+  it('deleteSecrets sends X-Vault-Token header', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: true });
+    const client = new VaultClient(config);
+    await client.deleteSecrets('ims/config');
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'X-Vault-Token': 'final-token' }),
+      })
+    );
+  });
+});

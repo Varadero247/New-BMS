@@ -420,3 +420,55 @@ describe('annual-accounts — final additional coverage', () => {
     expect(createCall.data.sections.revenueBreakdown).toBeDefined();
   });
 });
+
+describe('annual-accounts — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('totalRevenue is 0 when all snapshots have mrr=0', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 0, arr: 0, founderSalary: 0, founderLoanPayment: 0, arpu: 0, customers: 0 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'ex-1' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(Number(createCall.data.totalRevenue)).toBe(0);
+  });
+
+  it('create is not called when findMany rejects (propagates error)', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'ex-2' });
+    await expect(runAnnualAccountsJob('2025-2026')).rejects.toThrow('DB down');
+    expect(prisma.annualAccountsPack.create).not.toHaveBeenCalled();
+  });
+
+  it('create data has totalExpenses that is a number', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 8000, arr: 96000, founderSalary: 2500, founderLoanPayment: 500, arpu: 800, customers: 10 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'ex-3' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(typeof Number(createCall.data.totalExpenses)).toBe('number');
+  });
+
+  it('sections.keyMetrics.avgMrr equals single snapshot mrr when only one snapshot', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 7777, arr: 93324, founderSalary: 2000, founderLoanPayment: 500, arpu: 777, customers: 10 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'ex-4' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.keyMetrics.avgMrr).toBe(7777);
+  });
+
+  it('month range for fiscal year 2021-2022 uses gte=2021-04 and lte=2022-03', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'ex-5' });
+    await runAnnualAccountsJob('2021-2022');
+    const findCall = (prisma.monthlySnapshot.findMany as jest.Mock).mock.calls[0][0];
+    expect(findCall.where.month.gte).toBe('2021-04');
+    expect(findCall.where.month.lte).toBe('2022-03');
+  });
+});

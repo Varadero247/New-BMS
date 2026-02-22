@@ -378,3 +378,51 @@ describe('Approvals — response shape and call-argument coverage', () => {
     );
   });
 });
+
+describe('Approvals — final additional coverage', () => {
+  it('GET / response is not null', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([]);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('GET / success:true on 200', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([]);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id success:true when found', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).get('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id success:true when updated', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docApproval.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app)
+      .put('/api/approvals/00000000-0000-0000-0000-000000000001')
+      .send({ approver: 'new-user' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / data has id field in response', async () => {
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    mockPrisma.docApproval.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      documentId: 'doc-10',
+      approver: 'admin',
+    });
+    const res = await request(app)
+      .post('/api/approvals')
+      .send({ documentId: 'doc-10', approver: 'admin' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

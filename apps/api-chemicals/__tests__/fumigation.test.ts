@@ -415,3 +415,46 @@ describe('Fumigation API — additional coverage 2', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Fumigation API — additional coverage 3', () => {
+  it('GET /api/fumigation response is JSON content-type', async () => {
+    (mockPrisma.chemFumigation.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemFumigation.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/fumigation');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/fumigation returns 400 when purpose is missing', async () => {
+    const res = await request(app).post('/api/fumigation').send({
+      location: 'Warehouse A',
+      fumigantName: 'Phosphine',
+      plannedStartDate: '2026-03-10',
+      competentPersonName: 'Bob Walker',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/fumigation/:id returns 200 and updates competentPersonName', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockResolvedValue(mockFumigation);
+    (mockPrisma.chemFumigation.update as jest.Mock).mockResolvedValue({
+      ...mockFumigation,
+      competentPersonName: 'Alice Green',
+    });
+    const res = await request(app)
+      .put('/api/fumigation/00000000-0000-0000-0000-000000000001')
+      .send({ competentPersonName: 'Alice Green' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.competentPersonName).toBe('Alice Green');
+  });
+
+  it('GET /api/fumigation pagination has page, limit and total fields', async () => {
+    (mockPrisma.chemFumigation.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemFumigation.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/fumigation');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+});

@@ -557,3 +557,38 @@ describe('Risk Assessments — final batch coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Risk Assessments — final extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data items have riskScore field', async () => {
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([mockRisk]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/risk-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('riskScore');
+  });
+
+  it('PUT /:id with notes field returns 200', async () => {
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockResolvedValue({
+      ...mockRisk,
+      notes: 'Additional context added',
+      system: { id: UUID1, name: 'Test AI System', reference: 'AI42-SYS-2602-1111' },
+    });
+    const res = await request(app)
+      .put(`/api/risk-assessments/${UUID2}`)
+      .send({ notes: 'Additional context added' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/risk-assessments data is array', async () => {
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risk-assessments');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

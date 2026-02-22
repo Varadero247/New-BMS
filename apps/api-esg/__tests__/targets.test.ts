@@ -357,6 +357,38 @@ describe('Targets — extended coverage', () => {
   });
 });
 
+describe('targets — batch-q coverage', () => {
+  it('GET / findMany called once per request', async () => {
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgTarget.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/targets');
+    expect(prisma.esgTarget.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / returns 400 when year is too low', async () => {
+    const res = await request(app).post('/api/targets').send({
+      metricId: '00000000-0000-0000-0000-000000000001',
+      year: 1990,
+      targetValue: 100,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / returns data as array', async () => {
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([mockTarget]);
+    (prisma.esgTarget.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/targets');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 on DB error in find step', async () => {
+    (prisma.esgTarget.findFirst as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).delete('/api/targets/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
 describe('targets — additional coverage 2', () => {
   it('GET / response has success:true and pagination', async () => {
     (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([mockTarget]);

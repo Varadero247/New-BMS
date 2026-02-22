@@ -305,3 +305,52 @@ describe('getValidMeanings — comprehensive', () => {
     expect(m1).toEqual(m2);
   });
 });
+
+describe('esig — additional coverage', () => {
+  const testPassword = 'SecurePassword123!';
+  let passwordHash: string;
+
+  beforeAll(async () => {
+    passwordHash = await bcrypt.hash(testPassword, 10);
+  });
+
+  const baseRequest: SignatureRequest = {
+    userId: 'user-extra',
+    userEmail: 'extra@ims.local',
+    userFullName: 'Extra User',
+    password: testPassword,
+    meaning: 'VERIFIED',
+    reason: 'Extra coverage',
+    resourceType: 'Report',
+    resourceId: 'rpt-001',
+    resourceRef: 'RPT-2602-0001',
+    ipAddress: '10.10.10.1',
+    userAgent: 'TestAgent/2.0',
+  };
+
+  it('isValidMeaning returns false for numeric string', () => {
+    expect(isValidMeaning('12345')).toBe(false);
+  });
+
+  it('createSignature with VERIFIED meaning populates correct meaning', async () => {
+    const result = await createSignature(baseRequest, passwordHash);
+    expect(result.signature).not.toBeNull();
+    expect(result.signature!.meaning).toBe('VERIFIED');
+  });
+
+  it('verifySignature: tampering reason field does not affect validity (reason is not hashed)', async () => {
+    const { signature } = await createSignature(baseRequest, passwordHash);
+    const tampered = { ...signature!, reason: 'Tampered reason' };
+    const verification = verifySignature(tampered);
+    // reason is not included in the checksum, so the signature remains valid
+    expect(verification.valid).toBe(true);
+    expect(verification.checksumMatch).toBe(true);
+  });
+
+  it('createSignature returns error message for invalid meaning', async () => {
+    const request = { ...baseRequest, meaning: 'NOT_A_MEANING' as unknown as import('../src/types').SignatureMeaning };
+    const result = await createSignature(request, passwordHash);
+    expect(result.error).toBeDefined();
+    expect(result.signature).toBeNull();
+  });
+});

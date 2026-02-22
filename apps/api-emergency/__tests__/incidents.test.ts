@@ -593,3 +593,33 @@ describe('GET /api/incidents/:id/timeline', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+describe('Emergency Incidents — final boundary coverage', () => {
+  it('GET /api/incidents response body has pagination.limit', async () => {
+    mockIncident.findMany.mockResolvedValue([]);
+    mockIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('POST /api/incidents calls create with organisationId in data', async () => {
+    mockIncident.count.mockResolvedValue(0);
+    mockIncident.create.mockResolvedValue(fakeIncident);
+    mockTimeline.create.mockResolvedValue({ id: 'tl-x' });
+    await request(app).post('/api/incidents').send(validDeclareBody);
+    expect(mockIncident.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ organisationId: 'org-1' }) }),
+    );
+  });
+
+  it('PUT /api/incidents/:id calls update with where.id matching incident id', async () => {
+    mockIncident.findFirst.mockResolvedValue(fakeIncident);
+    mockIncident.update.mockResolvedValue({ ...fakeIncident, status: 'CONTAINED' });
+    mockTimeline.create.mockResolvedValue({ id: 'tl-y' });
+    await request(app).put(`/api/incidents/${INCIDENT_ID}`).send({ status: 'CONTAINED' });
+    expect(mockIncident.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: INCIDENT_ID } }),
+    );
+  });
+});

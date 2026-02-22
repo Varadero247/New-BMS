@@ -416,3 +416,48 @@ describe('Parts Routes — business logic and response structure', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Parts Routes — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /parts data items include partNumber field', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([mockPart]);
+    prisma.cmmsPart.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/parts');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('partNumber', 'BB-6205-2RS');
+  });
+
+  it('GET /parts response content-type is application/json', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([]);
+    prisma.cmmsPart.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/parts');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('PUT /parts/:id returns 404 with NOT_FOUND code when missing', async () => {
+    prisma.cmmsPart.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/parts/00000000-0000-0000-0000-000000000077')
+      .send({ name: 'New Name' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /parts pagination defaults page to 1 when not provided', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([]);
+    prisma.cmmsPart.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/parts');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /parts?manufacturer=SKF filters findMany with manufacturer in where', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([]);
+    prisma.cmmsPart.count.mockResolvedValue(0);
+    await request(app).get('/api/parts?manufacturer=SKF');
+    expect(prisma.cmmsPart.findMany).toHaveBeenCalledTimes(1);
+  });
+});

@@ -572,3 +572,70 @@ describe('Finance Purchase Orders — final coverage', () => {
     );
   });
 });
+
+// ===================================================================
+// Purchase Orders — extra coverage to reach 40 tests
+// ===================================================================
+describe('Purchase Orders — extra coverage', () => {
+  it('GET /api/purchase-orders response body includes success, data, and pagination', async () => {
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/purchase-orders');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET /api/purchase-orders applies correct skip for page 3 limit 10', async () => {
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+
+    await request(app).get('/api/purchase-orders?page=3&limit=10');
+
+    expect(mockPrisma.finPurchaseOrder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('POST /api/purchase-orders supplier findFirst is called before create', async () => {
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({ id: SUPPLIER_UUID, isActive: true });
+    mockPrisma.finPurchaseOrder.create.mockResolvedValue({
+      id: 'po-extra-1',
+      reference: 'FIN-PO-2601-EXTRA',
+      status: 'DRAFT',
+      supplier: { id: SUPPLIER_UUID, code: 'SUPP-ACME-1234', name: 'Acme' },
+      lines: [],
+    });
+
+    await request(app).post('/api/purchase-orders').send({
+      supplierId: SUPPLIER_UUID,
+      orderDate: '2026-01-15',
+      currency: 'GBP',
+      lines: [{ description: 'Item A', quantity: 1, unitPrice: 100 }],
+    });
+
+    expect(mockPrisma.finSupplier.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/purchase-orders data is always an array', async () => {
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/purchase-orders');
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/purchase-orders/:id returns 500 when findFirst fails', async () => {
+    mockPrisma.finPurchaseOrder.findFirst.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001')
+      .send({ notes: 'test' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

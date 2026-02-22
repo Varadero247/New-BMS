@@ -316,3 +316,36 @@ describe('GDPR Extended Routes — further coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('GDPR Extended Routes — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /sa-complaints returns 500 on DB error', async () => {
+    prisma.isSaComplaint.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/sa-complaints');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /sa-complaints/:id returns 500 when update throws', async () => {
+    prisma.isSaComplaint.findUnique.mockResolvedValue({ id: 'sc-1', deletedAt: null });
+    prisma.isSaComplaint.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/sa-complaints/sc-1').send({ status: 'RESPONDED', responseNotes: 'notes' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /transfers returns 500 on DB error', async () => {
+    prisma.isInternationalTransfer.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/transfers');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /dpo returns 400 on missing appointmentDate', async () => {
+    const { appointmentDate: _a, ...body } = dpoPayload;
+    const res = await request(app).post('/dpo').send(body);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

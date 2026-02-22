@@ -555,4 +555,12 @@ describe('campaigns and email-sequences — additional coverage', () => {
       .send({ contactIds: ['c-1'] });
     expect(res.status).toBe(500);
   });
+
+  it('GET /api/campaigns data is an array', async () => {
+    mockPrisma.crmCampaign.findMany.mockResolvedValue([]);
+    mockPrisma.crmCampaign.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/campaigns');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
 });

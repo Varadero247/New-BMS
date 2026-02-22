@@ -325,3 +325,50 @@ describe('IntercomClient — final coverage', () => {
     expect(body.custom_attributes.region).toBe('EU');
   });
 });
+
+describe('IntercomClient — additional final coverage', () => {
+  it('INTERCOM_ACCESS_TOKEN env var is used when no constructor key', async () => {
+    process.env.INTERCOM_ACCESS_TOKEN = 'env-final-token';
+    const client = new IntercomClient();
+    const mockFetchLocal = jest.fn().mockReturnValueOnce(ok({ id: 'm-env' }));
+    (global as unknown as { fetch: jest.Mock }).fetch = mockFetchLocal;
+    await client.sendInAppMessage('u-env', 'env msg');
+    expect(mockFetchLocal.mock.calls[0][1].headers.Authorization).toBe('Bearer env-final-token');
+    delete process.env.INTERCOM_ACCESS_TOKEN;
+  });
+
+  it('createContact sends Content-Type application/json', async () => {
+    const mockFetchLocal = jest.fn().mockReturnValueOnce(ok({}));
+    (global as unknown as { fetch: jest.Mock }).fetch = mockFetchLocal;
+    const client = new IntercomClient('ct-final-token');
+    await client.createContact('ct@ims.local', 'CT');
+    expect(mockFetchLocal.mock.calls[0][1].headers['Content-Type']).toBe('application/json');
+  });
+
+  it('sendInAppMessage to.type is always user', async () => {
+    const mockFetchLocal = jest.fn().mockReturnValueOnce(ok({}));
+    (global as unknown as { fetch: jest.Mock }).fetch = mockFetchLocal;
+    const client = new IntercomClient('type-token');
+    await client.sendInAppMessage('user-type-check', 'test');
+    const body = JSON.parse(mockFetchLocal.mock.calls[0][1].body);
+    expect(body.to.type).toBe('user');
+  });
+
+  it('sendInAppMessage message_type is always inapp', async () => {
+    const mockFetchLocal = jest.fn().mockReturnValueOnce(ok({}));
+    (global as unknown as { fetch: jest.Mock }).fetch = mockFetchLocal;
+    const client = new IntercomClient('inapp-token');
+    await client.sendInAppMessage('u', 'msg type check');
+    const body = JSON.parse(mockFetchLocal.mock.calls[0][1].body);
+    expect(body.message_type).toBe('inapp');
+  });
+
+  it('createContact role is always user', async () => {
+    const mockFetchLocal = jest.fn().mockReturnValueOnce(ok({}));
+    (global as unknown as { fetch: jest.Mock }).fetch = mockFetchLocal;
+    const client = new IntercomClient('role-token');
+    await client.createContact('role@ims.local', 'Role User');
+    const body = JSON.parse(mockFetchLocal.mock.calls[0][1].body);
+    expect(body.role).toBe('user');
+  });
+});

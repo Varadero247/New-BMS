@@ -624,3 +624,100 @@ describe('Environment Actions API Routes', () => {
     });
   });
 });
+
+describe('Environment Actions — boundary coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/actions', actionsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/actions filters by source=INSPECTION', async () => {
+    (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app2)
+      .get('/api/actions?source=INSPECTION')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envAction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ source: 'INSPECTION' }),
+      })
+    );
+  });
+
+  it('POST /api/actions returns 400 for missing dueDate field', async () => {
+    const response = await request(app2)
+      .post('/api/actions')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Test Action',
+        actionType: 'CORRECTIVE',
+        priority: 'MEDIUM',
+        source: 'AUDIT',
+        assignedTo: 'John',
+        // dueDate missing
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/actions/:id returns 204 status code on success', async () => {
+    (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '13000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envAction.update as jest.Mock).mockResolvedValueOnce({});
+
+    const response = await request(app2)
+      .delete('/api/actions/13000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(204);
+  });
+
+  it('PUT /api/actions/:id auto-sets completionDate when status=COMPLETED', async () => {
+    (mockPrisma.envAction.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '13000000-0000-4000-a000-000000000001',
+      status: 'OPEN',
+    });
+    (mockPrisma.envAction.update as jest.Mock).mockResolvedValueOnce({
+      id: '13000000-0000-4000-a000-000000000001',
+      status: 'COMPLETED',
+      completionDate: new Date(),
+    });
+
+    await request(app2)
+      .put('/api/actions/13000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'COMPLETED' });
+
+    expect(mockPrisma.envAction.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          completionDate: expect.any(Date),
+        }),
+      })
+    );
+  });
+
+  it('GET /api/actions returns empty array and total=0 when no actions exist', async () => {
+    (mockPrisma.envAction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envAction.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/actions')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+    expect(response.body.meta.total).toBe(0);
+  });
+});

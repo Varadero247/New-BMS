@@ -591,6 +591,69 @@ describe('Payroll Tax API Routes', () => {
   });
 });
 
+describe('Payroll Tax — extra coverage batch ah', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tax', taxRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /filings: response data is an array', async () => {
+    (mockPrisma.taxFiling.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/tax/filings').set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /brackets: response data is an array', async () => {
+    (mockPrisma.taxBracket.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/tax/brackets').set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /filings/:id/pay: returns 500 with INTERNAL_ERROR on DB error', async () => {
+    (mockPrisma.taxFiling.update as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/tax/filings/3a000000-0000-4000-a000-000000000001/pay')
+      .set('Authorization', 'Bearer token')
+      .send({ paymentReference: 'PAY-999' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /brackets: bracket create called with correct taxYear', async () => {
+    (mockPrisma.taxBracket.create as jest.Mock).mockResolvedValueOnce({
+      id: 'br-new',
+      taxYear: 2025,
+      country: 'UK',
+      minIncome: 0,
+      rate: 20,
+      isActive: true,
+    });
+    await request(app)
+      .post('/api/tax/brackets')
+      .set('Authorization', 'Bearer token')
+      .send({ taxYear: 2025, country: 'UK', minIncome: 0, rate: 20 });
+    expect(mockPrisma.taxBracket.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ taxYear: 2025 }) })
+    );
+  });
+
+  it('GET /summary: response has success:true on 200', async () => {
+    (mockPrisma.taxFiling.groupBy as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.taxFiling.aggregate as jest.Mock).mockResolvedValueOnce({ _sum: { totalTax: 0, paymentDue: 0 } });
+    (mockPrisma.taxFiling.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/tax/summary').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
 describe('Payroll Tax — final coverage', () => {
   let app: express.Express;
 

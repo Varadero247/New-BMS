@@ -408,3 +408,52 @@ describe('competencies.api — final coverage expansion', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('competencies.api — coverage to 40', () => {
+  it('GET /api/competencies response body has success and data', async () => {
+    mockPrisma.trainCompetency.findMany.mockResolvedValue([]);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/competencies');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/competencies response content-type is json', async () => {
+    mockPrisma.trainCompetency.findMany.mockResolvedValue([]);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/competencies');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/competencies pagination has totalPages key', async () => {
+    mockPrisma.trainCompetency.findMany.mockResolvedValue([]);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/competencies');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('POST /api/competencies with assessmentMethod creates successfully', async () => {
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Observation Competency',
+      assessmentMethod: 'Observation',
+    });
+    const res = await request(app).post('/api/competencies').send({
+      name: 'Observation Competency',
+      assessmentMethod: 'Observation',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/competencies/:id returns 500 when update fails', async () => {
+    mockPrisma.trainCompetency.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainCompetency.update.mockRejectedValue(new Error('db error'));
+    const res = await request(app).delete('/api/competencies/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

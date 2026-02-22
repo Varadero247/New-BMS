@@ -640,3 +640,86 @@ describe('Compliance Calendar API Routes', () => {
     });
   });
 });
+
+describe('Compliance Calendar — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/dashboard/compliance-calendar', complianceCalendarRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response body has success: true', async () => {
+    (mockPrisma.complianceEvent.findMany as jest.Mock).mockResolvedValue([mockEvent]);
+    (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(1);
+
+    const response = await request(app)
+      .get('/api/dashboard/compliance-calendar')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET / meta.totalPages is correct', async () => {
+    (mockPrisma.complianceEvent.findMany as jest.Mock).mockResolvedValue([mockEvent]);
+    (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(25);
+
+    const response = await request(app)
+      .get('/api/dashboard/compliance-calendar?page=1&limit=5')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.meta.totalPages).toBe(5);
+  });
+
+  it('POST /events sets status OVERDUE when dueDate is in the past', async () => {
+    const created = { ...mockEvent, dueDate: pastDate, status: 'OVERDUE', id: 'evt-past' };
+    (mockPrisma.complianceEvent.create as jest.Mock).mockResolvedValue(created);
+
+    const response = await request(app)
+      .post('/api/dashboard/compliance-calendar/events')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Past Event',
+        type: 'AUDIT',
+        standard: 'ISO_9001_CAL',
+        dueDate: pastDate.toISOString(),
+        assignee: 'Tester',
+      });
+
+    expect(response.status).toBe(201);
+    expect(mockPrisma.complianceEvent.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'OVERDUE' }),
+      })
+    );
+  });
+
+  it('PUT /events/:id returns updated event with color field', async () => {
+    (mockPrisma.complianceEvent.findUnique as jest.Mock).mockResolvedValue(mockEvent);
+    (mockPrisma.complianceEvent.update as jest.Mock).mockResolvedValue({ ...mockEvent, title: 'Color Test' });
+
+    const response = await request(app)
+      .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Color Test' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('color');
+  });
+
+  it('GET /upcoming returns summary.dueSoon as a number', async () => {
+    (mockPrisma.complianceEvent.findMany as jest.Mock).mockResolvedValue([mockDueSoonEvent]);
+
+    const response = await request(app)
+      .get('/api/dashboard/compliance-calendar/upcoming')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(typeof response.body.data.summary.dueSoon).toBe('number');
+  });
+});

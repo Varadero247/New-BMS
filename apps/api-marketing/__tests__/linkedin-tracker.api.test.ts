@@ -533,3 +533,68 @@ describe('LinkedIn Tracker — final coverage', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('LinkedIn Tracker — ≥40 coverage', () => {
+  it('GET /outreach returns success:true on 200', async () => {
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/linkedin/outreach');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /outreach with EHS_MANAGER template returns 201', async () => {
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(2);
+    (prisma.mktLinkedInOutreach.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+    });
+
+    const res = await request(app).post('/api/linkedin/outreach').send({
+      prospectName: 'Frank Green',
+      company: 'SafetyCo',
+      linkedinUrl: 'https://linkedin.com/in/frankgreen',
+      template: 'EHS_MANAGER',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PATCH /outreach/:id update is called once per successful request', async () => {
+    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PENDING',
+    });
+    (prisma.mktLinkedInOutreach.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SENT',
+    });
+
+    await request(app)
+      .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'SENT' });
+
+    expect(prisma.mktLinkedInOutreach.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /outreach count is called once per GET request', async () => {
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(5);
+
+    await request(app).get('/api/linkedin/outreach');
+
+    expect(prisma.mktLinkedInOutreach.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /outreach returns 400 for missing prospectName field', async () => {
+    const res = await request(app).post('/api/linkedin/outreach').send({
+      company: 'MissingName Corp',
+      linkedinUrl: 'https://linkedin.com/in/noname',
+      template: 'ISO_CONSULTANT',
+    });
+
+    expect(res.status).toBe(400);
+  });
+});

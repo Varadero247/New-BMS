@@ -393,6 +393,48 @@ describe('scope-emissions — extended edge cases', () => {
   });
 });
 
+describe('scope-emissions — batch-q coverage', () => {
+  it('GET / returns items with id field', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id', '00000000-0000-0000-0000-000000000001');
+  });
+
+  it('GET / findMany called with orgId filter', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/scope-emissions');
+    const [call] = (prisma.esgScopeEmission.findMany as jest.Mock).mock.calls;
+    expect(call[0].where).toHaveProperty('orgId', 'org-001');
+  });
+
+  it('POST / returns 400 when scope is missing', async () => {
+    const res = await request(app).post('/api/scope-emissions').send({
+      category: 'Combustion',
+      quantity: 100,
+      unit: 'kWh',
+      period: '2026-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 201 when period is omitted (it is optional)', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue({
+      ...mockScopeEmission,
+      period: null,
+    });
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Combustion',
+      quantity: 100,
+      unit: 'kWh',
+    });
+    expect(res.status).toBe(201);
+  });
+});
+
 describe('scope-emissions — additional coverage 2', () => {
   it('GET / returns items with co2Equivalent field', async () => {
     (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);

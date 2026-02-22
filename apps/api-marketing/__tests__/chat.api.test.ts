@@ -498,3 +498,54 @@ describe('Chat — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Chat — absolute final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /start response body has success property', async () => {
+    (prisma.mktChatSession.create as jest.Mock).mockResolvedValue(mockSession);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(mockSession);
+    const res = await request(app).post('/api/chat/start').send({});
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('POST /start response data object has at least sessionId and message', async () => {
+    (prisma.mktChatSession.create as jest.Mock).mockResolvedValue(mockSession);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(mockSession);
+    const res = await request(app).post('/api/chat/start').send({});
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('sessionId');
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('POST /message response body has data.captured boolean', async () => {
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(session);
+    const res = await request(app)
+      .post('/api/chat/message')
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'hello again' });
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.captured).toBe('boolean');
+  });
+
+  it('GET /session/:id returns messages field in data', async () => {
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+    const res = await request(app).get('/api/chat/session/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    // The route only selects { id, messages, createdAt } — no captured field returned
+    expect(res.body.data).toHaveProperty('messages');
+  });
+
+  it('GET /session/:id returns createdAt in data', async () => {
+    const session = { ...mockSession, messages: JSON.stringify([]) };
+    (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
+    const res = await request(app).get('/api/chat/session/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

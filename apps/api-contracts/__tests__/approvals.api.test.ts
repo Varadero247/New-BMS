@@ -390,3 +390,44 @@ describe('approvals.api — final coverage expansion', () => {
     expect(res.body.data.approver).toBe('manager@example.com');
   });
 });
+
+describe('approvals.api — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data array has correct length when two approvals returned', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', contractId: 'c-1', approver: 'user-1' },
+      { id: '00000000-0000-0000-0000-000000000002', contractId: 'c-1', approver: 'user-2' },
+    ]);
+    mockPrisma.contApproval.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / returns 201 with APPROVED status', async () => {
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    mockPrisma.contApproval.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED' });
+    const res = await request(app).post('/api/approvals').send({ contractId: 'c-1', approver: 'user@example.com', status: 'APPROVED' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / pagination limit is a positive number', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('GET /:id returns success true when approval found', async () => {
+    mockPrisma.contApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', contractId: 'c-1', approver: 'u-1' });
+    const res = await request(app).get('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

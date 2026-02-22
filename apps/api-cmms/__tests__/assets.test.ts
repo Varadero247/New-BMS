@@ -456,3 +456,38 @@ describe('Assets — business logic and response structure', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Assets — additional coverage 3', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response is JSON content-type', async () => {
+    prisma.cmmsAsset.findMany.mockResolvedValue([]);
+    prisma.cmmsAsset.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assets');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / with page=2&limit=10 passes skip:10 to findMany', async () => {
+    prisma.cmmsAsset.findMany.mockResolvedValue([]);
+    prisma.cmmsAsset.count.mockResolvedValue(0);
+    await request(app).get('/api/assets?page=2&limit=10');
+    expect(prisma.cmmsAsset.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /:id returns success:true when asset exists', async () => {
+    prisma.cmmsAsset.findFirst.mockResolvedValue({
+      ...mockAsset,
+      workOrders: [],
+      preventivePlans: [],
+      inspections: [],
+    });
+    const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

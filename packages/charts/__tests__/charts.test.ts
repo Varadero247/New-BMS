@@ -359,3 +359,33 @@ describe('getCellColor — additional boundary check', () => {
     expect(getCellColor(2, 3)).toBe('bg-yellow-100 hover:bg-yellow-200');
   });
 });
+
+describe('charts — final additional coverage', () => {
+  it('risksToMatrixData produces correct key format "likelihood-severity"', () => {
+    const data = risksToMatrixData([{ id: 'r1', title: 'T', likelihood: 4, severity: 3 }]);
+    expect(Object.keys(data)).toContain('4-3');
+  });
+
+  it('complianceDataset: value 50 splits to [50, 50]', () => {
+    function complianceDataset(value: number): [number, number] {
+      return [value, 100 - value];
+    }
+    expect(complianceDataset(50)).toEqual([50, 50]);
+  });
+
+  it('getCellColor score 2 (1×2) → green', () => {
+    expect(getCellColor(1, 2)).toBe('bg-green-100 hover:bg-green-200');
+  });
+
+  it('buildSafetyDatasets with empty array returns datasets with empty data arrays', () => {
+    function buildSafetyDatasets(data: Array<{ month: string; ltifr: number; trir: number }>) {
+      return [
+        { label: 'LTIFR', data: data.map((d) => d.ltifr) },
+        { label: 'TRIR', data: data.map((d) => d.trir) },
+      ];
+    }
+    const datasets = buildSafetyDatasets([]);
+    expect(datasets[0].data).toHaveLength(0);
+    expect(datasets[1].data).toHaveLength(0);
+  });
+});

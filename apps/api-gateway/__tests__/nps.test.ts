@@ -390,3 +390,50 @@ describe('NPS Routes — final coverage', () => {
     expect(res.body.data).toHaveProperty('promoterPct');
   });
 });
+
+describe('NPS Routes — final batch', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/nps', npsRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1', organisationId: 'org-1' };
+      next();
+    });
+    mockSubmitResponse.mockReturnValue({ id: 'nps-1', userId: 'user-1', orgId: 'org-1', score: 9, category: 'promoter', createdAt: new Date().toISOString() });
+    mockGetAnalytics.mockReturnValue({ npsScore: 42, total: 10, promoters: 6, passives: 2, detractors: 2, promoterPct: 60, detractorPct: 20 });
+    mockListResponses.mockReturnValue({ responses: [], total: 0 });
+  });
+
+  it('POST /api/nps with score 1 returns 201', async () => {
+    mockSubmitResponse.mockReturnValueOnce({ id: 'nps-s1', score: 1, category: 'detractor' });
+    const res = await request(app).post('/api/nps').send({ score: 1 });
+    expect(res.status).toBe(201);
+  });
+
+  it('POST /api/nps response status 201 for score 6 (passive boundary)', async () => {
+    mockSubmitResponse.mockReturnValueOnce({ id: 'nps-s6', score: 6, category: 'detractor' });
+    const res = await request(app).post('/api/nps').send({ score: 6 });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/nps/analytics response body is an object', async () => {
+    const res = await request(app).get('/api/nps/analytics');
+    expect(res.status).toBe(200);
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/nps/responses returns JSON content-type', async () => {
+    const res = await request(app).get('/api/nps/responses');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/nps response has orgId field in data', async () => {
+    const res = await request(app).post('/api/nps').send({ score: 9 });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('orgId');
+  });
+});

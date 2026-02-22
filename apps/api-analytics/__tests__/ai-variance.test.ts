@@ -596,3 +596,101 @@ describe('ai-variance — final additional coverage', () => {
     expect(result.recommendations[0].current).toBe(50000);
   });
 });
+
+// ── ai-variance — extra coverage ─────────────────────────────────────────────
+
+describe('ai-variance — extra coverage', () => {
+  const snap = {
+    id: 'snap-xc',
+    month: '2026-10',
+    monthNumber: 8,
+    mrr: 8000,
+    arr: 96000,
+    customers: 20,
+    newCustomers: 4,
+    churnedCustomers: 1,
+    mrrGrowthPct: 15,
+    revenueChurnPct: 1.5,
+    pipelineValue: 80000,
+    wonDeals: 7,
+    winRate: 60,
+    newLeads: 40,
+    activeTrials: 8,
+    trialConversionPct: 50,
+    avgHealthScore: 92,
+  };
+  const plan = {
+    plannedMrr: 7500,
+    plannedCustomers: 19,
+    plannedNewCustomers: 4,
+    plannedChurnPct: 2,
+    plannedArpu: 400,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('buildVariancePrompt result is a string with length > 100 chars', () => {
+    const prompt = buildVariancePrompt(snap, plan);
+    expect(typeof prompt).toBe('string');
+    expect(prompt.length).toBeGreaterThan(100);
+  });
+
+  it('parseAIResponse handles null input by throwing or returning fallback', () => {
+    // parseAIResponse calls text.trim() — passing null throws a TypeError
+    expect(() => parseAIResponse(null as any)).toThrow();
+  });
+
+  it('buildVariancePrompt includes churn percentage in output', () => {
+    const prompt = buildVariancePrompt(snap, plan);
+    expect(prompt.toLowerCase()).toContain('churn');
+  });
+
+  it('parseAIResponse preserves summary from valid JSON', () => {
+    const json = JSON.stringify({
+      summary: 'Performance is strong',
+      alerts: [],
+      recommendations: [],
+      trajectory: 'AHEAD',
+    });
+    const result = parseAIResponse(json);
+    expect(result.summary).toBe('Performance is strong');
+  });
+});
+
+// ── ai-variance — supplemental coverage ──────────────────────────────────────
+describe('ai-variance — supplemental coverage', () => {
+  const snap = {
+    id: 'snap-supp',
+    month: '2026-11',
+    monthNumber: 9,
+    mrr: 6000,
+    arr: 72000,
+    customers: 18,
+    newCustomers: 3,
+    churnedCustomers: 1,
+    mrrGrowthPct: 8,
+    revenueChurnPct: 1,
+    pipelineValue: 60000,
+    wonDeals: 6,
+    winRate: 55,
+    newLeads: 35,
+    activeTrials: 7,
+    trialConversionPct: 43,
+    avgHealthScore: 86,
+  };
+  const plan = {
+    plannedMrr: 5500,
+    plannedCustomers: 17,
+    plannedNewCustomers: 3,
+    plannedChurnPct: 1,
+    plannedArpu: 340,
+  };
+
+  it('buildVariancePrompt is a non-empty string for supplemental snapshot', () => {
+    const prompt = buildVariancePrompt(snap, plan);
+    expect(typeof prompt).toBe('string');
+    expect(prompt.length).toBeGreaterThan(50);
+  });
+});

@@ -536,3 +536,67 @@ describe('SoD Matrix — final coverage', () => {
     );
   });
 });
+
+// ===================================================================
+// SoD Matrix — extra coverage to reach 40 tests
+// ===================================================================
+describe('SoD Matrix — extra coverage', () => {
+  const rule = {
+    role1: 'Budget Owner',
+    role2: 'Budget Approver',
+    conflictType: 'HIGH',
+    description: 'Same person cannot own and approve budget',
+    mitigatingControl: 'Independent budget committee review',
+  };
+
+  it('GET / findMany is called once per request', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/sod-matrix');
+
+    expect(mockPrisma.finSodRule.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / returns 201 with success:true on valid rule creation', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000040',
+      ...rule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    const res = await request(app).post('/api/sod-matrix').send(rule);
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data array is always an array', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/sod-matrix');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create is called exactly once per request', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000041',
+      ...rule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    await request(app).post('/api/sod-matrix').send(rule);
+
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / 500 response has success:false on DB error', async () => {
+    mockPrisma.finSodRule.findMany.mockRejectedValue(new Error('Connection refused'));
+
+    const res = await request(app).get('/api/sod-matrix');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

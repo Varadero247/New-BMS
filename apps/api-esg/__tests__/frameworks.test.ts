@@ -442,3 +442,56 @@ describe('frameworks — final coverage', () => {
     );
   });
 });
+
+describe('frameworks — extra coverage', () => {
+  it('GET / data items have name and code fields', async () => {
+    (prisma.esgFramework.findMany as jest.Mock).mockResolvedValue([mockFramework]);
+    (prisma.esgFramework.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/frameworks');
+    expect(res.body.data[0]).toHaveProperty('name');
+    expect(res.body.data[0]).toHaveProperty('code');
+  });
+
+  it('POST / SASB framework creates successfully', async () => {
+    (prisma.esgFramework.create as jest.Mock).mockResolvedValue({ ...mockFramework, code: 'SASB' });
+    const res = await request(app).post('/api/frameworks').send({
+      name: 'SASB Standards',
+      code: 'SASB',
+      version: '2018',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id/metrics returns empty array when framework has no metrics', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
+    (prisma.esgMetric.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/frameworks/00000000-0000-0000-0000-000000000001/metrics');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST /:id/metrics returns 500 when create fails', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
+    (prisma.esgMetric.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/frameworks/00000000-0000-0000-0000-000000000001/metrics')
+      .send({
+        category: 'SOCIAL',
+        subcategory: 'Diversity',
+        name: 'Gender Diversity',
+        code: 'GRI-405-1',
+        unit: '%',
+        frequency: 'ANNUALLY',
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / findMany is called once per list request', async () => {
+    (prisma.esgFramework.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgFramework.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/frameworks');
+    expect(prisma.esgFramework.findMany).toHaveBeenCalledTimes(1);
+  });
+});

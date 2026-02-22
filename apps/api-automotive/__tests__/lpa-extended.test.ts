@@ -528,3 +528,31 @@ describe('LPA Routes — final batch coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('LPA Routes — comprehensive coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST /schedules returns 400 for ANNUALLY frequency (invalid)', async () => {
+    const res = await request(app).post('/api/lpa/schedules').send({
+      processArea: 'Stamping',
+      layer: 2,
+      frequency: 'ANNUALLY',
+      questions: [{ questionText: 'Check?' }],
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /audits count is called once per list request', async () => {
+    (mockPrisma.lpaAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaAudit.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/lpa/audits');
+    expect(mockPrisma.lpaAudit.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /schedules count is called once per list request', async () => {
+    (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/lpa/schedules');
+    expect(mockPrisma.lpaSchedule.count).toHaveBeenCalledTimes(1);
+  });
+});

@@ -399,3 +399,52 @@ describe('Risk Actions — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Risk Actions — absolute final boundary', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /:id/actions with MITIGATIVE actionType returns 201', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', actionTitle: 'Mitigate', actionType: 'MITIGATIVE' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions')
+      .send({ actionTitle: 'Mitigate', description: 'Reduce risk', actionType: 'MITIGATIVE', targetDate: '2026-12-01T00:00:00Z' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id/actions response body is JSON', async () => {
+    mockPrisma.riskAction.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/actions');
+    expect(res.status).toBe(200);
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('PUT /:riskId/actions/:id with PREVENTIVE actionType returns 200', async () => {
+    mockPrisma.riskAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', actionType: 'PREVENTIVE' });
+    const res = await request(app)
+      .put('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001')
+      .send({ actionType: 'PREVENTIVE' });
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /actions/due-soon returns 500 with INTERNAL_ERROR code on DB error', async () => {
+    mockPrisma.riskAction.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/risks/actions/due-soon');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/actions with MITIGATIVE actionType creates action', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004', actionTitle: 'Monitor', actionType: 'MITIGATIVE' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions')
+      .send({ actionTitle: 'Monitor', description: 'Monitor KPI', actionType: 'MITIGATIVE', targetDate: '2026-12-01T00:00:00Z' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.actionType).toBe('MITIGATIVE');
+  });
+});

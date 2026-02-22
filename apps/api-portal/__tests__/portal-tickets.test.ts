@@ -463,3 +463,69 @@ describe('Portal Tickets — final coverage', () => {
     );
   });
 });
+
+describe('portal-tickets — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: data length matches mock return', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([
+      { id: 't-1', number: 'TKT-001', subject: 'Issue A', status: 'OPEN', messages: [] },
+      { id: 't-2', number: 'TKT-002', subject: 'Issue B', status: 'IN_PROGRESS', messages: [] },
+    ]);
+    mockPrisma.portalTicket.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/portal/tickets');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET list: total in pagination matches count mock', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(14);
+
+    const res = await request(app).get('/api/portal/tickets');
+    expect(res.body.pagination.total).toBe(14);
+  });
+
+  it('POST: BILLING category is accepted', async () => {
+    mockPrisma.portalTicket.create.mockResolvedValue({
+      id: 'tkt-bill',
+      number: 'TKT-003',
+      subject: 'Wrong invoice',
+      status: 'OPEN',
+    });
+
+    const res = await request(app).post('/api/portal/tickets').send({
+      subject: 'Wrong invoice',
+      description: 'Charged twice',
+      category: 'BILLING',
+      priority: 'HIGH',
+      portalType: 'CUSTOMER',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id: update called with correct id in where clause', async () => {
+    mockPrisma.portalTicket.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.portalTicket.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', priority: 'MEDIUM' });
+
+    await request(app)
+      .put('/api/portal/tickets/00000000-0000-0000-0000-000000000001')
+      .send({ priority: 'MEDIUM' });
+
+    expect(mockPrisma.portalTicket.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET list: 500 returns success:false', async () => {
+    mockPrisma.portalTicket.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/portal/tickets');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

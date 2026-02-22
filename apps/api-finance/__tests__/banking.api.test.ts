@@ -562,3 +562,28 @@ describe('POST /api/banking/reconciliations/:id/complete', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('banking.api — final coverage', () => {
+  it('GET / returns success:true and data array on empty result', async () => {
+    mockPrisma.finBankAccount.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/banking');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /transactions returns 500 on DB error during create', async () => {
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      currentBalance: 5000,
+    });
+    mockPrisma.finBankTransaction.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/banking/transactions').send({
+      bankAccountId: '550e8400-e29b-41d4-a716-446655440000',
+      date: '2026-01-15',
+      description: 'Test payment',
+      amount: 100,
+    });
+    expect(res.status).toBe(500);
+  });
+});

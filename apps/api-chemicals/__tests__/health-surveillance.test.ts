@@ -420,3 +420,49 @@ describe('Health Surveillance — additional coverage 2', () => {
     expect(call[0].where.result).toBe('ABNORMAL');
   });
 });
+
+describe('Health Surveillance — additional coverage 3', () => {
+  it('GET / response is JSON content-type', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/health-surveillance');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / with page=2&limit=5 passes skip:5 to findMany', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/health-surveillance?page=2&limit=5');
+    const [call] = (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mock.calls;
+    expect(call[0].skip).toBe(5);
+    expect(call[0].take).toBe(5);
+  });
+
+  it('POST / returns 400 when conductedBy is missing', async () => {
+    const res = await request(app).post('/api/health-surveillance').send({
+      employeeId: 'EMP-001',
+      employeeName: 'Jane Smith',
+      jobRole: 'Paint Sprayer',
+      substancesExposed: ['Isocyanates'],
+      surveillanceType: 'LUNG_FUNCTION',
+      examinationDate: '2026-01-15',
+      result: 'NORMAL',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns 200 with updated conductedBy', async () => {
+    (mockPrisma.chemHealthSurveillance.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+    (mockPrisma.chemHealthSurveillance.update as jest.Mock).mockResolvedValue({
+      ...mockRecord,
+      conductedBy: 'Dr. New',
+    });
+    const res = await request(app)
+      .put('/api/health-surveillance/00000000-0000-0000-0000-000000000001')
+      .send({ conductedBy: 'Dr. New' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.conductedBy).toBe('Dr. New');
+  });
+});

@@ -347,6 +347,41 @@ describe('supplier-social-screening — extended coverage', () => {
   });
 });
 
+describe('supplier-social-screening — batch-q coverage', () => {
+  it('GET / findMany called once per request', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/supplier-social-screening');
+    expect(mockPrisma.esgSupplierSocialScreen.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / with PENDING result creates successfully', async () => {
+    (mockPrisma.esgSupplierSocialScreen.create as jest.Mock).mockResolvedValue({ ...mockScreening, result: 'PENDING' });
+    const res = await request(app).post('/api/supplier-social-screening').send({
+      supplierName: 'Delta Co',
+      screeningDate: '2026-04-01',
+      screenedBy: 'Ethics Team',
+      criteriaUsed: ['child_labour'],
+      result: 'PENDING',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / returns data as array', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mockResolvedValue([mockScreening]);
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/supplier-social-screening');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id returns id field in data', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findUnique as jest.Mock).mockResolvedValue(mockScreening);
+    const res = await request(app).get('/api/supplier-social-screening/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('id', '00000000-0000-0000-0000-000000000001');
+  });
+});
+
 describe('supplier-social-screening — additional coverage 2', () => {
   it('GET / response has success:true with data array', async () => {
     (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mockResolvedValue([mockScreening]);

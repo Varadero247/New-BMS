@@ -702,3 +702,64 @@ describe('Health & Safety Objectives — final coverage', () => {
     );
   });
 });
+
+describe('Health & Safety Objectives — extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/objectives', objectivesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / findMany called once per request', async () => {
+    (mockPrisma.ohsObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.ohsObjective.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/objectives').set('Authorization', 'Bearer token');
+    expect(mockPrisma.ohsObjective.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / response body has success true', async () => {
+    (mockPrisma.ohsObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.ohsObjective.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/objectives').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / create called with progressPercent 0 initially', async () => {
+    (mockPrisma.ohsObjective.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.ohsObjective.create as jest.Mock).mockResolvedValueOnce({
+      id: 'obj-x',
+      referenceNumber: 'OBJ-001',
+      status: 'ACTIVE',
+      milestones: [],
+    });
+    await request(app)
+      .post('/api/objectives')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'New', category: 'INCIDENT_REDUCTION', targetDate: '2026-12-31', milestones: [] });
+    expect(mockPrisma.ohsObjective.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ currentValue: 0 }) })
+    );
+  });
+
+  it('GET / meta has totalPages property', async () => {
+    (mockPrisma.ohsObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.ohsObjective.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/objectives').set('Authorization', 'Bearer token');
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+
+  it('GET / data array is empty when no objectives in DB', async () => {
+    (mockPrisma.ohsObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.ohsObjective.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/objectives').set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

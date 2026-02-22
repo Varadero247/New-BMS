@@ -257,3 +257,33 @@ describe('withHedging — further edge cases', () => {
     expect(h.hedgeWins).toBe(0);
   });
 });
+
+describe('withHedging — final edge cases', () => {
+  it('resolves with undefined result', async () => {
+    const result = await withHedging(() => Promise.resolve(undefined));
+    expect(result).toBeUndefined();
+  });
+
+  it('withHedgingDetailed has winningAttempt as integer', async () => {
+    const result = await withHedgingDetailed(() => Promise.resolve('ok'), { maxAttempts: 1 });
+    expect(Number.isInteger(result.winningAttempt)).toBe(true);
+  });
+
+  it('RequestHedger.execute works with maxAttempts: 1', async () => {
+    const hedger = createHedger({ maxAttempts: 1, delayMs: 1000 });
+    const result = await hedger.execute(() => Promise.resolve('single'));
+    expect(result).toBe('single');
+  });
+
+  it('withHedging with shouldHedge always false calls fn exactly once', async () => {
+    const fn = jest.fn().mockResolvedValue('result');
+    await withHedging(fn, { maxAttempts: 3, shouldHedge: () => false });
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('withHedgingDetailed value is correct for async fn returning object', async () => {
+    const obj = { id: 99, name: 'test' };
+    const result = await withHedgingDetailed(() => Promise.resolve(obj));
+    expect(result.value).toEqual(obj);
+  });
+});

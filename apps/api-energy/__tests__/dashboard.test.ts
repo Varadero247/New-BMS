@@ -629,3 +629,74 @@ describe('Energy Dashboard — final coverage', () => {
     expect(prisma.energyBill.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Energy Dashboard — additional final coverage', () => {
+  const setupAll = (overrides: Record<string, any> = {}) => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(overrides.meters ?? 0);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(overrides.baselines ?? 0);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(overrides.targets ?? 0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(overrides.seus ?? 0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(overrides.alerts ?? 0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(overrides.projects ?? 0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(overrides.audits ?? 0);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue(overrides.readings ?? []);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue(overrides.alertList ?? []);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue(overrides.seuList ?? []);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue(overrides.bills ?? []);
+  };
+
+  it('summary.meters is 0 when no active meters exist', async () => {
+    setupAll({ meters: 0 });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.meters).toBe(0);
+  });
+
+  it('summary.projects reflects mocked project count', async () => {
+    setupAll({ projects: 5 });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.projects).toBe(5);
+  });
+
+  it('data.topSeus length is bounded by take:5 limit from mock', async () => {
+    setupAll({
+      seuList: [
+        { id: 's1', name: 'SEU1', unit: 'kWh', consumptionPercentage: 50, annualConsumption: 5000, priority: 'HIGH' },
+        { id: 's2', name: 'SEU2', unit: 'kWh', consumptionPercentage: 30, annualConsumption: 3000, priority: 'MEDIUM' },
+        { id: 's3', name: 'SEU3', unit: 'kWh', consumptionPercentage: 20, annualConsumption: 2000, priority: 'LOW' },
+      ],
+    });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.topSeus.length).toBeLessThanOrEqual(5);
+  });
+
+  it('energyProject.count failure returns 500 with INTERNAL_ERROR', async () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(1);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyProject.count as jest.Mock).mockRejectedValue(new Error('Project DB down'));
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/dashboard');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('recentReadings array matches findMany result length', async () => {
+    setupAll({
+      readings: [
+        { id: 'r1', readingDate: new Date(), value: 100, meterId: 'm1' },
+        { id: 'r2', readingDate: new Date(), value: 200, meterId: 'm2' },
+        { id: 'r3', readingDate: new Date(), value: 300, meterId: 'm3' },
+      ],
+    });
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.recentReadings).toHaveLength(3);
+  });
+});

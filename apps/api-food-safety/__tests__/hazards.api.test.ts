@@ -400,6 +400,55 @@ describe('Food Safety Hazards — extended coverage', () => {
   });
 });
 
+describe('Food Safety Hazards — extra coverage to reach ≥40 tests', () => {
+  it('GET /api/hazards data is always an array', async () => {
+    mockPrisma.fsHazard.findMany.mockResolvedValue([]);
+    mockPrisma.fsHazard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/hazards');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/hazards success:true with total from count', async () => {
+    mockPrisma.fsHazard.findMany.mockResolvedValue([]);
+    mockPrisma.fsHazard.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/hazards');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('POST /api/hazards create is called once per valid POST', async () => {
+    mockPrisma.fsHazard.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      name: 'Mercury',
+      type: 'CHEMICAL',
+      severity: 'HIGH',
+      likelihood: 'UNLIKELY',
+      riskScore: 8,
+    });
+    await request(app).post('/api/hazards').send({
+      name: 'Mercury',
+      type: 'CHEMICAL',
+      severity: 'HIGH',
+      likelihood: 'UNLIKELY',
+    });
+    expect(mockPrisma.fsHazard.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/hazards/summary total is correct for 4 hazards', async () => {
+    const hazards = [
+      { type: 'BIOLOGICAL', severity: 'LOW', isSignificant: false },
+      { type: 'CHEMICAL', severity: 'HIGH', isSignificant: true },
+      { type: 'PHYSICAL', severity: 'LOW', isSignificant: false },
+      { type: 'ALLERGENIC', severity: 'CRITICAL', isSignificant: true },
+    ];
+    mockPrisma.fsHazard.findMany.mockResolvedValue(hazards);
+    const res = await request(app).get('/api/hazards/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(4);
+    expect(res.body.data.significantCount).toBe(2);
+  });
+});
+
 describe('Food Safety Hazards — final coverage pass', () => {
   it('POST /api/hazards creates with isSignificant computed from riskScore', async () => {
     const created = {

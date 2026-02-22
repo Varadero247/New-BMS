@@ -431,3 +431,57 @@ describe('SiemEngine — additional rule and actor coverage', () => {
     engine.destroy();
   });
 });
+
+describe('SiemEngine — final coverage', () => {
+  it('getAlerts() with actorId returns only that actor\'s alerts', () => {
+    const rule: SiemRule = {
+      id: 'FILTER',
+      name: 'Filter',
+      description: '1 event',
+      ruleType: 'threshold',
+      severity: 'low',
+      eventTypes: ['AUTH_FAILURE'],
+      windowMs: 60_000,
+      threshold: 1,
+    };
+    const engine = new SiemEngine([rule], { cleanupIntervalMs: 999_999 });
+    engine.ingest(authFailure('alice'));
+    engine.ingest(authFailure('bob'));
+    const aliceAlerts = engine.getAlerts('alice');
+    expect(aliceAlerts.every((a) => a.actorId === 'alice')).toBe(true);
+    engine.destroy();
+  });
+
+  it('velocity rule does not fire when events are spread beyond the window', () => {
+    const rule: SiemRule = {
+      id: 'VEL_SPREAD',
+      name: 'Vel Spread',
+      description: '>2 ev/s',
+      ruleType: 'velocity',
+      severity: 'low',
+      eventTypes: ['API_ABUSE'],
+      windowMs: 1_000,
+      maxVelocity: 10,
+    };
+    const engine = new SiemEngine([rule], { cleanupIntervalMs: 999_999 });
+    // Only 2 events per second — below limit
+    const now = Date.now();
+    engine.ingest({ type: 'API_ABUSE', actorId: 'u', timestamp: now });
+    engine.ingest({ type: 'API_ABUSE', actorId: 'u', timestamp: now });
+    expect(engine.getAlerts('u')).toHaveLength(0);
+    engine.destroy();
+  });
+
+  it('DEFAULT_RULES all have non-empty description', () => {
+    expect(DEFAULT_RULES.every((r) => r.description.length > 0)).toBe(true);
+  });
+
+  it('ingest stores event with a timestamp when none provided', () => {
+    const engine = new SiemEngine([], { cleanupIntervalMs: 999_999 });
+    const before = Date.now();
+    engine.ingest({ type: 'AUTH_FAILURE', actorId: 'u' });
+    const events = engine.getEvents('u');
+    expect(events[0].timestamp).toBeGreaterThanOrEqual(before);
+    engine.destroy();
+  });
+});

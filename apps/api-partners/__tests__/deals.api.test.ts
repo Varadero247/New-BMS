@@ -307,6 +307,54 @@ describe('500 error handling', () => {
   });
 });
 
+describe('deals.api — extra coverage batch ah', () => {
+  it('GET /api/deals: summary has totalCommission as a number', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/deals');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.summary.totalCommission).toBe('number');
+  });
+
+  it('GET /api/deals: summary has closedWon as a number', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/deals');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.summary.closedWon).toBe('number');
+  });
+
+  it('POST /api/deals returns 400 when contactName is missing', async () => {
+    const res = await request(app).post('/api/deals').send({
+      companyName: 'Co',
+      contactEmail: 'jane@co.com',
+      estimatedUsers: 10,
+      isoStandards: ['9001'],
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/deals: REFERRAL commission rate is 0.25', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ id: 'partner-1', tier: 'REFERRAL' });
+    (prisma.mktPartnerDeal.create as jest.Mock).mockResolvedValue(mockDeal);
+    await request(app).post('/api/deals').send({
+      companyName: 'Co',
+      contactName: 'Jane',
+      contactEmail: 'jane@co.com',
+      estimatedUsers: 10,
+      isoStandards: ['9001'],
+    });
+    expect(prisma.mktPartnerDeal.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ commissionRate: 0.25 }) })
+    );
+  });
+
+  it('GET /api/deals: deals array is returned in data.deals', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([mockDeal]);
+    const res = await request(app).get('/api/deals');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.deals)).toBe(true);
+  });
+});
+
 describe('deals.api — additional coverage', () => {
   let app: express.Express;
 

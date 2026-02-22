@@ -318,3 +318,53 @@ describe('categories.api (risk) — final coverage', () => {
     expect(cyber.count).toBe(1);
   });
 });
+
+describe('categories.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('response content-type is JSON', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('returns data array even when DB returns single risk', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ category: 'REPUTATIONAL' }]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('findMany receives organisationId in where clause', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/categories');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('HEALTH_SAFETY category counted correctly', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { category: 'HEALTH_SAFETY' },
+      { category: 'HEALTH_SAFETY' },
+      { category: 'HEALTH_SAFETY' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    const hs = res.body.data.find((d: any) => d.category === 'HEALTH_SAFETY');
+    expect(hs).toBeDefined();
+    expect(hs.count).toBe(3);
+  });
+
+  it('response body success is true for populated list', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { category: 'OPERATIONAL' },
+      { category: 'FINANCIAL' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

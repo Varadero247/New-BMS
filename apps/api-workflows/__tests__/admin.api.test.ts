@@ -509,3 +509,53 @@ describe('Admin Automation Rules — further coverage', () => {
     expect(res.body.error.code).toBe('INVALID_ACTION');
   });
 });
+
+describe('Admin Automation Rules — final boundary coverage', () => {
+  let appFinal: express.Express;
+
+  beforeAll(() => {
+    appFinal = express();
+    appFinal.use(express.json());
+    appFinal.use('/api/admin/automation-rules', adminRouter);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns content-type json', async () => {
+    (mockPrisma.automationRule.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(appFinal).get('/api/admin/automation-rules');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /:id/execute calls findUnique with correct id', async () => {
+    (mockPrisma.automationRule.findUnique as jest.Mock).mockResolvedValueOnce(mockRule);
+    (mockPrisma.automationExecution.create as jest.Mock).mockResolvedValueOnce(mockExecution);
+    await request(appFinal).post(`/api/admin/automation-rules/${RULE_ID}/execute`);
+    expect(mockPrisma.automationRule.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: RULE_ID } })
+    );
+  });
+
+  it('GET /:id/log with limit=20 passes take:20 to findMany', async () => {
+    (mockPrisma.automationExecution.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(appFinal).get(`/api/admin/automation-rules/${RULE_ID}/log?limit=20`);
+    expect(mockPrisma.automationExecution.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 20 })
+    );
+  });
+
+  it('POST /:id/enable calls update with where:{id:RULE_ID}', async () => {
+    (mockPrisma.automationRule.update as jest.Mock).mockResolvedValueOnce({ ...mockRule, isActive: true });
+    await request(appFinal).post(`/api/admin/automation-rules/${RULE_ID}/enable`);
+    expect(mockPrisma.automationRule.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: RULE_ID } })
+    );
+  });
+
+  it('GET / response body is array for data field', async () => {
+    (mockPrisma.automationRule.findMany as jest.Mock).mockResolvedValueOnce([mockRule, mockRule]);
+    const res = await request(appFinal).get('/api/admin/automation-rules');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBe(2);
+  });
+});

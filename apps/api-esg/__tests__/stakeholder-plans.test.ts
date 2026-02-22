@@ -334,6 +334,47 @@ describe('stakeholder-plans — extended coverage', () => {
   });
 });
 
+describe('stakeholder-plans — batch-q coverage', () => {
+  it('GET / findMany called with deletedAt null filter', async () => {
+    (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgStakeholderPlan.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/stakeholder-plans');
+    const [call] = (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mock.calls;
+    expect(call[0].where).toHaveProperty('deletedAt', null);
+  });
+
+  it('POST / with EVENT_BASED frequency succeeds', async () => {
+    (mockPrisma.esgStakeholderPlan.create as jest.Mock).mockResolvedValue({ ...mockPlan, frequency: 'EVENT_BASED' });
+    const res = await request(app).post('/api/stakeholder-plans').send({
+      stakeholderGroup: 'Media',
+      engagementPurpose: 'Press releases',
+      frequency: 'EVENT_BASED',
+      methods: ['MEETING'],
+      reportingYear: 2026,
+      responsibleTeam: 'Communications',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / page 3 with limit 5 passes skip 10', async () => {
+    (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgStakeholderPlan.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/stakeholder-plans?page=3&limit=5');
+    const [call] = (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mock.calls;
+    expect(call[0].skip).toBe(10);
+    expect(call[0].take).toBe(5);
+  });
+
+  it('GET /:id success:true with plan data', async () => {
+    (mockPrisma.esgStakeholderPlan.findUnique as jest.Mock).mockResolvedValue(mockPlan);
+    const res = await request(app).get('/api/stakeholder-plans/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('frequency', 'QUARTERLY');
+  });
+});
+
 describe('stakeholder-plans — additional coverage 2', () => {
   it('GET / returns correct data length', async () => {
     (mockPrisma.esgStakeholderPlan.findMany as jest.Mock).mockResolvedValue([mockPlan, { ...mockPlan, id: '00000000-0000-0000-0000-000000000002' }]);

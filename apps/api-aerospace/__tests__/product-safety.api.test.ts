@@ -595,3 +595,37 @@ describe('Aerospace Product Safety API — additional coverage', () => {
     );
   });
 });
+
+describe('Aerospace Product Safety API — further coverage', () => {
+  it('POST /api/product-safety/reviews returns 400 when reviewType is missing', async () => {
+    const res = await request(app)
+      .post('/api/product-safety/reviews')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Hazard Review', scheduledDate: '2026-06-01' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/product-safety/:id returns 404 when item is soft-deleted', async () => {
+    mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    const res = await request(app)
+      .put('/api/product-safety/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ complianceStatus: 'COMPLIANT' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/product-safety returns data as array', async () => {
+    mockPrisma.aeroProductSafetyItem.findMany.mockResolvedValueOnce([
+      { id: 'item-a', refNumber: 'AERO-PSI-2026-002', title: 'Fuel Nozzle', category: 'CRITICAL_SAFETY_ITEM' },
+    ]);
+    mockPrisma.aeroProductSafetyItem.count.mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/product-safety').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

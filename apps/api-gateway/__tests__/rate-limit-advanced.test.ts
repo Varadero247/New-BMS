@@ -735,3 +735,64 @@ describe('Rate Limiter — final coverage batch', () => {
     await closeRedisConnection();
   });
 });
+
+describe('Rate Limiter — extended final batch', () => {
+  afterEach(() => { jest.clearAllMocks(); });
+
+  it('2 requests allowed and 3rd blocked with max 2', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 2, keyGenerator: () => 'ext-final-1' });
+    const app = buildApp(limiter);
+    const statuses = await fireRequests(app, 3, '10.40.0.1');
+    expect(statuses[0]).toBe(200);
+    expect(statuses[1]).toBe(200);
+    expect(statuses[2]).toBe(429);
+    await closeRedisConnection();
+  });
+
+  it('max 4 limiter allows exactly 4 then blocks on 5th', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 4, keyGenerator: () => 'ext-final-2' });
+    const app = buildApp(limiter);
+    const statuses = await fireRequests(app, 5, '10.40.0.2');
+    expect(statuses.slice(0, 4).every((s) => s === 200)).toBe(true);
+    expect(statuses[4]).toBe(429);
+    await closeRedisConnection();
+  });
+
+  it('429 response body success field is strictly false (boolean)', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 1, keyGenerator: () => 'ext-final-3' });
+    const app = buildApp(limiter);
+    await request(app).get('/api/test');
+    const res = await request(app).get('/api/test');
+    expect(res.status).toBe(429);
+    expect(res.body.success).toStrictEqual(false);
+    await closeRedisConnection();
+  });
+
+  it('6 distinct keys each get one request and all return 200 with max 1', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: (req: Request) => (req.headers['x-forwarded-for'] as string) || 'unknown',
+    });
+    const app = buildApp(limiter);
+    const ips = ['11.1.1.1', '11.2.2.2', '11.3.3.3', '11.4.4.4', '11.5.5.5', '11.6.6.6'];
+    const results = await Promise.all(ips.map((ip) => request(app).get('/api/test').set('X-Forwarded-For', ip)));
+    expect(results.every((r) => r.status === 200)).toBe(true);
+    await closeRedisConnection();
+  });
+
+  it('health endpoint always returns 200 regardless of rate limit state', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 1, keyGenerator: () => 'ext-health-2' });
+    const app = buildApp(limiter);
+    await request(app).get('/api/test');
+    await request(app).get('/api/test');
+    const health = await request(app).get('/health');
+    expect(health.status).toBe(200);
+    await closeRedisConnection();
+  });
+});

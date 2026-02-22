@@ -470,6 +470,93 @@ describe('Design & Development Routes — additional edge cases', () => {
   });
 });
 
+describe('Design & Development Routes — extra coverage block A', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / filters by priority when param provided', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/design-development?priority=HIGH');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.qualDesignProject.findMany).toHaveBeenCalled();
+  });
+
+  it('GET /:id returns success:true when found', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      title: 'Found Project',
+    });
+    (mockPrisma.qualDesignStageDoc.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/design-development/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 when findUnique throws', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockRejectedValue(new Error('DB'));
+    const res = await request(app).delete('/api/design-development/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST / returns 201 with refNumber in response data', async () => {
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
+      return cb({
+        qualDesignProject: { create: jest.fn().mockResolvedValue({ id: 'dd-new', refNumber: 'DD-2602-0001', title: 'New Design' }) },
+        qualDesignStageDoc: { create: jest.fn().mockResolvedValue({}) },
+      });
+    });
+    const res = await request(app).post('/api/design-development').send({ title: 'New Design', productName: 'Product A' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.refNumber).toBe('DD-2602-0001');
+  });
+
+  it('POST /:id/stages/:stage/submit — returns 500 on stageDoc update error', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.qualDesignStageDoc.findFirst as jest.Mock).mockResolvedValue({ id: 'ds-1', status: 'IN_PROGRESS' });
+    (mockPrisma.qualDesignStageDoc.update as jest.Mock).mockRejectedValue(new Error('DB'));
+    const res = await request(app)
+      .post('/api/design-development/00000000-0000-0000-0000-000000000001/stages/PLANNING/submit')
+      .send({});
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / returns empty items array when no projects exist', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/design-development');
+    expect(res.status).toBe(200);
+    expect(res.body.data.items).toEqual([]);
+  });
+
+  it('GET / count called once per list request', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/design-development');
+    expect(mockPrisma.qualDesignProject.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /:id/stages/:stage/approve — returns 500 on transaction error', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.qualDesignStageDoc.findFirst as jest.Mock).mockResolvedValue({
+      id: 'ds-1',
+      status: 'SUBMITTED',
+    });
+    (mockPrisma.$transaction as jest.Mock).mockRejectedValue(new Error('DB'));
+    const res = await request(app)
+      .post('/api/design-development/00000000-0000-0000-0000-000000000001/stages/PLANNING/approve')
+      .send({});
+    expect(res.status).toBe(500);
+  });
+});
+
 describe('Design & Development Routes — final coverage', () => {
   beforeEach(() => jest.clearAllMocks());
 

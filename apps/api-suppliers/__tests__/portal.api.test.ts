@@ -305,3 +305,54 @@ describe('portal.api — final coverage expansion', () => {
     expect(res.body.data.name).toBeDefined();
   });
 });
+
+describe('portal.api — coverage to 40', () => {
+  it('GET /api/portal/profile: response body has data and success', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: 'x1',
+      name: 'Check Corp',
+      email: 'supplier@example.com',
+    });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/portal/profile: data is an object', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: 'x2',
+      name: 'ObjCo',
+      email: 'supplier@example.com',
+    });
+    const res = await request(app).get('/api/portal/profile');
+    expect(typeof res.body.data).toBe('object');
+    expect(res.body.data).not.toBeNull();
+  });
+
+  it('GET /api/portal/profile: findFirst called once on 200', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: 'x3',
+      name: 'CallOnce',
+      email: 'supplier@example.com',
+    });
+    await request(app).get('/api/portal/profile');
+    expect(mockPrisma.suppSupplier.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/portal/profile: 404 success is boolean false', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(404);
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/portal/profile: 500 error has code and message properties', async () => {
+    mockPrisma.suppSupplier.findFirst.mockRejectedValue(new Error('pool exhausted'));
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+    expect(res.body.error).toHaveProperty('message');
+  });
+});

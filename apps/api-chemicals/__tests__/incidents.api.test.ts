@@ -487,3 +487,41 @@ describe('incidents.api — additional coverage 2', () => {
     expect(res.body.data[0]).toHaveProperty('severity', 'MINOR');
   });
 });
+
+describe('incidents.api — additional coverage 3', () => {
+  it('GET /incidents response is JSON content-type', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /incidents returns 400 when chemicalId is missing', async () => {
+    const res = await request(app).post('/api/incidents').send({
+      incidentType: 'SPILL',
+      severity: 'MINOR',
+      dateTime: '2026-02-10T14:30:00.000Z',
+      location: 'Lab A',
+      description: 'A spill occurred',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /incidents with page=2&limit=10 passes skip:10 to findMany', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/incidents?page=2&limit=10');
+    expect(mockPrisma.chemIncident.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /incidents/:id returns 200 with success:true for found incident', async () => {
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(mockIncident);
+    const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000050');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -620,3 +620,79 @@ describe('documents.api — final extended coverage', () => {
     expect(res.status).toBe(201);
   });
 });
+
+describe('documents.api — boundary and extra coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/documents', documentsRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/documents: data is an array when projectId is provided', async () => {
+    (mockPrisma.projectDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectDocument.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/documents?projectId=project-1').set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/documents: meta.limit defaults to 50', async () => {
+    (mockPrisma.projectDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectDocument.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/documents?projectId=project-1').set('Authorization', 'Bearer token');
+    expect(res.body.meta.limit).toBe(50);
+  });
+
+  it('GET /api/documents: findMany not called when projectId missing', async () => {
+    await request(app).get('/api/documents').set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectDocument.findMany).not.toHaveBeenCalled();
+  });
+
+  it('POST /api/documents: create called with DRAFT default status', async () => {
+    (mockPrisma.projectDocument.create as jest.Mock).mockResolvedValueOnce({
+      id: 'doc-draft',
+      projectId: 'project-1',
+      documentCode: 'DOC-DRAFT',
+      documentTitle: 'Draft Doc',
+      documentType: 'PLAN',
+      version: '1.0',
+      status: 'DRAFT',
+      createdBy: '20000000-0000-4000-a000-000000000123',
+    });
+    await request(app)
+      .post('/api/documents')
+      .set('Authorization', 'Bearer token')
+      .send({ projectId: 'project-1', documentCode: 'DOC-DRAFT', documentTitle: 'Draft Doc', documentType: 'PLAN' });
+    expect(mockPrisma.projectDocument.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'DRAFT' }) })
+    );
+  });
+
+  it('PUT /api/documents/:id: success true in response body on update', async () => {
+    (mockPrisma.projectDocument.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '1e000000-0000-4000-a000-000000000001',
+      projectId: 'project-1',
+    });
+    (mockPrisma.projectDocument.update as jest.Mock).mockResolvedValueOnce({
+      id: '1e000000-0000-4000-a000-000000000001',
+      documentTitle: 'Updated Title',
+    });
+    const res = await request(app)
+      .put('/api/documents/1e000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ documentTitle: 'Updated Title' });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/documents/:id: findUnique called with correct id before soft-delete', async () => {
+    (mockPrisma.projectDocument.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .delete('/api/documents/1e000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectDocument.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '1e000000-0000-4000-a000-000000000001' } })
+    );
+  });
+});

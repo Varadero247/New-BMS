@@ -384,3 +384,48 @@ describe('Security Controls — final coverage batch', () => {
     expect(res.body.data).toHaveProperty('monitoring');
   });
 });
+
+describe('Security Controls — extended final batch', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    app = express();
+    app.use(express.json());
+    (authenticate as jest.Mock).mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN' };
+      next();
+    });
+    app.use('/api/v1/security-controls', securityControlsRoutes);
+  });
+
+  it('GET / data has detailedDomains field', async () => {
+    const res = await request(app).get('/api/v1/security-controls');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('detailedDomains');
+  });
+
+  it('GET / data.totalControls is a positive number', async () => {
+    const res = await request(app).get('/api/v1/security-controls');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalControls).toBeGreaterThan(0);
+  });
+
+  it('GET /rbac-matrix data.roles includes ADMIN', async () => {
+    const res = await request(app).get('/api/v1/security-controls/rbac-matrix');
+    expect(res.status).toBe(200);
+    expect(res.body.data.roles).toContain('ADMIN');
+  });
+
+  it('GET /status data.authentication has method field', async () => {
+    const res = await request(app).get('/api/v1/security-controls/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.authentication).toHaveProperty('method');
+  });
+
+  it('GET /status data.encryption has passwordStorage field', async () => {
+    const res = await request(app).get('/api/v1/security-controls/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.encryption).toHaveProperty('passwordStorage');
+  });
+});

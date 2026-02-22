@@ -493,3 +493,72 @@ describe('Complaints Routes (Medical)', () => {
     });
   });
 });
+
+describe('Complaints — ≥40 coverage', () => {
+  const validBody = {
+    deviceName: 'Cardiac Monitor X200',
+    complaintDate: '2026-02-10',
+    source: 'CUSTOMER',
+    description: 'Device displaying incorrect readings',
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST /api/complaints count is called before create to generate refNumber', async () => {
+    (mockPrisma.complaint.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.complaint.create as jest.Mock).mockResolvedValue({ id: 'c-cnt', refNumber: 'COMP-2602-0004' });
+
+    await request(app).post('/api/complaints').send(validBody);
+
+    expect(mockPrisma.complaint.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.complaint.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/complaints success:true on 200 with pagination meta', async () => {
+    (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.complaint.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/complaints');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.meta).toBeDefined();
+  });
+
+  it('PUT /api/complaints/:id 500 on DB update error', async () => {
+    (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.complaint.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/complaints/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'UNDER_INVESTIGATION' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/complaints/:id/mdr update called with mdrReportable:false when reportable is false', async () => {
+    (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.complaint.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      mdrReportable: false,
+    });
+
+    const res = await request(app)
+      .post('/api/complaints/00000000-0000-0000-0000-000000000001/mdr')
+      .send({ reportable: false });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.complaint.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ mdrReportable: false }),
+      })
+    );
+  });
+});

@@ -309,3 +309,78 @@ describe('HIPAA BAA — additional coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('HIPAA BAA — further boundary coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns data as array on success', async () => {
+    prisma.hipaaBaa.findMany.mockResolvedValue([{ id: 'b1', businessAssociate: 'Acme' }]);
+    prisma.hipaaBaa.count.mockResolvedValue(1);
+    const res = await request(app).get('/');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / sets status to ACTIVE on creation', async () => {
+    prisma.hipaaBaa.create.mockResolvedValue({ id: 'b3', ...baaPayload, status: 'ACTIVE' });
+    const res = await request(app).post('/').send(baaPayload);
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('ACTIVE');
+  });
+
+  it('GET /:id success:true when found', async () => {
+    prisma.hipaaBaa.findUnique.mockResolvedValue({ id: 'b1', ...baaPayload, deletedAt: null });
+    const res = await request(app).get('/b1');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id findUnique is called before update', async () => {
+    prisma.hipaaBaa.findUnique.mockResolvedValue({ id: 'b1', deletedAt: null });
+    prisma.hipaaBaa.update.mockResolvedValue({ id: 'b1', status: 'ACTIVE' });
+    await request(app).put('/b1').send({ status: 'ACTIVE' });
+    expect(prisma.hipaaBaa.findUnique).toHaveBeenCalledTimes(1);
+    expect(prisma.hipaaBaa.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id response data contains message', async () => {
+    prisma.hipaaBaa.findUnique.mockResolvedValue({ id: 'b1', deletedAt: null });
+    prisma.hipaaBaa.update.mockResolvedValue({ id: 'b1', status: 'TERMINATED' });
+    const res = await request(app).delete('/b1').send({ terminationReason: 'Expired' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET /expiring success:true on success', async () => {
+    prisma.hipaaBaa.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/expiring');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /stats all four count fields present', async () => {
+    prisma.hipaaBaa.count
+      .mockResolvedValueOnce(20)
+      .mockResolvedValueOnce(15)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(2);
+    const res = await request(app).get('/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total', 20);
+    expect(res.body.data).toHaveProperty('active', 15);
+    expect(res.body.data).toHaveProperty('expired', 3);
+    expect(res.body.data).toHaveProperty('pendingSignature', 2);
+  });
+
+  it('PUT /:id/renew success:true on valid update', async () => {
+    prisma.hipaaBaa.findUnique.mockResolvedValue({ id: 'b1', deletedAt: null });
+    prisma.hipaaBaa.update.mockResolvedValue({ id: 'b1', status: 'ACTIVE', expiryDate: new Date('2028-01-01') });
+    const res = await request(app).put('/b1/renew').send({ expiryDate: '2028-01-01' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 on missing createdBy', async () => {
+    const { createdBy: _cb, ...body } = baaPayload;
+    const res = await request(app).post('/').send(body);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

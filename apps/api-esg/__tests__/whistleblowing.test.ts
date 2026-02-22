@@ -347,6 +347,40 @@ describe('whistleblowing — extended coverage', () => {
   });
 });
 
+describe('whistleblowing — batch-q coverage', () => {
+  it('GET / findMany called once per request', async () => {
+    (mockPrisma.esgWhistleblow.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/whistleblowing');
+    expect(mockPrisma.esgWhistleblow.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / returns 400 when category is missing', async () => {
+    const res = await request(app).post('/api/whistleblowing').send({
+      summary: 'Something happened',
+      reportedDate: '2026-02-01',
+      channel: 'EMAIL',
+      anonymous: false,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / returns data as array', async () => {
+    (mockPrisma.esgWhistleblow.findMany as jest.Mock).mockResolvedValue([mockReport]);
+    (mockPrisma.esgWhistleblow.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/whistleblowing');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id returns anonymous and channel fields', async () => {
+    (mockPrisma.esgWhistleblow.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    const res = await request(app).get('/api/whistleblowing/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('anonymous', true);
+    expect(res.body.data).toHaveProperty('channel', 'HOTLINE');
+  });
+});
+
 describe('whistleblowing — additional coverage 2', () => {
   it('GET / response includes pagination with total', async () => {
     (mockPrisma.esgWhistleblow.findMany as jest.Mock).mockResolvedValue([mockReport]);

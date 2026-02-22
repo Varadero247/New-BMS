@@ -650,6 +650,61 @@ describe('Notifications Routes', () => {
     });
   });
 
+  describe('Notifications — extra boundary coverage', () => {
+    it('GET /api/notifications data.page defaults to 1 when not provided', async () => {
+      const response = await request(app)
+        .get('/api/notifications')
+        .set('Authorization', 'Bearer token');
+      expect(response.status).toBe(200);
+      expect(response.body.data.page).toBe(1);
+    });
+
+    it('PUT /api/notifications/:id/read marks notification read field true', async () => {
+      bellState.addNotification('00000000-0000-0000-0000-000000000001', {
+        id: '00000000-0000-0000-0000-000000000088',
+        type: 'INFO',
+        title: 'Read field test',
+        message: 'Test',
+        severity: 'LOW',
+        createdAt: new Date(),
+        read: false,
+        module: 'system',
+      });
+
+      const response = await request(app)
+        .put('/api/notifications/00000000-0000-0000-0000-000000000088/read')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.read).toBe(true);
+    });
+
+    it('POST /api/notifications/test response body has success: true', async () => {
+      const response = await request(app)
+        .post('/api/notifications/test')
+        .set('Authorization', 'Bearer token')
+        .send({ title: 'Success check', message: 'Test' });
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('GET /api/notifications/unread response body has success: true', async () => {
+      const response = await request(app)
+        .get('/api/notifications/unread')
+        .set('Authorization', 'Bearer token');
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('PUT /api/notifications/read-all response body has markedCount as number', async () => {
+      const response = await request(app)
+        .put('/api/notifications/read-all')
+        .set('Authorization', 'Bearer token');
+      expect(response.status).toBe(200);
+      expect(typeof response.body.data.markedCount).toBe('number');
+    });
+  });
+
   describe('GET /api/notifications — additional coverage', () => {
     it('should return data.totalPages in paginated response', async () => {
       for (let i = 1; i <= 6; i++) {

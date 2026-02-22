@@ -368,6 +368,54 @@ describe('Food Safety Allergens — edge cases and error paths', () => {
 });
 
 // ===================================================================
+// Food Safety Allergens — extra coverage to reach ≥40 tests
+// ===================================================================
+describe('Food Safety Allergens — extra coverage', () => {
+  it('GET /allergens returns pagination.limit equal to requested limit', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/allergens?limit=25');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(25);
+  });
+
+  it('POST /allergens missing type returns 400 with VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/allergens').send({ name: 'Wheat' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /allergens page=2 limit=5 applies skip 5 take 5 to findMany', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
+    await request(app).get('/api/allergens?page=2&limit=5');
+    expect(mockPrisma.fsAllergen.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST /allergens success returns data with id from DB', async () => {
+    mockPrisma.fsAllergen.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      name: 'Sesame',
+      type: 'MAJOR',
+    });
+    const res = await request(app).post('/api/allergens').send({ name: 'Sesame', type: 'MAJOR' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id', '00000000-0000-0000-0000-000000000030');
+  });
+
+  it('GET /allergens filters by MINOR type correctly', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
+    await request(app).get('/api/allergens?type=MINOR');
+    expect(mockPrisma.fsAllergen.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'MINOR' }) })
+    );
+  });
+});
+
+// ===================================================================
 // Food Safety Allergens — final coverage block
 // ===================================================================
 describe('Food Safety Allergens — final coverage', () => {

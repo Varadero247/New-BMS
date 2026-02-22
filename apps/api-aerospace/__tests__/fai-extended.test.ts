@@ -617,3 +617,55 @@ describe('FAI Routes — additional coverage', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('FAI Routes — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/fai returns success:true and meta block', async () => {
+    (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/fai');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('GET /api/fai returns totalPages=3 for 30 items limit 10', async () => {
+    (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValue(30);
+
+    const res = await request(app).get('/api/fai?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+    expect(res.body.meta.total).toBe(30);
+  });
+
+  it('GET /api/fai/:id returns 500 on db error', async () => {
+    (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app).get('/api/fai/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/fai/:id/approve returns 500 on db update error', async () => {
+    (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      status: 'IN_PROGRESS',
+      part1Status: 'COMPLETED',
+      part2Status: 'COMPLETED',
+      part3Status: 'COMPLETED',
+      part1Data: JSON.stringify([
+        { charNumber: 1, charName: 'OD', nominal: '50', tolerance: '0.1', actual: '50.05', pass: true },
+      ]),
+      part3Data: JSON.stringify([
+        { testName: 'Hardness', testMethod: 'Rockwell', requirement: '>60', result: '62', pass: true },
+      ]),
+    });
+    (mockPrisma.firstArticleInspection.update as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app).post('/api/fai/00000000-0000-0000-0000-000000000001/approve');
+    expect(res.status).toBe(500);
+  });
+});

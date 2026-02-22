@@ -536,4 +536,42 @@ describe('CRM Quotes — additional coverage', () => {
     expect(res.status).toBe(200);
     expect(res.body.pagination.totalPages).toBe(5);
   });
+
+  it('GET / returns content-type application/json', async () => {
+    mockPrisma.crmQuote.findMany.mockResolvedValue([]);
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/quotes');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / response data is an array', async () => {
+    mockPrisma.crmQuote.findMany.mockResolvedValue([]);
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/quotes');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / returns created quote with refNumber', async () => {
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
+    mockPrisma.crmQuote.create.mockResolvedValue(mockQuote);
+    const res = await request(app).post('/api/quotes').send({ title: 'Test Quote' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+
+  it('GET /:id response data has lines array', async () => {
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(mockQuote);
+    const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.lines)).toBe(true);
+  });
+
+  it('POST /:id/accept calls update with status ACCEPTED', async () => {
+    mockPrisma.crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
+    mockPrisma.crmQuote.update.mockResolvedValue({ ...mockQuote, status: 'ACCEPTED' });
+    await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/accept');
+    expect(mockPrisma.crmQuote.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'ACCEPTED' }) }),
+    );
+  });
 });

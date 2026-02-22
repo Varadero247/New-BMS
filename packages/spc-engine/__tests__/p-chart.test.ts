@@ -383,3 +383,66 @@ describe('pChart — structural and type coverage', () => {
     });
   });
 });
+
+describe('pChart — final coverage to reach 40', () => {
+  it('chart type is always "P"', () => {
+    const data = makePData([[10, 100], [5, 100], [8, 100]]);
+    expect(pChart(data).type).toBe('P');
+  });
+
+  it('centerLine is between 0 and 1 inclusive', () => {
+    const data = makePData([[20, 100], [30, 100], [10, 100]]);
+    const chart = pChart(data);
+    expect(chart.centerLine).toBeGreaterThanOrEqual(0);
+    expect(chart.centerLine).toBeLessThanOrEqual(1);
+  });
+
+  it('dataPoints length equals input sample count', () => {
+    const samples: Array<[number, number]> = [[1, 100], [2, 100], [3, 100], [4, 100], [5, 100], [6, 100]];
+    const data = makePData(samples);
+    expect(pChart(data).dataPoints).toHaveLength(6);
+  });
+
+  it('outOfControl points reference valid indices into dataPoints', () => {
+    const data = makePData([[5, 100], [5, 100], [5, 100], [5, 100], [90, 100]]);
+    const chart = pChart(data);
+    chart.outOfControl.forEach((p) => {
+      expect(p.index).toBeGreaterThanOrEqual(0);
+      expect(p.index).toBeLessThan(chart.dataPoints.length);
+    });
+  });
+
+  it('UCL >= center line for any valid input', () => {
+    const data = makePData([[5, 100], [5, 100], [5, 100]]);
+    const chart = pChart(data);
+    expect(chart.ucl).toBeGreaterThanOrEqual(chart.centerLine);
+  });
+
+  it('rangeUcl, rangeLcl, rangePoints are all undefined for p-chart', () => {
+    const data = makePData([[5, 100], [6, 100], [4, 100]]);
+    const chart = pChart(data);
+    expect(chart.rangeUcl).toBeUndefined();
+    expect(chart.rangeLcl).toBeUndefined();
+    expect(chart.rangePoints).toBeUndefined();
+  });
+
+  it('total inspected used in centerLine calculation equals sum of sampleSizes', () => {
+    const data = makePData([[10, 200], [20, 400]]);
+    const chart = pChart(data);
+    // p-bar = (10 + 20) / (200 + 400) = 30/600 = 0.05
+    expect(chart.centerLine).toBeCloseTo(0.05, 5);
+  });
+
+  it('pChart with exactly 10 samples does not throw', () => {
+    const samples: Array<[number, number]> = Array.from({ length: 10 }, () => [5, 100] as [number, number]);
+    expect(() => pChart(makePData(samples))).not.toThrow();
+  });
+
+  it('p-chart out-of-control points have a rules array', () => {
+    const data = makePData([[5, 100], [5, 100], [5, 100], [5, 100], [90, 100]]);
+    const chart = pChart(data);
+    chart.outOfControl.forEach((p) => {
+      expect(Array.isArray(p.rules)).toBe(true);
+    });
+  });
+});

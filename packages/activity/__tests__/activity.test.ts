@@ -603,3 +603,70 @@ describe('@ims/activity — additional edge cases', () => {
     expect(entries[0].action).toBe('created');
   });
 });
+
+describe('@ims/activity — final boundary checks', () => {
+  beforeEach(() => {
+    clearAllActivity();
+  });
+
+  it('logActivity with field set stores the field name on the entry', async () => {
+    await logActivity({
+      orgId: 'org-1',
+      recordType: 'risk',
+      recordId: 'r-field',
+      userId: 'u1',
+      userName: 'Alice',
+      action: 'updated',
+      field: 'title',
+      oldValue: 'Old',
+      newValue: 'New',
+    });
+    const { entries } = await getActivity('risk', 'r-field');
+    expect(entries[0].field).toBe('title');
+  });
+
+  it('getActivity returns total equal to number of logged entries', async () => {
+    for (let i = 0; i < 3; i++) {
+      await logActivity({
+        orgId: 'org-total', recordType: 'risk', recordId: 'r-total',
+        userId: 'u1', userName: 'Alice', action: 'updated',
+      });
+    }
+    const { total } = await getActivity('risk', 'r-total');
+    expect(total).toBe(3);
+  });
+
+  it('multiple orgs do not pollute each other in getRecentActivity', async () => {
+    await logActivity({ orgId: 'org-X', recordType: 'risk', recordId: 'r1', userId: 'u1', userName: 'Alice', action: 'created' });
+    await logActivity({ orgId: 'org-Y', recordType: 'risk', recordId: 'r2', userId: 'u2', userName: 'Bob', action: 'created' });
+    const recentX = await getRecentActivity('org-X');
+    expect(recentX.every((e) => e.orgId === 'org-X')).toBe(true);
+  });
+
+  it('activityLogger — logs "deleted" action for DELETE returning 204', async () => {
+    const middleware = activityLogger('incident');
+    const mockReq: MockReq = {
+      method: 'DELETE',
+      params: { id: 'inc-204' },
+      path: '/api/incidents/inc-204',
+      user: { id: 'u1', name: 'Alice', organisationId: 'org-1' },
+    };
+    const mockRes = { statusCode: 204, json: jest.fn() as jest.Mock };
+    const mockNext: NextFunction = jest.fn();
+
+    middleware(mockReq as unknown as Request, mockRes as unknown as Response, mockNext);
+    mockRes.json(null);
+    await new Promise((r) => setImmediate(r));
+
+    const { entries } = await getActivity('incident', 'inc-204');
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries[0].action).toBe('deleted');
+  });
+
+  it('clearAllActivity resets state so getRecentActivity returns empty array', async () => {
+    await logActivity({ orgId: 'org-clear', recordType: 'risk', recordId: 'r1', userId: 'u1', userName: 'Alice', action: 'created' });
+    clearAllActivity();
+    const recent = await getRecentActivity('org-clear');
+    expect(recent).toHaveLength(0);
+  });
+});

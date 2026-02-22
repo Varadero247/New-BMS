@@ -411,3 +411,51 @@ describe('scopeToUser — additional cases', () => {
     });
   });
 });
+
+describe('ownership — final coverage', () => {
+  const mockModel = (record: Record<string, unknown> | null) => ({
+    findUnique: jest.fn().mockResolvedValue(record),
+  });
+
+  it('requireRole returns a middleware function', () => {
+    const mw = requireRole('ADMIN');
+    expect(typeof mw).toBe('function');
+    expect(mw.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('checkOwnership returns a middleware function', () => {
+    const mw = checkOwnership(mockModel(null) as unknown as PrismaModelDelegate);
+    expect(typeof mw).toBe('function');
+  });
+
+  it('scopeToUser sets ownerFilter.createdBy equal to user id for USER role', () => {
+    const uid = 'user-555';
+    const req = mockReq({ user: { id: uid, role: 'USER', email: 'u@b.com' } });
+    const { res } = mockRes();
+    scopeToUser(req, res, next);
+    expect((req as any).ownerFilter?.createdBy).toBe(uid);
+  });
+
+  it('ADMIN ownerFilter is an empty object (not undefined)', () => {
+    const req = mockReq({ user: { id: 'admin-2', role: 'ADMIN', email: 'a@b.com' } });
+    const { res } = mockRes();
+    scopeToUser(req, res, next);
+    expect((req as any).ownerFilter).toEqual({});
+  });
+
+  it('checkOwnership passes the ownerField to the findUnique select', async () => {
+    const userId = 'u-abc';
+    const req = mockReq({
+      user: { id: userId, role: 'USER', email: 'u@b.com' },
+      params: { id: 'r-1' },
+    });
+    const { res } = mockRes();
+    const model = mockModel({ authorId: userId });
+    const middleware = checkOwnership(model as unknown as PrismaModelDelegate, 'authorId');
+    await middleware(req, res, next);
+    expect(model.findUnique).toHaveBeenCalledWith({
+      where: { id: 'r-1' },
+      select: { authorId: true },
+    });
+  });
+});

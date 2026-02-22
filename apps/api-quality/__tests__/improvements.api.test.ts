@@ -619,6 +619,94 @@ describe('Quality Improvements API — additional edge cases', () => {
   });
 });
 
+describe('Quality Improvements API — extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/improvements', improvementsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / findMany and count each called once per request', async () => {
+    (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/improvements').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualImprovement.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.qualImprovement.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id returns referenceNumber in response data', async () => {
+    (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '21000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-CI-2026-001',
+      title: 'Reduce defect rate',
+    });
+    const res = await request(app)
+      .get('/api/improvements/21000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.body.data.referenceNumber).toBe('QMS-CI-2026-001');
+  });
+
+  it('POST / count is called before create to generate reference number', async () => {
+    (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(4);
+    (mockPrisma.qualImprovement.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-CI-2026-005',
+    });
+    await request(app)
+      .post('/api/improvements')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Fifth Improvement',
+        category: 'PROCESS_IMPROVEMENT',
+        source: 'AUDIT',
+        submittedBy: 'Bob',
+        description: 'Description here',
+        proposedSolution: 'Solution here',
+        expectedBenefits: 'Benefits here',
+      });
+    expect(mockPrisma.qualImprovement.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id — success:true when improvement is found and updated', async () => {
+    (mockPrisma.qualImprovement.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '21000000-0000-4000-a000-000000000001',
+      qualityImpact: 'HIGH',
+      customerImpact: 'MEDIUM',
+      processImpact: 'LOW',
+      priorityScore: 6,
+    });
+    (mockPrisma.qualImprovement.update as jest.Mock).mockResolvedValueOnce({
+      id: '21000000-0000-4000-a000-000000000001',
+      status: 'IMPLEMENTED',
+      qualityImpact: 'HIGH',
+      customerImpact: 'MEDIUM',
+      processImpact: 'LOW',
+      priorityScore: 6,
+    });
+    const res = await request(app)
+      .put('/api/improvements/21000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'IMPLEMENTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / filters by pdcaStage=CHECK correctly', async () => {
+    (mockPrisma.qualImprovement.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualImprovement.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/improvements?pdcaStage=CHECK').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualImprovement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ pdcaStage: 'CHECK' }) })
+    );
+  });
+});
+
 describe('Quality Improvements API — extended edge cases', () => {
   let app: express.Express;
 

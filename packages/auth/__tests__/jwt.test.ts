@@ -324,3 +324,30 @@ describe('JWT Utilities — additional coverage', () => {
     expect(result).toBeNull();
   });
 });
+
+// ── JWT Utilities — final coverage ────────────────────────────────────────────
+
+describe('JWT Utilities — final coverage', () => {
+  beforeEach(() => {
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    process.env.JWT_REFRESH_SECRET =
+      'test-refresh-secret-that-is-at-least-64-characters-for-testing';
+  });
+
+  it('generateToken returns a string with exactly 3 dot-separated segments', () => {
+    const token = generateToken({ userId: 'u-segments' });
+    expect(token.split('.')).toHaveLength(3);
+  });
+
+  it('verifyToken payload contains iat (issued at) claim', () => {
+    const token = generateToken({ userId: 'u-iat' });
+    const payload = verifyToken(token);
+    expect(typeof (payload as any).iat).toBe('number');
+  });
+
+  it('generateTokenPair produces refresh token with type=refresh', () => {
+    const { refreshToken } = generateTokenPair({ userId: 'u-pair-type' });
+    const decoded = decodeToken(refreshToken) as Record<string, unknown>;
+    expect(decoded?.type).toBe('refresh');
+  });
+});

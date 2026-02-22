@@ -432,3 +432,42 @@ describe('suppliers.api — final coverage pass', () => {
     expect(mockPrisma.fsSupplier.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('suppliers.api — comprehensive additional coverage', () => {
+  it('GET /api/suppliers response body is an object', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/suppliers');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/suppliers returns content-type JSON', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/suppliers');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/suppliers returns 201 on success', async () => {
+    mockPrisma.fsSupplier.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000050',
+      name: 'BioFarm Co',
+      category: 'RAW_MATERIAL',
+    });
+    const res = await request(app).post('/api/suppliers').send({
+      name: 'BioFarm Co',
+      category: 'RAW_MATERIAL',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/suppliers/:id returns correct id in response', async () => {
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      name: 'AquaFarm Ltd',
+    });
+    const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000002');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000002');
+  });
+});

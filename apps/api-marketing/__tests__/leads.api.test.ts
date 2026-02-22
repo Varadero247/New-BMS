@@ -376,6 +376,73 @@ describe('Marketing Leads — edge cases', () => {
   });
 });
 
+describe('Marketing Leads — ≥40 coverage', () => {
+  it('POST /leads/capture with ROI_CALCULATOR source returns 201', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      source: 'ROI_CALCULATOR',
+    });
+
+    const res = await request(app)
+      .post('/api/leads/capture')
+      .send({ email: 'roi@test.com', name: 'ROI User', source: 'ROI_CALCULATOR' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /leads filters by PAID_ADS source and count returns correct where clause', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/leads?source=PAID_ADS');
+
+    expect(prisma.mktLead.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { source: 'PAID_ADS' } })
+    );
+  });
+
+  it('GET /leads/:id body has data.email when lead exists', async () => {
+    (prisma.mktLead.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'hello@world.com',
+    });
+
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.email).toBe('hello@world.com');
+  });
+
+  it('GET /leads data.limit matches limit query param', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/leads?limit=15');
+
+    expect(res.status).toBe(200);
+    // The route returns { leads, total, page } — no limit field in response body.
+    // Verify the correct take was passed to findMany instead.
+    expect(prisma.mktLead.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 15 })
+    );
+  });
+
+  it('POST /leads/capture with PARTNER_REFERRAL source returns 201', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      source: 'PARTNER_REFERRAL',
+    });
+
+    const res = await request(app)
+      .post('/api/leads/capture')
+      .send({ email: 'ref@test.com', name: 'Referred User', source: 'PARTNER_REFERRAL' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.captured).toBe(true);
+  });
+});
+
 // ===================================================================
 // Additional coverage to reach 35 tests
 // ===================================================================

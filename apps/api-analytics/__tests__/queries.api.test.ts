@@ -461,3 +461,28 @@ describe('Queries — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ===================================================================
+// Queries — additional tests to reach ≥40
+// ===================================================================
+describe('Queries — additional tests', () => {
+  it('GET /api/queries response is JSON content-type', async () => {
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/queries');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/queries create called once on success', async () => {
+    mockPrisma.analyticsQuery.create.mockResolvedValue({ id: 'q-once', name: 'Once', sql: 'SELECT 1', ownerId: 'user-123' });
+    await request(app).post('/api/queries').send({ name: 'Once', sql: 'SELECT 1' });
+    expect(mockPrisma.analyticsQuery.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/queries findMany called once per list request', async () => {
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(0);
+    await request(app).get('/api/queries');
+    expect(mockPrisma.analyticsQuery.findMany).toHaveBeenCalledTimes(1);
+  });
+});

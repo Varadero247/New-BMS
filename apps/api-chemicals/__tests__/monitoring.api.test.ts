@@ -533,3 +533,44 @@ describe('monitoring.api — additional coverage 2', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('monitoring.api — additional coverage 3', () => {
+  it('GET /monitoring response is JSON content-type', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /monitoring with page=2&limit=10 passes skip:10 to findMany', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    await request(app).get('/api/monitoring?page=2&limit=10');
+    expect(mockPrisma.chemMonitoring.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('POST /monitoring returns 400 when chemicalId is missing', async () => {
+    const res = await request(app).post('/api/monitoring').send({
+      monitoringType: 'AIR_SAMPLE',
+      sampledAt: '2026-02-01T10:00:00.000Z',
+      resultValue: 5,
+      resultUnit: 'mg/m3',
+      welTwaLimit: 10,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /monitoring with empty DB returns success:true and empty data array', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

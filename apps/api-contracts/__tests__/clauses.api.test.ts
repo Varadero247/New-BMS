@@ -405,3 +405,47 @@ describe('clauses.api — final coverage expansion', () => {
     expect(res.body.data.title).toBe('Arbitration');
   });
 });
+
+describe('clauses.api — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data array has correct length when multiple clauses returned', async () => {
+    mockPrisma.contClause.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Payment' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Liability' },
+      { id: '00000000-0000-0000-0000-000000000003', title: 'Confidentiality' },
+    ]);
+    mockPrisma.contClause.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/clauses');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('POST / create is called with contractId and title in data', async () => {
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    mockPrisma.contClause.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', contractId: 'c-1', title: 'IP' });
+    await request(app).post('/api/clauses').send({ contractId: 'c-1', title: 'IP' });
+    expect(mockPrisma.contClause.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ contractId: 'c-1', title: 'IP' }) })
+    );
+  });
+
+  it('GET / success is true and data is array', async () => {
+    mockPrisma.contClause.findMany.mockResolvedValue([]);
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/clauses');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id returns success true and correct id', async () => {
+    mockPrisma.contClause.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'NDA' });
+    const res = await request(app).get('/api/clauses/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

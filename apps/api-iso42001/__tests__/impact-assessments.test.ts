@@ -576,3 +576,52 @@ describe('Impact Assessments — final batch coverage', () => {
     expect(res.body.data).toHaveProperty('reference');
   });
 });
+
+describe('Impact Assessments — final extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns success:true on non-empty result', async () => {
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([mockAssessment]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/impact-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when impactLevel is invalid enum value', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    const res = await request(app).post('/api/impact-assessments').send({
+      systemId: UUID1,
+      title: 'Bad Impact Level',
+      impactLevel: 'EXTREME',
+      humanRightsImpact: 'Some text',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id update sets updatedAt in response', async () => {
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockResolvedValue({
+      ...mockAssessment,
+      notes: 'Added notes',
+      system: { id: UUID1, name: 'Credit Scoring AI', reference: 'AI42-SYS-2602-5555' },
+    });
+    const res = await request(app).put(`/api/impact-assessments/${UUID2}`).send({ notes: 'Added notes' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('updatedAt');
+  });
+
+  it('GET / passes deletedAt: null in where clause', async () => {
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(0);
+    await request(app).get('/api/impact-assessments');
+    expect(mockPrisma.aiImpactAssessment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      })
+    );
+  });
+});

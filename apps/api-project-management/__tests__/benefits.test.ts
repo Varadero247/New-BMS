@@ -685,5 +685,52 @@ describe('Project Management Benefits Realisation API Routes', () => {
         expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
       );
     });
+
+    it('GET /api/benefits: filter by projectId passes to where clause', async () => {
+      (mockPrisma.benefit.findMany as jest.Mock).mockResolvedValueOnce([mockBenefit]);
+      (mockPrisma.benefit.count as jest.Mock).mockResolvedValueOnce(1);
+      await request(app).get('/api/benefits?projectId=project-001').set('Authorization', 'Bearer token');
+      expect(mockPrisma.benefit.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ projectId: 'project-001' }) })
+      );
+    });
+
+    it('GET /api/benefits: returns correct totalPages for multi-page result', async () => {
+      (mockPrisma.benefit.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.benefit.count as jest.Mock).mockResolvedValueOnce(40);
+      const response = await request(app).get('/api/benefits?limit=10').set('Authorization', 'Bearer token');
+      expect(response.status).toBe(200);
+      expect(response.body.data.totalPages).toBe(4);
+    });
+
+    it('POST /api/benefits: count called once to generate refNumber', async () => {
+      (mockPrisma.benefit.count as jest.Mock).mockResolvedValueOnce(5);
+      (mockPrisma.benefit.create as jest.Mock).mockResolvedValueOnce({ ...mockBenefit, refNumber: 'BEN-2602-0006' });
+      await request(app).post('/api/benefits').set('Authorization', 'Bearer token').send(validCreatePayload);
+      expect(mockPrisma.benefit.count).toHaveBeenCalledTimes(1);
+    });
+
+    it('POST /api/benefits/:id/measurements: benefitMeasurement.create called once on success', async () => {
+      (mockPrisma.benefit.findUnique as jest.Mock).mockResolvedValueOnce(mockBenefit);
+      (mockPrisma.benefitMeasurement.create as jest.Mock).mockResolvedValueOnce(mockMeasurement);
+      (mockPrisma.benefit.update as jest.Mock).mockResolvedValueOnce({ ...mockBenefit, currentValue: 920000 });
+      await request(app)
+        .post('/api/benefits/30000000-0000-4000-a000-000000000001/measurements')
+        .set('Authorization', 'Bearer token')
+        .send(validMeasurementPayload);
+      expect(mockPrisma.benefitMeasurement.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('GET /api/benefits/dashboard: handles zero total correctly for realisationRate', async () => {
+      (mockPrisma.benefit.count as jest.Mock)
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0);
+      (mockPrisma.benefit.findMany as jest.Mock).mockResolvedValueOnce([]);
+      const response = await request(app).get('/api/benefits/dashboard').set('Authorization', 'Bearer token');
+      expect(response.status).toBe(200);
+      expect(response.body.data.realisationRate).toBe(0);
+    });
   });
 });

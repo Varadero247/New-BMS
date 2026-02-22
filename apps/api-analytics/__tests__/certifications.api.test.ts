@@ -474,3 +474,63 @@ describe('Certifications API — final coverage', () => {
     expect(mockPrisma.complianceDeadline.createMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('certifications.api — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/certifications deadlines array contains correct id when one item exists', async () => {
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000007', name: 'SOC 2 Audit', category: 'COMPLIANCE', status: 'UPCOMING' },
+    ]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.data.deadlines[0].id).toBe('00000000-0000-0000-0000-000000000007');
+  });
+
+  it('POST /api/certifications returns data.deadline with correct name', async () => {
+    mockPrisma.complianceDeadline.create.mockResolvedValue({
+      id: 'ex-cert-1',
+      name: 'Extra Cert',
+      category: 'COMPLIANCE',
+      dueDate: new Date('2026-08-01'),
+      status: 'UPCOMING',
+    });
+    const res = await request(app).post('/api/certifications').send({
+      name: 'Extra Cert',
+      category: 'COMPLIANCE',
+      dueDate: '2026-08-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.deadline.name).toBe('Extra Cert');
+  });
+
+  it('PATCH /api/certifications/:id update is called with correct where.id', async () => {
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.complianceDeadline.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'OVERDUE' });
+    await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'OVERDUE' });
+    expect(mockPrisma.complianceDeadline.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /api/certifications/seed data.total equals seeds.length (5)', async () => {
+    mockPrisma.complianceDeadline.createMany.mockResolvedValue({ count: 5 });
+    const res = await request(app).get('/api/certifications/seed');
+    expect(res.status).toBe(200);
+    // total is always seeds.length (5 hardcoded seed entries); created is createMany result.count
+    expect(res.body.data.total).toBe(5);
+    expect(res.body.data.created).toBe(5);
+  });
+
+  it('GET /api/certifications returns 500 with success:false on DB error', async () => {
+    mockPrisma.complianceDeadline.findMany.mockRejectedValue(new Error('connection failed'));
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

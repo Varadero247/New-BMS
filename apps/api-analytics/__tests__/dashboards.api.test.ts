@@ -594,3 +594,93 @@ describe('Dashboards API — final coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 });
+
+describe('Dashboards API — final extended coverage', () => {
+  it('PUT /api/dashboards/:id/widgets/:widgetId returns 500 on DB update error', async () => {
+    mockPrisma.analyticsWidget.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dashboardId: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsWidget.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put(
+        '/api/dashboards/00000000-0000-0000-0000-000000000001/widgets/00000000-0000-0000-0000-000000000001'
+      )
+      .send({ title: 'Failing Update' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /api/dashboards/:id/widgets/:widgetId returns 500 on DB error', async () => {
+    mockPrisma.analyticsWidget.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dashboardId: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsWidget.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete(
+      '/api/dashboards/00000000-0000-0000-0000-000000000001/widgets/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/dashboards response body data is always an array', async () => {
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/dashboards');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});
+
+// ===================================================================
+// Dashboards API — supplemental coverage
+// ===================================================================
+describe('Dashboards API — supplemental coverage', () => {
+  it('POST /api/dashboards/:id/clone creates a copy with name containing Copy', async () => {
+    const original = {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Original Dashboard',
+      description: null,
+      layout: {},
+      widgets: [],
+      isPublic: false,
+      tags: null,
+      analyticsWidgets: [],
+    };
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(original);
+    mockPrisma.analyticsDashboard.create.mockResolvedValue({
+      id: 'clone-supp',
+      name: 'Original Dashboard (Copy)',
+    });
+    mockPrisma.analyticsWidget.createMany.mockResolvedValue({ count: 0 });
+    mockPrisma.analyticsDashboard.findUnique.mockResolvedValue({
+      id: 'clone-supp',
+      name: 'Original Dashboard (Copy)',
+      analyticsWidgets: [],
+    });
+
+    const res = await request(app).post(
+      '/api/dashboards/00000000-0000-0000-0000-000000000001/clone'
+    );
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.name).toContain('Copy');
+  });
+
+  it('GET /api/dashboards success is true with data present', async () => {
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Health', ownerId: 'user-123', isPublic: true, analyticsWidgets: [] },
+    ]);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/dashboards');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

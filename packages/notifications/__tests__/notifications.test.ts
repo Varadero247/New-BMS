@@ -318,3 +318,44 @@ describe('NotificationService – priority and channel coverage', () => {
     expect(service.getUnread('user-dec')).toHaveLength(1);
   });
 });
+
+describe('NotificationService — final coverage', () => {
+  let service: NotificationService;
+
+  beforeEach(() => {
+    service = new NotificationService();
+  });
+
+  it('getUnread returns notifications in order they were stored', async () => {
+    await service.send(createTestNotification({ id: 'ord-1', userId: 'user-ord' }));
+    await service.send(createTestNotification({ id: 'ord-2', userId: 'user-ord' }));
+    const unread = service.getUnread('user-ord');
+    expect(unread.map((n) => n.id)).toEqual(['ord-1', 'ord-2']);
+  });
+
+  it('getAll includes notifications from multiple sends in insertion order', async () => {
+    await service.send(createTestNotification({ id: 'seq-1', userId: 'user-seq' }));
+    await service.send(createTestNotification({ id: 'seq-2', userId: 'user-seq' }));
+    await service.send(createTestNotification({ id: 'seq-3', userId: 'user-seq' }));
+    const all = service.getAll('user-seq');
+    expect(all).toHaveLength(3);
+  });
+
+  it('notification readAt is set after markRead', async () => {
+    await service.send(createTestNotification({ id: 'rat-1', userId: 'user-rat' }));
+    service.markRead('rat-1');
+    const notif = service.getById('rat-1');
+    expect(notif!.readAt).toBeInstanceOf(Date);
+  });
+
+  it('getPreferences returns default channels with all truthy', () => {
+    const prefs = service.getPreferences('brand-new-user');
+    expect(prefs.channels.in_app).toBe(true);
+    expect(prefs.channels.email).toBe(true);
+  });
+
+  it('createChannel sms type has the sms type property', () => {
+    const ch = createChannel('sms');
+    expect(ch.type).toBe('sms');
+  });
+});

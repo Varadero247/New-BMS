@@ -622,3 +622,92 @@ describe('Environment Legal Obligations API Routes', () => {
     });
   });
 });
+
+describe('Environment Legal — boundary coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/legal', legalRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/legal meta total reflects count result', async () => {
+    (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(42);
+
+    const response = await request(app2)
+      .get('/api/legal')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.total).toBe(42);
+  });
+
+  it('DELETE /api/legal/:id returns 204 on success', async () => {
+    (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '14000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envLegal.update as jest.Mock).mockResolvedValueOnce({});
+
+    const response = await request(app2)
+      .delete('/api/legal/14000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(204);
+  });
+
+  it('PUT /api/legal/:id returns 500 when update throws', async () => {
+    (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '14000000-0000-4000-a000-000000000001',
+      complianceStatus: 'NOT_ASSESSED',
+    });
+    (mockPrisma.envLegal.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .put('/api/legal/14000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ complianceStatus: 'COMPLIANT' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/legal returns 400 for missing description field', async () => {
+    const response = await request(app2)
+      .post('/api/legal')
+      .set('Authorization', 'Bearer token')
+      .send({
+        obligationType: 'LEGISLATION',
+        title: 'Test Law',
+        jurisdiction: 'NATIONAL',
+        regulatoryBody: 'EPA',
+        legislationReference: 'TEST-001',
+        applicableActivities: 'All',
+        responsiblePerson: 'Jane',
+        // description missing
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/legal/:id returns success:true for existing obligation', async () => {
+    (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '14000000-0000-4000-a000-000000000001',
+      referenceNumber: 'ENV-LEG-2026-001',
+      title: 'Environmental Protection Act',
+    });
+
+    const response = await request(app2)
+      .get('/api/legal/14000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+});

@@ -482,3 +482,71 @@ describe('seus — further edge cases', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('seus — additional coverage', () => {
+  it('GET /api/seus pagination page defaults to 1', async () => {
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/seus');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST /api/seus rejects consumptionPercentage > 100', async () => {
+    const res = await request(app).post('/api/seus').send({
+      name: 'Oversized SEU',
+      consumptionPercentage: 150,
+      annualConsumption: 100000,
+      unit: 'kWh',
+      priority: 'HIGH',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/seus/:id data contains name field', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e7000000-0000-4000-a000-000000000001',
+      name: 'Chiller Unit',
+      consumptionPercentage: 20,
+      annualConsumption: 80000,
+    });
+
+    const res = await request(app).get('/api/seus/e7000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Chiller Unit');
+  });
+
+  it('PUT /api/seus/:id updates consumptionPercentage field', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e7000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energySeu.update as jest.Mock).mockResolvedValue({
+      id: 'e7000000-0000-4000-a000-000000000001',
+      consumptionPercentage: 45,
+    });
+
+    const res = await request(app)
+      .put('/api/seus/e7000000-0000-4000-a000-000000000001')
+      .send({ consumptionPercentage: 45 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.consumptionPercentage).toBe(45);
+  });
+
+  it('GET /api/seus filters by priority=LOW', async () => {
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/seus?priority=LOW');
+
+    expect(prisma.energySeu.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ priority: 'LOW' }),
+      })
+    );
+  });
+});

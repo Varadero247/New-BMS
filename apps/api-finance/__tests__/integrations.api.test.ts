@@ -570,3 +570,69 @@ describe('Integrations — final coverage', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+// ===================================================================
+// Integrations — extra coverage to reach 40 tests
+// ===================================================================
+describe('Integrations — extra coverage', () => {
+  it('GET /api/integrations response body has success:true', async () => {
+    mockPrisma.finIntegration.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/integrations');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/integrations findMany is called once per request', async () => {
+    mockPrisma.finIntegration.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/integrations');
+
+    expect(mockPrisma.finIntegration.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/integrations/:id/sync syncLog create is called once for valid sync', async () => {
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
+      id: 'f5000000-0000-4000-a000-000000000001',
+      isActive: true,
+      direction: 'BIDIRECTIONAL',
+    });
+    mockPrisma.finSyncLog.create.mockResolvedValue({ id: 'log-new', status: 'PENDING' });
+    mockPrisma.finIntegration.update.mockResolvedValue({
+      id: 'f5000000-0000-4000-a000-000000000001',
+    });
+
+    await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/sync');
+
+    expect(mockPrisma.finSyncLog.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/integrations/:id/logs pagination.page defaults to 1', async () => {
+    mockPrisma.finSyncLog.findMany.mockResolvedValue([]);
+    mockPrisma.finSyncLog.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/integrations/f5000000-0000-4000-a000-000000000001/logs');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('PUT /api/integrations/:id findUnique is called before update', async () => {
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
+      id: 'f5000000-0000-4000-a000-000000000001',
+      name: 'Xero',
+    });
+    mockPrisma.finIntegration.update.mockResolvedValue({
+      id: 'f5000000-0000-4000-a000-000000000001',
+      name: 'Xero Updated',
+    });
+
+    await request(app)
+      .put('/api/integrations/f5000000-0000-4000-a000-000000000001')
+      .send({ name: 'Xero Updated' });
+
+    expect(mockPrisma.finIntegration.findUnique).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.finIntegration.update).toHaveBeenCalledTimes(1);
+  });
+});

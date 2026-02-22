@@ -382,6 +382,72 @@ describe('Food Safety CCPs — edge cases and error paths', () => {
 });
 
 // ===================================================================
+// Food Safety CCPs — extra coverage to reach ≥40 tests
+// ===================================================================
+describe('Food Safety CCPs — extra coverage', () => {
+  it('GET /ccps page=3 limit=5 applies skip 10 take 5', async () => {
+    mockPrisma.fsCcp.findMany.mockResolvedValue([]);
+    mockPrisma.fsCcp.count.mockResolvedValue(0);
+    await request(app).get('/api/ccps?page=3&limit=5');
+    expect(mockPrisma.fsCcp.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('POST /ccps missing processStep returns 400', async () => {
+    const res = await request(app).post('/api/ccps').send({
+      criticalLimit: '75C',
+      monitoringMethod: 'Thermometer',
+      monitoringFrequency: 'PER_BATCH',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /ccps success returns data with number from DB', async () => {
+    mockPrisma.fsCcp.count.mockResolvedValue(7);
+    mockPrisma.fsCcp.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000050',
+      name: 'X-Ray',
+      number: 'CCP-008',
+      processStep: 'Final Inspection',
+      criticalLimit: 'No foreign bodies',
+      monitoringMethod: 'X-Ray machine',
+      monitoringFrequency: 'CONTINUOUS',
+    });
+    const res = await request(app).post('/api/ccps').send({
+      name: 'X-Ray',
+      processStep: 'Final Inspection',
+      criticalLimit: 'No foreign bodies',
+      monitoringMethod: 'X-Ray machine',
+      monitoringFrequency: 'CONTINUOUS',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('number', 'CCP-008');
+  });
+
+  it('GET /ccps/:id data has processStep field on found record', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000051',
+      name: 'Chilling',
+      hazard: null,
+      monitoringRecords: [],
+      processStep: 'Cold Storage',
+    });
+    const res = await request(app).get('/api/ccps/00000000-0000-0000-0000-000000000051');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('processStep', 'Cold Storage');
+  });
+
+  it('POST /ccps monitoring record missing withinLimits returns 400', async () => {
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app)
+      .post('/api/ccps/00000000-0000-0000-0000-000000000001/monitoring-records')
+      .send({ monitoredAt: '2026-01-01T10:00:00Z', value: '77C' });
+    expect(res.status).toBe(400);
+  });
+});
+
+// ===================================================================
 // Food Safety CCPs — final coverage block
 // ===================================================================
 describe('Food Safety CCPs — final coverage', () => {

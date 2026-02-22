@@ -435,3 +435,55 @@ describe('Inventory Reports — further coverage', () => {
     expect(res.body.data.products).toHaveLength(0);
   });
 });
+
+describe('Inventory Reports — extra final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/reports/valuation returns 200 with categoryId filter', async () => {
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { quantityOnHand: 50, inventoryValue: 2000 },
+      _count: { id: 5 },
+    });
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/valuation?categoryId=cat-1');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/reports/movement filters by warehouseId', async () => {
+    (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.$queryRaw as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/movement?warehouseId=wh-1');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/reports/ageing with warehouseId filter returns 200', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/ageing?warehouseId=wh-1');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.items)).toBe(true);
+  });
+
+  it('GET /api/reports/ageing items 61-90 days old get correct bucket', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'inv-20',
+        inventoryValue: 1500,
+        lastReceivedAt: new Date(Date.now() - 75 * 24 * 60 * 60 * 1000),
+        product: { sku: 'SKU-075', name: 'Widget E' },
+        warehouse: { code: 'WH-01', name: 'Main' },
+      },
+    ]);
+    const res = await request(app).get('/api/reports/ageing');
+    expect(res.status).toBe(200);
+    expect(res.body.data.items[0].ageBucket).toBe('61-90 days');
+  });
+
+  it('GET /api/reports/turnover filters by productId', async () => {
+    (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/turnover?productId=prod-1');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

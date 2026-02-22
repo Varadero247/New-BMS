@@ -205,3 +205,45 @@ describe('emission-factors — additional coverage', () => {
     expect(factor!.factor).toBeGreaterThan(0);
   });
 });
+
+describe('emission-factors — final boundary coverage', () => {
+  it('DEFRA_FACTORS every entry has a numeric factor', () => {
+    for (const f of DEFRA_FACTORS) {
+      expect(typeof f.factor).toBe('number');
+    }
+  });
+
+  it('EPA_FACTORS every entry has a source of "EPA"', () => {
+    for (const f of EPA_FACTORS) {
+      expect(f.source).toBe('EPA');
+    }
+  });
+
+  it('calculateEmission petrol fuel in DEFRA returns positive co2e', () => {
+    const result = calculateEmission('petrol', 100, 'litre', 'DEFRA');
+    expect(result.co2e).toBeGreaterThan(0);
+  });
+
+  it('getGridFactor for FR (France) returns a defined factor', () => {
+    const factor = getGridFactor('FR');
+    expect(factor).toBeDefined();
+    expect(factor!.countryCode).toBe('FR');
+    expect(factor!.country).toBe('France');
+  });
+
+  it('calculateEmission for grid_electricity in EPA has scope2', () => {
+    const result = calculateEmission('grid_electricity', 1000, 'kWh', 'EPA');
+    expect(result.scope).toBe('scope2');
+  });
+
+  it('IEA_GRID_FACTORS every entry has a country and factor property', () => {
+    for (const f of IEA_GRID_FACTORS) {
+      expect(f).toHaveProperty('country');
+      expect(f).toHaveProperty('factor');
+    }
+  });
+
+  it('convertUnits MWh to kWh', () => {
+    expect(convertUnits(1, 'MWh', 'kWh')).toBe(1000);
+  });
+});

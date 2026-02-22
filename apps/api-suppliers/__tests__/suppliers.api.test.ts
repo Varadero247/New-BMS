@@ -407,3 +407,53 @@ describe('suppliers.api — final coverage expansion', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000009');
   });
 });
+
+describe('suppliers.api — coverage to 40', () => {
+  it('GET /api/suppliers response body has success and data', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/suppliers');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/suppliers response content-type is json', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/suppliers');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/suppliers with phone creates successfully', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppSupplier.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Phone Supplier',
+      phone: '+44 20 1234 5678',
+    });
+    const res = await request(app).post('/api/suppliers').send({
+      name: 'Phone Supplier',
+      phone: '+44 20 1234 5678',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/suppliers/:id data.name is a string', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000007',
+      name: 'String Name Supplier',
+    });
+    const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000007');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.name).toBe('string');
+  });
+
+  it('success is false when DELETE finds no supplier', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -525,3 +525,54 @@ describe('premises — final coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Premises — final boundary coverage', () => {
+  it('POST /api/premises calls create with organisationId from user', async () => {
+    mockPremises.create.mockResolvedValue(fakePremises);
+    await request(app).post('/api/premises').send({ name: 'Test', address: '1 Test St' });
+    expect(mockPremises.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ organisationId: 'org-1' }) }),
+    );
+  });
+
+  it('PUT /api/premises/:id calls update with correct where.id', async () => {
+    mockPremises.findFirst.mockResolvedValue(fakePremises);
+    mockPremises.update.mockResolvedValue({ ...fakePremises, name: 'New Name' });
+    await request(app).put(`/api/premises/${PREMISES_ID}`).send({ name: 'New Name' });
+    expect(mockPremises.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: PREMISES_ID } }),
+    );
+  });
+
+  it('GET /api/premises/:id/dashboard response has premises info', async () => {
+    mockPremises.findUnique.mockResolvedValue(fakePremises);
+    mockFra.count.mockResolvedValue(0);
+    mockIncident.count.mockResolvedValue(0);
+    mockWarden.count.mockResolvedValue(0);
+    mockEquipment.count.mockResolvedValue(0);
+    mockPeep.count.mockResolvedValue(0);
+    mockDrill.findFirst.mockResolvedValue(null);
+    const res = await request(app).get(`/api/premises/${PREMISES_ID}/dashboard`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('premises');
+  });
+
+  it('GET /api/premises response content-type is application/json', async () => {
+    mockPremises.findMany.mockResolvedValue([]);
+    mockPremises.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/premises');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST /api/premises with SCHOOL buildingType creates successfully', async () => {
+    const school = { ...fakePremises, buildingType: 'SCHOOL', name: 'High School' };
+    mockPremises.create.mockResolvedValue(school);
+    const res = await request(app).post('/api/premises').send({
+      name: 'High School',
+      address: '20 School Lane',
+      buildingType: 'SCHOOL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.buildingType).toBe('SCHOOL');
+  });
+});

@@ -564,3 +564,81 @@ describe('Customers — final coverage', () => {
     expect(mockPrisma.finCustomer.count).toHaveBeenCalledTimes(1);
   });
 });
+
+// ===================================================================
+// Customers — extra coverage to reach 40 tests
+// ===================================================================
+describe('Customers — extra coverage', () => {
+  it('GET /api/customers response body includes success, data, and pagination', async () => {
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customers');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST /api/customers returns 201 on successful creation', async () => {
+    mockPrisma.finCustomer.create.mockResolvedValue({
+      id: 'cust-extra-1',
+      code: 'CUST-EXTRA-0001',
+      name: 'Extra Corp',
+      currency: 'GBP',
+      paymentTerms: 30,
+    });
+
+    const res = await request(app).post('/api/customers').send({
+      name: 'Extra Corp',
+      currency: 'GBP',
+      paymentTerms: 30,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/customers/:id update is called with correct where clause', async () => {
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
+      id: 'f4000000-0000-4000-a000-000000000020',
+      deletedAt: null,
+    });
+    mockPrisma.finCustomer.update.mockResolvedValue({
+      id: 'f4000000-0000-4000-a000-000000000020',
+      name: 'Updated',
+    });
+
+    await request(app)
+      .put('/api/customers/f4000000-0000-4000-a000-000000000020')
+      .send({ name: 'Updated' });
+
+    expect(mockPrisma.finCustomer.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'f4000000-0000-4000-a000-000000000020' },
+      })
+    );
+  });
+
+  it('GET /api/customers data array is always an array even for empty result', async () => {
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/customers');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/customers applies skip correctly for page 2 limit 5', async () => {
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customers?page=2&limit=5');
+
+    expect(mockPrisma.finCustomer.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+});

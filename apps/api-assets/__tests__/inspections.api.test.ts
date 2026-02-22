@@ -397,3 +397,47 @@ describe('Inspections API — final coverage block', () => {
     );
   });
 });
+
+describe('Inspections API — extra coverage', () => {
+  it('GET / returns success:true and data is an array', async () => {
+    mockPrisma.assetInspection.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', referenceNumber: 'AIN-2026-0001' },
+    ]);
+    mockPrisma.assetInspection.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/inspections');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST returns 400 when assetId is an empty string', async () => {
+    const res = await request(app).post('/api/inspections').send({ assetId: '', condition: 'GOOD' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id returns success:true on valid update', async () => {
+    mockPrisma.assetInspection.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetInspection.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', condition: 'POOR' });
+    const res = await request(app)
+      .put('/api/inspections/00000000-0000-0000-0000-000000000001')
+      .send({ condition: 'POOR' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id 500 returns error object with code property', async () => {
+    mockPrisma.assetInspection.findFirst.mockRejectedValue(new Error('disk IO error'));
+    const res = await request(app).get('/api/inspections/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+  });
+
+  it('DELETE /:id findFirst is called once before update', async () => {
+    mockPrisma.assetInspection.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetInspection.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/inspections/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.assetInspection.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.assetInspection.update).toHaveBeenCalledTimes(1);
+  });
+});

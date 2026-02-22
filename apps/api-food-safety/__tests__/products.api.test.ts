@@ -377,6 +377,51 @@ describe('products.api — edge cases and extended coverage', () => {
   });
 });
 
+describe('products.api — extra coverage to reach ≥40 tests', () => {
+  it('GET /api/products data is always an array', async () => {
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/products');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/products pagination.total reflects mock count', async () => {
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(55);
+    const res = await request(app).get('/api/products');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(55);
+  });
+
+  it('POST /api/products create is called once per valid POST', async () => {
+    mockPrisma.fsProduct.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      name: 'Rye Bread',
+      code: 'RYE-001',
+      createdBy: 'user-123',
+    });
+    await request(app).post('/api/products').send({ name: 'Rye Bread', code: 'RYE-001' });
+    expect(mockPrisma.fsProduct.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/products/:id data has name field on found record', async () => {
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000031',
+      name: 'Sourdough',
+      code: 'SD-001',
+    });
+    const res = await request(app).get('/api/products/00000000-0000-0000-0000-000000000031');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('name', 'Sourdough');
+  });
+
+  it('POST /api/products missing name returns 400 with VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/products').send({ code: 'NONAME-001' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
 describe('products.api — final coverage pass', () => {
   it('GET /api/products default pagination applies skip 0', async () => {
     mockPrisma.fsProduct.findMany.mockResolvedValue([]);

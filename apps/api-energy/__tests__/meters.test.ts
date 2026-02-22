@@ -501,3 +501,69 @@ describe('meters — further edge cases', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('meters — additional coverage', () => {
+  it('GET /api/meters pagination page defaults to 1', async () => {
+    (prisma.energyMeter.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/meters');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /api/meters filters by type=WATER', async () => {
+    (prisma.energyMeter.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/meters?type=WATER');
+
+    expect(prisma.energyMeter.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'WATER' }),
+      })
+    );
+  });
+
+  it('DELETE /api/meters/:id response includes id', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      deletedAt: null,
+    });
+    (prisma.energyMeter.update as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/meters/e1000000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('e1000000-0000-4000-a000-000000000001');
+  });
+
+  it('POST /api/meters returns 400 when unit is missing', async () => {
+    const res = await request(app).post('/api/meters').send({
+      name: 'Missing Unit',
+      code: 'MISS-001',
+      type: 'GAS',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/meters/:id/readings returns pagination total', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e1000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([
+      { id: 'r1', value: 500 },
+    ]);
+    (prisma.energyReading.count as jest.Mock).mockResolvedValue(15);
+
+    const res = await request(app).get('/api/meters/e1000000-0000-4000-a000-000000000001/readings');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(15);
+  });
+});

@@ -567,3 +567,82 @@ describe('ISO 42001 Incidents — additional coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('ISO 42001 Incidents — final extended coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/incidents pagination page defaults to 1', async () => {
+    mockPrisma.aiIncident.findMany.mockResolvedValue([]);
+    mockPrisma.aiIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /api/incidents data items have reference field', async () => {
+    mockPrisma.aiIncident.findMany.mockResolvedValue([mockIncident]);
+    mockPrisma.aiIncident.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('reference');
+  });
+
+  it('DELETE /api/incidents/:id returns deleted:true on success', async () => {
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockResolvedValue({ ...mockIncident, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/incidents/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('PUT /api/incidents/:id/close returns CLOSED status in data', async () => {
+    mockPrisma.aiIncident.findFirst.mockResolvedValue({ ...mockIncident, status: 'INVESTIGATING' });
+    mockPrisma.aiIncident.update.mockResolvedValue({
+      ...mockIncident,
+      status: 'CLOSED',
+      resolution: 'Issue resolved via data rebalance',
+      closedAt: new Date(),
+      system: { id: UUID1, name: 'Recommendation Engine', reference: 'AI42-SYS-2602-1111' },
+    });
+    const res = await request(app)
+      .put(`/api/incidents/${UUID2}/close`)
+      .send({ resolution: 'Issue resolved via data rebalance' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('CLOSED');
+  });
+
+  it('GET /api/incidents/:id response data has severity field', async () => {
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    const res = await request(app).get(`/api/incidents/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('severity');
+  });
+
+  it('POST /api/incidents sets status to REPORTED on creation', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiIncident.create.mockResolvedValue({
+      id: UUID2,
+      reference: 'AI42-INC-2602-7777',
+      systemId: UUID1,
+      title: 'Test creation',
+      severity: 'LOW',
+      incidentDate: new Date('2026-02-10'),
+      category: 'OTHER',
+      status: 'REPORTED',
+      createdBy: 'user-123',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+      system: { id: UUID1, name: 'Recommendation Engine', reference: 'AI42-SYS-2602-1111' },
+    });
+    const res = await request(app).post('/api/incidents').send({
+      systemId: UUID1,
+      title: 'Test creation',
+      severity: 'LOW',
+      incidentDate: '2026-02-10',
+      category: 'OTHER',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('REPORTED');
+  });
+});

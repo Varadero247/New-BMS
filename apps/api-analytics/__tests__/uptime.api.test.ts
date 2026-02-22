@@ -362,6 +362,57 @@ describe('Uptime API — edge cases and field validation', () => {
   });
 });
 
+describe('Uptime API — comprehensive coverage', () => {
+  it('GET / response content-type is json', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /:id returns 500 when uptimeIncident.findMany rejects', async () => {
+    mockPrisma.uptimeCheck.findUnique.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', serviceName: 'API', status: 'UP', uptimePercent: 100 });
+    mockPrisma.uptimeIncident.findMany.mockRejectedValue(new Error('incident DB error'));
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id/history pagination has totalPages field', async () => {
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    mockPrisma.uptimeIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET /:id/history count error returns 500', async () => {
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    mockPrisma.uptimeIncident.count.mockRejectedValue(new Error('count error'));
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / with UP status check has uptimePercent field', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000010', serviceName: 'Gateway', status: 'UP', uptimePercent: 99.95 },
+    ]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.status).toBe(200);
+    expect(res.body.data.checks[0]).toHaveProperty('uptimePercent');
+  });
+
+  it('GET / data.checks has length matching mocked results', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000011', serviceName: 'A', status: 'UP', uptimePercent: 100 },
+      { id: '00000000-0000-0000-0000-000000000012', serviceName: 'B', status: 'UP', uptimePercent: 99 },
+      { id: '00000000-0000-0000-0000-000000000013', serviceName: 'C', status: 'DOWN', uptimePercent: 80 },
+    ]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.status).toBe(200);
+    expect(res.body.data.checks).toHaveLength(3);
+  });
+});
+
 describe('Uptime API — final coverage block', () => {
   it('GET / check with DOWN status is included in results', async () => {
     mockPrisma.uptimeCheck.findMany.mockResolvedValue([

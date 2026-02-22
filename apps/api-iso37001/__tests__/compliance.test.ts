@@ -550,3 +550,58 @@ describe('ISO 37001 Compliance — extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('ISO 37001 Compliance — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/compliance: response data items have isoClause field', async () => {
+    (mockPrisma.abCompliance.findMany as jest.Mock).mockResolvedValueOnce([mockCompliance]);
+    (mockPrisma.abCompliance.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/compliance');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('isoClause');
+  });
+
+  it('GET /api/compliance: pagination has limit field', async () => {
+    (mockPrisma.abCompliance.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abCompliance.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/compliance');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('DELETE /api/compliance/:id uses updatedBy from authenticated user', async () => {
+    (mockPrisma.abCompliance.findFirst as jest.Mock).mockResolvedValue(mockCompliance);
+    (mockPrisma.abCompliance.update as jest.Mock).mockResolvedValue({ ...mockCompliance, deletedAt: new Date() });
+    await request(app).delete(`/api/compliance/${UUID1}`);
+    expect(mockPrisma.abCompliance.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('PUT /api/compliance/:id with gaps field updates correctly', async () => {
+    (mockPrisma.abCompliance.findFirst as jest.Mock).mockResolvedValueOnce(mockCompliance);
+    (mockPrisma.abCompliance.update as jest.Mock).mockResolvedValueOnce({
+      ...mockCompliance,
+      gaps: 'Policy gaps identified in section 3',
+      status: 'NON_COMPLIANT',
+    });
+    const res = await request(app)
+      .put(`/api/compliance/${UUID1}`)
+      .send({ gaps: 'Policy gaps identified in section 3', status: 'NON_COMPLIANT' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/compliance/stats returns 500 when groupBy fails', async () => {
+    (mockPrisma.abCompliance.count as jest.Mock).mockResolvedValueOnce(10);
+    (mockPrisma.abCompliance.groupBy as jest.Mock).mockRejectedValueOnce(new Error('groupBy fail'));
+    const res = await request(app).get('/api/compliance/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

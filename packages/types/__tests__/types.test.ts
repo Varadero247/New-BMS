@@ -224,3 +224,41 @@ describe('getRiskColor and getRiskLevel — boundary exact values', () => {
     expect(getRiskLevel(27)).toBe('MEDIUM');
   });
 });
+
+describe('API_ENDPOINTS — extended coverage', () => {
+  it('AUTH.LOGIN is a string starting with /', () => {
+    expect(API_ENDPOINTS.AUTH.LOGIN).toMatch(/^\//);
+  });
+
+  it('RISKS.GET returns path containing the provided id', () => {
+    const id = 'my-risk-id-999';
+    expect(API_ENDPOINTS.RISKS.GET(id)).toContain(id);
+  });
+
+  it('INCIDENTS.GET returns path containing the provided id', () => {
+    expect(API_ENDPOINTS.INCIDENTS.GET('inc-1')).toContain('inc-1');
+  });
+
+  it('OBJECTIVES.PROGRESS returns path with /progress suffix', () => {
+    expect(API_ENDPOINTS.OBJECTIVES.PROGRESS('o-99')).toMatch(/\/progress$/);
+  });
+
+  it('ACTIONS.COMPLETE returns path with /complete suffix', () => {
+    expect(API_ENDPOINTS.ACTIONS.COMPLETE('a-1')).toMatch(/\/complete$/);
+  });
+
+  it('ACTIONS.VERIFY returns path with /verify suffix', () => {
+    expect(API_ENDPOINTS.ACTIONS.VERIFY('a-2')).toMatch(/\/verify$/);
+  });
+
+  it('HS_CAPA.ACTION path contains both capa id and action id', () => {
+    const path = API_ENDPOINTS.HS_CAPA.ACTION('cap-1', 'act-2');
+    expect(path).toContain('cap-1');
+    expect(path).toContain('act-2');
+  });
+
+  it('AI.ACCEPT path contains the analysis id', () => {
+    const path = API_ENDPOINTS.AI.ACCEPT('analysis-xyz');
+    expect(path).toContain('analysis-xyz');
+  });
+});

@@ -329,3 +329,34 @@ describe('Changelog — comprehensive entry and pagination checks', () => {
     expect(afterList.length).toBe(beforeList.length);
   });
 });
+
+describe('Changelog — final additional coverage', () => {
+  it('listEntries with limit=1 returns exactly 1 entry', () => {
+    const { entries } = listEntries(1, 0);
+    expect(entries).toHaveLength(1);
+  });
+
+  it('createEntry id matches the pattern cl_NNNN', () => {
+    const entry = createEntry({ title: 'Pattern Check', description: 'D', category: 'new_feature', modules: [] });
+    expect(entry.id).toMatch(/^cl_\d{4}$/);
+  });
+
+  it('listAllEntries entries array contains both published and unpublished entries after creating a draft', () => {
+    createEntry({ title: 'Draft Y', description: 'D', category: 'improvement', modules: [], isPublished: false });
+    const { entries } = listAllEntries();
+    const hasUnpublished = entries.some((e) => !e.isPublished);
+    expect(hasUnpublished).toBe(true);
+  });
+
+  it('createEntry with category "improvement" stores correctly', () => {
+    const entry = createEntry({ title: 'IMP', description: 'D', category: 'improvement', modules: [] });
+    expect(entry.category).toBe('improvement');
+  });
+
+  it('getUnreadCount for two different users returns independent counts', () => {
+    const count1 = getUnreadCount('userA-independent');
+    const count2 = getUnreadCount('userB-independent');
+    // Both brand-new users see all published entries
+    expect(count1).toBe(count2);
+  });
+});

@@ -353,3 +353,50 @@ describe('public.api — final coverage expansion', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('public.api — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /submit returns 201 with ENVIRONMENTAL category', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'cid-10', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Environmental issue', category: 'ENVIRONMENTAL' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /submit returns 201 with LOW priority', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'cid-11', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Low prio', priority: 'LOW' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /submit response data is an object', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'cid-12', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Object check' });
+    expect(res.status).toBe(201);
+    expect(typeof res.body.data).toBe('object');
+    expect(res.body.data).not.toBeNull();
+  });
+
+  it('POST /submit referenceNumber has CMP prefix in response', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'cid-13', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Prefix check' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toMatch(/^CMP-/);
+  });
+
+  it('POST /submit returns 500 when create throws unexpected error', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockRejectedValue(new Error('Unexpected DB error'));
+    const res = await request(app).post('/api/public/submit').send({ title: 'Error test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

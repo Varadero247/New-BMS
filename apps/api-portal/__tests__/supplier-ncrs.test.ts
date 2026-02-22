@@ -420,3 +420,61 @@ describe('Supplier NCRs — final coverage', () => {
     expect([200, 400]).toContain(res.status);
   });
 });
+
+describe('supplier-ncrs — boundary and extra coverage', () => {
+  it('GET list: filter by INVESTIGATING status returns 200', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/ncrs?status=INVESTIGATING');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET list: multiple NCRs reflected in data array length', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([
+      { id: 'n1', reportType: 'NCR', status: 'OPEN' },
+      { id: 'n2', reportType: 'NCR', status: 'INVESTIGATING' },
+      { id: 'n3', reportType: 'NCR', status: 'CLOSED' },
+    ]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/supplier/ncrs');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('GET list: page 3 limit 10 gives skip=20 in findMany call', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(30);
+    await request(app).get('/api/supplier/ncrs?page=3&limit=10');
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('POST response: response data contains status field on success', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      reportType: 'NCR',
+      status: 'OPEN',
+      attachments: null,
+    });
+    mockPrisma.portalQualityReport.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'INVESTIGATING',
+      resolution: 'Root cause analysed',
+    });
+    const res = await request(app)
+      .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')
+      .send({ resolution: 'Root cause analysed' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('status');
+  });
+
+  it('GET list: success false and status 500 when count throws', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/supplier/ncrs');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

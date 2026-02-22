@@ -357,3 +357,47 @@ describe('Presence — final coverage batch', () => {
     expect(res.body.data).toHaveProperty('viewers');
   });
 });
+
+describe('Presence — extended final batch', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/presence', presenceRouter);
+    jest.clearAllMocks();
+    mockGetPresence.mockReturnValue([]);
+    mockAcquireLock.mockReturnValue({ acquired: true });
+  });
+
+  it('GET /api/presence returns success false when both params missing', async () => {
+    const res = await request(app).get('/api/presence');
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/presence/lock acquired true is boolean', async () => {
+    const res = await request(app).post('/api/presence/lock').send({ recordType: 'capa', recordId: 'c7' });
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.acquired).toBe('boolean');
+  });
+
+  it('GET /api/presence viewers array items have userId field', async () => {
+    mockGetPresence.mockReturnValue([{ userId: 'u10', userName: 'Viewer', lockedAt: new Date().toISOString() }]);
+    const res = await request(app).get('/api/presence?recordType=ncr&recordId=r10');
+    expect(res.status).toBe(200);
+    expect(res.body.data.viewers[0]).toHaveProperty('userId');
+  });
+
+  it('POST /api/presence/lock returns success true on acquired false result', async () => {
+    mockAcquireLock.mockReturnValueOnce({ acquired: false, lockedBy: { userId: 'other', userName: 'Other' } });
+    const res = await request(app).post('/api/presence/lock').send({ recordType: 'ncr', recordId: 'r11' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/presence/lock calls releaseLock exactly once', async () => {
+    await request(app).delete('/api/presence/lock').send({ recordType: 'ncr', recordId: 'r12' });
+    expect(mockReleaseLock).toHaveBeenCalledTimes(1);
+  });
+});

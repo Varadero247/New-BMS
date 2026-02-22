@@ -459,3 +459,90 @@ describe('portal-announcements — final coverage', () => {
     );
   });
 });
+
+describe('portal-announcements — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: total in pagination matches count mock', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(17);
+
+    const res = await request(app).get('/api/portal/announcements');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(17);
+  });
+
+  it('GET list: data length matches mock return', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([
+      { id: 'a-1', title: 'Announcement A', isActive: true, portalType: 'CUSTOMER' },
+      { id: 'a-2', title: 'Announcement B', isActive: true, portalType: 'SUPPLIER' },
+    ]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/portal/announcements');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST: MEDIUM priority is accepted', async () => {
+    mockPrisma.portalAnnouncement.create.mockResolvedValue({
+      id: 'ann-med',
+      title: 'Medium Prio',
+      isActive: true,
+    });
+
+    const res = await request(app).post('/api/portal/announcements').send({
+      title: 'Medium Prio',
+      content: 'Some content',
+      portalType: 'CUSTOMER',
+      priority: 'MEDIUM',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST: LOW priority is accepted', async () => {
+    mockPrisma.portalAnnouncement.create.mockResolvedValue({
+      id: 'ann-low',
+      title: 'Low Prio',
+      isActive: true,
+    });
+
+    const res = await request(app).post('/api/portal/announcements').send({
+      title: 'Low Prio',
+      content: 'Some content',
+      portalType: 'SUPPLIER',
+      priority: 'LOW',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id: update called once on successful update', async () => {
+    mockPrisma.portalAnnouncement.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalAnnouncement.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'New title',
+    });
+
+    await request(app)
+      .put('/api/portal/announcements/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New title' });
+
+    expect(mockPrisma.portalAnnouncement.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: totalPages is 1 when count equals limit', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(10);
+
+    const res = await request(app).get('/api/portal/announcements?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(1);
+  });
+});

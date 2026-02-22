@@ -487,3 +487,61 @@ describe('Electronic Signature — final coverage additions', () => {
     expect(result.signature).not.toBeNull();
   });
 });
+
+describe('Electronic Signature — absolute final boundary', () => {
+  const testPassword = 'TestPassword123!';
+  let passwordHash: string;
+
+  beforeAll(async () => {
+    passwordHash = await bcrypt.hash(testPassword, 10);
+  });
+
+  it('isValidMeaning returns true for AUTHORED', () => {
+    expect(isValidMeaning('AUTHORED')).toBe(true);
+  });
+
+  it('isValidMeaning returns false for null-like string', () => {
+    expect(isValidMeaning('null')).toBe(false);
+  });
+
+  it('getValidMeanings includes WITNESSED', () => {
+    expect(getValidMeanings()).toContain('WITNESSED');
+  });
+
+  it('computeChanges returns array even when both objects are empty', () => {
+    const changes = computeChanges({}, {});
+    expect(Array.isArray(changes)).toBe(true);
+    expect(changes).toHaveLength(0);
+  });
+
+  it('verifyAuditChecksum returns true for freshly computed checksum', () => {
+    const params = {
+      userId: 'boundary-user',
+      action: 'READ',
+      resourceId: 'res-boundary',
+      timestamp: new Date('2026-01-15T12:00:00Z'),
+      changes: [],
+    };
+    const checksum = computeAuditChecksum(params);
+    expect(verifyAuditChecksum({ ...params, storedChecksum: checksum })).toBe(true);
+  });
+
+  it('createSignature VERIFIED meaning works correctly', async () => {
+    const req: SignatureRequest = {
+      userId: 'u-ver',
+      userEmail: 'ver@ims.local',
+      userFullName: 'Verified User',
+      password: testPassword,
+      meaning: 'VERIFIED',
+      reason: 'Verification complete',
+      resourceType: 'CalibrationRecord',
+      resourceId: 'cal-001',
+      resourceRef: 'CAL-001',
+      ipAddress: '192.168.0.1',
+      userAgent: 'Chrome',
+    };
+    const result = await createSignature(req, passwordHash);
+    expect(result.signature!.meaning).toBe('VERIFIED');
+    expect(result.error).toBeUndefined();
+  });
+});

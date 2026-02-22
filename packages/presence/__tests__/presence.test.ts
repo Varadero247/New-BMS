@@ -287,3 +287,30 @@ describe('presence – further edge cases', () => {
     expect(users[0].avatar).toBe('b.png');
   });
 });
+
+describe('presence — absolute final coverage', () => {
+  beforeEach(() => clearAll());
+
+  it('acquireLock returns object with acquired property', () => {
+    const result = acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    expect(result).toHaveProperty('acquired');
+  });
+
+  it('getPresence returns userId field for each lock entry', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    const users = getPresence(TYPE, ID);
+    expect(users[0]).toHaveProperty('userId', USER_A.userId);
+  });
+
+  it('refreshLock does not add a new entry — still 1 presence record', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    refreshLock(TYPE, ID, USER_A.userId);
+    expect(getPresence(TYPE, ID)).toHaveLength(1);
+  });
+
+  it('clearAll is idempotent — calling twice does not throw', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    clearAll();
+    expect(() => clearAll()).not.toThrow();
+  });
+});

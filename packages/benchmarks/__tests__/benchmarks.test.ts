@@ -237,3 +237,32 @@ describe('benchmarks — BENCHMARK_DATA structural integrity', () => {
     expect(typeof result!.median).toBe('number');
   });
 });
+
+describe('benchmarks — final additional coverage', () => {
+  it('getBenchmark returns null for empty string KPI', () => {
+    const result = getBenchmark('', 'manufacturing');
+    expect(result).toBeNull();
+  });
+
+  it('getBenchmark returns data for trir in construction', () => {
+    const result = getBenchmark('trir', 'construction');
+    expect(result).not.toBeNull();
+    expect(result!.lowerIsBetter).toBe(true);
+  });
+
+  it('calculatePercentile for auditPassRate in services returns a value between 0 and 100', () => {
+    const p = calculatePercentile(90, 'auditPassRate', 'services');
+    expect(p).toBeGreaterThanOrEqual(0);
+    expect(p).toBeLessThanOrEqual(100);
+  });
+
+  it('generateBenchmarkNarrative returns a non-empty string for any valid KPI', () => {
+    const narrative = generateBenchmarkNarrative(3, 'trir', 'construction');
+    expect(typeof narrative).toBe('string');
+    expect(narrative.length).toBeGreaterThan(0);
+  });
+
+  it('BENCHMARK_DATA has exactly 10 KPI keys', () => {
+    expect(Object.keys(BENCHMARK_DATA)).toHaveLength(10);
+  });
+});

@@ -355,5 +355,9 @@ describe('regulatory-feed — additional coverage', () => {
       const results = service.searchRegulations('biodiversity');
       expect(results).toHaveLength(0);
     });
+
+    it('getAll returns empty array on fresh service', () => {
+      expect(service.getAll()).toHaveLength(0);
+    });
   });
 });

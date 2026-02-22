@@ -511,6 +511,48 @@ describe('GET /api/accounts/:id/compliance', () => {
 });
 
 // ===================================================================
+// Additional coverage
+// ===================================================================
+
+describe('CRM Accounts — additional coverage', () => {
+  it('GET / returns content-type application/json', async () => {
+    mockPrisma.crmAccount.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/accounts');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.crmAccount.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/accounts');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 on database error', async () => {
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/accounts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET / response has success:true on 200', async () => {
+    mockPrisma.crmAccount.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/accounts');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id response data has name property when found', async () => {
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('name');
+  });
+});
+
+// ===================================================================
 // GET /api/accounts/:id/invoices
 // ===================================================================
 

@@ -356,3 +356,60 @@ describe('pdf-generator', () => {
     });
   });
 });
+
+describe('pdf-generator — additional coverage', () => {
+  it('generatePDF output contains HTML doctype or html tag', () => {
+    const template: PDFTemplate = { title: 'Doctype Test', sections: [] };
+    const html = generatePDF(template, {}).toString('utf-8');
+    expect(html.toLowerCase()).toContain('html');
+  });
+
+  it('formatCurrency with zero amount returns formatted zero', () => {
+    const result = formatCurrency(0, 'GBP');
+    expect(result).toContain('0');
+  });
+
+  it('generateReportPDF output is a Buffer', () => {
+    const report: ReportData = {
+      title: 'Buffer Test',
+      reportDate: '2026-01-01',
+      period: 'Jan 2026',
+      author: 'Tester',
+      sections: [],
+      summary: 'Test summary',
+    };
+    expect(Buffer.isBuffer(generateReportPDF(report))).toBe(true);
+  });
+
+  it('generateInvoicePDF includes currency symbol', () => {
+    const invoice: InvoiceData = {
+      invoiceNumber: 'INV-TEST',
+      date: '2026-01-01',
+      dueDate: '2026-02-01',
+      company: { name: 'TestCo', address: '1 Test St', taxId: 'TX123' },
+      customer: { name: 'Client', address: '2 Client Ave' },
+      items: [{ description: 'Work', quantity: 1, unitPrice: 100, total: 100 }],
+      subtotal: 100,
+      taxRate: 0,
+      taxAmount: 0,
+      total: 100,
+      currency: 'USD',
+    };
+    const html = generateInvoicePDF(invoice).toString('utf-8');
+    expect(html).toContain('INV-TEST');
+  });
+
+  it('generateEvidencePackPDF includes approvedBy name', () => {
+    const evidence: EvidencePackData = {
+      referenceNumber: 'EVD-TEST',
+      title: 'Test Evidence',
+      module: 'H&S',
+      dateGenerated: '2026-01-01',
+      items: [],
+      preparedBy: 'Prep Person',
+      approvedBy: 'Approval Director',
+    };
+    const html = generateEvidencePackPDF(evidence).toString('utf-8');
+    expect(html).toContain('Approval Director');
+  });
+});

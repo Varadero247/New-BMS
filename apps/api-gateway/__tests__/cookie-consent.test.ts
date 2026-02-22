@@ -408,3 +408,44 @@ describe('Cookie Consent Handler — final additional coverage', () => {
     expect(Object.keys(call.data)).toHaveLength(5);
   });
 });
+
+describe('Cookie Consent Handler — extra batch coverage', () => {
+  it('analytics defaults to false when value is null', () => {
+    const req = mockRequest({ essential: true, analytics: null, functional: false });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.data.analytics).toBe(false);
+  });
+
+  it('functional defaults to false when value is undefined', () => {
+    const req = mockRequest({ essential: true });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.data.functional).toBe(false);
+  });
+
+  it('handler does not throw for valid all-true payload', () => {
+    const req = mockRequest({ essential: true, analytics: true, functional: true });
+    const res = mockResponse();
+    expect(() => handleCookieConsent(req as Request, res as Response)).not.toThrow();
+  });
+
+  it('response success field is boolean true for valid input', () => {
+    const req = mockRequest({ essential: true, analytics: false, functional: false });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.success).toBe(true);
+    expect(typeof call.success).toBe('boolean');
+  });
+
+  it('error response success field is boolean false for null body', () => {
+    const req = mockRequest(null);
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.success).toBe(false);
+  });
+});

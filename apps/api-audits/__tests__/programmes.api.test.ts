@@ -393,3 +393,45 @@ describe('programmes.api — final coverage', () => {
     expect(res.body.data).toHaveProperty('id', 'new-id');
   });
 });
+
+describe('Programmes API — extra coverage', () => {
+  it('GET /api/programmes response content-type is application/json', async () => {
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/programmes');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST /api/programmes with status ACTIVE creates programme', async () => {
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    mockPrisma.audProgramme.create.mockResolvedValue({ id: 'new-active', title: 'Active Prog', year: 2026, status: 'ACTIVE', referenceNumber: 'APR-2026-0001' });
+    const res = await request(app).post('/api/programmes').send({ title: 'Active Prog', year: 2026, status: 'ACTIVE' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/programmes findMany is called once per request', async () => {
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    await request(app).get('/api/programmes');
+    expect(mockPrisma.audProgramme.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/programmes/:id returns success:true and message', async () => {
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'To Delete' });
+    mockPrisma.audProgramme.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    const res = await request(app).delete('/api/programmes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.message).toBe('programme deleted successfully');
+  });
+
+  it('PUT /api/programmes/:id update is called with correct where.id', async () => {
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old' });
+    mockPrisma.audProgramme.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New', year: 2026 });
+    await request(app).put('/api/programmes/00000000-0000-0000-0000-000000000001').send({ title: 'New', year: 2026 });
+    expect(mockPrisma.audProgramme.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});

@@ -441,6 +441,60 @@ describe('InfoSec Controls — additional response shape coverage', () => {
 // ===================================================================
 // InfoSec Controls — extended boundary and pagination coverage
 // ===================================================================
+describe('InfoSec Controls — pre-extended coverage', () => {
+  const baseCtrl = {
+    id: 'a3000000-0000-4000-a000-000000000001',
+    controlId: 'A.5.1',
+    domain: 'ORGANISATIONAL',
+    title: 'Policies for information security',
+    description: 'A set of policies',
+    applicability: 'APPLICABLE',
+    justification: 'Required',
+    implementationStatus: 'FULLY_IMPLEMENTED',
+    implementationNotes: null,
+    evidence: null,
+    owner: 'CISO',
+    reviewDate: null,
+    lastReviewedAt: null,
+    createdBy: 'system',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/controls data is an array on success', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([baseCtrl]);
+    (mockPrisma.isControl.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/controls');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/controls/:id/implementation NOT_IMPLEMENTED status is valid', async () => {
+    (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(baseCtrl);
+    (mockPrisma.isControl.update as jest.Mock).mockResolvedValueOnce({
+      ...baseCtrl,
+      implementationStatus: 'NOT_IMPLEMENTED',
+    });
+    const res = await request(app)
+      .put('/api/controls/a3000000-0000-4000-a000-000000000001/implementation')
+      .send({ implementationStatus: 'NOT_IMPLEMENTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/controls/soa controls array length matches mocked findMany return', async () => {
+    (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([baseCtrl]);
+    const res = await request(app).get('/api/controls/soa');
+    expect(res.status).toBe(200);
+    expect(res.body.data.controls).toHaveLength(1);
+  });
+});
+
 describe('InfoSec Controls — extended boundary and pagination coverage', () => {
   const baseControl = {
     id: 'a3000000-0000-4000-a000-000000000001',

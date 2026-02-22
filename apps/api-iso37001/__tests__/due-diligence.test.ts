@@ -548,3 +548,70 @@ describe('ISO 37001 Due Diligence API — additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('ISO 37001 Due Diligence API — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response data items have thirdPartyName field', async () => {
+    (mockPrisma.abDueDiligence.findMany as jest.Mock).mockResolvedValueOnce([mockDD]);
+    (mockPrisma.abDueDiligence.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/due-diligence');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('thirdPartyName');
+  });
+
+  it('GET / response data items have riskLevel field', async () => {
+    (mockPrisma.abDueDiligence.findMany as jest.Mock).mockResolvedValueOnce([mockDD2]);
+    (mockPrisma.abDueDiligence.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/due-diligence');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('riskLevel');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(app).get('/api/due-diligence/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / pagination has page field', async () => {
+    (mockPrisma.abDueDiligence.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abDueDiligence.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/due-diligence');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('POST / auto-assigns PENDING status on creation', async () => {
+    (mockPrisma.abDueDiligence.create as jest.Mock).mockResolvedValueOnce(mockDD);
+    await request(app).post('/api/due-diligence').send({
+      thirdPartyName: 'Status Test Co',
+      thirdPartyType: 'AGENT',
+      level: 'STANDARD',
+      country: 'France',
+    });
+    expect(mockPrisma.abDueDiligence.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'PENDING' }),
+      })
+    );
+  });
+
+  it('PUT /:id/expire sets status EXPIRED on update call', async () => {
+    (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockResolvedValueOnce(mockDD);
+    (mockPrisma.abDueDiligence.update as jest.Mock).mockResolvedValueOnce({
+      ...mockDD,
+      status: 'EXPIRED',
+    });
+    const res = await request(app).put('/api/due-diligence/00000000-0000-0000-0000-000000000001/expire');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.abDueDiligence.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'EXPIRED' }),
+      })
+    );
+  });
+});

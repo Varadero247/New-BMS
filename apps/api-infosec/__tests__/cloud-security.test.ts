@@ -337,6 +337,61 @@ describe('GET /api/cloud-security/ict-readiness — extended', () => {
   });
 });
 
+describe('Cloud Security — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /cloud-services success:true on 200', async () => {
+    (mockPrisma.isCloudService.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isCloudService.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/cloud-security/cloud-services');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /ict-readiness success:true on 200', async () => {
+    (mockPrisma.isIctReadiness.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.isIctReadiness.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/cloud-security/ict-readiness');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /cloud-services sets serviceName from request body', async () => {
+    (mockPrisma.isCloudService.create as jest.Mock).mockResolvedValue(mockService);
+    await request(app).post('/api/cloud-security/cloud-services').send({
+      serviceName: 'Azure Blob',
+      provider: 'Microsoft',
+      serviceType: 'SAAS',
+      dataClassification: 'PUBLIC',
+      businessOwner: 'IT Director',
+    });
+    const createCall = (mockPrisma.isCloudService.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.serviceName).toBe('Azure Blob');
+  });
+
+  it('POST /ict-readiness sets systemName from request body', async () => {
+    (mockPrisma.isIctReadiness.create as jest.Mock).mockResolvedValue(mockIctRecord);
+    await request(app).post('/api/cloud-security/ict-readiness').send({
+      systemName: 'CRM System',
+      criticality: 'IMPORTANT',
+      ictOwner: 'IT Manager',
+    });
+    const createCall = (mockPrisma.isIctReadiness.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.systemName).toBe('CRM System');
+  });
+
+  it('PUT /cloud-services/:id returns 500 on DB error during update', async () => {
+    (mockPrisma.isCloudService.findUnique as jest.Mock).mockResolvedValue(mockService);
+    (mockPrisma.isCloudService.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/cloud-security/cloud-services/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'UNDER_REVIEW' });
+    expect(res.status).toBe(500);
+  });
+});
+
 describe('Cloud Security — final coverage block', () => {
   beforeEach(() => {
     jest.clearAllMocks();

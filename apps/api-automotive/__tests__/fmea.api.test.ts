@@ -473,3 +473,36 @@ describe('FMEA — final coverage block', () => {
     expect(res.body.meta.totalPages).toBe(0);
   });
 });
+
+describe('FMEA — comprehensive coverage', () => {
+  it('GET /api/fmea filters by customer param in findMany where', async () => {
+    (mockPrisma.fmeaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/fmea?customer=Ford');
+    expect(mockPrisma.fmeaStudy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ customer: { contains: 'Ford', mode: 'insensitive' } }) })
+    );
+  });
+
+  it('PUT /api/fmea/:id/items/:itemId returns 500 on DB error', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
+    (mockPrisma.fmeaItem.findUnique as jest.Mock).mockResolvedValue(mockItem);
+    (mockPrisma.fmeaItem.update as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).put(`/api/fmea/${STUDY_ID}/items/${ITEM_ID}`).send({ occurrence: 3 });
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/fmea count is called to generate refNumber', async () => {
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(2);
+    (mockPrisma.fmeaStudy.create as jest.Mock).mockResolvedValue({ ...mockStudy, refNumber: 'FMEA-2601-0003' });
+    const res = await request(app).post('/api/fmea').send({ title: 'Engine Assembly PFMEA', preparedBy: 'John Engineer' });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.fmeaStudy.count).toHaveBeenCalled();
+  });
+
+  it('GET /api/fmea/:id returns 500 on unexpected DB error', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockRejectedValue(new Error('unexpected'));
+    const res = await request(app).get(`/api/fmea/${STUDY_ID}`);
+    expect(res.status).toBe(500);
+  });
+});

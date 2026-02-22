@@ -452,3 +452,49 @@ describe('sites.api — further coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('sites.api — final coverage', () => {
+  it('GET / returns correct pagination.total from count mock', async () => {
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSite.count.mockResolvedValue(25);
+    const res = await request(app).get('/api/sites');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(25);
+  });
+
+  it('GET / applies skip=15 for page=4 limit=5', async () => {
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSite.count.mockResolvedValue(0);
+    await request(app).get('/api/sites?page=4&limit=5');
+    expect(mockPrisma.fsSvcSite.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 15, take: 5 })
+    );
+  });
+
+  it('GET /:id returns 404 when not found', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/sites/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+  });
+
+  it('POST / returns 201 with data.id on success', async () => {
+    mockPrisma.fsSvcSite.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000080',
+      name: 'Gamma Site',
+    });
+    const res = await request(app).post('/api/sites').send({
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      name: 'Gamma Site',
+      address: { city: 'Glasgow' },
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('DELETE /:id returns 500 when findFirst rejects', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/sites/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -429,3 +429,32 @@ describe('Forecast — method call and response shape coverage', () => {
     expect(res.body.data).toHaveLength(3);
   });
 });
+
+describe('Forecast — final edge case coverage', () => {
+  it('GET / response content-type is application/json on empty list', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/forecast');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST / returns success:true on valid update', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID1, probability: 45 });
+    const res = await request(app).post('/api/forecast').send({ dealId: ID1, probability: 45 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id response body has success:true', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID2, status: 'LOST' });
+    const res = await request(app).delete(`/api/forecast/${ID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id response body has success:true', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID3, probability: 75 });
+    const res = await request(app).put(`/api/forecast/${ID3}`).send({ probability: 75 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -798,3 +798,29 @@ describe('Environment Emergency API Routes', () => {
     });
   });
 });
+
+describe('Environment Emergency — boundary coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/emergency', emergencyRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/emergency/plans returns meta.total reflecting count', async () => {
+    (mockPrisma.envEmergencyPlan.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValueOnce(7);
+
+    const response = await request(app2)
+      .get('/api/emergency/plans')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.total).toBe(7);
+  });
+});

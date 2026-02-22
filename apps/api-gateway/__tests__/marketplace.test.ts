@@ -493,5 +493,58 @@ describe('Marketplace Routes', () => {
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
+
+    it('GET /api/marketplace/plugins response has success: true when successful', async () => {
+      mockPrisma.mktPlugin.findMany.mockResolvedValue([mockPlugin]);
+      mockPrisma.mktPlugin.count.mockResolvedValue(1);
+
+      const res = await request(app).get('/api/marketplace/plugins');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('POST /api/marketplace/plugins returns data.slug matching input slug', async () => {
+      mockPrisma.mktPlugin.findUnique.mockResolvedValue(null);
+      mockPrisma.mktPlugin.create.mockResolvedValue(mockPlugin);
+
+      const res = await request(app).post('/api/marketplace/plugins').send({
+        name: 'Slack Integration',
+        slug: 'slack-integration',
+        description: 'Send IMS notifications to Slack',
+        author: 'IMS Team',
+        category: 'COMMUNICATION',
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.body.data.slug).toBe('slack-integration');
+    });
+
+    it('DELETE /api/marketplace/plugins/:id/install returns 200', async () => {
+      mockPrisma.mktPluginInstall.update.mockResolvedValue({ status: 'UNINSTALLED' });
+
+      const res = await request(app).delete(`/api/marketplace/plugins/${mockPlugin.id}/install`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('GET /api/marketplace/plugins/:id returns isInstalled: true when install record exists', async () => {
+      mockPrisma.mktPlugin.findUnique.mockResolvedValue({
+        ...mockPlugin,
+        installs: [{ id: 'inst-1', orgId: '00000000-0000-0000-0000-000000000099', status: 'ACTIVE' }],
+      });
+
+      const res = await request(app).get(`/api/marketplace/plugins/${mockPlugin.id}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.isInstalled).toBe(true);
+    });
+
+    it('GET /api/marketplace/stats mktPlugin.count is called at least once', async () => {
+      mockPrisma.mktPlugin.count.mockResolvedValue(10);
+      mockPrisma.mktPluginInstall.count.mockResolvedValue(50);
+      mockPrisma.mktPlugin.aggregate.mockResolvedValue({ _sum: { downloads: 1000 } });
+
+      await request(app).get('/api/marketplace/stats');
+      expect(mockPrisma.mktPlugin.count).toHaveBeenCalled();
+    });
   });
 });

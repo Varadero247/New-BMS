@@ -416,3 +416,49 @@ describe('customer-reqs — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('customer-reqs — comprehensive coverage', () => {
+  it('GET /api/customer-reqs filters by category wired into findMany where', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/customer-reqs?category=DELIVERY');
+    expect(mockPrisma.customerReq.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'DELIVERY' }) })
+    );
+  });
+
+  it('GET /api/customer-reqs filters by complianceStatus wired into findMany where', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/customer-reqs?complianceStatus=NON_COMPLIANT');
+    expect(mockPrisma.customerReq.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ complianceStatus: 'NON_COMPLIANT' }) })
+    );
+  });
+
+  it('GET /api/customer-reqs/:id returns 500 on unexpected DB error', async () => {
+    (mockPrisma.customerReq.findUnique as jest.Mock).mockRejectedValue(new Error('unexpected'));
+    const res = await request(app).get(`/api/customer-reqs/${REQ_ID}`);
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/customer-reqs count is called to generate refNumber', async () => {
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(7);
+    (mockPrisma.customerReq.create as jest.Mock).mockResolvedValue({ ...mockReq, refNumber: 'CSR-2601-0008' });
+    const res = await request(app).post('/api/customer-reqs').send({
+      customer: 'Ford Motor Company',
+      requirementTitle: 'PPAP Level 3 Submission',
+      description: 'All new parts must have PPAP Level 3 submission before SOP',
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.customerReq.count).toHaveBeenCalled();
+  });
+
+  it('GET /api/customer-reqs returns success:false and 500 when count rejects', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.customerReq.count as jest.Mock).mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/customer-reqs');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

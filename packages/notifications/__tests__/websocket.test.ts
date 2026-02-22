@@ -443,3 +443,53 @@ describe('WebSocketNotificationServer — additional coverage', () => {
     expect(Array.isArray(server.getConnectedUsers())).toBe(true);
   });
 });
+
+describe('WebSocketNotificationServer — final coverage', () => {
+  it('sendToUser notification payload contains createdAt field', () => {
+    const ws = makeMockWs('henry');
+    const server = buildServer({ henry: [ws] });
+    const n = makeNotification({ id: 'ts-check' });
+    server.sendToUser('henry', n);
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.data.createdAt).toBeDefined();
+  });
+
+  it('broadcastToOrg with CONNECTING socket does not send', () => {
+    const connecting = makeMockWs('u1', { orgId: 'org-z', readyState: WebSocket.CONNECTING });
+    const mockWss = { clients: new Set([connecting]) };
+    const server = buildServer({});
+    (server as unknown as { wss: unknown }).wss = mockWss;
+    server.broadcastToOrg('org-z', makeNotification());
+    expect(connecting.send).not.toHaveBeenCalled();
+  });
+
+  it('getConnectionCount is 0 after stop clears clients map', () => {
+    const ws = makeMockWs('u1');
+    const mockWss = { clients: new Set([ws]), close: jest.fn() };
+    const server = buildServer({ u1: [ws] });
+    (server as unknown as { wss: unknown }).wss = mockWss;
+    server.stop();
+    expect(server.getConnectionCount()).toBe(0);
+  });
+
+  it('broadcast payload.type is "notification"', () => {
+    const ws = makeMockWs('u1');
+    const mockWss = { clients: new Set([ws]) };
+    const server = buildServer({});
+    (server as unknown as { wss: unknown }).wss = mockWss;
+    server.broadcast(makeNotification());
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.type).toBe('notification');
+  });
+
+  it('sendToUser with multiple OPEN sockets sends to all of them', () => {
+    const ws1 = makeMockWs('multi');
+    const ws2 = makeMockWs('multi');
+    const ws3 = makeMockWs('multi');
+    const server = buildServer({ multi: [ws1, ws2, ws3] });
+    server.sendToUser('multi', makeNotification());
+    expect(ws1.send).toHaveBeenCalledTimes(1);
+    expect(ws2.send).toHaveBeenCalledTimes(1);
+    expect(ws3.send).toHaveBeenCalledTimes(1);
+  });
+});

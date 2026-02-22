@@ -308,3 +308,41 @@ describe('EmailService — singleton and template completeness', () => {
     expect(await service.verify()).toBe(false);
   });
 });
+
+describe('EmailService — absolute final boundary', () => {
+  beforeEach(() => {
+    mockSendMail.mockReset();
+    mockVerify.mockReset();
+  });
+
+  it('send with both html and text passes both to transporter', async () => {
+    mockSendMail.mockResolvedValue({ messageId: 'dual-msg' });
+    const service = new EmailService(SMTP_CONFIG);
+    await service.send({ to: 'x@y.com', subject: 'Both', html: '<p>hi</p>', text: 'hi' });
+    expect(mockSendMail.mock.calls[0][0].html).toBe('<p>hi</p>');
+    expect(mockSendMail.mock.calls[0][0].text).toBe('hi');
+  });
+
+  it('send uses the configured "from" address', async () => {
+    mockSendMail.mockResolvedValue({ messageId: 'from-msg' });
+    const service = new EmailService(SMTP_CONFIG);
+    await service.send({ to: 'x@y.com', subject: 'From test' });
+    expect(mockSendMail.mock.calls[0][0].from).toBe('test@test.com');
+  });
+
+  it('EmailService with secure:true creates transport', () => {
+    const service = new EmailService({ host: 'smtp.test.com', port: 465, secure: true });
+    expect(service.isConfigured()).toBe(true);
+  });
+
+  it('templates.passwordReset subject contains "IMS"', () => {
+    const t = templates.passwordReset('https://reset.url');
+    expect(t.subject).toContain('IMS');
+  });
+
+  it('sendEmail result has a success boolean property', async () => {
+    initEmailService({});
+    const result = await sendEmail({ to: 'a@b.com', subject: 'Test' });
+    expect(typeof result.success).toBe('boolean');
+  });
+});

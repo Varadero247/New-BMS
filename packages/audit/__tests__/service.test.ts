@@ -545,3 +545,67 @@ describe('AuditService — further coverage', () => {
     expect(SENSITIVE_FIELDS).toContain('bankAccount');
   });
 });
+
+// ── AuditService — comprehensive coverage ─────────────────────────────────────
+
+describe('AuditService — comprehensive coverage', () => {
+  let auditService: AuditService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    auditService = createAuditService(
+      mockPrisma as unknown as Parameters<typeof createAuditService>[0]
+    );
+  });
+
+  it('logUpdate stores both oldData and newData', async () => {
+    mockPrisma.auditLog.create.mockResolvedValue({ id: 'upd-1' });
+
+    await auditService.logUpdate(
+      'Incident',
+      'inc-1',
+      { status: 'open' },
+      { status: 'closed' },
+      { userId: 'admin-2' }
+    );
+
+    const call = mockPrisma.auditLog.create.mock.calls[0][0];
+    expect(call.data.oldData).toEqual({ status: 'open' });
+    expect(call.data.newData).toEqual({ status: 'closed' });
+  });
+
+  it('query without entity or action returns all results', async () => {
+    mockPrisma.auditLog.findMany.mockResolvedValue([{ id: 'log-all' }]);
+    mockPrisma.auditLog.count.mockResolvedValue(1);
+
+    const result = await auditService.query({});
+
+    expect(result.logs).toHaveLength(1);
+    expect(result.total).toBe(1);
+  });
+
+  it('logCreate passes entityId correctly', async () => {
+    mockPrisma.auditLog.create.mockResolvedValue({ id: 'create-eid' });
+
+    await auditService.logCreate('Asset', 'asset-99', { name: 'Pump' }, {});
+
+    const call = mockPrisma.auditLog.create.mock.calls[0][0];
+    expect(call.data.entityId).toBe('asset-99');
+    expect(call.data.entity).toBe('Asset');
+  });
+
+  it('logDelete sets entity and entityId correctly', async () => {
+    mockPrisma.auditLog.create.mockResolvedValue({ id: 'del-eid' });
+
+    await auditService.logDelete('Contract', 'cont-7', { title: 'Old' }, {});
+
+    const call = mockPrisma.auditLog.create.mock.calls[0][0];
+    expect(call.data.entity).toBe('Contract');
+    expect(call.data.entityId).toBe('cont-7');
+  });
+
+  it('redactFields: fields matching "secret" substring are redacted', () => {
+    const result = redactFields({ clientSecret: 'abc123' });
+    expect(result.clientSecret).toBe('[REDACTED]');
+  });
+});

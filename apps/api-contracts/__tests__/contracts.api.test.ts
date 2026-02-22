@@ -399,3 +399,45 @@ describe('contracts.api — final coverage expansion', () => {
     expect(res.body.data.title).toBe('Service Level Agreement');
   });
 });
+
+describe('contracts.api — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data array has correct length when multiple contracts returned', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Contract A' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Contract B' },
+    ]);
+    mockPrisma.contContract.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / create is called with correct title in data', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contContract.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Vendor Agreement' });
+    await request(app).post('/api/contracts').send({ title: 'Vendor Agreement' });
+    expect(mockPrisma.contContract.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ title: 'Vendor Agreement' }) })
+    );
+  });
+
+  it('GET / pagination limit is positive', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('GET /:id returns success true and correct id', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'NDA' });
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

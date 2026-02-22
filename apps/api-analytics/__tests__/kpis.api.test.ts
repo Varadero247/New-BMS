@@ -473,3 +473,79 @@ describe('KPIs — response structure and remaining edge cases', () => {
     );
   });
 });
+
+// ===================================================================
+// KPIs — additional tests to reach ≥40
+// ===================================================================
+describe('KPIs — additional tests', () => {
+  it('GET /api/kpis count is called once per list request', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
+    await request(app).get('/api/kpis');
+    expect(mockPrisma.analyticsKpi.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/kpis response is JSON content-type', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/kpis');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/kpis created item has module field', async () => {
+    mockPrisma.analyticsKpi.create.mockResolvedValue({
+      id: 'at-1',
+      name: 'Module KPI',
+      module: 'ENVIRONMENT',
+      trend: 'UP',
+      frequency: 'DAILY',
+    });
+    const res = await request(app).post('/api/kpis').send({
+      name: 'Module KPI',
+      module: 'ENVIRONMENT',
+      trend: 'UP',
+      frequency: 'DAILY',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('module');
+  });
+
+  it('DELETE /api/kpis/:id response message is "KPI deleted"', async () => {
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('KPI deleted');
+  });
+
+  it('GET /api/kpis/executive-dashboard findMany is called once', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    await request(app).get('/api/kpis/executive-dashboard');
+    expect(mockPrisma.analyticsKpi.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/kpis/modules/:module response data is an array', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Env KPI', module: 'ENVIRONMENT' },
+    ]);
+    const res = await request(app).get('/api/kpis/modules/ENVIRONMENT');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/kpis/:id update called with correct id', async () => {
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Verified' });
+    await request(app).put('/api/kpis/00000000-0000-0000-0000-000000000001').send({ name: 'Verified' });
+    expect(mockPrisma.analyticsKpi.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /api/kpis success is true when list is empty', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/kpis');
+    expect(res.body.success).toBe(true);
+  });
+});

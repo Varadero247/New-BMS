@@ -339,3 +339,50 @@ describe('inductions.api — final coverage expansion', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('inductions.api — coverage to 40', () => {
+  it('GET /api/inductions response body has success and data', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/inductions returns three records correctly', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: 'a', employeeName: 'Alice', course: { title: 'T1', code: 'C1' } },
+      { id: 'b', employeeName: 'Bob', course: { title: 'T2', code: 'C2' } },
+      { id: 'c', employeeName: 'Carol', course: { title: 'T3', code: 'C3' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+    expect(res.body.data[2].employeeName).toBe('Carol');
+  });
+
+  it('GET /api/inductions: data array items have id property', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: 'ind-001', employeeName: 'Dave', course: { title: 'Safety', code: 'S-001' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('GET /api/inductions success is true with one record', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: '1', employeeName: 'Eve', course: { title: 'Fire', code: 'F-001' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/inductions: findMany called with include.course', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    await request(app).get('/api/inductions');
+    expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ include: expect.objectContaining({ course: expect.objectContaining({ select: expect.any(Object) }) }) })
+    );
+  });
+});

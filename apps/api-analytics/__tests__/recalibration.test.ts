@@ -314,3 +314,70 @@ describe('Recalibration — final coverage', () => {
     await expect(runRecalibration('snap-y')).resolves.not.toThrow();
   });
 });
+
+// ===================================================================
+// Recalibration — additional tests to reach ≥40
+// ===================================================================
+describe('Recalibration — additional tests', () => {
+  it('projectForward first element equals currentMrr * (1 + growthPct/100)', () => {
+    const result = projectForward(10000, 20, 3);
+    expect(result[0]).toBeCloseTo(12000, 0);
+  });
+
+  it('calculateRollingAverages returns correct avgMrrGrowth for two snapshots', () => {
+    const result = calculateRollingAverages([
+      { mrrGrowthPct: 8, revenueChurnPct: 2, newCustomers: 4 },
+      { mrrGrowthPct: 12, revenueChurnPct: 4, newCustomers: 8 },
+    ]);
+    expect(result.avgMrrGrowth).toBe(10);
+    expect(result.avgChurnPct).toBe(3);
+    expect(result.avgNewCustomers).toBe(6);
+  });
+
+  it('classifyTrajectory returns AHEAD when projected is 120% of planned', () => {
+    const result = classifyTrajectory([12000], [10000]);
+    expect(result).toBe('AHEAD');
+  });
+
+  it('blendTargets with both values equal returns that value', () => {
+    const result = blendTargets(5000, 5000);
+    expect(result).toBe(5000);
+  });
+
+  it('runRecalibration update data includes aiRecommendations field', async () => {
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
+      id: 'snap-rec',
+      monthNumber: 3,
+      mrr: 1500,
+      aiRecommendations: [],
+    });
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { monthNumber: 1, mrrGrowthPct: 10, revenueChurnPct: 2, newCustomers: 3 },
+      { monthNumber: 2, mrrGrowthPct: 15, revenueChurnPct: 1, newCustomers: 4 },
+      { monthNumber: 3, mrrGrowthPct: 12, revenueChurnPct: 2, newCustomers: 5 },
+    ]);
+    (prisma.planTarget.findMany as jest.Mock).mockResolvedValue([
+      { monthNumber: 4, plannedMrr: 3000 },
+    ]);
+    (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({});
+    await runRecalibration('snap-rec');
+    const updateCall = (prisma.monthlySnapshot.update as jest.Mock).mock.calls[0]?.[0];
+    expect(updateCall?.data).toHaveProperty('aiRecommendations');
+  });
+
+  it('projectForward with growthPct=50 doubles in ~2 periods', () => {
+    const result = projectForward(1000, 50, 2);
+    expect(result[0]).toBeCloseTo(1500, 0);
+    expect(result[1]).toBeCloseTo(2250, 0);
+  });
+
+  it('calculateRollingAverages returns 0 averages for snapshots with all zero values', () => {
+    const result = calculateRollingAverages([
+      { mrrGrowthPct: 0, revenueChurnPct: 0, newCustomers: 0 },
+      { mrrGrowthPct: 0, revenueChurnPct: 0, newCustomers: 0 },
+    ]);
+    expect(result.avgMrrGrowth).toBe(0);
+    expect(result.avgChurnPct).toBe(0);
+    expect(result.avgNewCustomers).toBe(0);
+  });
+});

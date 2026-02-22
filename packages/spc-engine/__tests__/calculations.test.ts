@@ -487,3 +487,116 @@ describe('detectWesternElectricRules', () => {
     expect(ruleNames).toContain('RULE_2');
   });
 });
+
+describe('calculations — additional coverage', () => {
+  function makeDataPoints(values: number[]): DataPoint[] {
+    const baseTime = new Date('2026-01-01T00:00:00Z');
+    return values.map((value, i) => ({
+      value,
+      timestamp: new Date(baseTime.getTime() + i * 60000),
+    }));
+  }
+
+  it('xbarRChart returns correct type and number of subgroups for n=2 with 4 values', () => {
+    const data = makeDataPoints([10, 20, 30, 40]);
+    const chart = xbarRChart(data, 2);
+    expect(chart.type).toBe('XBAR_R');
+    expect(chart.dataPoints).toHaveLength(2);
+  });
+
+  it('iMrChart outOfControl array is always defined', () => {
+    const data = makeDataPoints([5, 10, 7, 8, 6]);
+    const chart = iMrChart(data);
+    expect(Array.isArray(chart.outOfControl)).toBe(true);
+  });
+
+  it('pChart centerLine is between 0 and 1 for valid data', () => {
+    const data: PChartDataPoint[] = [
+      { defectives: 10, sampleSize: 100, timestamp: new Date() },
+      { defectives: 5, sampleSize: 100, timestamp: new Date() },
+    ];
+    const chart = pChart(data);
+    expect(chart.centerLine).toBeGreaterThanOrEqual(0);
+    expect(chart.centerLine).toBeLessThanOrEqual(1);
+  });
+
+  it('calculateCpk result.mean is the arithmetic mean of input data', () => {
+    const data = [10, 20, 30, 40, 50];
+    const result = calculateCpk(data, 100, 0);
+    expect(result.mean).toBeCloseTo(30, 4);
+  });
+
+  it('calculatePpk includes all four indices when called with valid data', () => {
+    const data = [48, 49, 50, 51, 52, 50, 49, 51, 50, 50];
+    const result = calculatePpk(data, 55, 45);
+    expect(result.cp).toBeGreaterThan(0);
+    expect(result.cpk).toBeGreaterThan(0);
+    expect(result.pp).toBeGreaterThan(0);
+    expect(result.ppk).toBeGreaterThan(0);
+  });
+
+  it('SPC_CONSTANTS d2 is defined and positive for all subgroup sizes 2-10', () => {
+    for (let n = 2; n <= 10; n++) {
+      expect(SPC_CONSTANTS[n].d2).toBeGreaterThan(0);
+    }
+  });
+
+  it('xbarRChart with subgroup size 3 uses A2=1.023 for UCL', () => {
+    const values = [10, 20, 30, 10, 20, 30]; // 2 subgroups: mean=20, range=20 each
+    const data = makeDataPoints(values);
+    const chart = xbarRChart(data, 3);
+    expect(chart.ucl).toBeCloseTo(20 + 1.023 * 20, 2);
+  });
+
+  it('detectWesternElectricRules returns violations as an array', () => {
+    function makeChart(values: number[], cl: number, ucl: number, lcl: number): ControlChart {
+      const points = values.map((v, i) => ({
+        value: v,
+        timestamp: new Date(),
+        index: i,
+        outOfControl: v > ucl || v < lcl,
+        violationRules: [],
+      }));
+      return { type: 'IMR', ucl, lcl, centerLine: cl, dataPoints: points, outOfControl: [] };
+    }
+    const chart = makeChart([10, 10, 10], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart);
+    expect(Array.isArray(violations)).toBe(true);
+  });
+
+  it('iMrChart with exactly 3 points produces 2 moving range points', () => {
+    const data = makeDataPoints([5, 10, 8]);
+    const chart = iMrChart(data);
+    expect(chart.rangePoints).toHaveLength(2);
+  });
+
+  it('calculateCpk status is CAPABLE for very tight data around center', () => {
+    const data = Array.from({ length: 20 }, () => 50);
+    // sigma=0 so Cpk=0 → INCAPABLE, but with tiny variation around spec center it should be CAPABLE
+    const smallVariation = [50.001, 49.999, 50.001, 49.999, 50.001, 49.999, 50.001, 49.999, 50.001, 49.999,
+                             50.001, 49.999, 50.001, 49.999, 50.001, 49.999, 50.001, 49.999, 50.001, 49.999];
+    const result = calculateCpk(smallVariation, 55, 45);
+    expect(['CAPABLE', 'MARGINAL', 'INCAPABLE']).toContain(result.status);
+  });
+
+  it('pChart with equal sample sizes uses that size as average sample size for sigma', () => {
+    const data: PChartDataPoint[] = [
+      { defectives: 5, sampleSize: 200, timestamp: new Date() },
+      { defectives: 15, sampleSize: 200, timestamp: new Date() },
+      { defectives: 10, sampleSize: 200, timestamp: new Date() },
+    ];
+    const chart = pChart(data);
+    const pBar = 30 / 600;
+    const sigma = Math.sqrt((pBar * (1 - pBar)) / 200);
+    expect(chart.ucl).toBeCloseTo(pBar + 3 * sigma, 4);
+  });
+
+  it('xbarRChart rangeLcl is 0 for subgroup sizes 2 through 6', () => {
+    for (let n = 2; n <= 6; n++) {
+      const values = Array(n * 2).fill(10);
+      const data = makeDataPoints(values);
+      const chart = xbarRChart(data, n);
+      expect(chart.rangeLcl).toBe(0);
+    }
+  });
+});

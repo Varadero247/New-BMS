@@ -445,3 +445,76 @@ describe('PMS Routes — additional coverage', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('PMS Routes — final boundary coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /plans returns data as array', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/pms/plans');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /plans create is called once on valid input', async () => {
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.pmsPlan.create as jest.Mock).mockResolvedValue({ id: 'pms-new', deviceName: 'New Device' });
+
+    await request(app).post('/api/pms/plans').send({ deviceName: 'New Device' });
+
+    expect(mockPrisma.pmsPlan.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /plans/:id returns success:true on found plan', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      reports: [],
+    });
+
+    const res = await request(app).get('/api/pms/plans/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /dashboard success:true is present in response', async () => {
+    (mockPrisma.pmsPlan.count as jest.Mock)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(1);
+    (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(2);
+
+    const res = await request(app).get('/api/pms/dashboard');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /reports/psur planId is associated with created report', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.pmsReport.create as jest.Mock).mockResolvedValue({ id: 'rep-plan', reportType: 'PSUR' });
+
+    await request(app).post('/api/pms/reports/psur').send({
+      planId: '00000000-0000-0000-0000-000000000001',
+      periodStart: '2025-01-01',
+      periodEnd: '2025-12-31',
+    });
+
+    expect(mockPrisma.pmsReport.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ planId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /plans pagination.totalPages is ceil(total/limit)', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(21);
+
+    const res = await request(app).get('/api/pms/plans?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+});

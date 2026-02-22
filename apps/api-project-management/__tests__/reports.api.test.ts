@@ -621,3 +621,58 @@ describe('reports.api — final extended coverage', () => {
     expect(mockPrisma.projectStatusReport.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('reports.api — boundary and extra coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/reports', reportsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/reports: data is an array when projectId is provided', async () => {
+    (mockPrisma.projectStatusReport.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectStatusReport.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/reports').query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/reports: findMany not called when projectId is missing', async () => {
+    await request(app).get('/api/reports');
+    expect(mockPrisma.projectStatusReport.findMany).not.toHaveBeenCalled();
+  });
+
+  it('POST /api/reports: create called once on valid submission', async () => {
+    (mockPrisma.projectStatusReport.create as jest.Mock).mockResolvedValueOnce(mockReport);
+    await request(app).post('/api/reports').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      reportPeriod: 'Week 99',
+      executiveSummary: 'Test once',
+      overallStatus: 'GREEN',
+      scheduleStatus: 'GREEN',
+      budgetStatus: 'GREEN',
+      scopeStatus: 'GREEN',
+      qualityStatus: 'GREEN',
+      riskStatus: 'GREEN',
+    });
+    expect(mockPrisma.projectStatusReport.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/reports: meta total matches count mock value', async () => {
+    (mockPrisma.projectStatusReport.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectStatusReport.count as jest.Mock).mockResolvedValueOnce(17);
+    const res = await request(app).get('/api/reports').query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(17);
+  });
+
+  it('DELETE /api/reports/:id: findUnique called with correct id', async () => {
+    (mockPrisma.projectStatusReport.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/reports/49000000-0000-4000-a000-000000000001');
+    expect(mockPrisma.projectStatusReport.findUnique).toHaveBeenCalledWith({
+      where: { id: '49000000-0000-4000-a000-000000000001' },
+    });
+  });
+});

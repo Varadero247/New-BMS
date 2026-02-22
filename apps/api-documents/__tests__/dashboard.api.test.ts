@@ -371,3 +371,50 @@ describe('Documents Dashboard — response correctness and edge cases', () => {
     expect(res.status).not.toBe(404);
   });
 });
+
+describe('Documents Dashboard — final additional coverage', () => {
+  it('returns 200 when totalDocuments is 1 and others are 0', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(1);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDocuments).toBe(1);
+  });
+
+  it('response body is an object, not null', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body).toBe('object');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('error body has error property on 500', async () => {
+    mockPrisma.docDocument.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('success is boolean on 200 response', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(5);
+    mockPrisma.docVersion.count.mockResolvedValue(10);
+    mockPrisma.docApproval.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('returns data.pendingApprovals matching mock when docDocument count is very high', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(10000);
+    mockPrisma.docVersion.count.mockResolvedValue(50000);
+    mockPrisma.docApproval.count.mockResolvedValue(500);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pendingApprovals).toBe(500);
+  });
+});

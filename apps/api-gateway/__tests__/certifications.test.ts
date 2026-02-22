@@ -495,3 +495,79 @@ describe('Certifications — final additional coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('Certifications — comprehensive additional coverage', () => {
+  let app: express.Express;
+
+  const certBase = {
+    id: '00000000-0000-0000-0000-000000000001',
+    standard: 'ISO 9001:2015',
+    scope: 'Manufacturing',
+    certificationBody: 'BSI',
+    certificateNumber: 'FS-123456',
+    status: 'ACTIVE',
+    issueDate: new Date('2024-01-15'),
+    expiryDate: new Date('2027-01-14'),
+    lastSurveillanceDate: null,
+    nextSurveillanceDate: null,
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/certifications', certificationsRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockRequireRole.mockImplementation((...roles: string[]) => (req: any, res: any, next: any) => {
+      if (!roles.includes(req.user?.role)) return res.status(403).json({ success: false, error: { code: 'FORBIDDEN' } });
+      next();
+    });
+    mockListCertificates.mockReturnValue([certBase]);
+    mockGetCertificate.mockReturnValue(certBase);
+    mockCreateCertificate.mockReturnValue({ ...certBase, id: '00000000-0000-0000-0000-000000000002' });
+    mockUpdateCertificate.mockReturnValue({ ...certBase, status: 'IN_RENEWAL' });
+    mockDeleteCertificate.mockReturnValue(true);
+    mockCalculateReadinessScore.mockReturnValue({ score: 90, maxScore: 100, grade: 'A', blockers: [], lastCalculatedAt: new Date() });
+  });
+
+  it('GET /api/admin/certifications response body is an object', async () => {
+    const res = await request(app).get('/api/admin/certifications');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('POST /api/admin/certifications returns id in data', async () => {
+    const res = await request(app).post('/api/admin/certifications').send({
+      standard: 'ISO 22000:2018',
+      scope: 'Food Safety',
+      certificationBody: 'TUV',
+      certificateNumber: 'FS-FOOD-001',
+      issueDate: '2024-05-01',
+      expiryDate: '2027-04-30',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('PUT /api/admin/certifications/:id returns updated status', async () => {
+    const res = await request(app)
+      .put('/api/admin/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'IN_RENEWAL' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('IN_RENEWAL');
+  });
+
+  it('GET /:id/readiness response body success is true', async () => {
+    mockGetCertificate.mockReturnValueOnce(certBase);
+    const res = await request(app).get('/api/admin/certifications/00000000-0000-0000-0000-000000000001/readiness');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/admin/certifications list calls listCertificates', async () => {
+    await request(app).get('/api/admin/certifications');
+    expect(mockListCertificates).toHaveBeenCalledTimes(1);
+  });
+});

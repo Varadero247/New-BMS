@@ -425,3 +425,52 @@ describe('reports — final coverage', () => {
     expect(res.body.data.totalEmissions).toBe(1000);
   });
 });
+
+describe('reports — extra coverage', () => {
+  it('GET / data items have title field', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([mockReport]);
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/reports');
+    expect(res.body.data[0]).toHaveProperty('title');
+  });
+
+  it('POST / creates SUSTAINABILITY report type', async () => {
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue({ ...mockReport, reportType: 'SUSTAINABILITY' });
+    const res = await request(app).post('/api/reports').send({
+      title: 'Sustainability Report 2026',
+      reportType: 'SUSTAINABILITY',
+      year: 2026,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / findMany called once per list request', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/reports');
+    expect(prisma.esgReport.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /dashboard data has targets object', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('targets');
+  });
+
+  it('PUT /:id update with PUBLISHED status sets status', async () => {
+    (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(mockReport);
+    (prisma.esgReport.update as jest.Mock).mockResolvedValue({ ...mockReport, status: 'PUBLISHED' });
+    const res = await request(app)
+      .put('/api/reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'PUBLISHED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('PUBLISHED');
+  });
+});

@@ -643,3 +643,162 @@ describe('Quality Processes API — extended edge cases', () => {
     expect(Array.isArray(response.body.data.items)).toBe(true);
   });
 });
+
+describe('Quality Processes API — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/processes', processesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/processes — success:true in response body', async () => {
+    (mockPrisma.qualProcess.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualProcess.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/processes').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/processes — correct totalPages for 45 items at limit 15', async () => {
+    (mockPrisma.qualProcess.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualProcess.count as jest.Mock).mockResolvedValueOnce(45);
+
+    const response = await request(app)
+      .get('/api/processes?page=1&limit=15')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(3);
+  });
+
+  it('POST /api/processes — count is called once for reference number generation', async () => {
+    (mockPrisma.qualProcess.count as jest.Mock).mockResolvedValueOnce(3);
+    (mockPrisma.qualProcess.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-PRO-2026-004',
+      processName: 'Quality Inspection',
+      processType: 'SUPPORT',
+      department: 'Quality',
+      processOwner: 'QA Manager',
+      purposeScope: 'Ensure quality',
+      inputs: 'Products',
+      outputs: 'Reports',
+      version: '1.0',
+      status: 'DRAFT',
+    });
+
+    await request(app)
+      .post('/api/processes')
+      .set('Authorization', 'Bearer token')
+      .send({
+        processName: 'Quality Inspection',
+        processType: 'SUPPORT',
+        department: 'Quality',
+        processOwner: 'QA Manager',
+        purposeScope: 'Ensure quality',
+        inputs: 'Products',
+        outputs: 'Reports',
+      });
+
+    expect(mockPrisma.qualProcess.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/processes/:id — accepts valid MANAGEMENT processType', async () => {
+    (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '1d000000-0000-4000-a000-000000000001',
+      processName: 'Existing',
+      processType: 'CORE',
+      department: 'Ops',
+      processOwner: 'J',
+      status: 'ACTIVE',
+    });
+    (mockPrisma.qualProcess.update as jest.Mock).mockResolvedValueOnce({
+      id: '1d000000-0000-4000-a000-000000000001',
+      processType: 'MANAGEMENT',
+    });
+
+    const response = await request(app)
+      .put('/api/processes/1d000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ processType: 'MANAGEMENT' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('DELETE /api/processes/:id — 500 on update error after findUnique', async () => {
+    (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '1d000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.qualProcess.update as jest.Mock).mockRejectedValueOnce(new Error('write fail'));
+
+    const response = await request(app)
+      .delete('/api/processes/1d000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/processes — sets initial status to DRAFT', async () => {
+    (mockPrisma.qualProcess.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualProcess.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-PRO-2026-001',
+      processName: 'New Process',
+      processType: 'CORE',
+      department: 'Quality',
+      processOwner: 'Manager',
+      purposeScope: 'Scope',
+      inputs: 'Inputs',
+      outputs: 'Outputs',
+      version: '1.0',
+      status: 'DRAFT',
+    });
+
+    await request(app)
+      .post('/api/processes')
+      .set('Authorization', 'Bearer token')
+      .send({
+        processName: 'New Process',
+        processType: 'CORE',
+        department: 'Quality',
+        processOwner: 'Manager',
+        purposeScope: 'Scope',
+        inputs: 'Inputs',
+        outputs: 'Outputs',
+      });
+
+    expect(mockPrisma.qualProcess.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'DRAFT' }),
+      })
+    );
+  });
+
+  it('GET /api/processes/:id — processName in response', async () => {
+    (mockPrisma.qualProcess.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '1d000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-PRO-2026-001',
+      processName: 'Order Fulfillment',
+      processType: 'CORE',
+      department: 'Operations',
+      processOwner: 'John Doe',
+      status: 'ACTIVE',
+    });
+
+    const response = await request(app)
+      .get('/api/processes/1d000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.processName).toBe('Order Fulfillment');
+  });
+});

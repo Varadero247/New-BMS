@@ -272,3 +272,29 @@ describe('envelope encryption — additional edge cases', () => {
     expect(rotated.dekIv).not.toBe(env.dekIv);
   });
 });
+
+describe('envelope encryption — final coverage', () => {
+  it('decryptEnvelope returns a Buffer instance', () => {
+    const env = encryptEnvelope(TEST_PLAINTEXT, TEST_KEK);
+    const result = decryptEnvelope(env, TEST_KEK);
+    expect(Buffer.isBuffer(result)).toBe(true);
+  });
+
+  it('encryptEnvelope algorithm field is always a string', () => {
+    const env = encryptEnvelope(TEST_PLAINTEXT, TEST_KEK);
+    expect(typeof env.algorithm).toBe('string');
+  });
+
+  it('encryptEnvelope with whitespace-only plaintext round-trips correctly', () => {
+    // Empty string ciphertext breaks hex/base64 auto-detection in decryptEnvelope;
+    // use a single space instead which produces a non-empty ciphertext.
+    const env = encryptEnvelope(' ', TEST_KEK);
+    expect(decryptEnvelopeToString(env, TEST_KEK)).toBe(' ');
+  });
+
+  it('deriveKey with identical passphrase and salt always returns the same key', () => {
+    const { key: k1, salt } = deriveKey('fixed-pass');
+    const { key: k2 } = deriveKey('fixed-pass', salt);
+    expect(k1.equals(k2)).toBe(true);
+  });
+});

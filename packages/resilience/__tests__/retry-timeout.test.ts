@@ -348,3 +348,44 @@ describe('Bulkhead — additional edge cases', () => {
     expect(result).toBe(false);
   });
 });
+
+describe('withRetry and withTimeout — final coverage', () => {
+  it('withRetry passes the error object to onRetry callback', async () => {
+    const fn = jest.fn()
+      .mockRejectedValueOnce(new Error('specific-error'))
+      .mockResolvedValue('ok');
+    let caughtError: Error | undefined;
+    await withRetry(fn, {
+      maxAttempts: 3,
+      initialDelay: 10,
+      onRetry: (_attempt, err) => { caughtError = err as Error; },
+    });
+    expect(caughtError?.message).toBe('specific-error');
+  });
+
+  it('withTimeout resolves with null correctly', async () => {
+    const fn = () => Promise.resolve(null);
+    const result = await withTimeout(fn, 1000);
+    expect(result).toBeNull();
+  });
+
+  it('withRetry returns result on 2nd attempt with maxAttempts=5', async () => {
+    const fn = jest.fn()
+      .mockRejectedValueOnce(new Error('fail'))
+      .mockResolvedValue('success');
+    const result = await withRetry(fn, { maxAttempts: 5, initialDelay: 10 });
+    expect(result).toBe('success');
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it('Bulkhead maxConcurrent can be set to 10', () => {
+    const b = new Bulkhead(10);
+    expect(b.stats.maxConcurrent).toBe(10);
+  });
+
+  it('withTimeout resolves with number 0', async () => {
+    const fn = () => Promise.resolve(0);
+    const result = await withTimeout(fn, 1000);
+    expect(result).toBe(0);
+  });
+});

@@ -476,5 +476,20 @@ describe('Evidence Pack API', () => {
       expect(res.body.error).toHaveProperty('code');
       expect(res.body.error).toHaveProperty('message');
     });
+
+    it('should return 200 success:true on valid list request', async () => {
+      const res = await request(app).get('/api/evidence-pack');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should return success:true and data on GET /:id for created pack', async () => {
+      const createRes = await request(app).post('/api/evidence-pack').send({ standard: 'ISO_9001' });
+      const id = createRes.body.data.id;
+      const res = await request(app).get(`/api/evidence-pack/${id}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.id).toBe(id);
+    });
   });
 });

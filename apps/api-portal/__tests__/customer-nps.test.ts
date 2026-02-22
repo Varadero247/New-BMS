@@ -403,3 +403,67 @@ describe('customer-nps — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('customer-nps — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: total in pagination matches count mock', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(12);
+
+    const res = await request(app).get('/api/customer/nps');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(12);
+  });
+
+  it('POST: score=3 (detractor range) is accepted', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: 'nps-3',
+      reportType: 'INSPECTION',
+      description: 'NPS Score: 3',
+    });
+
+    const res = await request(app).post('/api/customer/nps').send({ score: 3 });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: count called once per request', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/customer/nps');
+    expect(mockPrisma.portalQualityReport.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST: response data has id when create succeeds', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: 'nps-new',
+      reportType: 'INSPECTION',
+      description: 'NPS Score: 6',
+    });
+
+    const res = await request(app).post('/api/customer/nps').send({ score: 6 });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('nps-new');
+  });
+
+  it('GET list: data length matches mock return', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([
+      { id: 'n-1', reportType: 'INSPECTION', description: 'NPS Score: 4' },
+      { id: 'n-2', reportType: 'INSPECTION', description: 'NPS Score: 8' },
+      { id: 'n-3', reportType: 'INSPECTION', description: 'NPS Score: 10' },
+    ]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(3);
+
+    const res = await request(app).get('/api/customer/nps');
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('POST: score must be an integer — string score → 400', async () => {
+    const res = await request(app).post('/api/customer/nps').send({ score: 'nine' });
+    expect(res.status).toBe(400);
+  });
+});

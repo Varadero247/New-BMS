@@ -292,3 +292,32 @@ describe('AdaptiveTimeout — additional boundary tests', () => {
     expect(result).toBeNull();
   });
 });
+
+describe('AdaptiveTimeout — extended boundary tests', () => {
+  it('getTimeout increases as marginFactor increases', () => {
+    const t1 = new AdaptiveTimeout({ minSamples: 2, marginFactor: 1 });
+    const t2 = new AdaptiveTimeout({ minSamples: 2, marginFactor: 3 });
+    t1.record(100); t1.record(100);
+    t2.record(100); t2.record(100);
+    expect(t2.getTimeout()).toBeGreaterThan(t1.getTimeout());
+  });
+
+  it('sampleCount reflects window size cap correctly after many records', () => {
+    const t = new AdaptiveTimeout({ windowSize: 7 });
+    for (let i = 0; i < 15; i++) t.record(i * 10);
+    expect(t.sampleCount).toBe(7);
+  });
+
+  it('percentile(50) with single sample equals that sample', () => {
+    const t = new AdaptiveTimeout();
+    t.record(250);
+    expect(t.percentile(50)).toBe(250);
+  });
+
+  it('withAdaptiveTimeout result is correct for async operations returning objects', async () => {
+    const t = new AdaptiveTimeout({ baseTimeoutMs: 2000 });
+    const obj = { status: 'ok', count: 5 };
+    const result = await withAdaptiveTimeout(t, async () => obj);
+    expect(result).toEqual(obj);
+  });
+});

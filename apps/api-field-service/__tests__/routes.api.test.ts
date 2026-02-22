@@ -459,3 +459,44 @@ describe('routes.api — further coverage', () => {
     expect(mockPrisma.fsSvcRoute.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('routes.api — final coverage', () => {
+  it('GET / returns correct pagination.total from count mock', async () => {
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(33);
+    const res = await request(app).get('/api/routes');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(33);
+  });
+
+  it('DELETE /:id returns message Route deleted in data', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020' });
+    mockPrisma.fsSvcRoute.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020', deletedAt: new Date() });
+    const res = await request(app).delete('/api/routes/00000000-0000-0000-0000-000000000020');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Route deleted');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/routes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/routes').send({});
+    expect(mockPrisma.fsSvcRoute.create).not.toHaveBeenCalled();
+  });
+
+  it('PUT /:id update passes correct where id to Prisma', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030' });
+    mockPrisma.fsSvcRoute.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030', status: 'COMPLETED' });
+    await request(app)
+      .put('/api/routes/00000000-0000-0000-0000-000000000030')
+      .send({ status: 'COMPLETED' });
+    expect(mockPrisma.fsSvcRoute.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000030' }) })
+    );
+  });
+});

@@ -455,3 +455,49 @@ describe('Meetings — remaining coverage', () => {
     );
   });
 });
+
+// ===================================================================
+// Meetings — additional tests to reach ≥40
+// ===================================================================
+describe('Meetings — additional tests', () => {
+  it('GET /api/meetings response is JSON content-type', async () => {
+    (prisma.meetingNote.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.meetingNote.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/meetings');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/meetings create called once on success', async () => {
+    (prisma.meetingNote.create as jest.Mock).mockResolvedValue(sampleMeeting);
+    await request(app).post('/api/meetings').send({
+      title: 'Test Meeting',
+      type: 'TEAM',
+      date: '2026-03-01',
+      attendees: ['Alice'],
+      summary: 'Quick sync',
+    });
+    expect(prisma.meetingNote.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/meetings findMany called once per list request', async () => {
+    (prisma.meetingNote.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.meetingNote.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/meetings');
+    expect(prisma.meetingNote.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/meetings/:id delete called with correct id', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
+    (prisma.meetingNote.delete as jest.Mock).mockResolvedValue(sampleMeeting);
+    await request(app).delete('/api/meetings/00000000-0000-0000-0000-000000000001');
+    expect(prisma.meetingNote.delete).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /api/meetings/:id response success is true', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
+    const res = await request(app).get('/api/meetings/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+});

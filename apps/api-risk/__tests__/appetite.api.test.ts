@@ -413,3 +413,63 @@ describe('Risk Appetite — final coverage', () => {
     expect(mockPrisma.riskAppetiteStatement.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('appetite.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /appetite returns success:false on 500', async () => {
+    mockPrisma.riskAppetiteStatement.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/risks/appetite');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /appetite 400 when reviewDate is missing', async () => {
+    const res = await request(app).post('/api/risks/appetite').send({
+      category: 'OPERATIONAL',
+      appetiteLevel: 'VERY_LOW',
+      statement: 'Test statement',
+      maximumTolerableScore: 10,
+      acceptableResidualScore: 6,
+      escalationThreshold: 12,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /framework returns success:true on update', async () => {
+    mockPrisma.riskFramework.findUnique.mockResolvedValue({ id: 'fw-upd', organisationId: 'org-1' });
+    mockPrisma.riskFramework.update.mockResolvedValue({ id: 'fw-upd', maturityLevel: 'Advanced' });
+    const res = await request(app).put('/api/risks/framework').send({ maturityLevel: 'Advanced' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /appetite data items each have appetiteLevel field', async () => {
+    mockPrisma.riskAppetiteStatement.findMany.mockResolvedValue([
+      { id: '1', category: 'FINANCIAL', appetiteLevel: 'VERY_LOW' },
+      { id: '2', category: 'STRATEGIC', appetiteLevel: 'HIGH_APPETITE' },
+    ]);
+    const res = await request(app).get('/api/risks/appetite');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('appetiteLevel');
+    expect(res.body.data[1]).toHaveProperty('appetiteLevel');
+  });
+
+  it('POST /appetite create is NOT called when findFirst returns existing record', async () => {
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue({ id: 'exist-1', category: 'COMPLIANCE' });
+    mockPrisma.riskAppetiteStatement.update.mockResolvedValue({ id: 'exist-1', appetiteLevel: 'VERY_LOW' });
+    await request(app).post('/api/risks/appetite').send({
+      category: 'COMPLIANCE',
+      appetiteLevel: 'VERY_LOW',
+      statement: 'Zero tolerance',
+      maximumTolerableScore: 5,
+      acceptableResidualScore: 3,
+      escalationThreshold: 6,
+      reviewDate: '2026-12-01T00:00:00Z',
+    });
+    expect(mockPrisma.riskAppetiteStatement.create).not.toHaveBeenCalled();
+  });
+});

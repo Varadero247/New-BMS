@@ -356,6 +356,40 @@ describe('waste — extended coverage', () => {
   });
 });
 
+describe('waste — batch-q coverage', () => {
+  it('GET / findMany called once per request', async () => {
+    (prisma.esgWaste.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgWaste.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/waste');
+    expect(prisma.esgWaste.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / returns 400 when periodStart is missing', async () => {
+    const res = await request(app).post('/api/waste').send({
+      wasteType: 'HAZARDOUS',
+      quantity: 100,
+      unit: 'kg',
+      disposalMethod: 'LANDFILL',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / returns data as array', async () => {
+    (prisma.esgWaste.findMany as jest.Mock).mockResolvedValue([mockWaste]);
+    (prisma.esgWaste.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/waste');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 on DB error in find step', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).delete('/api/waste/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
 describe('waste — additional coverage 2', () => {
   it('GET / response includes pagination with total', async () => {
     (prisma.esgWaste.findMany as jest.Mock).mockResolvedValue([mockWaste]);

@@ -478,3 +478,65 @@ describe('GDPR Monitor — additional integrity and route tests', () => {
     expect(res.body.data.dpa.processorName).toBe('TestProcessor');
   });
 });
+
+// ===================================================================
+// GDPR Monitor — supplemental coverage
+// ===================================================================
+describe('GDPR Monitor — supplemental coverage', () => {
+  it('GET /gdpr/categories response has a data property', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/gdpr/categories');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /gdpr/dpas response has a data property', async () => {
+    (prisma.dataProcessingAgreement.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/gdpr/dpas');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('runGdprMonitorJob with one compliant fresh category calls update zero times', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'cat-fresh',
+        category: 'Fresh Data',
+        retentionDays: 365,
+        complianceStatus: 'COMPLIANT',
+        createdAt: new Date(),
+      },
+    ]);
+    (prisma.gdprDataCategory.update as jest.Mock).mockResolvedValue({});
+
+    await runGdprMonitorJob();
+    expect(prisma.gdprDataCategory.update).not.toHaveBeenCalled();
+  });
+
+  it('POST /gdpr/categories create called with correct category value', async () => {
+    (prisma.gdprDataCategory.create as jest.Mock).mockResolvedValue({
+      id: 'cat-val',
+      category: 'Device Logs',
+      legalBasis: 'CONSENT',
+    });
+
+    await request(app).post('/api/gdpr/categories').send({ category: 'Device Logs', legalBasis: 'CONSENT' });
+
+    const createCall = (prisma.gdprDataCategory.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.category).toBe('Device Logs');
+  });
+
+  it('GET /gdpr/report has success: true when all mocks return data', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
+      { id: 'c1', category: 'PII', complianceStatus: 'COMPLIANT' },
+    ]);
+    (prisma.dataProcessingAgreement.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd1', processorName: 'AWS', isActive: true },
+    ]);
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/gdpr/report');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

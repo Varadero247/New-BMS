@@ -161,3 +161,43 @@ describe('riskCalculator', () => {
     });
   });
 });
+
+describe('riskCalculator — additional coverage', () => {
+  describe('calculateRiskScore — boundary values', () => {
+    it('should return 4 for likelihood=2, severity=2', () => {
+      expect(calculateRiskScore(2, 2)).toBe(4);
+    });
+
+    it('should return 6 for likelihood=2, severity=3', () => {
+      expect(calculateRiskScore(2, 3)).toBe(6);
+    });
+
+    it('should return 20 for likelihood=4, severity=5', () => {
+      expect(calculateRiskScore(4, 5)).toBe(20);
+    });
+
+    it('should return 16 for likelihood=4, severity=4', () => {
+      expect(calculateRiskScore(4, 4)).toBe(16);
+    });
+  });
+
+  describe('getWelStatus — boundary precision', () => {
+    it('should return BELOW_WEL for 75%', () => {
+      expect(getWelStatus(75)).toBe('BELOW_WEL');
+    });
+
+    it('should return AT_WEL for 90.0% (exact boundary)', () => {
+      expect(getWelStatus(90.0)).toBe('AT_WEL');
+    });
+
+    it('should return ABOVE_WEL for 100.1%', () => {
+      expect(getWelStatus(100.1)).toBe('ABOVE_WEL');
+    });
+  });
+
+  describe('calculateWelPercentage — additional values', () => {
+    it('should return 25 for result=2.5, limit=10', () => {
+      expect(calculateWelPercentage(2.5, 10)).toBe(25);
+    });
+  });
+});

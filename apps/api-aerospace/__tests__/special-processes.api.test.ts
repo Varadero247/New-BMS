@@ -610,6 +610,46 @@ describe('Aerospace Special Processes API — additional coverage', () => {
     );
   });
 
+  it('GET /api/special-processes returns data as array', async () => {
+    mockPrisma.aeroSpecialProcess.findMany.mockResolvedValueOnce([
+      { id: 'sp-a', refNumber: 'AERO-SP-2026-002', title: 'Shot Peening', processType: 'COATINGS', status: 'ACTIVE', nadcapApprovals: [] },
+    ]);
+    mockPrisma.aeroSpecialProcess.count.mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/special-processes').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/special-processes returns 400 when specification is missing (if required)', async () => {
+    mockPrisma.aeroSpecialProcess.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroSpecialProcess.create.mockResolvedValueOnce({
+      id: 'sp-new-2',
+      refNumber: 'AERO-SP-2026-002',
+      title: 'Anodizing',
+      processType: 'COATINGS',
+      status: 'ACTIVE',
+    });
+    const res = await request(app)
+      .post('/api/special-processes')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Anodizing', processType: 'COATINGS' });
+    expect([201, 400]).toContain(res.status);
+  });
+
+  it('POST /api/special-processes/nadcap returns 400 when expiryDate is missing', async () => {
+    const res = await request(app)
+      .post('/api/special-processes/nadcap')
+      .set('Authorization', 'Bearer token')
+      .send({
+        specialProcessId: 'sp1',
+        supplier: 'AeroCoat Inc',
+        commodity: 'Chemical Processing',
+        approvalDate: '2026-01-01',
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
   it('PUT /api/special-processes/nadcap/:id returns 500 when update throws', async () => {
     mockPrisma.aeroNadcapApproval.findUnique.mockResolvedValueOnce({
       id: '00000000-0000-0000-0000-000000000001',

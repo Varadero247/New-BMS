@@ -491,3 +491,57 @@ describe('Cash Flow Forecast — final edge cases', () => {
     }
   });
 });
+
+describe('cashflow-forecast — extra coverage', () => {
+  const extraApp = express();
+  extraApp.use(express.json());
+  extraApp.use('/', cashflowRouter);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('runCashFlowForecastJob companyCashPosition.findFirst is called once', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'ex-cf-1' });
+    await runCashFlowForecastJob();
+    expect(prisma.companyCashPosition.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('runCashFlowForecastJob monthlySnapshot.findMany is called once', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'ex-cf-2' });
+    await runCashFlowForecastJob();
+    expect(prisma.monthlySnapshot.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / data.total is a non-negative number', async () => {
+    (prisma.cashFlowForecast.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(extraApp).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /position 404 error body has error.code NOT_FOUND', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(extraApp).get('/position');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('runCashFlowForecastJob plannedExpense.findMany is called once', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'ex-cf-5' });
+    await runCashFlowForecastJob();
+    expect(prisma.plannedExpense.findMany).toHaveBeenCalledTimes(1);
+  });
+});

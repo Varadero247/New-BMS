@@ -349,6 +349,47 @@ describe('Social — extended coverage', () => {
   });
 });
 
+describe('social — batch-q coverage', () => {
+  it('GET /api/social filters by COMMUNITY category', async () => {
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgSocialMetric.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/social?category=COMMUNITY');
+    expect(prisma.esgSocialMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'COMMUNITY' }) })
+    );
+  });
+
+  it('POST /api/social returns 400 when metric is missing', async () => {
+    const res = await request(app).post('/api/social').send({
+      category: 'DIVERSITY',
+      value: 0.45,
+      periodStart: '2026-01-01',
+      periodEnd: '2026-03-31',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/social returns 400 when periodStart is missing', async () => {
+    const res = await request(app).post('/api/social').send({
+      category: 'LABOR',
+      metric: 'Turnover',
+      value: 0.1,
+      periodEnd: '2026-03-31',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/social/:id updates category to LABOR', async () => {
+    (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(mockSocial);
+    (prisma.esgSocialMetric.update as jest.Mock).mockResolvedValue({ ...mockSocial, category: 'LABOR' });
+    const res = await request(app)
+      .put('/api/social/00000000-0000-0000-0000-000000000001')
+      .send({ category: 'LABOR' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.category).toBe('LABOR');
+  });
+});
+
 describe('social — additional coverage 2', () => {
   it('GET /api/social response body has pagination object', async () => {
     (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([mockSocial]);

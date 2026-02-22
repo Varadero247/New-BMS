@@ -218,3 +218,21 @@ describe('ui/utils — additional coverage', () => {
     expect(result).toBe('border-4');
   });
 });
+
+describe('ui/utils — further edge cases', () => {
+  it('cn merges margin utilities (last wins)', () => {
+    const result = cn('m-2', 'm-8');
+    expect(result).toBe('m-8');
+  });
+
+  it('formatDate produces a non-empty string for epoch zero', () => {
+    const result = formatDate(new Date(0));
+    expect(typeof result).toBe('string');
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('formatNumber with useGrouping: false omits comma separators', () => {
+    const result = formatNumber(1000000, { useGrouping: false });
+    expect(result).not.toContain(',');
+  });
+});

@@ -303,6 +303,58 @@ describe('ISO 45001 Contractor Management Routes', () => {
   });
 });
 
+describe('Contractor Management — pre-final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / response body has pagination.total field', async () => {
+    prisma.hSContractor.findMany.mockResolvedValue([mockContractor]);
+    prisma.hSContractor.count.mockResolvedValue(1);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total', 1);
+  });
+
+  it('GET /stats returns active field in data', async () => {
+    prisma.hSContractor.count
+      .mockResolvedValueOnce(8)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(0);
+    const res = await request(app).get('/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('active', 5);
+  });
+
+  it('POST /:id/inspections returns 500 when contractor update fails after SUSPENDED outcome', async () => {
+    prisma.hSContractor.findUnique.mockResolvedValue(mockContractor);
+    prisma.hSContractorInspection.create.mockResolvedValue({ id: 'insp-3', outcome: 'SUSPENDED' });
+    prisma.hSContractor.update.mockRejectedValue(new Error('update failed'));
+    const res = await request(app).post('/00000000-0000-0000-0000-000000000001/inspections').send({
+      inspectedBy: 'Officer', inspectionDate: '2026-02-15',
+      findings: 'Violations found', outcome: 'SUSPENDED',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id/inspections returns data as array', async () => {
+    prisma.hSContractorInspection.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/cont-1/inspections');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / filters by status wired into Prisma where clause', async () => {
+    prisma.hSContractor.findMany.mockResolvedValue([]);
+    prisma.hSContractor.count.mockResolvedValue(0);
+    await request(app).get('/?status=ACTIVE');
+    expect(prisma.hSContractor.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+});
+
 describe('Contractor Management — final coverage', () => {
   beforeEach(() => jest.clearAllMocks());
 

@@ -478,3 +478,58 @@ describe('DSARs — final coverage', () => {
     });
   });
 });
+
+describe('DSARs — extra coverage', () => {
+  it('GET /api/dsars response is JSON content-type', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dsars');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/dsars with OBJECTION type creates successfully', async () => {
+    (prisma.dataRequest.create as jest.Mock).mockResolvedValue({
+      id: 'dr-obj',
+      type: 'OBJECTION',
+      requesterEmail: 'obj@test.com',
+      requesterName: 'Obj User',
+      status: 'RECEIVED',
+      deadlineAt: new Date(),
+    });
+    const res = await request(app).post('/api/dsars').send({
+      type: 'OBJECTION',
+      requesterEmail: 'obj@test.com',
+      requesterName: 'Obj User',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.request.type).toBe('OBJECTION');
+  });
+
+  it('GET /api/dsars/:id returns data.request with id field', async () => {
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      type: 'ACCESS',
+      requesterName: 'Test User',
+      status: 'RECEIVED',
+    });
+    const res = await request(app).get('/api/dsars/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.request).toHaveProperty('id');
+  });
+
+  it('PATCH /api/dsars/:id/status 500 when findUnique throws', async () => {
+    (prisma.dataRequest.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .patch('/api/dsars/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'VERIFIED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/dsars data.pagination has totalPages field', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dsars');
+    expect(res.body.data.pagination).toHaveProperty('totalPages');
+  });
+});

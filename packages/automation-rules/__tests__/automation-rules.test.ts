@@ -322,3 +322,43 @@ describe('@ims/automation-rules — rule structure deep checks', () => {
     expect(getExecutionLog('org-beta')[0].ruleId).toBe('rule-002');
   });
 });
+
+describe('@ims/automation-rules — final additional coverage', () => {
+  beforeEach(() => {
+    _resetStores();
+  });
+
+  it('enableRule returns true for all 20 valid rule IDs', () => {
+    for (const rule of AUTOMATION_RULES) {
+      expect(enableRule('org-x', rule.id)).toBe(true);
+    }
+  });
+
+  it('listRules returns the same 20 rules regardless of org', () => {
+    const rules1 = listRules('org-x');
+    const rules2 = listRules('org-y');
+    expect(rules1.map((r) => r.id)).toEqual(rules2.map((r) => r.id));
+  });
+
+  it('getEnabledRules returns the actual rule objects (not just ids)', () => {
+    enableRule('org-check', 'rule-001');
+    const enabled = getEnabledRules('org-check');
+    expect(enabled[0]).toHaveProperty('id', 'rule-001');
+    expect(enabled[0]).toHaveProperty('name');
+    expect(enabled[0]).toHaveProperty('trigger');
+  });
+
+  it('logExecution details field stores the full string', () => {
+    const details = 'A very long details message describing what happened during execution';
+    const entry = logExecution('org-1', 'rule-005', 'success', details);
+    expect(entry.details).toBe(details);
+  });
+
+  it('getExecutionLog returns all entries when no limit specified', () => {
+    for (let i = 0; i < 5; i++) {
+      logExecution('org-1', 'rule-001', 'success', `Entry ${i}`);
+    }
+    const logs = getExecutionLog('org-1');
+    expect(logs.length).toBe(5);
+  });
+});

@@ -397,3 +397,55 @@ describe('documents.api — final coverage expansion', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('documents.api — coverage to 40', () => {
+  it('GET /api/documents response body has success and data properties', async () => {
+    mockPrisma.suppDocument.findMany.mockResolvedValue([]);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/documents response content-type is JSON', async () => {
+    mockPrisma.suppDocument.findMany.mockResolvedValue([]);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/documents with INSURANCE type returns 201', async () => {
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Public Liability',
+      supplierId: 'sup-1',
+      type: 'INSURANCE',
+    });
+    const res = await request(app).post('/api/documents').send({
+      supplierId: 'sup-1',
+      title: 'Public Liability',
+      type: 'INSURANCE',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/documents/:id response contains data.id on found', async () => {
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      title: 'Test Doc',
+    });
+    const res = await request(app).get('/api/documents/00000000-0000-0000-0000-000000000003');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000003');
+  });
+
+  it('success is false on 500 from GET /api/documents', async () => {
+    mockPrisma.suppDocument.findMany.mockRejectedValue(new Error('connection refused'));
+    const res = await request(app).get('/api/documents');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

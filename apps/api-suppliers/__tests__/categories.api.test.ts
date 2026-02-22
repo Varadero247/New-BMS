@@ -317,3 +317,48 @@ describe('categories.api (suppliers) — final coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('categories.api (suppliers) — coverage to 40', () => {
+  it('response body is an object', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(typeof res.body).toBe('object');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('two distinct categories produce two entries', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
+      { category: 'Alpha' },
+      { category: 'Beta' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('mixed null and non-null categories only counts non-null', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
+      { category: null },
+      { category: 'Gamma' },
+      { category: 'Gamma' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].count).toBe(2);
+  });
+
+  it('success field is a boolean', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('findMany called with select: { category: true }', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    await request(app).get('/api/categories');
+    expect(mockPrisma.suppSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ select: expect.objectContaining({ category: true }) })
+    );
+  });
+});

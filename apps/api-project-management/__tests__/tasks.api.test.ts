@@ -626,3 +626,61 @@ describe('tasks.api — final extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('tasks.api — extra boundary coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tasks', tasksRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/tasks returns multiple tasks', async () => {
+    const task2 = { ...mockTask, id: '3d000000-0000-4000-a000-000000000002', taskCode: 'TSK-002' };
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([mockTask, task2]);
+    (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(2);
+    const res = await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /api/tasks returns 400 when taskName is missing', async () => {
+    const res = await request(app).post('/api/tasks').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      taskCode: 'TSK-200',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/tasks/:id updates priority field', async () => {
+    (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
+    (mockPrisma.projectTask.update as jest.Mock).mockResolvedValueOnce({
+      ...mockTask,
+      priority: 'HIGH',
+    });
+    const res = await request(app)
+      .put('/api/tasks/3d000000-0000-4000-a000-000000000001')
+      .send({ priority: 'HIGH' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.priority).toBe('HIGH');
+  });
+
+  it('DELETE /api/tasks/:id calls update with deletedAt timestamp', async () => {
+    (mockPrisma.projectTask.findUnique as jest.Mock).mockResolvedValueOnce(mockTask);
+    (mockPrisma.projectTask.update as jest.Mock).mockResolvedValueOnce({ ...mockTask, deletedAt: new Date() });
+    await request(app).delete('/api/tasks/3d000000-0000-4000-a000-000000000001');
+    expect(mockPrisma.projectTask.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/tasks count is called once per request', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001');
+    expect(mockPrisma.projectTask.count).toHaveBeenCalledTimes(1);
+  });
+});

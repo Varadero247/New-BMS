@@ -456,3 +456,44 @@ describe('schedules.api — further coverage', () => {
     expect(mockPrisma.fsSvcSchedule.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('schedules.api — final coverage', () => {
+  it('GET / returns correct pagination.total from count mock', async () => {
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(21);
+    const res = await request(app).get('/api/schedules');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(21);
+  });
+
+  it('DELETE /:id returns message Schedule deleted in data', async () => {
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020' });
+    mockPrisma.fsSvcSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020', deletedAt: new Date() });
+    const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000020');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Schedule deleted');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcSchedule.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/schedules/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/schedules').send({});
+    expect(mockPrisma.fsSvcSchedule.create).not.toHaveBeenCalled();
+  });
+
+  it('PUT /:id update passes correct where id to Prisma', async () => {
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030' });
+    mockPrisma.fsSvcSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030', isAvailable: true });
+    await request(app)
+      .put('/api/schedules/00000000-0000-0000-0000-000000000030')
+      .send({ isAvailable: true });
+    expect(mockPrisma.fsSvcSchedule.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000030' }) })
+    );
+  });
+});

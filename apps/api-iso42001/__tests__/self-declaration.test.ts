@@ -536,3 +536,61 @@ describe('Self-Declaration — final coverage', () => {
     expect(res.body.data.exclusions).toBe('Updated exclusions text');
   });
 });
+
+describe('Self-Declaration — final extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/self-declaration data items have reference field', async () => {
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([mockDeclaration]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/self-declaration');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('reference');
+  });
+
+  it('GET /api/self-declaration/:id response data has scope field', async () => {
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    const res = await request(app).get(`/api/self-declaration/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('scope');
+  });
+
+  it('DELETE /api/self-declaration/:id calls update with deletedAt', async () => {
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockResolvedValue({ ...mockDeclaration, deletedAt: new Date() });
+    await request(app).delete(`/api/self-declaration/${UUID1}`);
+    expect(mockPrisma.aiSelfDeclaration.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('PUT /api/self-declaration/:id/publish sets publishedAt in data', async () => {
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    const publishedAt = new Date();
+    mockPrisma.aiSelfDeclaration.update.mockResolvedValue({
+      ...mockDeclaration,
+      status: 'PUBLISHED',
+      signedBy: 'user-123',
+      publishedAt,
+    });
+    const res = await request(app).put(`/api/self-declaration/${UUID1}/publish`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('publishedAt');
+  });
+
+  it('POST /api/self-declaration returns 500 when create throws unexpected error', async () => {
+    mockPrisma.aiSelfDeclaration.create.mockRejectedValue(new Error('unexpected DB error'));
+    const res = await request(app).post('/api/self-declaration').send({
+      title: 'New Self-Declaration',
+      scope: 'Full org scope',
+      conformanceStatement: 'We fully conform with all ISO 42001 clauses.',
+      declarationDate: '2026-04-01',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

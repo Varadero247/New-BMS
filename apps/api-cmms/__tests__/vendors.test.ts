@@ -453,3 +453,47 @@ describe('Vendors — extended coverage', () => {
     expect(page).toBe(1);
   });
 });
+
+describe('Vendors — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/vendors data items include name field', async () => {
+    prisma.cmmsVendor.findMany.mockResolvedValue([mockVendor]);
+    prisma.cmmsVendor.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/vendors');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('name', 'Acme Maintenance Co.');
+  });
+
+  it('GET /api/vendors/:id returns 500 when findFirst rejects', async () => {
+    prisma.cmmsVendor.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/vendors/:id returns 404 with NOT_FOUND code', async () => {
+    prisma.cmmsVendor.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/vendors/00000000-0000-0000-0000-000000000077');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/vendors/:id/contracts returns 500 on DB error when vendor exists', async () => {
+    prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
+    prisma.cmmsServiceContract.create.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .post('/api/vendors/00000000-0000-0000-0000-000000000001/contracts')
+      .send({
+        contractNumber: 'SC-ERR',
+        title: 'Error Contract',
+        startDate: '2026-01-01',
+        endDate: '2026-12-31',
+        type: 'FULL_SERVICE',
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

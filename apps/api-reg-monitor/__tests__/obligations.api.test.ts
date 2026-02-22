@@ -403,3 +403,39 @@ describe('Obligations — final coverage', () => {
     expect(res.body.pagination.page).toBe(3);
   });
 });
+
+describe('Obligations — extra coverage', () => {
+  it('GET /api/obligations returns success:true', async () => {
+    mockPrisma.regObligation.findMany.mockResolvedValue([]);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/obligations');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/obligations data is array', async () => {
+    mockPrisma.regObligation.findMany.mockResolvedValue([{ id: '1', title: 'Annual Report' }]);
+    mockPrisma.regObligation.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/obligations');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/obligations/:id returns 500 on DB error', async () => {
+    mockPrisma.regObligation.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/obligations/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/obligations returns 500 on create error', async () => {
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    mockPrisma.regObligation.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/obligations').send({ title: 'Test' });
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/obligations/:id returns 404 when not found', async () => {
+    mockPrisma.regObligation.findFirst.mockResolvedValue(null);
+    const res = await request(app).put('/api/obligations/00000000-0000-0000-0000-000000000001').send({ title: 'New' });
+    expect(res.status).toBe(404);
+  });
+});

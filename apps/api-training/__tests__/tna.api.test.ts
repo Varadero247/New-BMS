@@ -413,3 +413,49 @@ describe('tna.api — final coverage expansion', () => {
     expect(mockPrisma.trainTNA.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('tna.api — boundary and method coverage', () => {
+  it('DELETE /api/tna/:id calls update with deletedAt set', async () => {
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainTNA.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/tna/00000000-0000-0000-0000-000000000001');
+    const callArg = (mockPrisma.trainTNA.update as jest.Mock).mock.calls[0][0];
+    expect(callArg.data).toHaveProperty('deletedAt');
+  });
+
+  it('GET /api/tna with SCHEDULED status returns 200', async () => {
+    mockPrisma.trainTNA.findMany.mockResolvedValue([]);
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/tna?status=SCHEDULED');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/tna count is called once to generate reference number', async () => {
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    mockPrisma.trainTNA.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      referenceNumber: 'TNA-2026-0001',
+    });
+    await request(app).post('/api/tna').send({ title: 'Test TNA' });
+    expect(mockPrisma.trainTNA.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/tna/:id calls findFirst before update', async () => {
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainTNA.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app)
+      .put('/api/tna/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(mockPrisma.trainTNA.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.trainTNA.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/tna with search filter calls findMany once', async () => {
+    mockPrisma.trainTNA.findMany.mockResolvedValue([]);
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/tna?search=safety');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.trainTNA.findMany).toHaveBeenCalledTimes(1);
+  });
+});

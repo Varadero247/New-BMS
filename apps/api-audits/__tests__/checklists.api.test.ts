@@ -401,3 +401,48 @@ describe('Checklists API — final coverage block', () => {
     expect(res.body.data.title).toBe('My Checklist');
   });
 });
+
+describe('Checklists API — extra coverage', () => {
+  it('GET / returns success:true and pagination on empty result', async () => {
+    mockPrisma.audChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/checklists');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST / create is called with title in data', async () => {
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.create.mockResolvedValue({ id: 'c-1', auditId: 'a-1', title: 'Check ABC', referenceNumber: 'ACH-2026-0001' });
+    await request(app).post('/api/checklists').send({ auditId: 'a-1', title: 'Check ABC' });
+    expect(mockPrisma.audChecklist.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ title: 'Check ABC' }) })
+    );
+  });
+
+  it('PUT /:id returns 200 with updated data.id matching param', async () => {
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old' });
+    mockPrisma.audChecklist.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New' });
+    const res = await request(app)
+      .put('/api/checklists/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('GET / findMany called once per request', async () => {
+    mockPrisma.audChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    await request(app).get('/api/checklists');
+    expect(mockPrisma.audChecklist.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id message is checklist deleted successfully', async () => {
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audChecklist.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('checklist deleted successfully');
+  });
+});

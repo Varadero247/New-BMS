@@ -764,3 +764,69 @@ describe('Reports — additional coverage', () => {
     expect(response.body.data).toEqual([]);
   });
 });
+
+describe('Reports — final coverage batch', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/reports', reportRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/reports/management-review/:module returns 400 for invalid module xyz', async () => {
+    const response = await request(app)
+      .post('/api/reports/management-review/xyz-module')
+      .set('Authorization', 'Bearer token')
+      .send({ period: '2026-Q1', includeRisks: true });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('INVALID_MODULE');
+  });
+
+  it('GET /api/reports/:id returns 404 with NOT_FOUND error code for missing id', async () => {
+    (mockPrisma.generatedReport.findUnique as jest.Mock).mockResolvedValue(null);
+    const response = await request(app)
+      .get('/api/reports/00000000-0000-0000-0000-000000000077')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/reports meta.page defaults to 1', async () => {
+    (mockPrisma.generatedReport.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.generatedReport.count as jest.Mock).mockResolvedValue(0);
+    const response = await request(app).get('/api/reports').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.meta.page).toBe(1);
+  });
+
+  it('POST /api/reports/kpi-pack returns 201 with type KPI_PACK', async () => {
+    (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.action.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.generatedReport.create as jest.Mock).mockResolvedValue({ ...mockGeneratedReport, type: 'KPI_PACK' });
+    const response = await request(app)
+      .post('/api/reports/kpi-pack')
+      .set('Authorization', 'Bearer token')
+      .send({ period: '2026-02' });
+    expect(response.status).toBe(201);
+    expect(response.body.data.type).toBe('KPI_PACK');
+  });
+
+  it('POST /api/reports/compliance-summary returns 201 with type COMPLIANCE_SUMMARY', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.action.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.generatedReport.create as jest.Mock).mockResolvedValue({ ...mockGeneratedReport, type: 'COMPLIANCE_SUMMARY' });
+    const response = await request(app)
+      .post('/api/reports/compliance-summary')
+      .set('Authorization', 'Bearer token')
+      .send({ standards: ['ISO_45001'] });
+    expect(response.status).toBe(201);
+    expect(response.body.data.type).toBe('COMPLIANCE_SUMMARY');
+  });
+});

@@ -567,3 +567,38 @@ describe('Emergency Analytics — data type and value boundary coverage', () => 
     expect(res.headers['content-type']).toMatch(/application\/json/);
   });
 });
+
+describe('Emergency Analytics — final boundary coverage', () => {
+  it('peepReviewDue is a number in response', async () => {
+    setupAnalyticsMocks({ peepDue: 5 });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.peepReviewDue).toBe('number');
+    expect(res.body.data.peepReviewDue).toBe(5);
+  });
+
+  it('wardenTrainingExpiring is a number in response', async () => {
+    setupAnalyticsMocks({ wardenExpiring: 2 });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.wardenTrainingExpiring).toBe('number');
+  });
+
+  it('recentIncidents returns correct emergencyType field', async () => {
+    setupAnalyticsMocks({
+      recentIncidents: [
+        { id: 'inc-x', incidentNumber: 'INC-2026-0099', emergencyType: 'CHEMICAL', premises: { name: 'Lab' } },
+      ],
+    });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.recentIncidents[0].emergencyType).toBe('CHEMICAL');
+  });
+
+  it('incidentsLast30Days is a number in response', async () => {
+    setupAnalyticsMocks({ incidentsLast30: 4 });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.incidentsLast30Days).toBe('number');
+  });
+});

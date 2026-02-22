@@ -391,3 +391,51 @@ describe('Documents — method call argument and shape coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000021');
   });
 });
+
+describe('Documents — final additional coverage', () => {
+  it('GET / returns success:true on 200 response', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / response body is not null', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('GET /:id returns 200 with success:true when found', async () => {
+    mockPrisma.docDocument.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Found',
+    });
+    const res = await request(app).get('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id response data has id field', async () => {
+    mockPrisma.docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docDocument.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Updated Title',
+    });
+    const res = await request(app)
+      .put('/api/documents/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Title' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('DELETE /:id response data has message field', async () => {
+    mockPrisma.docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+});

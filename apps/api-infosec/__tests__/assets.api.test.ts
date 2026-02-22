@@ -395,6 +395,91 @@ describe('InfoSec Assets — additional response shape coverage', () => {
   });
 });
 
+describe('InfoSec Assets — extended coverage block', () => {
+  const mockAssetLocal = {
+    id: 'a1000000-0000-4000-a000-000000000001',
+    refNumber: 'IA-0001',
+    name: 'Production Database',
+    type: 'SOFTWARE',
+    classification: 'CONFIDENTIAL',
+    description: 'Primary PostgreSQL database',
+    owner: 'DBA Team',
+    custodian: 'IT Ops',
+    location: 'AWS eu-west-1',
+    value: 50000,
+    riskLevel: 'HIGH',
+    status: 'ACTIVE',
+    createdBy: '00000000-0000-4000-a000-000000000123',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/assets response content-type is JSON', async () => {
+    (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/assets');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/assets with riskLevel filter does not crash and returns 200', async () => {
+    (mockPrisma.isAsset.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/assets?riskLevel=HIGH');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/assets count is called to generate sequential refNumber', async () => {
+    (mockPrisma.isAsset.count as jest.Mock).mockResolvedValueOnce(3);
+    (mockPrisma.isAsset.create as jest.Mock).mockResolvedValueOnce({ ...mockAssetLocal, refNumber: 'IA-0004' });
+    await request(app).post('/api/assets').send({
+      name: 'Network Switch',
+      type: 'HARDWARE',
+      classification: 'INTERNAL',
+      description: 'Core network switch',
+      owner: 'IT Ops',
+    });
+    expect(mockPrisma.isAsset.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/assets/:id update sets updatedAt timestamp', async () => {
+    (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAssetLocal);
+    (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({ ...mockAssetLocal, name: 'Updated Name' });
+    await request(app)
+      .put('/api/assets/a1000000-0000-4000-a000-000000000001')
+      .send({ name: 'Updated Name' });
+    const updateCall = (mockPrisma.isAsset.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data.updatedAt).toBeInstanceOf(Date);
+  });
+
+  it('GET /api/assets/:id findFirst is called with deletedAt: null in where clause', async () => {
+    (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAssetLocal);
+    await request(app).get('/api/assets/a1000000-0000-4000-a000-000000000001');
+    const findCall = (mockPrisma.isAsset.findFirst as jest.Mock).mock.calls[0][0];
+    expect(findCall.where.deletedAt).toBeNull();
+  });
+
+  it('DELETE /api/assets/:id soft-delete sets status to RETIRED', async () => {
+    (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAssetLocal);
+    (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({
+      ...mockAssetLocal,
+      deletedAt: new Date(),
+      status: 'RETIRED',
+    });
+    const res = await request(app).delete('/api/assets/a1000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    const updateCall = (mockPrisma.isAsset.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data).toHaveProperty('deletedAt');
+  });
+});
+
 describe('InfoSec Assets — final coverage block', () => {
   const mockAsset = {
     id: 'a1000000-0000-4000-a000-000000000001',

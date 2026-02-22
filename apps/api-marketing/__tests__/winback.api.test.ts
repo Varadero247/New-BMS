@@ -413,3 +413,66 @@ describe('Winback — final coverage', () => {
     );
   });
 });
+
+describe('Winback — ≥40 coverage', () => {
+  it('GET /active success:true when 2 sequences returned', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue([
+      { id: 'wb-1', orgId: 'org-1', reactivatedAt: null },
+      { id: 'wb-2', orgId: 'org-2', reactivatedAt: null },
+    ]);
+    const res = await request(app).get('/api/winback/active');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /start/:orgId create called with correct email', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-email', orgId: '00000000-0000-0000-0000-000000000001' });
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'specific@org.com' });
+
+    expect(prisma.mktWinBackSequence.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ orgId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /reason/price update sets cancellationReason:price', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-1', orgId: 'org-1' });
+    (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+
+    await request(app).get('/api/winback/reason/price?token=tok-price');
+
+    expect(prisma.mktWinBackSequence.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ cancellationReason: 'price' }),
+      })
+    );
+  });
+
+  it('POST /start/:orgId accepts missing email field (email is optional)', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({
+      id: 'wb-optional',
+      orgId: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    // email is optional in the schema, so empty body is valid and returns 201
+    const res = await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({});
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /active findMany called once per request', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/winback/active');
+    expect(prisma.mktWinBackSequence.findMany).toHaveBeenCalledTimes(1);
+  });
+});

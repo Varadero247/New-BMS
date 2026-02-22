@@ -381,6 +381,51 @@ describe('recalls.api — edge cases and extended coverage', () => {
   });
 });
 
+describe('recalls.api — extra coverage to reach ≥40 tests', () => {
+  it('GET /api/recalls data is always an array', async () => {
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+    mockPrisma.fsRecall.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/recalls');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/recalls pagination.total reflects mock count', async () => {
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+    mockPrisma.fsRecall.count.mockResolvedValue(8);
+    const res = await request(app).get('/api/recalls');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(8);
+  });
+
+  it('POST /api/recalls create is called once per valid POST', async () => {
+    mockPrisma.fsRecall.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      number: 'RCL-2602-YYYY',
+      productName: 'Frozen Beef',
+      initiatedBy: 'user-123',
+    });
+    await request(app).post('/api/recalls').send({
+      productName: 'Frozen Beef',
+      batchNumber: 'FB001',
+      reason: 'E.coli detected',
+      type: 'MANDATORY',
+      severity: 'CRITICAL',
+      initiatedDate: '2026-03-01',
+    });
+    expect(mockPrisma.fsRecall.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/recalls/:id data has productName field on found record', async () => {
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000031',
+      productName: 'Pork Sausages',
+    });
+    const res = await request(app).get('/api/recalls/00000000-0000-0000-0000-000000000031');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('productName', 'Pork Sausages');
+  });
+});
+
 describe('recalls.api — final coverage pass', () => {
   it('GET /api/recalls default applies skip 0', async () => {
     mockPrisma.fsRecall.findMany.mockResolvedValue([]);

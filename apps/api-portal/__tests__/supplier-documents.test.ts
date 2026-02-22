@@ -410,3 +410,79 @@ describe('Supplier Documents — final coverage', () => {
     );
   });
 });
+
+describe('supplier-documents — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: data length matches mock return', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([
+      { id: 'd-1', title: 'ISO Cert', category: 'CERTIFICATE' },
+      { id: 'd-2', title: 'Quality Plan', category: 'QUALITY_PLAN' },
+      { id: 'd-3', title: 'Test Report', category: 'TEST_REPORT' },
+    ]);
+    mockPrisma.portalDocument.count.mockResolvedValue(3);
+
+    const res = await request(app).get('/api/supplier/documents');
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('GET list: total in pagination matches count mock', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(42);
+
+    const res = await request(app).get('/api/supplier/documents');
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('POST upload: findMany not called on create request', async () => {
+    mockPrisma.portalDocument.create.mockResolvedValue({
+      id: 'doc-new',
+      title: 'New Doc',
+      category: 'CERTIFICATE',
+      portalType: 'SUPPLIER',
+    });
+
+    await request(app).post('/api/supplier/documents').send({
+      title: 'New Doc',
+      fileName: 'new.pdf',
+      fileSize: 1024,
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
+
+    expect(mockPrisma.portalDocument.findMany).not.toHaveBeenCalled();
+  });
+
+  it('GET list: page=3 limit=5 passes skip=10', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+
+    await request(app).get('/api/supplier/documents?page=3&limit=5');
+
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('POST upload: response data has title matching request', async () => {
+    mockPrisma.portalDocument.create.mockResolvedValue({
+      id: 'doc-titled',
+      title: 'Financial Statement',
+      category: 'CERTIFICATE',
+      portalType: 'SUPPLIER',
+    });
+
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'Financial Statement',
+      fileName: 'fin.pdf',
+      fileSize: 8192,
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.title).toBe('Financial Statement');
+  });
+});

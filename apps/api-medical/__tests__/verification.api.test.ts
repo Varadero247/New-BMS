@@ -440,6 +440,90 @@ describe('Medical Design Verification API — additional coverage', () => {
   });
 });
 
+describe('Medical Design Verification API — pre-supplemental', () => {
+  const mockVerification = {
+    id: '00000000-0000-0000-0000-000000000001',
+    projectId: 'project-uuid-1',
+    title: 'Electrical Safety Verification',
+    protocol: 'Protocol V1.0',
+    testMethod: 'IEC 60601-1',
+    acceptanceCriteria: 'Pass',
+    results: null,
+    pass: null,
+    completedDate: null,
+    completedBy: null,
+    traceToInput: 'DI-001',
+    traceToOutput: 'DO-001',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / data is an array', async () => {
+    mockPrisma.designVerification.findMany.mockResolvedValue([mockVerification]);
+    mockPrisma.designVerification.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/verification');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id delete called exactly once', async () => {
+    mockPrisma.designVerification.findUnique.mockResolvedValue(mockVerification);
+    mockPrisma.designVerification.delete.mockResolvedValue(mockVerification);
+    await request(app).delete('/api/verification/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.designVerification.delete).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /stats passRate is 0 when total is 0', async () => {
+    mockPrisma.designVerification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/verification/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.passRate).toBe(0);
+  });
+});
+
+describe('Medical Design Verification API — supplemental coverage', () => {
+  const mockVerification = {
+    id: '00000000-0000-0000-0000-000000000001',
+    projectId: 'project-uuid-1',
+    title: 'Electrical Safety Verification',
+    protocol: 'Protocol V1.0',
+    testMethod: 'IEC 60601-1',
+    acceptanceCriteria: 'Pass at 1500V',
+    results: null,
+    pass: null,
+    completedDate: null,
+    completedBy: null,
+    traceToInput: 'DI-001',
+    traceToOutput: 'DO-001',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / success:true and data array on 200', async () => {
+    mockPrisma.designVerification.findMany.mockResolvedValue([mockVerification]);
+    mockPrisma.designVerification.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/verification');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id update called with correct where id', async () => {
+    mockPrisma.designVerification.findUnique.mockResolvedValue(mockVerification);
+    mockPrisma.designVerification.update.mockResolvedValue({ ...mockVerification, results: 'OK' });
+    await request(app)
+      .put('/api/verification/00000000-0000-0000-0000-000000000001')
+      .send({ results: 'OK' });
+    expect(mockPrisma.designVerification.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});
+
 describe('Medical Design Verification API — final coverage', () => {
   const mockVerification = {
     id: '00000000-0000-0000-0000-000000000001',

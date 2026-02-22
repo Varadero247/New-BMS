@@ -263,6 +263,46 @@ describe('Mgmt Review Dashboard — final coverage', () => {
   });
 });
 
+describe('Mgmt Review Dashboard — supplemental coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /stats response body has data and success properties', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /stats count is called with orgId org-1', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    const args = mockPrisma.mgmtReview.count.mock.calls[0][0];
+    expect(args.where.orgId).toBe('org-1');
+  });
+
+  it('GET /stats 500 response has error.code INTERNAL_ERROR', async () => {
+    mockPrisma.mgmtReview.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /stats totalReviews matches the mocked count value (25)', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(25);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalReviews).toBe(25);
+  });
+
+  it('GET /stats response is JSON content-type', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});
+
 describe('Mgmt Review Dashboard — exhaustive coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

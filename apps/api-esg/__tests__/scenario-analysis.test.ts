@@ -348,6 +348,64 @@ describe('Additional scenario-analysis coverage', () => {
   });
 });
 
+describe('scenario-analysis — batch-q coverage', () => {
+  it('GET / returns empty data array when no scenarios exist', async () => {
+    (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/scenario-analysis');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when reportingYear is missing', async () => {
+    const res = await request(app).post('/api/scenario-analysis').send({
+      title: 'Missing Year',
+      scenarioType: 'TRANSITION_RISK',
+      baselineScenario: '1_5C',
+      timeHorizon: 'LONG_TERM',
+      description: 'desc',
+      assumptions: 'assume',
+      keyVariables: ['carbon'],
+      analysisDate: '2026-01-20',
+      conductedBy: 'Team',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 when conductedBy is missing', async () => {
+    const res = await request(app).post('/api/scenario-analysis').send({
+      title: 'Missing Conductor',
+      scenarioType: 'PHYSICAL_RISK',
+      baselineScenario: '2C',
+      timeHorizon: 'SHORT_TERM',
+      description: 'desc',
+      assumptions: 'assume',
+      keyVariables: ['flood'],
+      analysisDate: '2026-02-01',
+      reportingYear: 2026,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / findMany called with deletedAt filter from authenticated user', async () => {
+    (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/scenario-analysis');
+    const [call] = (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mock.calls;
+    expect(call[0].where).toHaveProperty('deletedAt');
+  });
+
+  it('PUT /:id returns 400 for invalid status value', async () => {
+    (mockPrisma.esgScenarioAnalysis.findUnique as jest.Mock).mockResolvedValue(mockScenario);
+    const res = await request(app)
+      .put('/api/scenario-analysis/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(400);
+  });
+});
+
 describe('scenario-analysis — final coverage', () => {
   it('GET / returns JSON content-type header', async () => {
     (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([]);

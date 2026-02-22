@@ -519,3 +519,77 @@ describe('projects — further edge cases', () => {
     expect(res.body.data.status).toBe('PROPOSED');
   });
 });
+
+describe('projects — additional coverage', () => {
+  it('GET /api/projects pagination page defaults to 1', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/projects');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('PUT /api/projects/:id/complete rejects CANCELLED status', async () => {
+    (prisma.energyProject.findFirst as jest.Mock).mockResolvedValue({
+      id: 'eb000000-0000-4000-a000-000000000001',
+      status: 'CANCELLED',
+    });
+
+    const res = await request(app)
+      .put('/api/projects/eb000000-0000-4000-a000-000000000001/complete')
+      .send({ actualSavings: 5000 });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/projects/roi-summary totalEstimatedSavings field is present', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: '1',
+        status: 'PROPOSED',
+        investmentCost: 10000,
+        estimatedSavings: 15000,
+        actualSavings: 0,
+        paybackMonths: 8,
+      },
+    ]);
+
+    const res = await request(app).get('/api/projects/roi-summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('totalInvestment');
+  });
+
+  it('POST /api/projects returns 201 when investmentCost is omitted (it is optional)', async () => {
+    (prisma.energyProject.create as jest.Mock).mockResolvedValue({
+      id: 'eb000000-0000-4000-a000-000000000099',
+      title: 'Test Project',
+      type: 'EFFICIENCY',
+      status: 'PROPOSED',
+    });
+
+    const res = await request(app).post('/api/projects').send({
+      title: 'Test Project',
+      type: 'EFFICIENCY',
+      estimatedSavings: 5000,
+      paybackMonths: 12,
+    });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/projects filters by type=BEHAVIORAL', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/projects?type=BEHAVIORAL');
+
+    expect(prisma.energyProject.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'BEHAVIORAL' }),
+      })
+    );
+  });
+});

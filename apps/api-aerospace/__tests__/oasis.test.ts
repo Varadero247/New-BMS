@@ -470,3 +470,51 @@ describe('OASIS Routes — additional coverage', () => {
     expect(res.body.meta.total).toBe(0);
   });
 });
+
+describe('OASIS Routes — extra final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/oasis/lookup with cage returns cageCode in response', async () => {
+    const res = await request(app).get('/api/oasis/lookup?cage=ABCDE');
+    expect(res.status).toBe(200);
+    expect(res.body.data.cageCode).toBe('ABCDE');
+  });
+
+  it('GET /api/oasis/monitor returns success:true and data array', async () => {
+    (mockPrisma.oasisMonitoredSupplier.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisMonitoredSupplier.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/oasis/monitor');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/oasis/alerts filters by acknowledged=false by default', async () => {
+    (mockPrisma.oasisAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisAlert.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/oasis/alerts');
+    expect(mockPrisma.oasisAlert.findMany).toHaveBeenCalled();
+  });
+
+  it('POST /api/oasis/monitor returns 500 for generic DB error (not P2002)', async () => {
+    (mockPrisma.oasisMonitoredSupplier.create as jest.Mock).mockRejectedValue(
+      new Error('connection timeout')
+    );
+
+    const res = await request(app).post('/api/oasis/monitor').send({
+      cageCode: 'TT999',
+      companyName: 'SupplierT',
+    });
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/oasis/alerts/:id/acknowledge returns 500 on findUnique db error', async () => {
+    (mockPrisma.oasisAlert.findUnique as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).put(
+      '/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge'
+    );
+    expect(res.status).toBe(500);
+  });
+});

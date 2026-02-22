@@ -361,6 +361,64 @@ describe('Competences — extended edge cases', () => {
   });
 });
 
+describe('Competences — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST / returns 400 when employeeName is missing', async () => {
+    const res = await request(app).post('/api/competences').send({
+      competencyArea: 'Welding',
+      status: 'IN_TRAINING',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / count called once per list request', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/competences');
+    expect(prisma.qualCompetence.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id uses findFirst with id filter', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
+    await request(app).get('/api/competences/00000000-0000-0000-0000-000000000001');
+    expect(prisma.qualCompetence.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('PUT /:id updates expiryDate field', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
+    (prisma.qualCompetence.update as jest.Mock).mockResolvedValue({
+      ...mockCompetence,
+      expiryDate: '2028-01-20T00:00:00.000Z',
+    });
+    const res = await request(app)
+      .put('/api/competences/00000000-0000-0000-0000-000000000001')
+      .send({ expiryDate: '2028-01-20' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / pagination total reflects count result', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(7);
+    const res = await request(app).get('/api/competences');
+    expect(res.body.pagination.total).toBe(7);
+  });
+
+  it('DELETE /:id returns 200 success:true on soft delete', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
+    (prisma.qualCompetence.update as jest.Mock).mockResolvedValue({ ...mockCompetence, deletedAt: new Date() });
+    const res = await request(app).delete('/api/competences/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
 describe('Competences — final coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

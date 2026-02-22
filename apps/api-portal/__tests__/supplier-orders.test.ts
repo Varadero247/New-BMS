@@ -419,3 +419,62 @@ describe('Supplier Orders — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('supplier-orders — boundary and extra coverage', () => {
+  it('GET list: filter by SHIPPED status returns 200', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/purchase-orders?status=SHIPPED');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET list: multiple orders reflected in data array length', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([
+      { id: 'o1', orderNumber: 'PO-001', type: 'PURCHASE', status: 'SUBMITTED' },
+      { id: 'o2', orderNumber: 'PO-002', type: 'PURCHASE', status: 'CONFIRMED' },
+      { id: 'o3', orderNumber: 'PO-003', type: 'PURCHASE', status: 'SHIPPED' },
+    ]);
+    mockPrisma.portalOrder.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/supplier/purchase-orders');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('GET list: page 3 limit 10 gives skip=20 in findMany call', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(30);
+    await request(app).get('/api/supplier/purchase-orders?page=3&limit=10');
+    expect(mockPrisma.portalOrder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('POST confirm: confirmed order data has status CONFIRMED in response', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      type: 'PURCHASE',
+      status: 'SUBMITTED',
+      notes: null,
+      expectedDelivery: null,
+    });
+    mockPrisma.portalOrder.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'CONFIRMED',
+      notes: null,
+    });
+    const res = await request(app)
+      .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')
+      .send({});
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('status');
+  });
+
+  it('GET list: success false and status 500 when count throws', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/supplier/purchase-orders');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

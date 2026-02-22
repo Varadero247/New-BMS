@@ -577,6 +577,78 @@ describe('Quality Changes — additional response shape coverage', () => {
   });
 });
 
+describe('Quality Changes — extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changes', changesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns items with correct referenceNumber format', async () => {
+    const change = {
+      id: '26000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-CHG-2026-001',
+      title: 'Formatted ref',
+      changeType: 'PROCESS_CHANGE',
+    };
+    (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([change]);
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(1);
+    const response = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.items[0].referenceNumber).toMatch(/^QMS-CHG-\d{4}-\d{3}$/);
+  });
+
+  it('PUT /:id updates priority field correctly', async () => {
+    (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '26000000-0000-4000-a000-000000000001',
+      title: 'Change',
+      changeType: 'DOCUMENT_UPDATE',
+      status: 'REQUESTED',
+    });
+    (mockPrisma.qualChange.update as jest.Mock).mockResolvedValueOnce({
+      id: '26000000-0000-4000-a000-000000000001',
+      priority: 'URGENT',
+    });
+    const response = await request(app)
+      .put('/api/changes/26000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ priority: 'URGENT' });
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST / generates reference number using count', async () => {
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(3);
+    (mockPrisma.qualChange.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-CHG-2026-004',
+      title: 'Fourth Change',
+      changeType: 'PROCESS_CHANGE',
+      status: 'REQUESTED',
+    });
+    const response = await request(app)
+      .post('/api/changes')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Fourth Change',
+        changeType: 'PROCESS_CHANGE',
+        requestedBy: 'Alice',
+        department: 'Production',
+        currentState: 'Manual',
+        proposedChange: 'Automated',
+        reasonForChange: 'Efficiency',
+      });
+    expect(response.status).toBe(201);
+    expect(mockPrisma.qualChange.count).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('Quality Changes — final coverage', () => {
   let app: express.Express;
 
@@ -651,5 +723,49 @@ describe('Quality Changes — final coverage', () => {
       });
     expect(response.status).toBe(500);
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+describe('Quality Changes — absolute final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changes', changesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / passes organisationId to findMany where clause', async () => {
+    (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(mockPrisma.qualChange.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.any(Object) })
+    );
+  });
+
+  it('PUT /:id returns success:true on valid update', async () => {
+    (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '26000000-0000-4000-a000-000000000001',
+      title: 'Change',
+      changeType: 'DOCUMENT_UPDATE',
+      status: 'REQUESTED',
+    });
+    (mockPrisma.qualChange.update as jest.Mock).mockResolvedValueOnce({
+      id: '26000000-0000-4000-a000-000000000001',
+      title: 'Changed Title',
+      status: 'REQUESTED',
+    });
+    const response = await request(app)
+      .put('/api/changes/26000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Changed Title' });
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
   });
 });

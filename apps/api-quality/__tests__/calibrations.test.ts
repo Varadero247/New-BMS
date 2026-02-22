@@ -400,3 +400,43 @@ describe('Calibrations — extra boundary coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Calibrations — extra boundary coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns data as an array', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockResolvedValue([mockCalibration]);
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/calibrations');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / returns 400 for empty body', async () => {
+    const res = await request(app).post('/api/calibrations').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id does not call update when not found', async () => {
+    (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(null);
+    await request(app)
+      .put('/api/calibrations/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'OVERDUE' });
+    expect(prisma.qualCalibration.update).not.toHaveBeenCalled();
+  });
+
+  it('DELETE /:id does not call update when not found', async () => {
+    (prisma.qualCalibration.findFirst as jest.Mock).mockResolvedValue(null);
+    await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000099');
+    expect(prisma.qualCalibration.update).not.toHaveBeenCalled();
+  });
+
+  it('GET / count called once per request', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCalibration.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/calibrations');
+    expect(prisma.qualCalibration.count).toHaveBeenCalledTimes(1);
+  });
+});

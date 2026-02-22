@@ -333,4 +333,38 @@ describe('@ims/event-bus — additional coverage', () => {
 
     expect(handler).not.toHaveBeenCalled();
   });
+
+  it('EventPublisher publish returns a non-empty string id for any event type', async () => {
+    const publisher = new EventPublisher();
+    const id = await publisher.publish(
+      'portal.complaint.submitted',
+      { complaintId: 'c-1' },
+      { source: 'portal', organisationId: 'org-1' }
+    );
+    expect(typeof id).toBe('string');
+    expect(id.length).toBeGreaterThan(0);
+  });
+
+  it('EventPublisher calls multiple handlers registered for same event', async () => {
+    const publisher = new EventPublisher();
+    const handler1 = jest.fn().mockResolvedValue(undefined);
+    const handler2 = jest.fn().mockResolvedValue(undefined);
+    publisher.onLocal('training.completed', handler1);
+    publisher.onLocal('training.completed', handler2);
+
+    await publisher.publish(
+      'training.completed',
+      { employeeId: 'emp-1' },
+      { source: 'training', organisationId: 'org-1' }
+    );
+
+    expect(handler1).toHaveBeenCalledTimes(1);
+    expect(handler2).toHaveBeenCalledTimes(1);
+  });
+
+  it('getEventTriggers returns empty array for antibribery.gift.reported if no triggers key', () => {
+    // antibribery.gift.reported is defined but may have no triggers — just assert no throw
+    expect(() => getEventTriggers('antibribery.gift.reported')).not.toThrow();
+    expect(Array.isArray(getEventTriggers('antibribery.gift.reported'))).toBe(true);
+  });
 });

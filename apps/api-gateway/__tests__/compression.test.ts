@@ -389,3 +389,45 @@ describe('compressionMiddleware — final additional coverage', () => {
     expect(response.getHeader('content-encoding')).toBe('gzip');
   });
 });
+
+describe('compressionMiddleware — extra batch coverage', () => {
+  it('sets Content-Encoding to gzip for application/json with gzip encoding', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/json');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBe('gzip');
+  });
+
+  it('calls next() for POST request with gzip support', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/json');
+    mw(makeReq('gzip', 'POST'), response, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('does not set Content-Encoding for application/octet-stream', () => {
+    const mw = compressionMiddleware({ skipTypes: ['application/octet-stream'] });
+    const next = jest.fn();
+    const response = makeRes('application/octet-stream');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBeUndefined();
+  });
+
+  it('custom skipTypes list with multiple entries skips matching type', () => {
+    const mw = compressionMiddleware({ skipTypes: ['text/csv', 'application/json'] });
+    const next = jest.fn();
+    const response = makeRes('text/csv');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBeUndefined();
+  });
+
+  it('returns a middleware function that accepts 3 args', () => {
+    const mw = compressionMiddleware();
+    expect(mw.length).toBe(3);
+  });
+});

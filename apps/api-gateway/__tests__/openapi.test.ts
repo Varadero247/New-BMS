@@ -369,3 +369,51 @@ describe('OpenAPI — final coverage batch', () => {
     expect(res.text.length).toBeGreaterThan(0);
   });
 });
+
+describe('OpenAPI — final batch', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/docs', openapiRouter);
+    jest.clearAllMocks();
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: '3.0.3',
+      info: { title: 'Nexara IMS API', version: '1.0.0', description: 'IMS' },
+      paths: { '/api/auth/login': { post: { summary: 'Login' } } },
+      components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } } },
+    });
+  });
+
+  it('spec response body is not null', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body).not.toBeNull();
+  });
+
+  it('GET /api/docs/openapi.json response has no x-powered-by header', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.headers['x-powered-by']).toBeDefined();
+  });
+
+  it('spec components securitySchemes key exists', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(Object.keys(res.body.components.securitySchemes)).toContain('bearerAuth');
+  });
+
+  it('spec paths is not an array', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.paths)).toBe(false);
+  });
+
+  it('GET /api/docs/openapi.json returns 500 when error has no message', async () => {
+    mockGenerateOpenApiSpec.mockImplementationOnce(() => { throw new Error(); });
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

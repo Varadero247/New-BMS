@@ -658,3 +658,66 @@ describe('Dunning — final coverage', () => {
     expect(result.cancelled).toBe(1);
   });
 });
+
+// ─── Dunning — supplemental coverage ─────────────────────────────────────────
+describe('Dunning — supplemental coverage', () => {
+  const finalApp = express();
+  finalApp.use(express.json());
+  finalApp.use('/', stripeDunningRouter);
+
+  it('runDunningJob returns an object with processed property', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([]);
+    const result = await runDunningJob();
+    expect(result).toHaveProperty('processed');
+  });
+
+  it('runDunningJob returns an object with cancelled property', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([]);
+    const result = await runDunningJob();
+    expect(result).toHaveProperty('cancelled');
+  });
+
+  it('POST / with valid invoice creates sequence with stripeCustomerId', async () => {
+    (prisma.dunningSequence.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.dunningSequence.create as jest.Mock).mockResolvedValue({
+      id: 'supp-1',
+      stripeInvoiceId: 'inv_supp',
+      currentStep: 'DAY_0',
+    });
+    await request(finalApp).post('/').send({
+      id: 'evt_supp',
+      type: 'invoice.payment_failed',
+      data: {
+        object: {
+          id: 'inv_supp',
+          customer: 'cus_supp',
+          customer_email: 'supp@test.com',
+          customer_name: 'Supp User',
+          amount_due: 3000,
+          currency: 'gbp',
+        },
+      },
+    });
+    const createCall = (prisma.dunningSequence.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.stripeCustomerId).toBe('cus_supp');
+  });
+
+  it('GET /active response has data.sequences array', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(finalApp).get('/active');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.sequences)).toBe(true);
+  });
+
+  it('runDunningJob processes DAY_9 sequence and advances to DAY_14', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([
+      { id: 'supp-d9', currentStep: 'DAY_9', customerEmail: 'a@b.com', customerName: 'A', amountDue: 60 },
+    ]);
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({});
+    const result = await runDunningJob();
+    expect(result.processed).toBe(1);
+    expect(prisma.dunningSequence.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ currentStep: 'DAY_14' }) })
+    );
+  });
+});

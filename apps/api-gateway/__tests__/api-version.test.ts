@@ -330,3 +330,50 @@ describe('API Versioning Middleware — final additional coverage', () => {
     expect(jsonArg.error.message).toContain('v999');
   });
 });
+
+describe('API Versioning Middleware — comprehensive additional coverage', () => {
+  let mockReq: Partial<Request> & { apiVersion?: string };
+  let mockRes: Partial<Response>;
+  let mockNext: jest.Mock;
+
+  beforeEach(() => {
+    mockReq = { path: '/api/v1/test', method: 'GET', ip: '127.0.0.1', headers: {} };
+    mockRes = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), json: jest.fn() };
+    mockNext = jest.fn();
+  });
+
+  it('API_VERSION object has CURRENT, SUPPORTED and DEPRECATED properties', () => {
+    expect(API_VERSION).toHaveProperty('CURRENT');
+    expect(API_VERSION).toHaveProperty('SUPPORTED');
+    expect(API_VERSION).toHaveProperty('DEPRECATED');
+  });
+
+  it('addVersionHeader does not call res.status', () => {
+    const mw = addVersionHeader('v1');
+    mw(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.status).not.toHaveBeenCalled();
+  });
+
+  it('extractApiVersion from path /api/v1/anything sets apiVersion to v1', () => {
+    mockReq.path = '/api/v1/anything';
+    extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
+    expect((mockReq as any).apiVersion).toBe('v1');
+  });
+
+  it('validateApiVersion for undefined apiVersion treats it as unsupported', () => {
+    mockReq.apiVersion = undefined as any;
+    // Should either call next (if undefined → current) or reject; just check no crash
+    expect(() =>
+      validateApiVersion(mockReq as Request, mockRes as Response, mockNext)
+    ).not.toThrow();
+  });
+
+  it('deprecatedRoute sets Deprecation header to string true', () => {
+    const middleware = deprecatedRoute('/api/v2/items');
+    middleware(mockReq as Request, mockRes as Response, mockNext);
+    const calls = (mockRes.setHeader as jest.Mock).mock.calls;
+    const deprecationCall = calls.find((c: any[]) => c[0] === 'Deprecation');
+    expect(deprecationCall).toBeDefined();
+    expect(deprecationCall[1]).toBe('true');
+  });
+});

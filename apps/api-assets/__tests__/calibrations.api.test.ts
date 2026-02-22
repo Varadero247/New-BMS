@@ -344,6 +344,38 @@ describe('Calibrations API — extended edge cases', () => {
   });
 });
 
+describe('Calibrations API — comprehensive coverage', () => {
+  it('GET / response content-type is json', async () => {
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/calibrations');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / success is true on empty result', async () => {
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/calibrations');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / create called with scheduledDate in data', async () => {
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030', referenceNumber: 'ACL-2026-0001' });
+    await request(app).post('/api/calibrations').send({ assetId: 'asset-99', scheduledDate: '2026-09-01' });
+    expect(mockPrisma.assetCalibration.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ scheduledDate: expect.anything() }) })
+    );
+  });
+
+  it('DELETE /:id findFirst is called once per request', async () => {
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.assetCalibration.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.assetCalibration.findFirst).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('Calibrations API — final coverage block', () => {
   it('POST / count is called to generate reference number', async () => {
     mockPrisma.assetCalibration.count.mockResolvedValue(5);

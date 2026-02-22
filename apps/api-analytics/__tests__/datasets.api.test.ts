@@ -501,3 +501,49 @@ describe('Analytics Datasets — final coverage', () => {
     );
   });
 });
+
+describe('Analytics Datasets — supplemental coverage', () => {
+  it('GET /api/datasets response data is always an array', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/datasets');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/datasets?source=FINANCE filters by FINANCE source', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+    await request(app).get('/api/datasets?source=FINANCE');
+    expect(mockPrisma.analyticsDataset.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ source: 'FINANCE' }) })
+    );
+  });
+
+  it('POST /api/datasets returns 500 on DB create error', async () => {
+    mockPrisma.analyticsDataset.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/datasets').send({
+      name: 'Will Fail',
+      source: 'QUALITY',
+      query: 'SELECT 1',
+      schema: { columns: [] },
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/datasets pagination totalPages equals Math.ceil(total/limit)', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/datasets?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /api/datasets findMany is called once per list request', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+    await request(app).get('/api/datasets');
+    expect(mockPrisma.analyticsDataset.findMany).toHaveBeenCalledTimes(1);
+  });
+});

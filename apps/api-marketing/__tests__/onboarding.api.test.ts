@@ -323,6 +323,48 @@ describe('Onboarding — edge cases', () => {
   });
 });
 
+describe('Onboarding — ≥40 coverage', () => {
+  it('POST /enqueue returns 400 for missing email with VALIDATION_ERROR code', async () => {
+    const res = await request(app)
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ firstName: 'Alice' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /status findMany is called once per request', async () => {
+    (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
+    expect(prisma.mktEmailJob.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /cancel where clause filters by sequenceId startsWith onboarding-', async () => {
+    (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+    await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
+    expect(prisma.mktEmailJob.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ sequenceId: { startsWith: 'onboarding-' } }),
+      })
+    );
+  });
+
+  it('GET /status returns success:false on DB error', async () => {
+    (prisma.mktEmailJob.findMany as jest.Mock).mockRejectedValue(new Error('boom'));
+    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /enqueue $transaction is called once per enqueue request', async () => {
+    (prisma.$transaction as jest.Mock).mockResolvedValue([]);
+    await request(app)
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'tx@test.com' });
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+  });
+});
+
 // ===================================================================
 // Additional coverage to reach 35 tests
 // ===================================================================

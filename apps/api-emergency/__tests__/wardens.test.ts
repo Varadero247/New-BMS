@@ -482,3 +482,36 @@ describe('wardens — final coverage', () => {
     expect(res.body.data.id).toBe(WARDEN_ID);
   });
 });
+
+describe('wardens — final boundary coverage', () => {
+  it('POST /api/wardens/premises/:id calls create with premisesId in data', async () => {
+    mockWarden.create.mockResolvedValue(fakeWarden);
+    await request(app).post(`/api/wardens/premises/${PREMISES_ID}`).send(validCreateBody);
+    expect(mockWarden.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ premisesId: PREMISES_ID }) }),
+    );
+  });
+
+  it('PUT /api/wardens/:id calls update with correct where.id', async () => {
+    mockWarden.findFirst.mockResolvedValue(fakeWarden);
+    mockWarden.update.mockResolvedValue({ ...fakeWarden, areaResponsible: 'Floor 5' });
+    await request(app).put(`/api/wardens/${WARDEN_ID}`).send({ areaResponsible: 'Floor 5' });
+    expect(mockWarden.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: WARDEN_ID } }),
+    );
+  });
+
+  it('GET /api/wardens/premises/:id response data items have name field', async () => {
+    mockWarden.findMany.mockResolvedValue([fakeWarden]);
+    const res = await request(app).get(`/api/wardens/premises/${PREMISES_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('name');
+  });
+
+  it('GET /api/wardens/training-expiring response body has success:true', async () => {
+    mockWarden.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/wardens/training-expiring');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+});

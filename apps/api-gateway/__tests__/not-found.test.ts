@@ -342,6 +342,58 @@ describe('Not Found Handler — further edge cases', () => {
   });
 });
 
+describe('Not Found Handler — supplemental coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('res.status is called exactly once per invocation', () => {
+    const req = mockRequest({ method: 'GET', path: '/api/test' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    expect((res.status as jest.Mock).mock.calls).toHaveLength(1);
+  });
+
+  it('response success field is boolean false, not string', () => {
+    const req = mockRequest({ method: 'GET', path: '/api/bool-test' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.success).toStrictEqual(false);
+  });
+
+  it('handles path with extension correctly', () => {
+    const req = mockRequest({ method: 'GET', path: '/api/file.json' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toContain('/api/file.json');
+  });
+
+  it('handles path with multiple slashes correctly', () => {
+    const req = mockRequest({ method: 'GET', path: '/a/b/c/d/e/f' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it('error.code is a string value NOT_FOUND', () => {
+    const req = mockRequest({ method: 'GET', path: '/any-path' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.code).toStrictEqual('NOT_FOUND');
+  });
+
+  it('response body has exactly two top-level keys: success and error', () => {
+    const req = mockRequest({ method: 'DELETE', path: '/api/item' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(Object.keys(jsonArg).sort()).toEqual(['error', 'success'].sort());
+  });
+});
+
 describe('Not Found Handler — absolute final coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

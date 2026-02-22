@@ -608,3 +608,73 @@ describe('Audit Middleware', () => {
     });
   });
 });
+
+// ── Audit Middleware — final coverage ─────────────────────────────────────────
+
+describe('Audit Middleware — final coverage', () => {
+  let mockReq: Partial<Request & { user?: { id: string }; auditContext?: any }>;
+  let mockRes: Partial<Response>;
+  let mockNext: NextFunction;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+
+    mockReq = {
+      method: 'GET',
+      params: { id: 'entity-123' },
+      body: {},
+      headers: { 'user-agent': 'test-agent', 'x-forwarded-for': '10.0.0.1' },
+      ip: '127.0.0.1',
+      socket: { remoteAddress: '127.0.0.1' } as unknown as import('net').Socket,
+      user: { id: 'user-fin' },
+    };
+
+    mockRes = { json: jest.fn().mockReturnThis() };
+    mockNext = jest.fn();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('auditMiddleware logs action READ for GET by default', async () => {
+    const middleware = auditMiddleware(mockAuditService, { entity: AuditEntity.USER });
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+    jest.runAllTimers();
+    expect(mockAuditService.log).toHaveBeenCalledWith(
+      expect.objectContaining({ action: AuditAction.READ })
+    );
+  });
+
+  it('createAuditLogger.logAction passes oldData from options', async () => {
+    const logger = createAuditLogger(mockAuditService);
+    await logger.logAction(mockReq as Request, 'UPDATE', 'Entity', 'e-1', {
+      oldData: { name: 'old' },
+      newData: { name: 'new' },
+    });
+    expect(mockAuditService.log).toHaveBeenCalledWith(
+      expect.objectContaining({ oldData: { name: 'old' }, newData: { name: 'new' } })
+    );
+  });
+
+  it('attachOldData calls next even when getData returns null', async () => {
+    mockReq.method = 'DELETE';
+    const getData = jest.fn().mockResolvedValue(null);
+    const middleware = attachOldData(getData);
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('auditMiddleware stores entity in auditContext', async () => {
+    const middleware = auditMiddleware(mockAuditService, { entity: AuditEntity.USER });
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockReq.auditContext?.entity).toBe(AuditEntity.USER);
+  });
+
+  it('createAuditLogger returns object with logAction and logAuth methods', () => {
+    const logger = createAuditLogger(mockAuditService);
+    expect(typeof logger.logAction).toBe('function');
+    expect(typeof logger.logAuth).toBe('function');
+  });
+});

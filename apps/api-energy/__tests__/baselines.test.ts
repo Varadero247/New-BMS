@@ -533,3 +533,39 @@ describe('baselines — final coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('baselines — additional coverage', () => {
+  const BASELINE_ID = 'e6000000-0000-4000-a000-000000000001';
+
+  it('GET /api/baselines pagination page defaults to 1', async () => {
+    (prisma.energyBaseline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/baselines');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('PUT /api/baselines/:id rejects if totalConsumption is negative', async () => {
+    (prisma.energyBaseline.findFirst as jest.Mock).mockResolvedValue({ id: BASELINE_ID, deletedAt: null });
+
+    const res = await request(app)
+      .put(`/api/baselines/${BASELINE_ID}`)
+      .send({ totalConsumption: -100 });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/baselines data array contains expected year field', async () => {
+    (prisma.energyBaseline.findMany as jest.Mock).mockResolvedValue([
+      { id: BASELINE_ID, name: 'Baseline', year: 2025, status: 'DRAFT', deletedAt: null },
+    ]);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/baselines');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('year', 2025);
+  });
+});

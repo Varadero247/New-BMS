@@ -462,3 +462,39 @@ describe('sds.api — business logic and response structure', () => {
     expect(res.body.data[0]).toHaveProperty('nextReviewDate');
   });
 });
+
+describe('sds.api — additional coverage 3', () => {
+  it('GET /sds response is JSON content-type', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/sds');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /sds with page=3&limit=10 passes skip:20 to findMany', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    await request(app).get('/api/sds?page=3&limit=10');
+    expect(mockPrisma.chemSds.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /sds count is called once per list request', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    await request(app).get('/api/sds');
+    expect(mockPrisma.chemSds.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /sds returns 400 when nextReviewDate is missing', async () => {
+    const res = await request(app).post('/api/sds').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      version: '1.0',
+      issueDate: '2026-01-15T00:00:00.000Z',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

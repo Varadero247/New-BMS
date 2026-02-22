@@ -497,3 +497,60 @@ describe('Validation Middleware — additional middleware coverage', () => {
     }
   });
 });
+
+describe('Validation Middleware — final coverage pass', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('sanitizeMiddleware with empty body calls next without error', () => {
+    const middleware = sanitizeMiddleware({ rejectXss: false });
+    const req = mockRequest({ method: 'POST', body: {} });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('validateMiddleware strips unknown keys from parsed body (strict mode via strip)', () => {
+    const schema = z.object({ name: z.string() });
+    const middleware = validateMiddleware(schema);
+    const req = mockRequest({ body: { name: 'Alice', extra: 'noise' } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+    // Zod strips unknown keys by default
+    expect(req.body.name).toBe('Alice');
+  });
+
+  it('sanitizeMiddleware rejects XSS in nested object when rejectXss: true', () => {
+    const middleware = sanitizeMiddleware({ rejectXss: true });
+    const req = mockRequest({
+      method: 'POST',
+      body: { user: { name: '<script>evil()</script>' } },
+    });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+
+  it('formatZodErrors returns an object (not null or array)', () => {
+    const schema = z.object({ value: z.number() });
+    const result = schema.safeParse({ value: 'not-a-number' });
+    if (!result.success) {
+      const formatted = formatZodErrors(result.error);
+      expect(typeof formatted).toBe('object');
+      expect(Array.isArray(formatted)).toBe(false);
+      expect(formatted).not.toBeNull();
+    }
+  });
+
+  it('sanitizeQueryMiddleware handles query with no string values gracefully', () => {
+    const middleware = sanitizeQueryMiddleware();
+    const req = mockRequest({ query: {} });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+  });
+});

@@ -620,3 +620,19 @@ describe('GET /api/contacts/:id/activities', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('CRM Contacts — additional coverage', () => {
+  it('GET / returns content-type application/json', async () => {
+    mockPrisma.crmContact.findMany.mockResolvedValue([]);
+    mockPrisma.crmContact.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contacts');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / response data is an array', async () => {
+    mockPrisma.crmContact.findMany.mockResolvedValue([]);
+    mockPrisma.crmContact.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contacts');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

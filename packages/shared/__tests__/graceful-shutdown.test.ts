@@ -470,3 +470,82 @@ describe('createGracefulShutdown — shutdown options coverage', () => {
     gs.destroy();
   });
 });
+
+describe('createGracefulShutdown — complete final coverage', () => {
+  let server: import('http').Server;
+
+  beforeEach(async () => {
+    const { createServer } = await import('http');
+    server = await new Promise<import('http').Server>((resolve) => {
+      const s = createServer((_req, res) => res.end('ok'));
+      s.listen(0, () => resolve(s));
+    });
+  });
+
+  afterEach((done) => {
+    if (server.listening) server.close(done); else done();
+  });
+
+  function makeStubRes() {
+    const obj: {
+      statusCode: number; body: unknown; headers: Record<string, unknown>;
+      setHeader(k: string, v: unknown): void;
+      status(code: number): typeof obj;
+      json(body: unknown): typeof obj;
+      on(ev: string, cb: () => void): typeof obj;
+      _finishCb?: () => void;
+    } = {
+      statusCode: 200,
+      body: null as unknown,
+      headers: {},
+      setHeader(k, v) { this.headers[k] = v; },
+      status(code) { this.statusCode = code; return this; },
+      json(body) { this.body = body; return this; },
+      on(ev, cb) { if (ev === 'finish') this._finishCb = cb; return this; },
+    };
+    return obj;
+  }
+
+  it('inFlightRequests returns to 0 when all responses finish', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    const r1 = makeStubRes();
+    const r2 = makeStubRes();
+    const r3 = makeStubRes();
+    gs.middleware({} as any, r1 as any, jest.fn());
+    gs.middleware({} as any, r2 as any, jest.fn());
+    gs.middleware({} as any, r3 as any, jest.fn());
+    r1._finishCb?.();
+    r2._finishCb?.();
+    r3._finishCb?.();
+    expect(gs.inFlightRequests).toBe(0);
+    gs.destroy();
+  });
+
+  it('createGracefulShutdown exposes isShuttingDown property', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    expect(typeof gs.isShuttingDown).toBe('boolean');
+    gs.destroy();
+  });
+
+  it('createGracefulShutdown exposes inFlightRequests property', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    expect(typeof gs.inFlightRequests).toBe('number');
+    gs.destroy();
+  });
+
+  it('no hooks option: trigger resolves without error', async () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false, drainTimeoutMs: 30 });
+    await expect(gs.trigger('SIGTERM')).resolves.toBeUndefined();
+    gs.destroy();
+  });
+
+  it('Retry-After header value equals drainTimeoutMs in seconds (rounded)', async () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false, drainTimeoutMs: 10_000 });
+    const p = gs.trigger('SIGTERM');
+    const res = makeStubRes();
+    gs.middleware({} as any, res as any, jest.fn());
+    expect(Number(res.headers['Retry-After'])).toBe(10);
+    await p;
+    gs.destroy();
+  });
+});

@@ -382,3 +382,44 @@ describe('Audits API — final coverage block', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Audits API — extra coverage', () => {
+  it('GET / returns response with data array', async () => {
+    mockPrisma.audAudit.findMany.mockResolvedValue([]);
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / with SUPPLIER type creates audit', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audAudit.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Supplier Audit', type: 'SUPPLIER' });
+    const res = await request(app).post('/api/audits').send({ title: 'Supplier Audit', type: 'SUPPLIER' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / pagination.page defaults to 1', async () => {
+    mockPrisma.audAudit.findMany.mockResolvedValue([]);
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/audits');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('DELETE /:id response has data.message property', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audAudit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET /:id 500 returns error object with code', async () => {
+    mockPrisma.audAudit.findFirst.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+  });
+});

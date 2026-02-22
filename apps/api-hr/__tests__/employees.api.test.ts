@@ -686,4 +686,71 @@ describe('HR Employees API — additional coverage', () => {
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveProperty('byEmploymentType');
   });
+
+  it('GET /api/employees response has JSON content-type header', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/employees');
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/employees create data includes hireDate when provided', async () => {
+    const createPayload = {
+      employeeNumber: 'EMP010',
+      firstName: 'Test',
+      lastName: 'User',
+      workEmail: 'testuser@company.com',
+      departmentId: '11111111-1111-1111-1111-111111111111',
+      hireDate: '2024-06-01',
+      jobTitle: 'Analyst',
+    };
+    (mockPrisma.employee.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000200',
+      ...createPayload,
+      department: { id: createPayload.departmentId, name: 'Finance' },
+      position: null,
+    });
+    const response = await request(app).post('/api/employees').send(createPayload);
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/employees/:id returns success:true on 200', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '2a000000-0000-4000-a000-000000000001',
+      firstName: 'John',
+      lastName: 'Doe',
+      department: { id: 'd1', name: 'Engineering' },
+      position: null,
+      manager: null,
+      subordinates: [],
+      leaveBalances: [],
+      documents: [],
+      qualifications: [],
+      certifications: [],
+      assets: [],
+    });
+    const response = await request(app).get('/api/employees/2a000000-0000-4000-a000-000000000001');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('DELETE /api/employees/:id update data includes deletedAt', async () => {
+    (mockPrisma.employee.update as jest.Mock).mockResolvedValueOnce({
+      id: '2a000000-0000-4000-a000-000000000001',
+      employmentStatus: 'TERMINATED',
+      terminationDate: new Date(),
+    });
+    await request(app).delete('/api/employees/2a000000-0000-4000-a000-000000000001');
+    const updateCall = (mockPrisma.employee.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data.employmentStatus).toBe('TERMINATED');
+  });
+
+  it('GET /api/employees/subordinates returns 200 with success:true', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app).get('/api/employees/53000000-0000-4000-a000-000000000001/subordinates');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
 });

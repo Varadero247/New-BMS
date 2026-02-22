@@ -526,3 +526,37 @@ describe('InfoSec Incidents — additional coverage', () => {
     });
   });
 });
+
+describe('InfoSec Incidents — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/incidents responds with JSON content-type', async () => {
+    (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/incidents returns 400 for missing severity', async () => {
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({ title: 'Test', type: 'PHISHING' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/incidents pagination has totalPages field', async () => {
+    (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(50);
+    const res = await request(app).get('/api/incidents?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET /api/incidents/:id returns 500 on DB error', async () => {
+    (mockPrisma.isIncident.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app).get('/api/incidents/a4000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

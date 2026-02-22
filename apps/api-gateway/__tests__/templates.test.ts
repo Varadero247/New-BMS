@@ -718,6 +718,43 @@ describe('Templates API', () => {
   // Additional coverage
   // =========================================================================
 
+  describe('Templates API — pre-additional coverage', () => {
+    it('GET /api/v1/templates/stats returns 500 on groupBy error', async () => {
+      mockPrisma.template.groupBy.mockRejectedValueOnce(new Error('groupBy fail'));
+      const res = await request(app).get('/api/v1/templates/stats');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('DELETE /api/v1/templates/:id returns 500 on update error', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockCustomTemplate);
+      mockPrisma.template.update.mockRejectedValue(new Error('DB error'));
+      const res = await request(app).delete('/api/v1/templates/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('POST /api/v1/templates/:id/clone returns 500 on DB create error', async () => {
+      mockPrisma.template.findFirst.mockResolvedValueOnce(mockTemplate).mockResolvedValueOnce(null);
+      mockPrisma.template.create.mockRejectedValueOnce(new Error('create fail'));
+      const res = await request(app)
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000001/clone')
+        .send({});
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('POST /api/v1/templates/:id/use returns 500 on templateInstance.create error', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
+      mockPrisma.templateInstance.create.mockRejectedValueOnce(new Error('instance fail'));
+      const res = await request(app)
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000001/use')
+        .send({ filledData: { activity: 'Testing' } });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
   describe('Templates API — additional coverage', () => {
     it('GET /api/v1/templates should filter by isBuiltIn=true', async () => {
       mockPrisma.template.findMany.mockResolvedValue([mockTemplate]);

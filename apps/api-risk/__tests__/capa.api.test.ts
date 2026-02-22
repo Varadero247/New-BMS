@@ -380,3 +380,51 @@ describe('capa.api — final coverage', () => {
     expect(res.body.pagination.totalPages).toBe(4);
   });
 });
+
+describe('capa.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns success:false on 500', async () => {
+    mockPrisma.riskCapa.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/capa');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / count is called before create', async () => {
+    mockPrisma.riskCapa.count.mockResolvedValue(3);
+    mockPrisma.riskCapa.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'X' });
+    await request(app).post('/api/capa').send({ title: 'X', type: 'CORRECTIVE' });
+    expect(mockPrisma.riskCapa.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id returns success:false on 500', async () => {
+    mockPrisma.riskCapa.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskCapa.update.mockRejectedValue(new Error('crash'));
+    const res = await request(app).delete('/api/capa/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id returns success:false on 500', async () => {
+    mockPrisma.riskCapa.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskCapa.update.mockRejectedValue(new Error('crash'));
+    const res = await request(app)
+      .put('/api/capa/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Boom' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id returns data object with expected id', async () => {
+    mockPrisma.riskCapa.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000042',
+      title: 'Special CAPA',
+    });
+    const res = await request(app).get('/api/capa/00000000-0000-0000-0000-000000000042');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000042');
+  });
+});

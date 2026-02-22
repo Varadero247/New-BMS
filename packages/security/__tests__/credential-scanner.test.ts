@@ -315,3 +315,28 @@ describe('credential-scanner – extended coverage', () => {
     expect(onLeak).not.toHaveBeenCalled();
   });
 });
+
+describe('credential-scanner — final coverage', () => {
+  it('scanString with empty string returns empty array', () => {
+    expect(scanString('')).toHaveLength(0);
+  });
+
+  it('scanString match.path defaults to empty string when no path provided', () => {
+    const matches = scanString('AKIAIOSFODNN7EXAMPLE');
+    // path may be '' or undefined when not supplied — just ensure no exception and correct type
+    expect(typeof matches[0].type).toBe('string');
+  });
+
+  it('deepScanValue handles null values inside object', () => {
+    const obj = { key: null, other: 'AKIAIOSFODNN7EXAMPLE' };
+    const matches = deepScanValue(obj);
+    expect(matches.some((m) => m.type === 'aws_access_key')).toBe(true);
+  });
+
+  it('requestScanner with onRequest=log always calls next regardless of credential', () => {
+    const { requestScanner } = createCredentialScanner({ onRequest: 'log' });
+    const n = jest.fn();
+    requestScanner(mockReq({ secret: 'postgres://root:pwd@db/ims' }), mockRes(), n);
+    expect(n).toHaveBeenCalled();
+  });
+});

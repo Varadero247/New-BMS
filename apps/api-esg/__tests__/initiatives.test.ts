@@ -392,3 +392,49 @@ describe('initiatives — final coverage', () => {
     );
   });
 });
+
+describe('initiatives — extra coverage', () => {
+  it('GET / findMany called with deletedAt: null filter', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/initiatives');
+    expect(prisma.esgInitiative.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('POST / with description field creates initiative', async () => {
+    (prisma.esgInitiative.create as jest.Mock).mockResolvedValue({ ...mockInitiative, description: 'Detailed description' });
+    const res = await request(app).post('/api/initiatives').send({
+      title: 'Described Initiative',
+      category: 'SOCIAL',
+      description: 'Detailed description',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data items have status field', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([mockInitiative]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/initiatives');
+    expect(res.body.data[0]).toHaveProperty('status');
+  });
+
+  it('PUT /:id with CANCELLED status succeeds', async () => {
+    (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
+    (prisma.esgInitiative.update as jest.Mock).mockResolvedValue({ ...mockInitiative, status: 'CANCELLED' });
+    const res = await request(app)
+      .put('/api/initiatives/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CANCELLED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('CANCELLED');
+  });
+
+  it('GET / response is JSON content-type', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/initiatives');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

@@ -655,3 +655,41 @@ describe('Inventory Products API Routes', () => {
     });
   });
 });
+
+describe('Inventory Products — extra final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/products', productsRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/products responds with JSON content-type', async () => {
+    (mockPrisma.product.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.product.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/products').set('Authorization', 'Bearer token');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('PATCH /api/products/:id returns 500 when update throws after find succeeds', async () => {
+    (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '27000000-0000-4000-a000-000000000001',
+      sku: 'SKU001',
+      barcode: '1234567890',
+      name: 'Widget A',
+      version: 1,
+    });
+    (mockPrisma.product.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .patch('/api/products/27000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ name: 'Updated Widget' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

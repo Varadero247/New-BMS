@@ -456,3 +456,48 @@ describe('metrics — final coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('metrics — extra coverage', () => {
+  it('GET /:id/data-points data items have value field', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([mockDataPoint]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.body.data[0]).toHaveProperty('value');
+  });
+
+  it('GET /:id/data-points data items have unit field', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([mockDataPoint]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.body.data[0]).toHaveProperty('unit');
+  });
+
+  it('POST /:id/data-points missing unit field returns 400', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    const res = await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({ periodStart: '2026-01-01', periodEnd: '2026-03-31', value: 100 });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id/data-points response is JSON content-type', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /:id/data-points create sets status to DRAFT by default when not provided', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.create as jest.Mock).mockResolvedValue({ ...mockDataPoint, status: 'DRAFT' });
+    const res = await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({ periodStart: '2026-01-01', periodEnd: '2026-03-31', value: 100, unit: 'tCO2e' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('DRAFT');
+  });
+});

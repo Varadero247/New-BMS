@@ -401,3 +401,54 @@ describe('board-packs.api — final additional coverage', () => {
     expect(res.body.data.pagination.page).toBe(3);
   });
 });
+
+describe('board-packs.api — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/board-packs data.boardPacks is an empty array when none found', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.data.boardPacks).toEqual([]);
+  });
+
+  it('GET /api/board-packs pagination.total reflects count result', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.total).toBe(42);
+  });
+
+  it('PATCH /api/board-packs/:id returns success:false on invalid transition', async () => {
+    mockPrisma.boardPack.findUnique.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DISTRIBUTED' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/board-packs/:id data is the board pack object', async () => {
+    mockPrisma.boardPack.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      status: 'FINAL',
+      generatedAt: new Date(),
+    });
+    const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000005');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+    expect(res.body.data).toHaveProperty('status');
+  });
+
+  it('GET /api/board-packs returns 500 with success:false when count throws', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockRejectedValue(new Error('DB count fail'));
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

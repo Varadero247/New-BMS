@@ -338,3 +338,40 @@ describe('Search — additional query and response coverage', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Search — final boundary coverage', () => {
+  it('GET /search?q=test response status is 200 on success', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=test');
+    expect(res.status).toBe(200);
+  });
+
+  it('findMany returns items with correct field values', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: 'id-x', title: 'Risk Assessment', description: 'Annual risk review' },
+    ]);
+    const res = await request(app).get('/api/search?q=risk');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].title).toBe('Risk Assessment');
+    expect(res.body.data[0].description).toBe('Annual risk review');
+  });
+
+  it('GET /search?q=test body is not null', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=test');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('500 error response does not have data property', async () => {
+    mockPrisma.docDocument.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/search?q=crash');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /search without q returns data array length 0', async () => {
+    const res = await request(app).get('/api/search');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

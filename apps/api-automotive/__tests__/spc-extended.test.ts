@@ -557,3 +557,33 @@ describe('SPC Routes — final batch coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('SPC Routes — comprehensive coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/spc count is called to build meta', async () => {
+    (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/spc');
+    expect(mockPrisma.spcChart.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/spc count is called to generate refNumber', async () => {
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.spcChart.create as jest.Mock).mockResolvedValue({ id: 'spc-new', refNumber: 'SPC-2602-0004', status: 'ACTIVE' });
+    const res = await request(app).post('/api/spc').send({
+      title: 'Shaft Diameter',
+      partNumber: 'SHF-001',
+      characteristic: 'OD',
+      chartType: 'IMR',
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.spcChart.count).toHaveBeenCalled();
+  });
+
+  it('GET /api/spc/:id/capability returns 500 on DB error', async () => {
+    (mockPrisma.spcChart.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/spc/00000000-0000-0000-0000-000000000001/capability');
+    expect(res.status).toBe(500);
+  });
+});

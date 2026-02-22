@@ -654,4 +654,11 @@ describe('Health & Safety Risks API — additional coverage', () => {
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe('NOT_FOUND');
   });
+
+  it('GET / findMany called exactly once per request', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app2).get('/api/risks').set('Authorization', 'Bearer token');
+    expect(mockPrisma.risk.findMany).toHaveBeenCalledTimes(1);
+  });
 });

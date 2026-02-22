@@ -588,3 +588,77 @@ describe('Auth API Routes — additional coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('Auth API Routes — comprehensive additional coverage', () => {
+  let app: express.Express;
+
+  const mockUser = {
+    id: '20000000-0000-4000-a000-000000000123',
+    email: 'test@example.com',
+    password: 'hashed-password',
+    firstName: 'Test',
+    lastName: 'User',
+    role: 'USER',
+    department: 'IT',
+    jobTitle: 'Developer',
+    isActive: true,
+  };
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/auth', authRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/auth/login response body is an object', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUser);
+    mockComparePassword.mockResolvedValueOnce(true);
+    (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
+    const res = await request(app).post('/api/auth/login').send({ email: 'test@example.com', password: 'password123' });
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('POST /api/auth/login response data contains expiresAt as string', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUser);
+    mockComparePassword.mockResolvedValueOnce(true);
+    (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
+    const res = await request(app).post('/api/auth/login').send({ email: 'test@example.com', password: 'password123' });
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.expiresAt).toBe('string');
+  });
+
+  it('POST /api/auth/register response body has success true on success', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    mockPrisma.user.create.mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000999',
+      email: 'newguy@example.com',
+      firstName: 'New',
+      lastName: 'Guy',
+      role: 'USER',
+      isActive: false,
+    });
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'newguy@example.com',
+      password: 'Password123!',
+      firstName: 'New',
+      lastName: 'Guy',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/auth/forgot-password response content-type is JSON', async () => {
+    const res = await request(app).post('/api/auth/forgot-password').send({ email: 'anyone@example.com' });
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/auth/refresh returns 400 for empty body', async () => {
+    const res = await request(app).post('/api/auth/refresh').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

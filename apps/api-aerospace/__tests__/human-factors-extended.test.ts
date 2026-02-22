@@ -486,3 +486,31 @@ describe('Human Factors Extended — additional coverage', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('Human Factors Extended — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/human-factors/dashboard returns success:true', async () => {
+    (mockPrisma.humanFactorIncident.count as jest.Mock)
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(0);
+    (mockPrisma.humanFactorIncident.groupBy as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    (mockPrisma.fatigueAssessment.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/human-factors/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/human-factors/dirty-dozen returns success:true', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/human-factors/dirty-dozen');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('totals');
+  });
+});

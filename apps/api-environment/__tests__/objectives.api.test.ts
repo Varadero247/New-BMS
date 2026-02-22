@@ -692,3 +692,94 @@ describe('Environment Objectives — final coverage', () => {
     expect(response.body.data.milestones).toHaveLength(2);
   });
 });
+
+describe('Environment Objectives — extended coverage', () => {
+  let app4: express.Express;
+
+  beforeAll(() => {
+    app4 = express();
+    app4.use(express.json());
+    app4.use('/api/objectives', objectivesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/objectives default limit is 50', async () => {
+    (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app4).get('/api/objectives').set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envObjective.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 50 })
+    );
+  });
+
+  it('GET /api/objectives page=3 limit=5 passes skip=10', async () => {
+    (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(20);
+
+    await request(app4)
+      .get('/api/objectives?page=3&limit=5')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envObjective.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('POST /api/objectives create is called once per request', async () => {
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.envObjective.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'ENV-OBJ-2026-001',
+      title: 'Water Reduction',
+      objectiveStatement: 'Reduce water usage by 20%',
+      category: 'WATER',
+      targetDate: '2027-06-30T00:00:00.000Z',
+      owner: 'Jane Smith',
+      status: 'NOT_STARTED',
+      milestones: [],
+    });
+
+    await request(app4)
+      .post('/api/objectives')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Water Reduction',
+        objectiveStatement: 'Reduce water usage by 20%',
+        category: 'WATER',
+        targetDate: '2027-06-30',
+        owner: 'Jane Smith',
+      });
+
+    expect(mockPrisma.envObjective.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/objectives/:id returns 500 when update throws', async () => {
+    (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envObjective.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app4)
+      .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/objectives response body contains success:true', async () => {
+    (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app4)
+      .get('/api/objectives')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.success).toBe(true);
+  });
+});

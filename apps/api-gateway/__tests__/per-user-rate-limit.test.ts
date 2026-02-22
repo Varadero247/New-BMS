@@ -423,3 +423,50 @@ describe('createPerUserRateLimit() — final batch', () => {
     expect(body.error.retryAfter).toBeDefined();
   });
 });
+
+describe('createPerUserRateLimit() — extended final batch', () => {
+  let store: InMemoryUserRateLimitStore;
+
+  beforeEach(() => { store = new InMemoryUserRateLimitStore(999_999); });
+  afterEach(() => { store.destroy(); });
+
+  it('increment() on new key returns count of 1', () => {
+    const entry = store.increment('newkey', 60_000);
+    expect(entry.count).toBe(1);
+  });
+
+  it('get() returns entry after increment', () => {
+    store.increment('existing', 60_000);
+    expect(store.get('existing')).toBeDefined();
+  });
+
+  it('TIER_DEFAULTS has all four tier keys', () => {
+    const keys = Object.keys(TIER_DEFAULTS);
+    expect(keys).toContain('basic');
+    expect(keys).toContain('standard');
+    expect(keys).toContain('premium');
+    expect(keys).toContain('enterprise');
+  });
+
+  it('unauthenticated request still calls next (no IP blocking)', () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 5, windowMs: 60_000 } } },
+      store
+    );
+    const req = mockReq(); // no user
+    const res = mockRes();
+    const n = next();
+    mw(req, res, n);
+    expect(n).toHaveBeenCalledTimes(1);
+  });
+
+  it('store.size is 0 after evictExpired clears all entries', () => {
+    jest.useFakeTimers();
+    store.increment('e1', 1);
+    store.increment('e2', 1);
+    jest.advanceTimersByTime(50);
+    store.evictExpired();
+    expect(store.size).toBe(0);
+    jest.useRealTimers();
+  });
+});

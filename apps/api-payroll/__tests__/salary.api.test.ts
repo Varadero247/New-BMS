@@ -487,6 +487,82 @@ describe('Payroll Salary API Routes', () => {
   });
 });
 
+describe('Payroll Salary — extra coverage batch ah', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/salary', salaryRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /component-types: findMany called once per request', async () => {
+    (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/salary/component-types').set('Authorization', 'Bearer token');
+    expect(mockPrisma.salaryComponentType.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /component-types: response data has id field', async () => {
+    (mockPrisma.salaryComponentType.create as jest.Mock).mockResolvedValueOnce({
+      id: 'ct-xyz',
+      code: 'OVT',
+      name: 'Overtime',
+      category: 'EARNING',
+      type: 'ALLOWANCE',
+      isActive: true,
+    });
+    const res = await request(app)
+      .post('/api/salary/component-types')
+      .set('Authorization', 'Bearer token')
+      .send({ code: 'OVT', name: 'Overtime', category: 'EARNING', type: 'ALLOWANCE' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('POST /employees/:id: succeeds when changeType is missing (it is optional)', async () => {
+    // changeType is optional in the schema; omitting it is valid
+    (mockPrisma.employeeSalary.updateMany as jest.Mock).mockResolvedValueOnce({ count: 0 });
+    (mockPrisma.employeeSalary.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.employeeSalary.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      baseSalary: 5000,
+      components: [],
+    });
+    const res = await request(app)
+      .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ baseSalary: 5000, effectiveFrom: '2024-01-01', changeReason: 'Raise' });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /employees/:id: response data is an array', async () => {
+    (mockPrisma.employeeSalary.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app)
+      .get('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id/components: deleteMany called with employeeSalaryId where clause', async () => {
+    (mockPrisma.salaryComponent.deleteMany as jest.Mock).mockResolvedValueOnce({ count: 0 });
+    (mockPrisma.employeeSalary.update as jest.Mock).mockResolvedValueOnce({
+      id: '36000000-0000-4000-a000-000000000001',
+      components: [],
+    });
+    await request(app)
+      .put('/api/salary/36000000-0000-4000-a000-000000000001/components')
+      .set('Authorization', 'Bearer token')
+      .send({ components: [] });
+    expect(mockPrisma.salaryComponent.deleteMany).toHaveBeenCalledWith({
+      where: { employeeSalaryId: '36000000-0000-4000-a000-000000000001' },
+    });
+  });
+});
+
 describe('Payroll Salary API Routes — extended coverage', () => {
   let app: express.Express;
 

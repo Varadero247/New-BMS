@@ -653,3 +653,136 @@ describe('Quality Interested Parties API — further edge cases', () => {
     );
   });
 });
+
+describe('Quality Interested Parties API — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/parties', partiesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/parties — success:true in body', async () => {
+    (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/parties').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/parties — correct totalPages for 30 items at limit 10', async () => {
+    (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(30);
+
+    const response = await request(app)
+      .get('/api/parties?page=1&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(3);
+  });
+
+  it('POST /api/parties — count is called once for reference number generation', async () => {
+    (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(2);
+    (mockPrisma.qualInterestedParty.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-PTY-2026-003',
+      partyName: 'Gov Agency',
+      partyType: 'EXTERNAL',
+      reasonForInclusion: 'Regulator',
+      status: 'ACTIVE',
+    });
+
+    await request(app)
+      .post('/api/parties')
+      .set('Authorization', 'Bearer token')
+      .send({
+        partyName: 'Gov Agency',
+        partyType: 'EXTERNAL',
+        reasonForInclusion: 'Regulator',
+      });
+
+    expect(mockPrisma.qualInterestedParty.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/parties/:id — accepts valid status INACTIVE', async () => {
+    (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '24000000-0000-4000-a000-000000000001',
+      partyName: 'Acme',
+      partyType: 'EXTERNAL',
+      status: 'ACTIVE',
+    });
+    (mockPrisma.qualInterestedParty.update as jest.Mock).mockResolvedValueOnce({
+      id: '24000000-0000-4000-a000-000000000001',
+      status: 'INACTIVE',
+    });
+
+    const response = await request(app)
+      .put('/api/parties/24000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'INACTIVE' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('DELETE /api/parties/:id — update is called with where id', async () => {
+    (mockPrisma.qualInterestedParty.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '24000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.qualInterestedParty.update as jest.Mock).mockResolvedValueOnce({});
+
+    await request(app)
+      .delete('/api/parties/24000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.qualInterestedParty.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '24000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+
+  it('GET /api/parties — items array in response data', async () => {
+    (mockPrisma.qualInterestedParty.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/parties').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('POST /api/parties — sets initial status to ACTIVE', async () => {
+    (mockPrisma.qualInterestedParty.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualInterestedParty.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-PTY-2026-001',
+      partyName: 'Supplier X',
+      partyType: 'EXTERNAL',
+      reasonForInclusion: 'Key supplier',
+      status: 'ACTIVE',
+    });
+
+    const response = await request(app)
+      .post('/api/parties')
+      .set('Authorization', 'Bearer token')
+      .send({
+        partyName: 'Supplier X',
+        partyType: 'EXTERNAL',
+        reasonForInclusion: 'Key supplier',
+      });
+
+    expect(response.status).toBe(201);
+    expect(mockPrisma.qualInterestedParty.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'ACTIVE' }),
+      })
+    );
+  });
+});

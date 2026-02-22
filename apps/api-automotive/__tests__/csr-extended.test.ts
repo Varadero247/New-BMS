@@ -434,3 +434,46 @@ describe('CSR Routes — final coverage block', () => {
     expect(mockPrisma.csrRequirement.findUnique).toHaveBeenCalledWith({ where: { id } });
   });
 });
+
+describe('CSR Routes — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/csr/oems returns success:true on empty result', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/csr/oems');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/csr/gaps meta.totalPages is 0 when total is 0', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/csr/gaps');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+
+  it('GET /api/csr/oems/:oem returns success:true', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/csr/oems/Audi');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/csr/:id/status returns 500 with INTERNAL_ERROR when update rejects', async () => {
+    const id = '00000000-0000-0000-0000-000000000001';
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id });
+    (mockPrisma.csrRequirement.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).put(`/api/csr/${id}/status`).send({ complianceStatus: 'COMPLIANT' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/csr/gaps findMany is called once per request', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/csr/gaps');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledTimes(1);
+  });
+});

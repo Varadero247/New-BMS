@@ -562,3 +562,33 @@ describe('CRM Reports — additional response shape and metric coverage', () => 
     expect(res.body.data.conversionRate).toBe(0);
   });
 });
+
+describe('CRM Reports — final additional coverage', () => {
+  it('GET /sales-dashboard returns content-type application/json', async () => {
+    mockPrisma.crmDeal.count.mockResolvedValue(0);
+    mockPrisma.crmDeal.aggregate.mockResolvedValue({ _sum: { value: null } });
+    const res = await request(app).get('/api/reports/sales-dashboard');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET /pipeline-velocity velocityByStage is an array', async () => {
+    mockPrisma.crmDeal.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/pipeline-velocity');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.velocityByStage)).toBe(true);
+  });
+
+  it('GET /win-loss success is true on valid response', async () => {
+    mockPrisma.crmDeal.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/win-loss');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /forecast forecast array is empty when no deals', async () => {
+    mockPrisma.crmDeal.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/forecast');
+    expect(res.status).toBe(200);
+    expect(res.body.data.forecast).toHaveLength(0);
+  });
+});

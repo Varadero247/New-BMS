@@ -428,3 +428,45 @@ describe('kpis — business logic and response structure', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('kpis — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /kpis?assetId filters findMany by assetId', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([]);
+    prisma.cmmsKpi.count.mockResolvedValue(0);
+    const aid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    await request(app).get(`/api/kpis?assetId=${aid}`);
+    expect(prisma.cmmsKpi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ assetId: aid }) })
+    );
+  });
+
+  it('DELETE /kpis/:id returns 404 with NOT_FOUND code', async () => {
+    prisma.cmmsKpi.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /kpis returns 400 when name is missing', async () => {
+    const res = await request(app).post('/api/kpis').send({
+      metricType: 'MTBF',
+      value: 100,
+      unit: 'hours',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /kpis/dashboard returns 500 on asset count error', async () => {
+    prisma.cmmsKpi.findMany.mockResolvedValue([]);
+    prisma.cmmsAsset.count.mockRejectedValue(new Error('asset count fail'));
+    const res = await request(app).get('/api/kpis/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

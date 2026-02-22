@@ -494,3 +494,56 @@ describe('Human Review — final batch coverage', () => {
     expect(res.body.data).toHaveProperty('title');
   });
 });
+
+describe('Human Review — final extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/human-review with no filters returns all reviews', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+    (prisma.aiHumanReview.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/human-review');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET /api/human-review/pending returns array in data', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+    const res = await request(app).get('/api/human-review/pending');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/human-review with empty aiDecision returns 400 (fails min length)', async () => {
+    const res = await request(app).post('/api/human-review').send({
+      systemId: 'sys-1',
+      title: 'Deferred Decision',
+      aiDecision: '',
+      aiConfidence: 0.7,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/human-review/:id success:true on valid id', async () => {
+    (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    const res = await request(app).get('/api/human-review/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/human-review/:id calls update with deletedAt', async () => {
+    (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.aiHumanReview.update as jest.Mock).mockResolvedValue({
+      ...mockReview,
+      deletedAt: new Date(),
+    });
+    await request(app).delete('/api/human-review/00000000-0000-0000-0000-000000000001');
+    expect(prisma.aiHumanReview.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+});

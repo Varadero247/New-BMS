@@ -431,3 +431,73 @@ describe('Prospect Research — final coverage', () => {
     expect(prisma.mktProspectResearch.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Prospect Research — ≥40 coverage', () => {
+  it('POST /research stores createdBy from authenticated user', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'ByUser Co',
+    });
+
+    await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'ByUser Co', industry: 'Finance' });
+
+    // The authenticate mock (from @ims/auth) sets req.user = { id: 'user-123', ... }
+    // on the route handler, so createdBy resolves to 'user-123'
+    expect(prisma.mktProspectResearch.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ createdBy: 'user-123' }),
+      })
+    );
+  });
+
+  it('GET /api/prospects success:true on empty results', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/prospects');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST /research with industry stores it in create data', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'IndustryCo',
+    });
+
+    await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'IndustryCo', industry: 'Energy' });
+
+    expect(prisma.mktProspectResearch.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ industry: 'Energy' }),
+      })
+    );
+  });
+
+  it('GET /api/prospects 500 response has error.code INTERNAL_ERROR', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+
+    const res = await request(app).get('/api/prospects');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /research create called exactly once per valid request', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'OnceCo',
+    });
+
+    await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'OnceCo' });
+
+    expect(prisma.mktProspectResearch.create).toHaveBeenCalledTimes(1);
+  });
+});

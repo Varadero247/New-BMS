@@ -416,3 +416,48 @@ describe('Requests — business logic and response structure', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Requests — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /requests data items include title field', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([mockRequest]);
+    prisma.cmmsRequest.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/requests');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('title', 'Fix leaking pipe');
+  });
+
+  it('GET /requests response content-type is application/json', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([]);
+    prisma.cmmsRequest.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/requests');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('DELETE /requests/:id returns 404 with NOT_FOUND code', async () => {
+    prisma.cmmsRequest.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/requests/00000000-0000-0000-0000-000000000077');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /requests/:id returns 404 with NOT_FOUND code when missing', async () => {
+    prisma.cmmsRequest.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/requests/00000000-0000-0000-0000-000000000077')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /requests pagination defaults page to 1 when not provided', async () => {
+    prisma.cmmsRequest.findMany.mockResolvedValue([]);
+    prisma.cmmsRequest.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/requests');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+});

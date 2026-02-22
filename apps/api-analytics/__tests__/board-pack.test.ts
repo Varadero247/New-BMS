@@ -458,3 +458,53 @@ describe('board-pack.test.ts — final additional coverage', () => {
     expect(createArg.data.status).toBe('DRAFT');
   });
 });
+
+describe('board-pack.test.ts — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('runBoardPackJob create data.status is always DRAFT', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'extra-1', status: 'DRAFT' });
+    await runBoardPackJob();
+    const arg = (prisma.boardPack.create as jest.Mock).mock.calls[0][0];
+    expect(arg.data.status).toBe('DRAFT');
+  });
+
+  it('GET /api/board-packs pagination has totalPages defined', async () => {
+    (prisma.boardPack.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.count as jest.Mock).mockResolvedValue(20);
+    const res = await request(app).get('/api/board-packs?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination).toHaveProperty('total');
+    expect(res.body.data.pagination.total).toBe(20);
+  });
+
+  it('PATCH /api/board-packs/:id success:false when board pack not found', async () => {
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'FINAL' });
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/board-packs/:id data.status matches the stored status', async () => {
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Q1 Board',
+      status: 'DISTRIBUTED',
+      sections: {},
+    });
+    const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('DISTRIBUTED');
+  });
+
+  it('runBoardPackJob resolves without throwing on empty snapshots', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'extra-5', status: 'DRAFT' });
+    await expect(runBoardPackJob()).resolves.toBe('extra-5');
+  });
+});

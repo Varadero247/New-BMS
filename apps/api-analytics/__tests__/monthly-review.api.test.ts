@@ -466,3 +466,49 @@ describe('Monthly Review — remaining coverage', () => {
     expect(res.body.data).toHaveProperty('skipped');
   });
 });
+
+// ===================================================================
+// Monthly Review — additional tests to reach ≥40
+// ===================================================================
+describe('Monthly Review — additional tests', () => {
+  it('GET /api/monthly-review response is JSON content-type', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/monthly-review');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/monthly-review findMany called once per list request', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/monthly-review');
+    expect(prisma.monthlySnapshot.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/monthly-review pagination has totalPages field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/monthly-review');
+    expect(res.body.data.pagination).toHaveProperty('totalPages');
+  });
+
+  it('POST /api/monthly-review/trigger returns message field as string', async () => {
+    const res = await request(app).post('/api/monthly-review/trigger').send({});
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.message).toBe('string');
+  });
+
+  it('POST /api/monthly-review/seed-targets createMany called when targets missing', async () => {
+    (prisma.planTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.planTarget.createMany as jest.Mock).mockResolvedValue({ count: 36 });
+    await request(app).post('/api/monthly-review/seed-targets').send({});
+    expect(prisma.planTarget.createMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/monthly-review count called once per list request', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/monthly-review');
+    expect(prisma.monthlySnapshot.count).toHaveBeenCalledTimes(1);
+  });
+});

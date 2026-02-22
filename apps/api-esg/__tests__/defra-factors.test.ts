@@ -445,3 +445,48 @@ describe('DEFRA Factors — final coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('DEFRA Factors — extra coverage', () => {
+  it('GET / returned items have unit field', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([mockDefraFactor]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.body.data[0]).toHaveProperty('unit');
+  });
+
+  it('GET / returned items have year field', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([mockDefraFactor]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.body.data[0]).toHaveProperty('year');
+  });
+
+  it('POST / missing required activity returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Electricity',
+      factor: 0.207,
+      unit: 'kgCO2e/kWh',
+      year: 2026,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / create is called with correct factor value', async () => {
+    (prisma.esgDefraFactor.create as jest.Mock).mockResolvedValue(mockDefraFactor);
+    await request(app).post('/api/defra-factors').send({
+      category: 'Fuel',
+      activity: 'Petrol combustion',
+      factor: 2.31,
+      unit: 'kgCO2e/litre',
+      year: 2026,
+    });
+    expect(prisma.esgDefraFactor.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ factor: 2.31 }) })
+    );
+  });
+
+  it('GET / response status is 200 on success', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([mockDefraFactor]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+  });
+});

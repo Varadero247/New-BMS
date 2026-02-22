@@ -382,3 +382,46 @@ describe('Audits Dashboard — final boundary checks', () => {
     expect(res.headers['content-type']).toMatch(/application\/json/);
   });
 });
+
+describe('Audits Dashboard — additional boundary coverage', () => {
+  it('totalAudits of 100 is correctly reflected in response', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(100);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalAudits).toBe(100);
+  });
+
+  it('returns 500 when all three count queries reject', async () => {
+    mockPrisma.audAudit.count.mockRejectedValue(new Error('all fail'));
+    mockPrisma.audFinding.count.mockRejectedValue(new Error('all fail'));
+    mockPrisma.audChecklist.count.mockRejectedValue(new Error('all fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('totalChecklists of 50 appears correctly in response', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalChecklists).toBe(50);
+  });
+
+  it('stats endpoint responds to GET only — no data property on POST', async () => {
+    const res = await request(app).post('/api/dashboard/stats').send({});
+    expect(res.status).toBe(404);
+  });
+
+  it('large totalFindings value is correctly returned', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(12345);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalFindings).toBe(12345);
+  });
+});

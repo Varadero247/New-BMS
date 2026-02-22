@@ -284,6 +284,54 @@ describe('Security Headers Middleware', () => {
   });
 });
 
+describe('Security Headers — additional coverage batch', () => {
+  let mockReq: Partial<Request>;
+  let mockRes: Partial<Response>;
+  let mockNext: NextFunction;
+
+  beforeEach(() => {
+    mockReq = { path: '/api/test' };
+    mockRes = {
+      setHeader: jest.fn().mockReturnThis(),
+      removeHeader: jest.fn().mockReturnThis(),
+      getHeader: jest.fn().mockReturnValue(undefined),
+    };
+    mockNext = jest.fn();
+  });
+
+  it('additionalSecurityHeaders sets Permissions-Policy containing fullscreen=(self)', () => {
+    additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+    const call = (mockRes.setHeader as jest.Mock).mock.calls.find((c) => c[0] === 'Permissions-Policy');
+    expect(call[1]).toContain('fullscreen=(self)');
+  });
+
+  it('additionalSecurityHeaders does not set Expires for /robots.txt', () => {
+    mockReq.path = '/robots.txt';
+    additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.setHeader).not.toHaveBeenCalledWith('Expires', expect.any(String));
+  });
+
+  it('additionalSecurityHeaders sets Cache-Control for /api/inventory path', () => {
+    mockReq.path = '/api/inventory';
+    additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      'Cache-Control',
+      'no-store, no-cache, must-revalidate, proxy-revalidate'
+    );
+  });
+
+  it('createSecurityMiddleware result is an array', () => {
+    const mw = createSecurityMiddleware();
+    expect(Array.isArray(mw)).toBe(true);
+  });
+
+  it('additionalSecurityHeaders sets X-Content-Type-Options for non-API path too', () => {
+    mockReq.path = '/health';
+    additionalSecurityHeaders(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockRes.setHeader).toHaveBeenCalledWith('X-Content-Type-Options', 'nosniff');
+  });
+});
+
 describe('Security Headers — final coverage batch', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;

@@ -349,3 +349,39 @@ describe('Dual Loan Model — final coverage', () => {
     expect(m6.interest).toBeLessThan(m1.interest);
   });
 });
+
+// ─── Dual Loan Model — supplemental coverage ─────────────────────────────────
+describe('Dual Loan Model — supplemental coverage', () => {
+  it('calculateAmortisation principalPaid is positive for mid-term payment', () => {
+    const result = calculateAmortisation(80000, 0.06, 36, 18);
+    expect(result.principalPaid).toBeGreaterThan(0);
+  });
+
+  it('calculateFounderIncome M6 loanPayment is the sum of active loan payments', () => {
+    const result = calculateFounderIncome(6);
+    const expectedSum = Math.round((result.dirLoanPayment + result.starterLoanPayment) * 100) / 100;
+    expect(result.loanPayment).toBeCloseTo(expectedSum, 2);
+  });
+
+  it('calculateAmortisation with very small loan still returns valid numbers', () => {
+    const result = calculateAmortisation(100, 0.1, 12, 1);
+    expect(typeof result.payment).toBe('number');
+    expect(typeof result.interest).toBe('number');
+    expect(typeof result.principalPaid).toBe('number');
+    expect(typeof result.balance).toBe('number');
+  });
+
+  it('calculateFounderIncome M50 all balances remain zero after loans complete', () => {
+    const result = calculateFounderIncome(50);
+    expect(result.dirLoanBalance).toBe(0);
+    expect(result.starterLoanBalance).toBe(0);
+    expect(result.loanPayment).toBe(0);
+  });
+
+  it('calculateAmortisation payment returned for term=1 is greater than principal (due to interest)', () => {
+    // With any positive interest rate, payment on 1-month term > principal/1
+    const result = calculateAmortisation(10000, 0.12, 1, 1);
+    expect(result.payment).toBeGreaterThan(10000);
+    expect(result.balance).toBeCloseTo(0, 0);
+  });
+});

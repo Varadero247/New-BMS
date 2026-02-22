@@ -434,6 +434,31 @@ describe('contracts.api — extended edge cases', () => {
   });
 });
 
+describe('contracts.api — batch-q coverage', () => {
+  it('GET / findMany called once per request', async () => {
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcContract.count.mockResolvedValue(0);
+    await request(app).get('/api/contracts');
+    expect(mockPrisma.fsSvcContract.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / returns data as array', async () => {
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcContract.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id returns 500 when find step rejects', async () => {
+    mockPrisma.fsSvcContract.findFirst.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app)
+      .put('/api/contracts/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
 describe('contracts.api — additional coverage 2', () => {
   it('GET / response has success:true with pagination', async () => {
     mockPrisma.fsSvcContract.findMany.mockResolvedValue([]);

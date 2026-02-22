@@ -451,3 +451,40 @@ describe('Checklists — business logic and response structure', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Checklists — additional coverage 3', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/checklists response is JSON content-type', async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([]);
+    prisma.cmmsChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/checklists');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/checklists count is called once per list request', async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([]);
+    prisma.cmmsChecklist.count.mockResolvedValue(0);
+    await request(app).get('/api/checklists');
+    expect(prisma.cmmsChecklist.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/checklists returns 201 when items array is omitted (items is optional)', async () => {
+    prisma.cmmsChecklist.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000099', name: 'My Checklist' });
+    const res = await request(app).post('/api/checklists').send({ name: 'My Checklist' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/checklists/:id calls update with deletedAt field', async () => {
+    prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
+    prisma.cmmsChecklist.update.mockResolvedValue({ ...mockChecklist, deletedAt: new Date() });
+    await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(prisma.cmmsChecklist.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

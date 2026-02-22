@@ -289,6 +289,48 @@ describe('VAT Summary — further edge cases', () => {
   });
 });
 
+describe('VAT Summary — comprehensive coverage', () => {
+  it('create block has euVat field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'comp-vat-1' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.create).toHaveProperty('euVat');
+  });
+
+  it('update block has ukVat field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'comp-vat-2' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.update).toHaveProperty('ukVat');
+  });
+
+  it('upsert where.period matches create.period', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'comp-vat-3' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.where.period).toBe(upsertCall.create.period);
+  });
+
+  it('breakdown fourth item is Rest of World', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'comp-vat-4' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.create.breakdown[3].region).toBe('Rest of World');
+  });
+
+  it('ukVat is 0 when totalRevenue is 0', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'comp-vat-5' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(Number(upsertCall.create.ukVat)).toBe(0);
+  });
+});
+
 describe('VAT Summary — final coverage block', () => {
   it('GCC revenue is 10% of totalRevenue', async () => {
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);

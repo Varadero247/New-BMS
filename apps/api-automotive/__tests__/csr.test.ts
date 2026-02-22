@@ -662,3 +662,54 @@ describe('Automotive CSR API Routes — final coverage', () => {
     expect(res.body.meta.total).toBe(7);
   });
 });
+
+describe('Automotive CSR API Routes — extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/csr', csrRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/csr/oems response data is an array', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ oem: 'Rivian' }]);
+    const res = await request(app).get('/api/csr/oems');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/csr/gaps returns meta.total matching count mock', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(17);
+    const res = await request(app).get('/api/csr/gaps');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(17);
+  });
+
+  it('PUT /api/csr/:id/status with actionRequired in body passes it to update data', async () => {
+    const id = '30000000-0000-4000-a000-000000000001';
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id });
+    (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id, complianceStatus: 'PARTIAL', actionRequired: 'Action needed' });
+    await request(app).put(`/api/csr/${id}/status`).send({ complianceStatus: 'PARTIAL', actionRequired: 'Action needed' });
+    expect(mockPrisma.csrRequirement.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ actionRequired: 'Action needed' }) })
+    );
+  });
+
+  it('GET /api/csr/oems/:oem with page 1 limit 5 returns correct meta', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(15);
+    const res = await request(app).get('/api/csr/oems/Ford?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('GET /api/csr/oems findMany is called exactly once', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/csr/oems');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledTimes(1);
+  });
+});

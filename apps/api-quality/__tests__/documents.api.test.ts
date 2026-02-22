@@ -589,3 +589,73 @@ describe('Quality Documents — final coverage', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+describe('Quality Documents — extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/documents', documentsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / count called once per list request', async () => {
+    mockPrisma.qualDocument.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
+    await request(app).get('/api/documents').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualDocument.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / totalPages is 0 when count is 0', async () => {
+    mockPrisma.qualDocument.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/documents').set('Authorization', 'Bearer token');
+    expect(res.body.data.totalPages).toBe(0);
+  });
+
+  it('GET /:id returns title in response data', async () => {
+    mockPrisma.qualDocument.findUnique.mockResolvedValueOnce({
+      id: '1e000000-0000-4000-a000-000000000001',
+      title: 'Quality Manual',
+      documentType: 'POLICY',
+      status: 'APPROVED',
+    });
+    const res = await request(app)
+      .get('/api/documents/1e000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Quality Manual');
+  });
+
+  it('POST / sets initial version to 1.0', async () => {
+    mockPrisma.qualDocument.count.mockResolvedValueOnce(0);
+    mockPrisma.qualDocument.create.mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-DOC-2026-001',
+      title: 'New Doc',
+      status: 'DRAFT',
+      version: '1.0',
+    });
+    await request(app)
+      .post('/api/documents')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'New Doc', documentType: 'PROCEDURE', author: 'Alice', ownerCustodian: 'QM' });
+    expect(mockPrisma.qualDocument.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ version: '1.0' }) })
+    );
+  });
+
+  it('PUT /:id update called once on success', async () => {
+    mockPrisma.qualDocument.findUnique.mockResolvedValueOnce({ id: '1e000000-0000-4000-a000-000000000001', title: 'Doc', status: 'DRAFT' });
+    mockPrisma.qualDocument.update.mockResolvedValueOnce({ id: '1e000000-0000-4000-a000-000000000001', status: 'APPROVED' });
+    await request(app)
+      .put('/api/documents/1e000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'APPROVED' });
+    expect(mockPrisma.qualDocument.update).toHaveBeenCalledTimes(1);
+  });
+});

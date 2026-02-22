@@ -436,3 +436,64 @@ describe('Quality Audits API — final coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Quality Audits API — extra boundary coverage', () => {
+  const mockAudit = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-AUD-2026-001',
+    title: 'Internal QMS Audit',
+    auditType: 'INTERNAL',
+    scope: 'Full QMS scope review',
+    leadAuditor: 'Jane Auditor',
+    status: 'PLANNED',
+    deletedAt: null,
+  };
+
+  it('GET / returns data as an array', async () => {
+    mockPrisma.qualAudit.findMany.mockResolvedValue([mockAudit]);
+    mockPrisma.qualAudit.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/audits');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / returns 400 when leadAuditor is missing', async () => {
+    const res = await request(app).post('/api/audits').send({
+      title: 'Test Audit',
+      auditType: 'INTERNAL',
+      scope: 'Some scope',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id updates leadAuditor field', async () => {
+    mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
+    mockPrisma.qualAudit.update.mockResolvedValue({ ...mockAudit, leadAuditor: 'New Lead' });
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .send({ leadAuditor: 'New Lead' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.leadAuditor).toBe('New Lead');
+  });
+
+  it('GET / findMany called once per request', async () => {
+    mockPrisma.qualAudit.findMany.mockResolvedValue([]);
+    mockPrisma.qualAudit.count.mockResolvedValue(0);
+    await request(app).get('/api/audits');
+    expect(mockPrisma.qualAudit.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id does not call update when not found', async () => {
+    mockPrisma.qualAudit.findFirst.mockResolvedValue(null);
+    await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000099');
+    expect(mockPrisma.qualAudit.update).not.toHaveBeenCalled();
+  });
+
+  it('PUT /:id does not call update when not found', async () => {
+    mockPrisma.qualAudit.findFirst.mockResolvedValue(null);
+    await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Never updated' });
+    expect(mockPrisma.qualAudit.update).not.toHaveBeenCalled();
+  });
+});

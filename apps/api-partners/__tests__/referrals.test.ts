@@ -315,6 +315,43 @@ describe('Referrals — edge cases', () => {
   });
 });
 
+describe('Referrals — extra coverage batch ah', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data items have prospectEmail field', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([mockReferral]);
+    const res = await request(app).get('/api/referrals');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('prospectEmail');
+  });
+
+  it('GET /stats: total is the length of referrals returned', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([
+      mockReferral,
+      { ...mockReferral, id: 'ref-2' },
+    ]);
+    const res = await request(app).get('/api/referrals/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(2);
+  });
+
+  it('POST /track returns 400 when both email and name are missing', async () => {
+    const res = await request(app)
+      .post('/api/referrals/track')
+      .send({});
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / success:false and 500 on DB error', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/api/referrals');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
 describe('Referrals — final coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

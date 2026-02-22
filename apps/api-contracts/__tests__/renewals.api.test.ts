@@ -295,6 +295,32 @@ describe('renewals.api — edge cases and field validation', () => {
   });
 });
 
+describe('renewals.api — final additional coverage', () => {
+  it('response body is not null', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('returns 200 status for a valid GET request', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+  });
+
+  it('findMany called with renewalDate lte filter (today or after)', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    await request(app).get('/api/renewals');
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          renewalDate: expect.objectContaining({ lte: expect.any(Date) }),
+        }),
+      }),
+    );
+  });
+});
+
 describe('renewals.api — deep field and call coverage', () => {
   it('findMany is called with a renewalDate lte filter (within window)', async () => {
     mockPrisma.contContract.findMany.mockResolvedValue([]);

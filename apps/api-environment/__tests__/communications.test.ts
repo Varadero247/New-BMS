@@ -703,3 +703,90 @@ describe('Environment Communications API — additional coverage', () => {
     expect(response.body.data.total).toBe(2);
   });
 });
+
+describe('Environment Communications API — final coverage', () => {
+  let app3: express.Express;
+
+  beforeAll(() => {
+    app3 = express();
+    app3.use(express.json());
+    app3.use('/api/communications', communicationsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST / returns 400 when priority is invalid', async () => {
+    const response = await request(app3)
+      .post('/api/communications')
+      .set('Authorization', 'Bearer token')
+      .send({
+        subject: 'Test subject',
+        type: 'TOOLBOX_TALK',
+        direction: 'INTERNAL',
+        content: 'Valid content',
+        priority: 'INVALID_PRIORITY',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / returns data.items as array', async () => {
+    (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication]);
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const response = await request(app3)
+      .get('/api/communications')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('PUT /:id returns success:true on valid update', async () => {
+    (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+    (mockPrisma.envCommunication.update as jest.Mock).mockResolvedValueOnce({
+      ...mockCommunication,
+      status: 'ACKNOWLEDGED',
+    });
+
+    const response = await request(app3)
+      .put('/api/communications/50000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'ACKNOWLEDGED' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /participation returns externalStakeholder count', async () => {
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(4);
+    (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([
+      { type: 'EXTERNAL_STAKEHOLDER', direction: 'EXTERNAL', status: 'SENT', createdAt: new Date() },
+      { type: 'EXTERNAL_STAKEHOLDER', direction: 'EXTERNAL', status: 'ACKNOWLEDGED', createdAt: new Date() },
+      { type: 'REGULATORY', direction: 'EXTERNAL', status: 'SENT', createdAt: new Date() },
+      { type: 'WORKER_CONSULTATION', direction: 'INTERNAL', status: 'CLOSED', createdAt: new Date() },
+    ]);
+
+    const response = await request(app3)
+      .get('/api/communications/participation')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.byType.EXTERNAL_STAKEHOLDER).toBe(2);
+  });
+
+  it('DELETE /:id returns 500 on update DB error', async () => {
+    (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+    (mockPrisma.envCommunication.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app3)
+      .delete('/api/communications/50000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

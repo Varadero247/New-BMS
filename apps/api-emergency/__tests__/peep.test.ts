@@ -510,3 +510,36 @@ describe('peep — final coverage', () => {
     expect(res.body).toHaveProperty('success', true);
   });
 });
+
+describe('PEEP — final boundary coverage', () => {
+  it('POST /api/peep/premises/:id calls create with premisesId in data', async () => {
+    mockPeep.create.mockResolvedValue(fakePeep);
+    await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send(validCreateBody);
+    expect(mockPeep.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ premisesId: PREMISES_ID }) }),
+    );
+  });
+
+  it('PUT /api/peep/:id calls update with where.id matching peep id', async () => {
+    mockPeep.findFirst.mockResolvedValue(fakePeep);
+    mockPeep.update.mockResolvedValue({ ...fakePeep, evacuationMethod: 'Lift' });
+    await request(app).put(`/api/peep/${PEEP_ID}`).send({ evacuationMethod: 'Lift' });
+    expect(mockPeep.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: PEEP_ID } }),
+    );
+  });
+
+  it('GET /api/peep/premises/:id response data items have personName field', async () => {
+    mockPeep.findMany.mockResolvedValue([fakePeep]);
+    const res = await request(app).get(`/api/peep/premises/${PREMISES_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('personName');
+  });
+
+  it('GET /api/peep/due-review returns success:true', async () => {
+    mockPeep.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/peep/due-review');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

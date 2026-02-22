@@ -320,3 +320,60 @@ describe('magic-link — store and verification edge cases', () => {
     expect(decodeURIComponent(magicLink)).toContain('user@example.com');
   });
 });
+
+// ── magic-link — comprehensive coverage ──────────────────────────────────────
+
+describe('magic-link — comprehensive coverage', () => {
+  it('hashMagicLinkToken output is lowercase hex', () => {
+    const hash = hashMagicLinkToken('some-token');
+    expect(hash).toBe(hash.toLowerCase());
+  });
+
+  it('verifyMagicLinkToken returns "expired" for record with past expiresAt and no usedAt', () => {
+    const rec: MagicLinkRecord = {
+      hashedToken: hashMagicLinkToken('tok-expired'),
+      email: 'e@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() - 30_000),
+      usedAt: null,
+    };
+    expect(verifyMagicLinkToken('tok-expired', rec)).toBe('expired');
+  });
+
+  it('InMemoryMagicLinkStore: markUsed sets usedAt to a Date very close to now', () => {
+    const store = new InMemoryMagicLinkStore();
+    const rec: MagicLinkRecord = {
+      hashedToken: 'time-check',
+      email: 'u@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+    };
+    store.save('time-check', rec);
+    const before = Date.now();
+    store.markUsed('time-check');
+    const usedAt = store.find('time-check')?.usedAt?.getTime() ?? 0;
+    expect(usedAt).toBeGreaterThanOrEqual(before - 50);
+    expect(usedAt).toBeLessThanOrEqual(Date.now() + 50);
+  });
+
+  it('generateMagicLink default redirectUrl results in "/" in magicLink', () => {
+    const { magicLink } = generateMagicLink('a@b.com');
+    expect(decodeURIComponent(magicLink)).toContain('/');
+  });
+
+  it('purgeExpired() does not remove records with usedAt set but not expired', () => {
+    const store = new InMemoryMagicLinkStore();
+    const used: MagicLinkRecord = {
+      hashedToken: 'used-not-expired',
+      email: 'u@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: new Date(),
+    };
+    store.save('used-not-expired', used);
+    const purged = store.purgeExpired();
+    expect(purged).toBe(0);
+    expect(store.size).toBe(1);
+  });
+});

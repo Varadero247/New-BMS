@@ -626,3 +626,74 @@ describe('ISO 37001 Risk Assessments — extended coverage', () => {
     );
   });
 });
+
+describe('ISO 37001 Risk Assessments — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risk-assessments: data items have category field', async () => {
+    (mockPrisma.abRiskAssessment.findMany as jest.Mock).mockResolvedValueOnce([mockRisk]);
+    (mockPrisma.abRiskAssessment.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/risk-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('category');
+  });
+
+  it('GET /api/risk-assessments: pagination has limit field', async () => {
+    (mockPrisma.abRiskAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abRiskAssessment.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/risk-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /:id: returns 500 on DB error', async () => {
+    (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(app).get('/api/risk-assessments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/risk-assessments: generates referenceNumber on creation', async () => {
+    (mockPrisma.abRiskAssessment.create as jest.Mock).mockResolvedValueOnce(mockRisk);
+    await request(app).post('/api/risk-assessments').send({
+      title: 'Reference Number Test',
+      category: 'THIRD_PARTY_RISKS',
+      businessFunction: 'Procurement',
+      likelihood: 2,
+      impact: 2,
+    });
+    expect(mockPrisma.abRiskAssessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          referenceNumber: expect.stringMatching(/^AB-RSK-/),
+        }),
+      })
+    );
+  });
+
+  it('PUT /:id/mitigate: sets mitigationOwner when provided', async () => {
+    (mockPrisma.abRiskAssessment.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
+    (mockPrisma.abRiskAssessment.update as jest.Mock).mockResolvedValueOnce({
+      ...mockRisk,
+      status: 'MITIGATED',
+      mitigationPlan: 'Enhanced checks',
+      mitigationOwner: 'Risk Manager',
+      residualLikelihood: 2,
+      residualImpact: 2,
+      residualRiskScore: 4,
+      residualRiskLevel: 'LOW',
+    });
+    const res = await request(app)
+      .put('/api/risk-assessments/00000000-0000-0000-0000-000000000001/mitigate')
+      .send({
+        mitigationPlan: 'Enhanced checks',
+        residualLikelihood: 2,
+        residualImpact: 2,
+        mitigationOwner: 'Risk Manager',
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

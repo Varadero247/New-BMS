@@ -511,6 +511,47 @@ describe('E-Signature — extended edge cases', () => {
   });
 });
 
+describe('E-Signature — additional final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockGetValidMeanings.mockReturnValue(['APPROVED', 'REVIEWED', 'RELEASED', 'VERIFIED', 'REJECTED', 'WITNESSED', 'AUTHORED', 'ACKNOWLEDGED']);
+  });
+
+  it('GET / with page=1 and limit=5 returns limit: 5 in data', async () => {
+    mockESignature.findMany.mockResolvedValue([]);
+    mockESignature.count.mockResolvedValue(0);
+    const res = await request(app).get('/').query({ page: '1', limit: '5' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.limit).toBe(5);
+  });
+
+  it('POST / returns 400 when resourceId is missing', async () => {
+    mockIsValidMeaning.mockReturnValue(true);
+    const res = await request(app).post('/').send({
+      meaning: 'APPROVED',
+      reason: 'Approved',
+      password: 'pass',
+      resourceType: 'document',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / findMany is called once per list request', async () => {
+    mockESignature.findMany.mockResolvedValue([mockSigRecord]);
+    mockESignature.count.mockResolvedValue(1);
+    await request(app).get('/');
+    expect(mockESignature.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id returns success: true', async () => {
+    mockESignature.findUnique.mockResolvedValue(mockSigRecord);
+    mockESignature.update.mockResolvedValue({ ...mockSigRecord, valid: false });
+    const res = await request(app).delete(`/${SIG_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
 describe('E-Signature — final coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -570,5 +611,12 @@ describe('E-Signature — final coverage', () => {
     mockESignature.count.mockResolvedValue(0);
     const res = await request(app).get('/');
     expect(res.body.data.page).toBe(1);
+  });
+
+  it('POST /:id/verify with valid=true does NOT call eSignature.update', async () => {
+    mockESignature.findUnique.mockResolvedValue(mockSigRecord);
+    mockVerifySignature.mockReturnValue({ signatureId: SIG_ID, valid: true, checksumMatch: true, userId: USER_ID, userEmail: 'admin@ims.local', meaning: 'APPROVED', timestamp: new Date(), resourceType: 'document', resourceId: '00000000-0000-0000-0000-000000000099' });
+    await request(app).post(`/${SIG_ID}/verify`);
+    expect(mockESignature.update).not.toHaveBeenCalled();
   });
 });

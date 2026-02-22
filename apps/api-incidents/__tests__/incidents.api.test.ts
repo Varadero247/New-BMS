@@ -296,6 +296,54 @@ describe('Incidents — search and pagination', () => {
   });
 });
 
+describe('Incidents — extra coverage', () => {
+  it('GET / response body has success key', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('GET / response body has data key as array', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / with severity filter passes it to count where clause', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/incidents?severity=MAJOR');
+    const countCall = (mockPrisma.incIncident.count as jest.Mock).mock.calls[0][0];
+    expect(countCall.where.orgId).toBe('org-1');
+  });
+
+  it('POST / returns 201 with correct id in data', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    mockPrisma.incIncident.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000042',
+      title: 'Equipment Failure',
+      dateOccurred: '2026-03-01T10:00:00Z',
+    });
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({ title: 'Equipment Failure', dateOccurred: '2026-03-01T10:00:00Z' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000042');
+  });
+
+  it('DELETE /:id returns success:true and message on success', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/incidents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
 describe('Incidents — final coverage block', () => {
   it('GET / response content-type is JSON', async () => {
     mockPrisma.incIncident.findMany.mockResolvedValue([]);

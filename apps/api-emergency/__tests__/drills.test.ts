@@ -556,3 +556,36 @@ describe('drills — final coverage', () => {
     expect(res.body.data.totalDrills).toBe(3);
   });
 });
+
+describe('drills — final boundary coverage', () => {
+  it('GET /api/drills/analytics response body has success:true', async () => {
+    mockDrill.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/drills/analytics');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('POST /api/drills/premises/:id sets premisesId in created record', async () => {
+    mockDrill.create.mockResolvedValue({ ...fakeDrill });
+    const res = await request(app).post(`/api/drills/premises/${PREMISES_ID}`).send(validCreateBody);
+    expect(res.status).toBe(201);
+    expect(res.body.data.premisesId).toBe(PREMISES_ID);
+  });
+
+  it('PUT /api/drills/:id totalPersonsEvacuated update returns 200', async () => {
+    mockDrill.findFirst.mockResolvedValue(fakeDrill);
+    mockDrill.update.mockResolvedValue({ ...fakeDrill, totalPersonsEvacuated: 200 });
+    const res = await request(app).put(`/api/drills/${DRILL_ID}`).send({ totalPersonsEvacuated: 200 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('analytics premisesStats avgEvacTime is a number', async () => {
+    mockDrill.findMany.mockResolvedValue([
+      { ...fakeDrill, evacuationTimeMinutes: 4, targetAchieved: true, premises: { name: 'Office' } },
+    ]);
+    const res = await request(app).get('/api/drills/analytics');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.premisesStats['Office'].avgEvacTime).toBe('number');
+  });
+});

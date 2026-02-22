@@ -568,5 +568,66 @@ describe('InfoSec Risks API', () => {
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
     });
+
+    it('should return 500 on database error during treatment update', async () => {
+      (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
+      (mockPrisma.isRisk.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const res = await request(app)
+        .put('/api/risks/a6000000-0000-4000-a000-000000000001/treatment')
+        .send({ treatment: 'MITIGATE', treatmentPlan: 'Add MFA' });
+
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+});
+
+describe('InfoSec Risks — final coverage', () => {
+  const mockRisk = {
+    id: 'a6000000-0000-4000-a000-000000000001',
+    refNumber: 'ISR-2602-1234',
+    title: 'Test risk',
+    threat: 'Threat',
+    vulnerability: 'Vuln',
+    likelihood: 3,
+    impact: 3,
+    riskScore: 9,
+    riskLevel: 'MEDIUM',
+    status: 'IDENTIFIED',
+    deletedAt: null,
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/risks responds with JSON content-type', async () => {
+    (mockPrisma.isRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.isRisk.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/risks');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/risks/:id returns 500 on DB error', async () => {
+    (mockPrisma.isRisk.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app).get('/api/risks/a6000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/risks/:id returns 500 on database update error', async () => {
+    (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce(mockRisk);
+    (mockPrisma.isRisk.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/risks/a6000000-0000-4000-a000-000000000001')
+      .send({ title: 'Updated title' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/risks/heat-map returns empty matrix when no risks exist', async () => {
+    (mockPrisma.isRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/risks/heat-map');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalRisks).toBe(0);
   });
 });

@@ -533,3 +533,49 @@ describe('Counterfeit Routes — additional coverage', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('Counterfeit Routes — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /reports returns success:true and items array', async () => {
+    (mockPrisma.counterfeitReport.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.counterfeitReport.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/counterfeit/reports');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data.items)).toBe(true);
+  });
+
+  it('GET /approved-sources returns success:true and items array', async () => {
+    (mockPrisma.approvedSource.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.approvedSource.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/counterfeit/approved-sources');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /reports count is called before create', async () => {
+    (mockPrisma.counterfeitReport.count as jest.Mock).mockResolvedValue(2);
+    (mockPrisma.counterfeitReport.create as jest.Mock).mockResolvedValue({ id: 'cf-3' });
+    await request(app).post('/api/counterfeit/reports').send({
+      partNumber: 'IC-9000',
+      manufacturer: 'Acme Corp',
+      suspicionReason: 'Date code mismatch',
+    });
+    expect(mockPrisma.counterfeitReport.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /reports/:id returns 500 on database error', async () => {
+    (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockRejectedValue(new Error('DB'));
+    const res = await request(app).get('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /reports/:id returns 500 on findUnique error', async () => {
+    (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockRejectedValue(new Error('DB'));
+    const res = await request(app)
+      .put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'UNDER_INVESTIGATION' });
+    expect(res.status).toBe(500);
+  });
+});

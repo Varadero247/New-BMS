@@ -529,4 +529,12 @@ describe('Compliance Scores API — additional coverage', () => {
     expect(iatf).toBeDefined();
     expect(iatf.weight).toBeGreaterThan(0);
   });
+
+  it('GET / response content-type is JSON', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+  });
 });

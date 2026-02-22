@@ -354,3 +354,50 @@ describe('method-statements.api — final coverage', () => {
     );
   });
 });
+
+describe('method-statements.api — extra boundary coverage', () => {
+  it('GET / returns multiple method statements', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'MS1' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'MS2' },
+    ]);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/method-statements');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / generates referenceNumber for new method statement', async () => {
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(4);
+    mockPrisma.ptwMethodStatement.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      title: 'New MS',
+      referenceNumber: 'PMS-2026-0005',
+    });
+    const res = await request(app).post('/api/method-statements').send({ title: 'New MS' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toBeDefined();
+  });
+
+  it('PUT /:id returns success:true on update', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwMethodStatement.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Changed' });
+    const res = await request(app)
+      .put('/api/method-statements/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Changed' });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns 404 error code NOT_FOUND when not found', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/method-statements/00000000-0000-0000-0000-000000000099');
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([]);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/method-statements');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

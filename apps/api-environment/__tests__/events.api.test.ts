@@ -635,3 +635,94 @@ describe('Environment Events API — additional coverage', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+describe('Environment Events API — boundary coverage', () => {
+  let app3: express.Express;
+
+  beforeAll(() => {
+    app3 = express();
+    app3.use(express.json());
+    app3.use('/api/events', eventsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/events filters by eventType=EMISSION', async () => {
+    (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app3)
+      .get('/api/events?eventType=EMISSION')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envEvent.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ eventType: 'EMISSION' }),
+      })
+    );
+  });
+
+  it('PUT /api/events/:id returns success:true on update', async () => {
+    (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '17000000-0000-4000-a000-000000000001',
+      status: 'REPORTED',
+    });
+    (mockPrisma.envEvent.update as jest.Mock).mockResolvedValueOnce({
+      id: '17000000-0000-4000-a000-000000000001',
+      status: 'INVESTIGATING',
+    });
+
+    const response = await request(app3)
+      .put('/api/events/17000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'INVESTIGATING' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('DELETE /api/events/:id returns 204 on success', async () => {
+    (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '17000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envEvent.update as jest.Mock).mockResolvedValueOnce({});
+
+    const response = await request(app3)
+      .delete('/api/events/17000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(204);
+  });
+
+  it('GET /api/events meta total reflects Prisma count result', async () => {
+    (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(99);
+
+    const response = await request(app3)
+      .get('/api/events')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.total).toBe(99);
+  });
+
+  it('POST /api/events returns 400 for missing dateOfEvent field', async () => {
+    const response = await request(app3)
+      .post('/api/events')
+      .set('Authorization', 'Bearer token')
+      .send({
+        eventType: 'SPILL',
+        severity: 'MAJOR',
+        location: 'Warehouse B',
+        department: 'Operations',
+        reportedBy: 'John Doe',
+        description: 'Chemical spill in the main warehouse area near loading dock',
+        // dateOfEvent missing
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

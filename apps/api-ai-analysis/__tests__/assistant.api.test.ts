@@ -511,3 +511,52 @@ describe('POST /api/assistant — final additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ── POST /api/assistant — extra coverage ──────────────────────────────────────
+
+describe('POST /api/assistant — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('response content-type header is defined for valid request', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app).post('/api/assistant').send({ question: 'What is ISO 45001?' });
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('returns 200 and success:true for a compliance question without AI', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app).post('/api/assistant').send({ question: 'How does compliance tracking work?' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('answer is not undefined for any valid question', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app).post('/api/assistant').send({ question: 'Tell me about chemical management.' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.answer).not.toBeUndefined();
+  });
+
+  it('suggestedModules is an array for an audit-related question', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app).post('/api/assistant').send({ question: 'How do internal audits work?' });
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.suggestedModules)).toBe(true);
+  });
+
+  it('OPENAI provider falls back when fetch returns ok:false', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue({ provider: 'OPENAI', apiKey: 'sk-test', model: 'gpt-4', isActive: true });
+    mockFetch.mockResolvedValue({ ok: false, json: async () => ({ error: { message: 'server error' } }) });
+    const res = await request(app).post('/api/assistant').send({ question: 'How does the system work?' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -341,3 +341,33 @@ describe('Security Headers HTTP — final coverage batch', () => {
     expect(res.body).toEqual({ ok: true });
   });
 });
+
+describe('Security Headers HTTP — extended final batch', () => {
+  it('GET /api/data has Expires header set to 0 for API paths', async () => {
+    const res = await request(app).get('/api/data');
+    expect(res.headers['expires']).toBe('0');
+  });
+
+  it('GET /api/echo with empty q param returns success true', async () => {
+    const res = await request(app).get('/api/echo?q=');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /test with empty object body returns 200', async () => {
+    const res = await request(app).post('/test').set('Content-Type', 'application/json').send({});
+    expect(res.status).toBe(200);
+    expect(res.body.received).toEqual({});
+  });
+
+  it('GET /api/nonexistent returns NOT_FOUND error code', async () => {
+    const res = await request(app).get('/api/nonexistent-xyz-abc');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /test X-Content-Type-Options is nosniff', async () => {
+    const res = await request(app).get('/test');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+  });
+});

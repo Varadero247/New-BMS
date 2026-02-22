@@ -254,6 +254,50 @@ describe('Commission — additional coverage', () => {
   });
 });
 
+describe('Commission — extra coverage batch ah', () => {
+  it('summary: multiple CLOSED_WON with null commissionValue are excluded from totalEarned', async () => {
+    const deals = [
+      { ...mockDeals[0], commissionValue: null, status: 'CLOSED_WON' },
+      { ...mockDeals[1], commissionValue: 2000, status: 'CLOSED_WON' },
+    ];
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue(deals);
+    const res = await request(app).get('/api/commission/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalEarned).toBe(2000);
+  });
+
+  it('history: returns commission history with commissionRate field', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([mockDeals[0]]);
+    const res = await request(app).get('/api/commission/history');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('commissionRate');
+  });
+
+  it('pending: totalPending is 0 when all deals are already paid', async () => {
+    // The /pending endpoint filters commissionPaid:false at the DB level.
+    // When all deals are paid, the DB returns no results, so mock empty array.
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/pending');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalPending).toBe(0);
+  });
+
+  it('GET /summary response contains dealsInPipeline key', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('dealsInPipeline');
+  });
+
+  it('GET /pending response contains deals key as array', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/pending');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('deals');
+    expect(Array.isArray(res.body.data.deals)).toBe(true);
+  });
+});
+
 describe('Commission — query parameters and aggregation edge cases', () => {
   it('summary: totalPaid is 0 when no deals have commissionPaid=true', async () => {
     const unpaidDeals = [

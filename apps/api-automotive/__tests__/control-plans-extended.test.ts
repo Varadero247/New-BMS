@@ -528,3 +528,64 @@ describe('Control Plan Routes — additional final coverage', () => {
     expect(res.body.meta.total).toBe(0);
   });
 });
+
+describe('Control Plan Routes — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns correct meta.page from query', async () => {
+    (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/control-plans?page=3&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(3);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('POST / create is called with partNumber in data', async () => {
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.controlPlan.create as jest.Mock).mockResolvedValue({ id: 'cp-xx', refNumber: 'CP-2602-0001' });
+    await request(app).post('/api/control-plans').send({
+      title: 'CP Test',
+      partNumber: 'PN-XYZ',
+      partName: 'Widget',
+    });
+    expect(mockPrisma.controlPlan.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ partNumber: 'PN-XYZ' }) })
+    );
+  });
+
+  it('GET / meta has limit field', async () => {
+    (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/control-plans');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('limit');
+  });
+
+  it('POST /:id/approve update is called with status APPROVED', async () => {
+    (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      status: 'DRAFT',
+    });
+    (mockPrisma.controlPlan.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'APPROVED',
+    });
+    await request(app).post('/api/control-plans/00000000-0000-0000-0000-000000000001/approve').send({});
+    expect(mockPrisma.controlPlan.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'APPROVED' }) })
+    );
+  });
+
+  it('GET /:id data.id matches requested id', async () => {
+    const id = '00000000-0000-0000-0000-000000000007';
+    (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({
+      id,
+      characteristics: [],
+    });
+    const res = await request(app).get(`/api/control-plans/${id}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(id);
+  });
+});

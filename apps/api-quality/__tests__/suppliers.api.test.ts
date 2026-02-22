@@ -674,3 +674,72 @@ describe('Quality Suppliers API — final edge cases', () => {
     expect(response.body.data.overallImsScore).toBe(86);
   });
 });
+
+describe('Quality Suppliers API — absolute final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/suppliers data is an array', async () => {
+    (mockPrisma.qualSupplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('GET /api/suppliers pagination has totalPages field', async () => {
+    (mockPrisma.qualSupplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('totalPages');
+  });
+
+  it('POST /api/suppliers INTERNAL_ERROR on db crash', async () => {
+    (mockPrisma.qualSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualSupplier.create as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const response = await request(app)
+      .post('/api/suppliers')
+      .set('Authorization', 'Bearer token')
+      .send({ supplierName: 'Crash Supplier', category: 'SERVICES' });
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/suppliers/:id 500 on update DB error', async () => {
+    (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      supplierName: 'Old',
+      category: 'MATERIALS',
+      qualityScore: 80,
+      hsAuditScore: 70,
+      envAuditScore: 60,
+    });
+    (mockPrisma.qualSupplier.update as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const response = await request(app)
+      .put('/api/suppliers/25000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ supplierName: 'New Name' });
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/suppliers/:id 500 on update DB error', async () => {
+    (mockPrisma.qualSupplier.findUnique as jest.Mock).mockResolvedValueOnce({ id: '25000000-0000-4000-a000-000000000001' });
+    (mockPrisma.qualSupplier.update as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const response = await request(app)
+      .delete('/api/suppliers/25000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

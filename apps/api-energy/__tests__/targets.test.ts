@@ -533,3 +533,60 @@ describe('targets — final coverage', () => {
     expect(res.body.data.year).toBe(2026);
   });
 });
+
+describe('targets — boundary and edge coverage', () => {
+  it('POST /api/targets returns 400 when year is missing', async () => {
+    const res = await request(app).post('/api/targets').send({
+      name: 'Target',
+      metricType: 'CONSUMPTION',
+      targetValue: 50000,
+      unit: 'kWh',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/targets returns 400 when unit is missing', async () => {
+    const res = await request(app).post('/api/targets').send({
+      name: 'Target',
+      metricType: 'CONSUMPTION',
+      year: 2026,
+      targetValue: 50000,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/targets/:id/progress returns progress=0 when actualValue is null and targetValue is positive', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+      targetValue: 50000,
+      actualValue: null,
+      status: 'ON_TRACK',
+      baseline: null,
+    });
+
+    const res = await request(app).get(
+      '/api/targets/e3000000-0000-4000-a000-000000000001/progress'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.progress).toBe(0);
+    expect(res.body.data.baseline).toBeNull();
+  });
+
+  it('PUT /api/targets/:id returns success:true on update', async () => {
+    (prisma.energyTarget.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyTarget.update as jest.Mock).mockResolvedValue({
+      id: 'e3000000-0000-4000-a000-000000000001',
+      name: 'New Name',
+    });
+
+    const res = await request(app)
+      .put('/api/targets/e3000000-0000-4000-a000-000000000001')
+      .send({ name: 'New Name' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

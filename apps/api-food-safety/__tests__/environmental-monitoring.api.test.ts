@@ -377,6 +377,70 @@ describe('Food Safety Environmental Monitoring — edge cases and error paths', 
 });
 
 // ===================================================================
+// Food Safety Environmental Monitoring — extra coverage to reach ≥40 tests
+// ===================================================================
+describe('Food Safety Environmental Monitoring — extra coverage', () => {
+  it('GET / page=3 limit=10 applies skip 20 take 10', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(0);
+    await request(app).get('/api/environmental-monitoring?page=3&limit=10');
+    expect(mockPrisma.fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('POST / missing testedAt returns 400', async () => {
+    const res = await request(app).post('/api/environmental-monitoring').send({
+      location: 'Zone A',
+      testType: 'SWAB',
+      parameter: 'Listeria',
+      result: 'Negative',
+      withinSpec: true,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /:id data has location field on found record', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000060',
+      location: 'Zone F',
+      testType: 'SWAB',
+    });
+    const res = await request(app).get('/api/environmental-monitoring/00000000-0000-0000-0000-000000000060');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('location', 'Zone F');
+  });
+
+  it('GET /out-of-spec returns success:true', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000061', withinSpec: false },
+    ]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/environmental-monitoring/out-of-spec');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / success returns data with id from DB', async () => {
+    mockPrisma.fsEnvironmentalMonitoring.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000062',
+      location: 'Zone G',
+      testType: 'WATER',
+    });
+    const res = await request(app).post('/api/environmental-monitoring').send({
+      location: 'Zone G',
+      testType: 'WATER',
+      parameter: 'Coliforms',
+      result: 'Negative',
+      withinSpec: true,
+      testedAt: '2026-03-15T10:00:00Z',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id', '00000000-0000-0000-0000-000000000062');
+  });
+});
+
+// ===================================================================
 // Food Safety Environmental Monitoring — final coverage block
 // ===================================================================
 describe('Food Safety Environmental Monitoring — final coverage', () => {

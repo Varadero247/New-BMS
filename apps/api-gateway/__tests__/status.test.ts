@@ -284,6 +284,50 @@ describe('status — more scenarios', () => {
   });
 });
 
+describe('status — pre-final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/health/status', statusRouter);
+    jest.clearAllMocks();
+    mockGetPlatformStatus.mockReturnValue({
+      status: 'operational',
+      timestamp: new Date().toISOString(),
+      services: [{ name: 'api-gateway', status: 'operational', latencyMs: 5 }],
+      uptime: { '24h': 99.98, '7d': 99.95, '30d': 99.91 },
+      incidents: [],
+    });
+  });
+
+  it('data.incidents is an array when no incidents', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.incidents)).toBe(true);
+  });
+
+  it('getPlatformStatus is called once per GET', async () => {
+    await request(app).get('/api/health/status');
+    expect(mockGetPlatformStatus).toHaveBeenCalledTimes(1);
+  });
+
+  it('services[0].name is a string', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(typeof res.body.data.services[0].name).toBe('string');
+  });
+
+  it('status value equals operational under normal conditions', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.body.data.status).toBe('operational');
+  });
+
+  it('data.timestamp value is parseable as a Date', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(new Date(res.body.data.timestamp).toISOString()).toBeDefined();
+  });
+});
+
 describe('status — final coverage batch', () => {
   let app: express.Express;
 

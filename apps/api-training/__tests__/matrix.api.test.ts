@@ -412,3 +412,49 @@ describe('matrix.api — final coverage expansion', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('matrix.api — coverage to 40', () => {
+  it('GET /api/matrix response body has success and data', async () => {
+    mockPrisma.trainMatrix.findMany.mockResolvedValue([]);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/matrix');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/matrix response content-type is json', async () => {
+    mockPrisma.trainMatrix.findMany.mockResolvedValue([]);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/matrix');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/matrix/:id returns 404 code NOT_FOUND', async () => {
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/matrix/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/matrix/:id response data.id matches the path id', async () => {
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000006' });
+    mockPrisma.trainMatrix.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000006',
+      currentLevel: 'EXPERT',
+    });
+    const res = await request(app)
+      .put('/api/matrix/00000000-0000-0000-0000-000000000006')
+      .send({ currentLevel: 'EXPERT' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000006');
+  });
+
+  it('DELETE /api/matrix/:id message contains matrix entry', async () => {
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainMatrix.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/matrix/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('matrix entry');
+  });
+});

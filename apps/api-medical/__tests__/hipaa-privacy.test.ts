@@ -389,3 +389,52 @@ describe('HIPAA Privacy — final edge cases', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('HIPAA Privacy — further boundary coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns success:true and data array on empty list', async () => {
+    prisma.hipaaPrivacyPolicy.findMany.mockResolvedValue([]);
+    prisma.hipaaPrivacyPolicy.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /training returns 500 on DB error', async () => {
+    prisma.hipaaTrainingRecord.findMany.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/training');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / NPP create is called once on valid payload', async () => {
+    prisma.hipaaPrivacyPolicy.create.mockResolvedValue({ id: 'p-new', ...policyPayload, status: 'DRAFT' });
+    await request(app).post('/').send(policyPayload);
+    expect(prisma.hipaaPrivacyPolicy.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /training returns 400 on missing employeeName', async () => {
+    const { employeeName: _en, ...body } = trainingPayload;
+    const res = await request(app).post('/training').send(body);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /minimum-necessary pagination has total field', async () => {
+    prisma.hipaaMinimumNecessary.findMany.mockResolvedValue([]);
+    prisma.hipaaMinimumNecessary.count.mockResolvedValue(5);
+    const res = await request(app).get('/minimum-necessary');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total', 5);
+  });
+
+  it('PUT /:id response data has updated status', async () => {
+    prisma.hipaaPrivacyPolicy.findUnique.mockResolvedValue({ id: 'p1', deletedAt: null });
+    prisma.hipaaPrivacyPolicy.update.mockResolvedValue({ id: 'p1', status: 'SUPERSEDED' });
+    const res = await request(app).put('/p1').send({ status: 'SUPERSEDED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('SUPERSEDED');
+  });
+});

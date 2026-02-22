@@ -323,3 +323,40 @@ describe('dsar — additional validation scenarios', () => {
     jest.useRealTimers();
   });
 });
+
+describe('dsar — final additional coverage', () => {
+  it('createRequest returns an object with all expected properties', () => {
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE });
+    expect(req).toHaveProperty('id');
+    expect(req).toHaveProperty('orgId');
+    expect(req).toHaveProperty('type');
+    expect(req).toHaveProperty('status');
+    expect(req).toHaveProperty('subjectEmail');
+    expect(req).toHaveProperty('createdAt');
+    expect(req).toHaveProperty('updatedAt');
+  });
+
+  it('updateRequest returns null for an unknown ID string', () => {
+    const result = updateRequest('no-such-id', { status: 'COMPLETE' });
+    expect(result).toBeNull();
+  });
+
+  it('listRequests for brand-new org returns an empty array', () => {
+    expect(listRequests(uniqueOrg())).toEqual([]);
+  });
+
+  it('processErasureRequest completedAt is a valid ISO string', async () => {
+    jest.useFakeTimers();
+    const req = createRequest({ orgId: uniqueOrg(), type: 'ERASURE', subjectEmail: 'del2@ims.local', requestedById: 'u' });
+    const promise = processErasureRequest(req.id);
+    jest.runAllTimers();
+    const result = await promise;
+    expect(new Date(result!.completedAt!).toISOString()).toBe(result!.completedAt);
+    jest.useRealTimers();
+  });
+
+  it('createRequest requestedById is stored correctly', () => {
+    const req = createRequest({ orgId: uniqueOrg(), ...BASE, requestedById: 'admin-42' });
+    expect(req.requestedById).toBe('admin-42');
+  });
+});

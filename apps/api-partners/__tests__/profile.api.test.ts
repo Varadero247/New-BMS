@@ -193,6 +193,40 @@ describe('PUT /api/profile', () => {
   });
 });
 
+describe('Partner Profile — extra coverage batch ah', () => {
+  it('GET /profile: response data has email field', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    const res = await request(app).get('/api/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('email');
+  });
+
+  it('GET /profile: response data has isoSpecialisms field', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    const res = await request(app).get('/api/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('isoSpecialisms');
+  });
+
+  it('PUT /profile: success is true on 200', async () => {
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+    const res = await request(app).put('/api/profile').send({ name: 'New Name' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /profile: update not called when validation fails', async () => {
+    await request(app).put('/api/profile').send({ name: '' });
+    expect(prisma.mktPartner.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /profile: findUnique called once per request', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    await request(app).get('/api/profile');
+    expect(prisma.mktPartner.findUnique).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('Partner Profile — extended', () => {
   it('GET /profile response includes referralCode field', async () => {
     (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);

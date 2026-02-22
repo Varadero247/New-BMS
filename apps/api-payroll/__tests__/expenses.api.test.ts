@@ -661,6 +661,71 @@ describe('Payroll Expenses API Routes', () => {
   });
 });
 
+describe('Payroll Expenses — extra coverage batch ah', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/expenses', expensesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/expenses: response data is an array', async () => {
+    (mockPrisma.expense.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/expenses').set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/expenses: meta has page and limit fields', async () => {
+    (mockPrisma.expense.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/expenses').set('Authorization', 'Bearer token');
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('limit');
+  });
+
+  it('PUT /approve: succeeds when approvedById is missing (it is optional)', async () => {
+    // approvedById is optional in the schema; omitting it is valid
+    (mockPrisma.expense.update as jest.Mock).mockResolvedValueOnce({
+      id: '38000000-0000-4000-a000-000000000001',
+      status: 'APPROVED',
+      approvalStatus: 'APPROVED',
+    });
+    const res = await request(app)
+      .put('/api/expenses/38000000-0000-4000-a000-000000000001/approve')
+      .set('Authorization', 'Bearer token')
+      .send({});
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /reports/all: response data is an array', async () => {
+    (mockPrisma.expenseReport.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app)
+      .get('/api/expenses/reports/all')
+      .set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /reports: returns 400 when periodStart is missing', async () => {
+    const res = await request(app)
+      .post('/api/expenses/reports')
+      .set('Authorization', 'Bearer token')
+      .send({
+        employeeId: '2a000000-0000-4000-a000-000000000001',
+        title: 'Report',
+        periodEnd: '2024-03-31',
+        expenseIds: ['11111111-1111-1111-1111-111111111111'],
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
 describe('Payroll Expenses — additional coverage', () => {
   let app: express.Express;
 

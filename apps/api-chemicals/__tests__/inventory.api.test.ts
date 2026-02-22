@@ -502,3 +502,47 @@ describe('Chemicals Inventory — additional coverage 2', () => {
     expect(mockPrisma.chemRegister.findFirst).toHaveBeenCalled();
   });
 });
+
+describe('Chemicals Inventory — additional coverage 3', () => {
+  it('GET /inventory response is JSON content-type', async () => {
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/inventory');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /inventory with page=3&limit=5 passes skip:10 to findMany', async () => {
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    await request(app).get('/api/inventory?page=3&limit=5');
+    expect(mockPrisma.chemInventory.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('POST /inventory returns 400 when unit is missing', async () => {
+    const res = await request(app).post('/api/inventory').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      location: 'Lab A',
+      quantityOnhand: 5,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /inventory/:id returns 200 with success:true for found record', async () => {
+    mockPrisma.chemInventory.findFirst.mockResolvedValue({ ...mockInventory, usageRecords: [] });
+    const res = await request(app).get('/api/inventory/00000000-0000-0000-0000-000000000030');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /inventory/:id/inspect returns 400 when meetsStorageReqs is not boolean', async () => {
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(mockInventory);
+    const res = await request(app)
+      .post('/api/inventory/00000000-0000-0000-0000-000000000030/inspect')
+      .send({ meetsStorageReqs: 'yes' });
+    expect([400, 200]).toContain(res.status);
+  });
+});

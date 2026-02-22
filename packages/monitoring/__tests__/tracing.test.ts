@@ -258,3 +258,41 @@ describe('Tracing — comprehensive edge cases', () => {
     expect(result).toBeNull();
   });
 });
+
+describe('Tracing — final coverage', () => {
+  beforeEach(() => {
+    delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    delete process.env.OTEL_TRACING_ENABLED;
+  });
+
+  it('getTracer returns an object (not null or undefined)', () => {
+    const tracer = getTracer('final-tracer');
+    expect(tracer).not.toBeNull();
+    expect(tracer).not.toBeUndefined();
+  });
+
+  it('addSpanAttributes with numeric-string values does not throw', () => {
+    expect(() => addSpanAttributes({ 'db.rows': '42', 'cache.hit': '0' })).not.toThrow();
+  });
+
+  it('recordException with EvalError does not throw', () => {
+    expect(() => recordException(new EvalError('eval blocked'))).not.toThrow();
+  });
+
+  it('traceMiddleware called twice on same req/res pair does not throw', () => {
+    const middleware = traceMiddleware();
+    const req: any = {};
+    const res: any = { setHeader: jest.fn() };
+    const next1 = jest.fn();
+    const next2 = jest.fn();
+    middleware(req, res, next1);
+    middleware(req, res, next2);
+    expect(next1).toHaveBeenCalled();
+    expect(next2).toHaveBeenCalled();
+  });
+
+  it('initTracing with both serviceName and enabled:false returns null', () => {
+    const result = initTracing({ serviceName: 'disabled-svc', enabled: false });
+    expect(result).toBeNull();
+  });
+});

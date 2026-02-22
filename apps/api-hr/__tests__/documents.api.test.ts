@@ -650,3 +650,55 @@ describe('HR Documents API Routes', () => {
     });
   });
 });
+
+describe('HR Documents — extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/documents', documentsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / findMany called exactly once', async () => {
+    (mockPrisma.employeeDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.employeeDocument.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/documents');
+    expect(mockPrisma.employeeDocument.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / response success is true', async () => {
+    (mockPrisma.employeeDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.employeeDocument.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/documents');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / create called with version 1 and status ACTIVE', async () => {
+    (mockPrisma.employeeDocument.create as jest.Mock).mockResolvedValueOnce({
+      id: 'doc-x',
+      employeeId: '11111111-1111-1111-1111-111111111111',
+      documentType: 'CONTRACT',
+      title: 'Test Contract',
+      fileName: 'test.pdf',
+      fileUrl: 'https://files.example.com/test.pdf',
+      status: 'ACTIVE',
+      version: 1,
+    });
+    await request(app).post('/api/documents').send({
+      employeeId: '11111111-1111-1111-1111-111111111111',
+      documentType: 'CONTRACT',
+      title: 'Test Contract',
+      fileName: 'test.pdf',
+      fileUrl: 'https://files.example.com/test.pdf',
+    });
+    expect(mockPrisma.employeeDocument.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ version: 1, status: 'ACTIVE' }) })
+    );
+  });
+});

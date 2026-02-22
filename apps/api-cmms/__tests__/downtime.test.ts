@@ -417,3 +417,45 @@ describe('downtime — business logic and response structure', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('downtime — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('DELETE /downtime/:id calls soft delete via update with deletedAt', async () => {
+    prisma.cmmsDowntime.findFirst.mockResolvedValue(mockDowntime);
+    prisma.cmmsDowntime.update.mockResolvedValue({ ...mockDowntime, deletedAt: new Date() });
+    const res = await request(app).delete('/api/downtime/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(prisma.cmmsDowntime.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST /downtime returns 400 when assetId is missing', async () => {
+    const res = await request(app).post('/api/downtime').send({
+      startTime: '2026-02-13T08:00:00Z',
+      reason: 'Motor fault',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /downtime?assetId filters findMany by assetId', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([]);
+    prisma.cmmsDowntime.count.mockResolvedValue(0);
+    const aid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    await request(app).get(`/api/downtime?assetId=${aid}`);
+    expect(prisma.cmmsDowntime.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ assetId: aid }) })
+    );
+  });
+
+  it('GET /downtime response contains pagination with totalPages', async () => {
+    prisma.cmmsDowntime.findMany.mockResolvedValue([]);
+    prisma.cmmsDowntime.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/downtime?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+});

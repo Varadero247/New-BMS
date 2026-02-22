@@ -496,3 +496,81 @@ describe('Quality Metrics API — further edge cases', () => {
     );
   });
 });
+
+describe('Quality Metrics API — final coverage', () => {
+  const mockMetric = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-MET-2026-001',
+    name: 'Return Rate',
+    description: 'Track product returns',
+    category: 'CUSTOMER_SATISFACTION',
+    unit: 'percentage',
+    targetValue: 5,
+    actualValue: 3,
+    status: 'ON_TRACK',
+    frequency: 'MONTHLY',
+    owner: 'Quality Lead',
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/metrics — success:true is present in response body', async () => {
+    mockPrisma.qualMetric.findMany.mockResolvedValue([mockMetric]);
+    mockPrisma.qualMetric.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/metrics');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/metrics — data array contains metric with correct name', async () => {
+    mockPrisma.qualMetric.findMany.mockResolvedValue([mockMetric]);
+    mockPrisma.qualMetric.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/metrics');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].name).toBe('Return Rate');
+  });
+
+  it('POST /api/metrics — count is called to generate reference number', async () => {
+    mockPrisma.qualMetric.count.mockResolvedValue(9);
+    mockPrisma.qualMetric.create.mockResolvedValue(mockMetric);
+
+    await request(app).post('/api/metrics').send({ name: 'Return Rate', category: 'CUSTOMER_SATISFACTION' });
+
+    expect(mockPrisma.qualMetric.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/metrics/:id — update is called with where id', async () => {
+    mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
+    mockPrisma.qualMetric.update.mockResolvedValue({ ...mockMetric, deletedAt: new Date() });
+
+    await request(app).delete('/api/metrics/00000000-0000-0000-0000-000000000001');
+
+    expect(mockPrisma.qualMetric.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /api/metrics/summary — byCategory is array in response', async () => {
+    mockPrisma.qualMetric.count
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(6)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(1);
+    mockPrisma.qualMetric.groupBy.mockResolvedValue([
+      { category: 'CUSTOMER_SATISFACTION', _count: { id: 10 } },
+    ]);
+
+    const res = await request(app).get('/api/metrics/summary');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.byCategory)).toBe(true);
+  });
+});

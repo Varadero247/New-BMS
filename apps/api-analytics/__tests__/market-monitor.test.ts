@@ -435,3 +435,56 @@ describe('Market Monitor — remaining coverage', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ===================================================================
+// Market Monitor — additional tests to reach ≥40
+// ===================================================================
+describe('Market Monitor — additional tests', () => {
+  it('GET /api/competitors response is JSON content-type', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/competitors');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/competitors findMany called once per list request', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/competitors');
+    expect(prisma.competitorMonitor.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/competitors response body data has name field', async () => {
+    (prisma.competitorMonitor.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      name: 'GammaCorp',
+      website: 'https://gamma.io',
+      category: 'INDIRECT',
+      intel: [],
+    });
+    const res = await request(app)
+      .post('/api/competitors')
+      .send({ name: 'GammaCorp', website: 'https://gamma.io', category: 'INDIRECT' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('name', 'GammaCorp');
+  });
+
+  it('GET /api/competitors count called once per list request', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/competitors');
+    expect(prisma.competitorMonitor.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/competitors/:id findUnique called with correct id', async () => {
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'TestCo',
+      intel: [],
+    });
+    await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000001');
+    expect(prisma.competitorMonitor.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});

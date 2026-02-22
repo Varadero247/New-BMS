@@ -382,6 +382,72 @@ describe('Agenda — validation and serialisation', () => {
   });
 });
 
+describe('Agenda — extra boundary coverage', () => {
+  const reviewId = '00000000-0000-0000-0000-000000000001';
+  const mockReview = { id: reviewId, title: 'Boundary Review', deletedAt: null };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('response is JSON content-type on 200', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('data object has reviewType property', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('reviewType');
+  });
+
+  it('data object has location property', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('location');
+  });
+
+  it('data object has chairperson property', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('chairperson');
+  });
+
+  it('data.items first item is a non-empty string', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    const firstItem = res.body.data.items[0];
+    expect(typeof firstItem).toBe('string');
+    expect(firstItem.length).toBeGreaterThan(0);
+  });
+
+  it('error object is not present in response body on 200', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.error).toBeUndefined();
+  });
+
+  it('success field is false on 404 (review not found)', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});
+
 describe('Agenda — final coverage', () => {
   const reviewId = '00000000-0000-0000-0000-000000000001';
   const mockReview = { id: reviewId, title: 'Final Coverage Review', deletedAt: null };

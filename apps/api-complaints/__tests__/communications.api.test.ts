@@ -409,3 +409,44 @@ describe('communications route — final coverage expansion', () => {
     expect(res.body.data.subject).toBe('Follow up');
   });
 });
+
+describe('communications route — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data array has length matching total count', async () => {
+    mockPrisma.compCommunication.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', subject: 'A' },
+      { id: '00000000-0000-0000-0000-000000000002', subject: 'B' },
+    ]);
+    mockPrisma.compCommunication.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/communications');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.pagination.total).toBe(2);
+  });
+
+  it('POST / returns 500 when count throws before create', async () => {
+    mockPrisma.compCommunication.count.mockRejectedValue(new Error('count failed'));
+    const res = await request(app).post('/api/communications').send({ complaintId: 'comp-1' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / pagination limit defaults to expected value', async () => {
+    mockPrisma.compCommunication.findMany.mockResolvedValue([]);
+    mockPrisma.compCommunication.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/communications');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('DELETE /:id returns 500 when findFirst resolves but update throws', async () => {
+    mockPrisma.compCommunication.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compCommunication.update.mockRejectedValue(new Error('update failed'));
+    const res = await request(app).delete('/api/communications/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

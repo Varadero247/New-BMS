@@ -762,3 +762,55 @@ describe('Inventory API — additional coverage', () => {
     });
   });
 });
+
+describe('Inventory API — extra final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/inventory', inventoryRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/inventory responds with JSON content-type', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/inventory').set('Authorization', 'Bearer token');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/inventory/transfer returns 500 on transaction DB error', async () => {
+    (mockPrisma.inventory.findUnique as jest.Mock)
+      .mockResolvedValueOnce({ id: 'inv-1', quantityOnHand: 100, averageCost: 10, lastCost: 10 })
+      .mockResolvedValueOnce({ id: 'inv-2', quantityOnHand: 50, binLocation: 'B1' });
+    (mockPrisma.$transaction as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app)
+      .post('/api/inventory/transfer')
+      .set('Authorization', 'Bearer token')
+      .send({
+        productId: '27000000-0000-4000-a000-000000000001',
+        fromWarehouseId: '28000000-0000-4000-a000-000000000001',
+        toWarehouseId: 'wh-2',
+        quantity: 20,
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/inventory/receive returns 400 when quantity is zero', async () => {
+    const res = await request(app)
+      .post('/api/inventory/receive')
+      .set('Authorization', 'Bearer token')
+      .send({
+        productId: '27000000-0000-4000-a000-000000000001',
+        warehouseId: '28000000-0000-4000-a000-000000000001',
+        quantity: 0,
+        unitCost: 10,
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

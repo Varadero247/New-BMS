@@ -345,3 +345,48 @@ describe('Cohort Analysis — final coverage', () => {
     expect(call.where).toHaveProperty('cohortMonth_measureMonth');
   });
 });
+
+describe('cohort-analysis — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockPrisma.monthlySnapshot.findMany.mockResolvedValue([]);
+  });
+
+  it('runCohortAnalysis monthNumber=7 creates exactly 7 upsert calls', async () => {
+    mockPrisma.cohortData.upsert.mockResolvedValue({});
+    await runCohortAnalysis(7, '2026-09');
+    expect(mockPrisma.cohortData.upsert).toHaveBeenCalledTimes(7);
+  });
+
+  it('runCohortAnalysis create.cohortMonth is a non-empty string for all calls', async () => {
+    mockPrisma.cohortData.upsert.mockResolvedValue({});
+    await runCohortAnalysis(3, '2026-05');
+    for (const call of mockPrisma.cohortData.upsert.mock.calls) {
+      expect(typeof call[0].create.cohortMonth).toBe('string');
+      expect(call[0].create.cohortMonth.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('runCohortAnalysis does not call monthlySnapshot.findMany more than once', async () => {
+    mockPrisma.cohortData.upsert.mockResolvedValue({});
+    await runCohortAnalysis(5, '2026-07');
+    expect(mockPrisma.monthlySnapshot.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('runCohortAnalysis NDR at age=1 is less than 100', async () => {
+    mockPrisma.cohortData.upsert.mockResolvedValue({});
+    await runCohortAnalysis(2, '2026-04');
+    const calls = mockPrisma.cohortData.upsert.mock.calls;
+    const ageOneCall = calls.find((c: any) => c[0].create.cohortAge === 1);
+    expect(ageOneCall).toBeDefined();
+    expect(ageOneCall![0].create.ndrPct).toBeLessThan(100);
+  });
+
+  it('runCohortAnalysis all create.cohortAge values are unique', async () => {
+    mockPrisma.cohortData.upsert.mockResolvedValue({});
+    await runCohortAnalysis(4, '2026-06');
+    const ages = mockPrisma.cohortData.upsert.mock.calls.map((c: any) => c[0].create.cohortAge);
+    const unique = new Set(ages);
+    expect(unique.size).toBe(ages.length);
+  });
+});

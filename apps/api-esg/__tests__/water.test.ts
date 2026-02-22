@@ -350,6 +350,39 @@ describe('water — extended coverage', () => {
   });
 });
 
+describe('water — batch-q coverage', () => {
+  it('GET / findMany called once per request', async () => {
+    (prisma.esgWater.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgWater.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/water');
+    expect(prisma.esgWater.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / returns 400 when periodStart is missing', async () => {
+    const res = await request(app).post('/api/water').send({
+      usageType: 'INTAKE',
+      quantity: 5000,
+      unit: 'liters',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / returns data as array', async () => {
+    (prisma.esgWater.findMany as jest.Mock).mockResolvedValue([mockWater]);
+    (prisma.esgWater.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/water');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id returns 500 on DB error in find step', async () => {
+    (prisma.esgWater.findFirst as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).delete('/api/water/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
 describe('water — additional coverage 2', () => {
   it('GET / response includes pagination with total', async () => {
     (prisma.esgWater.findMany as jest.Mock).mockResolvedValue([mockWater]);

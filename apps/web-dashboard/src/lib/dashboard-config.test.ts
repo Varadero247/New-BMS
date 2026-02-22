@@ -249,3 +249,26 @@ describe('SECTION_META — additional coverage', () => {
     expect(SECTION_META).toHaveProperty('iso-compliance');
   });
 });
+
+describe('dashboard-config — final boundary checks', () => {
+  it('operations section is present in SECTION_META', () => {
+    expect(SECTION_META).toHaveProperty('operations');
+  });
+
+  it('portals-specialist section is present in SECTION_META', () => {
+    expect(SECTION_META).toHaveProperty('portals-specialist');
+  });
+
+  it('ai-insights widget is present in WIDGET_META', () => {
+    expect(WIDGET_META).toHaveProperty('ai-insights');
+  });
+
+  it('MODULE_RBAC_MAP contains Finance entry', () => {
+    expect(Object.values(MODULE_RBAC_MAP)).toContain('finance');
+  });
+
+  it('DEFAULT_CONFIG.widgets compliance-gauges has order 0', () => {
+    const orders = Object.values(DEFAULT_CONFIG.widgets).map((w) => w.order);
+    expect(orders).toContain(0);
+  });
+});

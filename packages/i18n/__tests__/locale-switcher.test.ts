@@ -296,3 +296,34 @@ describe('@ims/i18n — additional locale contract', () => {
     expect(() => require('../src/index')).not.toThrow();
   });
 });
+
+/* ====================================================================
+ *  7. Additional useT and locale boundary coverage
+ * ==================================================================== */
+
+describe('@ims/i18n — useT and locale boundary coverage', () => {
+  beforeEach(() => {
+    mockUseTranslations.mockClear();
+  });
+
+  test('useT with multi-word namespace calls useTranslations with that string', () => {
+    useT('health-safety');
+    expect(mockUseTranslations).toHaveBeenCalledWith('health-safety');
+  });
+
+  test('locales first element is the defaultLocale', () => {
+    expect(locales[0]).toBe(defaultLocale);
+  });
+
+  test('locales array contains "fr"', () => {
+    expect(locales).toContain('fr');
+  });
+
+  test('locales array contains "de"', () => {
+    expect(locales).toContain('de');
+  });
+
+  test('locales array contains "es"', () => {
+    expect(locales).toContain('es');
+  });
+});

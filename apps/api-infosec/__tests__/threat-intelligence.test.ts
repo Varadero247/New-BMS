@@ -324,3 +324,39 @@ describe('Threat Intelligence — final coverage', () => {
     expect(res.body.data.status).toBe('ARCHIVED');
   });
 });
+
+describe('Threat Intelligence — extra final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST / with LOW confidence is valid', async () => {
+    prisma.isThreatIntelligence.create.mockResolvedValue({ ...mockTI, confidence: 'LOW' });
+    const res = await request(app).post('/').send({ ...tiPayload, confidence: 'LOW' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /summary byCategory is an object', async () => {
+    prisma.isThreatIntelligence.count.mockResolvedValue(3);
+    prisma.isThreatIntelligence.groupBy
+      .mockResolvedValueOnce([{ severity: 'HIGH', _count: { id: 3 } }])
+      .mockResolvedValueOnce([{ category: 'TACTICAL', _count: { id: 3 } }]);
+    const res = await request(app).get('/summary');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.byCategory).toBe('object');
+  });
+
+  it('GET / excludes soft-deleted records', async () => {
+    prisma.isThreatIntelligence.findMany.mockResolvedValue([]);
+    prisma.isThreatIntelligence.count.mockResolvedValue(0);
+    await request(app).get('/');
+    const findCall = prisma.isThreatIntelligence.findMany.mock.calls[0][0];
+    expect(findCall.where).toHaveProperty('deletedAt', null);
+  });
+
+  it('POST / PHISHING threatType is accepted', async () => {
+    prisma.isThreatIntelligence.create.mockResolvedValue({ ...mockTI, threatType: 'PHISHING' });
+    const res = await request(app).post('/').send({ ...tiPayload, threatType: 'PHISHING' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

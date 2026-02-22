@@ -396,3 +396,41 @@ describe('audits — final coverage', () => {
     );
   });
 });
+
+describe('audits — extra coverage', () => {
+  it('GET / response body has pagination object', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([mockAudit]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/audits');
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST / body is validated — missing auditType returns 400', async () => {
+    const res = await request(app).post('/api/audits').send({ title: 'Only Title' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id response has success:true when found', async () => {
+    (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(mockAudit);
+    const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id response is JSON content-type', async () => {
+    (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(mockAudit);
+    (prisma.esgAudit.update as jest.Mock).mockResolvedValue({ ...mockAudit, deletedAt: new Date() });
+    const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / EXTERNAL auditType returns 201', async () => {
+    (prisma.esgAudit.create as jest.Mock).mockResolvedValue({ ...mockAudit, auditType: 'EXTERNAL' });
+    const res = await request(app).post('/api/audits').send({
+      title: 'External ESG Audit',
+      auditType: 'EXTERNAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

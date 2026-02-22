@@ -396,6 +396,66 @@ describe('gdpr.api — data-export edge cases', () => {
   });
 });
 
+describe('gdpr.api — extra validation coverage', () => {
+  it('data-export personal data contains gender field', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(ACTIVE_EMPLOYEE);
+    (mockPrisma.leaveRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.performanceReview.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).post(`/api/gdpr/data-export/${EMP_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.dataSubject.personalData).toHaveProperty('gender');
+  });
+
+  it('data-export personal data contains dateOfBirth field', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(ACTIVE_EMPLOYEE);
+    (mockPrisma.leaveRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.performanceReview.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).post(`/api/gdpr/data-export/${EMP_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.dataSubject.personalData).toHaveProperty('dateOfBirth');
+  });
+
+  it('data-export employment contains hireDate', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(ACTIVE_EMPLOYEE);
+    (mockPrisma.leaveRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.performanceReview.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).post(`/api/gdpr/data-export/${EMP_ID}`);
+    expect(res.status).toBe(200);
+    const employment = res.body.data.dataSubject.employment;
+    expect(employment).toHaveProperty('hireDate');
+  });
+
+  it('anonymize response body contains employeeId equal to requested id', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(INACTIVE_EMPLOYEE);
+    (mockPrisma.employee.update as jest.Mock).mockResolvedValue({ ...INACTIVE_EMPLOYEE, firstName: 'REDACTED' });
+    const res = await request(app).post(`/api/gdpr/anonymize/${EMP_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.employeeId).toBe(EMP_ID);
+  });
+
+  it('anonymize update data contains null for personalEmail', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(INACTIVE_EMPLOYEE);
+    (mockPrisma.employee.update as jest.Mock).mockResolvedValue({ ...INACTIVE_EMPLOYEE, firstName: 'REDACTED' });
+    await request(app).post(`/api/gdpr/anonymize/${EMP_ID}`);
+    const updateData = (mockPrisma.employee.update as jest.Mock).mock.calls[0][0].data;
+    expect(updateData.personalEmail).toBeNull();
+  });
+
+  it('data-export relatedRecords has attendanceRecords key', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(ACTIVE_EMPLOYEE);
+    (mockPrisma.leaveRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.attendance.findMany as jest.Mock).mockResolvedValue([{ id: 'att-1' }]);
+    (mockPrisma.performanceReview.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).post(`/api/gdpr/data-export/${EMP_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.relatedRecords).toHaveProperty('attendanceRecords');
+    expect(res.body.data.relatedRecords.attendanceRecords).toHaveLength(1);
+  });
+});
+
 describe('gdpr.api — response shape and field verification', () => {
   it('data-export response has success:true on 200', async () => {
     (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(ACTIVE_EMPLOYEE);

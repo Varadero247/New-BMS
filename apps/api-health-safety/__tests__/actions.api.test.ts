@@ -326,6 +326,43 @@ describe('H&S Actions — extended coverage', () => {
   });
 });
 
+describe('H&S Actions — pre-final coverage', () => {
+  it('GET /api/actions response has meta.page field', async () => {
+    (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('page');
+  });
+
+  it('GET /api/actions response has meta.limit field', async () => {
+    (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('limit');
+  });
+
+  it('POST /api/actions returns 400 when priority is missing', async () => {
+    const res = await request(app).post('/api/actions').send({
+      title: 'No priority', type: 'CORRECTIVE', ownerId: 'Alice', dueDate: '2026-06-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/actions/stats returns byType array of objects', async () => {
+    (mockPrisma.hSAction.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.hSAction.groupBy as jest.Mock).mockResolvedValue([
+      { type: 'CORRECTIVE', _count: { id: 2 } },
+      { type: 'PREVENTIVE', _count: { id: 1 } },
+    ]);
+    const res = await request(app).get('/api/actions/stats');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.byType)).toBe(true);
+  });
+});
+
 describe('H&S Actions — final coverage', () => {
   it('GET /api/actions response data is an array', async () => {
     (mockPrisma.hSAction.findMany as jest.Mock).mockResolvedValue([mockAction]);

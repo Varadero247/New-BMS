@@ -400,3 +400,51 @@ describe('Automation Rules — final additional coverage', () => {
     expect(mockGetExecutionLog).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Automation Rules — comprehensive additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/automation-rules', automationRulesRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListRules.mockReturnValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Critical NCR → Auto-CAPA',
+        description: 'Auto-creates CAPA', enabled: false, isBuiltIn: true },
+    ]);
+    mockGetRuleById.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Critical NCR → Auto-CAPA' });
+    mockEnableRule.mockReturnValue(true);
+    mockDisableRule.mockReturnValue(true);
+    mockGetExecutionLog.mockReturnValue([]);
+  });
+
+  it('GET /api/automation-rules response body is an object', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('POST /:id/enable response body is an object', async () => {
+    const res = await request(app).post('/api/automation-rules/00000000-0000-0000-0000-000000000001/enable');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('POST /:id/disable response body is an object', async () => {
+    const res = await request(app).post('/api/automation-rules/00000000-0000-0000-0000-000000000001/disable');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /:id/log response body is an object', async () => {
+    const res = await request(app).get('/api/automation-rules/00000000-0000-0000-0000-000000000001/log');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/automation-rules returns 200 status', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.status).toBe(200);
+  });
+});

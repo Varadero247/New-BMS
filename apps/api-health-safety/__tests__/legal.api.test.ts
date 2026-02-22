@@ -623,3 +623,71 @@ describe('Health & Safety Legal Requirements — final coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Health & Safety Legal Requirements — extended coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/legal', legalRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / calls findMany exactly once', async () => {
+    (mockPrisma.legalRequirement.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.legalRequirement.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/legal').set('Authorization', 'Bearer token');
+    expect(mockPrisma.legalRequirement.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / findFirst is called to get last ref number', async () => {
+    (mockPrisma.legalRequirement.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.legalRequirement.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'LR-001',
+    });
+    await request(app)
+      .post('/api/legal')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Test Act', description: 'Desc', category: 'PRIMARY_LEGISLATION', jurisdiction: 'UK' });
+    expect(mockPrisma.legalRequirement.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / data array has correct length matching count', async () => {
+    const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+    (mockPrisma.legalRequirement.findMany as jest.Mock).mockResolvedValueOnce(items);
+    (mockPrisma.legalRequirement.count as jest.Mock).mockResolvedValueOnce(3);
+    const res = await request(app).get('/api/legal').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('PATCH /:id update data contains complianceStatus when changed', async () => {
+    (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '14000000-0000-4000-a000-000000000001',
+      complianceStatus: 'NOT_ASSESSED',
+    });
+    (mockPrisma.legalRequirement.update as jest.Mock).mockResolvedValueOnce({
+      id: '14000000-0000-4000-a000-000000000001',
+      complianceStatus: 'NON_COMPLIANT',
+    });
+    await request(app)
+      .patch('/api/legal/14000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ complianceStatus: 'NON_COMPLIANT' });
+    expect(mockPrisma.legalRequirement.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ complianceStatus: 'NON_COMPLIANT' }) })
+    );
+  });
+
+  it('DELETE / calls update exactly once per request', async () => {
+    (mockPrisma.legalRequirement.findUnique as jest.Mock).mockResolvedValueOnce({ id: '14000000-0000-4000-a000-000000000001' });
+    (mockPrisma.legalRequirement.update as jest.Mock).mockResolvedValueOnce({});
+    await request(app).delete('/api/legal/14000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token');
+    expect(mockPrisma.legalRequirement.update).toHaveBeenCalledTimes(1);
+  });
+});

@@ -327,6 +327,50 @@ describe('IP Allowlist — edge cases and 500 paths', () => {
   });
 });
 
+describe('IP Allowlist — extra boundary coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/ip-allowlist', ipAllowlistRouter);
+    jest.clearAllMocks();
+    mockGetOrgAllowlist.mockReturnValue([]);
+    mockRemoveOrgAllowlistEntry.mockReturnValue(true);
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+  });
+
+  it('GET list calls getOrgAllowlist with the orgId from user', async () => {
+    await request(app).get('/api/admin/ip-allowlist');
+    expect(mockGetOrgAllowlist).toHaveBeenCalledWith('org-1');
+  });
+
+  it('POST entry data has orgId field matching authenticated user', async () => {
+    const res = await request(app)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: '10.100.0.0/24', label: 'OrgTest' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.label).toBe('OrgTest');
+  });
+
+  it('GET /my-ip returns a format field or equivalent in data', async () => {
+    const res = await request(app).get('/api/admin/ip-allowlist/my-ip');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('DELETE removeOrgAllowlistEntry called with the given id and orgId', async () => {
+    await request(app).delete('/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000001');
+    expect(mockRemoveOrgAllowlistEntry).toHaveBeenCalledWith(
+      'org-1',
+      '00000000-0000-0000-0000-000000000001'
+    );
+  });
+});
+
 describe('IP Allowlist — final coverage', () => {
   let app: express.Express;
 
@@ -380,5 +424,13 @@ describe('IP Allowlist — final coverage', () => {
     const res = await request(app).get('/api/admin/ip-allowlist');
     expect(res.status).toBe(200);
     expect(res.body.meta.total).toBe(0);
+  });
+
+  it('POST with valid CIDR uses the generated uuid as id in response data', async () => {
+    const res = await request(app)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: '10.70.0.0/24', label: 'UUIDTest' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('generated-uuid');
   });
 });

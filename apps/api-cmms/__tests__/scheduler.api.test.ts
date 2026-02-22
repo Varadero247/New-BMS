@@ -412,3 +412,50 @@ describe('scheduler — additional coverage', () => {
     expect(res.body.data.frequency).toBe('WEEKLY');
   });
 });
+
+describe('scheduler — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data items include name and frequency fields', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([mockSchedule]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/scheduler');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('name', 'Monthly Hydraulic System Check');
+    expect(res.body.data[0]).toHaveProperty('frequency', 'MONTHLY');
+  });
+
+  it('GET / response content-type is application/json', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/scheduler');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('DELETE /:id returns 404 with NOT_FOUND code when missing', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).delete(`/api/scheduler/${SCHEDULE_ID}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /upcoming pagination defaults page to 1 when not provided', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/scheduler/upcoming');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST / returns 201 when frequency is omitted (defaults to MONTHLY)', async () => {
+    (mockPrisma.cmmsPreventivePlan.create as jest.Mock).mockResolvedValue(mockSchedule);
+    const res = await request(app).post('/api/scheduler').send({
+      assetId: ASSET_ID,
+      name: 'Check without frequency',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

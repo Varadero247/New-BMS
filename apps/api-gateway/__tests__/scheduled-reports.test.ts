@@ -406,3 +406,55 @@ describe('Scheduled Reports — final coverage batch', () => {
     expect(mockCreateSchedule).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Scheduled Reports — extended final batch', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/reports', scheduledReportsRouter);
+    jest.clearAllMocks();
+    mockListSchedules.mockReturnValue([]);
+    mockGetSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
+    mockUpdateSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    mockDeleteSchedule.mockReturnValue(true);
+    mockRunScheduleNow.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', lastRunAt: new Date().toISOString() });
+    mockCreateSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test', reportType: 'quality_objectives', schedule: '0 8 * * 1' });
+  });
+
+  it('GET /schedules response body has meta field', async () => {
+    const res = await request(app).get('/api/admin/reports/schedules');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('POST /schedules returns 201 with schedule field in data', async () => {
+    const res = await request(app)
+      .post('/api/admin/reports/schedules')
+      .send({ name: 'Final Test', reportType: 'quality_objectives', schedule: '0 8 * * 1', recipients: ['final@b.com'], format: 'pdf' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('schedule');
+  });
+
+  it('GET /types count is 2 from mock REPORT_TYPES', async () => {
+    const res = await request(app).get('/api/admin/reports/types');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /schedules/:id name field is present in response', async () => {
+    const res = await request(app).get('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('name');
+  });
+
+  it('PUT /schedules/:id response body has success true', async () => {
+    const res = await request(app)
+      .put('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'New name' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -650,3 +650,61 @@ describe('Software Routes — additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Software Routes — final boundary coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = buildApp();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/software/projects returns empty data array when none exist', async () => {
+    (mockPrisma.softwareProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/software/projects');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('PUT /api/software/projects/:id/phase/UNIT_TESTING updates successfully', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(mockProject);
+    (mockPrisma.softwarePhaseDoc.upsert as jest.Mock).mockResolvedValue({
+      ...mockPhaseDoc,
+      phase: 'UNIT_TESTING',
+    });
+
+    const res = await request(app)
+      .put(`/api/software/projects/${mockProject.id}/phase/UNIT_TESTING`)
+      .send({ documentRef: 'UT-001', status: 'IN_PROGRESS' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.phase).toBe('UNIT_TESTING');
+  });
+
+  it('GET /api/software/projects/:id/anomalies returns success:true', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(mockProject);
+    (mockPrisma.softwareAnomaly.findMany as jest.Mock).mockResolvedValue([mockAnomaly]);
+    (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get(`/api/software/projects/${mockProject.id}/anomalies`);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/software/projects/:id/anomalies CRITICAL severity is accepted', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(mockProject);
+    (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.softwareAnomaly.create as jest.Mock).mockResolvedValue({ ...mockAnomaly, severity: 'CRITICAL' });
+
+    const res = await request(app)
+      .post(`/api/software/projects/${mockProject.id}/anomalies`)
+      .send({ title: 'Safety-critical bug', description: 'Alarm suppressed', severity: 'CRITICAL' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

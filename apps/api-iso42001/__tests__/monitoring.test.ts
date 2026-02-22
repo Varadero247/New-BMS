@@ -588,3 +588,60 @@ describe('DELETE /api/monitoring/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('ISO 42001 Monitoring — final extended coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/monitoring pagination page defaults to 1', async () => {
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /api/monitoring data items have metricName field', async () => {
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([mockRecord]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('metricName');
+  });
+
+  it('GET /api/monitoring/:id returns value field', async () => {
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(mockRecord);
+    const res = await request(app).get(`/api/monitoring/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('value');
+  });
+
+  it('DELETE /api/monitoring/:id returns id in data', async () => {
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.aiMonitoring.update.mockResolvedValue({ ...mockRecord, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/monitoring/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(UUID1);
+  });
+
+  it('PUT /api/monitoring/:id update with value field returns 200', async () => {
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.aiMonitoring.update.mockResolvedValue({ ...mockRecord, value: 0.95 });
+    const res = await request(app).put(`/api/monitoring/${UUID1}`).send({ value: 0.95 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/monitoring with BIAS metricType returns 201', async () => {
+    mockPrisma.aiMonitoring.create.mockResolvedValue({ ...mockRecord, metricType: 'BIAS' });
+    const res = await request(app).post('/api/monitoring').send({
+      systemId: UUID1,
+      metricName: 'Gender Bias Score',
+      metricType: 'BIAS',
+      value: 0.03,
+      threshold: 0.05,
+      thresholdType: 'ABOVE',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -404,3 +404,48 @@ describe('governance — final coverage', () => {
     expect(res.body.data).toHaveProperty('message');
   });
 });
+
+describe('governance — extra coverage', () => {
+  it('GET / data items have id field', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([mockGovernance]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/governance');
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('POST / missing metric name returns 400', async () => {
+    const res = await request(app).post('/api/governance').send({
+      category: 'BOARD',
+      value: '75%',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-03-31',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /ethics returns success:true with array data', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/governance/ethics');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /policies returns success:true with array data', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/governance/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / findMany called with deletedAt: null filter', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/governance');
+    expect(prisma.esgGovernanceMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+});

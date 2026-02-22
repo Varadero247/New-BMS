@@ -345,3 +345,50 @@ describe('NexaraClient', () => {
     });
   });
 });
+
+describe('NexaraClient — extended coverage', () => {
+  let client: NexaraClient;
+
+  beforeEach(() => {
+    mockFetch = jest.fn();
+    (global as unknown as { fetch: jest.Mock }).fetch = mockFetch;
+    client = new NexaraClient({ baseUrl: BASE_URL, apiKey: API_KEY });
+  });
+
+  it('risks.get(id) sends GET to correct path', async () => {
+    mockFetch.mockReturnValueOnce(ok({ success: true, data: {} }));
+    await client.risks.get('r5');
+    const [url, opts] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/api/health-safety/risks/r5`);
+    expect(opts.method).toBe('GET');
+  });
+
+  it('risks.create(data) sends POST to correct path', async () => {
+    mockFetch.mockReturnValueOnce(ok({ success: true, data: { message: 'created' } }));
+    await client.risks.create({ title: 'New Risk', status: 'OPEN' });
+    const [url, opts] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/api/health-safety/risks`);
+    expect(opts.method).toBe('POST');
+  });
+
+  it('incidents.get(id) sends GET to correct path', async () => {
+    mockFetch.mockReturnValueOnce(ok({ success: true, data: {} }));
+    await client.incidents.get('inc-1');
+    const [url, opts] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/api/health-safety/incidents/inc-1`);
+    expect(opts.method).toBe('GET');
+  });
+
+  it('actions.get(id) sends GET to correct path', async () => {
+    mockFetch.mockReturnValueOnce(ok({ success: true, data: {} }));
+    await client.actions.get('act-1');
+    const [url, opts] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/api/health-safety/actions/act-1`);
+    expect(opts.method).toBe('GET');
+  });
+
+  it('throws Nexara API Error 404 from error response', async () => {
+    mockFetch.mockReturnValueOnce(err(404, { message: 'Not Found' }));
+    await expect(client.risks.get('nonexistent')).rejects.toThrow('Nexara API Error 404: Not Found');
+  });
+});

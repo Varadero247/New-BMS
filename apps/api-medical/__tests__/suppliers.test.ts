@@ -435,6 +435,47 @@ describe('suppliers — extended edge cases', () => {
   });
 });
 
+describe('suppliers — supplemental coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('PUT / update is called with correct where id', async () => {
+    mockPrisma.medicalSupplier.update.mockResolvedValue({ ...mockSupplier, name: 'Updated' });
+    await request(app).put(`/api/suppliers/${SUPPLIER_ID}`).send({ name: 'Updated' });
+    expect(mockPrisma.medicalSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: SUPPLIER_ID } })
+    );
+  });
+
+  it('GET / findMany is called once per list request', async () => {
+    mockPrisma.medicalSupplier.findMany.mockResolvedValue([]);
+    await request(app).get('/api/suppliers');
+    expect(mockPrisma.medicalSupplier.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / count is called to compute reference number', async () => {
+    mockPrisma.medicalSupplier.count.mockResolvedValue(3);
+    mockPrisma.medicalSupplier.create.mockResolvedValue(mockSupplier);
+    await request(app).post('/api/suppliers').send({ name: 'CountTest' });
+    expect(mockPrisma.medicalSupplier.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / returns data as an array', async () => {
+    mockPrisma.medicalSupplier.findMany.mockResolvedValue([mockSupplier]);
+    const res = await request(app).get('/api/suppliers');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id returns supplier name in data', async () => {
+    mockPrisma.medicalSupplier.findFirst.mockResolvedValue(mockSupplier);
+    const res = await request(app).get(`/api/suppliers/${SUPPLIER_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('MedTech Components Ltd');
+  });
+});
+
 describe('suppliers — final boundary coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

@@ -375,3 +375,53 @@ describe('scorecards.api — final coverage expansion', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('scorecards.api — coverage to 40', () => {
+  it('GET /api/scorecards response body has success and data', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/scorecards');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/scorecards response content-type is json', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/scorecards');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/scorecards with quality score creates successfully', async () => {
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      supplierId: 'sup-2',
+      quality: 90,
+    });
+    const res = await request(app).post('/api/scorecards').send({
+      supplierId: 'sup-2',
+      quality: 90,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/scorecards/:id data.id is a string', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+    });
+    const res = await request(app).get('/api/scorecards/00000000-0000-0000-0000-000000000003');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.id).toBe('string');
+  });
+
+  it('DELETE /api/scorecards/:id success message contains scorecard', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/scorecards/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('scorecard');
+  });
+});

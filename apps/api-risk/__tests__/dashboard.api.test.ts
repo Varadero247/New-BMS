@@ -345,3 +345,43 @@ describe('dashboard.api (risk) — final coverage', () => {
     expect(mockPrisma.riskReview.count).toHaveBeenCalled();
   });
 });
+
+describe('dashboard.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('riskAction.count is called at least once', async () => {
+    mockAllCounts(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.riskAction.count).toHaveBeenCalled();
+  });
+
+  it('riskKri.count is called at least once', async () => {
+    mockAllCounts(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.riskKri.count).toHaveBeenCalled();
+  });
+
+  it('avgRiskScore for 12.5 rounds to 12.5', async () => {
+    mockAllCounts(1);
+    mockPrisma.riskRegister.aggregate.mockResolvedValue({ _avg: { residualScore: 12.5 } });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.avgRiskScore).toBe(12.5);
+  });
+
+  it('GET /stats returns HTTP 200 status code', async () => {
+    mockAllCounts(5);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /stats error response has success:false and code INTERNAL_ERROR', async () => {
+    mockPrisma.riskRegister.count.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -435,3 +435,54 @@ describe('conflicts.api — final extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('conflicts.api — extra boundary coverage', () => {
+  it('two permits in same location with different areas and one null area — no conflict', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: 'a', title: 'P1', location: 'Site M', area: 'Zone 1', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: 'b', title: 'P2', location: 'Site M', area: null, startDate: new Date(), endDate: new Date(), type: 'GENERAL' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('response body is JSON', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('two permits with same type and same location/area still conflict', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: 'c1', title: 'P1', location: 'Building A', area: 'Level 2', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: 'c2', title: 'P2', location: 'Building A', area: 'Level 2', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('conflict permit1 and permit2 have type properties', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: 'd1', title: 'A', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: 'd2', title: 'B', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'ELECTRICAL' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].permit1).toHaveProperty('type');
+    expect(res.body.data[0].permit2).toHaveProperty('type');
+  });
+
+  it('data array is always an array even on success', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/conflicts');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('findMany not called more than once per request', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    await request(app).get('/api/conflicts');
+    expect(mockPrisma.ptwPermit.findMany).toHaveBeenCalledTimes(1);
+  });
+});

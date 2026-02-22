@@ -331,3 +331,25 @@ describe('submitResponse and analytics — additional edge cases', () => {
     expect(responses).toHaveLength(1);
   });
 });
+
+describe('nps — final additional coverage', () => {
+  it('getAnalytics averageScore is 0 when only detractors at score 0', () => {
+    submitResponse('u1', 'org-zero', 0);
+    submitResponse('u2', 'org-zero', 0);
+    const a = getAnalytics('org-zero');
+    expect(a.averageScore).toBe(0);
+  });
+
+  it('submitResponse id is a string matching nps_ prefix', () => {
+    const r = submitResponse('u', 'o', 5);
+    expect(typeof r.id).toBe('string');
+    expect(r.id.startsWith('nps_')).toBe(true);
+  });
+
+  it('listResponses returns an object with responses and total keys', () => {
+    const result = listResponses('org-shape-final');
+    expect(result).toHaveProperty('responses');
+    expect(result).toHaveProperty('total');
+    expect(Array.isArray(result.responses)).toBe(true);
+  });
+});

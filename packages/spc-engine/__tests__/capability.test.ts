@@ -259,3 +259,71 @@ describe('calculateCpk — boundary and additional edge cases', () => {
     expect(['CAPABLE', 'MARGINAL', 'INCAPABLE']).toContain(result.status);
   });
 });
+
+describe('calculateCpk and calculatePpk — further coverage', () => {
+  it('calculateCpk with data all at LSL has Cpk of 0 or negative', () => {
+    const data = [0, 0, 0, 0, 0];
+    const result = calculateCpk(data, 10, 0);
+    expect(result.mean).toBe(0);
+    // All data at boundary; cp=0 because sigma=0, cpk=0
+    expect(result.cp).toBe(0);
+  });
+
+  it('calculatePpk returns INCAPABLE for very wide spread data', () => {
+    const data = [0, 100, 0, 100, 0, 100, 0, 100, 0, 100];
+    const result = calculatePpk(data, 60, 40);
+    expect(result.status).toBe('INCAPABLE');
+  });
+
+  it('calculateCpk Cpk equals Cp for a perfectly centered process', () => {
+    const data = [49.9, 50.0, 50.1, 50.0, 49.9, 50.1, 50.0, 50.1, 49.9, 50.0];
+    const result = calculateCpk(data, 52, 48);
+    // Very close to centered so cpk ≈ cp
+    expect(Math.abs(result.cpk - result.cp)).toBeLessThan(0.2);
+  });
+});
+
+describe('calculateCpk and calculatePpk — additional coverage to reach 40', () => {
+  it('calculateCpk returns a numeric mean for all-positive data', () => {
+    const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const result = calculateCpk(data, 15, 0);
+    expect(typeof result.mean).toBe('number');
+  });
+
+  it('calculateCpk sigma is positive for non-constant data', () => {
+    const data = [10, 12, 11, 13, 14, 11, 10, 12];
+    const result = calculateCpk(data, 20, 5);
+    expect(result.sigma).toBeGreaterThan(0);
+  });
+
+  it('calculatePpk with two data points does not throw', () => {
+    expect(() => calculatePpk([5, 6], 10, 0)).not.toThrow();
+  });
+
+  it('calculateCpk result.pp is >= 0 for any valid input', () => {
+    const data = [48, 49, 50, 51, 52, 50, 49, 51, 50, 48];
+    const result = calculateCpk(data, 55, 45);
+    expect(result.pp).toBeGreaterThanOrEqual(0);
+  });
+
+  it('calculatePpk result.cp is >= 0 for any valid input', () => {
+    const data = [20, 22, 21, 23, 22, 20, 21, 22, 23, 20];
+    const result = calculatePpk(data, 30, 10);
+    expect(result.cp).toBeGreaterThanOrEqual(0);
+  });
+
+  it('calculateCpk throws with USL equal to LSL', () => {
+    expect(() => calculateCpk([5, 6, 7], 10, 10)).toThrow('USL must be greater than LSL');
+  });
+
+  it('calculateCpk processes float data correctly without throwing', () => {
+    const data = [1.1, 1.2, 1.15, 1.18, 1.12, 1.09, 1.21, 1.14];
+    expect(() => calculateCpk(data, 1.5, 0.8)).not.toThrow();
+  });
+
+  it('calculatePpk result has sigma field of type number', () => {
+    const data = [10, 11, 12, 13, 10, 11, 12];
+    const result = calculatePpk(data, 20, 5);
+    expect(typeof result.sigma).toBe('number');
+  });
+});

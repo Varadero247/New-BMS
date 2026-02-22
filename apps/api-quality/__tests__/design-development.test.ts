@@ -732,3 +732,120 @@ describe('Quality Design & Development API Routes', () => {
     });
   });
 });
+
+describe('Quality Design & Development — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/design-development', designDevelopmentRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns correct totalPages for non-exact division', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(25);
+    const res = await request(app).get('/api/design-development?limit=10').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalPages).toBe(3);
+  });
+
+  it('GET / returns empty items array when no projects exist', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/design-development').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.items).toEqual([]);
+  });
+
+  it('POST / returns 400 for invalid priority enum', async () => {
+    const res = await request(app)
+      .post('/api/design-development')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Project X', productName: 'Widget', priority: 'SUPER_URGENT' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns stages array in response data', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+    (mockPrisma.qualDesignStageDoc.findMany as jest.Mock).mockResolvedValueOnce([mockStage]);
+    const res = await request(app)
+      .get('/api/design-development/20000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.stages)).toBe(true);
+    expect(res.body.data.stages).toHaveLength(1);
+  });
+
+  it('PUT /:id returns 500 when update throws after successful findUnique', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+    (mockPrisma.qualDesignProject.update as jest.Mock).mockRejectedValueOnce(new Error('DB write failed'));
+    const res = await request(app)
+      .put('/api/design-development/20000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Trigger failure' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update throws after successful findUnique', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+    (mockPrisma.qualDesignProject.update as jest.Mock).mockRejectedValueOnce(new Error('DB write failed'));
+    const res = await request(app)
+      .delete('/api/design-development/20000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id calls update with deletedAt field', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+    (mockPrisma.qualDesignProject.update as jest.Mock).mockResolvedValueOnce({
+      ...mockProject,
+      deletedAt: new Date(),
+      deletedBy: 'user-1',
+    });
+    await request(app)
+      .delete('/api/design-development/20000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualDesignProject.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          deletedAt: expect.any(Date),
+        }),
+      })
+    );
+  });
+
+  it('POST /:id/stages/:stage/submit returns 500 on stageDoc update error', async () => {
+    (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+    (mockPrisma.qualDesignStageDoc.findFirst as jest.Mock).mockResolvedValueOnce(mockStage);
+    (mockPrisma.qualDesignStageDoc.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/PLANNING/submit')
+      .set('Authorization', 'Bearer token')
+      .send({ deliverables: 'Doc v1' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / success:true in response body for non-empty list', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/design-development').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.total).toBe(1);
+  });
+
+  it('GET / findMany called once per request', async () => {
+    (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/design-development').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualDesignProject.findMany).toHaveBeenCalledTimes(1);
+  });
+});

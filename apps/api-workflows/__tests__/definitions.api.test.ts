@@ -625,3 +625,73 @@ describe('Workflow Definitions API — further coverage', () => {
     expect(res.body.data.code).toBe('APPROVAL_FLOW');
   });
 });
+
+describe('Workflow Definitions API — final boundary coverage', () => {
+  let appFinal: express.Express;
+
+  beforeAll(() => {
+    appFinal = express();
+    appFinal.use(express.json());
+    appFinal.use('/api/definitions', definitionsRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('PUT /:id/archive calls update with status ARCHIVED', async () => {
+    (mockPrisma.workflowDefinition.update as jest.Mock).mockResolvedValueOnce({
+      id: '3b000000-0000-4000-a000-000000000001',
+      status: 'ARCHIVED',
+    });
+    await request(appFinal).put('/api/definitions/3b000000-0000-4000-a000-000000000001/archive');
+    expect(mockPrisma.workflowDefinition.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { status: 'ARCHIVED' } })
+    );
+  });
+
+  it('GET / returns content-type json', async () => {
+    (mockPrisma.workflowDefinition.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(appFinal).get('/api/definitions');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / create increments version to 1', async () => {
+    (mockPrisma.workflowDefinition.create as jest.Mock).mockResolvedValueOnce({
+      id: 'new-def', status: 'DRAFT', version: 1,
+    });
+    await request(appFinal).post('/api/definitions').send({
+      code: 'VER_TEST',
+      name: 'Version Test',
+      category: 'APPROVAL',
+      triggerType: 'MANUAL',
+      steps: [],
+    });
+    expect(mockPrisma.workflowDefinition.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ version: 1 }) })
+    );
+  });
+
+  it('PUT /:id increments version by 1', async () => {
+    (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '3b000000-0000-4000-a000-000000000001', version: 3,
+    });
+    (mockPrisma.workflowDefinition.update as jest.Mock).mockResolvedValueOnce({
+      id: '3b000000-0000-4000-a000-000000000001', version: 4,
+    });
+    await request(appFinal)
+      .put('/api/definitions/3b000000-0000-4000-a000-000000000001')
+      .send({ name: 'Updated' });
+    expect(mockPrisma.workflowDefinition.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ version: 4 }) })
+    );
+  });
+
+  it('GET / with triggerType=EVENT filter still calls findMany', async () => {
+    (mockPrisma.workflowDefinition.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(appFinal).get('/api/definitions?triggerType=EVENT');
+    expect(mockPrisma.workflowDefinition.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      })
+    );
+  });
+});

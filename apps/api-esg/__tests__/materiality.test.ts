@@ -416,3 +416,46 @@ describe('materiality — final coverage', () => {
     );
   });
 });
+
+describe('materiality — extra coverage', () => {
+  it('GET / data items have topic field', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([mockMateriality]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/materiality');
+    expect(res.body.data[0]).toHaveProperty('topic');
+  });
+
+  it('GET / data items have isMaterial field', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([mockMateriality]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/materiality');
+    expect(res.body.data[0]).toHaveProperty('isMaterial');
+  });
+
+  it('POST / creates SOCIAL topic successfully', async () => {
+    (prisma.esgMateriality.create as jest.Mock).mockResolvedValue({ ...mockMateriality, category: 'SOCIAL', topic: 'Labor Practices' });
+    const res = await request(app).post('/api/materiality').send({
+      topic: 'Labor Practices',
+      category: 'SOCIAL',
+      importanceToStakeholders: 8.0,
+      importanceToBusiness: 7.0,
+      isMaterial: true,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /matrix data has matrix field as array', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([mockMateriality]);
+    const res = await request(app).get('/api/materiality/matrix');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.matrix)).toBe(true);
+  });
+
+  it('GET / findMany is called once per request', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/materiality');
+    expect(prisma.esgMateriality.findMany).toHaveBeenCalledTimes(1);
+  });
+});

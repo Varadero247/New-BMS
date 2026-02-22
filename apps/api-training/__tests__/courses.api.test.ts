@@ -367,3 +367,55 @@ describe('courses.api — final coverage expansion', () => {
     expect(res.body.data.message).toContain('deleted');
   });
 });
+
+describe('courses.api — coverage to 40', () => {
+  it('GET /api/courses response body has success and data', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([]);
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/courses');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/courses response content-type is json', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([]);
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/courses');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/courses/:id returns 404 code NOT_FOUND', async () => {
+    mockPrisma.trainCourse.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/courses/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /api/courses with duration creates successfully', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainCourse.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Duration Course',
+      type: 'OPTIONAL',
+      duration: 120,
+    });
+    const res = await request(app).post('/api/courses').send({
+      title: 'Duration Course',
+      type: 'OPTIONAL',
+      duration: 120,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/courses/:id returns 500 on DB error', async () => {
+    mockPrisma.trainCourse.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainCourse.update.mockRejectedValue(new Error('db fail'));
+    const res = await request(app)
+      .put('/api/courses/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

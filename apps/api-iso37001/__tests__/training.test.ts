@@ -609,3 +609,49 @@ describe('ISO 37001 Training — extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('ISO 37001 Training — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/training: data items have employeeName field', async () => {
+    (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
+    (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/training');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('employeeName');
+  });
+
+  it('GET /api/training: data items have courseType field', async () => {
+    (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
+    (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/training');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('courseType');
+  });
+
+  it('GET /:id: returns 500 on DB error', async () => {
+    (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id/complete: returns 500 on DB error during update', async () => {
+    (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
+    (mockPrisma.abTrainingRecord.update as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/training/00000000-0000-0000-0000-000000000001/complete')
+      .send({ score: 75 });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/training/overdue: returns 500 on DB error', async () => {
+    (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(app).get('/api/training/overdue');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -501,3 +501,65 @@ describe('Competitors API — final coverage', () => {
     expect(mockPrisma.competitorMonitor.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('competitors.api — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/competitors data.competitors is an array', async () => {
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.competitors)).toBe(true);
+  });
+
+  it('POST /api/competitors/:id/intel type field is required — missing type returns 400', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Test',
+      intel: [],
+    });
+    const res = await request(app)
+      .post('/api/competitors/00000000-0000-0000-0000-000000000001/intel')
+      .send({ detail: 'Some detail but no type' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/competitors pagination.total reflects count mock value', async () => {
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(99);
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.total).toBe(99);
+  });
+
+  it('PATCH /api/competitors/:id success:true when update succeeds', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Old',
+      category: 'GENERAL',
+      intel: [],
+    });
+    mockPrisma.competitorMonitor.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'New',
+      category: 'GENERAL',
+      intel: [],
+    });
+    const res = await request(app)
+      .patch('/api/competitors/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'New' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/competitors findMany called once per list request', async () => {
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(0);
+    await request(app).get('/api/competitors');
+    expect(mockPrisma.competitorMonitor.findMany).toHaveBeenCalledTimes(1);
+  });
+});

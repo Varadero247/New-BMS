@@ -467,3 +467,67 @@ describe('Expenses — reject and additional edge cases', () => {
     expect([400, 200]).toContain(res.status);
   });
 });
+
+describe('Expenses — supplemental coverage', () => {
+  it('GET /api/expenses response data has expenses array key', async () => {
+    (prisma.expense.findMany as jest.Mock).mockResolvedValue([sampleExpense]);
+    (prisma.expense.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/expenses');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('expenses');
+    expect(Array.isArray(res.body.data.expenses)).toBe(true);
+  });
+
+  it('POST /api/expenses create is called once on valid body', async () => {
+    (prisma.expense.create as jest.Mock).mockResolvedValue(sampleExpense);
+
+    await request(app).post('/api/expenses').send({
+      title: 'AWS Hosting',
+      amount: 250,
+      category: 'SOFTWARE',
+      vendor: 'Amazon',
+    });
+
+    expect(prisma.expense.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/expenses/:id/submit update is called with status SUBMITTED', async () => {
+    (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'DRAFT' });
+    (prisma.expense.update as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'SUBMITTED' });
+
+    await request(app).post('/api/expenses/00000000-0000-0000-0000-000000000001/submit');
+
+    expect(prisma.expense.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'SUBMITTED' }) })
+    );
+  });
+
+  it('POST /api/expenses/:id/approve update includes approvedBy from user', async () => {
+    (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'SUBMITTED' });
+    (prisma.expense.update as jest.Mock).mockResolvedValue({
+      ...sampleExpense,
+      status: 'APPROVED',
+      approvedBy: 'user-1',
+      approvedAt: new Date().toISOString(),
+    });
+
+    await request(app).post('/api/expenses/00000000-0000-0000-0000-000000000001/approve');
+
+    expect(prisma.expense.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'APPROVED' }) })
+    );
+  });
+});
+
+// ─── Expenses — supplemental coverage ────────────────────────────────────────
+describe('Expenses — supplemental coverage', () => {
+  it('GET /api/expenses response body is a JSON object', async () => {
+    (prisma.expense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.expense.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/expenses');
+    expect(typeof res.body).toBe('object');
+    expect(res.body).not.toBeNull();
+  });
+});

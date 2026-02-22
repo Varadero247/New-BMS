@@ -250,3 +250,33 @@ describe('shared/types — additional coverage', () => {
     expect(getRiskLevel(70)).toBe('CRITICAL');
   });
 });
+
+describe('shared/types — further pagination and utility coverage', () => {
+  it('parsePagination with page 1 returns skip 0 regardless of limit', () => {
+    const result = parsePagination({ page: '1', limit: '50' });
+    expect(result.skip).toBe(0);
+    expect(result.page).toBe(1);
+    expect(result.limit).toBe(50);
+  });
+
+  it('parsePaginationWithTake NaN inputs fall back to defaults', () => {
+    const result = parsePaginationWithTake({ page: 'bad', limit: 'nope' });
+    expect(result.page).toBe(1);
+    expect(result.limit).toBe(20);
+    expect(result.take).toBe(20);
+    expect(result.skip).toBe(0);
+  });
+
+  it('paginationMeta returns page field equal to the page argument', () => {
+    const meta = paginationMeta(3, 10, 100);
+    expect(meta.page).toBe(3);
+    expect(meta.limit).toBe(10);
+    expect(meta.total).toBe(100);
+  });
+
+  it('formatRefNumber with sequence 999 produces 4-digit sequence', () => {
+    const year = new Date().getFullYear();
+    const ref = formatRefNumber('TEST', 999);
+    expect(ref).toBe(`TEST-${year}-1000`);
+  });
+});

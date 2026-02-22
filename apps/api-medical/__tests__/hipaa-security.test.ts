@@ -387,3 +387,53 @@ describe('HIPAA Security — final boundary coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('HIPAA Security — edge case coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns success:true and data as array', async () => {
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue([mockControl]);
+    prisma.hipaaSecurityControl.count.mockResolvedValue(1);
+    const res = await request(app).get('/');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id/implementation count is called once on success', async () => {
+    prisma.hipaaSecurityControl.findUnique.mockResolvedValue(mockControl);
+    prisma.hipaaSecurityControl.update.mockResolvedValue({ ...mockControl, implementationStatus: 'FULLY_IMPLEMENTED' });
+    await request(app).put('/ctrl-1/implementation').send({ implementationStatus: 'FULLY_IMPLEMENTED' });
+    expect(prisma.hipaaSecurityControl.findUnique).toHaveBeenCalledTimes(1);
+    expect(prisma.hipaaSecurityControl.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /dashboard overallCompliancePercent is between 0 and 100', async () => {
+    const controls = [
+      { ...mockControl, id: 'c1', implementationStatus: 'FULLY_IMPLEMENTED' },
+      { ...mockControl, id: 'c2', implementationStatus: 'NOT_IMPLEMENTED' },
+      { ...mockControl, id: 'c3', implementationStatus: 'PARTIALLY_IMPLEMENTED' },
+    ];
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue(controls);
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overallCompliancePercent).toBeGreaterThanOrEqual(0);
+    expect(res.body.data.overallCompliancePercent).toBeLessThanOrEqual(100);
+  });
+
+  it('POST /seed success:true on first seed', async () => {
+    prisma.hipaaSecurityControl.count
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(41);
+    prisma.hipaaSecurityControl.createMany.mockResolvedValue({ count: 41 });
+    const res = await request(app).post('/seed');
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data is array', async () => {
+    prisma.hipaaSecurityControl.findMany.mockResolvedValue([]);
+    prisma.hipaaSecurityControl.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

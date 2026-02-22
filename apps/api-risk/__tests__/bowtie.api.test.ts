@@ -441,3 +441,54 @@ describe('bowtie.api — final coverage', () => {
     );
   });
 });
+
+describe('bowtie.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /bowtie/all returns success:true with empty list', async () => {
+    mockPrisma.riskBowtie.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/bowtie/all');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST /:id/bowtie 404 error has error.code NOT_FOUND', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(validBowtie);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /:id/bowtie data topEvent is preserved from mock', async () => {
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue({ id: 'bt1', topEvent: 'Pipeline leak' });
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/bowtie');
+    expect(res.status).toBe(200);
+    expect(res.body.data.topEvent).toBe('Pipeline leak');
+  });
+
+  it('POST /:id/bowtie with HIGH risk and existing bowtie does not call create', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'HIGH',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue({ id: 'existing-bt', version: '1.0' });
+    mockPrisma.riskBowtie.update.mockResolvedValue({ id: 'existing-bt', version: '1.1' });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(validBowtie);
+    expect(res.status).toBe(200);
+    expect(mockPrisma.riskBowtie.create).not.toHaveBeenCalled();
+  });
+
+  it('GET /bowtie/all response body has data array', async () => {
+    mockPrisma.riskBowtie.findMany.mockResolvedValue([{ id: 'b1', topEvent: 'Fire' }]);
+    const res = await request(app).get('/api/risks/bowtie/all');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

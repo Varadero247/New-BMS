@@ -487,3 +487,22 @@ describe('Audit Log — final batch coverage', () => {
     expect(res.body.data.totalEntries).toBe(0);
   });
 });
+
+describe('Audit Log — extended final batch', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/audit-log: findMany called once per request', async () => {
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/audit-log');
+    expect(prisma.aiAuditLog.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/audit-log: create called once per request', async () => {
+    (prisma.aiAuditLog.create as jest.Mock).mockResolvedValue(mockEntry);
+    await request(app).post('/api/audit-log').send({ action: 'DECISION', description: 'Test' });
+    expect(prisma.aiAuditLog.create).toHaveBeenCalledTimes(1);
+  });
+});

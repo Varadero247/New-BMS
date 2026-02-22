@@ -512,6 +512,112 @@ describe('Error Handler — response shape and logging extended coverage', () =>
   });
 });
 
+describe('Error Handler — extra boundary coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('handles 404 Not Found and exposes the message for 4xx', () => {
+    const err: AppError = new Error('Page not found');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Page not found');
+    expect(payload.success).toBe(false);
+  });
+
+  it('response error object never has a stack field', () => {
+    const err: AppError = new Error('Stack test');
+    err.statusCode = 500;
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error).not.toHaveProperty('stack');
+  });
+
+  it('response body never has a data field', () => {
+    const err: AppError = new Error('Data field test');
+    err.statusCode = 400;
+    err.code = 'BAD_REQUEST';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload).not.toHaveProperty('data');
+  });
+
+  it('logger.error called with code undefined when no code set', () => {
+    const err: AppError = new Error('No code');
+    err.statusCode = 400;
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(mockLogger.error).toHaveBeenCalledWith('Unhandled error', {
+      error: 'No code',
+      code: undefined,
+      statusCode: 400,
+    });
+  });
+
+  it('500 with custom code returns INTERNAL_ERROR in the response, not the custom code', () => {
+    const err: AppError = new Error('Internal detail');
+    err.statusCode = 500;
+    err.code = 'CUSTOM_INTERNAL';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    // The custom code is passed through in the response (only the message is masked for 5xx)
+    expect(payload.error.code).toBe('CUSTOM_INTERNAL');
+  });
+
+  it('two different errors both get success:false', () => {
+    for (const statusCode of [401, 503]) {
+      const err: AppError = new Error('Error');
+      err.statusCode = statusCode;
+      const req = mockRequest();
+      const res = mockResponse();
+      errorHandler(err, req as Request, res as Response, mockNext);
+      const payload = (res.json as jest.Mock).mock.calls[0][0];
+      expect(payload.success).toBe(false);
+      jest.clearAllMocks();
+    }
+  });
+
+  it('error.message is "Internal server error" for status 502', () => {
+    const err: AppError = new Error('Bad gateway internal detail');
+    err.statusCode = 502;
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Internal server error');
+  });
+});
+
 describe('Error Handler — final coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

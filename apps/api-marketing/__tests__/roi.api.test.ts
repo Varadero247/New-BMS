@@ -413,3 +413,52 @@ describe('ROI — final coverage', () => {
     );
   });
 });
+
+describe('ROI — ≥40 coverage', () => {
+  it('calculateROI: annualCost = monthlyCost * 12', () => {
+    const result = calculateROI({ isoCount: 2 });
+    expect(result.annualCost).toBe(result.monthlyCost * 12);
+  });
+
+  it('calculateROI: totalROI is positive for isoCount=1', () => {
+    const result = calculateROI({ isoCount: 1 });
+    expect(result.totalROI).toBeGreaterThan(0);
+  });
+
+  it('POST /calculate: mktLead.create called exactly once per request', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-once' });
+
+    await request(app).post('/api/roi/calculate').send({
+      companyName: 'OnceCo',
+      name: 'Once User',
+      email: 'once@onceco.com',
+    });
+
+    expect(prisma.mktLead.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /history: source ROI_CALCULATOR always in where clause', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/roi/history');
+
+    expect(prisma.mktLead.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { source: 'ROI_CALCULATOR' } })
+    );
+  });
+
+  it('POST /calculate: returns softwareSaving field in response data', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-sw' });
+
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'SwCo',
+      name: 'Sw User',
+      email: 'sw@swco.com',
+      isoCount: 3,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('softwareSaving');
+    expect(res.body.data.softwareSaving).toBeGreaterThan(0);
+  });
+});

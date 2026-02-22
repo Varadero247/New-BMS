@@ -431,3 +431,44 @@ describe('Work Orders Routes', () => {
     });
   });
 });
+
+describe('Work Orders — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /work-orders data items include title and status fields', async () => {
+    prisma.cmmsWorkOrder.findMany.mockResolvedValue([mockWorkOrder]);
+    prisma.cmmsWorkOrder.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/work-orders');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('title', 'Replace bearing');
+    expect(res.body.data[0]).toHaveProperty('status', 'OPEN');
+  });
+
+  it('GET /work-orders response content-type is application/json', async () => {
+    prisma.cmmsWorkOrder.findMany.mockResolvedValue([]);
+    prisma.cmmsWorkOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/work-orders');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST /work-orders sets createdBy from authenticated user', async () => {
+    prisma.cmmsWorkOrder.create.mockResolvedValue(mockWorkOrder);
+    await request(app).post('/api/work-orders').send({
+      title: 'Lubricate gears',
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      type: 'PREVENTIVE',
+    });
+    expect(prisma.cmmsWorkOrder.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('DELETE /work-orders/:id returns 404 with NOT_FOUND code when missing', async () => {
+    prisma.cmmsWorkOrder.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/work-orders/00000000-0000-0000-0000-000000000077');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

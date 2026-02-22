@@ -283,3 +283,36 @@ describe('Status Package — registry and cross-checks', () => {
     expect(ps.uptime['30d']).toBeDefined();
   });
 });
+
+describe('Status Package — final coverage to reach 40', () => {
+  beforeEach(() => {
+    _resetStores();
+  });
+
+  it('setServiceHealth with operational status sets latencyMs correctly', () => {
+    const h = setServiceHealth('Payroll', 4007, 'operational', 8);
+    expect(h.latencyMs).toBe(8);
+  });
+
+  it('getAllServiceStatus includes port 4040 (Chemicals)', () => {
+    const statuses = getAllServiceStatus();
+    expect(statuses.some((s) => s.port === 4040)).toBe(true);
+  });
+
+  it('getAllServiceStatus includes port 4041 (Emergency)', () => {
+    const statuses = getAllServiceStatus();
+    expect(statuses.some((s) => s.port === 4041)).toBe(true);
+  });
+
+  it('getOverallStatus is operational when all services set to operational after reset', () => {
+    for (const svc of SERVICE_REGISTRY) {
+      setServiceHealth(svc.name, svc.port, 'operational', 5);
+    }
+    expect(getOverallStatus()).toBe('operational');
+  });
+
+  it('getPlatformStatus services array has same length as SERVICE_REGISTRY', () => {
+    const ps = getPlatformStatus();
+    expect(ps.services).toHaveLength(SERVICE_REGISTRY.length);
+  });
+});

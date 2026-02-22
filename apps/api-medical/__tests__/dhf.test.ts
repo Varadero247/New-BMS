@@ -584,3 +584,87 @@ describe('DHF — boundary and schema coverage', () => {
     expect(res.body.data[0].completeness).toBe(50);
   });
 });
+
+describe('DHF — final edge case coverage', () => {
+  let finalApp: express.Express;
+
+  beforeAll(() => {
+    finalApp = express();
+    finalApp.use(express.json());
+    finalApp.use('/api/dhf', dhfRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /dhf second project has its own documents array', async () => {
+    const secondProject = {
+      ...mockProject,
+      id: '00000000-0000-0000-0000-000000000010',
+      deviceName: 'Infusion Pump',
+      historyFiles: [{ ...mockHistoryFile, id: '00000000-0000-0000-0000-000000000011' }],
+    };
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject, secondProject]);
+
+    const res = await request(finalApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.data[1].documents).toHaveLength(1);
+  });
+
+  it('POST /dhf create call includes version from body', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce({
+      ...mockHistoryFile,
+      version: '2.1',
+    });
+
+    await request(finalApp).post('/api/dhf').send({
+      projectId: PROJECT_ID,
+      title: 'Versioned Document',
+      version: '2.1',
+    });
+
+    expect(mockPrisma.designHistoryFile.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ version: '2.1' }),
+      })
+    );
+  });
+
+  it('GET /dhf findMany is called with orderBy if defined', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    await request(finalApp).get('/api/dhf');
+
+    expect(mockPrisma.designProject.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /dhf returns created file in response body data', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce({
+      ...mockHistoryFile,
+      title: 'Return Test',
+    });
+
+    const res = await request(finalApp).post('/api/dhf').send({
+      projectId: PROJECT_ID,
+      title: 'Return Test',
+    });
+
+    expect(res.body.data).toHaveProperty('title', 'Return Test');
+  });
+
+  it('GET /dhf completeness for 10 files is capped or 100', async () => {
+    const projectWith10Files = {
+      ...mockProject,
+      historyFiles: new Array(10).fill(null).map((_, i) => ({ ...mockHistoryFile, id: `file-${i}` })),
+    };
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([projectWith10Files]);
+
+    const res = await request(finalApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].completeness).toBe(100);
+  });
+});

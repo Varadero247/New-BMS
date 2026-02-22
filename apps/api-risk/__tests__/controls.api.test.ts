@@ -402,3 +402,58 @@ describe('controls.api — final coverage', () => {
     expect(res.body.data.id).toBe('ctrl-new');
   });
 });
+
+describe('controls.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /:id/controls returns success:false on 500', async () => {
+    mockPrisma.riskControl.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/controls');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /:id/controls 404 error has error.code NOT_FOUND', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/controls')
+      .send({ controlType: 'PREVENTIVE', description: 'Test' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE /:riskId/controls/:id returns success:false on 500', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockRejectedValue(new Error('crash'));
+    const res = await request(app).delete(
+      '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /:id/controls returns data array', async () => {
+    mockPrisma.riskControl.findMany.mockResolvedValue([
+      { id: 'c1', controlType: 'PREVENTIVE' },
+      { id: 'c2', controlType: 'DETECTIVE' },
+    ]);
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/controls');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /:riskId/controls/:id/test returns success:false on 500', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockRejectedValue(new Error('crash'));
+    const res = await request(app)
+      .post(
+        '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002/test'
+      )
+      .send({ testingNotes: 'failed' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

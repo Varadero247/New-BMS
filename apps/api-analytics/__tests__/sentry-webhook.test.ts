@@ -362,6 +362,70 @@ describe('Sentry Webhook — further edge cases', () => {
   });
 });
 
+describe('Sentry Webhook — comprehensive coverage', () => {
+  it('platform defaults to "unknown" when not provided', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'comp-1' });
+    await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'comp-evt-1', message: 'test' } } });
+    const createArg = (prisma.bugReport.create as jest.Mock).mock.calls[0][0].data;
+    expect(createArg.platform).toBe('unknown');
+  });
+
+  it('environment defaults to "production" when not provided', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'comp-2' });
+    await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'comp-evt-2', message: 'test' } } });
+    const createArg = (prisma.bugReport.create as jest.Mock).mock.calls[0][0].data;
+    expect(createArg.environment).toBe('production');
+  });
+
+  it('create receives correct title from event.title field', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'comp-3' });
+    await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'comp-evt-3', title: 'Critical Error', message: 'crash' } } });
+    const createArg = (prisma.bugReport.create as jest.Mock).mock.calls[0][0].data;
+    expect(createArg.title).toBe('Critical Error');
+  });
+
+  it('findUnique where clause has sentryEventId matching the event_id', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'comp-4' });
+    await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'comp-evt-4', message: 'ok' } } });
+    expect(prisma.bugReport.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { sentryEventId: 'comp-evt-4' } })
+    );
+  });
+
+  it('returns 200 and success true on valid new event with all fields', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'comp-5', title: 'Full Event' });
+    const res = await request(app)
+      .post('/webhooks/sentry')
+      .send({
+        data: {
+          event: {
+            event_id: 'comp-evt-5',
+            title: 'Full Event',
+            level: 'error',
+            platform: 'node',
+            environment: 'production',
+            message: 'Full error message',
+          },
+        },
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
 describe('Sentry Webhook — final coverage', () => {
   it('create data includes all required fields', async () => {
     (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);

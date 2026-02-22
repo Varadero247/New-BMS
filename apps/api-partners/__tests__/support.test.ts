@@ -255,6 +255,65 @@ describe('500 error handling', () => {
   });
 });
 
+describe('support — extra coverage batch ah', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response has success:true', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/support');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / creates ticket with URGENT priority', async () => {
+    // The schema only accepts LOW, MEDIUM, HIGH, URGENT — not CRITICAL
+    (portalPrisma.mktPartnerSupportTicket.create as jest.Mock).mockResolvedValue({
+      ...mockTicket,
+      priority: 'URGENT',
+    });
+    const res = await request(app)
+      .post('/api/support')
+      .send({ subject: 'Critical issue', description: 'System down', priority: 'URGENT' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id: findUnique called with correct id', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(mockTicket);
+    await request(app).get('/api/support/00000000-0000-0000-0000-000000000001');
+    expect(portalPrisma.mktPartnerSupportTicket.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('PATCH /:id/close returns 401 when no partner', async () => {
+    const noAuthApp = express();
+    noAuthApp.use(express.json());
+    noAuthApp.use('/api/support', supportRouter);
+    const res = await request(noAuthApp).patch('/api/support/00000000-0000-0000-0000-000000000001/close');
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /:id/messages: create called with correct ticketId', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(mockTicket);
+    (portalPrisma.mktTicketMessage.create as jest.Mock).mockResolvedValue({
+      id: 'msg-new',
+      ticketId: '00000000-0000-0000-0000-000000000001',
+      body: 'Hello',
+    });
+    await request(app)
+      .post('/api/support/00000000-0000-0000-0000-000000000001/messages')
+      .send({ body: 'Hello' });
+    expect(portalPrisma.mktTicketMessage.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ ticketId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+});
+
 describe('support — additional coverage', () => {
   let app: express.Express;
 

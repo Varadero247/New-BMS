@@ -563,3 +563,63 @@ describe('Dashboard API Routes — final coverage', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Dashboard API Routes — extra batch coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/dashboard', dashboardRoutes);
+    jest.clearAllMocks();
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([
+      { standard: 'ISO_45001', overallScore: 80 },
+      { standard: 'ISO_14001', overallScore: 80 },
+      { standard: 'ISO_9001', overallScore: 80 },
+    ]);
+    (mockPrisma.risk.count as jest.Mock).mockResolvedValue(0);
+    mockPrisma.risk.groupBy.mockResolvedValue([]);
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.incident.count as jest.Mock).mockResolvedValue(0);
+    mockPrisma.incident.groupBy.mockResolvedValue([]);
+    (mockPrisma.action.count as jest.Mock).mockResolvedValue(0);
+    mockPrisma.action.findMany.mockResolvedValue([]);
+    (mockPrisma.aIAnalysis.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValue([]);
+  });
+
+  it('GET /api/dashboard/stats response content-type is JSON', async () => {
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/dashboard/compliance response success is true', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValueOnce([
+      { standard: 'ISO_9001', overallScore: 88 },
+    ]);
+    const res = await request(app).get('/api/dashboard/compliance').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/dashboard/trends response success is true', async () => {
+    (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/dashboard/trends').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/dashboard/stats topRisks is an array of objects', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValue([
+      { id: 'risk-a', title: 'Supply chain risk', riskScore: 30, riskLevel: 'HIGH' },
+    ]);
+    const res = await request(app).get('/api/dashboard/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.topRisks)).toBe(true);
+  });
+
+  it('GET /api/dashboard/compliance DB error returns 500', async () => {
+    (mockPrisma.complianceScore.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB fail'));
+    const res = await request(app).get('/api/dashboard/compliance').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

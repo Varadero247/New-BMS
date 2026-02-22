@@ -669,3 +669,87 @@ describe('Quality Nonconformances — further edge cases', () => {
     expect(res.body.data).toHaveProperty('items');
   });
 });
+
+describe('Quality Nonconformances — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/nonconformances', nonconformancesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/nonconformances — response has correct page number', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+
+    const res = await request(app)
+      .get('/api/nonconformances?page=4&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.page).toBe(4);
+    expect(res.body.data.limit).toBe(10);
+  });
+
+  it('POST /api/nonconformances — 400 for missing source field', async () => {
+    const res = await request(app)
+      .post('/api/nonconformances')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'NC without source',
+        description: 'desc',
+        ncType: 'PRODUCT_DEFECT',
+        severity: 'MAJOR',
+        reportedBy: 'John',
+        department: 'QA',
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/nonconformances/:id — 500 on update error after findUnique', async () => {
+    mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce({
+      id: '1c000000-0000-4000-a000-000000000001',
+    });
+    mockPrisma.qualNonConformance.update.mockRejectedValueOnce(new Error('DB write error'));
+
+    const res = await request(app)
+      .delete('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/nonconformances/:id — accepts valid status CLOSED', async () => {
+    mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce({
+      id: '1c000000-0000-4000-a000-000000000001',
+      title: 'Existing NC',
+      status: 'UNDER_REVIEW',
+      closureDate: null,
+    });
+    mockPrisma.qualNonConformance.update.mockResolvedValueOnce({
+      id: '1c000000-0000-4000-a000-000000000001',
+      status: 'CLOSED',
+    });
+
+    const res = await request(app)
+      .put('/api/nonconformances/1c000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'CLOSED' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/nonconformances data.items is array', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/nonconformances').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data.items)).toBe(true);
+  });
+});

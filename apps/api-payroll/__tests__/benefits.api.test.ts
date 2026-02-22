@@ -596,6 +596,64 @@ describe('Payroll Benefits — final coverage', () => {
   });
 });
 
+describe('Payroll Benefits — extra coverage batch ah', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/benefits', benefitsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /plans: findMany is called exactly once per request', async () => {
+    (mockPrisma.benefitPlan.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/benefits/plans').set('Authorization', 'Bearer token');
+    expect(mockPrisma.benefitPlan.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /plans: response data is an array', async () => {
+    (mockPrisma.benefitPlan.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/benefits/plans').set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /plans: returns 400 for missing code', async () => {
+    const res = await request(app)
+      .post('/api/benefits/plans')
+      .set('Authorization', 'Bearer token')
+      .send({ name: 'Plan X', category: 'VISION', coverageLevels: ['EMPLOYEE_ONLY'], effectiveFrom: '2024-01-01' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /employees/:id: response data is an array', async () => {
+    (mockPrisma.employeeBenefit.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app)
+      .get('/api/benefits/employees/00000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /terminate: response body has success:true on 200', async () => {
+    (mockPrisma.employeeBenefit.update as jest.Mock).mockResolvedValueOnce({
+      id: '37000000-0000-4000-a000-000000000001',
+      status: 'TERMINATED',
+      terminationDate: new Date(),
+      effectiveTo: new Date(),
+    });
+    const res = await request(app)
+      .put('/api/benefits/37000000-0000-4000-a000-000000000001/terminate')
+      .set('Authorization', 'Bearer token')
+      .send({ terminationDate: '2024-06-30' });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+});
+
 describe('Payroll Benefits — edge case coverage', () => {
   let app: express.Express;
 

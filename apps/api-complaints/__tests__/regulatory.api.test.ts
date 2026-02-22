@@ -351,3 +351,32 @@ describe('regulatory.api — final coverage expansion', () => {
     }
   });
 });
+
+describe('regulatory.api — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response body has a data property', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET / returns correct title for first complaint', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'CMA Breach', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].title).toBe('CMA Breach');
+  });
+
+  it('GET / data array is empty when findMany returns empty array', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

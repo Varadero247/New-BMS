@@ -477,4 +477,52 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
       expect(res.body.success).toBe(false);
     });
   });
+
+  describe('CI — additional coverage block', () => {
+    it('GET / filters by source when source param provided', async () => {
+      mockPrisma.qualContinuousImprovement.findMany.mockResolvedValue([mockCI]);
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(1);
+      const res = await request(app).get('/api/ci?source=AUDIT');
+      expect(res.status).toBe(200);
+    });
+
+    it('DELETE /:id returns 404 for non-existent record', async () => {
+      mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(null);
+      const res = await request(app).delete('/api/ci/00000000-0000-0000-0000-000000000099');
+      expect(res.status).toBe(404);
+    });
+
+    it('GET /stats returns byPriority array', async () => {
+      mockPrisma.qualContinuousImprovement.count
+        .mockResolvedValueOnce(10)
+        .mockResolvedValueOnce(4)
+        .mockResolvedValueOnce(3)
+        .mockResolvedValueOnce(2)
+        .mockResolvedValueOnce(1);
+      mockPrisma.qualContinuousImprovement.groupBy.mockResolvedValue([
+        { priority: 'LOW', _count: { id: 2 } },
+        { priority: 'HIGH', _count: { id: 8 } },
+      ]);
+      const res = await request(app).get('/api/ci/stats');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data.byPriority)).toBe(true);
+    });
+
+    it('PUT /:id updates title field', async () => {
+      mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(mockCI);
+      mockPrisma.qualContinuousImprovement.update.mockResolvedValue({ ...mockCI, title: 'New Title' });
+      const res = await request(app).put('/api/ci/00000000-0000-0000-0000-000000000001').send({ title: 'New Title' });
+      expect(res.status).toBe(200);
+      expect(res.body.data.title).toBe('New Title');
+    });
+
+    it('POST / returns 400 for invalid priority value', async () => {
+      const res = await request(app).post('/api/ci').send({
+        title: 'CI with bad priority',
+        description: 'Desc',
+        priority: 'INVALID_PRIORITY',
+      });
+      expect(res.status).toBe(400);
+    });
+  });
 });

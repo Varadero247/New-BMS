@@ -462,3 +462,26 @@ describe('customers.api — additional coverage 2', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('customers.api — final coverage', () => {
+  it('GET / applies skip=20 for page=3 limit=10', async () => {
+    mockPrisma.fsSvcCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcCustomer.count.mockResolvedValue(0);
+    await request(app).get('/api/customers?page=3&limit=10');
+    expect(mockPrisma.fsSvcCustomer.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/customers').send({});
+    expect(mockPrisma.fsSvcCustomer.create).not.toHaveBeenCalled();
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

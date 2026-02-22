@@ -599,3 +599,69 @@ describe('IR35 — final coverage', () => {
     );
   });
 });
+
+// ===================================================================
+// IR35 — extra coverage to reach 40 tests
+// ===================================================================
+describe('IR35 — extra coverage', () => {
+  it('GET / response body has success, data keys', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/ir35');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST / response data has referenceNumber field', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000040',
+      contractorName: 'Jack Extra',
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    const res = await request(app).post('/api/ir35').send({ contractorName: 'Jack Extra' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('GET / data array is always an array on empty result', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/ir35');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / createdBy is set from authenticated user', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000041',
+      contractorName: 'Kate Extra',
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    await request(app).post('/api/ir35').send({ contractorName: 'Kate Extra' });
+
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          createdBy: '00000000-0000-0000-0000-000000000001',
+        }),
+      })
+    );
+  });
+
+  it('GET / findMany called once per list request', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/ir35');
+
+    expect(mockPrisma.finIr35Assessment.findMany).toHaveBeenCalledTimes(1);
+  });
+});

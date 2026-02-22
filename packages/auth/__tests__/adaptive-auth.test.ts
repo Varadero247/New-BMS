@@ -287,3 +287,48 @@ describe('assessLoginRisk() — boundary and metadata checks', () => {
     expect(factor?.points).toBe(10);
   });
 });
+
+// ── assessLoginRisk() — final coverage ───────────────────────────────────────
+
+describe('assessLoginRisk() — final coverage', () => {
+  it('unusual_hour factor points value is 15', () => {
+    const ctx: LoginContext = { ...BASE_CTX, hourOfDay: 2, normalLoginHours: [9, 10] };
+    const { factors } = assessLoginRisk(ctx);
+    const factor = factors.find((f) => f.name === 'unusual_hour');
+    expect(factor?.points).toBe(15);
+  });
+
+  it('failed_attempts factor points value is 20', () => {
+    const { factors } = assessLoginRisk({ ...BASE_CTX, recentFailedAttempts: 3 });
+    const factor = factors.find((f) => f.name === 'failed_attempts');
+    expect(factor?.points).toBe(20);
+  });
+
+  it('brute_force factor points value is 40', () => {
+    const { factors } = assessLoginRisk({ ...BASE_CTX, recentFailedAttempts: 5 });
+    const factor = factors.find((f) => f.name === 'brute_force');
+    expect(factor?.points).toBe(40);
+  });
+
+  it('all factors combined cap at 100', () => {
+    const ctx: LoginContext = {
+      userId: 'u-max',
+      ip: '10.0.0.1',
+      isTorOrProxy: true,
+      isKnownDevice: false,
+      isKnownLocation: false,
+      recentFailedAttempts: 10,
+      mfaEnabled: false,
+      hourOfDay: 3,
+      normalLoginHours: [9, 10],
+    };
+    const { score } = assessLoginRisk(ctx);
+    expect(score).toBeLessThanOrEqual(100);
+    expect(score).toBeGreaterThanOrEqual(60);
+  });
+
+  it('assessLoginRisk returns an action property string', () => {
+    const { action } = assessLoginRisk(BASE_CTX);
+    expect(typeof action).toBe('string');
+  });
+});

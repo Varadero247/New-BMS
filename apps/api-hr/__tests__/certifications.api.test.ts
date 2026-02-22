@@ -417,3 +417,63 @@ describe('certifications.api — extended validation and response shape', () => 
     expect(mockPrisma.employeeCertification.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('certifications.api — final additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/certifications', router);
+    jest.clearAllMocks();
+  });
+
+  it('GET / meta.page defaults to 1', async () => {
+    (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.employeeCertification.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(1);
+  });
+
+  it('POST / employee.findUnique called with correct employeeId', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue({ id: EMP_ID });
+    (mockPrisma.employeeCertification.create as jest.Mock).mockResolvedValue(mockCert);
+    await request(app).post('/api/certifications').send({
+      employeeId: EMP_ID,
+      name: 'ISO 45001 Lead Auditor',
+      issuingOrganization: 'BSI',
+      issueDate: '2025-06-01',
+    });
+    expect(mockPrisma.employee.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: EMP_ID } })
+    );
+  });
+
+  it('DELETE / findUnique called with correct id', async () => {
+    (mockPrisma.employeeCertification.findUnique as jest.Mock).mockResolvedValue(mockCert);
+    (mockPrisma.employeeCertification.delete as jest.Mock).mockResolvedValue(mockCert);
+    await request(app).delete(`/api/certifications/${CERT_ID}`);
+    expect(mockPrisma.employeeCertification.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: CERT_ID } })
+    );
+  });
+
+  it('PUT / update called with correct id in where clause', async () => {
+    (mockPrisma.employeeCertification.findUnique as jest.Mock).mockResolvedValue(mockCert);
+    (mockPrisma.employeeCertification.update as jest.Mock).mockResolvedValue({ ...mockCert, status: 'ACTIVE' });
+    await request(app).put(`/api/certifications/${CERT_ID}`).send({ status: 'ACTIVE' });
+    expect(mockPrisma.employeeCertification.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: CERT_ID } })
+    );
+  });
+
+  it('GET / data array has correct length', async () => {
+    const certs = [mockCert, { ...mockCert, id: 'cert-2' }];
+    (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValue(certs);
+    (mockPrisma.employeeCertification.count as jest.Mock).mockResolvedValue(2);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

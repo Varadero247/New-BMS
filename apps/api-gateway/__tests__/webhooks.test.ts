@@ -373,6 +373,59 @@ describe('webhooks — error paths and field validation', () => {
   });
 });
 
+describe('webhooks — pre-business-logic coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/webhooks', webhooksRouter);
+    jest.clearAllMocks();
+    mockGetEndpoint.mockReturnValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      orgId: 'org-1',
+      name: 'Test',
+      url: 'https://example.com/hook',
+      secret: 'whsec_abcdefghijklmnop',
+      events: ['ncr.created'],
+      enabled: true,
+      headers: null,
+      lastTriggeredAt: null,
+      failureCount: 0,
+    });
+  });
+
+  it('POST creates with correct url forwarded to createEndpoint', async () => {
+    mockCreateEndpoint.mockReturnValueOnce({
+      id: '00000000-0000-0000-0000-000000000002', name: 'URL test',
+      url: 'https://url-test.example.com/hook', secret: 'whsec_xyz',
+      events: ['ncr.created'], enabled: true, orgId: 'org-1',
+      headers: null, lastTriggeredAt: null, failureCount: 0,
+    });
+    const res = await request(app)
+      .post('/api/admin/webhooks')
+      .send({ name: 'URL test', url: 'https://url-test.example.com/hook', events: ['ncr.created'] });
+    expect(res.status).toBe(201);
+    expect(mockCreateEndpoint).toHaveBeenCalledWith(
+      expect.objectContaining({ url: 'https://url-test.example.com/hook' })
+    );
+  });
+
+  it('GET /deliveries returns 500 when listDeliveries throws', async () => {
+    mockListDeliveries.mockImplementationOnce(() => { throw new Error('delivery store error'); });
+    const res = await request(app).get('/api/admin/webhooks/00000000-0000-0000-0000-000000000001/deliveries');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/admin/webhooks/:id returns 500 when deleteEndpoint throws', async () => {
+    mockDeleteEndpoint.mockImplementationOnce(() => { throw new Error('delete failed'); });
+    const res = await request(app).delete('/api/admin/webhooks/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
 describe('webhooks — business logic and response correctness', () => {
   let app: express.Express;
 

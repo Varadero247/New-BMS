@@ -495,3 +495,36 @@ describe('Chemicals Disposal — additional coverage 2', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Chemicals Disposal — additional coverage 3', () => {
+  it('GET /disposal response is JSON content-type', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /disposal data item includes chemicalId field', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([mockDisposal]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('chemicalId');
+  });
+
+  it('POST /disposal with empty body returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/disposal').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /disposal with page=3&limit=10 passes skip:20 to findMany', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    await request(app).get('/api/disposal?page=3&limit=10');
+    expect(mockPrisma.chemDisposal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+});

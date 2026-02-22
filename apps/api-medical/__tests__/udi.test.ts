@@ -519,6 +519,74 @@ describe('UDI Routes', () => {
 });
 
 // ===================================================================
+// UDI Routes — supplemental coverage
+// ===================================================================
+describe('UDI Routes — supplemental coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/udi', udiRouter);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/udi/devices returns 400 for missing deviceClass', async () => {
+    const res = await request(app).post('/api/udi/devices').send({
+      deviceName: 'Pacemaker',
+      modelNumber: 'PM-100',
+      manufacturer: 'CardioTech',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/udi/devices with status filter passes status to query', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/udi/devices?status=DRAFT');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.udiDevice.findMany).toHaveBeenCalled();
+  });
+
+  it('GET /api/udi/devices/:id returns data object with id field', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDevice,
+      diRecords: [],
+      piRecords: [],
+      submissions: [],
+    });
+    const res = await request(app).get(`/api/udi/devices/${mockDevice.id}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(mockDevice.id);
+  });
+
+  it('POST /api/udi/devices response body has success:true on 201', async () => {
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.udiDevice.create as jest.Mock).mockResolvedValue({ ...mockDevice });
+    const res = await request(app).post('/api/udi/devices').send({
+      deviceName: 'Test Device',
+      modelNumber: 'TD-001',
+      manufacturer: 'TestCorp',
+      deviceClass: 'CLASS_I',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/udi/devices returns data as an array', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([mockDevice]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/udi/devices');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});
+
+// ===================================================================
 // UDI Routes — additional response shape coverage
 // ===================================================================
 describe('UDI Routes — additional response shape coverage', () => {

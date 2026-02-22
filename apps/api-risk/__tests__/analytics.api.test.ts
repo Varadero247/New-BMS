@@ -409,3 +409,58 @@ describe('Risk Analytics — absolute final coverage', () => {
     expect(res.body.data).toHaveLength(3);
   });
 });
+
+describe('Risk Analytics — complete final boundary', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('dashboard response body has success property', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('by-module response body has success property', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('dashboard totalRisks equals the first riskRegister.count call value', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(15);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalRisks).toBe(15);
+  });
+
+  it('dashboard heatmap cells all have count >= 0', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    for (const cell of res.body.data.heatmapData) {
+      expect(cell.count).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it('by-module count field equals _count from groupBy result', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([{ sourceModule: 'MANUAL', _count: 7 }]);
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].count).toBe(7);
+  });
+});

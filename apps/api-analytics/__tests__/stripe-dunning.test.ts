@@ -335,6 +335,37 @@ describe('stripe-dunning — edge cases and field validation', () => {
   });
 });
 
+describe('Stripe Dunning — comprehensive coverage', () => {
+  it('POST stores stripeInvoiceId from invoice.id', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'comp-dun-1' } as any);
+    await request(app).post('/api/webhooks/stripe-dunning').send(validPaymentFailedEvent);
+    const createCall = mockPrisma.dunningSequence.create.mock.calls[0][0];
+    expect(createCall.data.stripeInvoiceId).toBe('in_001');
+  });
+
+  it('GET /active response data has sequences and total', async () => {
+    mockPrisma.dunningSequence.findMany.mockResolvedValue([{ id: 'seq-comp-1' }] as any);
+    const res = await request(app).get('/api/webhooks/stripe-dunning/active');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('sequences');
+    expect(res.body.data).toHaveProperty('total');
+  });
+
+  it('POST returns 201 status on successful creation', async () => {
+    mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.dunningSequence.create.mockResolvedValue({ id: 'comp-dun-2', currentStep: 'DAY_0' } as any);
+    const res = await request(app).post('/api/webhooks/stripe-dunning').send(validPaymentFailedEvent);
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /active returns JSON content-type', async () => {
+    mockPrisma.dunningSequence.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/webhooks/stripe-dunning/active');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});
+
 describe('Stripe Dunning — final coverage', () => {
   it('POST success response body is an object', async () => {
     mockPrisma.dunningSequence.findFirst.mockResolvedValue(null);

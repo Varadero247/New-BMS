@@ -370,6 +370,55 @@ describe('customer-complaints — edge cases', () => {
   });
 });
 
+describe('customer-complaints — extra coverage batch ah', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: count is called once per list request', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    await request(app).get('/api/customer/complaints');
+    expect(mockPrisma.portalQualityReport.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST: create is called with user-123 as createdBy', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      reportType: 'COMPLAINT',
+      severity: 'MINOR',
+      status: 'OPEN',
+      createdBy: 'user-123',
+    });
+    await request(app)
+      .post('/api/customer/complaints')
+      .send({ description: 'Batch ah test', severity: 'MINOR' });
+    expect(mockPrisma.portalQualityReport.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ createdBy: 'user-123' }),
+      })
+    );
+  });
+
+  it('GET list: pagination has page field', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/complaints');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('GET /:id: NOT_FOUND error returned when record is null', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue(null);
+    const res = await request(app).get(
+      '/api/customer/complaints/00000000-0000-0000-0000-000000000099'
+    );
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
 describe('customer-complaints — final coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

@@ -633,3 +633,80 @@ describe('risks.api — final extended coverage', () => {
     expect(mockPrisma.projectRisk.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('risks.api — boundary and extra coverage', () => {
+  let app: express.Express;
+
+  const baseRisk = {
+    id: '10000000-0000-4000-a000-000000000001',
+    riskCode: 'RSK-001',
+    riskTitle: 'Budget overrun risk',
+    riskDescription: 'Project may exceed allocated budget',
+    riskCategory: 'BUDGET',
+    probability: 4,
+    impact: 5,
+    riskScore: 20,
+    riskLevel: 'CRITICAL',
+    status: 'IDENTIFIED',
+    residualProbability: null,
+    residualImpact: null,
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', risksRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risks: data is array when projectId is provided', async () => {
+    (mockPrisma.projectRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectRisk.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/risks?projectId=proj-1').set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/risks: findMany not called when projectId missing', async () => {
+    await request(app).get('/api/risks').set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectRisk.findMany).not.toHaveBeenCalled();
+  });
+
+  it('POST /api/risks: create called once on valid submission', async () => {
+    (mockPrisma.projectRisk.create as jest.Mock).mockResolvedValueOnce({
+      ...baseRisk,
+      riskScore: 6,
+      riskLevel: 'MEDIUM',
+    });
+    await request(app).post('/api/risks').set('Authorization', 'Bearer token').send({
+      projectId: 'proj-1',
+      riskCode: 'RSK-ONCE',
+      riskTitle: 'One-time risk',
+      riskDescription: 'Testing create called once',
+      riskCategory: 'RESOURCE',
+      probability: 2,
+      impact: 3,
+    });
+    expect(mockPrisma.projectRisk.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/risks: meta total matches count mock value', async () => {
+    (mockPrisma.projectRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectRisk.count as jest.Mock).mockResolvedValueOnce(19);
+    const res = await request(app).get('/api/risks?projectId=proj-1').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(19);
+  });
+
+  it('PUT /api/risks/:id: success true in response body on update', async () => {
+    (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(baseRisk);
+    (mockPrisma.projectRisk.update as jest.Mock).mockResolvedValueOnce({
+      ...baseRisk,
+      riskTitle: 'Updated risk title',
+    });
+    const res = await request(app)
+      .put('/api/risks/10000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ riskTitle: 'Updated risk title' });
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -517,3 +517,84 @@ describe('Quality Training API Routes — final coverage', () => {
     expect(res.body.data.passed).toBe(true);
   });
 });
+
+describe('Quality Training API Routes — absolute final coverage', () => {
+  const baseMockTraining = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-TRN-2026-001',
+    employeeId: 'EMP-001',
+    employeeName: 'John Employee',
+    department: 'Production',
+    position: 'Operator',
+    courseName: 'ISO 9001 Quality Awareness',
+    trainingType: 'QUALITY_AWARENESS',
+    assignedDate: new Date('2026-02-01').toISOString(),
+    dueDate: new Date('2026-03-01').toISOString(),
+    deliveryMethod: 'ONLINE',
+    status: 'ASSIGNED',
+    passMark: 75,
+    score: null,
+    passed: null,
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/training data is an array', async () => {
+    mockPrisma.qualTraining.findMany.mockResolvedValue([]);
+    mockPrisma.qualTraining.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/training');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/training creates training with referenceNumber', async () => {
+    mockPrisma.qualTraining.count.mockResolvedValue(0);
+    mockPrisma.qualTraining.create.mockResolvedValue(baseMockTraining);
+    const res = await request(app).post('/api/training').send({
+      employeeId: 'EMP-003',
+      employeeName: 'Jane Smith',
+      courseName: 'ISO 45001 Awareness',
+      trainingType: 'QUALITY_AWARENESS',
+      assignedDate: '2026-02-01',
+      dueDate: '2026-03-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toBe('QMS-TRN-2026-001');
+  });
+
+  it('PUT /api/training/:id/complete FAILED status when score < passMark', async () => {
+    mockPrisma.qualTraining.findFirst.mockResolvedValue({ ...baseMockTraining, passMark: 80 });
+    mockPrisma.qualTraining.update.mockResolvedValue({ ...baseMockTraining, status: 'FAILED', score: 65, passed: false });
+    const res = await request(app)
+      .put('/api/training/00000000-0000-0000-0000-000000000001/complete')
+      .send({ score: 65 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('FAILED');
+    expect(res.body.data.passed).toBe(false);
+  });
+
+  it('DELETE /api/training/:id INTERNAL_ERROR code on 500', async () => {
+    mockPrisma.qualTraining.findFirst.mockResolvedValue(baseMockTraining);
+    mockPrisma.qualTraining.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).delete('/api/training/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/training/stats completionRate > 0 when there are completions', async () => {
+    mockPrisma.qualTraining.count
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(1);
+    mockPrisma.qualTraining.groupBy.mockResolvedValue([]);
+    const res = await request(app).get('/api/training/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.completionRate).toBeGreaterThan(0);
+  });
+});

@@ -381,6 +381,75 @@ describe('Timeline — edge cases and deeper coverage', () => {
   });
 });
 
+describe('Timeline — extra coverage paths', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('response body has success:true on 200', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-08-01T10:00:00Z'),
+      reportedDate: new Date('2026-08-01T11:00:00Z'),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('response body has data key', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-09-01T10:00:00Z'),
+      reportedDate: new Date('2026-09-01T11:00:00Z'),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('each timeline event has exactly event and date properties', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-10-01T10:00:00Z'),
+      reportedDate: new Date('2026-10-01T11:00:00Z'),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    for (const event of res.body.data) {
+      expect(event).toHaveProperty('event');
+      expect(event).toHaveProperty('date');
+    }
+  });
+
+  it('findFirst query includes correct incident id for different ids', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000009',
+      dateOccurred: new Date(),
+      reportedDate: new Date(),
+      investigationDate: null,
+      closedDate: null,
+    });
+    await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000009');
+    const callWhere = mockPrisma.incIncident.findFirst.mock.calls[0][0].where;
+    expect(callWhere.id).toBe('00000000-0000-0000-0000-000000000009');
+  });
+
+  it('404 response has error key with code and message', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error).toHaveProperty('code', 'NOT_FOUND');
+    expect(res.body.error).toHaveProperty('message');
+  });
+});
+
 describe('Timeline — final coverage block', () => {
   beforeEach(() => {
     jest.clearAllMocks();

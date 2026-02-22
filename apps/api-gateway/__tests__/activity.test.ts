@@ -371,3 +371,47 @@ describe('Activity Routes — comprehensive pass', () => {
     expect(mockLogActivity).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Activity Routes — final additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/activity', activityRoutes);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+  });
+
+  it('GET /api/activity response body is an object', async () => {
+    mockGetActivity.mockResolvedValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/activity?recordType=ncr&recordId=r1');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/activity/recent response body is an object', async () => {
+    mockGetRecentActivity.mockResolvedValue([]);
+    const res = await request(app).get('/api/activity/recent');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('POST /api/activity with viewed action succeeds', async () => {
+    mockLogActivity.mockResolvedValue(undefined);
+    const res = await request(app).post('/api/activity').send({
+      recordType: 'document',
+      recordId: 'doc-42',
+      action: 'updated',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/activity content-type is application/json', async () => {
+    mockGetActivity.mockResolvedValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/activity?recordType=risk&recordId=r-1');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

@@ -307,3 +307,26 @@ describe('Plan Guard — limits hierarchy', () => {
     expect(getOrgPlan('tier-test-org')).toBe('STARTER');
   });
 });
+
+describe('Plan Guard — final coverage', () => {
+  it('checkLimit plan field is PROFESSIONAL (hardcoded until billing is connected)', () => {
+    setOrgPlan('final-org-1', 'STARTER');
+    const result = checkLimit('final-org-1', 'users');
+    // checkLimit always returns plan: 'PROFESSIONAL' until billing enforcement is wired up
+    expect(result.plan).toBe('PROFESSIONAL');
+  });
+
+  it('PLAN_LIMITS.FREE.modules equals 2', () => {
+    expect(PLAN_LIMITS.FREE.modules).toBe(2);
+  });
+
+  it('PLAN_LIMITS.STARTER.users is defined and greater than FREE users', () => {
+    expect(PLAN_LIMITS.STARTER.users).toBeDefined();
+    expect(PLAN_LIMITS.STARTER.users!).toBeGreaterThan(PLAN_LIMITS.FREE.users!);
+  });
+
+  it('planGuard returns a function with arity of 3', () => {
+    const mw = planGuard('records');
+    expect(mw.length).toBe(3);
+  });
+});

@@ -331,6 +331,37 @@ describe('tasks — error paths and pagination', () => {
   });
 });
 
+describe('tasks — pre-final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tasks', tasksRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/tasks missing assigneeName returns 400', async () => {
+    const res = await request(app).post('/api/tasks').send({ title: 'No Name', assigneeId: 'user-2' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/tasks/my-tasks response data has later field', async () => {
+    mockGetMyTasks.mockResolvedValueOnce({ overdue: [], today: [], thisWeek: [], later: [{ id: '2' }] });
+    const res = await request(app).get('/api/tasks/my-tasks');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('later');
+  });
+
+  it('GET /api/tasks response data.tasks is array', async () => {
+    mockGetTasks.mockResolvedValueOnce({ tasks: [], total: 0 });
+    const res = await request(app).get('/api/tasks');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.tasks)).toBe(true);
+  });
+});
+
 describe('tasks — business logic and response shape', () => {
   let app: express.Express;
 

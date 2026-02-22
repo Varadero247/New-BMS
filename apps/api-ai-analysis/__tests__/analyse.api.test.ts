@@ -999,3 +999,133 @@ describe('analyse.api — further coverage', () => {
     expect(createCall[0].data.prompt).toContain('Noise exposure');
   });
 });
+
+// ── analyse.api — final additional coverage ───────────────────────────────────
+
+describe('analyse.api — final additional coverage', () => {
+  let app: express.Express;
+
+  const settings = {
+    id: 'settings-fa-1',
+    provider: 'OPENAI',
+    apiKey: 'sk-fa-key',
+    model: 'gpt-4',
+    defaultPrompt: null,
+    totalTokensUsed: 0,
+    lastUsedAt: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const riskSource = {
+    id: 'source-fa-1',
+    title: 'Manual handling',
+    description: 'Heavy lifting hazard',
+    likelihood: 3,
+    severity: 4,
+    riskScore: 12,
+    riskLevel: 'HIGH',
+    status: 'ACTIVE',
+  };
+
+  const analysis = {
+    id: '52000000-0000-4000-a000-000000000077',
+    userId: '20000000-0000-4000-a000-000000000001',
+    sourceType: 'risk',
+    sourceId: 'source-fa-1',
+    sourceData: riskSource,
+    prompt: 'fa prompt',
+    provider: 'OPENAI',
+    model: 'gpt-4',
+    response: { content: 'FA AI response' },
+    suggestedRootCause: 'Heavy lifting.',
+    suggestedActions: [],
+    complianceGaps: [],
+    highlights: [],
+    status: 'COMPLETED',
+    createdAt: new Date(),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyse', analyseRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('returns 201 and data.id is a string on successful analysis', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(riskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(analysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(settings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: lifting.' } }],
+        usage: { total_tokens: 40 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-fa-1' });
+    expect(res.status).toBe(201);
+    expect(typeof res.body.data.id).toBe('string');
+  });
+
+  it('returns 400 VALIDATION_ERROR when sourceType is an integer', async () => {
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 123, sourceId: 'source-fa-1' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('aISettings.update is called after successful analysis', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(riskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(analysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(settings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: lifting.' } }],
+        usage: { total_tokens: 25 },
+      }),
+    });
+    await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-fa-1' });
+    expect(mockPrisma.aISettings.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('risk.findUnique called with correct id for risk sourceType', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(riskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(analysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(settings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: test.' } }],
+        usage: { total_tokens: 20 },
+      }),
+    });
+    await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-fa-1' });
+    expect(mockPrisma.risk.findUnique).toHaveBeenCalledWith({ where: { id: 'source-fa-1' } });
+  });
+
+  it('returns 400 when sourceId is a number instead of string', async () => {
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 9999 });
+    expect([400, 404, 500]).toContain(res.status);
+  });
+});

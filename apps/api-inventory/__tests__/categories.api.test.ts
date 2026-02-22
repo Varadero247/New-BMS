@@ -631,3 +631,61 @@ describe('Inventory Categories — final boundary tests', () => {
     expect(res.body.data.products).toHaveLength(1);
   });
 });
+
+describe('Inventory Categories — extra final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/categories', categoriesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns data array with correct length', async () => {
+    (mockPrisma.productCategory.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: '4d000000-0000-4000-a000-000000000001', name: 'Root', parentId: null, code: 'ROOT', sortOrder: 0, isActive: true, _count: { products: 2 } },
+    ]);
+    const res = await request(app).get('/api/categories').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('POST / returns 500 when create throws after duplicate check passes', async () => {
+    (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValue(null);
+    (mockPrisma.productCategory.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .post('/api/categories')
+      .set('Authorization', 'Bearer token')
+      .send({ name: 'Test', code: 'TEST' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id update DB error returns 500 with INTERNAL_ERROR', async () => {
+    (mockPrisma.productCategory.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '4d000000-0000-4000-a000-000000000001',
+      name: 'Electronics',
+      code: 'ELEC',
+      parentId: null,
+    });
+    (mockPrisma.productCategory.update as jest.Mock).mockRejectedValueOnce(new Error('DB fail'));
+    const res = await request(app)
+      .patch('/api/categories/4d000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ name: 'Fail Update' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / with flat=true returns all categories without nesting', async () => {
+    (mockPrisma.productCategory.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: 'cat-a', name: 'A', parentId: null, code: 'A', sortOrder: 0, isActive: true, _count: { products: 0 } },
+      { id: 'cat-b', name: 'B', parentId: 'cat-a', code: 'B', sortOrder: 0, isActive: true, _count: { products: 0 } },
+    ]);
+    const res = await request(app).get('/api/categories?flat=true').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

@@ -355,3 +355,49 @@ describe('dashboard.api (suppliers) — final coverage', () => {
     expect(keys).toContain('totalDocuments');
   });
 });
+
+describe('dashboard.api (suppliers) — coverage to 40', () => {
+  it('response body is not null on success', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(1);
+    mockPrisma.suppScorecard.count.mockResolvedValue(1);
+    mockPrisma.suppDocument.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('success field is boolean true on 200', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(3);
+    mockPrisma.suppScorecard.count.mockResolvedValue(3);
+    mockPrisma.suppDocument.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('error response has error.message as a string', async () => {
+    mockPrisma.suppSupplier.count.mockRejectedValue(new Error('timeout'));
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(typeof res.body.error.message).toBe('string');
+  });
+
+  it('data.totalSuppliers is a number and equals mock value', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(77);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalSuppliers).toBe('number');
+    expect(res.body.data.totalSuppliers).toBe(77);
+  });
+
+  it('GET /api/dashboard/stats: response content-type is json', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

@@ -360,3 +360,44 @@ describe('Worker Consultation — final coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Worker Consultation — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / findMany called once per request', async () => {
+    prisma.hSWorkerConsultation.findMany.mockResolvedValue([]);
+    prisma.hSWorkerConsultation.count.mockResolvedValue(0);
+    await request(app).get('/');
+    expect(prisma.hSWorkerConsultation.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / create called with correct topic', async () => {
+    prisma.hSWorkerConsultation.create.mockResolvedValue(mockConsultation);
+    await request(app).post('/').send(consultationPayload);
+    expect(prisma.hSWorkerConsultation.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ topic: 'HAZARD_IDENTIFICATION' }) })
+    );
+  });
+
+  it('GET / response body has success true', async () => {
+    prisma.hSWorkerConsultation.findMany.mockResolvedValue([]);
+    prisma.hSWorkerConsultation.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /barriers success is true on 200', async () => {
+    prisma.hSParticipationBarrier.findMany.mockResolvedValue([]);
+    prisma.hSParticipationBarrier.count.mockResolvedValue(0);
+    const res = await request(app).get('/barriers');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id response data has correct title', async () => {
+    prisma.hSWorkerConsultation.findUnique.mockResolvedValue(mockConsultation);
+    const res = await request(app).get('/cons-1');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Monthly OHS Committee Meeting');
+  });
+});

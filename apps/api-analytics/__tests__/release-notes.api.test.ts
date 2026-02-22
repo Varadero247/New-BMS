@@ -399,3 +399,59 @@ describe('Release Notes — final coverage', () => {
     expect(res.body.data.changelogs[0].version).toBe('1.2.3');
   });
 });
+
+// ===================================================================
+// Release Notes — additional tests to reach ≥40
+// ===================================================================
+describe('Release Notes — additional tests', () => {
+  it('GET list with multiple items returns correct array length', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', version: '1.0.0', title: 'A', publishedAt: new Date() },
+      { id: '00000000-0000-0000-0000-000000000002', version: '2.0.0', title: 'B', publishedAt: new Date() },
+      { id: '00000000-0000-0000-0000-000000000003', version: '3.0.0', title: 'C', publishedAt: new Date() },
+    ]);
+    mockPrisma.changelog.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/release-notes');
+    expect(res.status).toBe(200);
+    expect(res.body.data.changelogs).toHaveLength(3);
+  });
+
+  it('GET list findMany and count each called exactly once', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+    await request(app).get('/api/release-notes');
+    expect(mockPrisma.changelog.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.changelog.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id findUnique called with correct where clause', async () => {
+    mockPrisma.changelog.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      version: '3.0.0',
+      title: 'Third',
+      publishedAt: new Date(),
+    });
+    await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000003');
+    expect(mockPrisma.changelog.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000003' } })
+    );
+  });
+
+  it('GET list pagination totalPages is 0 when total is 0', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/release-notes');
+    expect(res.body.data.pagination.totalPages).toBe(0);
+  });
+
+  it('GET /:id returns JSON content-type on success', async () => {
+    mockPrisma.changelog.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      version: '1.0.0',
+      title: 'CT',
+      publishedAt: new Date(),
+    });
+    const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000001');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

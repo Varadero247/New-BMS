@@ -775,3 +775,131 @@ describe('Quality Objectives API Routes', () => {
     });
   });
 });
+
+describe('Quality Objectives API — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/objectives', objectivesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/objectives — response has success:true', async () => {
+    (mockPrisma.qualObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualObjective.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app)
+      .get('/api/objectives')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/objectives — correct totalPages for 45 items at limit 15', async () => {
+    (mockPrisma.qualObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualObjective.count as jest.Mock).mockResolvedValueOnce(45);
+
+    const response = await request(app)
+      .get('/api/objectives?page=1&limit=15')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(3);
+  });
+
+  it('PUT /api/objectives/:id — 500 on update DB error after findUnique', async () => {
+    (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+      title: 'Existing',
+      status: 'NOT_STARTED',
+      progressPercent: 0,
+    });
+    (mockPrisma.qualObjective.update as jest.Mock).mockRejectedValueOnce(new Error('write fail'));
+
+    const response = await request(app)
+      .put('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Updated' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/objectives — sets initial status to NOT_STARTED', async () => {
+    (mockPrisma.qualObjective.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualObjective.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-OBJ-2026-001',
+      title: 'New Objective',
+      objectiveStatement: 'Achieve 99%',
+      category: 'ON_TIME_DELIVERY',
+      kpiDescription: 'KPI',
+      baselineValue: 0,
+      targetValue: 99,
+      unit: 'percent',
+      owner: 'John',
+      department: 'Ops',
+      status: 'NOT_STARTED',
+      progressPercent: 0,
+      milestones: [],
+    });
+
+    await request(app)
+      .post('/api/objectives')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'New Objective',
+        objectiveStatement: 'Achieve 99%',
+        category: 'ON_TIME_DELIVERY',
+        kpiDescription: 'KPI',
+        baselineValue: 0,
+        targetValue: 99,
+        unit: 'percent',
+        owner: 'John',
+        department: 'Ops',
+        targetDate: '2026-12-31',
+      });
+
+    expect(mockPrisma.qualObjective.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'NOT_STARTED' }),
+      })
+    );
+  });
+
+  it('DELETE /api/objectives/:id — 500 when update throws after findUnique', async () => {
+    (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.qualObjective.update as jest.Mock).mockRejectedValueOnce(new Error('write fail'));
+
+    const response = await request(app)
+      .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/objectives/:id — referenceNumber in response', async () => {
+    (mockPrisma.qualObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-OBJ-2026-001',
+      title: 'Reduce complaints',
+      milestones: [],
+    });
+
+    const response = await request(app)
+      .get('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.referenceNumber).toBe('QMS-OBJ-2026-001');
+  });
+});

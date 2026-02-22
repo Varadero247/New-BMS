@@ -441,3 +441,55 @@ describe('time-entries.api — further coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('time-entries.api — final coverage', () => {
+  it('GET / returns correct pagination.total from count mock', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(55);
+    const res = await request(app).get('/api/time-entries');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(55);
+  });
+
+  it('GET / applies skip=20 for page=3 limit=10', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(0);
+    await request(app).get('/api/time-entries?page=3&limit=10');
+    expect(mockPrisma.fsSvcTimeEntry.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('POST / returns 201 with data.id on success', async () => {
+    mockPrisma.fsSvcTimeEntry.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000070',
+      type: 'WORK',
+      startTime: new Date(),
+    });
+    const res = await request(app).post('/api/time-entries').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      type: 'WORK',
+      startTime: '2026-03-01T08:00:00Z',
+      duration: 4,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET /summary returns billableHours:0 when no billable entries', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([
+      { technicianId: 'tech-z', type: 'TRAVEL', duration: 2, billable: false, technician: { name: 'Zara' } },
+    ]);
+    const res = await request(app).get('/api/time-entries/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].billableHours).toBe(0);
+  });
+
+  it('DELETE /:id returns 500 when findFirst rejects', async () => {
+    mockPrisma.fsSvcTimeEntry.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/time-entries/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

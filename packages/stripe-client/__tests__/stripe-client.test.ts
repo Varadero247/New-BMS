@@ -346,3 +346,49 @@ describe('StripeClient — request structure validation', () => {
     expect(params.get('customer')).toBe('cus_abc');
   });
 });
+
+describe('StripeClient — final coverage to reach 40', () => {
+  it('getSubscriptions default limit is 100 (in URL)', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ data: [] }));
+    await client.getSubscriptions();
+    expect(mockFetch.mock.calls[0][0]).toContain('limit=100');
+  });
+
+  it('createCoupon with amount_off field sends it in body', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ id: 'coup_ao' }));
+    await client.createCoupon({ amount_off: 500, currency: 'usd', duration: 'once' });
+    const params = new URLSearchParams(mockFetch.mock.calls[0][1].body as string);
+    expect(params.get('amount_off')).toBe('500');
+  });
+
+  it('createTransfer with usd currency encodes currency correctly', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ id: 'tr_usd' }));
+    await client.createTransfer({ amount: 300, currency: 'usd', destination: 'acct_usd' });
+    const params = new URLSearchParams(mockFetch.mock.calls[0][1].body as string);
+    expect(params.get('currency')).toBe('usd');
+  });
+
+  it('createCoupon with non-ok 422 response returns null', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(err(422));
+    const result = await client.createCoupon({ percent_off: 10, duration: 'once' });
+    expect(result).toBeNull();
+  });
+
+  it('getBillingPortalUrl with non-ok 401 response returns null', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(err(401));
+    const result = await client.getBillingPortalUrl('cus_x', 'https://app.com');
+    expect(result).toBeNull();
+  });
+
+  it('getSubscriptions with limit=25 encodes 25 in URL', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ data: [] }));
+    await client.getSubscriptions(25);
+    expect(mockFetch.mock.calls[0][0]).toContain('limit=25');
+  });
+});

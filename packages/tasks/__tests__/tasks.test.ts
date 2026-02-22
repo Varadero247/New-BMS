@@ -359,3 +359,43 @@ describe('tasks — additional coverage', () => {
     expect(total).toBe(1);
   });
 });
+
+describe('tasks — final coverage to reach 40', () => {
+  beforeEach(() => {
+    resetStore();
+  });
+
+  it('createTask with HIGH priority stores HIGH', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'High priority task', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2', priority: 'HIGH' });
+    expect(task.priority).toBe('HIGH');
+  });
+
+  it('getTasks page 3 with limit 2 and 5 tasks returns 1 item', async () => {
+    for (let i = 0; i < 5; i++) {
+      await createTask({ orgId: 'org-3', title: `T${i}`, assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    }
+    const { tasks } = await getTasks('org-3', { page: 3, limit: 2 });
+    expect(tasks).toHaveLength(1);
+  });
+
+  it('getMyTasks returns grouped object with overdue, today, thisWeek, later keys', async () => {
+    const grouped = await getMyTasks('org-1', 'nobody');
+    expect(grouped).toHaveProperty('overdue');
+    expect(grouped).toHaveProperty('today');
+    expect(grouped).toHaveProperty('thisWeek');
+    expect(grouped).toHaveProperty('later');
+  });
+
+  it('createTask with no dueDate leaves dueDate undefined', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'No due', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    expect(task.dueDate).toBeUndefined();
+  });
+
+  it('updateTask with CANCELLED status reflects in getTasks filter', async () => {
+    const task = await createTask({ orgId: 'org-4', title: 'Cancel me', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    await updateTask(task.id, { status: 'CANCELLED' });
+    const { tasks } = await getTasks('org-4', { status: 'CANCELLED' });
+    expect(tasks).toHaveLength(1);
+    expect(tasks[0].status).toBe('CANCELLED');
+  });
+});

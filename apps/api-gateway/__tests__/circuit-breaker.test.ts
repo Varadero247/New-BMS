@@ -537,3 +537,49 @@ describe('Circuit Breaker — final additional coverage', () => {
     expect(typeof cb.middleware).toBe('function');
   });
 });
+
+describe('Circuit Breaker — final batch additional coverage', () => {
+  it('two different circuit breakers can both be OPEN independently', () => {
+    const cb1 = createProxyCircuitBreaker({ name: 'IndepA', failureThreshold: 1 });
+    const cb2 = createProxyCircuitBreaker({ name: 'IndepB', failureThreshold: 1 });
+    cb1.onFailure();
+    cb2.onFailure();
+    expect(cb1.getState()).toBe('OPEN');
+    expect(cb2.getState()).toBe('OPEN');
+  });
+
+  it('onSuccess after onFailure in CLOSED keeps circuit CLOSED when below threshold', () => {
+    const cb = createProxyCircuitBreaker({ name: 'SuccessReset', failureThreshold: 3 });
+    cb.onFailure();
+    cb.onSuccess();
+    cb.onFailure();
+    expect(cb.getState()).toBe('CLOSED');
+  });
+
+  it('OPEN circuit 503 response has error field in json body', () => {
+    const cb = createProxyCircuitBreaker({ name: 'ErrorFieldTest', failureThreshold: 1 });
+    cb.onFailure();
+    const { req, res, next } = makeReqRes('POST', '/api/x');
+    cb.middleware(req, res, next);
+    const jsonBody = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonBody).toHaveProperty('error');
+  });
+
+  it('captureMiddleware for non-GET does not patch res.end', () => {
+    const cb = createProxyCircuitBreaker({ name: 'EndPatchTest' });
+    const { req, res, next } = makeReqRes('POST', '/api/items');
+    const origEnd = res.end;
+    cb.captureMiddleware(req, res, next);
+    expect(res.end).toBe(origEnd);
+  });
+
+  it('circuit opens after exactly failureThreshold failures', () => {
+    const cb = createProxyCircuitBreaker({ name: 'ExactThreshold', failureThreshold: 4 });
+    cb.onFailure();
+    cb.onFailure();
+    cb.onFailure();
+    expect(cb.getState()).toBe('CLOSED');
+    cb.onFailure();
+    expect(cb.getState()).toBe('OPEN');
+  });
+});

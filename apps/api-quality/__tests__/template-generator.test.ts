@@ -528,3 +528,57 @@ describe('Template generator — additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Template generator — final coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / pagination has total when count > limit', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockCount.mockResolvedValue(40);
+    const res = await request(app).get('/api/template-generator?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBeGreaterThanOrEqual(40);
+  });
+
+  it('GET / data is an array', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockCount.mockResolvedValue(0);
+    const res = await request(app).get('/api/template-generator');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / detect ISO 9001 for quality-related prompts', async () => {
+    mockCount.mockResolvedValue(0);
+    mockCreate.mockResolvedValue({
+      id: 'tpl-q1',
+      docNumber: 'PRO-200',
+      title: 'Quality Control Procedure',
+      category: 'PROCEDURE',
+      isoStandard: 'ISO 9001:2015',
+    });
+    const res = await request(app)
+      .post('/api/template-generator')
+      .send({ prompt: 'Create a quality management procedure for production control' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.configJson.isoRef).toBe('ISO 9001:2015');
+  });
+
+  it('GET /:id parsed configJson is an object', async () => {
+    mockFindUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      docNumber: 'PRO-100',
+      title: 'Quality Procedure',
+      configJson: JSON.stringify({ sections: [{ title: 'Scope', content: '' }], docNumber: 'PRO-100' }),
+    });
+    const res = await request(app).get('/api/template-generator/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.configJson).toBe('object');
+  });
+
+  it('GET /categories returns 8 category entries', async () => {
+    const res = await request(app).get('/api/template-generator/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(8);
+  });
+});

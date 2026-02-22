@@ -400,6 +400,40 @@ describe('Additional checklists coverage', () => {
   });
 });
 
+describe('checklists — batch-q coverage', () => {
+  it('GET / findMany called once per request', async () => {
+    mockPrisma.fsSvcChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcChecklist.count.mockResolvedValue(0);
+    await request(app).get('/api/checklists');
+    expect(mockPrisma.fsSvcChecklist.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / returns 400 when items is missing', async () => {
+    const res = await request(app).post('/api/checklists').send({
+      name: 'Safety Check',
+      category: 'safety',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / returns data as array', async () => {
+    mockPrisma.fsSvcChecklist.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Check A', items: [] },
+    ]);
+    mockPrisma.fsSvcChecklist.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/checklists');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id/results returns 500 when checklist find rejects', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001/results');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
 describe('checklists — additional coverage 2', () => {
   it('GET / response has success:true with data array', async () => {
     mockPrisma.fsSvcChecklist.findMany.mockResolvedValue([]);

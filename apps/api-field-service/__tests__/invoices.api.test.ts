@@ -493,3 +493,42 @@ describe('invoices.api — further coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('invoices.api — final coverage', () => {
+  it('GET / applies skip=20 for page=3 limit=10', async () => {
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(0);
+    await request(app).get('/api/invoices?page=3&limit=10');
+    expect(mockPrisma.fsSvcInvoice.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/invoices').send({});
+    expect(mockPrisma.fsSvcInvoice.create).not.toHaveBeenCalled();
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/invoices/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / response has success:true with data array', async () => {
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/invoices');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id calls update with deletedAt field', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020' });
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000020', deletedAt: new Date() });
+    await request(app).delete('/api/invoices/00000000-0000-0000-0000-000000000020');
+    const [call] = mockPrisma.fsSvcInvoice.update.mock.calls;
+    expect(call[0].data).toHaveProperty('deletedAt');
+  });
+});

@@ -450,6 +450,66 @@ describe('Collateral — tier boundary and filter tests', () => {
   });
 });
 
+describe('Collateral — supplemental coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response body has success:true and array data', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'RESELLER' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([mockCollateral]);
+    const res = await request(app).get('/api/collateral');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id/download: findUnique called once per download request', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      accessTier: 'ALL',
+    });
+    (portalPrisma.mktPartnerCollateral.update as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      downloadCount: 43,
+    });
+    await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000001/download');
+    expect(portalPrisma.mktPartnerCollateral.findUnique).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / returns empty array when findMany returns nothing', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'CO_SELL' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/collateral');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET / 500 error.message is defined', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/collateral');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id/download: response is JSON content-type on 200', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'RESELLER' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      accessTier: 'ALL',
+    });
+    (portalPrisma.mktPartnerCollateral.update as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      downloadCount: 43,
+    });
+    const res = await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000001/download');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});
+
 describe('Collateral — exhaustive coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

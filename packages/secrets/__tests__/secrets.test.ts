@@ -352,3 +352,42 @@ describe('Convenience Functions', () => {
     expect(value).toBe('default');
   });
 });
+
+describe('Secrets — additional coverage', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+    resetSecretsManager();
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  it('validateSecret succeeds for a long string with no extra requirements', () => {
+    const result = validateSecret('areasonablylongsecretvalue');
+    expect(result.valid).toBe(true);
+  });
+
+  it('validateJwtSecret fails for a 63-char string', () => {
+    const result = validateJwtSecret('x'.repeat(63));
+    expect(result.valid).toBe(false);
+  });
+
+  it('validateJwtSecret succeeds for exactly 64 chars', () => {
+    const result = validateJwtSecret('a'.repeat(64));
+    expect(result.valid).toBe(true);
+  });
+
+  it('SecretsManager.hasSecret returns false when key is deleted from env', () => {
+    delete process.env.MISSING_KEY;
+    const manager = new SecretsManager();
+    expect(manager.hasSecret('MISSING_KEY')).toBe(false);
+  });
+
+  it('getSecret convenience function throws for missing secret', async () => {
+    delete process.env.ABSENT_SECRET_XYZ;
+    await expect(getSecret('ABSENT_SECRET_XYZ')).rejects.toThrow('not configured');
+  });
+});

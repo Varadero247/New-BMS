@@ -235,6 +235,46 @@ describe('GET /api/dashboard/stats — comprehensive', () => {
   });
 });
 
+describe('GET /api/dashboard/stats — additional paths', () => {
+  it('success response body has data key', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('totalIncidents with count of 500 is returned correctly', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(500);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalIncidents).toBe(500);
+  });
+
+  it('count is called with the expected argument shape', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.incIncident.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.any(Object) })
+    );
+  });
+
+  it('error response body has error key', async () => {
+    mockPrisma.incIncident.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('totalIncidents equals count mock value for different values', async () => {
+    for (const val of [0, 1, 50, 200]) {
+      jest.clearAllMocks();
+      mockPrisma.incIncident.count.mockResolvedValue(val);
+      const res = await request(app).get('/api/dashboard/stats');
+      expect(res.status).toBe(200);
+      expect(res.body.data.totalIncidents).toBe(val);
+    }
+  });
+});
+
 describe('GET /api/dashboard/stats — final coverage block', () => {
   it('returns 200 with count of 1000', async () => {
     mockPrisma.incIncident.count.mockResolvedValue(1000);

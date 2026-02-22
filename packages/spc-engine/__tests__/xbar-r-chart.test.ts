@@ -350,3 +350,35 @@ describe('xbarRChart — additional structural coverage', () => {
     expect(chart.rangeCenterLine).toBeCloseTo(10, 4);
   });
 });
+
+describe('xbarRChart — final coverage to reach 40', () => {
+  it('chart has centerLine, ucl, lcl, rangeUcl, rangeLcl defined', () => {
+    const data = makeDataPoints(Array(10).fill(50));
+    const chart = xbarRChart(data, 5);
+    expect(chart.centerLine).toBeDefined();
+    expect(chart.ucl).toBeDefined();
+    expect(chart.lcl).toBeDefined();
+    expect(chart.rangeUcl).toBeDefined();
+    expect(chart.rangeLcl).toBeDefined();
+  });
+
+  it('SPC_CONSTANTS[5].A2 is approximately 0.577', () => {
+    expect(SPC_CONSTANTS[5].A2).toBeCloseTo(0.577, 2);
+  });
+
+  it('SPC_CONSTANTS[2].D3 is 0 (no lower range limit for n=2)', () => {
+    expect(SPC_CONSTANTS[2].D3).toBe(0);
+  });
+
+  it('rangeLcl is 0 for subgroup sizes 2-6 (D3=0)', () => {
+    const data = makeDataPoints(Array(12).fill(10));
+    const chart = xbarRChart(data, 6);
+    expect(chart.rangeLcl).toBe(0);
+  });
+
+  it('subgroup size 10 produces correct number of subgroups for 30 data points', () => {
+    const data = makeDataPoints(Array(30).fill(20));
+    const chart = xbarRChart(data, 10);
+    expect(chart.dataPoints).toHaveLength(3);
+  });
+});

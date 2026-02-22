@@ -381,3 +381,51 @@ describe('sentry — final coverage', () => {
     expect(result.request.headers['content-type']).toBe('application/json');
   });
 });
+
+describe('sentry — absolute final coverage', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env = { ...originalEnv };
+    delete process.env.SENTRY_DSN;
+    delete process.env.NODE_ENV;
+    delete process.env.npm_package_version;
+    delete process.env.SENTRY_TRACES_SAMPLE_RATE;
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  it('httpIntegration is called once per initSentry invocation', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    initSentry('svc');
+    expect(mockHttpIntegration).toHaveBeenCalledTimes(1);
+  });
+
+  it('Sentry.httpIntegration is exposed and callable', () => {
+    expect(typeof Sentry.httpIntegration).toBe('function');
+  });
+
+  it('initSentry with test NODE_ENV passes test as environment', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    process.env.NODE_ENV = 'test';
+    initSentry('svc');
+    expect(mockInit.mock.calls[0][0].environment).toBe('test');
+  });
+
+  it('tracesSampleRate of 1.0 is correctly parsed', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    process.env.SENTRY_TRACES_SAMPLE_RATE = '1.0';
+    initSentry('svc');
+    expect(mockInit.mock.calls[0][0].tracesSampleRate).toBe(1.0);
+  });
+
+  it('release format is serviceName@version', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    process.env.npm_package_version = '0.1.2';
+    initSentry('test-api');
+    expect(mockInit.mock.calls[0][0].release).toMatch(/^test-api@0\.1\.2$/);
+  });
+});

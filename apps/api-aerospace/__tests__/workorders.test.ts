@@ -875,3 +875,37 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
     });
   });
 });
+
+describe('Aerospace Work Orders — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/workorders', workordersRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/workorders returns empty list with pagination metadata', async () => {
+    (mockPrisma.workOrder.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.workOrder.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/workorders').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toHaveLength(0);
+    expect(response.body.meta.total).toBe(0);
+  });
+
+  it('POST /api/workorders returns 400 when title is missing', async () => {
+    const payload = { aircraftType: 'A320', aircraftReg: 'G-TEST', description: 'Routine check', priority: 'ROUTINE' };
+    const response = await request(app)
+      .post('/api/workorders')
+      .set('Authorization', 'Bearer token')
+      .send(payload);
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

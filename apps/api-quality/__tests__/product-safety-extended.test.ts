@@ -544,3 +544,110 @@ describe('Product Safety — Recall Actions', () => {
     });
   });
 });
+
+describe('Product Safety — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/product-safety/characteristics — returns 200 and empty items when no data', async () => {
+    (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/product-safety/characteristics');
+    expect(res.status).toBe(200);
+    expect(res.body.data.items).toHaveLength(0);
+  });
+
+  it('GET /api/product-safety/incidents — returns 200 on empty dataset', async () => {
+    (mockPrisma.productSafetyIncident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.productSafetyIncident.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/product-safety/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/product-safety/recalls — response includes pagination total', async () => {
+    (mockPrisma.productRecall.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.productRecall.count as jest.Mock).mockResolvedValue(5);
+
+    const res = await request(app).get('/api/product-safety/recalls');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(5);
+  });
+
+  it('POST /api/product-safety/characteristics — count called for ref number generation', async () => {
+    (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.safetyCharacteristic.create as jest.Mock).mockResolvedValue({ id: 'sc-new' });
+
+    await request(app).post('/api/product-safety/characteristics').send({
+      partNumber: 'PN-002',
+      partName: 'Bracket',
+      characteristicType: 'SC',
+      description: 'Bracket torque spec',
+      controlMethod: 'Torque gauge',
+    });
+
+    expect(mockPrisma.safetyCharacteristic.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/product-safety/characteristics/:id — 500 on update DB error', async () => {
+    (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.safetyCharacteristic.update as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app)
+      .put('/api/product-safety/characteristics/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ACTIVE' });
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/product-safety/incidents — create is called with correct product', async () => {
+    (mockPrisma.productSafetyIncident.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.productSafetyIncident.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      refNumber: 'PSI-2602-0003',
+      title: 'Weld failure',
+      severity: 'CRITICAL',
+      description: 'Weld crack observed',
+      product: 'Frame Assembly',
+      status: 'OPEN',
+    });
+
+    const res = await request(app).post('/api/product-safety/incidents').send({
+      title: 'Weld failure',
+      severity: 'CRITICAL',
+      description: 'Weld crack observed',
+      product: 'Frame Assembly',
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.productSafetyIncident.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ product: 'Frame Assembly' }),
+      })
+    );
+  });
+
+  it('POST /api/product-safety/recalls — 500 on create DB error', async () => {
+    (mockPrisma.productRecall.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.productRecall.create as jest.Mock).mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).post('/api/product-safety/recalls').send({
+      product: 'Widget Pro',
+      reason: 'Potential failure',
+      scope: 'Batch 2026-02',
+      affectedQuantity: 200,
+    });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/product-safety/characteristics — totalPages correct for paginated results', async () => {
+    (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValue(30);
+
+    const res = await request(app).get('/api/product-safety/characteristics?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalPages).toBe(3);
+  });
+});

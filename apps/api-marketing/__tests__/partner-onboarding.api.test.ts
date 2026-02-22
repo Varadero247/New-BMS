@@ -392,3 +392,52 @@ describe('Partner Onboarding — final coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Partner Onboarding — ≥40 coverage', () => {
+  it('POST /enqueue create is never called when email is missing', async () => {
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({});
+    expect(prisma.mktEmailJob.create).not.toHaveBeenCalled();
+  });
+
+  it('POST /enqueue first job has scheduledFor set', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'st@example.com' });
+    const firstCall = (prisma.mktEmailJob.create as jest.Mock).mock.calls[0][0];
+    // The source does not set a status field; verify scheduledFor is set instead
+    expect(firstCall.data.scheduledFor).toBeDefined();
+  });
+
+  it('POST /enqueue response body has success:true and data object', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'body@example.com' });
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST /enqueue response status is 500 and error.code is INTERNAL_ERROR on DB error', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockRejectedValue(new Error('crash'));
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'crash@example.com' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /enqueue creates exactly 3 jobs in sequence', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'j' });
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'three@example.com' });
+    const templates = (prisma.mktEmailJob.create as jest.Mock).mock.calls.map(
+      (c: any[]) => c[0].data.template
+    );
+    expect(templates).toEqual(['partner_welcome', 'partner_day7_tips', 'partner_day30_casestudy']);
+  });
+});

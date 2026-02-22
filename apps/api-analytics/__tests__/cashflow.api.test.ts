@@ -379,3 +379,55 @@ describe('cashflow.api — final coverage', () => {
     expect(mockPrisma.companyCashPosition.findFirst).not.toHaveBeenCalled();
   });
 });
+
+describe('cashflow.api — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/cashflow returns forecasts array that matches mocked data length', async () => {
+    const items = [
+      { id: 'cf-x1', weekStart: new Date(), inflow: 9000, outflow: 3000 },
+      { id: 'cf-x2', weekStart: new Date(), inflow: 8000, outflow: 2500 },
+      { id: 'cf-x3', weekStart: new Date(), inflow: 7000, outflow: 2000 },
+    ];
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue(items);
+    const res = await request(app).get('/api/cashflow');
+    expect(res.status).toBe(200);
+    expect(res.body.data.forecasts).toHaveLength(3);
+    expect(res.body.data.total).toBe(3);
+  });
+
+  it('GET /api/cashflow/position data.position has id field', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue({
+      id: 'pos-extra-1',
+      date: new Date(),
+      balance: 150000,
+      currency: 'USD',
+    });
+    const res = await request(app).get('/api/cashflow/position');
+    expect(res.status).toBe(200);
+    expect(res.body.data.position.id).toBe('pos-extra-1');
+  });
+
+  it('GET /api/cashflow error.code is INTERNAL_ERROR on 500', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockRejectedValue(new Error('db fail'));
+    const res = await request(app).get('/api/cashflow');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/cashflow/position success property is present in 404 response', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/cashflow/position');
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('GET /api/cashflow success property is present in response body', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/cashflow');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body.success).toBe(true);
+  });
+});

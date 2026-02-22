@@ -694,4 +694,19 @@ describe('SCIM Routes', () => {
       expect(res.body.filter.maxResults).toBe(200);
     });
   });
+
+  describe('SCIM — final coverage batch', () => {
+    it('GET /scim/v2/ServiceProviderConfig returns 200 without Authorization header', async () => {
+      const res = await request(app).get('/scim/v2/ServiceProviderConfig');
+      expect(res.status).toBe(200);
+    });
+
+    it('GET /scim/v2/Groups includes totalResults field', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Groups')
+        .set('Authorization', `Bearer ${scimToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('totalResults');
+    });
+  });
 });

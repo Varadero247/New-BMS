@@ -394,3 +394,43 @@ describe('actions route — final coverage expansion', () => {
     expect(res.body.data.action).toBe('Fix it');
   });
 });
+
+describe('actions route — absolute final expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response is JSON and has success property', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('POST / with missing complaintId returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/actions').send({ action: 'Do something' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / filters by orgId from authenticated user', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions?complaintId=comp-1');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.compAction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('PUT /:id returns 500 with INTERNAL_ERROR code on update failure', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compAction.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/actions/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'CLOSED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

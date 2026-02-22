@@ -395,3 +395,47 @@ describe('reviews.api — final coverage', () => {
     expect(res.body).toHaveProperty('pagination');
   });
 });
+
+describe('reviews.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns success:false on 500', async () => {
+    mockPrisma.riskReview.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/reviews');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST / create called once on valid payload', async () => {
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    mockPrisma.riskReview.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).post('/api/reviews').send({ riskId: 'risk-1', scheduledDate: '2026-04-01T00:00:00.000Z' });
+    expect(mockPrisma.riskReview.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id returns success:false on 500', async () => {
+    mockPrisma.riskReview.findFirst.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id returns success:false on 500', async () => {
+    mockPrisma.riskReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskReview.update.mockRejectedValue(new Error('crash'));
+    const res = await request(app)
+      .put('/api/reviews/00000000-0000-0000-0000-000000000001')
+      .send({ findings: 'Bad' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / response content-type is JSON', async () => {
+    mockPrisma.riskReview.findMany.mockResolvedValue([]);
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reviews');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

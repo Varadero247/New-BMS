@@ -290,3 +290,27 @@ describe('Predictions — final coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+// ===================================================================
+// Predictions — additional tests to reach ≥40
+// ===================================================================
+describe('Predictions — additional tests', () => {
+  it('GET /api/predictions/capa-overrun response is JSON content-type', async () => {
+    const res = await request(app).get('/api/predictions/capa-overrun');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/predictions/ncr-forecast topRiskSuppliers is an array', async () => {
+    const res = await request(app).get('/api/predictions/ncr-forecast');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.topRiskSuppliers)).toBe(true);
+  });
+
+  it('POST /api/predictions/generate data.status is a string', async () => {
+    const res = await request(app)
+      .post('/api/predictions/generate')
+      .send({ type: 'capa_overrun' });
+    expect(res.status).toBe(202);
+    expect(typeof res.body.data.status).toBe('string');
+  });
+});

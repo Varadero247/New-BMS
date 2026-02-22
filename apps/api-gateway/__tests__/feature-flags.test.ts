@@ -365,6 +365,62 @@ describe('Feature Flags — extended edge cases', () => {
   });
 });
 
+describe('Feature Flags — extra boundary coverage', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    app = require('express')();
+    app.use(require('express').json());
+    app.use('/api', require('../src/routes/feature-flags').default);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetAllFlags.mockReturnValue([]);
+    mockGetAllOrgOverrides.mockReturnValue([]);
+  });
+
+  it('POST /api/admin/feature-flags calls createFlag with the correct name', async () => {
+    await require('supertest')(app)
+      .post('/api/admin/feature-flags')
+      .send({ name: 'check_call', description: 'Call check' });
+    expect(mockCreateFlag).toHaveBeenCalledWith(
+      'check_call',
+      'Call check',
+      expect.anything()
+    );
+  });
+
+  it('PUT /api/admin/feature-flags/:name/orgs/:orgId calls setOrgOverride with flagName and orgId', async () => {
+    await require('supertest')(app)
+      .put('/api/admin/feature-flags/my_flag/orgs/00000000-0000-0000-0000-000000000007')
+      .send({ enabled: true });
+    expect(mockSetOrgOverride).toHaveBeenCalledWith(
+      'my_flag',
+      '00000000-0000-0000-0000-000000000007',
+      true
+    );
+  });
+
+  it('DELETE /api/admin/feature-flags/:name calls deleteFlag with the flag name', async () => {
+    await require('supertest')(app).delete('/api/admin/feature-flags/to_remove');
+    expect(mockDeleteFlag).toHaveBeenCalledWith('to_remove');
+  });
+
+  it('GET /api/feature-flags/check calls isEnabled with flag name and orgId', async () => {
+    mockIsEnabled.mockResolvedValueOnce(true);
+    await require('supertest')(app).get('/api/feature-flags/check?name=check_flag');
+    expect(mockIsEnabled).toHaveBeenCalledWith('check_flag', 'org-1');
+  });
+
+  it('GET /api/feature-flags returns success: true', async () => {
+    mockGetAll.mockResolvedValueOnce({});
+    const res = await require('supertest')(app).get('/api/feature-flags');
+    expect(res.body.success).toBe(true);
+  });
+});
+
 describe('Feature Flags — final coverage', () => {
   let app: import('express').Express;
 

@@ -393,3 +393,52 @@ describe('locations — business logic and response structure', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('locations — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /locations data items include code field', async () => {
+    prisma.cmmsLocation.findMany.mockResolvedValue([mockLocation]);
+    prisma.cmmsLocation.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('code', 'LOC-001');
+  });
+
+  it('POST /locations returns 409 on duplicate code', async () => {
+    prisma.cmmsLocation.create.mockRejectedValue({ code: 'P2002' });
+    const res = await request(app).post('/api/locations').send({
+      name: 'Factory 2',
+      code: 'LOC-001',
+      type: 'BUILDING',
+    });
+    expect(res.status).toBe(409);
+  });
+
+  it('PUT /locations/:id returns 404 with NOT_FOUND when location missing', async () => {
+    prisma.cmmsLocation.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/locations/00000000-0000-0000-0000-000000000077')
+      .send({ name: 'New Name' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /locations response content-type is application/json', async () => {
+    prisma.cmmsLocation.findMany.mockResolvedValue([]);
+    prisma.cmmsLocation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/locations');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET /locations?type=ROOM filters findMany by type', async () => {
+    prisma.cmmsLocation.findMany.mockResolvedValue([]);
+    prisma.cmmsLocation.count.mockResolvedValue(0);
+    await request(app).get('/api/locations?type=ROOM');
+    expect(prisma.cmmsLocation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'ROOM' }) })
+    );
+  });
+});

@@ -605,4 +605,32 @@ describe('SAML Routes', () => {
       expect(res.status).toBe(400);
     });
   });
+
+  describe('SAML — final coverage batch', () => {
+    it('GET /auth/saml/metadata content-type is XML', async () => {
+      const res = await request(app).get('/auth/saml/metadata');
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toMatch(/xml/);
+    });
+
+    it('GET /admin/security/sso configured field is false when store is empty', async () => {
+      const res = await request(app).get('/admin/security/sso');
+      expect(res.status).toBe(200);
+      expect(res.body.data.configured).toBe(false);
+    });
+
+    it('POST /admin/security/sso returns 201 with success true', async () => {
+      mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+        req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-final-batch' };
+        next();
+      });
+      const res = await request(app).post('/admin/security/sso').send({
+        entryPoint: 'https://idp.example.com/sso/saml',
+        issuer: 'https://app.ims.local',
+        cert: 'MIIC...',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+  });
 });

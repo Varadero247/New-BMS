@@ -460,3 +460,68 @@ describe('Portal Scorecards — final coverage', () => {
     expect(res.body.data.overallScore).toBe(100);
   });
 });
+
+describe('portal-scorecards — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: data length matches mock return', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'u-1', period: '2026-Q1', overallScore: 80 },
+      { id: '00000000-0000-0000-0000-000000000002', portalUserId: 'u-2', period: '2026-Q1', overallScore: 95 },
+    ]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/portal/scorecards');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST: create called with portalUserId in data', async () => {
+    mockPrisma.portalScorecard.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 75,
+    });
+
+    await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q1',
+      overallScore: 75,
+    });
+
+    expect(mockPrisma.portalScorecard.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ portalUserId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /:id: success false on 404', async () => {
+    mockPrisma.portalScorecard.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/portal/scorecards/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET list: page=1 limit=5 uses skip=0', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/scorecards?page=1&limit=5');
+
+    expect(mockPrisma.portalScorecard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 5 })
+    );
+  });
+
+  it('GET list: count called once per list request', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/scorecards');
+    expect(mockPrisma.portalScorecard.count).toHaveBeenCalledTimes(1);
+  });
+});

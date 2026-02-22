@@ -354,3 +354,37 @@ describe('BehaviorProfileStore — record and userCount', () => {
     expect(store.userCount).toBe(3);
   });
 });
+
+describe('behavioral-analytics — additional coverage', () => {
+  it('buildProfile commonCountries is an array', () => {
+    const p = buildProfile('u-1', bulkEvents(5, { geoCountry: 'FR' }));
+    expect(Array.isArray(p.commonCountries)).toBe(true);
+  });
+
+  it('buildProfile normalLoginHours is an array', () => {
+    const p = buildProfile('u-1', bulkEvents(5));
+    expect(Array.isArray(p.normalLoginHours)).toBe(true);
+  });
+
+  it('detectAnomaly returns AnomalyResult with numeric score', () => {
+    const p = buildProfile('u-1', bulkEvents(10, { geoCountry: 'US' }));
+    const result = detectAnomaly(makeEvent({ geoCountry: 'US' }), p);
+    expect(typeof result.score).toBe('number');
+  });
+
+  it('BehaviorProfileStore.evaluate returns none for unknown user (no profile)', () => {
+    const store = new BehaviorProfileStore();
+    const result = store.evaluate(makeEvent({ userId: 'totally-new' }));
+    expect(result.level).toBe('none');
+  });
+
+  it('BehaviorProfileStore supports recording 100+ events for a user without throwing', () => {
+    const store = new BehaviorProfileStore();
+    for (let i = 0; i < 120; i++) {
+      store.record(makeEvent({ userId: 'heavy-user', geoCountry: 'GB' }));
+    }
+    const p = store.getProfile('heavy-user');
+    expect(p).not.toBeNull();
+    expect(p!.eventCount).toBeLessThanOrEqual(500);
+  });
+});

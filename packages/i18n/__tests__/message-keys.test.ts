@@ -325,3 +325,50 @@ describe('i18n — forms and nav section coverage', () => {
     expect(result).toContain('section.keyB');
   });
 });
+
+describe('i18n — absolute final boundary', () => {
+  it('common.save value is a non-empty string in en', () => {
+    const parts = 'common.save'.split('.');
+    let val: unknown = enRaw;
+    for (const part of parts) {
+      val = (val as Record<string, unknown>)[part];
+    }
+    expect(typeof val).toBe('string');
+    expect((val as string).length).toBeGreaterThan(0);
+  });
+
+  it('common.save value is a non-empty string in de', () => {
+    const parts = 'common.save'.split('.');
+    let val: unknown = deRaw;
+    for (const part of parts) {
+      val = (val as Record<string, unknown>)[part];
+    }
+    expect(typeof val).toBe('string');
+    expect((val as string).length).toBeGreaterThan(0);
+  });
+
+  it('en.json has more than 50 top-level sections or keys', () => {
+    expect(en.length).toBeGreaterThan(50);
+  });
+
+  it('de.json key set is a superset of common keys', () => {
+    const commonKeys = ['common.save', 'common.cancel', 'common.delete'];
+    for (const key of commonKeys) {
+      expect(deSet.has(key)).toBe(true);
+    }
+  });
+
+  it('fr.json key set is a superset of common keys', () => {
+    const commonKeys = ['common.save', 'common.cancel', 'common.edit'];
+    for (const key of commonKeys) {
+      expect(frSet.has(key)).toBe(true);
+    }
+  });
+
+  it('es.json key set is a superset of auth keys', () => {
+    const authKeys = ['auth.signIn', 'auth.signOut', 'auth.forgotPassword'];
+    for (const key of authKeys) {
+      expect(esSet.has(key)).toBe(true);
+    }
+  });
+});

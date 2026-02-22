@@ -436,3 +436,37 @@ describe('AccountLockoutManager — additional coverage', () => {
     expect(remaining).toBe(4);
   });
 });
+
+describe('AccountLockoutManager — final additional coverage', () => {
+  let manager: AccountLockoutManager;
+
+  beforeEach(() => {
+    delete process.env.REDIS_URL;
+    resetAccountLockoutManager();
+    manager = new AccountLockoutManager({ maxAttempts: 5, lockoutDuration: 60 });
+  });
+
+  afterEach(async () => {
+    await manager.close();
+  });
+
+  it('isLocked returns false for a brand-new email address', async () => {
+    const locked = await manager.isLocked('brandnew@example.com');
+    expect(locked).toBe(false);
+  });
+
+  it('getLockoutTimeRemaining is 0 for account with no failures', async () => {
+    const time = await manager.getLockoutTimeRemaining('clean@example.com');
+    expect(time).toBe(0);
+  });
+
+  it('recordFailedAttempt returns remainingAttempts as a number', async () => {
+    const result = await manager.recordFailedAttempt('num@example.com');
+    expect(typeof result.remainingAttempts).toBe('number');
+  });
+
+  it('recordFailedAttempt returns locked as a boolean', async () => {
+    const result = await manager.recordFailedAttempt('bool@example.com');
+    expect(typeof result.locked).toBe('boolean');
+  });
+});

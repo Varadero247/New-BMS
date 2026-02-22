@@ -400,3 +400,64 @@ describe('Comments Routes — final additional coverage', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('Comments Routes — final batch additional coverage', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/comments', commentsRoutes);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockCreateComment.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001', body: 'Test comment',
+      mentions: [], authorId: 'user-1', authorName: 'Admin',
+    });
+    mockGetComments.mockResolvedValue({ comments: [], total: 0 });
+    mockUpdateComment.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', body: 'Updated' });
+    mockDeleteComment.mockResolvedValue(undefined);
+    mockAddReaction.mockResolvedValue({ id: 'r1', commentId: 'c1', userId: 'user-1', emoji: '👍' });
+    mockRemoveReaction.mockResolvedValue(undefined);
+  });
+
+  it('POST /api/comments returns 201 status', async () => {
+    const res = await request(app).post('/api/comments')
+      .send({ recordType: 'audit', recordId: 'r99', body: 'Audit note' });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/comments requires both recordType and recordId query params', async () => {
+    const res1 = await request(app).get('/api/comments?recordType=audit');
+    expect(res1.status).toBe(400);
+    const res2 = await request(app).get('/api/comments?recordId=r99');
+    expect(res2.status).toBe(400);
+  });
+
+  it('DELETE /api/comments/:id calls deleteComment once', async () => {
+    await request(app).delete('/api/comments/00000000-0000-0000-0000-000000000001');
+    expect(mockDeleteComment).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/comments/:id returns updated body in response', async () => {
+    mockUpdateComment.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', body: 'New body' });
+    const res = await request(app)
+      .put('/api/comments/00000000-0000-0000-0000-000000000001')
+      .send({ body: 'New body' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.body).toBe('New body');
+  });
+
+  it('POST /api/comments/:id/reactions returns 201 with data', async () => {
+    mockAddReaction.mockResolvedValueOnce({ id: 'r-new', commentId: '00000000-0000-0000-0000-000000000001', userId: 'user-1', emoji: '🎉' });
+    const res = await request(app)
+      .post('/api/comments/00000000-0000-0000-0000-000000000001/reactions')
+      .send({ emoji: '🎉' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('emoji', '🎉');
+  });
+});

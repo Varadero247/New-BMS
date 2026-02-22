@@ -454,3 +454,52 @@ describe('sanitation.api — final coverage pass', () => {
     expect(res.body.data).toHaveLength(2);
   });
 });
+
+describe('sanitation.api — comprehensive additional coverage', () => {
+  it('GET /api/sanitation response body is an object', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/sanitation');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/sanitation returns success true when records exist', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000005', area: 'Packaging' },
+    ]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/sanitation');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/sanitation returns 201 status code', async () => {
+    mockPrisma.fsSanitation.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      area: 'Cold Storage',
+      procedure: 'Sanitise shelves',
+    });
+    const res = await request(app).post('/api/sanitation').send({
+      area: 'Cold Storage',
+      procedure: 'Sanitise shelves',
+      frequency: 'WEEKLY',
+      scheduledDate: '2026-04-01',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('PUT /api/sanitation/:id returns updated record data', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSanitation.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      area: 'Dispatch Bay',
+    });
+    const res = await request(app)
+      .put('/api/sanitation/00000000-0000-0000-0000-000000000001')
+      .send({ area: 'Dispatch Bay' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('area', 'Dispatch Bay');
+  });
+});

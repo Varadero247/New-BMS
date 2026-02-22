@@ -460,3 +460,45 @@ describe('job-notes.api — further coverage', () => {
     expect(res.body.data.message).toBe('Job note deleted');
   });
 });
+
+describe('job-notes.api — final coverage', () => {
+  it('GET / applies skip=20 for page=3 limit=10', async () => {
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(0);
+    await request(app).get('/api/job-notes?page=3&limit=10');
+    expect(mockPrisma.fsSvcJobNote.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET / returns correct pagination.total from count mock', async () => {
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(17);
+    const res = await request(app).get('/api/job-notes');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(17);
+  });
+
+  it('POST / returns 400 when content is empty string', async () => {
+    const res = await request(app).post('/api/job-notes').send({
+      jobId: '00000000-0000-0000-0000-000000000001',
+      content: '',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /:id returns 200 with correct content field', async () => {
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000070',
+      content: 'Check valve replaced',
+    });
+    const res = await request(app).get('/api/job-notes/00000000-0000-0000-0000-000000000070');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('content', 'Check valve replaced');
+  });
+
+  it('POST / create is not called when validation fails', async () => {
+    await request(app).post('/api/job-notes').send({});
+    expect(mockPrisma.fsSvcJobNote.create).not.toHaveBeenCalled();
+  });
+});

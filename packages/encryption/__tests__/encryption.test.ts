@@ -220,3 +220,37 @@ describe('encryption — final edge case coverage', () => {
     expect(decrypt(encrypt(val))).toBe(val);
   });
 });
+
+describe('encryption — absolute final boundary', () => {
+  beforeEach(() => {
+    process.env.ENCRYPTION_KEY = 'a'.repeat(64);
+  });
+
+  afterEach(() => {
+    delete process.env.ENCRYPTION_KEY;
+  });
+
+  it('encrypt result has three colon-separated segments', () => {
+    const ct = encrypt('boundary test');
+    expect(ct.split(':')).toHaveLength(3);
+  });
+
+  it('decrypt returns the original string for a URL-like value', () => {
+    const url = 'https://api.ims.local/v1/resource?id=42&token=abc';
+    expect(decrypt(encrypt(url))).toBe(url);
+  });
+
+  it('encryptIfPresent returns null for null', () => {
+    expect(encryptIfPresent(null)).toBeNull();
+  });
+
+  it('encryptIfPresent returns undefined for undefined', () => {
+    expect(encryptIfPresent(undefined)).toBeUndefined();
+  });
+
+  it('decryptIfEncrypted handles a string that looks like ciphertext format (3 parts)', () => {
+    const ct = encrypt('sensitive data');
+    const decrypted = decryptIfEncrypted(ct);
+    expect(decrypted).toBe('sensitive data');
+  });
+});

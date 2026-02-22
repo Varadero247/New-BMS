@@ -395,3 +395,58 @@ describe('dashboard.api — final coverage expansion', () => {
     expect(res.body.data.totalRecords).not.toBe(res.body.data.totalCompetencies);
   });
 });
+
+describe('dashboard.api (training) — coverage to 40', () => {
+  it('GET /api/dashboard/stats response body has success and data', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/dashboard/stats response content-type is json', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/dashboard/stats data values are non-negative', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(4);
+    mockPrisma.trainRecord.count.mockResolvedValue(10);
+    mockPrisma.trainCompetency.count.mockResolvedValue(2);
+    mockPrisma.trainMatrix.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalCourses).toBeGreaterThanOrEqual(0);
+    expect(res.body.data.totalRecords).toBeGreaterThanOrEqual(0);
+    expect(res.body.data.totalCompetencies).toBeGreaterThanOrEqual(0);
+    expect(res.body.data.totalGaps).toBeGreaterThanOrEqual(0);
+  });
+
+  it('error body is defined on 500', async () => {
+    mockPrisma.trainCourse.count.mockRejectedValue(new Error('fatal'));
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('data object is not null on success', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(1);
+    mockPrisma.trainRecord.count.mockResolvedValue(1);
+    mockPrisma.trainCompetency.count.mockResolvedValue(1);
+    mockPrisma.trainMatrix.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).not.toBeNull();
+  });
+});

@@ -507,3 +507,50 @@ describe('Chemicals — additional coverage 2', () => {
     expect(res.body.data).toHaveProperty('_count');
   });
 });
+
+describe('Chemicals — additional coverage 3', () => {
+  it('GET /chemicals response is JSON', async () => {
+    mockPrisma.chemRegister.findMany.mockResolvedValue([]);
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/chemicals');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /chemicals with isMutagen=true sets isCmr=true via logic', async () => {
+    mockPrisma.chemRegister.create.mockResolvedValue({ ...mockChemical, isCmr: true });
+    await request(app).post('/api/chemicals').send({
+      productName: 'MutaX',
+      chemicalName: 'MutaX',
+      isMutagen: true,
+    });
+    expect(mockPrisma.chemRegister.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isMutagen: true }) })
+    );
+  });
+
+  it('GET /chemicals with page=1&limit=2 passes take:2 to findMany', async () => {
+    mockPrisma.chemRegister.findMany.mockResolvedValue([]);
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    await request(app).get('/api/chemicals?page=1&limit=2');
+    expect(mockPrisma.chemRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 2, skip: 0 })
+    );
+  });
+
+  it('DELETE /chemicals/:id returns 404 when findFirst returns null', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/chemicals/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /chemicals/alerts/incompatible returns array of alerts with severityLevel field', async () => {
+    mockPrisma.chemIncompatAlert.findMany.mockResolvedValue([
+      { id: 'a1', severityLevel: 'HIGH', chemical: { id: 'c1', productName: 'Acid', casNumber: '1-1-1' } },
+    ]);
+    const res = await request(app).get('/api/chemicals/alerts/incompatible');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('severityLevel');
+  });
+});

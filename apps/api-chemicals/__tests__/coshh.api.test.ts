@@ -579,3 +579,52 @@ describe('COSHH — additional coverage 2', () => {
     expect(mockPrisma.chemCoshh.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('COSHH — additional coverage 3', () => {
+  it('GET /coshh response is JSON content-type', async () => {
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([]);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/coshh');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /coshh with page=2&limit=5 passes skip:5 to findMany', async () => {
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([]);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    await request(app).get('/api/coshh?page=2&limit=5');
+    expect(mockPrisma.chemCoshh.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST /coshh returns 400 when assessmentDate is missing', async () => {
+    const res = await request(app).post('/api/coshh').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      activityDescription: 'Test activity',
+      inherentLikelihood: 2,
+      inherentSeverity: 3,
+      residualLikelihood: 1,
+      residualSeverity: 2,
+      controlMeasures: {},
+      reviewDate: '2027-02-01T00:00:00.000Z',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /coshh is not a defined route, returns 404', async () => {
+    const res = await request(app).delete('/api/coshh/00000000-0000-0000-0000-000000000020');
+    expect([404, 405]).toContain(res.status);
+  });
+
+  it('PUT /coshh/:id 500 has success:false in body', async () => {
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/coshh/00000000-0000-0000-0000-000000000020')
+      .send({ activityDescription: 'Fail' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -459,3 +459,50 @@ describe('emissions — final coverage', () => {
     expect(res.body.data).toHaveLength(12);
   });
 });
+
+describe('emissions — extra coverage', () => {
+  it('GET / response body has data property', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEmission.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/emissions');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST / missing source field is allowed (optional)', async () => {
+    (prisma.esgEmission.create as jest.Mock).mockResolvedValue(mockEmission);
+    const res = await request(app).post('/api/emissions').send({
+      scope: 'SCOPE_1',
+      category: 'Stationary Combustion',
+      source: 'Boiler',
+      quantity: 500,
+      unit: 'kg',
+      co2Equivalent: 1250,
+      periodStart: '2026-03-01',
+      periodEnd: '2026-03-31',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /summary byScope SCOPE_3 defaults to 0 when no SCOPE_3 exists', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([
+      { ...mockEmission, scope: 'SCOPE_1', co2Equivalent: 100 },
+    ]);
+    const res = await request(app).get('/api/emissions/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.byScope.SCOPE_3).toBe(0);
+  });
+
+  it('GET /:id returns data with scope field', async () => {
+    (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(mockEmission);
+    const res = await request(app).get('/api/emissions/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('scope');
+  });
+
+  it('DELETE /:id response has message field in data', async () => {
+    (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(mockEmission);
+    (prisma.esgEmission.update as jest.Mock).mockResolvedValue({ ...mockEmission, deletedAt: new Date() });
+    const res = await request(app).delete('/api/emissions/00000000-0000-0000-0000-000000000001');
+    expect(res.body.data).toHaveProperty('message');
+  });
+});

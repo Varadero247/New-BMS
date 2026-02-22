@@ -362,6 +362,55 @@ describe('Uptime Monitor — comprehensive edge cases', () => {
   });
 });
 
+describe('Uptime Monitor — comprehensive coverage', () => {
+  it('uptimeCheck.update data includes avgResponseMs as non-negative', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'comp-chk-1', url: 'https://comp1.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    const updateCall = (prisma.uptimeCheck.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data.avgResponseMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it('incident is not created for a check with matching expectedStatus 200 (UP in test mode)', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'comp-chk-2', url: 'https://comp2.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    expect(prisma.uptimeIncident.create).not.toHaveBeenCalled();
+  });
+
+  it('findMany called with isActive: true filter', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([]);
+    await runUptimeMonitorJob();
+    expect(prisma.uptimeCheck.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { isActive: true } })
+    );
+  });
+
+  it('does not call findFirst when check list is empty', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([]);
+    await runUptimeMonitorJob();
+    expect(prisma.uptimeIncident.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('uptimeCheck.update called with correct check id in where', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'comp-chk-3', url: 'https://comp3.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    expect(prisma.uptimeCheck.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'comp-chk-3' } })
+    );
+  });
+});
+
 describe('Uptime Monitor — final coverage block', () => {
   it('incident create is not called when service status matches expected', async () => {
     (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([

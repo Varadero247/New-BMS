@@ -449,3 +449,61 @@ describe('Releases Routes — extra coverage', () => {
     );
   });
 });
+
+describe('Releases Routes — absolute final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/releases includes deletedAt filter in query', async () => {
+    (prisma.qualRelease.findMany as jest.Mock).mockResolvedValue([mockRelease]);
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/releases');
+    expect(res.status).toBe(200);
+    expect(prisma.qualRelease.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('POST /api/releases generates a referenceNumber with count', async () => {
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(2);
+    (prisma.qualRelease.create as jest.Mock).mockResolvedValue({ ...mockRelease, referenceNumber: 'REL-2026-003' });
+    const res = await request(app).post('/api/releases').send({
+      productName: 'Part XYZ',
+      batchNumber: 'BATCH-003',
+      decision: 'ON_HOLD',
+    });
+    expect(res.status).toBe(201);
+    expect(prisma.qualRelease.count).toHaveBeenCalled();
+  });
+
+  it('PUT /api/releases/:id/authorise returns 500 on DB error', async () => {
+    (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
+    (prisma.qualRelease.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/releases/00000000-0000-0000-0000-000000000001/authorise')
+      .send({ decision: 'APPROVED' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/releases count is called for pagination metadata', async () => {
+    (prisma.qualRelease.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualRelease.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/releases');
+    expect(res.status).toBe(200);
+    expect(prisma.qualRelease.count).toHaveBeenCalled();
+  });
+
+  it('PUT /api/releases/:id calls update with provided fields', async () => {
+    (prisma.qualRelease.findFirst as jest.Mock).mockResolvedValue(mockRelease);
+    (prisma.qualRelease.update as jest.Mock).mockResolvedValue({ ...mockRelease, productName: 'New Product' });
+    const res = await request(app)
+      .put('/api/releases/00000000-0000-0000-0000-000000000001')
+      .send({ productName: 'New Product' });
+    expect(res.status).toBe(200);
+    expect(prisma.qualRelease.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+});

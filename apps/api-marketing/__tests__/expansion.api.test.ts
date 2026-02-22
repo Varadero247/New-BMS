@@ -266,6 +266,28 @@ describe('Expansion — edge cases', () => {
   });
 });
 
+describe('Expansion — absolute final coverage', () => {
+  it('POST /check response data has a message key', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('POST /check response data has a results key', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('results');
+  });
+
+  it('GET /triggers response body has success:true on empty result', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/expansion/triggers');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+});
+
 // ===================================================================
 // Additional coverage to reach 35 tests
 // ===================================================================
@@ -313,5 +335,22 @@ describe('Expansion — final coverage', () => {
   it('POST /check results.growthFlag is always an array', async () => {
     const res = await request(app).post('/api/expansion/check');
     expect(Array.isArray(res.body.data.results.growthFlag)).toBe(true);
+  });
+});
+
+describe('Expansion — target coverage', () => {
+  it('GET /triggers take limit is a number', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/expansion/triggers');
+    const callArg = (prisma.mktEmailLog.findMany as jest.Mock).mock.calls[0][0];
+    expect(typeof callArg.take).toBe('number');
+  });
+
+  it('POST /check with valid orgId string returns success:true', async () => {
+    const res = await request(app)
+      .post('/api/expansion/check')
+      .send({ orgId: 'org-valid-123' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 });

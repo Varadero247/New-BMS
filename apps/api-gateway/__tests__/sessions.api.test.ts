@@ -425,6 +425,59 @@ describe('Sessions API — more edge cases', () => {
   });
 });
 
+describe('Sessions API — pre-final coverage', () => {
+  let app: import('express').Express;
+
+  beforeAll(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/sessions', sessionsRoutes);
+  });
+
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET /api/sessions returns data array even for a single session', async () => {
+    const future = new Date(Date.now() + 86400_000);
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000010', userAgent: 'Edge', ipAddress: '192.168.0.1',
+        createdAt: new Date(), lastActivityAt: new Date(), expiresAt: future },
+    ]);
+    const res = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('DELETE /api/sessions returns 500 when deleteMany throws', async () => {
+    (mockPrisma.session.deleteMany as jest.Mock).mockRejectedValueOnce(new Error('constraint error'));
+    const res = await request(app).delete('/api/sessions').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+  });
+
+  it('DELETE /api/sessions/:id session.delete is not called when session not found', async () => {
+    (mockPrisma.session.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/sessions/00000000-0000-0000-0000-000000000088')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.session.delete).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/sessions limits results to at most 100 via take:100 query option', async () => {
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(mockPrisma.session.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 100 })
+    );
+  });
+
+  it('DELETE /api/sessions/:id 400 response body has error property', async () => {
+    const res = await request(app)
+      .delete('/api/sessions/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error');
+  });
+});
+
 describe('Sessions API — final coverage batch', () => {
   let app: import('express').Express;
 

@@ -233,5 +233,53 @@ describe('File Validators — additional coverage', () => {
     it('should accept text/plain mime type', () => {
       expect(validateMimeType('text/plain').valid).toBe(true);
     });
+
+    it('should reject text/html mime type', () => {
+      expect(validateMimeType('text/html').valid).toBe(false);
+    });
+
+    it('should accept application/vnd.openxmlformats-officedocument.wordprocessingml.document', () => {
+      expect(validateMimeType('application/vnd.openxmlformats-officedocument.wordprocessingml.document').valid).toBe(true);
+    });
+
+    it('should reject application/x-php mime type', () => {
+      expect(validateMimeType('application/x-php').valid).toBe(false);
+    });
+  });
+
+  describe('validateFileSize — edge cases', () => {
+    it('should accept file exactly at 1 byte', () => {
+      expect(validateFileSize(1).valid).toBe(true);
+    });
+
+    it('should have an error message containing "size" or "large" for oversized files', () => {
+      const result = validateFileSize(999 * 1024 * 1024);
+      expect(result.valid).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+  });
+
+  describe('validateExtension — additional cases', () => {
+    it('should reject .sh extension', () => {
+      expect(validateExtension('script.sh').valid).toBe(false);
+    });
+
+    it('should accept .xlsx extension', () => {
+      expect(validateExtension('spreadsheet.xlsx').valid).toBe(true);
+    });
+
+    it('should accept .png extension', () => {
+      expect(validateExtension('image.png').valid).toBe(true);
+    });
+  });
+
+  describe('validateFilename — additional cases', () => {
+    it('should accept filename with numbers and underscores', () => {
+      expect(validateFilename('report_2024_01_15.pdf').valid).toBe(true);
+    });
+
+    it('should reject .php extension', () => {
+      expect(validateFilename('upload.php').valid).toBe(false);
+    });
   });
 });

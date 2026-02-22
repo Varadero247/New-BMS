@@ -534,3 +534,58 @@ describe('ISO 42001 Policies — final batch coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('ISO 42001 Policies — final extended coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data items have policyType field', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('policyType');
+  });
+
+  it('POST / with TRANSPARENCY policyType returns 201', async () => {
+    mockPrisma.aiPolicy.create.mockResolvedValue({
+      id: UUID2,
+      reference: 'AI42-POL-2602-3333',
+      title: 'Transparency Policy',
+      content: 'Transparency in AI decision making.',
+      policyType: 'TRANSPARENCY',
+      status: 'DRAFT',
+      version: '1.0',
+      createdBy: 'user-123',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    });
+    const res = await request(app).post('/api/policies').send({
+      title: 'Transparency Policy',
+      content: 'Transparency in AI decision making.',
+      policyType: 'TRANSPARENCY',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id response data has version field', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    const res = await request(app).get(`/api/policies/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('version');
+  });
+
+  it('DELETE /:id calls update with deletedAt field', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, deletedAt: new Date() });
+    await request(app).delete(`/api/policies/${UUID1}`);
+    expect(mockPrisma.aiPolicy.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+});

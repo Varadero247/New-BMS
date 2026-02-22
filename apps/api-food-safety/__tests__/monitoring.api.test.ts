@@ -356,6 +356,56 @@ describe('monitoring.api — edge cases and extended coverage', () => {
   });
 });
 
+describe('monitoring.api — extra coverage to reach ≥40 tests', () => {
+  it('GET /api/monitoring data is always an array', async () => {
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/monitoring');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/monitoring pagination.total reflects mock count', async () => {
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(99);
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(99);
+  });
+
+  it('POST /api/monitoring create is called once per valid POST', async () => {
+    mockPrisma.fsMonitoringRecord.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      ccpId: '550e8400-e29b-41d4-a716-446655440000',
+      value: '72C',
+      withinLimits: true,
+    });
+    await request(app).post('/api/monitoring').send({
+      ccpId: '550e8400-e29b-41d4-a716-446655440000',
+      monitoredAt: '2026-03-01T08:00:00Z',
+      value: '72C',
+      withinLimits: true,
+    });
+    expect(mockPrisma.fsMonitoringRecord.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/monitoring/deviations returns data array', async () => {
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/monitoring/deviations');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /api/monitoring/:id calls update with deletedAt field', async () => {
+    mockPrisma.fsMonitoringRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsMonitoringRecord.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/monitoring/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.fsMonitoringRecord.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});
+
 describe('monitoring.api — final coverage pass', () => {
   it('GET /api/monitoring default pagination applies skip 0', async () => {
     mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([]);

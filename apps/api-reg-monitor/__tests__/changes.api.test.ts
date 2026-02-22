@@ -370,3 +370,47 @@ describe('Regulatory Changes — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Regulatory Changes — absolute final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/changes data is an array', async () => {
+    mockPrisma.regChange.findMany.mockResolvedValue([]);
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/changes');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/changes/:id title field present in response', async () => {
+    mockPrisma.regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'GDPR Update 2026' });
+    const res = await request(app).get('/api/changes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('GDPR Update 2026');
+  });
+
+  it('DELETE /api/changes/:id calls update with deletedAt', async () => {
+    mockPrisma.regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.regChange.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/changes/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.regChange.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST /api/changes calls create once', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regChange.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New' });
+    await request(app).post('/api/changes').send({ title: 'New' });
+    expect(mockPrisma.regChange.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/changes filters by impact query param', async () => {
+    mockPrisma.regChange.findMany.mockResolvedValue([]);
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/changes?impact=HIGH');
+    expect(res.status).toBe(200);
+  });
+});

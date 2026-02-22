@@ -657,3 +657,79 @@ describe('Project Changes API — final coverage', () => {
     );
   });
 });
+
+describe('Project Changes API — boundary and extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changes', changesRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /changes: data is an array when projectId provided', async () => {
+    (mockPrisma.projectChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/changes?projectId=proj-1').set('Authorization', 'Bearer token');
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('GET /changes: meta.limit defaults to 50', async () => {
+    (mockPrisma.projectChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/changes?projectId=proj-1').set('Authorization', 'Bearer token');
+    expect(response.body.meta.limit).toBe(50);
+  });
+
+  it('POST /changes: create returns 500 when DB fails', async () => {
+    (mockPrisma.projectChange.create as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const response = await request(app)
+      .post('/api/changes')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'proj-1',
+        changeCode: 'CHG-ERR',
+        changeTitle: 'Error test',
+        changeDescription: 'Testing error path',
+        changeReason: 'Testing',
+        changeType: 'SCOPE',
+      });
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /changes/:id: findUnique called with correct id', async () => {
+    (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .delete('/api/changes/4b000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectChange.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '4b000000-0000-4000-a000-000000000001' } })
+    );
+  });
+
+  it('PUT /changes/:id: success true in response body on update', async () => {
+    (mockPrisma.projectChange.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      status: 'SUBMITTED',
+    });
+    (mockPrisma.projectChange.update as jest.Mock).mockResolvedValueOnce({
+      id: '4b000000-0000-4000-a000-000000000001',
+      changeTitle: 'New title',
+    });
+    const response = await request(app)
+      .put('/api/changes/4b000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ changeTitle: 'New title' });
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /changes: findMany not called when projectId is missing', async () => {
+    await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectChange.findMany).not.toHaveBeenCalled();
+  });
+});

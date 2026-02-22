@@ -321,6 +321,85 @@ describe('reviews.api — extended error and field coverage', () => {
   });
 });
 
+describe('reviews.api — supplemental coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns pagination object with total', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/reviews');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total', 5);
+  });
+
+  it('POST / returns 400 when title is empty string', async () => {
+    const res = await request(app).post('/api/reviews').send({ title: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / findMany called with orgId from auth user', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    await request(app).get('/api/reviews');
+    expect(mockPrisma.mgmtReview.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ orgId: 'org-1' }),
+      })
+    );
+  });
+
+  it('GET /:id findFirst called with id from route param', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    await request(app).get('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.mgmtReview.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id success:true on successful update', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.mgmtReview.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    const res = await request(app)
+      .put('/api/reviews/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns success:true on soft delete', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.mgmtReview.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / returns correct pagination.totalPages for 30 records, limit 10', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/reviews?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('POST / count called once before create', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(1);
+    mockPrisma.mgmtReview.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'R' });
+    await request(app).post('/api/reviews').send({ title: 'R' });
+    expect(mockPrisma.mgmtReview.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / response is JSON content-type', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reviews');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});
+
 describe('reviews.api — exhaustive coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

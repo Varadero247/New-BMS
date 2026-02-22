@@ -420,6 +420,73 @@ describe('UDI Routes — additional response shape coverage', () => {
 });
 
 // ===================================================================
+// UDI Routes — supplemental coverage
+// ===================================================================
+describe('UDI Routes — supplemental coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST /api/udi/devices stores refNumber computed from count', async () => {
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.udiDevice.create as jest.Mock).mockResolvedValue({
+      id: 'udi-ref',
+      refNumber: 'UDI-2602-0004',
+    });
+    await request(app).post('/api/udi/devices').send({
+      deviceName: 'Ref Device',
+      modelNumber: 'RD-100',
+      manufacturer: 'MedCo',
+      deviceClass: 'CLASS_I',
+    });
+    const createArg = (mockPrisma.udiDevice.create as jest.Mock).mock.calls[0][0];
+    expect(createArg.data.refNumber).toMatch(/UDI-\d{4}-\d+/);
+  });
+
+  it('GET /api/udi/devices response body has success:true', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/udi/devices');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/udi/devices/:id/di create called with deviceId', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.udiDiRecord.create as jest.Mock).mockResolvedValue({ id: 'di-x' });
+    await request(app)
+      .post('/api/udi/devices/00000000-0000-0000-0000-000000000001/di')
+      .send({ issuingAgency: 'HIBCC', diCode: 'HIBCC-001' });
+    expect(mockPrisma.udiDiRecord.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deviceId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET /api/udi/devices returns data as array', async () => {
+    (mockPrisma.udiDevice.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.udiDevice.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/udi/devices');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/udi/devices/:id/pi returns 500 when create throws', async () => {
+    (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.udiPiRecord.create as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .post('/api/udi/devices/00000000-0000-0000-0000-000000000001/pi')
+      .send({ lotNumber: 'LOT-ERR' });
+    expect(res.status).toBe(500);
+  });
+});
+
+// ===================================================================
 // UDI Routes — extended edge-case coverage
 // ===================================================================
 describe('UDI Routes — extended edge-case coverage', () => {

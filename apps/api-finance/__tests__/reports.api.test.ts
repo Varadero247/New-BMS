@@ -608,3 +608,64 @@ describe('GET /api/reports/budgets — additional', () => {
     expect(res.body.pagination.totalPages).toBe(6);
   });
 });
+
+// ===================================================================
+// Reports — extra coverage to reach 40 tests
+// ===================================================================
+describe('Reports — extra coverage', () => {
+  it('GET /api/reports/dashboard profit equals revenue minus expenses', async () => {
+    mockPrisma.finInvoice.aggregate
+      .mockResolvedValueOnce({ _sum: { amountPaid: 80000 } })
+      .mockResolvedValueOnce({ _sum: { amountDue: 5000 } });
+    mockPrisma.finBill.aggregate
+      .mockResolvedValueOnce({ _sum: { amountPaid: 30000 } })
+      .mockResolvedValueOnce({ _sum: { amountDue: 2000 } });
+    mockPrisma.finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: 50000 } });
+    mockPrisma.finInvoice.count.mockResolvedValue(0);
+    mockPrisma.finBill.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/reports/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.profit).toBe(50000);
+  });
+
+  it('GET /api/reports/budgets data is always an array', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/reports/budgets');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/reports/revenue-breakdown byCustomer is always an array', async () => {
+    mockPrisma.finInvoice.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/reports/revenue-breakdown');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.byCustomer)).toBe(true);
+  });
+
+  it('GET /api/reports/expense-breakdown bySupplier is always an array', async () => {
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/reports/expense-breakdown');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.bySupplier)).toBe(true);
+  });
+
+  it('GET /api/reports/cash-forecast forecastMonths defaults to 3', async () => {
+    mockPrisma.finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: 10000 } });
+    mockPrisma.finInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/reports/cash-forecast');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.forecastMonths).toBe(3);
+  });
+});

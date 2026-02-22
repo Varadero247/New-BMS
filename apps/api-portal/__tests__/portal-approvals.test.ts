@@ -413,3 +413,63 @@ describe('portal-approvals — final coverage', () => {
     expect(mockPrisma.portalApproval.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('portal-approvals — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /approvals: total in pagination matches count mock', async () => {
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(9);
+
+    const res = await request(app).get('/api/portal/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(9);
+  });
+
+  it('GET /approvals: data length matches mock return length', async () => {
+    mockPrisma.portalApproval.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', type: 'ORDER', status: 'PENDING' },
+      { id: '00000000-0000-0000-0000-000000000002', type: 'DOCUMENT', status: 'APPROVED' },
+    ]);
+    mockPrisma.portalApproval.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/portal/approvals');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /approvals: returns 400 for missing referenceId', async () => {
+    const res = await request(app)
+      .post('/api/portal/approvals')
+      .send({ type: 'ORDER' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /reject: findFirst called with correct id in where clause', async () => {
+    const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(approval);
+    mockPrisma.portalApproval.update.mockResolvedValue({ ...approval, status: 'REJECTED' });
+
+    await request(app)
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/reject')
+      .send({ notes: 'Rejected' });
+
+    expect(mockPrisma.portalApproval.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET /approvals: type filter passed in where clause', async () => {
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/approvals?type=DOCUMENT');
+
+    expect(mockPrisma.portalApproval.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'DOCUMENT' }) })
+    );
+  });
+});

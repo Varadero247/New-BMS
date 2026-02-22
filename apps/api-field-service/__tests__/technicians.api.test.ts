@@ -446,3 +446,53 @@ describe('technicians.api — further coverage', () => {
     expect(mockPrisma.fsSvcTechnician.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('technicians.api — final coverage', () => {
+  it('GET / applies skip=20 for page=3 limit=10', async () => {
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(0);
+    await request(app).get('/api/technicians?page=3&limit=10');
+    expect(mockPrisma.fsSvcTechnician.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET / response has success:true and data array', async () => {
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/technicians');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id/schedule returns jobs array for existing technician', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([
+      { id: 'job-a', title: 'Service call', scheduledStart: new Date() },
+      { id: 'job-b', title: 'Repair', scheduledStart: new Date() },
+    ]);
+    const res = await request(app).get('/api/technicians/00000000-0000-0000-0000-000000000001/schedule');
+    expect(res.status).toBe(200);
+    expect(res.body.data.jobs).toHaveLength(2);
+  });
+
+  it('POST / returns 409 when Prisma P2002 error thrown', async () => {
+    const error: any = new Error('Unique constraint');
+    error.code = 'P2002';
+    mockPrisma.fsSvcTechnician.create.mockRejectedValue(error);
+    const res = await request(app)
+      .post('/api/technicians')
+      .send({ name: 'Dup Tech', email: 'dup2@test.com', skills: ['plumbing'] });
+    expect(res.status).toBe(409);
+  });
+
+  it('PUT /:id returns 200 and success:true on valid update', async () => {
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000070' });
+    mockPrisma.fsSvcTechnician.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000070', name: 'Patched' });
+    const res = await request(app)
+      .put('/api/technicians/00000000-0000-0000-0000-000000000070')
+      .send({ name: 'Patched' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

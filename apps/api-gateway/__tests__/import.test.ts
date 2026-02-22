@@ -344,6 +344,88 @@ describe('Import Routes — edge cases and 500 paths', () => {
   });
 });
 
+describe('Import Routes — extra boundary coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/import', importRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetImportSchema.mockReturnValue({
+      recordType: 'suppliers',
+      label: 'Suppliers',
+      fields: [{ name: 'name', required: true }, { name: 'code', required: true }],
+    });
+    mockGetTemplateHeaders.mockReturnValue('name,code,type,status,country,contact');
+    mockParseCSV.mockReturnValue({ valid: [{ name: 'Test' }], errors: [], totalRows: 1 });
+    mockImportRecords.mockReturnValue({ imported: 5, skipped: 0, errors: [] });
+  });
+
+  it('POST /validate calls parseCSV with the supplied csvData string', async () => {
+    const csvData = 'name,code\nAlpha,ALP';
+    await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'suppliers', csvData });
+    expect(mockParseCSV).toHaveBeenCalledWith(csvData, 'suppliers');
+  });
+
+  it('POST /execute response meta.imported equals mock return value', async () => {
+    const res = await request(app)
+      .post('/api/admin/import/execute')
+      .send({ recordType: 'suppliers', rows: [{ name: 'Zeta', code: 'ZET-001' }] });
+    expect(res.status).toBe(200);
+    expect(res.body.data.imported).toBe(5);
+  });
+
+  it('GET /schemas response data has at least one entry', async () => {
+    const res = await request(app).get('/api/admin/import/schemas');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('GET /templates/:type response data.headers is a string', async () => {
+    const res = await request(app).get('/api/admin/import/templates/suppliers');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.headers).toBe('string');
+  });
+
+  it('POST /validate with employees recordType calls parseCSV with employees', async () => {
+    mockGetImportSchema.mockReturnValueOnce({
+      recordType: 'employees',
+      label: 'Employees',
+      fields: [{ name: 'firstName', required: true }],
+    });
+    await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'employees', csvData: 'firstName\nAlice' });
+    expect(mockParseCSV).toHaveBeenCalledWith('firstName\nAlice', 'employees');
+  });
+
+  it('POST /execute with 3 rows returns skipped: 0', async () => {
+    const res = await request(app)
+      .post('/api/admin/import/execute')
+      .send({ recordType: 'suppliers', rows: [{ name: 'A', code: 'A-001' }, { name: 'B', code: 'B-001' }, { name: 'C', code: 'C-001' }] });
+    expect(res.status).toBe(200);
+    expect(res.body.data.skipped).toBe(0);
+  });
+
+  it('GET /schemas returns data containing recordType field', async () => {
+    const res = await request(app).get('/api/admin/import/schemas');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('recordType');
+  });
+
+  it('GET /templates/:type getImportSchema is called once', async () => {
+    await request(app).get('/api/admin/import/templates/suppliers');
+    expect(mockGetImportSchema).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('Import Routes — final coverage', () => {
   let app: express.Express;
 

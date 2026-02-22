@@ -524,3 +524,38 @@ describe('bills — final coverage', () => {
     expect(res.body.pagination.limit).toBe(20);
   });
 });
+
+describe('bills — additional coverage', () => {
+  it('GET /api/bills pagination page defaults to 1', async () => {
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/bills');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('PUT /api/bills/:id/verify returns 400 if status is VERIFIED', async () => {
+    (prisma.energyBill.findFirst as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'VERIFIED',
+    });
+
+    const res = await request(app).put('/api/bills/00000000-0000-0000-0000-000000000001/verify');
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/bills returns 400 when periodStart is missing', async () => {
+    const res = await request(app).post('/api/bills').send({
+      provider: 'EDF',
+      periodEnd: '2025-01-31',
+      consumption: 5000,
+      unit: 'kWh',
+      cost: 800,
+    });
+
+    expect(res.status).toBe(400);
+  });
+});

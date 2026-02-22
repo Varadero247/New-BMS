@@ -501,3 +501,50 @@ describe('PPAP Routes — final coverage block', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('PPAP Routes — comprehensive coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/ppap filters by status wired into findMany where', async () => {
+    (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/ppap?status=APPROVED');
+    expect(mockPrisma.ppapProject.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'APPROVED' }) })
+    );
+  });
+
+  it('GET /api/ppap/:id returns 500 on DB error', async () => {
+    (mockPrisma.ppapProject.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/ppap/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/ppap project count is called to generate refNumber', async () => {
+    (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValue(5);
+    (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
+      return cb({
+        ppapProject: {
+          create: jest.fn().mockResolvedValue({ id: 'pp-5', refNumber: 'PPAP-2602-0006' }),
+          findUnique: jest.fn().mockResolvedValue({ id: 'pp-5', elements: [], submissions: [] }),
+        },
+        ppapElement: { create: jest.fn().mockResolvedValue({}) },
+      });
+    });
+    const res = await request(app).post('/api/ppap').send({ partNumber: 'PN-006', partName: 'Gear', customer: 'Stellantis' });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.ppapProject.count).toHaveBeenCalled();
+  });
+
+  it('POST /api/ppap/:id/submit-level returns 500 on DB error', async () => {
+    (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.ppapProject.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .post('/api/ppap/00000000-0000-0000-0000-000000000001/submit-level')
+      .send({ level: 3 });
+    expect(res.status).toBe(500);
+  });
+});

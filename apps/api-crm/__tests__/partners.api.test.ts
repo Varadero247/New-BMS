@@ -600,3 +600,35 @@ describe('POST /api/partners/:id/commissions/pay', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('CRM Partners — additional coverage', () => {
+  it('GET / returns content-type application/json', async () => {
+    mockPrisma.crmPartner.findMany.mockResolvedValue([]);
+    mockPrisma.crmPartner.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/partners');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('GET / data is an array', async () => {
+    mockPrisma.crmPartner.findMany.mockResolvedValue([]);
+    mockPrisma.crmPartner.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/partners');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / response has pagination object', async () => {
+    mockPrisma.crmPartner.findMany.mockResolvedValue([]);
+    mockPrisma.crmPartner.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/partners');
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('PUT /:id/tier returns 500 on database error', async () => {
+    mockPrisma.crmPartner.findFirst.mockResolvedValue(mockPartner);
+    mockPrisma.crmPartner.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/partners/00000000-0000-0000-0000-000000000001/tier')
+      .send({ tier: 'TIER_2_COSELL' });
+    expect(res.status).toBe(500);
+  });
+});

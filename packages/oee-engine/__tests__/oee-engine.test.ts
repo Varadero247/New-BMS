@@ -278,3 +278,22 @@ describe('oee-engine', () => {
     });
   });
 });
+
+describe('oee-engine — additional coverage', () => {
+  it('calculateOEE result has oeePercent as a string', () => {
+    const result = calculateOEE({
+      plannedProductionTime: 480,
+      downtime: 0,
+      idealCycleTime: 1,
+      totalPieces: 480,
+      goodPieces: 480,
+    });
+    expect(typeof result.oeePercent).toBe('string');
+  });
+
+  it('calculateMTBF returns a number type', () => {
+    const result = calculateMTBF(3, 600);
+    expect(typeof result).toBe('number');
+    expect(result).toBeCloseTo(200);
+  });
+});

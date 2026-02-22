@@ -242,3 +242,28 @@ describe('createRasp() middleware', () => {
     expect(res.statusCode).toBe(400);
   });
 });
+
+describe('rasp — additional coverage', () => {
+  it('scanValue returns null for a plain email address (sql_injection)', () => {
+    expect(scanValue('user@example.com', 'sql_injection')).toBeNull();
+  });
+
+  it('scanValue returns null for a plain filename (path_traversal)', () => {
+    expect(scanValue('report-2026.pdf', 'path_traversal')).toBeNull();
+  });
+
+  it('scanRequest with empty threats list returns empty array', () => {
+    const req = makeReq({ body: { q: "' OR 1=1 --" } });
+    expect(scanRequest(req, [])).toHaveLength(0);
+  });
+
+  it('createRasp response body includes the detected threat type as code', () => {
+    const mw = createRasp();
+    const res = makeRes();
+    const req = makeReq({ body: { q: "' UNION SELECT * FROM users --" } });
+    mw(req, res, jest.fn() as unknown as NextFunction);
+    // Response is { error: 'REQUEST_BLOCKED', message: '...', code: <threat_type> }
+    expect((res.body as { code: string }).code).toBeDefined();
+    expect((res.body as { error: string }).error).toBe('REQUEST_BLOCKED');
+  });
+});

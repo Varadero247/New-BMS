@@ -389,3 +389,55 @@ describe('API Keys — final coverage', () => {
     expect(res.status).toBe(201);
   });
 });
+
+describe('API Keys — comprehensive additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/api-keys', apiKeysRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/admin/api-keys response content-type is JSON', async () => {
+    mockApiKey.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/admin/api-keys');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/admin/api-keys with multiple scopes stores all scopes', async () => {
+    mockApiKey.create.mockResolvedValue({
+      ...mockRecord,
+      permissions: ['read:quality', 'read:hr', 'read:inventory'],
+    });
+    const res = await request(app)
+      .post('/api/admin/api-keys')
+      .send({ name: 'Multi Scope', scopes: ['read:quality', 'read:hr', 'read:inventory'] });
+    expect(res.status).toBe(201);
+    expect(res.body.data.scopes).toHaveLength(3);
+  });
+
+  it('DELETE /api/admin/api-keys/:id already-revoked returns 409 with ALREADY_REVOKED code', async () => {
+    mockApiKey.findUnique.mockResolvedValue({ ...mockRecord, isActive: false });
+    const res = await request(app).delete('/api/admin/api-keys/key-1');
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe('ALREADY_REVOKED');
+  });
+
+  it('GET /api/admin/api-keys response body success is true', async () => {
+    mockApiKey.findMany.mockResolvedValue([mockRecord]);
+    const res = await request(app).get('/api/admin/api-keys');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/admin/api-keys returns data with isActive field', async () => {
+    mockApiKey.create.mockResolvedValue({ ...mockRecord, isActive: true });
+    const res = await request(app)
+      .post('/api/admin/api-keys')
+      .send({ name: 'Active Check', scopes: ['read:quality'] });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('status', 'active');
+  });
+});

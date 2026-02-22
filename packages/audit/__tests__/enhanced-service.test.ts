@@ -676,3 +676,90 @@ describe('EnhancedAuditService — additional coverage', () => {
     );
   });
 });
+
+// ── EnhancedAuditService — final coverage ────────────────────────────────────
+
+describe('EnhancedAuditService — final coverage', () => {
+  let prisma: ReturnType<typeof makePrisma>;
+  let service: EnhancedAuditService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    prisma = makePrisma();
+    service = new EnhancedAuditService(prisma as unknown as InstanceType<typeof PrismaClient>);
+  });
+
+  it('createEntry stores userEmail in the persisted record', async () => {
+    getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'fin-1' });
+
+    await service.createEntry(makeParams({ userEmail: 'final@example.com' }));
+
+    expect(getAuditMock(prisma).create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ userEmail: 'final@example.com' }),
+      })
+    );
+  });
+
+  it('createEntry stores ipAddress and userAgent in the persisted record', async () => {
+    getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'fin-2' });
+
+    await service.createEntry(makeParams({ ipAddress: '192.168.0.1', userAgent: 'curl/8' }));
+
+    const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+    expect(data.ipAddress).toBe('192.168.0.1');
+    expect(data.userAgent).toBe('curl/8');
+  });
+
+  it('query with empty filters returns all entries', async () => {
+    getAuditMock(prisma).findMany.mockResolvedValueOnce([]);
+    getAuditMock(prisma).count.mockResolvedValueOnce(0);
+
+    const result = await service.query({});
+
+    expect(result).toHaveProperty('entries');
+    expect(result).toHaveProperty('total');
+    expect(result.total).toBe(0);
+  });
+
+  it('logCreate stores resourceRef in the persisted record', async () => {
+    getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'fin-3' });
+
+    await service.logCreate({
+      userId: 'u1',
+      userEmail: 'u@test.com',
+      userFullName: 'User One',
+      resourceType: 'Policy',
+      resourceId: 'pol-1',
+      resourceRef: 'POL-2026-001',
+      ipAddress: '10.0.0.1',
+      userAgent: 'curl/7',
+      newData: { title: 'Policy A' },
+    });
+
+    const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+    expect(data.resourceRef).toBe('POL-2026-001');
+  });
+
+  it('logUpdate with identical old/new data results in empty changes list', async () => {
+    getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'fin-4' });
+    mockComputeChanges.mockReturnValueOnce([]);
+
+    const result = await service.logUpdate({
+      userId: 'u1',
+      userEmail: 'u@test.com',
+      userFullName: 'User One',
+      resourceType: 'Doc',
+      resourceId: 'd1',
+      resourceRef: 'D-001',
+      ipAddress: '10.0.0.1',
+      userAgent: 'curl/7',
+      oldData: { status: 'draft' },
+      newData: { status: 'draft' },
+    });
+
+    expect(result).toBe('fin-4');
+    const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+    expect(data.changes).toHaveLength(0);
+  });
+});

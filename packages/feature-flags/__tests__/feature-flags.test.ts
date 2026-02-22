@@ -450,4 +450,55 @@ describe('feature-flags — additional coverage', () => {
     });
     expect(await isEnabled('disabled_flag', 'org-any')).toBe(false);
   });
+
+  it('getAll with no orgId returns all flags keyed by name', async () => {
+    setStore({
+      flags: [
+        { name: 'aa', description: 'A', enabled: true, createdAt: '', updatedAt: '' },
+        { name: 'bb', description: 'B', enabled: false, createdAt: '', updatedAt: '' },
+      ],
+      orgOverrides: [],
+    });
+    const result = await getAll();
+    expect(Object.keys(result)).toHaveLength(2);
+    expect(result['aa']).toBe(true);
+    expect(result['bb']).toBe(false);
+  });
+
+  it('createFlag with enabled=false sets enabled to false', () => {
+    const flag = createFlag('explicitly_disabled', 'Not enabled', false);
+    expect(flag?.enabled).toBe(false);
+  });
+
+  it('updateFlag preserves enabled state when only description is changed', () => {
+    setStore({
+      flags: [{ name: 'preserve', description: 'X', enabled: true, createdAt: '', updatedAt: '' }],
+      orgOverrides: [],
+    });
+    const updated = updateFlag('preserve', { description: 'Y' });
+    expect(updated?.enabled).toBe(true);
+    expect(updated?.description).toBe('Y');
+  });
+
+  it('setOrgOverride returns override with correct enabled=false value', () => {
+    setStore({
+      flags: [{ name: 'disable_ov', description: 'DO', enabled: true, createdAt: '', updatedAt: '' }],
+      orgOverrides: [],
+    });
+    const override = setOrgOverride('disable_ov', 'org-disable', false);
+    expect(override?.enabled).toBe(false);
+  });
+
+  it('getAllFlags after createFlag reflects the new flag', () => {
+    // createFlag writes to the mock store; capture the written data and feed it back into readFileSync
+    let latestStore = JSON.stringify({ flags: [], orgOverrides: [] });
+    (mockFs.writeFileSync as jest.Mock).mockImplementation((_p: unknown, data: unknown) => {
+      latestStore = String(data);
+    });
+    (mockFs.readFileSync as jest.Mock).mockImplementation(() => latestStore);
+
+    createFlag('brand_new', 'Brand new feature');
+    const flags = getAllFlags();
+    expect(flags.some((f) => f.name === 'brand_new')).toBe(true);
+  });
 });

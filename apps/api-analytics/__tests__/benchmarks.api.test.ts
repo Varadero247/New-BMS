@@ -430,3 +430,50 @@ describe('benchmarks.api — final additional coverage', () => {
     expect(res.body.data.industry.FINANCE).toHaveLength(3);
   });
 });
+
+describe('benchmarks.api — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/benchmarks data.industry.HEALTH_SAFETY items each have metric field', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(200);
+    for (const item of res.body.data.industry.HEALTH_SAFETY) {
+      expect(item).toHaveProperty('metric');
+    }
+  });
+
+  it('GET /api/benchmarks/:module data.industry is an array', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/QUALITY');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.industry)).toBe(true);
+  });
+
+  it('POST /api/benchmarks rejects missing topPerformer field with 400', async () => {
+    const res = await request(app).post('/api/benchmarks').send({
+      name: 'No Top',
+      module: 'HR',
+      metric: 'No Top',
+      industryAverage: 50,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/benchmarks/:module with ENVIRONMENT returns 4 industry items', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/ENVIRONMENT');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry).toHaveLength(4);
+  });
+
+  it('GET /api/benchmarks returns 500 with success:false when findMany throws', async () => {
+    mockPrisma.analyticsKpi.findMany.mockRejectedValue(new Error('connection error'));
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

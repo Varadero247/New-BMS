@@ -293,3 +293,43 @@ describe('JwtKeyRotationManager — final coverage', () => {
     expect(decoded.role).toBe('MANAGER');
   });
 });
+
+// ── JwtKeyRotationManager — comprehensive coverage ────────────────────────────
+
+describe('JwtKeyRotationManager — comprehensive coverage', () => {
+  let manager: JwtKeyRotationManager;
+
+  beforeEach(() => {
+    manager = new JwtKeyRotationManager(60_000);
+  });
+
+  it('rotateKey() returns a JwtKeyRecord with secret property', async () => {
+    const key = await manager.rotateKey();
+    expect(key).toHaveProperty('secret');
+    expect(typeof key.secret).toBe('string');
+  });
+
+  it('getActiveKey() returns the same key object returned by rotateKey()', async () => {
+    const rotated = await manager.rotateKey();
+    const active = manager.getActiveKey();
+    expect(active.keyId).toBe(rotated.keyId);
+  });
+
+  it('verify() roundtrip preserves email in payload', async () => {
+    await manager.rotateKey();
+    const token = manager.sign({ userId: 'u-email', email: 'test@ims.local', role: 'USER' }, '5m');
+    const decoded = manager.verify(token);
+    expect(decoded.email).toBe('test@ims.local');
+  });
+
+  it('keyCount is 3 after three rotations', async () => {
+    await manager.rotateKey();
+    await manager.rotateKey();
+    await manager.rotateKey();
+    expect(manager.keyCount).toBe(3);
+  });
+
+  it('isKeyValid() returns false for unknown key ID on fresh manager', () => {
+    expect(manager.isKeyValid('does-not-exist')).toBe(false);
+  });
+});

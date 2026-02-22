@@ -505,3 +505,54 @@ describe('alerts — final coverage', () => {
     expect(res.body.data).toHaveLength(2);
   });
 });
+
+describe('alerts — additional coverage', () => {
+  it('GET /api/alerts pagination page defaults to 1', async () => {
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/alerts');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST /api/alerts rejects body with missing message', async () => {
+    const res = await request(app).post('/api/alerts').send({
+      type: 'ANOMALY',
+      severity: 'HIGH',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/alerts/:id updates message field', async () => {
+    (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+    });
+    (prisma.energyAlert.update as jest.Mock).mockResolvedValue({
+      id: 'e4000000-0000-4000-a000-000000000001',
+      message: 'Updated message',
+    });
+
+    const res = await request(app)
+      .put('/api/alerts/e4000000-0000-4000-a000-000000000001')
+      .send({ message: 'Updated message' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Updated message');
+  });
+
+  it('GET /api/alerts filters by acknowledged=true', async () => {
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/alerts?acknowledged=true');
+
+    expect(prisma.energyAlert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ acknowledged: true }),
+      })
+    );
+  });
+});

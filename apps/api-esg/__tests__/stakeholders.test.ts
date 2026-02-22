@@ -341,6 +341,36 @@ describe('stakeholders — extended coverage', () => {
   });
 });
 
+describe('stakeholders — batch-q coverage', () => {
+  it('GET / findMany called once per request', async () => {
+    (prisma.esgStakeholder.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgStakeholder.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/stakeholders');
+    expect(prisma.esgStakeholder.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / returns 400 when type is missing', async () => {
+    const res = await request(app).post('/api/stakeholders').send({ name: 'Test Corp' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET / page 2 limit 10 passes correct skip', async () => {
+    (prisma.esgStakeholder.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgStakeholder.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/stakeholders?page=2&limit=10');
+    expect(prisma.esgStakeholder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET / returns data as array', async () => {
+    (prisma.esgStakeholder.findMany as jest.Mock).mockResolvedValue([mockStakeholder]);
+    (prisma.esgStakeholder.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/stakeholders');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});
+
 describe('stakeholders — additional coverage 2', () => {
   it('GET / returns pagination object with total', async () => {
     (prisma.esgStakeholder.findMany as jest.Mock).mockResolvedValue([mockStakeholder]);

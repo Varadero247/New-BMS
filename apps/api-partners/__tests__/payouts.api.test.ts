@@ -195,6 +195,52 @@ describe('POST /api/payouts/request', () => {
   });
 });
 
+describe('Payouts — extra coverage batch ah', () => {
+  it('GET / availableBalance is a number', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/payouts');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.availableBalance).toBe('number');
+  });
+
+  it('GET / canRequestPayout is a boolean', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/payouts');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.canRequestPayout).toBe('boolean');
+  });
+
+  it('POST /request: totalPending sums all commission values in unpaid deals', async () => {
+    const deals = [
+      { id: 'd-x', commissionValue: 400 },
+      { id: 'd-y', commissionValue: 600 },
+    ];
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue(deals);
+    (prisma.mktPartnerPayout.create as jest.Mock).mockResolvedValue({ id: 'p-new', amount: 1000, status: 'PENDING' });
+    (prisma.mktPartnerDeal.updateMany as jest.Mock).mockResolvedValue({ count: 2 });
+    const res = await request(app).post('/api/payouts/request');
+    expect(res.status).toBe(201);
+    expect(res.body.data.amount).toBe(1000);
+  });
+
+  it('GET / response body data is an object', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/payouts');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+  });
+
+  it('POST /request: 500 error returns success:false', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/payouts/request');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
 describe('Payouts — extended', () => {
   it('GET / returns success true on 200', async () => {
     (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);

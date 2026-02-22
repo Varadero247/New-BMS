@@ -409,3 +409,70 @@ describe('middleware — CORRELATION_ID_HEADER and cacheControl additional', () 
     expect(mockReq.correlationId).toMatch(UUID_V4);
   });
 });
+
+describe('middleware — final coverage to reach 40', () => {
+  it('cacheControl header string starts with "public"', () => {
+    const middleware = cacheControl(120);
+    const setHeader = jest.fn();
+    cacheControl(120)({} as any, { setHeader } as any, jest.fn());
+    expect(setHeader.mock.calls[0][1]).toMatch(/^public/);
+  });
+
+  it('cacheControl calls next exactly once', () => {
+    const next = jest.fn();
+    cacheControl(10)({} as any, { setHeader: jest.fn() } as any, next);
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('createHealthCheck returns 503 and unhealthy when DB fails with custom error message', async () => {
+    const mockPrisma = {
+      $queryRaw: jest.fn().mockRejectedValue(new Error('ECONNREFUSED')),
+    };
+    const handler = createHealthCheck('svc-fail', mockPrisma as any);
+    const mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      setHeader: jest.fn(),
+    };
+    await handler({} as any, mockRes as any);
+    expect(mockRes.status).toHaveBeenCalledWith(503);
+    const body = mockRes.json.mock.calls[0][0];
+    expect(body.checks.database).toBe('down');
+  });
+
+  it('requestLogger calls res.on with exactly the "finish" event string', () => {
+    const middleware = requestLogger();
+    const next = jest.fn();
+    const req = { method: 'PATCH', originalUrl: '/api/foo', headers: {}, socket: {} } as any;
+    const res = { on: jest.fn(), statusCode: 200, getHeader: jest.fn() } as any;
+    middleware(req, res, next);
+    const events = res.on.mock.calls.map((c: string[]) => c[0]);
+    expect(events).toContain('finish');
+  });
+
+  it('createDownstreamRateLimiter defaults result in a callable middleware', async () => {
+    const limiter = createDownstreamRateLimiter();
+    const next = jest.fn();
+    const req = { ip: '127.0.0.1', method: 'GET', path: '/' } as any;
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() } as any;
+    // Should not throw — just call or skip
+    expect(() => limiter(req, res, next)).not.toThrow();
+  });
+
+  it('getCorrelationId returns the exact correlationId value stored on request', () => {
+    const mockReq = { correlationId: 'test-id-xyz' };
+    expect(getCorrelationId(mockReq as any)).toBe('test-id-xyz');
+  });
+
+  it('correlationIdMiddleware preserves a long header value', () => {
+    const longId = 'a'.repeat(128);
+    const middleware = correlationIdMiddleware();
+    const mockReq = {
+      get: jest.fn(() => longId),
+      correlationId: undefined as string | undefined,
+    };
+    const mockRes = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), json: jest.fn() };
+    middleware(mockReq as any, mockRes as any, jest.fn());
+    expect(mockReq.correlationId).toBe(longId);
+  });
+});

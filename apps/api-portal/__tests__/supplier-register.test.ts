@@ -389,3 +389,36 @@ describe('Supplier Register — final coverage', () => {
     );
   });
 });
+
+describe('supplier-register — boundary coverage', () => {
+  it('POST register: response body status is 201 for new valid registration', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-b1', email: 'boundary@co.com', status: 'PENDING' });
+    const res = await request(app).post('/api/supplier/register').send({ email: 'boundary@co.com', name: 'Boundary', company: 'BoundaryCo' });
+    expect(res.status).toBe(201);
+  });
+
+  it('POST register: returns 409 when email conflict exists', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: 'existing', email: 'dup@co.com' });
+    const res = await request(app).post('/api/supplier/register').send({ email: 'dup@co.com', name: 'Dup', company: 'DupCo' });
+    expect(res.status).toBe(409);
+  });
+
+  it('GET /status: returns 200 with APPROVED status when user is approved', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: 'user-123', email: 'test@test.com', name: 'Test', company: 'Co', status: 'APPROVED', role: 'SUPPLIER_USER', createdAt: new Date() });
+    const res = await request(app).get('/api/supplier/register/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+
+  it('POST register: create not called when email already exists', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: 'existing', email: 'already@co.com' });
+    await request(app).post('/api/supplier/register').send({ email: 'already@co.com', name: 'Already', company: 'AlreadyCo' });
+    expect(mockPrisma.portalUser.create).not.toHaveBeenCalled();
+  });
+
+  it('POST register: returns 400 for very short name field', async () => {
+    const res = await request(app).post('/api/supplier/register').send({ email: 'valid@co.com', name: '', company: 'Co' });
+    expect(res.status).toBe(400);
+  });
+});

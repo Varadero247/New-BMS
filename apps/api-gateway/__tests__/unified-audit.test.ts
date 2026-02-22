@@ -401,6 +401,68 @@ describe('Unified Audit Routes', () => {
   });
 
   // ============================================
+  // Pre-additional coverage
+  // ============================================
+  describe('Plans — pre-additional checks', () => {
+    it('GET /plans returns data.length >= 0', async () => {
+      const res = await request(app).get('/api/v1/unified-audit/plans');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('GET /plans/id/score conformanceRate is a number', async () => {
+      const createRes = await request(app).post('/api/v1/unified-audit/plans').send({
+        standard: 'ISO_14001',
+        auditType: 'INTERNAL',
+        title: 'Score number check',
+        scope: 'Test',
+      });
+      const planId = createRes.body.data.id;
+      const res = await request(app).get(`/api/v1/unified-audit/plans/${planId}/score`);
+      expect(res.status).toBe(200);
+      expect(typeof res.body.data.conformanceRate).toBe('number');
+    });
+
+    it('POST /plans returns 201 with created plan id', async () => {
+      const res = await request(app).post('/api/v1/unified-audit/plans').send({
+        standard: 'ISO_45001',
+        auditType: 'EXTERNAL',
+        title: 'Plan ID check',
+        scope: 'OHS check',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.data.id).toBeDefined();
+    });
+
+    it('GET /plans/:id clauses have clause and status fields', async () => {
+      const createRes = await request(app).post('/api/v1/unified-audit/plans').send({
+        standard: 'ISO_9001',
+        auditType: 'INTERNAL',
+        title: 'Clause field test',
+        scope: 'Full',
+      });
+      const planId = createRes.body.data.id;
+      const res = await request(app).get(`/api/v1/unified-audit/plans/${planId}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.clauses[0]).toHaveProperty('clause');
+      expect(res.body.data.clauses[0]).toHaveProperty('status');
+    });
+
+    it('GET /plans/:id/gaps response data has mandatory field', async () => {
+      const createRes = await request(app).post('/api/v1/unified-audit/plans').send({
+        standard: 'ISO_9001',
+        auditType: 'INTERNAL',
+        title: 'Gaps mandatory test',
+        scope: 'Full',
+      });
+      const planId = createRes.body.data.id;
+      const res = await request(app).get(`/api/v1/unified-audit/plans/${planId}/gaps`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.gaps[0]).toHaveProperty('mandatory');
+    });
+  });
+
+  // ============================================
   // Additional coverage
   // ============================================
   describe('Standards — additional checks', () => {

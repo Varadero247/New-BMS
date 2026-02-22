@@ -283,3 +283,40 @@ describe('anomalies.api — final additional coverage', () => {
     expect(res.body.data).toHaveProperty('summary');
   });
 });
+
+describe('anomalies.api — extra coverage', () => {
+  it('GET /api/anomalies/kpis summary.anomaly is a non-negative number', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.anomaly).toBeGreaterThanOrEqual(0);
+  });
+
+  it('PUT /api/anomalies/:id/dismiss with reason returns data property', async () => {
+    const res = await request(app)
+      .put('/api/anomalies/anom-001/dismiss')
+      .send({ reason: 'Planned downtime' });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/anomalies pagination.page is 1 when page param omitted', async () => {
+    const res = await request(app).get('/api/anomalies');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /api/anomalies summary.critical is defined or summary has keys', async () => {
+    const res = await request(app).get('/api/anomalies');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary).toBeDefined();
+    expect(typeof res.body.data.summary).toBe('object');
+  });
+
+  it('GET /api/anomalies/kpis kpis entries each have a status of ANOMALY, WARNING, or NORMAL', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    for (const kpi of res.body.data.kpis) {
+      expect(['ANOMALY', 'WARNING', 'NORMAL']).toContain(kpi.status);
+    }
+  });
+});

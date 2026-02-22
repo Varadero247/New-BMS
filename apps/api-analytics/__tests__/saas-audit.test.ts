@@ -419,6 +419,59 @@ describe('SaaS Audit — further edge cases', () => {
   });
 });
 
+describe('SaaS Audit — comprehensive coverage', () => {
+  it('activeCount never exceeds vendorCount', async () => {
+    const vendors = [
+      { name: 'A', category: 'tools', monthlyCost: 10, annualCost: 120, isActive: true, contractEnd: null },
+      { name: 'B', category: 'tools', monthlyCost: 20, annualCost: 240, isActive: false, contractEnd: null },
+      { name: 'C', category: 'tools', monthlyCost: 30, annualCost: 360, isActive: true, contractEnd: null },
+    ];
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
+    const result = await runSaaSAuditJob();
+    expect(result.activeCount).toBeLessThanOrEqual(result.vendorCount);
+  });
+
+  it('two active vendors in different categories each have their own byCategory entry', async () => {
+    const vendors = [
+      { name: 'Alpha', category: 'cloud', monthlyCost: 200, annualCost: 2400, isActive: true, contractEnd: null },
+      { name: 'Beta', category: 'security', monthlyCost: 100, annualCost: 1200, isActive: true, contractEnd: null },
+    ];
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
+    const result = await runSaaSAuditJob();
+    expect(result.byCategory['cloud']).toBeDefined();
+    expect(result.byCategory['security']).toBeDefined();
+    expect(result.byCategory['cloud'].count).toBe(1);
+    expect(result.byCategory['security'].count).toBe(1);
+  });
+
+  it('totalMonthlyCost is 0 when all vendors have zero cost', async () => {
+    const vendors = [
+      { name: 'FreeSVC', category: 'tools', monthlyCost: 0, annualCost: 0, isActive: true, contractEnd: null },
+      { name: 'FreeSVC2', category: 'tools', monthlyCost: 0, annualCost: 0, isActive: true, contractEnd: null },
+    ];
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
+    const result = await runSaaSAuditJob();
+    expect(result.totalMonthlyCost).toBe(0);
+    expect(result.activeCount).toBe(2);
+  });
+
+  it('byCategory count for a single category with 3 active vendors is 3', async () => {
+    const vendors = Array.from({ length: 3 }, (_, i) => ({
+      name: `V${i}`, category: 'saas', monthlyCost: 100, annualCost: 1200, isActive: true, contractEnd: null,
+    }));
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
+    const result = await runSaaSAuditJob();
+    expect(result.byCategory['saas'].count).toBe(3);
+  });
+
+  it('vendorCount is 0 and byCategory is empty for empty list', async () => {
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue([]);
+    const result = await runSaaSAuditJob();
+    expect(result.vendorCount).toBe(0);
+    expect(Object.keys(result.byCategory)).toHaveLength(0);
+  });
+});
+
 describe('SaaS Audit — final coverage', () => {
   it('result vendorCount is 0 for empty list', async () => {
     (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue([]);

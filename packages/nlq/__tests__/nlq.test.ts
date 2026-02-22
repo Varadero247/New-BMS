@@ -257,3 +257,20 @@ describe('nlq', () => {
     });
   });
 });
+
+describe('nlq — additional coverage', () => {
+  it('sanitizeQuery handles empty string', () => {
+    const result = sanitizeQuery('');
+    expect(result).toBe('');
+  });
+
+  it('parseNaturalLanguage returns an object with sql, modules, confidence, original, sanitized, params fields', () => {
+    const result = parseNaturalLanguage('show me all overdue CAPAs', fullAccessContext);
+    expect(result).toHaveProperty('sql');
+    expect(result).toHaveProperty('modules');
+    expect(result).toHaveProperty('confidence');
+    expect(result).toHaveProperty('original');
+    expect(result).toHaveProperty('sanitized');
+    expect(result).toHaveProperty('params');
+  });
+});

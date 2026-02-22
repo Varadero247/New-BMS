@@ -618,3 +618,93 @@ describe('Quality Issues API — extended edge cases', () => {
     expect(mockPrisma.qualIssue.count).toHaveBeenCalled();
   });
 });
+
+// ===================================================================
+// Quality Issues API — supplemental coverage
+// ===================================================================
+describe('Quality Issues API — supplemental coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/issues', issuesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/issues — success is true on 200 response', async () => {
+    (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/issues').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/issues — data.total equals 0 when no issues', async () => {
+    (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/issues').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.total).toBe(0);
+  });
+
+  it('POST /api/issues — OPPORTUNITY bias creates successfully', async () => {
+    (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.qualIssue.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000999',
+      referenceNumber: 'QMS-ISS-2026-001',
+      issueOfConcern: 'New market opportunity',
+      bias: 'OPPORTUNITY',
+      treatmentMethod: 'Explore market',
+      priority: 'MEDIUM',
+      status: 'OPEN',
+      party: null,
+    });
+
+    const response = await request(app)
+      .post('/api/issues')
+      .set('Authorization', 'Bearer token')
+      .send({ issueOfConcern: 'New market opportunity', bias: 'OPPORTUNITY', treatmentMethod: 'Explore market' });
+
+    expect(response.status).toBe(201);
+    expect(response.body.data.bias).toBe('OPPORTUNITY');
+  });
+
+  it('GET /api/issues/:id — data.id matches requested ID', async () => {
+    (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      referenceNumber: 'QMS-ISS-2026-001',
+      issueOfConcern: 'Supply chain disruption',
+      bias: 'RISK',
+      priority: 'HIGH',
+      status: 'OPEN',
+      party: null,
+    });
+
+    const response = await request(app)
+      .get('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.id).toBe('22000000-0000-4000-a000-000000000001');
+  });
+
+  it('DELETE /api/issues/:id — 500 on update error after findUnique succeeds', async () => {
+    (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.qualIssue.update as jest.Mock).mockRejectedValueOnce(new Error('write error'));
+
+    const response = await request(app)
+      .delete('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

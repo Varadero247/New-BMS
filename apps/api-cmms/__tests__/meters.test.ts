@@ -404,3 +404,51 @@ describe('meters — business logic and response structure', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('meters — final coverage expansion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /meters data items include meterType field', async () => {
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([mockReading]);
+    prisma.cmmsMeterReading.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/meters');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('meterType', 'HOURS');
+  });
+
+  it('GET /meters response content-type is application/json', async () => {
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([]);
+    prisma.cmmsMeterReading.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/meters');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('POST /meters returns 400 when readingDate is missing', async () => {
+    const res = await request(app).post('/api/meters').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      meterType: 'HOURS',
+      reading: 5000,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /meters/:id returns 404 with NOT_FOUND code when missing', async () => {
+    prisma.cmmsMeterReading.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/meters/00000000-0000-0000-0000-000000000077')
+      .send({ reading: 9999 });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /meters?meterType=HOURS filters findMany by meterType', async () => {
+    prisma.cmmsMeterReading.findMany.mockResolvedValue([]);
+    prisma.cmmsMeterReading.count.mockResolvedValue(0);
+    await request(app).get('/api/meters?meterType=HOURS');
+    expect(prisma.cmmsMeterReading.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ meterType: 'HOURS' }) })
+    );
+  });
+});

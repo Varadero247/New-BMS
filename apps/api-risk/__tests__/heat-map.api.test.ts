@@ -328,3 +328,49 @@ describe('heat-map.api — final coverage', () => {
     expect(res.body.data.risks).toHaveLength(0);
   });
 });
+
+describe('heat-map.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('response content-type is JSON', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('findMany called with organisationId in where clause', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/heat-map');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('risk id field is a string', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: 'r-abc', title: 'Test', likelihood: 2, consequence: 3, inherentScore: 6 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    expect(typeof res.body.data.risks[0].id).toBe('string');
+  });
+
+  it('GET /heat-map returns success:false on 500', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/heat-map');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('two risks in response match both mock entries', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: 'r1', title: 'Alpha', likelihood: 1, consequence: 2, inherentScore: 2 },
+      { id: 'r2', title: 'Beta', likelihood: 3, consequence: 4, inherentScore: 12 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.status).toBe(200);
+    expect(res.body.data.risks[0].id).toBe('r1');
+    expect(res.body.data.risks[1].id).toBe('r2');
+  });
+});

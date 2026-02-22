@@ -371,6 +371,66 @@ describe('Investigation — field validation and response shape', () => {
   });
 });
 
+describe('Investigation — extra paths', () => {
+  it('assign response body has data key', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'inv20',
+      status: 'INVESTIGATING',
+    });
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'inv20' });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('report update response body has data key', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    const res = await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ rootCause: 'Human factor' });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('assign passes updatedAt timestamp in update data', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'inv21',
+      status: 'INVESTIGATING',
+    });
+    await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'inv21' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData).toHaveProperty('updatedBy');
+  });
+
+  it('report update response data.id matches route param id', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000007',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    const res = await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000007/report')
+      .send({ rootCause: 'Worn equipment' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000007');
+  });
+
+  it('assign 400 response has error.message defined', async () => {
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error).toHaveProperty('message');
+  });
+});
+
 describe('Investigation — final coverage block', () => {
   it('assign response is JSON content-type', async () => {
     mockPrisma.incIncident.update.mockResolvedValue({

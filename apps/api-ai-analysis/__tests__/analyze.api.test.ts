@@ -917,3 +917,67 @@ describe('analyze.api — final additional coverage', () => {
     expect(res.body.data.type).toBe('LESSONS_LEARNED');
   });
 });
+
+// ── analyze.api — extra coverage ─────────────────────────────────────────────
+
+describe('analyze.api — extra coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyze', analyzeRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('POST /api/analyze data.result is defined on 200 response', async () => {
+    const result = { description: 'Job description', primaryResponsibility: 'Lead team', secondaryResponsibility: 'Support manager', keyRequirement: '3yr exp', topSkill: 'Communication', topBenefit: 'Pension' };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ choices: [{ message: { content: JSON.stringify(result) } }], usage: { total_tokens: 60 } }),
+    });
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'HR_JOB_DESCRIPTION', context: { title: 'Manager', department: 'Ops', employmentType: 'Full-time' } });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('result');
+  });
+
+  it('POST /api/analyze OPENAI fetch called once per request', async () => {
+    const legalRefs = [{ regulation: 'HSWA', section: 'S2', relevance: 'Duty' }];
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(mockSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ choices: [{ message: { content: JSON.stringify(legalRefs) } }], usage: { total_tokens: 20 } }),
+    });
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'Fetch count test' } });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/analyze aISettings.findFirst called once per request', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'findFirst count test' } });
+    expect(mockPrisma.aISettings.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/analyze returns 400 NO_AI_CONFIG when settings is null', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'PAYROLL_VALIDATION', context: { runNumber: 'P-001', totalEmployees: 5, totalGross: 25000, totalDeductions: 5000, totalNet: 20000 } });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('NO_AI_CONFIG');
+  });
+});

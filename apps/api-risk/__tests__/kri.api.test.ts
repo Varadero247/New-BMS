@@ -469,3 +469,55 @@ describe('kri.api — final coverage', () => {
     expect(res.body.data.name).toBe('Updated KRI');
   });
 });
+
+describe('kri.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /:id/kri returns success:false on 500', async () => {
+    mockPrisma.riskKri.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/kri');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /kri/breaches returns success:false on 500', async () => {
+    mockPrisma.riskKri.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/risks/kri/breaches');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /:id/kri create called with riskId', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskKri.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', name: 'New KRI' });
+    await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri')
+      .send({ name: 'New KRI', unit: 'count' });
+    expect(mockPrisma.riskKri.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ riskId: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET /kri/due returns success:false on 500', async () => {
+    mockPrisma.riskKri.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/risks/kri/due');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /:id/kri returns success:true and data with id', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskKri.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000099',
+      name: 'Carbon KRI',
+    });
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri')
+      .send({ name: 'Carbon KRI', unit: 'tonnes' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000099');
+  });
+});

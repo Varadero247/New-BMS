@@ -433,6 +433,103 @@ describe('Medical Traceability API Routes', () => {
   });
 });
 
+describe('Medical Traceability API — supplemental coverage', () => {
+  const mockMatrix = {
+    id: '00000000-0000-0000-0000-000000000001',
+    refNumber: 'TRC-2601-0001',
+    title: 'Device A Traceability Matrix',
+    deviceId: 'DEV-001',
+    deviceName: 'Device A',
+    version: '1.0',
+    status: 'DRAFT',
+    scope: 'Full design lifecycle',
+    preparedBy: 'John Engineer',
+    reviewedBy: null,
+    notes: null,
+    createdBy: 'user-1',
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    _count: { links: 0 },
+  };
+
+  const mockLink = {
+    id: '00000000-0000-0000-0000-000000000001',
+    matrixId: '00000000-0000-0000-0000-000000000001',
+    userNeedRef: 'UN-001',
+    userNeedDesc: 'Device must operate at 37°C',
+    designInputRef: 'DI-001',
+    designInputDesc: 'Thermal specification',
+    status: 'OPEN',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns data as an array', async () => {
+    mockPrisma.traceabilityMatrix.findMany.mockResolvedValue([mockMatrix]);
+    mockPrisma.traceabilityMatrix.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/traceability');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / count is called before create', async () => {
+    mockPrisma.traceabilityMatrix.count.mockResolvedValue(0);
+    mockPrisma.traceabilityMatrix.create.mockResolvedValue(mockMatrix);
+    await request(app).post('/api/traceability').send({
+      title: 'New Matrix',
+      deviceName: 'Device X',
+      preparedBy: 'Engineer',
+    });
+    expect(mockPrisma.traceabilityMatrix.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id returns updated data in response', async () => {
+    mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(mockMatrix);
+    mockPrisma.traceabilityMatrix.update.mockResolvedValue({ ...mockMatrix, title: 'Updated Title' });
+    const res = await request(app)
+      .put('/api/traceability/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Title' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Updated Title');
+  });
+
+  it('DELETE /:id soft-deletes by calling update with deletedAt', async () => {
+    mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(mockMatrix);
+    mockPrisma.traceabilityMatrix.update.mockResolvedValue({ ...mockMatrix, deletedAt: new Date() });
+    await request(app).delete('/api/traceability/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.traceabilityMatrix.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('POST /:id/links create is called with matrixId', async () => {
+    mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(mockMatrix);
+    mockPrisma.traceabilityLink.create.mockResolvedValue(mockLink);
+    await request(app)
+      .post('/api/traceability/00000000-0000-0000-0000-000000000001/links')
+      .send({ userNeedRef: 'UN-003', userNeedDesc: 'Must be waterproof' });
+    expect(mockPrisma.traceabilityLink.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ matrixId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('GET / count is called once per list request', async () => {
+    mockPrisma.traceabilityMatrix.findMany.mockResolvedValue([]);
+    mockPrisma.traceabilityMatrix.count.mockResolvedValue(0);
+    await request(app).get('/api/traceability');
+    expect(mockPrisma.traceabilityMatrix.count).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('Medical Traceability API — additional coverage', () => {
   const mockMatrix = {
     id: '00000000-0000-0000-0000-000000000001',

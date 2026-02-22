@@ -387,3 +387,63 @@ describe('Portal Notifications — final coverage', () => {
     expect(res.body).toHaveProperty('data');
   });
 });
+
+describe('portal-notifications — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: data length matches mock return', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([
+      { id: 'n-1', title: 'Notice 1', type: 'ORDER_UPDATE', isRead: false },
+      { id: 'n-2', title: 'Notice 2', type: 'DOCUMENT_SHARED', isRead: true },
+      { id: 'n-3', title: 'Notice 3', type: 'APPROVAL_REQUEST', isRead: false },
+    ]);
+    mockPrisma.portalNotification.count.mockResolvedValue(3);
+
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('GET list: total in pagination matches count mock', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(25);
+
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.body.pagination.total).toBe(25);
+  });
+
+  it('PUT read-all: updateMany called with portalUserId filter for current user', async () => {
+    mockPrisma.portalNotification.updateMany.mockResolvedValue({ count: 4 });
+
+    await request(app).put('/api/portal/notifications/read-all');
+
+    expect(mockPrisma.portalNotification.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ portalUserId: 'user-123' }),
+      })
+    );
+  });
+
+  it('GET list: page=2 limit=10 passes skip=10 to Prisma', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/notifications?page=2&limit=10');
+
+    expect(mockPrisma.portalNotification.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('PUT /:id/read: success false when notification not found', async () => {
+    mockPrisma.portalNotification.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).put(
+      '/api/portal/notifications/00000000-0000-0000-0000-000000000099/read'
+    );
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});

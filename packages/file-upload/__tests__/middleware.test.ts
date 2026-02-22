@@ -516,3 +516,27 @@ describe('File Upload Middleware — additional coverage', () => {
     });
   });
 });
+
+describe('File Upload Middleware — final coverage', () => {
+  describe('uploadFields', () => {
+    it('should create fields middleware for a single field definition', () => {
+      const middleware = uploadFields([{ name: 'resume', maxCount: 1 }]);
+      expect(typeof middleware).toBe('function');
+    });
+  });
+
+  describe('uploadMultiple', () => {
+    it('should accept custom max count', () => {
+      const middleware = uploadMultiple('attachments', 5);
+      expect(typeof middleware).toBe('function');
+    });
+  });
+
+  describe('createUploader', () => {
+    it('should not call mkdirSync when directory already exists', () => {
+      (mockFs.existsSync as jest.Mock).mockReturnValue(true);
+      createUploader({ destination: '/tmp/existing' });
+      expect(mockFs.mkdirSync).not.toHaveBeenCalled();
+    });
+  });
+});

@@ -488,3 +488,72 @@ describe('Stripe Webhooks — extra coverage', () => {
     expect(res.body.received).toBe(true);
   });
 });
+
+describe('Stripe Webhooks — ≥40 coverage', () => {
+  it('POST /stripe returns 400 for null type field', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: null, data: {} });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /stripe customer.subscription.deleted win-back create called with cancelledAt', async () => {
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-status' });
+
+    await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.deleted',
+        data: { object: { metadata: { orgId: 'org-status' } } },
+      });
+
+    // The source creates win-back with { orgId, cancelledAt } — no status field
+    expect(prisma.mktWinBackSequence.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ orgId: 'org-status', cancelledAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('POST /stripe customer.subscription.updated active sets renewedAt', async () => {
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+
+    await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.updated',
+        data: { object: { metadata: { orgId: 'org-renew' }, status: 'active' } },
+      });
+
+    expect(prisma.mktRenewalSequence.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ renewedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('POST /stripe response body is an object for every valid event', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'invoice.payment_failed', data: { object: { metadata: {} } } });
+
+    expect(typeof res.body).toBe('object');
+    expect(res.body).toHaveProperty('received');
+  });
+
+  it('POST /stripe mktRenewalSequence.update called with orgId where clause', async () => {
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+
+    await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.updated',
+        data: { object: { metadata: { orgId: 'org-where' }, status: 'active' } },
+      });
+
+    expect(prisma.mktRenewalSequence.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { orgId: 'org-where' } })
+    );
+  });
+});

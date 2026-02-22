@@ -418,3 +418,63 @@ describe('readiness — certificate lifecycle', () => {
     expect(after).toBe(before + 1);
   });
 });
+
+describe('readiness — grade boundary checks', () => {
+  it('calculateReadinessScore returns grade A for unknown standard (score 100)', () => {
+    const result = calculateReadinessScore('org-x', 'ISO 99999:9999');
+    expect(result.grade).toBe('A');
+    expect(result.score).toBe(100);
+  });
+
+  it('updateCertificate updates expiryDate field', () => {
+    const cert = createCertificate({
+      orgId: 'org-expiry',
+      standard: 'ISO 9001:2015',
+      scope: 'Expiry test',
+      certificationBody: 'BSI',
+      certificateNumber: 'EXP-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    const newExpiry = new Date('2030-06-01');
+    const updated = updateCertificate(cert.id, { expiryDate: newExpiry });
+    expect(updated?.expiryDate.getFullYear()).toBe(2030);
+  });
+
+  it('createCertificate issueDate is stored correctly', () => {
+    const issueDate = new Date('2024-03-15');
+    const cert = createCertificate({
+      orgId: 'org-issue',
+      standard: 'ISO 14001:2015',
+      scope: 'Issue date test',
+      certificationBody: 'DNV',
+      certificateNumber: 'ID-002',
+      issueDate,
+      expiryDate: new Date('2027-03-15'),
+      status: 'ACTIVE',
+    });
+    const found = getCertificate(cert.id);
+    expect(found?.issueDate.getFullYear()).toBe(2024);
+  });
+
+  it('getCertificate returns the correct certificationBody', () => {
+    const cert = createCertificate({
+      orgId: 'org-certbody',
+      standard: 'ISO 27001:2022',
+      scope: 'CertBody lookup',
+      certificationBody: 'SGS',
+      certificateNumber: 'SGS-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    const found = getCertificate(cert.id);
+    expect(found?.certificationBody).toBe('SGS');
+  });
+
+  it('calculateReadinessScore blockers array is defined for any standard', () => {
+    const result = calculateReadinessScore('org-1', 'ISO 45001:2018');
+    expect(Array.isArray(result.blockers)).toBe(true);
+  });
+});

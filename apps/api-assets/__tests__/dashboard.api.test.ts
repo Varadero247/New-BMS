@@ -317,6 +317,57 @@ describe('Assets Dashboard — boundary and stress tests', () => {
   });
 });
 
+describe('Assets Dashboard — comprehensive coverage', () => {
+  it('totalWorkOrders is 0 when no work orders exist', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(10);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalWorkOrders).toBe(0);
+  });
+
+  it('totalCalibrations is 0 when no calibrations exist', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(5);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(3);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalCalibrations).toBe(0);
+  });
+
+  it('request with different orgId returns correct counts for that org', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(4);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(2);
+    mockPrisma.assetCalibration.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalAssets).toBe(4);
+    expect(res.body.data.totalWorkOrders).toBe(2);
+    expect(res.body.data.totalCalibrations).toBe(1);
+  });
+
+  it('assetRegister count is called with deletedAt null filter', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.assetRegister.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('assetWorkOrder count is called with deletedAt null filter', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.assetWorkOrder.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+});
+
 describe('Assets Dashboard — final coverage block', () => {
   it('POST /stats is not a supported method — returns 404', async () => {
     const res = await request(app).post('/api/dashboard/stats').send({});

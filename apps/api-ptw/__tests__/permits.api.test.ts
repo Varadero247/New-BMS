@@ -362,3 +362,44 @@ describe('permits.api — final coverage', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('permits.api — extra boundary coverage', () => {
+  it('GET / returns multiple permits', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'P1' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'P2' },
+    ]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/permits');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / returns 400 for missing required title field', async () => {
+    const res = await request(app).post('/api/permits').send({ type: 'HOT_WORK' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns success:true on update', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwPermit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    const res = await request(app)
+      .put('/api/permits/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id does not call update when not found', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue(null);
+    await request(app).delete('/api/permits/00000000-0000-0000-0000-000000000099');
+    expect(mockPrisma.ptwPermit.update).not.toHaveBeenCalled();
+  });
+
+  it('GET / findMany called once per request', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    await request(app).get('/api/permits');
+    expect(mockPrisma.ptwPermit.findMany).toHaveBeenCalledTimes(1);
+  });
+});

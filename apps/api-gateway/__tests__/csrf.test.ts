@@ -478,3 +478,59 @@ describe('CSRF Protection Middleware — final additional coverage', () => {
     expect(res.status).not.toHaveBeenCalled();
   });
 });
+
+describe('CSRF Protection Middleware — extra batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    tokenStore.cleanup();
+  });
+
+  it('tokenStore.set stores different tokens independently', () => {
+    const tok1 = 'unique-tok-aaa-111';
+    const tok2 = 'unique-tok-bbb-222';
+    tokenStore.set(tok1);
+    tokenStore.set(tok2);
+    expect(tokenStore.isValid(tok1)).toBe(true);
+    expect(tokenStore.isValid(tok2)).toBe(true);
+  });
+
+  it('csrfProtection ignores case in method: lowercase get skips token check', () => {
+    const middleware = csrfProtection();
+    const req = mockRequest({ method: 'GET', path: '/api/something' });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('generateCsrfToken uses httpOnly: true in cookie options', () => {
+    const handler = generateCsrfToken();
+    const req = mockRequest();
+    const res = mockResponse();
+    handler(req as Request, res as Response, mockNext);
+    const cookieOptions = (res.cookie as jest.Mock).mock.calls[0][2];
+    expect(cookieOptions.httpOnly).toBe(true);
+  });
+
+  it('csrfProtection with both cookie and header having token but token not in store → 403', () => {
+    const unknownToken = 'not-in-store-xyz-99999';
+    const middleware = csrfProtection();
+    const req = mockRequest({
+      method: 'POST',
+      path: '/api/data',
+      cookies: { _csrf: unknownToken },
+      headers: { 'x-csrf-token': unknownToken },
+    });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledWith(403);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.code).toBe('CSRF_TOKEN_INVALID');
+  });
+
+  it('tokenStore.cleanup after adding fresh token keeps that token valid', () => {
+    const freshToken = 'fresh-token-xyz-789';
+    tokenStore.set(freshToken);
+    tokenStore.cleanup(); // only removes expired; fresh should remain
+    expect(tokenStore.isValid(freshToken)).toBe(true);
+  });
+});

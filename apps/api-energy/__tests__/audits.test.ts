@@ -502,3 +502,54 @@ describe('audits — final coverage', () => {
     expect(res.body.pagination).toHaveProperty('limit', 5);
   });
 });
+
+describe('audits — additional coverage', () => {
+  const AUDIT_ID = '00000000-0000-0000-0000-000000000001';
+
+  it('GET /api/audits pagination page defaults to 1', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/audits');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST /api/audits rejects missing auditor field', async () => {
+    const res = await request(app).post('/api/audits').send({
+      title: 'No Auditor',
+      type: 'INTERNAL',
+      scheduledDate: '2026-06-01',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/audits/:id updates scheduledDate field', async () => {
+    (prisma.energyAudit.findFirst as jest.Mock).mockResolvedValue({ id: AUDIT_ID });
+    (prisma.energyAudit.update as jest.Mock).mockResolvedValue({
+      id: AUDIT_ID,
+      scheduledDate: new Date('2026-09-01'),
+    });
+
+    const res = await request(app)
+      .put(`/api/audits/${AUDIT_ID}`)
+      .send({ scheduledDate: '2026-09-01' });
+
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/audits filters by status=COMPLETED', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/audits?status=COMPLETED');
+
+    expect(prisma.energyAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'COMPLETED' }),
+      })
+    );
+  });
+});

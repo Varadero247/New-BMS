@@ -619,3 +619,88 @@ describe('Inventory Suppliers — final boundary tests', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Inventory Suppliers — extra final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/suppliers data is an array', async () => {
+    (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PATCH /:id with isActive=false updates supplier correctly', async () => {
+    (mockPrisma.supplier.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      code: 'ACME',
+      name: 'Acme Corp',
+    });
+    (mockPrisma.supplier.update as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      code: 'ACME',
+      name: 'Acme Corp',
+      isActive: false,
+    });
+    const res = await request(app)
+      .patch('/api/suppliers/25000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ isActive: false });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id response body has success true', async () => {
+    (mockPrisma.supplier.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '25000000-0000-4000-a000-000000000001',
+      code: 'ACME',
+      name: 'Acme Corp',
+      products: [],
+      _count: { products: 0 },
+    });
+    const res = await request(app)
+      .get('/api/suppliers/25000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / with address field is accepted', async () => {
+    (mockPrisma.supplier.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.supplier.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      code: 'ADDR',
+      name: 'Address Supplier',
+      address: { street: '123 Main St', city: 'London' },
+      status: 'ACTIVE',
+    });
+    const res = await request(app)
+      .post('/api/suppliers')
+      .set('Authorization', 'Bearer token')
+      .send({
+        code: 'ADDR',
+        name: 'Address Supplier',
+        email: 'addr@supplier.com',
+        address: { street: '123 Main St', city: 'London' },
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/suppliers meta has totalPages', async () => {
+    (mockPrisma.supplier.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.supplier.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/suppliers').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+});

@@ -398,6 +398,42 @@ describe('Schedules — edge cases and extended coverage', () => {
   });
 });
 
+describe('Schedules — comprehensive coverage', () => {
+  it('GET /api/schedules with type=ALERT filter is passed to findMany', async () => {
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/schedules?type=ALERT');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsSchedule.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'ALERT' }) })
+    );
+  });
+
+  it('PUT /api/schedules/:id/toggle DB error returns 500', async () => {
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', isActive: true });
+    mockPrisma.analyticsSchedule.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000001/toggle');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/schedules/:id update is called with correct where.id', async () => {
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'X' });
+    await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000001').send({ name: 'X' });
+    expect(mockPrisma.analyticsSchedule.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /api/schedules pagination limit defaults to 50', async () => {
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/schedules');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(50);
+  });
+});
+
 describe('Schedules — final coverage', () => {
   it('GET /api/schedules success is true when data returned', async () => {
     mockPrisma.analyticsSchedule.findMany.mockResolvedValue([

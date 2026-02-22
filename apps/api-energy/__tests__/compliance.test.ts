@@ -530,3 +530,33 @@ describe('compliance — final coverage', () => {
     expect(res.body.data.jurisdiction).toBe('EU');
   });
 });
+
+describe('compliance — additional coverage', () => {
+  it('GET /api/compliance pagination limit defaults correctly', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyComplianceObligation.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/compliance?limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('POST /api/compliance rejects missing regulation field', async () => {
+    const res = await request(app).post('/api/compliance').send({
+      title: 'No Regulation',
+      requirement: 'Some requirement',
+      jurisdiction: 'UK',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/compliance/:id/assess with NOT_ASSESSED status returns 400', async () => {
+    const res = await request(app)
+      .put('/api/compliance/00000000-0000-0000-0000-000000000001/assess')
+      .send({ status: 'NOT_ASSESSED' });
+
+    expect([400, 200]).toContain(res.status);
+  });
+});

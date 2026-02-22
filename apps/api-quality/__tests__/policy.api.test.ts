@@ -506,3 +506,117 @@ describe('Quality Policy — additional scenarios', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('Quality Policy — final coverage', () => {
+  const mockPolicyDoc = {
+    id: 'doc-uuid-final',
+    referenceNumber: 'QMS-POL-2601-011',
+    title: 'Quality Policy',
+    documentType: 'POLICY',
+    scope: 'Final policy statement.',
+    purpose: 'Final purpose.',
+    keyChanges: JSON.stringify({
+      commitments: 'Final commitments',
+      objectives: 'Final objectives',
+      applicability: 'Final applicability',
+    }),
+    version: '6.0',
+    status: 'APPROVED',
+    author: 'user-1',
+    approvedBy: 'MD',
+    effectiveDate: new Date('2026-06-01').toISOString(),
+    nextReviewDate: new Date('2027-06-01').toISOString(),
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/policy — commitments from keyChanges in response', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data.commitments).toBe('Final commitments');
+  });
+
+  it('GET /api/policy — policyStatement from scope field', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data.policyStatement).toBe('Final policy statement.');
+  });
+
+  it('PUT /api/policy — update is called exactly once when doc exists', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    mockPrisma.qualDocument.update.mockResolvedValue({ ...mockPolicyDoc, scope: 'Updated.' });
+
+    await request(app).put('/api/policy').send({
+      policyStatement: 'Updated.',
+      purpose: 'Purpose',
+      commitments: 'C',
+      objectives: 'O',
+      applicability: 'A',
+      version: '6.1',
+      status: 'APPROVED',
+    });
+
+    expect(mockPrisma.qualDocument.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/policy — create has POLICY documentType in data', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.qualDocument.count.mockResolvedValue(0);
+    mockPrisma.qualDocument.create.mockResolvedValue(mockPolicyDoc);
+
+    await request(app).put('/api/policy').send({
+      policyStatement: 'New statement.',
+      purpose: 'Purpose',
+      commitments: 'C',
+      objectives: 'O',
+      applicability: 'A',
+      version: '1.0',
+      status: 'DRAFT',
+    });
+
+    expect(mockPrisma.qualDocument.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ documentType: 'POLICY' }),
+      })
+    );
+  });
+
+  it('GET /api/policy — returns 500 on DB error', async () => {
+    mockPrisma.qualDocument.findFirst.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/policy — 500 on update DB error', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    mockPrisma.qualDocument.update.mockRejectedValue(new Error('DB fail'));
+
+    const res = await request(app).put('/api/policy').send({
+      policyStatement: 'Statement.',
+      purpose: 'Purpose',
+      commitments: 'C',
+      objectives: 'O',
+      applicability: 'A',
+      version: '6.0',
+      status: 'APPROVED',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/policy — id field matches found document id', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('doc-uuid-final');
+  });
+});

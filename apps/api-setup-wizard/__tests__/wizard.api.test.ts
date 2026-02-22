@@ -454,3 +454,61 @@ describe('Wizard API — additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('wizard.api — batch ao final', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.$transaction as jest.Mock).mockImplementation((ops: unknown[]) =>
+      Promise.all(ops as Promise<unknown>[])
+    );
+  });
+
+  it('GET /status response body has data property', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/wizard/status');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST /init returns data property in response body', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.setupWizard.create as jest.Mock).mockResolvedValue(mockWizard);
+    const res = await request(app).post('/api/wizard/init');
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('PATCH /step/2 updates step at index 2', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    (prisma.setupWizardStep.update as jest.Mock).mockResolvedValue({
+      ...mockWizard.steps[2],
+      status: 'COMPLETED',
+    });
+    (prisma.setupWizard.update as jest.Mock).mockResolvedValue({ ...mockWizard, currentStep: 3 });
+    const res = await request(app)
+      .patch('/api/wizard/step/2')
+      .send({ data: { invitedUsers: ['alice@example.com'] } });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /complete response has data property', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    (prisma.setupWizard.update as jest.Mock).mockResolvedValue({
+      ...mockWizard,
+      status: 'COMPLETED',
+      completedAt: new Date(),
+    });
+    const res = await request(app).post('/api/wizard/complete');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST /skip response content-type is JSON', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.setupWizard.create as jest.Mock).mockResolvedValue({ ...mockWizard, status: 'SKIPPED' });
+    const res = await request(app).post('/api/wizard/skip');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

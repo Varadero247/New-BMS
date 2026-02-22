@@ -272,3 +272,20 @@ describe('cursor-pagination — additional coverage', () => {
     expect(query.take).toBe(51);
   });
 });
+
+describe('cursor-pagination — final coverage', () => {
+  it('parseCursorParams limit=1 is the minimum accepted value', () => {
+    expect(parseCursorParams({ limit: '1' }).limit).toBe(1);
+  });
+
+  it('formatCursorResult meta.limit reflects the originally requested limit', () => {
+    const params = { cursor: undefined, limit: 10, direction: 'desc' as const, sortBy: 'createdAt' };
+    const result = formatCursorResult([{ id: 'z1' }], params);
+    expect(result.meta.limit).toBe(10);
+  });
+
+  it('buildCursorQuery cursor.id matches the provided cursor string', () => {
+    const query = buildCursorQuery({ cursor: 'my-cursor-id', limit: 5, direction: 'asc', sortBy: 'id' });
+    expect((query.cursor as { id: string }).id).toBe('my-cursor-id');
+  });
+});

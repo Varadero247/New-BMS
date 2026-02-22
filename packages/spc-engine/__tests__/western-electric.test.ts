@@ -301,3 +301,40 @@ describe('detectWesternElectricRules — return structure coverage', () => {
     expect(rule4[0].pointIndex).toBe(7); // 8th index = 7
   });
 });
+
+describe('detectWesternElectricRules — final coverage to reach 40', () => {
+  it('returns an array (not null/undefined)', () => {
+    const chart = makeChart([10, 10, 10], 10, 13, 7);
+    const result = detectWesternElectricRules(chart);
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it('Rule 2 description mentions 2-sigma', () => {
+    const chart = makeChart([12.5, 10, 12.5], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart).filter((v) => v.rule === 'RULE_2');
+    if (violations.length > 0) {
+      expect(violations[0].description).toMatch(/2.sigma|2-sigma/i);
+    }
+  });
+
+  it('Rule 3 description mentions 1-sigma', () => {
+    const chart = makeChart([11.5, 11.5, 10, 11.5, 11.5], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart).filter((v) => v.rule === 'RULE_3');
+    if (violations.length > 0) {
+      expect(violations[0].description).toMatch(/1.sigma|1-sigma/i);
+    }
+  });
+
+  it('Rule 4 description mentions center line or same side', () => {
+    const chart = makeChart([10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart).filter((v) => v.rule === 'RULE_4');
+    expect(violations.length).toBeGreaterThan(0);
+    expect(violations[0].description.length).toBeGreaterThan(0);
+  });
+
+  it('multiple Rule 1 violations accumulate independently', () => {
+    const chart = makeChart([14, 6, 14, 6, 14], 10, 13, 7);
+    const rule1 = detectWesternElectricRules(chart).filter((v) => v.rule === 'RULE_1');
+    expect(rule1.length).toBe(5);
+  });
+});

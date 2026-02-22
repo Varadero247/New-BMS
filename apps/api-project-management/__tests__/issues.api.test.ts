@@ -659,3 +659,77 @@ describe('Project Issues API — final coverage', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Project Issues API — boundary and extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/issues', issuesRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /issues: data is an array when projectId provided', async () => {
+    (mockPrisma.projectIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/issues?projectId=proj-1').set('Authorization', 'Bearer token');
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('GET /issues: meta.limit defaults to 50', async () => {
+    (mockPrisma.projectIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/issues?projectId=proj-1').set('Authorization', 'Bearer token');
+    expect(response.body.meta.limit).toBe(50);
+  });
+
+  it('GET /issues: findMany not called when projectId missing', async () => {
+    await request(app).get('/api/issues').set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectIssue.findMany).not.toHaveBeenCalled();
+  });
+
+  it('POST /issues: create called once on valid submission', async () => {
+    (mockPrisma.projectIssue.create as jest.Mock).mockResolvedValueOnce({
+      id: 'iss-once',
+      projectId: 'proj-1',
+      issueCode: 'ISS-ONCE',
+      issueType: 'DEFECT',
+      status: 'OPEN',
+    });
+    await request(app)
+      .post('/api/issues')
+      .set('Authorization', 'Bearer token')
+      .send({ projectId: 'proj-1', issueCode: 'ISS-ONCE', issueTitle: 'Once', issueDescription: 'Desc', issueType: 'DEFECT' });
+    expect(mockPrisma.projectIssue.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /issues/:id: success true in response body on update', async () => {
+    (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      status: 'OPEN',
+    });
+    (mockPrisma.projectIssue.update as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      priority: 'CRITICAL',
+    });
+    const response = await request(app)
+      .put('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ priority: 'CRITICAL' });
+    expect(response.body.success).toBe(true);
+  });
+
+  it('DELETE /issues/:id: findUnique called with correct id before soft-delete', async () => {
+    (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app)
+      .delete('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectIssue.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '22000000-0000-4000-a000-000000000001' } })
+    );
+  });
+});

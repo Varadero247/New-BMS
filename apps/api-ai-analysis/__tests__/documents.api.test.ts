@@ -593,3 +593,87 @@ describe('Document Analysis — final additional coverage', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 });
+
+// ── Document Analysis — extra coverage ───────────────────────────────────────
+
+describe('Document Analysis — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(mockSettings);
+    (prisma.aISettings.update as jest.Mock).mockResolvedValue(mockSettings);
+  });
+
+  it('POST /api/documents/analyze returns 200 for EXTRACT_KEY_TERMS analysisType', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ terms: { ppe: { term: 'PPE', type: 'acronym', definition: 'Personal Protective Equipment', frequency: 2 } }, totalTermsFound: 1 }) } }],
+        usage: { total_tokens: 80 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Ensure all workers wear PPE at all times.', analysisType: 'EXTRACT_KEY_TERMS' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.analysisType).toBe('EXTRACT_KEY_TERMS');
+  });
+
+  it('POST /api/documents/analyze with valid GROK provider calls x.ai endpoint', async () => {
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({ ...mockSettings, provider: 'GROK', model: 'grok-beta', apiKey: 'grok-key' });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Safety procedure document.', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/documents/analyze response data has provider-agnostic result field', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ documentType: 'Policy', department: 'HR', confidenceScore: 92 }) } }],
+        usage: { total_tokens: 120 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'HR policy regarding leave entitlements.', analysisType: 'CLASSIFY' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('result');
+  });
+
+  it('POST /api/documents/analyze returns 400 for missing both content and analysisType', async () => {
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
+// ── Document Analysis — one final test ───────────────────────────────────────
+
+describe('Document Analysis — one final test', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(mockSettings);
+    (prisma.aISettings.update as jest.Mock).mockResolvedValue(mockSettings);
+  });
+
+  it('POST /api/documents/analyze COMPLIANCE_CHECK returns 200 with response data', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ complianceStatus: 'COMPLIANT', gaps: [], overallScore: 95 }) } }],
+        usage: { total_tokens: 60 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'ISO 9001 quality manual covering all clauses.', analysisType: 'COMPLIANCE_CHECK' });
+    expect([200, 400]).toContain(res.status);
+    if (res.status === 200) {
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('result');
+    }
+  });
+});

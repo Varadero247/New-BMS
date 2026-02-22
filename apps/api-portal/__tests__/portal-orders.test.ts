@@ -443,3 +443,58 @@ describe('Portal Orders — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('portal-orders — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: data length matches mock return', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', orderNumber: 'ORD-1', type: 'PURCHASE', status: 'DRAFT' },
+      { id: '00000000-0000-0000-0000-000000000002', orderNumber: 'ORD-2', type: 'SALES', status: 'CONFIRMED' },
+    ]);
+    mockPrisma.portalOrder.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/portal/orders');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET list: total in pagination matches count mock', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(8);
+
+    const res = await request(app).get('/api/portal/orders');
+    expect(res.body.pagination.total).toBe(8);
+  });
+
+  it('PUT /:id/status returns 500 on update DB error', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.portalOrder.update.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app)
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'SHIPPED' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id: 404 returns success:false', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/portal/orders/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET list: status filter is not set when no status param provided', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/orders');
+
+    const call = (mockPrisma.portalOrder.findMany as jest.Mock).mock.calls[0][0];
+    expect(call.where).not.toHaveProperty('status');
+  });
+});

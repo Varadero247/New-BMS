@@ -706,6 +706,84 @@ describe('Health & Safety Communications API Routes', () => {
   });
 
   // ==========================================
+  // Pre-additional coverage
+  // ==========================================
+  describe('Communications — pre-additional coverage', () => {
+    it('POST /api/communications returns 201 with refNumber in data', async () => {
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.hSCommunication.create as jest.Mock).mockResolvedValueOnce(mockCommunication);
+
+      const response = await request(app)
+        .post('/api/communications')
+        .set('Authorization', 'Bearer token')
+        .send(validCreatePayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.data).toHaveProperty('refNumber');
+    });
+
+    it('GET /api/communications data.total is a number', async () => {
+      (mockPrisma.hSCommunication.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/communications')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(typeof response.body.data.total).toBe('number');
+    });
+
+    it('DELETE /api/communications/:id sets deletedAt via update', async () => {
+      (mockPrisma.hSCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+      (mockPrisma.hSCommunication.update as jest.Mock).mockResolvedValueOnce({
+        ...mockCommunication,
+        deletedAt: new Date(),
+      });
+
+      await request(app)
+        .delete('/api/communications/40000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hSCommunication.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+      );
+    });
+
+    it('PUT /api/communications/:id update calls update with correct where clause', async () => {
+      (mockPrisma.hSCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+      (mockPrisma.hSCommunication.update as jest.Mock).mockResolvedValueOnce({
+        ...mockCommunication,
+        status: 'SENT',
+      });
+
+      await request(app)
+        .put('/api/communications/40000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token')
+        .send({ status: 'SENT' });
+
+      expect(mockPrisma.hSCommunication.update).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: '40000000-0000-4000-a000-000000000001' } })
+      );
+    });
+
+    it('GET /api/communications/participation returns byDirection object', async () => {
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(2);
+      (mockPrisma.hSCommunication.findMany as jest.Mock).mockResolvedValueOnce([
+        { type: 'TOOLBOX_TALK', direction: 'INTERNAL', status: 'CLOSED', createdAt: new Date() },
+        { type: 'REGULATORY', direction: 'EXTERNAL', status: 'ACKNOWLEDGED', createdAt: new Date() },
+      ]);
+
+      const response = await request(app)
+        .get('/api/communications/participation')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveProperty('byDirection');
+    });
+  });
+
+  // ==========================================
   // Additional coverage
   // ==========================================
   describe('GET /api/communications — additional filter', () => {

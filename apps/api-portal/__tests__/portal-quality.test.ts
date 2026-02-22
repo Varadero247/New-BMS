@@ -439,3 +439,84 @@ describe('Portal Quality — final coverage', () => {
     );
   });
 });
+
+describe('portal-quality — additional coverage 2', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET list: data length matches mock return', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', reportType: 'NCR', status: 'OPEN', severity: 'MAJOR' },
+      { id: '00000000-0000-0000-0000-000000000002', reportType: 'COMPLAINT', status: 'CLOSED', severity: 'MINOR' },
+    ]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/portal/quality-reports');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET list: total in pagination matches count mock', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(21);
+
+    const res = await request(app).get('/api/portal/quality-reports');
+    expect(res.body.pagination.total).toBe(21);
+  });
+
+  it('POST: COMPLAINT reportType is accepted', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      reportType: 'COMPLAINT',
+      referenceNumber: 'PTL-QR-2602-0003',
+      status: 'OPEN',
+    });
+
+    const res = await request(app).post('/api/portal/quality-reports').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      reportType: 'COMPLAINT',
+      description: 'Product not as described',
+      severity: 'MINOR',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.reportType).toBe('COMPLAINT');
+  });
+
+  it('GET list: page=2 limit=5 passes skip=5 to Prisma', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/quality-reports?page=2&limit=5');
+
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET /:id: success false on 404', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue(null);
+
+    const res = await request(app).get(
+      '/api/portal/quality-reports/00000000-0000-0000-0000-000000000099'
+    );
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /:id: success is true on successful update', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.portalQualityReport.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'INVESTIGATING',
+    });
+
+    const res = await request(app)
+      .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'INVESTIGATING' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

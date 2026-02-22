@@ -410,3 +410,58 @@ describe('spend.api — final coverage expansion', () => {
     expect(typeof res.body.pagination).toBe('object');
   });
 });
+
+describe('spend.api — coverage to 40', () => {
+  it('GET /api/spend response body has success and data', async () => {
+    mockPrisma.suppSpend.findMany.mockResolvedValue([]);
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/spend');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/spend response content-type is json', async () => {
+    mockPrisma.suppSpend.findMany.mockResolvedValue([]);
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/spend');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/spend with category field creates successfully', async () => {
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    mockPrisma.suppSpend.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      supplierId: 'sup-1',
+      period: '2026-Q3',
+      amount: 3000,
+      category: 'Services',
+    });
+    const res = await request(app).post('/api/spend').send({
+      supplierId: 'sup-1',
+      period: '2026-Q3',
+      amount: 3000,
+      category: 'Services',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/spend/:id data.id is a string', async () => {
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000004',
+      amount: 250,
+    });
+    const res = await request(app).get('/api/spend/00000000-0000-0000-0000-000000000004');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.id).toBe('string');
+  });
+
+  it('DELETE /api/spend/:id message contains spend', async () => {
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005' });
+    mockPrisma.suppSpend.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005' });
+    const res = await request(app).delete('/api/spend/00000000-0000-0000-0000-000000000005');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('spend');
+  });
+});

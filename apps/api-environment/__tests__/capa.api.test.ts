@@ -717,3 +717,64 @@ describe('Environment CAPA API Routes', () => {
     });
   });
 });
+
+describe('Environment CAPA — boundary coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/capa', capaRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/capa filters by capaType=PREVENTIVE', async () => {
+    (mockPrisma.envCapa.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envCapa.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app2)
+      .get('/api/capa?capaType=PREVENTIVE')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envCapa.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ capaType: 'PREVENTIVE' }),
+      })
+    );
+  });
+
+  it('POST /api/capa returns 400 for missing initiatedBy field', async () => {
+    const response = await request(app2)
+      .post('/api/capa')
+      .set('Authorization', 'Bearer token')
+      .send({
+        capaType: 'CORRECTIVE',
+        title: 'Test CAPA',
+        severity: 'MAJOR',
+        triggerSource: 'INCIDENT',
+        description: 'Valid description',
+        responsiblePerson: 'Jane Doe',
+        targetClosureDate: '2026-06-30',
+        // initiatedBy missing
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/capa/:id returns 204 on success', async () => {
+    (mockPrisma.envCapa.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '12000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envCapa.update as jest.Mock).mockResolvedValueOnce({});
+
+    const response = await request(app2)
+      .delete('/api/capa/12000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(204);
+  });
+});

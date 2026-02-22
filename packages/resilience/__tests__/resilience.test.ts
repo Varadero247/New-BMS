@@ -507,4 +507,26 @@ describe('Resilience Package — additional coverage', () => {
       expect(stats.queued).toBe(0);
     });
   });
+
+  describe('withRetry and withTimeout — final cases', () => {
+    it('withRetry succeeds on second attempt', async () => {
+      const fn = jest.fn()
+        .mockRejectedValueOnce(new Error('first'))
+        .mockResolvedValue('second-ok');
+      const result = await withRetry(fn, { maxAttempts: 3, initialDelay: 10 });
+      expect(result).toBe('second-ok');
+      expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+    it('withTimeout rejects with default message when no message provided', async () => {
+      const fn = () => new Promise<string>((r) => setTimeout(r, 200, 'late'));
+      await expect(withTimeout(fn, 20)).rejects.toThrow('Operation timed out');
+    });
+
+    it('withRetry with maxAttempts 2 calls fn at most 2 times on consistent failure', async () => {
+      const fn = jest.fn().mockRejectedValue(new Error('fail'));
+      await expect(withRetry(fn, { maxAttempts: 2, initialDelay: 10 })).rejects.toThrow('fail');
+      expect(fn).toHaveBeenCalledTimes(2);
+    });
+  });
 });

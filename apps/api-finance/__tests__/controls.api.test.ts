@@ -543,3 +543,71 @@ describe('controls.api — further coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ===================================================================
+// Controls — extra coverage to reach 40 tests
+// ===================================================================
+describe('Controls — extra coverage', () => {
+  it('GET / response body includes success, data, and pagination keys', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([]);
+    mockPrisma.finControl.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/controls');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET / count is called once per list request', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([]);
+    mockPrisma.finControl.count.mockResolvedValue(0);
+
+    await request(app).get('/api/controls');
+
+    expect(mockPrisma.finControl.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / 500 response includes success:false and INTERNAL_ERROR code', async () => {
+    mockPrisma.finControl.count.mockResolvedValue(0);
+    mockPrisma.finControl.create.mockRejectedValue(new Error('DB unavailable'));
+
+    const res = await request(app).post('/api/controls').send({
+      title: 'Test Control',
+      description: 'A test',
+      controlType: 'PREVENTIVE',
+      status: 'ACTIVE',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id findFirst is called once per detail request', async () => {
+    mockPrisma.finControl.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      referenceNumber: 'FCR-2026-0005',
+      name: 'Expense Approval',
+      status: 'ACTIVE',
+    });
+
+    await request(app).get('/api/controls/00000000-0000-0000-0000-000000000005');
+
+    expect(mockPrisma.finControl.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / data array length matches number of items in findMany result', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', referenceNumber: 'FCR-2026-0001', name: 'A', status: 'ACTIVE' },
+      { id: '00000000-0000-0000-0000-000000000002', referenceNumber: 'FCR-2026-0002', name: 'B', status: 'ACTIVE' },
+      { id: '00000000-0000-0000-0000-000000000003', referenceNumber: 'FCR-2026-0003', name: 'C', status: 'INACTIVE' },
+    ]);
+    mockPrisma.finControl.count.mockResolvedValue(3);
+
+    const res = await request(app).get('/api/controls');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+});

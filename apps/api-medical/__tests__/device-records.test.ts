@@ -624,3 +624,79 @@ describe('device-records — final coverage', () => {
     expect(res.body.data).toHaveProperty('refNumber', 'DHR-2602-0001');
   });
 });
+
+describe('device-records — ≥40 coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/device-records', deviceRecordsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET / response body has success:true and data array', async () => {
+    (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([mockRecord]);
+    (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/device-records');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / with IN_PRODUCTION status filter passes correct where to findMany', async () => {
+    (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app).get('/api/device-records?status=IN_PRODUCTION');
+
+    expect(mockPrisma.deviceHistoryRecord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'IN_PRODUCTION', deletedAt: null }),
+      })
+    );
+  });
+
+  it('PUT /:id maps serialNumber body field to primaryId in update data', async () => {
+    const updatedRecord = { ...mockRecord, primaryId: 'SN-UPDATED', dmr: mockDmr };
+    (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce(updatedRecord);
+
+    await request(app)
+      .put(`/api/device-records/${RECORD_ID}`)
+      .send({ serialNumber: 'SN-UPDATED' });
+
+    expect(mockPrisma.deviceHistoryRecord.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ primaryId: 'SN-UPDATED' }),
+      })
+    );
+  });
+
+  it('DELETE /:id update called with where:{id:RECORD_ID}', async () => {
+    (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce({
+      ...mockRecord,
+      deletedAt: new Date(),
+    });
+
+    await request(app).delete(`/api/device-records/${RECORD_ID}`);
+
+    expect(mockPrisma.deviceHistoryRecord.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: RECORD_ID } })
+    );
+  });
+
+  it('POST / when DMR found does not call deviceMasterRecord.create', async () => {
+    (mockPrisma.deviceMasterRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockDmr);
+    (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.deviceHistoryRecord.create as jest.Mock).mockResolvedValueOnce({ ...mockRecord, dmr: mockDmr });
+
+    await request(app)
+      .post('/api/device-records')
+      .send({ deviceName: 'Existing DMR Device' });
+
+    expect(mockPrisma.deviceMasterRecord.create).not.toHaveBeenCalled();
+    expect(mockPrisma.deviceHistoryRecord.create).toHaveBeenCalledTimes(1);
+  });
+});

@@ -431,3 +431,57 @@ describe('RACI Routes — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ===================================================================
+// RACI Routes — supplemental coverage
+// ===================================================================
+describe('RACI Routes — supplemental coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/raci — findMany is called once on valid request', async () => {
+    (prisma.qualRaci.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualRaci.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/raci');
+    expect(prisma.qualRaci.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/raci — create called once on valid body', async () => {
+    (prisma.qualRaci.count as jest.Mock).mockResolvedValue(0);
+    (prisma.qualRaci.create as jest.Mock).mockResolvedValue(mockRaci);
+    await request(app).post('/api/raci').send({
+      processName: 'Document Control',
+      activityName: 'Document Review',
+      roleName: 'Quality Manager',
+      raciType: 'RESPONSIBLE',
+    });
+    expect(prisma.qualRaci.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/raci/:id — findFirst is called with correct id', async () => {
+    (prisma.qualRaci.findFirst as jest.Mock).mockResolvedValue(mockRaci);
+    await request(app).get('/api/raci/00000000-0000-0000-0000-000000000001');
+    expect(prisma.qualRaci.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('PUT /api/raci/:id — response data has roleName field', async () => {
+    (prisma.qualRaci.findFirst as jest.Mock).mockResolvedValue(mockRaci);
+    (prisma.qualRaci.update as jest.Mock).mockResolvedValue({ ...mockRaci, raciType: 'INFORMED' });
+    const res = await request(app)
+      .put('/api/raci/00000000-0000-0000-0000-000000000001')
+      .send({ raciType: 'INFORMED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('roleName');
+  });
+
+  it('DELETE /api/raci/:id — 500 when update throws after findFirst succeeds', async () => {
+    (prisma.qualRaci.findFirst as jest.Mock).mockResolvedValue(mockRaci);
+    (prisma.qualRaci.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/raci/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

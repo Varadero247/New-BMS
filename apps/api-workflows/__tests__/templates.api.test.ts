@@ -551,3 +551,69 @@ describe('Workflow Templates API — further coverage', () => {
     expect(res.body.data.name).toBe('Renamed Template');
   });
 });
+
+describe('Workflow Templates API — final boundary coverage', () => {
+  let appFinal: express.Express;
+
+  beforeAll(() => {
+    appFinal = express();
+    appFinal.use(express.json());
+    appFinal.use('/api/templates', templatesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/templates returns content-type json', async () => {
+    (mockPrisma.workflowTemplate.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(appFinal).get('/api/templates');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/templates calls create with correct name and category', async () => {
+    (mockPrisma.workflowTemplate.create as jest.Mock).mockResolvedValueOnce({
+      id: 'tmpl-new',
+      isActive: true,
+    });
+    await request(appFinal).post('/api/templates').send({
+      code: 'FINAL_T',
+      name: 'Final Template',
+      category: 'APPROVAL',
+      definitionTemplate: {},
+    });
+    expect(mockPrisma.workflowTemplate.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ name: 'Final Template', category: 'APPROVAL' }) })
+    );
+  });
+
+  it('PUT /api/templates/:id/publish sets isActive:true', async () => {
+    (mockPrisma.workflowTemplate.update as jest.Mock).mockResolvedValueOnce({
+      id: '41000000-0000-4000-a000-000000000001',
+      isActive: true,
+    });
+    await request(appFinal).put('/api/templates/41000000-0000-4000-a000-000000000001/publish');
+    expect(mockPrisma.workflowTemplate.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { isActive: true } })
+    );
+  });
+
+  it('GET /api/templates/:id includes the code field in response', async () => {
+    (mockPrisma.workflowTemplate.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '41000000-0000-4000-a000-000000000001',
+      code: 'ONBOARDING',
+      name: 'Onboarding Flow',
+    });
+    const res = await request(appFinal).get(
+      '/api/templates/41000000-0000-4000-a000-000000000001'
+    );
+    expect(res.body.data.code).toBe('ONBOARDING');
+  });
+
+  it('PUT /api/templates/:id 500 on DB error returns INTERNAL_ERROR', async () => {
+    (mockPrisma.workflowTemplate.update as jest.Mock).mockRejectedValueOnce(new Error('DB fail'));
+    const res = await request(appFinal)
+      .put('/api/templates/41000000-0000-4000-a000-000000000001')
+      .send({ name: 'Fail' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

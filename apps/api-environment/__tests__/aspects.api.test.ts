@@ -620,3 +620,98 @@ describe('Environment Aspects API Routes', () => {
     });
   });
 });
+
+describe('Environment Aspects — boundary coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/aspects', aspectsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/aspects returns empty data array with meta.total=0 when none exist', async () => {
+    (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/aspects')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+    expect(response.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/aspects filters by status=INACTIVE', async () => {
+    (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app2)
+      .get('/api/aspects?status=INACTIVE')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envAspect.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'INACTIVE' }),
+      })
+    );
+  });
+
+  it('POST /api/aspects returns 400 for missing activityCategory field', async () => {
+    const response = await request(app2)
+      .post('/api/aspects')
+      .set('Authorization', 'Bearer token')
+      .send({
+        activityProcess: 'Manufacturing',
+        department: 'Operations',
+        aspect: 'Air emissions',
+        impact: 'Air pollution',
+        scoreSeverity: 3,
+        scoreProbability: 3,
+        scoreDuration: 2,
+        scoreExtent: 2,
+        scoreReversibility: 2,
+        scoreRegulatory: 2,
+        scoreStakeholder: 2,
+        // activityCategory missing
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/aspects/:id sets updatedBy to authenticated user id', async () => {
+    (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '16000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envAspect.update as jest.Mock).mockResolvedValueOnce({});
+
+    await request(app2)
+      .delete('/api/aspects/16000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envAspect.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          updatedBy: '20000000-0000-4000-a000-000000000123',
+        }),
+      })
+    );
+  });
+
+  it('GET /api/aspects/:id returns 500 on DB error', async () => {
+    (mockPrisma.envAspect.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .get('/api/aspects/16000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

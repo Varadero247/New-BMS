@@ -408,3 +408,49 @@ describe('findings.api — final coverage block', () => {
     expect(res.body.data).toHaveProperty('message');
   });
 });
+
+describe('Findings API — extra coverage', () => {
+  it('GET / returns success:true and pagination', async () => {
+    mockPrisma.audFinding.findMany.mockResolvedValue([]);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/findings');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('POST with severity OPPORTUNITY creates finding', async () => {
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audFinding.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004', title: 'OFI', severity: 'OPPORTUNITY' });
+    const res = await request(app)
+      .post('/api/findings')
+      .send({ title: 'OFI', auditId: '00000000-0000-0000-0000-000000000001', severity: 'OPPORTUNITY' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id create is called with correct where.id', async () => {
+    mockPrisma.audFinding.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audFinding.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Fixed' });
+    await request(app).put('/api/findings/00000000-0000-0000-0000-000000000001').send({ title: 'Fixed' });
+    expect(mockPrisma.audFinding.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('DELETE /:id update is called with deletedAt data', async () => {
+    mockPrisma.audFinding.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.audFinding.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/findings/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.audFinding.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('POST / count is called once to generate reference number', async () => {
+    mockPrisma.audFinding.count.mockResolvedValue(5);
+    mockPrisma.audFinding.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000006', title: 'F6', referenceNumber: 'AFN-2026-0006' });
+    await request(app).post('/api/findings').send({ title: 'F6', auditId: '00000000-0000-0000-0000-000000000001' });
+    expect(mockPrisma.audFinding.count).toHaveBeenCalledTimes(1);
+  });
+});

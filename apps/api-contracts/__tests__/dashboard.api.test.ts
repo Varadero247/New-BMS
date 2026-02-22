@@ -344,3 +344,44 @@ describe('contracts dashboard — final coverage expansion', () => {
     expect(res.body.data.upcomingNotices).toBe(3);
   });
 });
+
+describe('contracts dashboard — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /stats data has a data property as object', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(4);
+    mockPrisma.contNotice.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+    expect(Array.isArray(res.body.data)).toBe(false);
+  });
+
+  it('GET /stats totalContracts is a non-negative integer', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(10);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(Number.isInteger(res.body.data.totalContracts)).toBe(true);
+    expect(res.body.data.totalContracts).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /stats upcomingNotices is a non-negative integer', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(Number.isInteger(res.body.data.upcomingNotices)).toBe(true);
+    expect(res.body.data.upcomingNotices).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /stats success is not a string', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(1);
+    mockPrisma.contNotice.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.success).toBe('boolean');
+  });
+});

@@ -397,3 +397,44 @@ describe('complaints.api — final coverage expansion', () => {
     expect(res.body.data.title).toBe('Late Delivery');
   });
 });
+
+describe('complaints.api — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data array has length matching the returned records', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'A' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'B' },
+    ]);
+    mockPrisma.compComplaint.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/complaints');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / returns 201 with status NEW by default', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Default Status', status: 'NEW' });
+    const res = await request(app).post('/api/complaints').send({ title: 'Default Status' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / pagination limit is a positive number', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/complaints');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('PUT /:id returns 200 with success true when update succeeds', async () => {
+    mockPrisma.compComplaint.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compComplaint.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Resolved' });
+    const res = await request(app).put('/api/complaints/00000000-0000-0000-0000-000000000001').send({ title: 'Resolved' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

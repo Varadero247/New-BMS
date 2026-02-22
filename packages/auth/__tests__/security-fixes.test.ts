@@ -308,3 +308,44 @@ describe('Security Fix Verification — additional edge cases', () => {
     expect(pair.expiresAt).toBeInstanceOf(Date);
   });
 });
+
+// ── Security Fix Verification — final coverage ────────────────────────────────
+
+describe('Security Fix Verification — final coverage', () => {
+  beforeEach(() => {
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    process.env.JWT_REFRESH_SECRET =
+      'test-refresh-secret-that-is-at-least-64-characters-for-testing';
+  });
+
+  it('access token has exp > iat (token is not immediately expired)', () => {
+    const token = generateToken({ userId: 'u-exp-check' });
+    const decoded = decodeToken(token);
+    expect(decoded!.exp!).toBeGreaterThan(decoded!.iat!);
+  });
+
+  it('refresh token iss matches ims-api', () => {
+    const token = generateRefreshToken('u-iss-ref');
+    const decoded = decodeToken(token) as Record<string, unknown>;
+    expect(decoded.iss).toBe('ims-api');
+  });
+
+  it('validatePasswordStrength accepts password with all required types at min length', () => {
+    const result = validatePasswordStrength('Aa1!Bb2@Cc3#');
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('bcrypt cost factor is exactly 12', async () => {
+    const hash = await hashPassword('TestPassword1!');
+    const cost = parseInt(hash.split('$')[2], 10);
+    expect(cost).toBe(12);
+  });
+
+  it('generateToken without email still produces a verifiable token', () => {
+    const token = generateToken({ userId: 'u-no-email' });
+    const payload = verifyToken(token);
+    expect(payload.userId).toBe('u-no-email');
+    expect(payload.email).toBeUndefined();
+  });
+});

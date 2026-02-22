@@ -301,6 +301,70 @@ describe('status-openapi — error paths and spec details', () => {
   });
 });
 
+describe('status-openapi — pre-final coverage', () => {
+  let statusApp: express.Express;
+  let openapiApp: express.Express;
+
+  beforeEach(() => {
+    statusApp = express();
+    statusApp.use(express.json());
+    statusApp.use('/api/health/status', statusRouter);
+
+    openapiApp = express();
+    openapiApp.use(express.json());
+    openapiApp.use('/api/docs', openapiRouter);
+
+    jest.clearAllMocks();
+    mockGetPlatformStatus.mockReturnValue({
+      status: 'operational',
+      timestamp: new Date().toISOString(),
+      services: [{ name: 'api-gateway', status: 'operational', latencyMs: 5 }],
+      uptime: { '24h': 99.98, '7d': 99.95, '30d': 99.91 },
+    });
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: '3.0.3',
+      info: { title: 'Nexara IMS API', version: '1.0.0' },
+      paths: {},
+    });
+  });
+
+  it('GET /api/health/status uptime 7d is a number', async () => {
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.uptime['7d']).toBe('number');
+  });
+
+  it('GET /api/health/status uptime 30d is a number', async () => {
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.uptime['30d']).toBe('number');
+  });
+
+  it('GET /api/docs/openapi.json spec success is not false', async () => {
+    const res = await request(openapiApp).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body).not.toHaveProperty('success', false);
+  });
+
+  it('GET /api/health/status services array length is >=1', async () => {
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.services.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('GET /api/health/status returns degraded status correctly', async () => {
+    mockGetPlatformStatus.mockReturnValueOnce({
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+      services: [{ name: 'api-quality', status: 'degraded', latencyMs: 800 }],
+      uptime: { '24h': 98.0, '7d': 99.0, '30d': 99.5 },
+    });
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('degraded');
+  });
+});
+
 describe('status-openapi — final coverage batch', () => {
   let statusApp: express.Express;
   let openapiApp: express.Express;

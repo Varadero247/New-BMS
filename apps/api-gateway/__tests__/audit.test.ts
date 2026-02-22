@@ -604,3 +604,81 @@ describe('Audit Routes — final additional coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('Audit Routes — comprehensive additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/audit', auditRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockQuery.mockResolvedValue({ entries: [], total: 0, page: 1, limit: 50 });
+    mockGetResourceHistory.mockResolvedValue({ entries: [], total: 0 });
+    mockIsValidMeaning.mockReturnValue(true);
+    mockCreateSignature.mockResolvedValue({
+      signature: { id: 'sig-1', userId: 'user-1', userEmail: 'admin@ims.local',
+        userFullName: 'Admin User', meaning: 'APPROVED', reason: 'test',
+        resourceType: 'Doc', resourceId: 'doc-1', resourceRef: 'DOC-001',
+        ipAddress: '127.0.0.1', userAgent: 'test', checksum: 'abc', valid: true },
+      error: null,
+    });
+    mockUserFindUnique.mockResolvedValue({ id: 'user-1', email: 'admin@ims.local',
+      firstName: 'Admin', lastName: 'User', password: 'hashed-password' });
+    mockESignatureFindUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001', userId: 'user-1',
+      userEmail: 'admin@ims.local', userFullName: 'Admin User', meaning: 'APPROVED',
+      reason: 'test', resourceType: 'Document', resourceId: 'doc-1', resourceRef: 'DOC-001',
+      ipAddress: '127.0.0.1', userAgent: 'test', checksum: 'abc123', valid: true,
+      createdAt: new Date(),
+    });
+    mockVerifySignature.mockReturnValue({ valid: true, tampered: false });
+    mockCreateEnhancedAuditService.mockReturnValue({
+      query: (...args: any[]) => mockQuery(...args),
+      getResourceHistory: (...args: any[]) => mockGetResourceHistory(...args),
+      verifyEntry: (...args: any[]) => mockVerifyEntry(...args),
+      createEntry: (...args: any[]) => mockCreateEntry(...args),
+    });
+  });
+
+  it('GET /api/audit/trail response body is an object', async () => {
+    const res = await request(app).get('/api/audit/trail');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/audit/trail/Resource/:id response body is an object', async () => {
+    mockGetResourceHistory.mockResolvedValueOnce({ entries: [], total: 0 });
+    const res = await request(app).get('/api/audit/trail/Document/00000000-0000-0000-0000-000000000001');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/audit/esignature/:id response body success is true', async () => {
+    const res = await request(app).get('/api/audit/esignature/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/audit/esignature creates entry with correct meaning', async () => {
+    const res = await request(app).post('/api/audit/esignature').send({
+      password: 'MyPassword123',
+      meaning: 'REJECTED',
+      reason: 'Not compliant',
+      resourceType: 'Risk',
+      resourceId: 'risk-9',
+      resourceRef: 'RISK-009',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id', 'sig-1');
+  });
+
+  it('GET /api/audit/trail query response has success true', async () => {
+    mockQuery.mockResolvedValueOnce({ entries: [], total: 0, page: 1, limit: 50 });
+    const res = await request(app).get('/api/audit/trail');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

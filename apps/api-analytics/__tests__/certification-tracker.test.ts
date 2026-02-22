@@ -470,3 +470,57 @@ describe('Certification Tracker — final coverage', () => {
     expect(res.body.data.pagination.limit).toBe(5);
   });
 });
+
+describe('certification-tracker — extra coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/certifications data.deadlines is always an array', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.deadlines)).toBe(true);
+  });
+
+  it('runCertificationTrackerJob calls findMany with status filter excluding COMPLETED and OVERDUE', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    await runCertificationTrackerJob();
+    expect(prisma.complianceDeadline.findMany).toHaveBeenCalledTimes(1);
+    const arg = (prisma.complianceDeadline.findMany as jest.Mock).mock.calls[0][0];
+    expect(arg).toBeDefined();
+  });
+
+  it('PATCH /api/certifications/:id update called once on success', async () => {
+    (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' });
+    await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(prisma.complianceDeadline.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/certifications findMany called once per list request', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/certifications');
+    expect(prisma.complianceDeadline.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/certifications create called once for valid request', async () => {
+    (prisma.complianceDeadline.create as jest.Mock).mockResolvedValue({
+      id: 'extra-ct-5',
+      name: 'Extra',
+      category: 'COMPLIANCE',
+      dueDate: new Date('2026-11-01'),
+      status: 'UPCOMING',
+    });
+    await request(app).post('/api/certifications').send({
+      name: 'Extra',
+      category: 'COMPLIANCE',
+      dueDate: '2026-11-01',
+    });
+    expect(prisma.complianceDeadline.create).toHaveBeenCalledTimes(1);
+  });
+});

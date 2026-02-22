@@ -507,3 +507,34 @@ describe('BCP Routes — additional field and response coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('BCP Routes — final boundary coverage', () => {
+  it('GET / response body has pagination.limit field', async () => {
+    mockBcp.findMany.mockResolvedValue([]);
+    mockBcp.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/bcp');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /:id success body has id matching requested UUID', async () => {
+    mockBcp.findUnique.mockResolvedValue({ ...fakeBcp, exercises: [] });
+    const res = await request(app).get(`/api/bcp/${BCP_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(BCP_ID);
+  });
+
+  it('POST /:id/activate calls update once on success', async () => {
+    mockBcp.findFirst.mockResolvedValue(fakeBcp);
+    mockBcp.update.mockResolvedValue({ ...fakeBcp, status: 'ACTIVE' });
+    await request(app).post(`/api/bcp/${BCP_ID}/activate`);
+    expect(mockBcp.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /due-review returns array data type', async () => {
+    mockBcp.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/bcp/due-review');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

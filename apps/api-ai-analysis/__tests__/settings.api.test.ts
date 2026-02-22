@@ -661,3 +661,60 @@ describe('AI Settings — final additional coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ── AI Settings — extra coverage ──────────────────────────────────────────────
+
+describe('AI Settings — extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/settings', settingsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/settings response has a data property', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app).get('/api/settings').set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST /api/settings response body has success:true on create', async () => {
+    const created = { id: 'x-1', provider: 'OPENAI', apiKey: 'sk-x', model: 'gpt-4', defaultPrompt: null, totalTokensUsed: 0, lastUsedAt: null, createdAt: new Date() };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.aISettings.create.mockResolvedValueOnce(created);
+    const res = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer test-token')
+      .send({ provider: 'OPENAI', apiKey: 'sk-x' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/settings data.provider is null when no settings exist', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app).get('/api/settings').set('Authorization', 'Bearer test-token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.provider).toBeNull();
+  });
+
+  it('POST /api/settings returns 400 for ANTHROPIC with empty apiKey', async () => {
+    const res = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer test-token')
+      .send({ provider: 'ANTHROPIC', apiKey: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/settings calls deleteMany with no filter (deletes all)', async () => {
+    mockPrisma.aISettings.deleteMany.mockResolvedValueOnce({ count: 1 });
+    await request(app).delete('/api/settings').set('Authorization', 'Bearer test-token');
+    expect(mockPrisma.aISettings.deleteMany).toHaveBeenCalledWith();
+  });
+});

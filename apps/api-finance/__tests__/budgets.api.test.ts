@@ -581,3 +581,89 @@ describe('budgets.api — further coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000020');
   });
 });
+
+// ===================================================================
+// Finance Budgets — extra coverage to reach 40 tests
+// ===================================================================
+describe('Finance Budgets — extra coverage', () => {
+  it('GET / count is called once per list request', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
+
+    await request(app).get('/api/budgets');
+
+    expect(mockPrisma.finBudget.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / response body includes success and pagination keys', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/budgets');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST / create is called once per valid POST request', async () => {
+    mockPrisma.finAccount.findFirst.mockResolvedValue({
+      id: '550e8400-e29b-41d4-a716-446655440001',
+      code: '5000',
+      name: 'Marketing',
+    });
+    mockPrisma.finBudget.create.mockResolvedValue({
+      id: 'bud-extra-1',
+      name: 'Extra Budget',
+      fiscalYear: 2026,
+      month: 6,
+      budgetAmount: 1000,
+      actualAmount: 0,
+      variance: 0,
+      account: { id: '550e8400-e29b-41d4-a716-446655440001', code: '5000', name: 'Marketing', type: 'EXPENSE' },
+    });
+
+    await request(app).post('/api/budgets').send({
+      name: 'Extra Budget',
+      accountId: '550e8400-e29b-41d4-a716-446655440001',
+      fiscalYear: 2026,
+      month: 6,
+      budgetAmount: 1000,
+    });
+
+    expect(mockPrisma.finBudget.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id findFirst is called before update', async () => {
+    mockPrisma.finBudget.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      budgetAmount: 10000,
+      actualAmount: 0,
+    });
+    mockPrisma.finBudget.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      budgetAmount: 12000,
+      actualAmount: 0,
+      variance: 0,
+      account: { id: 'acc-3', code: '7000', name: 'Sales', type: 'EXPENSE' },
+    });
+
+    await request(app)
+      .put('/api/budgets/00000000-0000-0000-0000-000000000030')
+      .send({ budgetAmount: 12000 });
+
+    expect(mockPrisma.finBudget.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.finBudget.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /variance-report response has success:true and data keys', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/budgets/variance-report?fiscalYear=2026');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body.data).toHaveProperty('fiscalYear', 2026);
+    expect(res.body.data).toHaveProperty('rows');
+  });
+});

@@ -333,3 +333,50 @@ describe('complaints dashboard — final coverage expansion', () => {
     expect(res.body.data.totalActions).toBe(9);
   });
 });
+
+describe('complaints dashboard — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /stats success field is a boolean', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(5);
+    mockPrisma.compAction.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('GET /stats data is not null', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(2);
+    mockPrisma.compAction.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).not.toBeNull();
+  });
+
+  it('GET /stats totalComplaints and totalActions are independent counters', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(15);
+    mockPrisma.compAction.count.mockResolvedValue(6);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalComplaints).toBe(15);
+    expect(res.body.data.totalActions).toBe(6);
+    expect(res.body.data.totalComplaints).not.toBe(res.body.data.totalActions);
+  });
+
+  it('GET /stats error body has code property on 500', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('db fail'));
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+  });
+
+  it('GET /stats returns application/json content-type', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+});

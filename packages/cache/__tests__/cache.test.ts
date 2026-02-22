@@ -323,3 +323,59 @@ describe('Cache enabled — additional edge cases', () => {
     expect(mockDel).toHaveBeenCalledWith('edge:remove-me');
   });
 });
+
+describe('Cache — final additional coverage', () => {
+  beforeAll(async () => {
+    await closeCache();
+    initCache({ url: 'redis://localhost:6379', prefix: 'final', defaultTtl: 45 });
+  });
+
+  beforeEach(() => resetMocks());
+
+  afterAll(async () => {
+    mockQuit.mockResolvedValue('OK');
+    await closeCache();
+  });
+
+  it('cacheGet with a null-returning Redis call returns null', async () => {
+    mockGet.mockResolvedValue(null);
+    expect(await cacheGet('no-value')).toBeNull();
+  });
+
+  it('cacheSet uses the configured defaultTtl (45) when no ttl option is given', async () => {
+    mockSetex.mockResolvedValue('OK');
+    await cacheSet('default-ttl-test', { data: true });
+    expect(mockSetex).toHaveBeenCalledWith('final:default-ttl-test', 45, JSON.stringify({ data: true }));
+  });
+
+  it('cacheGetOrSet calls factory exactly once on cache miss', async () => {
+    mockGet.mockResolvedValue(null);
+    mockSetex.mockResolvedValue('OK');
+    const factory = jest.fn().mockResolvedValue(42);
+    await cacheGetOrSet('once-key', factory, { ttl: 10 });
+    expect(factory).toHaveBeenCalledTimes(1);
+  });
+
+  it('cacheGetOrSet does not call factory on cache hit', async () => {
+    mockGet.mockResolvedValue(JSON.stringify('hit'));
+    const factory = jest.fn();
+    const result = await cacheGetOrSet('hit-key', factory, { ttl: 10 });
+    expect(factory).not.toHaveBeenCalled();
+    expect(result).toBe('hit');
+  });
+
+  it('cacheInvalidate returns 0 when scan returns no keys', async () => {
+    mockScan.mockResolvedValueOnce(['0', []]);
+    const count = await cacheInvalidate('empty:*');
+    expect(count).toBe(0);
+  });
+
+  it('getRedisClient returns a non-null value when cache is enabled', () => {
+    expect(getRedisClient()).not.toBeNull();
+  });
+
+  it('cacheHas returns false when Redis returns 0', async () => {
+    mockExists.mockResolvedValue(0);
+    expect(await cacheHas('absent-key')).toBe(false);
+  });
+});

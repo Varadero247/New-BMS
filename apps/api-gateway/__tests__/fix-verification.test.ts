@@ -357,6 +357,54 @@ describe('Gateway Fix Verification — final extended', () => {
   });
 });
 
+describe('Gateway Fix Verification — extra final coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('error.message is exposed for 400 status (client error)', () => {
+    const err: AppError = new Error('Client did something wrong');
+    err.statusCode = 400;
+    err.code = 'BAD_REQUEST';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Client did something wrong');
+  });
+
+  it('5xx error response never leaks the original message', () => {
+    const err: AppError = new Error('SELECT * FROM users — secret query');
+    err.statusCode = 500;
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).not.toContain('SELECT');
+    expect(payload.error.message).not.toContain('secret');
+  });
+
+  it('response has no stack property for any status code', () => {
+    for (const statusCode of [400, 500]) {
+      const err: AppError = new Error('Stack check');
+      err.statusCode = statusCode;
+      const res = mockResponse();
+      errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+      const payload = (res.json as jest.Mock).mock.calls[0][0];
+      expect(payload).not.toHaveProperty('stack');
+      expect(payload.error).not.toHaveProperty('stack');
+      jest.clearAllMocks();
+    }
+  });
+
+  it('mockLogger.error second arg has statusCode key', () => {
+    const err: AppError = new Error('Logging test');
+    err.statusCode = 503;
+    err.code = 'UNAVAILABLE';
+    errorHandler(err, mockRequest() as Request, mockResponse() as Response, mockNext);
+    const logArg = mockLogger.error.mock.calls[0][1];
+    expect(logArg).toHaveProperty('statusCode', 503);
+  });
+});
+
 describe('Gateway Fix Verification — absolute final coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -414,5 +462,15 @@ describe('Gateway Fix Verification — absolute final coverage', () => {
     const err: AppError = new Error('Something');
     errorHandler(err, mockRequest() as Request, mockResponse() as Response, mockNext);
     expect(mockLogger.error.mock.calls[0][0]).toBe('Unhandled error');
+  });
+
+  it('4xx error message is the exact message provided on the error object', () => {
+    const err: AppError = new Error('Exact message for 4xx');
+    err.statusCode = 400;
+    err.code = 'BAD_REQUEST';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Exact message for 4xx');
   });
 });

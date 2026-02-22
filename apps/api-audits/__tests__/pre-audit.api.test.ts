@@ -327,3 +327,38 @@ describe('POST /api/pre-audit/:id/generate — further coverage', () => {
     }
   });
 });
+
+describe('POST /api/pre-audit/:id/generate — final coverage', () => {
+  it('response always has success:true on 200', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit());
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('scope > 10 chars with INTERNAL type still includes scope recommendation', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({
+      type: 'INTERNAL',
+      scope: 'Full Production Line Covering All Areas',
+    }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.includes('Review all processes within scope'))).toBe(true);
+  });
+
+  it('ISO 9001 CERTIFICATION type produces both standard and type-specific recs', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'CERTIFICATION', standard: 'ISO 9001:2015' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.length).toBeGreaterThan(2);
+  });
+
+  it('response has data.scope equal to audit scope', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ scope: 'Manufacturing only' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.scope).toBe('Manufacturing only');
+  });
+});

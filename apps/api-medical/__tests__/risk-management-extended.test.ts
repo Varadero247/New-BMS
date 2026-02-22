@@ -562,3 +562,84 @@ describe('Risk Management Routes — final coverage', () => {
     expect(res.body.meta.page).toBe(2);
   });
 });
+
+describe('Risk Management Routes — additional boundary coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/risk-management returns success:true and data array', async () => {
+    (mockPrisma.riskManagementFile.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/risk-management');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/risk-management count is called once to generate refNumber', async () => {
+    (mockPrisma.riskManagementFile.count as jest.Mock).mockResolvedValue(3);
+    (mockPrisma.riskManagementFile.create as jest.Mock).mockResolvedValue({ id: 'rmf-count' });
+
+    await request(app).post('/api/risk-management').send({
+      title: 'Count Test RMF',
+      deviceName: 'Test Device',
+      deviceClass: 'CLASS_I',
+    });
+
+    expect(mockPrisma.riskManagementFile.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/risk-management/:id returns success:true on found record', async () => {
+    (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      hazards: [],
+    });
+
+    const res = await request(app).get('/api/risk-management/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/risk-management/:id/hazards hazard.count used for hazardId generation', async () => {
+    (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.hazard.count as jest.Mock).mockResolvedValue(7);
+    (mockPrisma.hazard.create as jest.Mock).mockResolvedValue({ id: 'hz-8', hazardId: 'H-008' });
+
+    await request(app)
+      .post('/api/risk-management/00000000-0000-0000-0000-000000000001/hazards')
+      .send({
+        hazardCategory: 'ENERGY',
+        hazardDescription: 'Overvoltage',
+        hazardousSituation: 'Patient contact with live parts',
+        harm: 'Electrocution',
+        severityBefore: 5,
+        probabilityBefore: 2,
+      });
+
+    expect(mockPrisma.hazard.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/risk-management/:id/residual success:true on found record', async () => {
+    (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      refNumber: 'RMF-001',
+      deviceName: 'Pacemaker',
+      overallRiskAcceptable: true,
+      benefitRiskAcceptable: true,
+      hazards: [],
+    });
+
+    const res = await request(app).get('/api/risk-management/00000000-0000-0000-0000-000000000001/residual');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/risk-management/:id/report returns 500 on DB error', async () => {
+    (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/risk-management/00000000-0000-0000-0000-000000000001/report');
+    expect(res.status).toBe(500);
+  });
+});

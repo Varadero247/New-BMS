@@ -369,3 +369,57 @@ describe('Continuous Verification — final coverage', () => {
     expect((res.body as any).error).toBe('TOKEN_REVOKED');
   });
 });
+
+// ── Continuous Verification — comprehensive coverage ──────────────────────────
+
+describe('Continuous Verification — comprehensive coverage', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('InMemoryRevocationList: size grows with each unique token revoked', () => {
+    const list = new InMemoryRevocationList();
+    list.revoke('x1');
+    list.revoke('x2');
+    list.revoke('x3');
+    expect(list.size).toBe(3);
+  });
+
+  it('continuousVerification calls isUserActive with the resolved userId from sub', async () => {
+    mockVerifyToken.mockReturnValueOnce({ sub: 'sub-active', role: 'user' } as never);
+    const isUserActive = jest.fn().mockResolvedValue(true);
+    const mw = continuousVerification({ isUserActive });
+    const next = jest.fn();
+    await mw(makeReq('Bearer tok'), makeRes(), next as unknown as NextFunction);
+    expect(isUserActive).toHaveBeenCalledWith('sub-active');
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('continuousVerification: ACCOUNT_INACTIVE response has success false shape', async () => {
+    mockVerifyToken.mockReturnValueOnce({ userId: 'u-shape', role: 'user' } as never);
+    const isUserActive = jest.fn().mockResolvedValue(false);
+    const mw = continuousVerification({ isUserActive });
+    const res = makeRes();
+    await mw(makeReq('Bearer tok'), res, jest.fn() as unknown as NextFunction);
+    expect(res.statusCode).toBe(401);
+    expect((res.body as any).error).toBe('ACCOUNT_INACTIVE');
+  });
+
+  it('InMemoryRevocationList: clear followed by revoke re-adds token', () => {
+    const list = new InMemoryRevocationList();
+    list.revoke('re-add');
+    list.clear('re-add');
+    list.revoke('re-add');
+    expect(list.isRevoked('re-add')).toBe(true);
+    expect(list.size).toBe(1);
+  });
+
+  it('continuousVerification does not call isTokenRevoked when no isTokenRevoked provided', async () => {
+    mockVerifyToken.mockReturnValueOnce({ userId: 'u-norev', role: 'user' } as never);
+    const isUserActive = jest.fn().mockResolvedValue(true);
+    const mw = continuousVerification({ isUserActive });
+    const next = jest.fn();
+    await mw(makeReq('Bearer tok'), makeRes(), next as unknown as NextFunction);
+    expect(next).toHaveBeenCalled();
+  });
+});

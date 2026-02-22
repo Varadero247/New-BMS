@@ -517,3 +517,38 @@ describe('equipment — final coverage', () => {
     expect(res.body.data.isOperational).toBe(true);
   });
 });
+
+describe('equipment — final boundary coverage', () => {
+  it('GET /api/equipment response body has success:true', async () => {
+    mockEquipment.findMany.mockResolvedValue([fakeEquipment]);
+    mockEquipment.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/equipment');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('PUT /api/equipment/:id calls update with correct where.id', async () => {
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
+    mockEquipment.update.mockResolvedValue({ ...fakeEquipment, location: 'Stairwell' });
+    await request(app).put(`/api/equipment/${EQUIPMENT_ID}`).send({ location: 'Stairwell' });
+    expect(mockEquipment.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: EQUIPMENT_ID } }),
+    );
+  });
+
+  it('POST /api/equipment/premises/:id calls create with premisesId in data', async () => {
+    mockEquipment.create.mockResolvedValue(fakeEquipment);
+    await request(app).post(`/api/equipment/premises/${PREMISES_ID}`).send(validCreateBody);
+    expect(mockEquipment.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ premisesId: PREMISES_ID }) }),
+    );
+  });
+
+  it('GET /api/equipment returns success:true', async () => {
+    mockEquipment.findMany.mockResolvedValue([]);
+    mockEquipment.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/equipment');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

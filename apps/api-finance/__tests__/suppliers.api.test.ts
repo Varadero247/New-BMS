@@ -558,3 +558,82 @@ describe('Finance Suppliers — final coverage', () => {
     expect(mockPrisma.finSupplier.create).toHaveBeenCalledTimes(1);
   });
 });
+
+// ===================================================================
+// Suppliers — extra coverage to reach 40 tests
+// ===================================================================
+describe('Suppliers — extra coverage', () => {
+  it('GET /api/suppliers response body includes success, data, and pagination', async () => {
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/suppliers');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET /api/suppliers applies correct skip for page 3 limit 10', async () => {
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
+
+    await request(app).get('/api/suppliers?page=3&limit=10');
+
+    expect(mockPrisma.finSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 20, take: 10 })
+    );
+  });
+
+  it('GET /api/suppliers/:id findFirst is called once per detail request', async () => {
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
+      id: 'f7000000-0000-4000-a000-000000000060',
+      code: 'SUPP-EPSILON-0001',
+      name: 'Epsilon Ltd',
+      deletedAt: null,
+      purchaseOrders: [],
+      _count: { purchaseOrders: 0, bills: 0 },
+    });
+
+    await request(app).get('/api/suppliers/f7000000-0000-4000-a000-000000000060');
+
+    expect(mockPrisma.finSupplier.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/suppliers/:id returns 500 when update fails', async () => {
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
+      id: 'f7000000-0000-4000-a000-000000000061',
+      deletedAt: null,
+    });
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+    mockPrisma.finSupplier.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/suppliers/f7000000-0000-4000-a000-000000000061');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/suppliers create is called with createdBy from authenticated user', async () => {
+    mockPrisma.finSupplier.create.mockResolvedValue({
+      id: 'supp-extra-2',
+      code: 'SUPP-ETA-0001',
+      name: 'Eta Supplier',
+      createdBy: '00000000-0000-4000-a000-000000000099',
+    });
+
+    await request(app).post('/api/suppliers').send({
+      name: 'Eta Supplier',
+      currency: 'EUR',
+      paymentTerms: 45,
+    });
+
+    expect(mockPrisma.finSupplier.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          createdBy: '00000000-0000-4000-a000-000000000099',
+        }),
+      })
+    );
+  });
+});

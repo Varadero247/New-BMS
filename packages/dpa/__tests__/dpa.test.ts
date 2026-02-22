@@ -288,3 +288,44 @@ describe('dpa — comprehensive validation', () => {
     expect(getActiveDpa()!.isActive).toBe(true);
   });
 });
+
+describe('dpa — final additional coverage', () => {
+  it('getActiveDpa returns a non-null document on every call', () => {
+    expect(getActiveDpa()).not.toBeNull();
+    expect(getActiveDpa()).not.toBeNull();
+  });
+
+  it('acceptDpa stores the dpaId matching the active DPA id', () => {
+    const active = getActiveDpa()!;
+    const acc = acceptDpa({ orgId: uniqueOrg(), userId: 'u', signerName: 'N', signerTitle: 'T' });
+    expect(acc!.dpaId).toBe(active.id);
+  });
+
+  it('getDpaById returns an object with id, version, title, content, isActive, effectiveDate', () => {
+    const active = getActiveDpa()!;
+    const doc = getDpaById(active.id)!;
+    expect(doc).toHaveProperty('id');
+    expect(doc).toHaveProperty('version');
+    expect(doc).toHaveProperty('title');
+    expect(doc).toHaveProperty('content');
+    expect(doc).toHaveProperty('isActive');
+    expect(doc).toHaveProperty('effectiveDate');
+  });
+
+  it('hasAcceptedDpa returns true for an org with an existing acceptance record', () => {
+    const org = uniqueOrg();
+    acceptDpa({ orgId: org, userId: 'u', signerName: 'N', signerTitle: 'T' });
+    expect(hasAcceptedDpa(org)).toBe(true);
+  });
+
+  it('acceptDpa with ipAddress stores it correctly', () => {
+    const acc = acceptDpa({
+      orgId: uniqueOrg(),
+      userId: 'u',
+      signerName: 'N',
+      signerTitle: 'T',
+      ipAddress: '10.0.0.1',
+    });
+    expect(acc!.ipAddress).toBe('10.0.0.1');
+  });
+});

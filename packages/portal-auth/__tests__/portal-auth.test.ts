@@ -338,3 +338,46 @@ describe('portal-auth — comprehensive verification', () => {
     expect(typeof mw).toBe('function');
   });
 });
+
+describe('portal-auth — absolute final coverage', () => {
+  it('portalAuthenticate uses default secret from env when no options provided (PORTAL_JWT_SECRET set)', () => {
+    const originalSecret = process.env.PORTAL_JWT_SECRET;
+    process.env.PORTAL_JWT_SECRET = TEST_SECRET;
+    const token = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+    const mw = portalAuthenticate();
+    const req: any = { headers: { authorization: `Bearer ${token}` } };
+    const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+    mw(req, res, next);
+    expect(next).toHaveBeenCalled();
+    process.env.PORTAL_JWT_SECRET = originalSecret;
+  });
+
+  it('signPortalToken produces unique tokens for different users', () => {
+    const t1 = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+    const t2 = signPortalToken(mockCustomer, 'customer', { secret: TEST_SECRET });
+    expect(t1).not.toEqual(t2);
+  });
+
+  it('requirePortalPermission 403 json body has error message', () => {
+    const mw = requirePortalPermission('admin_all');
+    const req: any = { portalUser: mockUser };
+    const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+    mw(req, res, next);
+    expect(res.json).toHaveBeenCalled();
+    const body = res.json.mock.calls[0][0];
+    expect(body).toHaveProperty('error');
+  });
+
+  it('requirePortalType 403 response has error property', () => {
+    const mw = requirePortalType('supplier');
+    const req: any = { portalUser: mockCustomer };
+    const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
+    mw(req, res, next);
+    expect(res.json).toHaveBeenCalled();
+    const body = res.json.mock.calls[0][0];
+    expect(body).toHaveProperty('error');
+  });
+});

@@ -295,3 +295,44 @@ describe('Executive Summary — response structure integrity', () => {
     expect(res.body.data.certifications.length).toBeGreaterThan(0);
   });
 });
+
+describe('Executive Summary — supplemental coverage', () => {
+  it('GET /executive-summary returns 200 on every call (idempotent)', async () => {
+    const res1 = await request(app).get('/api/executive-summary');
+    const res2 = await request(app).get('/api/executive-summary');
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+  });
+
+  it('GET /executive-summary generatedAt is a parseable ISO date string', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const parsed = new Date(res.body.data.generatedAt);
+    expect(parsed instanceof Date).toBe(true);
+    expect(Number.isNaN(parsed.getTime())).toBe(false);
+  });
+
+  it('GET /executive-summary myActions.dueThisWeek is at least 0', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.myActions.dueThisWeek).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /executive-summary health has csatScore between 0 and 100', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const score = res.body.data.health.csatScore;
+    expect(score).toBeGreaterThanOrEqual(0);
+    expect(score).toBeLessThanOrEqual(100);
+  });
+
+  it('GET /executive-summary certifications each have a body-level standard field', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const certs = res.body.data.certifications as Array<Record<string, unknown>>;
+    expect(certs.length).toBeGreaterThan(0);
+    certs.forEach((cert) => {
+      expect(typeof cert.standard).toBe('string');
+    });
+  });
+});

@@ -613,3 +613,76 @@ describe('Quality Actions — additional coverage', () => {
     );
   });
 });
+
+describe('Quality Actions — extra boundary coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/actions', actionsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns items as an array', async () => {
+    mockPrisma.qualAction.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualAction.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/actions').set('Authorization', 'Bearer token');
+    expect(Array.isArray(res.body.data.items)).toBe(true);
+  });
+
+  it('POST / returns 400 when source field is missing', async () => {
+    const res = await request(app)
+      .post('/api/actions')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'No source action',
+        actionType: 'CORRECTIVE',
+        description: 'Missing source',
+        expectedOutcome: 'Fix',
+        assignedTo: 'John',
+        department: 'QA',
+        dueDate: '2026-06-01',
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /stats byStatus object is defined', async () => {
+    mockPrisma.qualAction.groupBy
+      .mockResolvedValueOnce([{ status: 'OPEN', _count: { id: 2 } }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    mockPrisma.qualAction.count.mockResolvedValueOnce(2);
+    const res = await request(app).get('/api/actions/stats').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.byStatus).toBeDefined();
+  });
+
+  it('PUT /:id does not call update when not found', async () => {
+    mockPrisma.qualAction.findUnique.mockResolvedValueOnce(null);
+    await request(app)
+      .put('/api/actions/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Never updated' });
+    expect(mockPrisma.qualAction.update).not.toHaveBeenCalled();
+  });
+
+  it('GET / total matches count mock value', async () => {
+    mockPrisma.qualAction.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualAction.count.mockResolvedValueOnce(42);
+    const res = await request(app).get('/api/actions').set('Authorization', 'Bearer token');
+    expect(res.body.data.total).toBe(42);
+  });
+
+  it('DELETE /:id does not call update when not found', async () => {
+    mockPrisma.qualAction.findUnique.mockResolvedValueOnce(null);
+    await request(app)
+      .delete('/api/actions/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualAction.update).not.toHaveBeenCalled();
+  });
+});

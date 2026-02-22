@@ -526,3 +526,132 @@ describe('Software Validation — final coverage', () => {
     expect(res.body.meta.total).toBe(17);
   });
 });
+
+describe('Software Validation — final boundary coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/software/projects returns success:true and data array', async () => {
+    (mockPrisma.softwareProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/software/projects');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/software/projects count is called once before create', async () => {
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(10);
+    (mockPrisma.softwareProject.create as jest.Mock).mockResolvedValue({ id: 'sw-11' });
+
+    await request(app).post('/api/software/projects').send({ title: 'Device SW', safetyClass: 'CLASS_B' });
+
+    expect(mockPrisma.softwareProject.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.softwareProject.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/software/projects/:id success:true on found project', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      soupItems: [],
+      anomalies: [],
+      phases: [],
+    });
+
+    const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/software/projects/:id/soup creates with projectId set', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.soupItem.create as jest.Mock).mockResolvedValue({ id: 'soup-new', title: 'LibPNG', version: '1.6.37' });
+
+    await request(app)
+      .post('/api/software/projects/00000000-0000-0000-0000-000000000001/soup')
+      .send({ title: 'LibPNG', version: '1.6.37' });
+
+    expect(mockPrisma.soupItem.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ projectId: '00000000-0000-0000-0000-000000000001' }),
+      })
+    );
+  });
+
+  it('PUT /api/software/projects/:id/phase/IMPLEMENTATION updates successfully', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.softwarePhaseDoc.upsert as jest.Mock).mockResolvedValue({
+      phase: 'IMPLEMENTATION',
+      status: 'IN_PROGRESS',
+    });
+
+    const res = await request(app)
+      .put('/api/software/projects/00000000-0000-0000-0000-000000000001/phase/IMPLEMENTATION')
+      .send({ content: 'Implementation document', status: 'IN_PROGRESS' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/software/projects/:id/anomalies with empty list returns meta.total 0', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.softwareAnomaly.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get(
+      '/api/software/projects/00000000-0000-0000-0000-000000000001/anomalies'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('POST /api/software/projects/:id/anomalies MINOR severity is accepted', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.softwareAnomaly.create as jest.Mock).mockResolvedValue({ id: 'anm-minor' });
+
+    const res = await request(app)
+      .post('/api/software/projects/00000000-0000-0000-0000-000000000001/anomalies')
+      .send({ title: 'Minor UI bug', description: 'Button misalignment', severity: 'MINOR' });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/software/projects meta.totalPages computed correctly', async () => {
+    (mockPrisma.softwareProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(30);
+
+    const res = await request(app).get('/api/software/projects?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('PUT /api/software/projects/:id/phase/RELEASE updates successfully', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.softwarePhaseDoc.upsert as jest.Mock).mockResolvedValue({
+      phase: 'RELEASE',
+      status: 'APPROVED',
+    });
+
+    const res = await request(app)
+      .put('/api/software/projects/00000000-0000-0000-0000-000000000001/phase/RELEASE')
+      .send({ content: 'Release notes', status: 'APPROVED' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

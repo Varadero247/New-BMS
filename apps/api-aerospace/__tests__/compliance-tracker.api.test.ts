@@ -560,3 +560,76 @@ describe('Aerospace Compliance Tracker — additional coverage 2', () => {
     expect(res.body.meta.totalPages).toBe(1);
   });
 });
+
+describe('Aerospace Compliance Tracker — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('DELETE /api/compliance/:id already-deleted returns 404', async () => {
+    mockPrisma.aeroComplianceItem.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app)
+      .delete('/api/compliance/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/compliance/clauses returns array with clause and title properties', async () => {
+    const res = await request(app)
+      .get('/api/compliance/clauses')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBeGreaterThan(0);
+  });
+
+  it('PUT /api/compliance/:id returns 404 for soft-deleted record', async () => {
+    mockPrisma.aeroComplianceItem.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+      targetDate: null,
+      lastReviewDate: null,
+      nextReviewDate: null,
+    });
+
+    const res = await request(app)
+      .put('/api/compliance/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ complianceStatus: 'COMPLIANT' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/compliance data items have clause and complianceStatus fields', async () => {
+    mockPrisma.aeroComplianceItem.findMany.mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000001', refNumber: 'X', clause: '9.2', complianceStatus: 'COMPLIANT' },
+    ]);
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/compliance').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('clause');
+    expect(res.body.data[0]).toHaveProperty('complianceStatus');
+  });
+
+  it('POST /api/compliance returns 201 with refNumber when created', async () => {
+    mockPrisma.aeroComplianceItem.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroComplianceItem.create.mockResolvedValueOnce({
+      id: 'ci-new',
+      refNumber: 'AERO-COMP-2026-001',
+      clause: '7.1',
+      complianceStatus: 'UNDER_REVIEW',
+    });
+
+    const res = await request(app)
+      .post('/api/compliance')
+      .set('Authorization', 'Bearer token')
+      .send({ clause: '7.1' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+});

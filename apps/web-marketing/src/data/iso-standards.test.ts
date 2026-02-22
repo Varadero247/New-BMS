@@ -239,3 +239,38 @@ describe('isoStandards — further coverage', () => {
     expect(isoStandards['21502'].name).toMatch(/[Pp]roject/);
   });
 });
+
+describe('isoStandards — final data integrity checks', () => {
+  it('total standard count is exactly 12', () => {
+    expect(Object.keys(isoStandards).length).toBe(12);
+  });
+
+  it('all feature desc strings are longer than 10 characters', () => {
+    for (const std of Object.values(isoStandards)) {
+      for (const feature of std.features) {
+        expect(feature.desc.length).toBeGreaterThan(10);
+      }
+    }
+  });
+
+  it('all industries arrays contain only non-empty strings', () => {
+    for (const std of Object.values(isoStandards)) {
+      for (const industry of std.industries) {
+        expect(industry.trim().length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('ISO 9001 number field is "ISO 9001"', () => {
+    expect(isoStandards['9001'].number).toBe('ISO 9001:2015');
+  });
+
+  it('each standard object has exactly the keys: number, name, subtitle, requirements, features, keyFeatures, industries', () => {
+    const expectedKeys = ['number', 'name', 'subtitle', 'requirements', 'features', 'keyFeatures', 'industries'];
+    for (const std of Object.values(isoStandards)) {
+      for (const key of expectedKeys) {
+        expect(std).toHaveProperty(key);
+      }
+    }
+  });
+});

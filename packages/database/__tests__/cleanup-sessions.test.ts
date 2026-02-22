@@ -523,3 +523,51 @@ describe('cleanup-sessions — additional scenarios', () => {
     expect(mockLogger.info).toHaveBeenCalledWith('Cleaned up expired sessions', { count: 1000 });
   });
 });
+
+describe('cleanup-sessions — final additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('cleanupExpiredSessions returns an object with deletedCount and timestamp', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 3 });
+    const result = await cleanupExpiredSessions(mockPrisma);
+    expect(result).toHaveProperty('deletedCount');
+    expect(result).toHaveProperty('timestamp');
+  });
+
+  it('cleanupInactiveSessions returns an object with deletedCount and timestamp', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 7 });
+    const result = await cleanupInactiveSessions(mockPrisma, 24);
+    expect(result).toHaveProperty('deletedCount', 7);
+    expect(result).toHaveProperty('timestamp');
+  });
+
+  it('SessionCleanupJob.runCleanup calls both cleanupExpiredSessions paths via prisma.session.deleteMany', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 0 });
+    const job = new SessionCleanupJob(mockPrisma, mockLogger);
+    await job.runCleanup();
+    // deleteMany is called at least once (for expired sessions)
+    expect(mockPrisma.session.deleteMany).toHaveBeenCalled();
+  });
+
+  it('createSessionCleanupJob returns a job that starts and stops correctly', () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 0 });
+    const job = createSessionCleanupJob(mockPrisma, mockLogger);
+    job.start(60000);
+    expect(job.isJobRunning()).toBe(true);
+    job.stop();
+    expect(job.isJobRunning()).toBe(false);
+  });
+
+  it('cleanupExpiredSessions calls prisma.session.deleteMany exactly once', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValue({ count: 0 });
+    await cleanupExpiredSessions(mockPrisma);
+    expect(mockPrisma.session.deleteMany).toHaveBeenCalledTimes(1);
+  });
+});

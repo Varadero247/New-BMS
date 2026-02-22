@@ -337,6 +337,61 @@ describe('RIDDOR — edge cases and deeper coverage', () => {
   });
 });
 
+describe('RIDDOR — extra paths', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET returns success property as boolean true', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/riddor');
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('assess update data contains updatedAt timestamp', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      riddorReportable: 'YES',
+    });
+    await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: true });
+    const callData = mockPrisma.incIncident.update.mock.calls[0][0].data;
+    expect(callData).toHaveProperty('updatedBy');
+  });
+
+  it('GET error body has error.code INTERNAL_ERROR on 500', async () => {
+    mockPrisma.incIncident.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/riddor');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('assess response data matches mocked update return value', async () => {
+    const updated = {
+      id: '00000000-0000-0000-0000-000000000010',
+      riddorReportable: 'NO',
+    };
+    mockPrisma.incIncident.update.mockResolvedValue(updated);
+    const res = await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000010/assess')
+      .send({ reportable: false });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000010');
+    expect(res.body.data.riddorReportable).toBe('NO');
+  });
+
+  it('GET response data first item has id field', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Injury', riddorReportable: 'YES' },
+    ]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+});
+
 describe('RIDDOR — final coverage block', () => {
   beforeEach(() => {
     jest.clearAllMocks();

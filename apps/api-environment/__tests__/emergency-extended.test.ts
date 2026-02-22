@@ -475,4 +475,58 @@ describe('Emergency — additional coverage', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(0);
   });
+
+  it('POST /api/emergency/plans returns 400 for empty body', async () => {
+    const res = await request(app).post('/api/emergency/plans').send({});
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/emergency/plans/:id returns 500 when update throws', async () => {
+    (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (mockPrisma.envEmergencyPlan.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/emergency/plans/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ACTIVE' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/emergency/drills returns success:true', async () => {
+    (mockPrisma.envEmergencyDrill.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.envEmergencyDrill.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/emergency/drills');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/emergency/incidents returns 500 on DB error', async () => {
+    (mockPrisma.envEmergencyIncident.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.envEmergencyIncident.create as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/emergency/incidents').send({
+      title: 'Oil Spill',
+      description: 'Spill at loading dock',
+      incidentDate: '2026-02-10',
+    });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/emergency/dashboard returns success:true', async () => {
+    (mockPrisma.envEmergencyPlan.count as jest.Mock)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(3);
+    (mockPrisma.envEmergencyDrill.count as jest.Mock).mockResolvedValue(2);
+    (mockPrisma.envEmergencyIncident.count as jest.Mock)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(4);
+    (mockPrisma.envEmergencyPlan.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.envEmergencyDrill.groupBy as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/emergency/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

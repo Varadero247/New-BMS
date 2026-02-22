@@ -583,3 +583,41 @@ describe('Aerospace Counterfeit Parts API — final batch coverage', () => {
     expect(res.body.data).toHaveProperty('refNumber');
   });
 });
+
+describe('Aerospace Counterfeit Parts API — extra coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /:id returns 500 on db error', async () => {
+    mockPrisma.aeroCounterfeitReport.findUnique.mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .get('/api/counterfeit/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / response shape has success:true and meta block', async () => {
+    mockPrisma.aeroCounterfeitReport.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/counterfeit').set('Authorization', 'Bearer token');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta');
+  });
+
+  it('POST /suspect-parts response shape has refNumber', async () => {
+    mockPrisma.aeroSuspectPart.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroSuspectPart.create.mockResolvedValueOnce({
+      id: 'sp-shape',
+      refNumber: 'AERO-SPT-2026-001',
+      partNumber: 'IC-7805',
+      nomenclature: 'Voltage Regulator IC',
+    });
+    const res = await request(app)
+      .post('/api/counterfeit/suspect-parts')
+      .set('Authorization', 'Bearer token')
+      .send({ partNumber: 'IC-7805', nomenclature: 'Voltage Regulator IC', manufacturer: 'Unknown', riskLevel: 'HIGH' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+});

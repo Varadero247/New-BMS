@@ -229,6 +229,24 @@ describe('Unified Risks — edge cases and field validation', () => {
   });
 });
 
+describe('Unified Risks — comprehensive coverage', () => {
+  it('GET /api/unified-risks byScoreRange has medium field', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(res.body.data.summary.byScoreRange).toHaveProperty('medium');
+  });
+
+  it('GET /api/unified-risks byScoreRange has low field', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(res.body.data.summary.byScoreRange).toHaveProperty('low');
+  });
+
+  it('GET /api/unified-risks pagination has limit field', async () => {
+    const res = await request(app).get('/api/unified-risks?page=1&limit=10');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination.limit).toBe(10);
+  });
+});
+
 describe('Unified Risks — final coverage', () => {
   it('GET /api/unified-risks returns JSON content-type', async () => {
     const res = await request(app).get('/api/unified-risks');

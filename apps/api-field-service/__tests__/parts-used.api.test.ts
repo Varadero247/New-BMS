@@ -493,3 +493,47 @@ describe('parts-used.api — further coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('parts-used.api — final coverage', () => {
+  it('GET / response has success:true and pagination on empty set', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/parts-used');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('DELETE /:id returns message "Part used deleted" in data', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000070' });
+    mockPrisma.fsSvcPartUsed.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000070', deletedAt: new Date() });
+    const res = await request(app).delete('/api/parts-used/00000000-0000-0000-0000-000000000070');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Part used deleted');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/parts-used/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 400 when partName is empty', async () => {
+    const res = await request(app).post('/api/parts-used').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      partName: '',
+      quantity: 1,
+      unitCost: 10,
+      totalCost: 10,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id returns 404 when findFirst returns null', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/parts-used/00000000-0000-0000-0000-000000000099')
+      .send({ quantity: 5 });
+    expect(res.status).toBe(404);
+  });
+});

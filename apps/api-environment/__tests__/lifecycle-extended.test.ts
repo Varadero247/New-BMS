@@ -532,3 +532,52 @@ describe('Life Cycle Assessment Routes — further coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Life Cycle Assessment Routes — boundary coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /assessments filters by status=COMPLETED', async () => {
+    (mockPrisma.lifeCycleAssessment.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/lifecycle/assessments?status=COMPLETED');
+
+    expect(mockPrisma.lifeCycleAssessment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'COMPLETED' }),
+      })
+    );
+  });
+
+  it('GET /assessments/:id returns success:true for existing assessment', async () => {
+    (mockPrisma.lifeCycleAssessment.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      refNumber: 'LCA-2602-0001',
+      stages: [],
+    });
+
+    const res = await request(app).get(
+      '/api/lifecycle/assessments/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /assessments accepts COMPLETED status', async () => {
+    (mockPrisma.lifeCycleAssessment.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.lifeCycleAssessment.create as jest.Mock).mockResolvedValue({
+      id: 'lca-99',
+      refNumber: 'LCA-2602-0001',
+      stages: [],
+    });
+
+    const res = await request(app).post('/api/lifecycle/assessments').send({
+      title: 'Completed LCA',
+      productProcess: 'Legacy process',
+      status: 'COMPLETED',
+    });
+
+    expect(res.status).toBe(201);
+  });
+});

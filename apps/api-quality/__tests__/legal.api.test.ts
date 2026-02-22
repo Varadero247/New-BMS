@@ -614,3 +614,101 @@ describe('Quality Legal Obligations API — extended edge cases', () => {
     );
   });
 });
+
+describe('Quality Legal Obligations API — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/legal', legalRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/legal — response has totalPages field', async () => {
+    mockPrisma.qualLegal.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualLegal.count.mockResolvedValueOnce(40);
+
+    const response = await request(app)
+      .get('/api/legal?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.totalPages).toBe(2);
+  });
+
+  it('POST /api/legal — creates with CUSTOMER_CONTRACT obligationType', async () => {
+    mockPrisma.qualLegal.count.mockResolvedValueOnce(0);
+    mockPrisma.qualLegal.create.mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'QMS-LEG-2026-001',
+      title: 'Contract Requirement',
+      obligationType: 'CUSTOMER_CONTRACT',
+      description: 'desc',
+      complianceStatus: 'NOT_ASSESSED',
+      status: 'ACTIVE',
+    });
+
+    const response = await request(app)
+      .post('/api/legal')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Contract Requirement',
+        obligationType: 'CUSTOMER_CONTRACT',
+        description: 'desc',
+      });
+
+    expect(response.status).toBe(201);
+    expect(mockPrisma.qualLegal.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ obligationType: 'CUSTOMER_CONTRACT' }),
+      })
+    );
+  });
+
+  it('GET /api/legal/:id — 500 when findUnique throws', async () => {
+    mockPrisma.qualLegal.findUnique.mockRejectedValueOnce(new Error('connection lost'));
+
+    const response = await request(app)
+      .get('/api/legal/18000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/legal/:id — accepts valid complianceStatus COMPLIANT', async () => {
+    mockPrisma.qualLegal.findUnique.mockResolvedValueOnce({
+      id: '18000000-0000-4000-a000-000000000001',
+      title: 'Legal Obligation',
+      status: 'ACTIVE',
+      complianceStatus: 'NOT_ASSESSED',
+    });
+    mockPrisma.qualLegal.update.mockResolvedValueOnce({
+      id: '18000000-0000-4000-a000-000000000001',
+      complianceStatus: 'COMPLIANT',
+    });
+
+    const response = await request(app)
+      .put('/api/legal/18000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ complianceStatus: 'COMPLIANT' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('DELETE /api/legal/:id — 500 when findUnique throws directly', async () => {
+    mockPrisma.qualLegal.findUnique.mockRejectedValueOnce(new Error('timeout'));
+
+    const response = await request(app)
+      .delete('/api/legal/18000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

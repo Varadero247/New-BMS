@@ -649,3 +649,53 @@ describe('H&S Training — final coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('H&S Training — extra coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/training', trainingRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /courses response data is an array', async () => {
+    (mockPrisma.trainCourse.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/training/courses').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /records findMany called once per request', async () => {
+    (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/training/records').set('Authorization', 'Bearer token');
+    expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /courses create called with correct title', async () => {
+    (mockPrisma.trainCourse.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      title: 'Forklift Safety',
+      standard: 'ISO_45001',
+      isActive: true,
+    });
+    await request(app)
+      .post('/api/training/courses')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Forklift Safety' });
+    expect(mockPrisma.trainCourse.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ title: 'Forklift Safety' }) })
+    );
+  });
+
+  it('GET /records success is true on 200', async () => {
+    (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/training/records').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

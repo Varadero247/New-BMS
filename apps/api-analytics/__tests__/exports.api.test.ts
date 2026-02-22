@@ -510,3 +510,53 @@ describe('Analytics Exports — response integrity and remaining edge cases', ()
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+// ===================================================================
+// Analytics Exports — supplemental coverage
+// ===================================================================
+describe('Analytics Exports — supplemental coverage', () => {
+  it('GET /exports returns 200 status code on success', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/exports');
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /exports pagination limit defaults to a positive integer', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/exports');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('POST /exports response body success is true on creation', async () => {
+    const created = { id: 'supp-1', name: 'Supplemental Export', type: 'FULL', format: 'CSV', status: 'QUEUED' };
+    mockPrisma.analyticsExport.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/exports').send({ name: 'Supplemental Export', type: 'FULL', format: 'CSV' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /exports/:id response body has a data property', async () => {
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Test Export',
+    });
+
+    const res = await request(app).get('/api/exports/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('DELETE /exports/:id calls update once on found record', async () => {
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.analyticsExport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+
+    await request(app).delete('/api/exports/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.analyticsExport.update).toHaveBeenCalledTimes(1);
+  });
+});

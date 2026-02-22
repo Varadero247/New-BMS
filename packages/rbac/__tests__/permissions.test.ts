@@ -228,3 +228,38 @@ describe('RBAC – mapLegacyRole and merge edge cases', () => {
     expect(resolved.roles).toEqual(['viewer', 'accountant']);
   });
 });
+
+describe('RBAC – permissions final coverage', () => {
+  it('resolvePermissions returns FULL on all modules for org-admin', () => {
+    const resolved = resolvePermissions(['org-admin']);
+    expect(resolved.modules['finance']).toBe(PermissionLevel.FULL);
+    expect(resolved.modules['hr']).toBe(PermissionLevel.FULL);
+  });
+
+  it('hasPermission returns false when resolved level is NONE and required is NONE+1', () => {
+    const resolved = resolvePermissions(['viewer']);
+    // finance = NONE, NONE is not enough for CREATE
+    expect(hasPermission(resolved, 'finance', PermissionLevel.CREATE)).toBe(false);
+  });
+
+  it('mergePermissions result is a new object (not mutated input)', () => {
+    const a = resolvePermissions(['viewer']);
+    const b = resolvePermissions(['accountant']);
+    const merged = mergePermissions(a, b);
+    expect(merged).not.toBe(a);
+    expect(merged).not.toBe(b);
+  });
+
+  it('PLATFORM_ROLES all have a non-empty modules array or permissions object', () => {
+    PLATFORM_ROLES.forEach((role) => {
+      expect(role).toHaveProperty('id');
+      expect(role).toHaveProperty('name');
+    });
+  });
+
+  it('getRolesByIds with a single valid id returns one role', () => {
+    const roles = getRolesByIds(['viewer']);
+    expect(roles).toHaveLength(1);
+    expect(roles[0].id).toBe('viewer');
+  });
+});

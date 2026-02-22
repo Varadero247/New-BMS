@@ -564,3 +564,79 @@ describe('medical-suppliers — final boundary coverage', () => {
     );
   });
 });
+
+describe('medical-suppliers — additional edge cases', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET / with classification filter passes it to findMany where clause', async () => {
+    (mockPrisma.medicalSupplier.findMany as jest.Mock).mockResolvedValueOnce([mockSupplier]);
+
+    const res = await request(app).get('/api/suppliers?classification=CRITICAL');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.medicalSupplier.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      })
+    );
+  });
+});
+
+describe('medical-suppliers — absolute final boundary', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns data array (not data.items)', async () => {
+    (mockPrisma.medicalSupplier.findMany as jest.Mock).mockResolvedValueOnce([mockSupplier]);
+
+    const res = await request(app).get('/api/suppliers');
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / with iso13485Certified=false creates supplier', async () => {
+    (mockPrisma.medicalSupplier.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.medicalSupplier.create as jest.Mock).mockResolvedValueOnce({ ...mockSupplier, iso13485Certified: false });
+
+    const res = await request(app).post('/api/suppliers').send({ name: 'Non-certified', iso13485Certified: false });
+
+    expect(res.status).toBe(201);
+    expect(mockPrisma.medicalSupplier.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ iso13485Certified: false }) })
+    );
+  });
+
+  it('GET /:id returns iso13485Certified field in response data', async () => {
+    (mockPrisma.medicalSupplier.findFirst as jest.Mock).mockResolvedValueOnce(mockSupplier);
+
+    const res = await request(app).get(`/api/suppliers/${SUPPLIER_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('iso13485Certified');
+  });
+
+  it('PUT /:id updates iso13485Certified field', async () => {
+    (mockPrisma.medicalSupplier.update as jest.Mock).mockResolvedValueOnce({ ...mockSupplier, iso13485Certified: false });
+
+    const res = await request(app).put(`/api/suppliers/${SUPPLIER_ID}`).send({ iso13485Certified: false });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.medicalSupplier.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ iso13485Certified: false }) })
+    );
+  });
+});

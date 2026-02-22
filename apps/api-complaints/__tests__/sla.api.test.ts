@@ -316,3 +316,30 @@ describe('sla.api — final coverage expansion', () => {
     expect(res.body.error).toHaveProperty('message');
   });
 });
+
+describe('sla.api — coverage completion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response body has a data property on 200', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(1).mockResolvedValueOnce(2);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET / count is called exactly twice for overdue and onTrack', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(2).mockResolvedValueOnce(8);
+    await request(app).get('/api/sla');
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(2);
+  });
+
+  it('GET / onTrack and overdue are both returned as numbers on success', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(7).mockResolvedValueOnce(13);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.overdue).toBe('number');
+    expect(typeof res.body.data.onTrack).toBe('number');
+  });
+});

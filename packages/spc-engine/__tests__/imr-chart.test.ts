@@ -303,3 +303,39 @@ describe('iMrChart — structural and type coverage', () => {
     });
   });
 });
+
+describe('iMrChart — final boundary coverage', () => {
+  it('centerLine is numeric for all-negative input', () => {
+    const data = makeDataPoints([-10, -20, -30, -40, -50]);
+    const chart = iMrChart(data);
+    expect(typeof chart.centerLine).toBe('number');
+    expect(chart.centerLine).toBeLessThan(0);
+  });
+
+  it('rangePoints length is one less than dataPoints length', () => {
+    const data = makeDataPoints([1, 2, 3, 4, 5, 6, 7]);
+    const chart = iMrChart(data);
+    expect(chart.rangePoints!.length).toBe(chart.dataPoints.length - 1);
+  });
+
+  it('dataPoints index values run from 0 to n-1', () => {
+    const data = makeDataPoints([10, 20, 30, 40]);
+    const chart = iMrChart(data);
+    chart.dataPoints.forEach((p, i) => {
+      expect(p.index).toBe(i);
+    });
+  });
+
+  it('rangeCenterLine is non-negative', () => {
+    const data = makeDataPoints([5, 3, 7, 2, 8]);
+    const chart = iMrChart(data);
+    expect(chart.rangeCenterLine).toBeGreaterThanOrEqual(0);
+  });
+
+  it('centerLine = (ucl + lcl) / 2 for symmetric limits', () => {
+    // Only true when MRbar is 0 and data is constant
+    const data = makeDataPoints([50, 50, 50, 50, 50]);
+    const chart = iMrChart(data);
+    expect(chart.centerLine).toBeCloseTo((chart.ucl + chart.lcl) / 2, 4);
+  });
+});
