@@ -525,3 +525,55 @@ describe('incidents.api — additional coverage 3', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('incidents.api — phase28 coverage', () => {
+  it('GET /incidents pagination has page, limit and total fields', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+
+  it('PUT /incidents/:id returns 404 when incident not found', async () => {
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/incidents/00000000-0000-0000-0000-000000000099')
+      .send({ location: 'Lab Z' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /incidents/:id returns 500 when update rejects', async () => {
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.chemIncident.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/incidents/00000000-0000-0000-0000-000000000050')
+      .send({ location: 'Lab C' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /incidents findMany is called once per list request', async () => {
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/incidents');
+    expect(mockPrisma.chemIncident.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /incidents returns 404 when chemical does not exist', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
+    const res = await request(app).post('/api/incidents').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      incidentType: 'SPILL',
+      severity: 'MINOR',
+      dateTime: '2026-02-10T14:30:00.000Z',
+      location: 'Lab A',
+      description: 'Spill',
+    });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

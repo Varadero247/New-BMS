@@ -545,3 +545,41 @@ describe('Electronic Signature — absolute final boundary', () => {
     expect(result.error).toBeUndefined();
   });
 });
+
+describe('Electronic Signature — phase28 coverage', () => {
+  const testPassword = 'TestPassword123!';
+  let passwordHash;
+
+  beforeAll(async () => {
+    const bcrypt = require('bcryptjs');
+    passwordHash = await bcrypt.hash(testPassword, 10);
+  });
+
+  it('isValidMeaning returns true for REJECTED', () => {
+    expect(isValidMeaning('REJECTED')).toBe(true);
+  });
+
+  it('isValidMeaning returns false for numeric string', () => {
+    expect(isValidMeaning('0')).toBe(false);
+  });
+
+  it('computeChanges detects a change in a numeric field', () => {
+    const changes = computeChanges({ count: 1 }, { count: 2 });
+    expect(changes).toHaveLength(1);
+    expect(changes[0].field).toBe('count');
+    expect(changes[0].oldValue).toBe(1);
+    expect(changes[0].newValue).toBe(2);
+  });
+
+  it('verifyAuditChecksum returns false for wrong storedChecksum', () => {
+    const result = verifyAuditChecksum({
+      userId: 'p28-user',
+      action: 'UPDATE',
+      resourceId: 'p28-res',
+      timestamp: new Date('2026-02-22T00:00:00Z'),
+      changes: [],
+      storedChecksum: 'wrong',
+    });
+    expect(result).toBe(false);
+  });
+});

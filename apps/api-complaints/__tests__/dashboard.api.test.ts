@@ -380,3 +380,51 @@ describe('complaints dashboard — coverage completion', () => {
     expect(res.headers['content-type']).toMatch(/application\/json/);
   });
 });
+
+describe('complaints dashboard — phase28 coverage', () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET /stats success property is boolean true', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(3);
+    mockPrisma.compAction.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /stats data is not null or undefined', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+    expect(res.body.data).not.toBeNull();
+  });
+
+  it('GET /stats both mocked count values are reflected accurately', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(20);
+    mockPrisma.compAction.count.mockResolvedValue(8);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalComplaints).toBe(20);
+    expect(res.body.data.totalActions).toBe(8);
+  });
+
+  it('GET /stats 500 response success is false boolean', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(typeof res.body.success).toBe('boolean');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /stats compComplaint.count and compAction.count both called once', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(1);
+    mockPrisma.compAction.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.compAction.count).toHaveBeenCalledTimes(1);
+  });
+});

@@ -790,3 +790,99 @@ describe('Environment Communications API — final coverage', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Environment Communications API — phase28 coverage', () => {
+  let appP28: express.Express;
+
+  beforeAll(() => {
+    appP28 = express();
+    appP28.use(express.json());
+    appP28.use('/api/communications', communicationsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / filters by type=WORKER_CONSULTATION in where clause', async () => {
+    (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication2]);
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(1);
+
+    await request(appP28)
+      .get('/api/communications?type=WORKER_CONSULTATION')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envCommunication.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'WORKER_CONSULTATION' }),
+      })
+    );
+  });
+
+  it('GET / response body has pagination metadata', async () => {
+    (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication]);
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const response = await request(appP28)
+      .get('/api/communications')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('page');
+    expect(response.body.data).toHaveProperty('limit');
+  });
+
+  it('POST / create is invoked exactly once per request', async () => {
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.envCommunication.create as jest.Mock).mockResolvedValueOnce({
+      ...mockCommunication,
+      status: 'DRAFT',
+    });
+
+    await request(appP28)
+      .post('/api/communications')
+      .set('Authorization', 'Bearer token')
+      .send({
+        subject: 'Phase28 Communication',
+        type: 'MANAGEMENT_NOTIFICATION',
+        direction: 'INTERNAL',
+        content: 'Internal management notification content',
+      });
+
+    expect(mockPrisma.envCommunication.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id updates subject field and returns new value', async () => {
+    (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+    (mockPrisma.envCommunication.update as jest.Mock).mockResolvedValueOnce({
+      ...mockCommunication,
+      subject: 'Updated Subject Line',
+    });
+
+    const response = await request(appP28)
+      .put('/api/communications/50000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ subject: 'Updated Subject Line' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.subject).toBe('Updated Subject Line');
+  });
+
+  it('DELETE /:id soft-deletes and sets deletedAt on the record', async () => {
+    (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+    (mockPrisma.envCommunication.update as jest.Mock).mockResolvedValueOnce({
+      ...mockCommunication,
+      deletedAt: new Date(),
+    });
+
+    await request(appP28)
+      .delete('/api/communications/50000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envCommunication.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+});

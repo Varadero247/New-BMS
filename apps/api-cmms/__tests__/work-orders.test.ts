@@ -472,3 +472,47 @@ describe('Work Orders — additional coverage', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('Work Orders — phase28 coverage', () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET / data array length matches findMany result', async () => {
+    prisma.cmmsWorkOrder.findMany.mockResolvedValue([mockWorkOrder, mockWorkOrder]);
+    prisma.cmmsWorkOrder.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/work-orders');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET / pagination.total matches count result', async () => {
+    prisma.cmmsWorkOrder.findMany.mockResolvedValue([]);
+    prisma.cmmsWorkOrder.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/work-orders');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('PUT /:id/start returns 200 with success:true', async () => {
+    prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+    prisma.cmmsWorkOrder.update.mockResolvedValue({ ...mockWorkOrder, status: 'IN_PROGRESS' });
+    const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001/start');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 for missing title field', async () => {
+    const res = await request(app).post('/api/work-orders').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      type: 'CORRECTIVE',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /work-orders response is application/json content-type', async () => {
+    prisma.cmmsWorkOrder.findMany.mockResolvedValue([]);
+    prisma.cmmsWorkOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/work-orders');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+  });
+});

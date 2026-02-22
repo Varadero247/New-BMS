@@ -516,3 +516,42 @@ describe('Marketing Leads — final coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Marketing Leads — phase28 coverage', () => {
+  it('GET /leads returns success:true with empty leads array', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/leads');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.leads).toHaveLength(0);
+  });
+
+  it('POST /leads/capture with CHATBOT source creates lead', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', source: 'CHATBOT' });
+    const res = await request(app).post('/api/leads/capture').send({ email: 'chatbot@test.com', name: 'Chat User', source: 'CHATBOT' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.captured).toBe(true);
+  });
+
+  it('GET /leads data.page defaults to 1', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/leads');
+    expect(res.body.data.page).toBe(1);
+  });
+
+  it('GET /leads/:id returns 404 with success:false when not found', async () => {
+    (prisma.mktLead.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /leads/capture with LANDING_PAGE source returns 201', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', source: 'LANDING_PAGE' });
+    const res = await request(app).post('/api/leads/capture').send({ email: 'lp@test.com', name: 'LP User', source: 'LANDING_PAGE' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -464,3 +464,34 @@ describe('OfflineCache — exported singleton and advanced patterns', () => {
     expect(urls).toContain('https://app.example.com/api/one');
   });
 });
+
+describe('OfflineCache — phase28 coverage', () => {
+  beforeEach(() => {
+    cacheInstances.clear();
+  });
+
+  test('isPriorityUrl returns false for /api/notifications path', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/notifications')).toBe(false);
+  });
+
+  test('cacheResponse and getCachedResponse round-trip preserves status code', async () => {
+    const cache = new OfflineCache();
+    const response = new MockResponse(JSON.stringify({ ok: true }), { status: 201 }) as unknown as Response;
+    await cache.cacheResponse('https://app.example.com/api/phase28', response);
+    const cached = await cache.getCachedResponse('https://app.example.com/api/phase28');
+    expect(cached!.status).toBe(201);
+  });
+
+  test('getTrackedUrls returns URLs in insertion order for new items', async () => {
+    const cache = new OfflineCache();
+    await cache.cacheResponse('https://app.example.com/api/first', makeResponse({ n: 1 }));
+    await cache.cacheResponse('https://app.example.com/api/second', makeResponse({ n: 2 }));
+    const urls = await cache.getTrackedUrls();
+    expect(urls[0]).toBe('https://app.example.com/api/first');
+    expect(urls[1]).toBe('https://app.example.com/api/second');
+  });
+
+  test('isPriorityUrl identifies tasks URL for any service prefix', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/pm/tasks')).toBe(true);
+  });
+});

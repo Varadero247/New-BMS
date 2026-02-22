@@ -529,3 +529,56 @@ describe('portal-tickets — additional coverage 2', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('portal-tickets — phase28 coverage', () => {
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/tickets');
+    expect(mockPrisma.portalTicket.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: totalPages is 1 when count equals limit', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(10);
+    const res = await request(app).get('/api/portal/tickets?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(1);
+  });
+
+  it('POST: create called with subject from request body', async () => {
+    mockPrisma.portalTicket.create.mockResolvedValue({
+      id: 'tkt-p28',
+      number: 'TKT-P28',
+      subject: 'Phase28 issue',
+      status: 'OPEN',
+    });
+    await request(app).post('/api/portal/tickets').send({
+      subject: 'Phase28 issue',
+      description: 'Coverage test',
+      category: 'TECHNICAL',
+      priority: 'MEDIUM',
+      portalType: 'CUSTOMER',
+    });
+    expect(mockPrisma.portalTicket.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ subject: 'Phase28 issue' }) })
+    );
+  });
+
+  it('PUT /:id/resolve: 404 when ticket not found returns success false', async () => {
+    mockPrisma.portalTicket.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/portal/tickets/00000000-0000-0000-0000-000000000099/resolve')
+      .send({});
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET list: pagination.page is 1 by default', async () => {
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/tickets');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+});

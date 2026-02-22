@@ -634,3 +634,84 @@ describe('Aerospace Audits API — extra coverage', () => {
     expect(res.body).toHaveProperty('meta');
   });
 });
+
+describe('Aerospace Audits API — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / filters by auditType=EXTERNAL and returns 200', async () => {
+    mockPrisma.aeroAudit.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroAudit.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/audits?auditType=EXTERNAL').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.aeroAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ auditType: 'EXTERNAL' }) })
+    );
+  });
+
+  it('POST / accepts optional teamMembers field and returns 201', async () => {
+    mockPrisma.aeroAudit.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroAudit.create.mockResolvedValueOnce({
+      id: 'a-team',
+      refNumber: 'AERO-AUD-2026-002',
+      title: 'Team Audit',
+      status: 'SCHEDULED',
+    });
+    const res = await request(app)
+      .post('/api/audits')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Team Audit',
+        auditType: 'INTERNAL',
+        scope: 'Full QMS',
+        scheduledDate: '2026-07-01',
+        leadAuditor: 'Jane Doe',
+        teamMembers: ['Alice', 'Bob'],
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id updates status to COMPLETED and returns 200', async () => {
+    mockPrisma.aeroAudit.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      scheduledDate: new Date(),
+      actualDate: null,
+      deletedAt: null,
+    });
+    mockPrisma.aeroAudit.update.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+    });
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'COMPLETED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / with page=2 limit=5 returns correct meta', async () => {
+    mockPrisma.aeroAudit.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroAudit.count.mockResolvedValueOnce(15);
+    const res = await request(app).get('/api/audits?page=2&limit=5').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('DELETE /:id sets deletedAt on the audit record', async () => {
+    mockPrisma.aeroAudit.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000002',
+      deletedAt: null,
+    });
+    mockPrisma.aeroAudit.update.mockResolvedValueOnce({});
+    const res = await request(app)
+      .delete('/api/audits/00000000-0000-0000-0000-000000000002')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(204);
+    expect(mockPrisma.aeroAudit.update).toHaveBeenCalledWith({
+      where: { id: '00000000-0000-0000-0000-000000000002' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+});

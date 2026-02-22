@@ -1,0 +1,447 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    aiPolicy: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+  Prisma: {
+    Decimal: jest.fn((v: any) => v),
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN', organisationId: 'org-1' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import policiesRouter from '../src/routes/policies';
+import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+const app = express();
+app.use(express.json());
+app.use('/api/policies', policiesRouter);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+const UUID1 = '00000000-0000-0000-0000-000000000001';
+const UUID2 = '00000000-0000-0000-0000-000000000002';
+
+const mockPolicy = {
+  id: UUID1,
+  reference: 'AI42-POL-2602-8888',
+  title: 'AI Transparency Policy',
+  content: 'This policy governs how we communicate AI system decisions and outputs to affected stakeholders.',
+  policyType: 'TRANSPARENCY',
+  status: 'DRAFT',
+  summary: 'Transparency and explainability requirements for AI systems',
+  scope: 'All customer-facing AI systems',
+  version: '1.0',
+  effectiveDate: new Date('2026-04-01'),
+  reviewDate: new Date('2027-04-01'),
+  approvedBy: null,
+  approvedAt: null,
+  owner: 'Chief AI Officer',
+  department: 'AI Governance',
+  notes: null,
+  organisationId: 'org-1',
+  createdBy: 'user-123',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+};
+
+// ===================================================================
+// transparency.test.ts — tests using policies router for ISO 42001 transparency
+// ===================================================================
+
+describe('GET /api/policies — list transparency policies', () => {
+  it('returns paginated list of policies', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('returns empty list when no policies exist', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('filters by policyType=TRANSPARENCY', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+    await request(app).get('/api/policies?policyType=TRANSPARENCY');
+    expect(mockPrisma.aiPolicy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ policyType: 'TRANSPARENCY' }) })
+    );
+  });
+
+  it('filters by status=DRAFT', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+    await request(app).get('/api/policies?status=DRAFT');
+    expect(mockPrisma.aiPolicy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'DRAFT' }) })
+    );
+  });
+
+  it('filters by status=ACTIVE', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+    await request(app).get('/api/policies?status=ACTIVE');
+    expect(mockPrisma.aiPolicy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('supports search by keyword', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+    await request(app).get('/api/policies?search=transparency');
+    expect(mockPrisma.aiPolicy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: expect.arrayContaining([
+            expect.objectContaining({ title: expect.objectContaining({ contains: 'transparency' }) }),
+          ]),
+        }),
+      })
+    );
+  });
+
+  it('returns 500 on DB error', async () => {
+    mockPrisma.aiPolicy.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('pagination page defaults to 1', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/policies');
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('pagination.totalPages is correct', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/policies?limit=10');
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+});
+
+describe('POST /api/policies — create transparency policy', () => {
+  const validPayload = {
+    title: 'AI Output Explainability Policy',
+    content: 'This policy defines how AI outputs must be explained to affected stakeholders.',
+    policyType: 'TRANSPARENCY',
+  };
+
+  it('creates a transparency policy successfully', async () => {
+    mockPrisma.aiPolicy.create.mockResolvedValue({ id: UUID2, reference: 'AI42-POL-2602-9999', ...validPayload, status: 'DRAFT', version: '1.0', createdBy: 'user-123', createdAt: new Date(), updatedAt: new Date(), deletedAt: null });
+    const res = await request(app).post('/api/policies').send(validPayload);
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 400 for missing title', async () => {
+    const res = await request(app).post('/api/policies').send({ content: 'Some content', policyType: 'TRANSPARENCY' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 400 for missing content', async () => {
+    const res = await request(app).post('/api/policies').send({ title: 'Title', policyType: 'TRANSPARENCY' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns 400 for invalid policyType', async () => {
+    const res = await request(app).post('/api/policies').send({ ...validPayload, policyType: 'INVALID_TYPE' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('creates ETHICS type policy successfully', async () => {
+    mockPrisma.aiPolicy.create.mockResolvedValue({ id: UUID2, reference: 'AI42-POL-2602-0001', title: 'Ethics Policy', content: 'Ethics content', policyType: 'ETHICS', status: 'DRAFT', version: '1.0', createdBy: 'user-123', createdAt: new Date(), updatedAt: new Date(), deletedAt: null });
+    const res = await request(app).post('/api/policies').send({ title: 'Ethics Policy', content: 'Ethics content', policyType: 'ETHICS' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 500 on DB error during create', async () => {
+    mockPrisma.aiPolicy.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/policies').send(validPayload);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('GET /api/policies/:id — single transparency policy', () => {
+  it('returns policy when found', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    const res = await request(app).get(`/api/policies/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(UUID1);
+  });
+
+  it('returns 404 when policy not found', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(null);
+    const res = await request(app).get(`/api/policies/${UUID2}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 500 on DB error', async () => {
+    mockPrisma.aiPolicy.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get(`/api/policies/${UUID1}`);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('PUT /api/policies/:id — update transparency policy', () => {
+  it('updates policy title successfully', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, title: 'Updated Transparency Policy' });
+    const res = await request(app).put(`/api/policies/${UUID1}`).send({ title: 'Updated Transparency Policy' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 404 when updating non-existent policy', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(null);
+    const res = await request(app).put(`/api/policies/${UUID2}`).send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 400 for invalid policyType in update', async () => {
+    const res = await request(app).put(`/api/policies/${UUID1}`).send({ policyType: 'TOTALLY_INVALID' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns 500 on DB error during update', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put(`/api/policies/${UUID1}`).send({ notes: 'Updated notes' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('PUT /api/policies/:id/approve — approve transparency policy', () => {
+  it('approves a DRAFT policy', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, status: 'APPROVED', approvedBy: 'user-123', approvedAt: new Date() });
+    const res = await request(app).put(`/api/policies/${UUID1}/approve`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+
+  it('returns 404 when approving non-existent policy', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(null);
+    const res = await request(app).put(`/api/policies/${UUID2}/approve`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 400 when policy is already approved', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue({ ...mockPolicy, status: 'APPROVED' });
+    const res = await request(app).put(`/api/policies/${UUID1}/approve`);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('ALREADY_APPROVED');
+  });
+
+  it('returns 500 on DB error during approval', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put(`/api/policies/${UUID1}/approve`);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('DELETE /api/policies/:id — soft delete transparency policy', () => {
+  it('soft deletes a policy', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/policies/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('returns 404 when deleting non-existent policy', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete(`/api/policies/${UUID2}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 500 on DB error during delete', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete(`/api/policies/${UUID1}`);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('Transparency — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/policies data items have policyType field', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('policyType');
+  });
+
+  it('GET /api/policies data items have reference field', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.body.data[0]).toHaveProperty('reference');
+  });
+
+  it('DELETE /api/policies/:id calls update with deletedAt', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, deletedAt: new Date() });
+    await request(app).delete(`/api/policies/${UUID1}`);
+    expect(mockPrisma.aiPolicy.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});
+
+describe('Transparency — additional phase28 coverage block', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/policies pagination includes total', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+
+  it('GET /api/policies data items have status field', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.body.data[0]).toHaveProperty('status');
+  });
+
+  it('GET /api/policies data items have title field', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.body.data[0]).toHaveProperty('title');
+  });
+
+  it('GET /api/policies data items have version field', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.body.data[0]).toHaveProperty('version');
+  });
+
+  it('POST /api/policies with HUMAN_OVERSIGHT policyType returns 201', async () => {
+    mockPrisma.aiPolicy.create.mockResolvedValue({ ...mockPolicy, policyType: 'HUMAN_OVERSIGHT', title: 'Human Oversight Policy', content: 'Content here' });
+    const res = await request(app).post('/api/policies').send({ title: 'Human Oversight Policy', content: 'Content here', policyType: 'HUMAN_OVERSIGHT' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/policies with PRIVACY policyType returns 201', async () => {
+    mockPrisma.aiPolicy.create.mockResolvedValue({ ...mockPolicy, policyType: 'PRIVACY', title: 'Privacy Policy', content: 'Privacy content' });
+    const res = await request(app).post('/api/policies').send({ title: 'Privacy Policy', content: 'Privacy content', policyType: 'PRIVACY' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/policies with ACCOUNTABILITY policyType returns 201', async () => {
+    mockPrisma.aiPolicy.create.mockResolvedValue({ ...mockPolicy, policyType: 'ACCOUNTABILITY', title: 'Accountability Policy', content: 'Accountability content' });
+    const res = await request(app).post('/api/policies').send({ title: 'Accountability Policy', content: 'Accountability content', policyType: 'ACCOUNTABILITY' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/policies/:id/approve returns 200 with approvedBy field', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, status: 'APPROVED', approvedBy: 'user-123', approvedAt: new Date() });
+    const res = await request(app).put(`/api/policies/${UUID1}/approve`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('approvedBy');
+  });
+
+  it('PUT /api/policies/:id updates scope field', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, scope: 'Updated scope' });
+    const res = await request(app).put(`/api/policies/${UUID1}`).send({ scope: 'Updated scope' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/policies/:id calls update once with deletedAt', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, deletedAt: new Date() });
+    await request(app).delete(`/api/policies/${UUID1}`);
+    expect(mockPrisma.aiPolicy.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/policies filters by policyType=FAIRNESS', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+    await request(app).get('/api/policies?policyType=FAIRNESS');
+    expect(mockPrisma.aiPolicy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ policyType: 'FAIRNESS' }) })
+    );
+  });
+
+  it('GET /api/policies filters by policyType=SECURITY', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+    await request(app).get('/api/policies?policyType=SECURITY');
+    expect(mockPrisma.aiPolicy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ policyType: 'SECURITY' }) })
+    );
+  });
+
+  it('GET /api/policies/:id response data has owner field', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    const res = await request(app).get(`/api/policies/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('owner');
+  });
+});

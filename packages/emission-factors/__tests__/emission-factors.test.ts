@@ -247,3 +247,20 @@ describe('emission-factors — final boundary coverage', () => {
     expect(convertUnits(1, 'MWh', 'kWh')).toBe(1000);
   });
 });
+
+describe('emission-factors — phase28 coverage', () => {
+  it('calculateEmission for petrol EPA returns positive co2e', () => {
+    const r = calculateEmission('petrol', 100, 'litre', 'EPA');
+    expect(r.co2e).toBeGreaterThan(0);
+  });
+
+  it('getGridFactor AU returns a defined factor', () => {
+    const f = getGridFactor('AU');
+    expect(f).toBeDefined();
+    expect(f!.factor).toBeGreaterThan(0);
+  });
+
+  it('convertUnits tonne to kg', () => {
+    expect(convertUnits(1, 'tonne', 'kg')).toBe(1000);
+  });
+});

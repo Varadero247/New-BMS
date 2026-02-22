@@ -769,3 +769,50 @@ describe('Quality Changes — absolute final coverage', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+
+describe('Quality Changes — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changes', changesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/changes findMany called once per list request', async () => {
+    (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualChange.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/changes data.items is an array', async () => {
+    (mockPrisma.qualChange.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualChange.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('DELETE /api/changes/:id does not call update when not found', async () => {
+    (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/changes/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualChange.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/changes/:id returns NOT_FOUND error code when not found', async () => {
+    (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const response = await request(app).get('/api/changes/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token');
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/changes/:id does not call update when not found', async () => {
+    (mockPrisma.qualChange.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).put('/api/changes/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token').send({ title: 'x' });
+    expect(mockPrisma.qualChange.update).not.toHaveBeenCalled();
+  });
+});

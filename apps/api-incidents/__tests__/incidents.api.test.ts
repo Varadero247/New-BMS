@@ -406,3 +406,51 @@ describe('Incidents — final coverage block', () => {
     expect(res.body.pagination.totalPages).toBe(1);
   });
 });
+
+describe('Incidents — phase28 coverage', () => {
+  it('GET / returns 200 with success:true when incidents exist', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Slip on wet floor', dateOccurred: '2026-01-10T08:00:00Z' },
+    ]);
+    mockPrisma.incIncident.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET / count query includes orgId from authenticated user', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/incidents');
+    const countCall = (mockPrisma.incIncident.count as jest.Mock).mock.calls[0][0];
+    expect(countCall.where).toHaveProperty('orgId', 'org-1');
+  });
+
+  it('POST / returns 400 when both title and dateOccurred are missing', async () => {
+    const res = await request(app).post('/api/incidents').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id returns success:true on successful update', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Updated Incident',
+    });
+    const res = await request(app)
+      .put('/api/incidents/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated Incident' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id update is called with correct incident id', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/incidents/00000000-0000-0000-0000-000000000001');
+    const updateCall = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.where.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

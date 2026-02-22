@@ -503,3 +503,48 @@ describe('sanitation.api — comprehensive additional coverage', () => {
     expect(res.body.data).toHaveProperty('area', 'Dispatch Bay');
   });
 });
+
+describe('sanitation.api — phase28 coverage', () => {
+  it('GET /api/sanitation response has success:true', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/sanitation');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/sanitation missing scheduledDate returns 400', async () => {
+    const res = await request(app).post('/api/sanitation').send({
+      area: 'Dry Store',
+      procedure: 'Sweep and sanitise',
+      frequency: 'WEEKLY',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /api/sanitation/:id returns 200 when task found and updated', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSanitation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', area: 'Cold Room' });
+    const res = await request(app)
+      .put('/api/sanitation/00000000-0000-0000-0000-000000000001')
+      .send({ area: 'Cold Room' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.area).toBe('Cold Room');
+  });
+
+  it('GET /api/sanitation/overdue calls findMany once', async () => {
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/sanitation/overdue');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.fsSanitation.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/sanitation/:id success response has data.message property', async () => {
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSanitation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/sanitation/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('message');
+  });
+});

@@ -534,3 +534,62 @@ describe('certifications.api — extra coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('certifications.api.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/certifications returns empty array and total:0 when nothing in DB', async () => {
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.data.deadlines).toHaveLength(0);
+    expect(res.body.data.pagination.total).toBe(0);
+  });
+
+  it('GET /api/certifications/:id returns 200 with correct category field', async () => {
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'PCI DSS',
+      category: 'SECURITY',
+      status: 'UPCOMING',
+    });
+    const res = await request(app).get('/api/certifications/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.deadline.category).toBe('SECURITY');
+  });
+
+  it('POST /api/certifications returns 400 when category is missing', async () => {
+    const res = await request(app).post('/api/certifications').send({
+      name: 'Missing Category',
+      dueDate: '2026-09-01',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PATCH /api/certifications/:id update called once on valid request', async () => {
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.complianceDeadline.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'COMPLETED',
+    });
+    await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'COMPLETED' });
+    expect(mockPrisma.complianceDeadline.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/certifications?page=3&limit=5 pagination.page equals 3', async () => {
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications?page=3&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.page).toBe(3);
+    expect(res.body.data.pagination.limit).toBe(5);
+  });
+});

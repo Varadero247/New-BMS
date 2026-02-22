@@ -381,3 +381,31 @@ describe('portal-auth — absolute final coverage', () => {
     expect(body).toHaveProperty('error');
   });
 });
+
+describe('portal-auth — phase28 coverage', () => {
+  it('signPortalToken result is a non-empty string', () => {
+    const token = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+    expect(token.length).toBeGreaterThan(0);
+  });
+
+  it('verifyPortalToken decoded email matches original user email', () => {
+    const token = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+    const decoded = verifyPortalToken(token, { secret: TEST_SECRET });
+    expect(decoded!.email).toBe(mockUser.email);
+  });
+
+  it('requirePortalPermission returns a function with arity of 3', () => {
+    const mw = requirePortalPermission('view_orders');
+    expect(mw.length).toBe(3);
+  });
+
+  it('requirePortalType returns a function with arity of 3', () => {
+    const mw = requirePortalType('supplier');
+    expect(mw.length).toBe(3);
+  });
+
+  it('portalAuthenticate returns a function with arity of 3', () => {
+    const mw = portalAuthenticate({ secret: TEST_SECRET });
+    expect(mw.length).toBe(3);
+  });
+});

@@ -545,3 +545,67 @@ describe('cashflow-forecast — extra coverage', () => {
     expect(prisma.plannedExpense.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('cashflow-forecast.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('runCashFlowForecastJob returns object with weeksCreated property', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'ph28-wc' });
+    const result = await runCashFlowForecastJob();
+    expect(result).toHaveProperty('weeksCreated');
+  });
+
+  it('runCashFlowForecastJob creates exactly 13 records regardless of bankBalance', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue({ bankBalance: 1000000 });
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'ph28-big' });
+    const result = await runCashFlowForecastJob();
+    expect(result.weeksCreated).toBe(13);
+    expect(prisma.cashFlowForecast.create).toHaveBeenCalledTimes(13);
+  });
+
+  it('runCashFlowForecastJob first week weekNumber equals 1', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'ph28-wn1' });
+    await runCashFlowForecastJob();
+    const firstCall = (prisma.cashFlowForecast.create as jest.Mock).mock.calls[0][0];
+    expect(firstCall.data.weekNumber).toBe(1);
+  });
+
+  it('runCashFlowForecastJob last week weekNumber equals 13', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'ph28-wn13' });
+    await runCashFlowForecastJob();
+    const calls = (prisma.cashFlowForecast.create as jest.Mock).mock.calls;
+    expect(calls[12][0].data.weekNumber).toBe(13);
+  });
+
+  it('GET /position returns 200 with data.position.bankBalance when position exists', async () => {
+    const app2 = require('express')();
+    app2.use(require('express').json());
+    app2.use('/', require('../src/routes/cashflow').default);
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue({
+      bankBalance: 55000,
+      receivables: 0,
+      payables: 0,
+      runway: 10,
+    });
+    const res = await request(app2).get('/position');
+    expect(res.status).toBe(200);
+    expect(res.body.data.position.bankBalance).toBe(55000);
+  });
+});

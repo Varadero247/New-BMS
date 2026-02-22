@@ -466,3 +466,54 @@ describe('Health Surveillance — additional coverage 3', () => {
     expect(res.body.data.conductedBy).toBe('Dr. New');
   });
 });
+
+describe('Health Surveillance — phase28 coverage', () => {
+  it('GET / success:true is present in response', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/health-surveillance');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when employeeId is missing', async () => {
+    const res = await request(app).post('/api/health-surveillance').send({
+      employeeName: 'Jane Smith',
+      jobRole: 'Paint Sprayer',
+      substancesExposed: ['Isocyanates'],
+      surveillanceType: 'LUNG_FUNCTION',
+      examinationDate: '2026-01-15',
+      result: 'NORMAL',
+      conductedBy: 'Dr. Jones',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns 404 when record does not exist', async () => {
+    (mockPrisma.chemHealthSurveillance.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/health-surveillance/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /:id returns 500 when update rejects', async () => {
+    (mockPrisma.chemHealthSurveillance.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+    (mockPrisma.chemHealthSurveillance.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/health-surveillance/00000000-0000-0000-0000-000000000001')
+      .send({ conductedBy: 'Dr. Crash' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / pagination has page, limit and total fields', async () => {
+    (mockPrisma.chemHealthSurveillance.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemHealthSurveillance.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/health-surveillance');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+});

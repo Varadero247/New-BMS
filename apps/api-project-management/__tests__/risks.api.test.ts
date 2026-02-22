@@ -710,3 +710,87 @@ describe('risks.api — boundary and extra coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('risks.api — phase28 coverage', () => {
+  let app: express.Express;
+
+  const baseRisk = {
+    id: '10000000-0000-4000-a000-000000000001',
+    riskCode: 'RSK-001',
+    riskTitle: 'Budget overrun risk',
+    riskDescription: 'Project may exceed allocated budget',
+    riskCategory: 'BUDGET',
+    probability: 4,
+    impact: 5,
+    riskScore: 20,
+    riskLevel: 'CRITICAL',
+    status: 'IDENTIFIED',
+    residualProbability: null,
+    residualImpact: null,
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', risksRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risks: success false when DB fails', async () => {
+    (mockPrisma.projectRisk.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const res = await request(app).get('/api/risks?projectId=proj-1').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/risks: meta.totalPages rounds up for non-even division', async () => {
+    (mockPrisma.projectRisk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectRisk.count as jest.Mock).mockResolvedValueOnce(11);
+    const res = await request(app).get('/api/risks?projectId=proj-1&limit=5').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('POST /api/risks: create returns 201 with success true on valid payload', async () => {
+    (mockPrisma.projectRisk.create as jest.Mock).mockResolvedValueOnce({
+      ...baseRisk,
+      riskCode: 'RSK-P28',
+      riskTitle: 'Phase28 Risk',
+      probability: 2,
+      impact: 3,
+      riskScore: 6,
+      riskLevel: 'MEDIUM',
+    });
+    const res = await request(app)
+      .post('/api/risks')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'proj-1',
+        riskCode: 'RSK-P28',
+        riskTitle: 'Phase28 Risk',
+        riskDescription: 'Phase 28 coverage risk',
+        riskCategory: 'TECHNICAL',
+        probability: 2,
+        impact: 3,
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/risks/:id: 404 returns success false', async () => {
+    (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(app).delete('/api/risks/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/risks/:id: 404 returns success false', async () => {
+    (mockPrisma.projectRisk.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(app)
+      .put('/api/risks/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token')
+      .send({ riskTitle: 'Not found' });
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});

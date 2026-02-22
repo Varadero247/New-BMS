@@ -498,3 +498,50 @@ describe('portal-orders — additional coverage 2', () => {
     expect(call.where).not.toHaveProperty('status');
   });
 });
+
+describe('portal-orders — phase28 coverage', () => {
+  it('GET list: totalPages rounds up for non-even division', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(11);
+    const res = await request(app).get('/api/portal/orders?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/orders');
+    expect(mockPrisma.portalOrder.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST: create not called when validation fails', async () => {
+    await request(app).post('/api/portal/orders').send({
+      type: 'PURCHASE',
+      totalAmount: 100,
+      // missing portalUserId
+    });
+    expect(mockPrisma.portalOrder.create).not.toHaveBeenCalled();
+  });
+
+  it('PUT /:id: findFirst called with correct id', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(null);
+    await request(app)
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001')
+      .send({ notes: 'Test' });
+    expect(mockPrisma.portalOrder.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET list: data is an array on success', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([
+      { id: 'o-p28', orderNumber: 'ORD-P28', type: 'PURCHASE', status: 'DRAFT' },
+    ]);
+    mockPrisma.portalOrder.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/portal/orders');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+});

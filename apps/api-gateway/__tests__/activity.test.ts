@@ -415,3 +415,62 @@ describe('Activity Routes — final additional coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('Activity Routes — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/activity', activityRoutes);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+  });
+
+  it('GET /api/activity with both params returns data.entries array', async () => {
+    mockGetActivity.mockResolvedValue({ entries: [{ id: 'e1', action: 'created' }], total: 1 });
+    const res = await request(app).get('/api/activity?recordType=ncr&recordId=r1');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.entries)).toBe(true);
+    expect(res.body.data.entries).toHaveLength(1);
+  });
+
+  it('GET /api/activity/recent returns data.total as number', async () => {
+    mockGetRecentActivity.mockResolvedValue([{ id: 'a5' }]);
+    const res = await request(app).get('/api/activity/recent');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.total).toBe('number');
+  });
+
+  it('POST /api/activity with attached action returns 201', async () => {
+    mockLogActivity.mockResolvedValue(undefined);
+    const res = await request(app).post('/api/activity').send({
+      recordType: 'document',
+      recordId: 'doc-100',
+      action: 'attachment_added',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/activity response body has success property', async () => {
+    mockGetActivity.mockResolvedValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/activity?recordType=risk&recordId=r-50');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('POST /api/activity with resolved action returns 201', async () => {
+    mockLogActivity.mockResolvedValue(undefined);
+    const res = await request(app).post('/api/activity').send({
+      recordType: 'incident',
+      recordId: 'inc-7',
+      action: 'review_completed',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.message).toBe('Activity logged successfully');
+  });
+});

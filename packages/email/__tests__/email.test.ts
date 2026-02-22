@@ -346,3 +346,38 @@ describe('EmailService — absolute final boundary', () => {
     expect(typeof result.success).toBe('boolean');
   });
 });
+
+describe('EmailService — phase28 coverage', () => {
+  beforeEach(() => { mockSendMail.mockReset(); mockVerify.mockReset(); });
+
+  it('send returns success:false when not configured (phase28)', async () => {
+    const svc = new EmailService();
+    const r = await svc.send({ to: 'x@y.com', subject: 'S' });
+    expect(r.success).toBe(false);
+  });
+
+  it('send includes messageId when nodemailer returns one', async () => {
+    mockSendMail.mockResolvedValue({ messageId: 'phase28-id' });
+    const svc = new EmailService(SMTP_CONFIG);
+    const r = await svc.send({ to: 'a@b.com', subject: 'T' });
+    expect(r.messageId).toBe('phase28-id');
+  });
+
+  it('isConfigured returns true when SMTP_HOST env var is set', () => {
+    process.env.SMTP_HOST = 'smtp.phase28.com';
+    const svc = new EmailService();
+    expect(svc.isConfigured()).toBe(true);
+    delete process.env.SMTP_HOST;
+  });
+
+  it('templates.passwordReset html contains subject text', () => {
+    const t = templates.passwordReset('https://reset.url');
+    expect(t.html).toContain('Password Reset');
+  });
+
+  it('sendEmail returns result object with success property', async () => {
+    initEmailService({});
+    const r = await sendEmail({ to: 'a@b.com', subject: 'P28' });
+    expect(r).toHaveProperty('success');
+  });
+});

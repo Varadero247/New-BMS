@@ -392,3 +392,40 @@ describe('StripeClient — final coverage to reach 40', () => {
     expect(mockFetch.mock.calls[0][0]).toContain('limit=25');
   });
 });
+
+describe('StripeClient — phase28 coverage', () => {
+  it('createCoupon with amount_off and currency encodes both fields in body', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ id: 'coup_phase28' }));
+    await client.createCoupon({ amount_off: 1000, currency: 'gbp', duration: 'once' });
+    const params = new URLSearchParams(mockFetch.mock.calls[0][1].body as string);
+    expect(params.get('amount_off')).toBe('1000');
+    expect(params.get('currency')).toBe('gbp');
+  });
+
+  it('getSubscriptions sends GET (no method field set in options)', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ data: [] }));
+    await client.getSubscriptions(5);
+    const opts = mockFetch.mock.calls[0][1];
+    expect(opts.method).not.toBe('POST');
+    expect(opts.method).not.toBe('PUT');
+  });
+
+  it('createTransfer returns the transfer object on success', async () => {
+    const client = new StripeClient('sk_test');
+    const transfer = { id: 'tr_phase28', amount: 500, currency: 'usd' };
+    mockFetch.mockReturnValueOnce(ok(transfer));
+    const result = await client.createTransfer({ amount: 500, currency: 'usd', destination: 'acct_28' });
+    expect(result).toEqual(transfer);
+  });
+
+  it('createCoupon with duration forever does not include duration_in_months', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ id: 'coup_forever' }));
+    await client.createCoupon({ percent_off: 20, duration: 'forever' });
+    const params = new URLSearchParams(mockFetch.mock.calls[0][1].body as string);
+    expect(params.get('duration')).toBe('forever');
+    expect(params.get('duration_in_months')).toBeNull();
+  });
+});

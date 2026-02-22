@@ -623,3 +623,44 @@ describe('Emergency Incidents — final boundary coverage', () => {
     );
   });
 });
+
+describe('Emergency Incidents — phase28 coverage', () => {
+  it('GET /api/incidents data is an array', async () => {
+    mockIncident.findMany.mockResolvedValue([fakeIncident]);
+    mockIncident.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/incidents response data has incidentNumber field', async () => {
+    mockIncident.count.mockResolvedValue(0);
+    mockIncident.create.mockResolvedValue(fakeIncident);
+    mockTimeline.create.mockResolvedValue({ id: 'tl-p28' });
+    const res = await request(app).post('/api/incidents').send(validDeclareBody);
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('incidentNumber');
+  });
+
+  it('GET /api/incidents/active data is an array', async () => {
+    mockIncident.findMany.mockResolvedValue([fakeIncident]);
+    const res = await request(app).get('/api/incidents/active');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/incidents/:id calls update exactly once on success', async () => {
+    mockIncident.findFirst.mockResolvedValue(fakeIncident);
+    mockIncident.update.mockResolvedValue({ ...fakeIncident, status: 'CONTAINED' });
+    mockTimeline.create.mockResolvedValue({ id: 'tl-p28b' });
+    await request(app).put(`/api/incidents/${INCIDENT_ID}`).send({ status: 'CONTAINED' });
+    expect(mockIncident.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/incidents/:id/timeline response data is an array', async () => {
+    mockTimeline.findMany.mockResolvedValue([]);
+    const res = await request(app).get(`/api/incidents/${INCIDENT_ID}/timeline`);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

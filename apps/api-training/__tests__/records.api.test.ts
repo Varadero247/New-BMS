@@ -451,3 +451,42 @@ describe('records.api — boundary and method coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('records.api — phase28 coverage', () => {
+  it('GET /api/records response body is not null', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/records');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('POST /api/records count mock called once for reference generation', async () => {
+    mockPrisma.trainRecord.count.mockResolvedValue(5);
+    mockPrisma.trainRecord.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000006', referenceNumber: 'TRN-2026-0006' });
+    await request(app).post('/api/records').send({ courseId: 'c1', employeeId: 'e1' });
+    expect(mockPrisma.trainRecord.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/records findMany called once per request', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    await request(app).get('/api/records');
+    expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/records/:id update called with deletedAt', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainRecord.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/records/00000000-0000-0000-0000-000000000001');
+    const updateArg = (mockPrisma.trainRecord.update as jest.Mock).mock.calls[0][0];
+    expect(updateArg.data).toHaveProperty('deletedAt');
+  });
+
+  it('PUT /api/records/:id 500 error body success is false', async () => {
+    mockPrisma.trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainRecord.update.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).put('/api/records/00000000-0000-0000-0000-000000000001').send({ courseId: 'c2' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

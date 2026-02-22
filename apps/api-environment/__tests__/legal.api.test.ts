@@ -711,3 +711,109 @@ describe('Environment Legal — boundary coverage', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+describe('Environment Legal Obligations — phase28 coverage', () => {
+  let appP28: express.Express;
+
+  beforeAll(() => {
+    appP28 = express();
+    appP28.use(express.json());
+    appP28.use('/api/legal', legalRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / filters by jurisdiction=LOCAL in where clause', async () => {
+    (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(appP28)
+      .get('/api/legal?jurisdiction=LOCAL')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envLegal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ jurisdiction: 'LOCAL' }),
+      })
+    );
+  });
+
+  it('GET / meta.limit reflects the limit query parameter', async () => {
+    (mockPrisma.envLegal.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(appP28)
+      .get('/api/legal?page=1&limit=30')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.limit).toBe(30);
+  });
+
+  it('POST / create is called exactly once per request', async () => {
+    (mockPrisma.envLegal.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.envLegal.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'ENV-LEG-2026-001',
+      obligationType: 'PERMIT',
+      title: 'Waste Disposal Permit',
+      jurisdiction: 'REGIONAL',
+      regulatoryBody: 'Local EPA',
+      legislationReference: 'WDP-2026-001',
+      description: 'Permit for waste disposal activities',
+      applicableActivities: 'Waste management',
+      responsiblePerson: 'John Smith',
+    });
+
+    await request(appP28)
+      .post('/api/legal')
+      .set('Authorization', 'Bearer token')
+      .send({
+        obligationType: 'PERMIT',
+        title: 'Waste Disposal Permit',
+        jurisdiction: 'REGIONAL',
+        regulatoryBody: 'Local EPA',
+        legislationReference: 'WDP-2026-001',
+        description: 'Permit for waste disposal activities',
+        applicableActivities: 'Waste management',
+        responsiblePerson: 'John Smith',
+      });
+
+    expect(mockPrisma.envLegal.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id findUnique is called with correct id', async () => {
+    (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '14000000-0000-4000-a000-000000000001',
+      referenceNumber: 'ENV-LEG-2026-001',
+      obligationType: 'LEGISLATION',
+      title: 'Environmental Protection Act',
+    });
+
+    await request(appP28)
+      .get('/api/legal/14000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envLegal.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '14000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+
+  it('DELETE /:id returns 500 when update throws an error', async () => {
+    (mockPrisma.envLegal.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '14000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envLegal.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(appP28)
+      .delete('/api/legal/14000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -446,3 +446,11 @@ describe('pChart — final coverage to reach 40', () => {
     });
   });
 });
+
+describe('pChart — phase28 coverage', () => {
+  it('should accept sample sizes larger than 1000 and compute correct centerLine', () => {
+    const data = makePData([[50, 2000], [100, 2000]]);
+    const chart = pChart(data);
+    expect(chart.centerLine).toBeCloseTo(150 / 4000, 4);
+  });
+});

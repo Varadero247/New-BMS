@@ -459,3 +459,45 @@ describe('scheduler — final coverage expansion', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('scheduler — phase28 coverage', () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET / data array is an Array type', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([mockSchedule]);
+    (mockPrisma.cmmsPreventivePlan.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/scheduler');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /:id response data.deleted is true on success', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    (mockPrisma.cmmsPreventivePlan.update as jest.Mock).mockResolvedValue({ ...mockSchedule, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/scheduler/${SCHEDULE_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('GET /:id returns data.id matching requested id', async () => {
+    (mockPrisma.cmmsPreventivePlan.findFirst as jest.Mock).mockResolvedValue(mockSchedule);
+    const res = await request(app).get(`/api/scheduler/${SCHEDULE_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(SCHEDULE_ID);
+  });
+
+  it('POST / validation rejects empty name', async () => {
+    const res = await request(app).post('/api/scheduler').send({ assetId: ASSET_ID, name: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /calendar returns scheduled and workOrders arrays', async () => {
+    (mockPrisma.cmmsPreventivePlan.findMany as jest.Mock).mockResolvedValue([mockSchedule]);
+    (mockPrisma.cmmsWorkOrder.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/scheduler/calendar');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.scheduled)).toBe(true);
+    expect(Array.isArray(res.body.data.workOrders)).toBe(true);
+  });
+});

@@ -557,3 +557,46 @@ describe('Stripe Webhooks — ≥40 coverage', () => {
     );
   });
 });
+
+describe('Stripe Webhooks — phase28 coverage', () => {
+  it('handles invoice.paid with no data.object gracefully', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'invoice.paid', data: {} });
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+
+  it('customer.subscription.deleted with orgId calls create with orgId', async () => {
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-ph28' });
+    await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'customer.subscription.deleted', data: { object: { metadata: { orgId: 'org-ph28' } } } });
+    expect(prisma.mktWinBackSequence.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ orgId: 'org-ph28' }) })
+    );
+  });
+
+  it('response received:true for checkout.session.completed', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'checkout.session.completed', data: { object: {} } });
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+
+  it('invoice.payment_failed returns received:true when metadata is undefined', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({ type: 'invoice.payment_failed', data: { object: { metadata: undefined } } });
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+
+  it('POST /stripe returns 400 for missing type and data', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({});
+    expect(res.status).toBe(400);
+  });
+});

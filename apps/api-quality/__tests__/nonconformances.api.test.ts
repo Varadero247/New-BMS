@@ -753,3 +753,50 @@ describe('Quality Nonconformances — final coverage', () => {
     expect(Array.isArray(res.body.data.items)).toBe(true);
   });
 });
+
+
+describe('Quality Nonconformances — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/nonconformances', nonconformancesRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/nonconformances findMany called once per list request', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+    await request(app).get('/api/nonconformances').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualNonConformance.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/nonconformances count called once per list request', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+    await request(app).get('/api/nonconformances').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualNonConformance.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/nonconformances/:id does not call update when not found', async () => {
+    mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce(null);
+    await request(app).delete('/api/nonconformances/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualNonConformance.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/nonconformances/:id returns NOT_FOUND code when not found', async () => {
+    mockPrisma.qualNonConformance.findUnique.mockResolvedValueOnce(null);
+    const res = await request(app).get('/api/nonconformances/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/nonconformances data.total is 0 when no records exist', async () => {
+    mockPrisma.qualNonConformance.findMany.mockResolvedValueOnce([]);
+    mockPrisma.qualNonConformance.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/nonconformances').set('Authorization', 'Bearer token');
+    expect(res.body.data.total).toBe(0);
+  });
+});

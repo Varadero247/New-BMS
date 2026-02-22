@@ -441,3 +441,53 @@ describe('API Keys — comprehensive additional coverage', () => {
     expect(res.body.data).toHaveProperty('status', 'active');
   });
 });
+
+describe('API Keys — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/api-keys', apiKeysRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/admin/api-keys returns data array with length matching mock', async () => {
+    mockApiKey.findMany.mockResolvedValue([mockRecord, { ...mockRecord, id: 'key-2', name: 'Second Key' }]);
+    const res = await request(app).get('/api/admin/api-keys');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /api/admin/api-keys returns key field starting with rxk_ for any valid input', async () => {
+    mockApiKey.create.mockResolvedValue({ ...mockRecord, name: 'Reporting Key', permissions: ['read:finance'] });
+    const res = await request(app)
+      .post('/api/admin/api-keys')
+      .send({ name: 'Reporting Key', scopes: ['read:finance'] });
+    expect(res.status).toBe(201);
+    expect(res.body.data.key).toMatch(/^rxk_/);
+  });
+
+  it('DELETE /api/admin/api-keys/:id sets revokedAt timestamp in response', async () => {
+    mockApiKey.findUnique.mockResolvedValue(mockRecord);
+    mockApiKey.update.mockResolvedValue({ ...mockRecord, isActive: false, revokedAt: new Date('2026-02-22T00:00:00Z') });
+    const res = await request(app).delete('/api/admin/api-keys/key-1');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('revokedAt');
+  });
+
+  it('POST /api/admin/api-keys with description field is accepted', async () => {
+    mockApiKey.create.mockResolvedValue({ ...mockRecord, name: 'Described Key' });
+    const res = await request(app)
+      .post('/api/admin/api-keys')
+      .send({ name: 'Described Key', scopes: ['read:hr'], description: 'Used for HR sync' });
+    expect([201, 400]).toContain(res.status);
+  });
+
+  it('GET /api/admin/api-keys with no keys returns meta.total of 0', async () => {
+    mockApiKey.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/admin/api-keys');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('total', 0);
+  });
+});

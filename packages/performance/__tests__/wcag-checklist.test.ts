@@ -276,3 +276,35 @@ describe('WCAG 2.2 AA Checklist — absolute final coverage', () => {
     expect(WCAG_22_AA_CHECKLIST.length).toBeGreaterThan(0);
   });
 });
+
+describe('WCAG 2.2 AA Checklist — phase28 coverage', () => {
+  it('criterion 2.4.3 Focus Order is present', () => {
+    const criterion = WCAG_22_AA_CHECKLIST.find((c) => c.id === '2.4.3');
+    expect(criterion).toBeDefined();
+  });
+
+  it('all IDs have exactly 3 dot-separated segments', () => {
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      expect(criterion.id.split('.')).toHaveLength(3);
+    }
+  });
+
+  it('WCAG_22_AA_CHECKLIST contains no null entries', () => {
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      expect(criterion).not.toBeNull();
+      expect(criterion).not.toBeUndefined();
+    }
+  });
+
+  it('principle 3 has at least 3 guidelines', () => {
+    const guidelines = new Set(
+      WCAG_22_AA_CHECKLIST.filter((c) => c.id.startsWith('3.')).map((c) => c.id.split('.')[1])
+    );
+    expect(guidelines.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it('automated criteria count is greater than zero', () => {
+    const automatedCount = WCAG_22_AA_CHECKLIST.filter((c) => c.automated).length;
+    expect(automatedCount).toBeGreaterThan(0);
+  });
+});

@@ -462,3 +462,54 @@ describe('Biological Monitoring — comprehensive coverage', () => {
     );
   });
 });
+
+describe('Biological Monitoring — phase28 coverage', () => {
+  it('GET / response is JSON content-type', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/biological-monitoring');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST / returns 400 when employeeName is missing', async () => {
+    const res = await request(app).post('/api/biological-monitoring').send({
+      employeeId: 'EMP-002',
+      substanceName: 'Benzene',
+      biomarker: 'Urinary phenol',
+      sampleType: 'URINE',
+      collectionDate: '2026-02-01',
+      measuredValue: 10,
+      unit: 'mg/L',
+      collectedBy: 'Dr. Smith',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / with page=3&limit=5 passes skip:10 to findMany', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemBiologicalMonitoring.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/biological-monitoring?page=3&limit=5');
+    const [call] = (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock).mock.calls;
+    expect(call[0].skip).toBe(10);
+    expect(call[0].take).toBe(5);
+  });
+
+  it('DELETE /:id returns 404 when record does not exist', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).delete('/api/biological-monitoring/00000000-0000-0000-0000-000000000099');
+    expect([404, 405]).toContain(res.status);
+  });
+
+  it('GET /alerts success:true with both exceedingBGV and overdueMonitoring arrays', async () => {
+    (mockPrisma.chemBiologicalMonitoring.findMany as jest.Mock)
+      .mockResolvedValueOnce([mockRecord])
+      .mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/biological-monitoring/alerts');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data.exceedingBGV)).toBe(true);
+    expect(Array.isArray(res.body.data.overdueMonitoring)).toBe(true);
+  });
+});

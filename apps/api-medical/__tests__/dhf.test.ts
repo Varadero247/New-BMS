@@ -668,3 +668,59 @@ describe('DHF — final edge case coverage', () => {
     expect(res.body.data[0].completeness).toBe(100);
   });
 });
+
+describe('DHF — phase28 coverage', () => {
+  let ph28App: express.Express;
+
+  beforeAll(() => {
+    ph28App = express();
+    ph28App.use(express.json());
+    ph28App.use('/api/dhf', dhfRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /dhf completeness is 20 for a project with 2 files', async () => {
+    const projectWith2Files = {
+      ...mockProject,
+      historyFiles: new Array(2).fill(null).map((_, i) => ({ ...mockHistoryFile, id: `file-${i}` })),
+    };
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([projectWith2Files]);
+    const res = await request(ph28App).get('/api/dhf');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].completeness).toBe(20);
+  });
+
+  it('POST /dhf create called with correct title', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce(mockHistoryFile);
+    await request(ph28App).post('/api/dhf').send({ projectId: PROJECT_ID, title: 'Phase28 Doc' });
+    expect(mockPrisma.designHistoryFile.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ title: 'Phase28 Doc' }) })
+    );
+  });
+
+  it('GET /dhf response body data is an array even for multiple projects', async () => {
+    const secondProject = { ...mockProject, id: '00000000-0000-0000-0000-000000000099', historyFiles: [] };
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject, secondProject]);
+    const res = await request(ph28App).get('/api/dhf');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /dhf returns success:true in body when file created', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce(mockHistoryFile);
+    const res = await request(ph28App).post('/api/dhf').send({ projectId: PROJECT_ID, title: 'Check Success' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /dhf 500 response has error.code INTERNAL_ERROR', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockRejectedValueOnce(new Error('crash'));
+    const res = await request(ph28App).get('/api/dhf');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

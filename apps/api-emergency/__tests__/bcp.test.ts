@@ -538,3 +538,42 @@ describe('BCP Routes — final boundary coverage', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('BCP Routes — phase28 coverage', () => {
+  it('GET /api/bcp data is an array', async () => {
+    mockBcp.findMany.mockResolvedValue([fakeBcp]);
+    mockBcp.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/bcp');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/bcp response data.title matches sent title', async () => {
+    mockBcp.count.mockResolvedValue(0);
+    mockBcp.create.mockResolvedValue({ ...fakeBcp, title: 'Phase28 BCP' });
+    const res = await request(app).post('/api/bcp').send({ title: 'Phase28 BCP', reviewDate: '2027-06-01' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.title).toBe('Phase28 BCP');
+  });
+
+  it('GET /api/bcp/:id response body has success:true when found', async () => {
+    mockBcp.findUnique.mockResolvedValue({ ...fakeBcp, exercises: [] });
+    const res = await request(app).get(`/api/bcp/${BCP_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('PUT /api/bcp/:id calls update once on success', async () => {
+    mockBcp.findFirst.mockResolvedValue(fakeBcp);
+    mockBcp.update.mockResolvedValue({ ...fakeBcp, title: 'Updated Phase28' });
+    await request(app).put(`/api/bcp/${BCP_ID}`).send({ title: 'Updated Phase28' });
+    expect(mockBcp.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/bcp/due-review response body has success:true', async () => {
+    mockBcp.findMany.mockResolvedValue([fakeBcp]);
+    const res = await request(app).get('/api/bcp/due-review');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

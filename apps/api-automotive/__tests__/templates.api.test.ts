@@ -365,3 +365,39 @@ describe('Automotive Templates — comprehensive coverage', () => {
     expect(res.body.data.category).toBe('SPC');
   });
 });
+
+
+describe('Automotive Templates — phase28 coverage', () => {
+  it('GET /api/templates returns success:true on each call', async () => {
+    const res = await request(app).get('/api/templates');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/templates?category=APQP returns only APQP items', async () => {
+    const res = await request(app).get('/api/templates?category=APQP');
+    expect(res.status).toBe(200);
+    for (const tpl of res.body.data) {
+      expect(tpl.category).toBe('APQP');
+    }
+  });
+
+  it('GET /api/templates/:id returns 404 for tpl-nonexist-01', async () => {
+    const res = await request(app).get('/api/templates/tpl-nonexist-01');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/templates/:id returns 400 for malformed id (no tpl- prefix)', async () => {
+    const res = await request(app).get('/api/templates/badid');
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_ID');
+  });
+
+  it('GET /api/templates returns at least one template with XLSX format', async () => {
+    const res = await request(app).get('/api/templates');
+    expect(res.status).toBe(200);
+    const hasXlsx = res.body.data.some((t: { format: string }) => t.format === 'XLSX');
+    expect(hasXlsx).toBe(true);
+  });
+});

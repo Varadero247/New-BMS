@@ -469,3 +469,102 @@ describe('Adjustments — pagination and optional field coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Adjustments — phase28 coverage', () => {
+  const p28App = express();
+  p28App.use(express.json());
+  p28App.use('/api/adjustments', router);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/adjustments meta has page field equal to 1 by default', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(p28App).get('/api/adjustments');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta.page).toBe(1);
+  });
+
+  it('GET /api/adjustments meta total is 0 when no records', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(p28App).get('/api/adjustments');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(0);
+  });
+
+  it('GET /api/adjustments data array is empty when count is 0', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(p28App).get('/api/adjustments');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST /api/adjustments ADJUSTMENT_IN with no existing inventory succeeds', async () => {
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue(null);
+    (mockPrisma.$transaction as jest.Mock).mockResolvedValue([mockTransaction]);
+    const res = await request(p28App).post('/api/adjustments').send({
+      productId: PRODUCT_ID,
+      warehouseId: WAREHOUSE_ID,
+      adjustmentType: 'ADJUSTMENT_IN',
+      quantity: 10,
+      reason: 'Initial stock',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/adjustments missing warehouseId returns 400', async () => {
+    const res = await request(p28App).post('/api/adjustments').send({
+      productId: PRODUCT_ID,
+      adjustmentType: 'ADJUSTMENT_IN',
+      quantity: 5,
+      reason: 'Test',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/adjustments/:id 500 has success:false', async () => {
+    (mockPrisma.inventoryTransaction.findFirst as jest.Mock).mockRejectedValue(new Error('timeout'));
+    const res = await request(p28App).get(`/api/adjustments/${ADJ_ID}`);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/adjustments data item has quantityBefore field', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([mockTransaction]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(p28App).get('/api/adjustments');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('quantityBefore');
+  });
+
+  it('GET /api/adjustments data item has quantityAfter field', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([mockTransaction]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(p28App).get('/api/adjustments');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('quantityAfter');
+  });
+
+  it('GET /api/adjustments/:id 200 success:true shape', async () => {
+    (mockPrisma.inventoryTransaction.findFirst as jest.Mock).mockResolvedValue(mockTransaction);
+    const res = await request(p28App).get(`/api/adjustments/${ADJ_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/adjustments with page=3 limit=5 returns correct meta', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(100);
+    const res = await request(p28App).get('/api/adjustments?page=3&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(3);
+    expect(res.body.meta.limit).toBe(5);
+  });
+});

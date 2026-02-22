@@ -542,3 +542,68 @@ describe('contracts — extra coverage', () => {
     expect(typeof res.body.data.created).toBe('number');
   });
 });
+
+describe('contracts.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/contracts returns 200 with contracts array of length 1', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Phase28 SaaS', vendor: 'VendorX', status: 'ACTIVE' },
+    ]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(res.body.data.contracts).toHaveLength(1);
+  });
+
+  it('POST /api/contracts returns 201 with correct vendor in data.contract', async () => {
+    (prisma.contract.create as jest.Mock).mockResolvedValue({
+      id: 'ph28-c-1',
+      name: 'Phase28 Contract',
+      vendor: 'Phase28 Vendor',
+      category: 'SOFTWARE',
+      startDate: new Date('2026-01-01'),
+      endDate: new Date('2027-01-01'),
+      annualCost: 9999,
+      status: 'ACTIVE',
+    });
+    const res = await request(app).post('/api/contracts').send({
+      name: 'Phase28 Contract',
+      vendor: 'Phase28 Vendor',
+      category: 'SOFTWARE',
+      startDate: '2026-01-01',
+      endDate: '2027-01-01',
+      annualCost: 9999,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.contract.vendor).toBe('Phase28 Vendor');
+  });
+
+  it('DELETE /api/contracts/:id returns success:true on successful deletion', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.contract.delete as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PATCH /api/contracts/:id update called with where.id matching path id', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+    (prisma.contract.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ACTIVE' });
+    await request(app).patch('/api/contracts/00000000-0000-0000-0000-000000000001').send({ status: 'ACTIVE' });
+    expect(prisma.contract.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000001' } })
+    );
+  });
+
+  it('GET /api/contracts?status=ACTIVE filters by ACTIVE status', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/contracts?status=ACTIVE');
+    expect(prisma.contract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+});

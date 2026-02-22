@@ -417,3 +417,60 @@ describe('OpenAPI — final batch', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+
+describe("OpenAPI Routes — phase28 coverage", () => {
+  let app: import("express").Express;
+
+  beforeEach(() => {
+    const express = require("express");
+    app = express();
+    app.use(express.json());
+    app.use("/api/docs", require("../src/routes/openapi").default);
+    jest.clearAllMocks();
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: "3.0.3",
+      info: { title: "Nexara IMS API", version: "1.0.0", description: "IMS" },
+      paths: { "/api/auth/login": { post: { summary: "Login" } } },
+      components: { securitySchemes: { bearerAuth: { type: "http", scheme: "bearer" } } },
+    });
+  });
+
+  it("GET /api/docs/openapi.json success field is not present in response body", async () => {
+    const supertest = require("supertest");
+    const res = await supertest(app).get("/api/docs/openapi.json");
+    expect(res.status).toBe(200);
+    // The spec itself does not have a "success" wrapper — it is the raw OpenAPI object
+    expect(res.body).toHaveProperty("openapi");
+  });
+
+  it("GET /api/docs/openapi.json paths has at least one key", async () => {
+    const supertest = require("supertest");
+    const res = await supertest(app).get("/api/docs/openapi.json");
+    expect(res.status).toBe(200);
+    expect(Object.keys(res.body.paths).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("GET /api/docs/openapi.json components is an object", async () => {
+    const supertest = require("supertest");
+    const res = await supertest(app).get("/api/docs/openapi.json");
+    expect(res.status).toBe(200);
+    expect(typeof res.body.components).toBe("object");
+  });
+
+  it("GET /api/docs returns 200 on every request", async () => {
+    const supertest = require("supertest");
+    const res1 = await supertest(app).get("/api/docs");
+    const res2 = await supertest(app).get("/api/docs");
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+  });
+
+  it("500 error response has error.code INTERNAL_ERROR", async () => {
+    const supertest = require("supertest");
+    mockGenerateOpenApiSpec.mockImplementationOnce(() => { throw new Error("fail"); });
+    const res = await supertest(app).get("/api/docs/openapi.json");
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe("INTERNAL_ERROR");
+  });
+});

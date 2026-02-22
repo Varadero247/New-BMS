@@ -330,3 +330,27 @@ describe('Plan Guard — final coverage', () => {
     expect(mw.length).toBe(3);
   });
 });
+
+describe('Plan Guard — phase28 coverage', () => {
+  it('PLAN_LIMITS.FREE.recordsPerModule is 500', () => {
+    expect(PLAN_LIMITS.FREE.recordsPerModule).toBe(500);
+  });
+
+  it('PLAN_LIMITS.STARTER.modules is 5', () => {
+    expect(PLAN_LIMITS.STARTER.modules).toBe(5);
+  });
+
+  it('PLAN_LIMITS.FREE.aiCallsPerMonth is 10', () => {
+    expect(PLAN_LIMITS.FREE.aiCallsPerMonth).toBe(10);
+  });
+
+  it('getOrgPlan default is PROFESSIONAL for any unknown org', () => {
+    const plan = getOrgPlan('phase28-unknown-org-xyz-' + Date.now());
+    expect(plan).toBe('PROFESSIONAL');
+  });
+
+  it('checkLimit returns limit as a number or null', () => {
+    const result = checkLimit('phase28-org', 'users');
+    expect(result.limit === null || typeof result.limit === 'number').toBe(true);
+  });
+});

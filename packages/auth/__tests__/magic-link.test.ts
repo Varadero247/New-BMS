@@ -377,3 +377,51 @@ describe('magic-link — comprehensive coverage', () => {
     expect(store.size).toBe(1);
   });
 });
+
+describe('magic-link — phase28 coverage', () => {
+  it('hashMagicLinkToken is consistent across calls with same input', () => {
+    const h1 = hashMagicLinkToken('token-phase28');
+    const h2 = hashMagicLinkToken('token-phase28');
+    expect(h1).toBe(h2);
+  });
+
+  it('generateMagicLink expiresAt is after current time', () => {
+    const { expiresAt } = generateMagicLink('phase28@ims.local');
+    expect(expiresAt.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it('verifyMagicLinkToken returns ok for freshly generated token', () => {
+    const { rawToken, hashedToken, expiresAt } = generateMagicLink('v@ims.local');
+    const rec: MagicLinkRecord = {
+      hashedToken,
+      email: 'v@ims.local',
+      redirectUrl: '/',
+      expiresAt,
+      usedAt: null,
+    };
+    expect(verifyMagicLinkToken(rawToken, rec)).toBe('ok');
+  });
+
+  it('InMemoryMagicLinkStore.size is 0 after purging all expired records', () => {
+    const store = new InMemoryMagicLinkStore();
+    for (let i = 0; i < 3; i++) {
+      store.save('exp-' + i, {
+        hashedToken: 'exp-' + i,
+        email: 'x@y.com',
+        redirectUrl: '/',
+        expiresAt: new Date(Date.now() - 1000),
+        usedAt: null,
+      });
+    }
+    store.purgeExpired();
+    expect(store.size).toBe(0);
+  });
+
+  it('generateMagicLink with custom ttlMs of 1 minute expires in ~60 seconds', () => {
+    const before = Date.now();
+    const { expiresAt } = generateMagicLink('ttl@ims.local', '/', { ttlMs: 60_000 });
+    const ttl = expiresAt.getTime() - before;
+    expect(ttl).toBeGreaterThan(59_000);
+    expect(ttl).toBeLessThanOrEqual(60_500);
+  });
+});

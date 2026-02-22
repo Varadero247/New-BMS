@@ -726,3 +726,104 @@ describe('Environment Events API — boundary coverage', () => {
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Environment Events API — phase28 coverage', () => {
+  let appP28: express.Express;
+
+  beforeAll(() => {
+    appP28 = express();
+    appP28.use(express.json());
+    appP28.use('/api/events', eventsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / filters by severity=MINOR in where clause', async () => {
+    (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(appP28)
+      .get('/api/events?severity=MINOR')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envEvent.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ severity: 'MINOR' }),
+      })
+    );
+  });
+
+  it('GET / meta.page reflects the page query parameter', async () => {
+    (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(appP28)
+      .get('/api/events?page=4&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.page).toBe(4);
+  });
+
+  it('POST / returns 400 when description is an empty string', async () => {
+    const response = await request(appP28)
+      .post('/api/events')
+      .set('Authorization', 'Bearer token')
+      .send({
+        eventType: 'SPILL',
+        severity: 'MAJOR',
+        dateOfEvent: '2026-01-15',
+        location: 'Warehouse B',
+        department: 'Operations',
+        reportedBy: 'John Doe',
+        description: '',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id findUnique is called with correct id', async () => {
+    (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '17000000-0000-4000-a000-000000000001',
+      eventType: 'SPILL',
+      severity: 'MAJOR',
+    });
+
+    await request(appP28)
+      .get('/api/events/17000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envEvent.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '17000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+
+  it('PUT /:id calls update with the new status value in data', async () => {
+    (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '17000000-0000-4000-a000-000000000001',
+      status: 'REPORTED',
+    });
+    (mockPrisma.envEvent.update as jest.Mock).mockResolvedValueOnce({
+      id: '17000000-0000-4000-a000-000000000001',
+      status: 'INVESTIGATING',
+    });
+
+    await request(appP28)
+      .put('/api/events/17000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'INVESTIGATING' });
+
+    expect(mockPrisma.envEvent.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: 'INVESTIGATING',
+        }),
+      })
+    );
+  });
+});

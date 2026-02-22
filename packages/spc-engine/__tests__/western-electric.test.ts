@@ -338,3 +338,40 @@ describe('detectWesternElectricRules — final coverage to reach 40', () => {
     expect(rule1.length).toBe(5);
   });
 });
+
+describe('detectWesternElectricRules — phase28 coverage', () => {
+  it('returns empty array for exactly 2 in-control points on the same side', () => {
+    const chart = makeChart([10.5, 10.5], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart);
+    expect(violations.filter((v) => v.rule === 'RULE_4')).toHaveLength(0);
+  });
+
+  it('Rule 1 detects value exactly 1 unit above UCL', () => {
+    const chart = makeChart([14, 10, 10], 10, 13, 7);
+    const rule1 = detectWesternElectricRules(chart).filter((v) => v.rule === 'RULE_1');
+    expect(rule1.length).toBeGreaterThan(0);
+    expect(rule1[0].pointIndex).toBe(0);
+  });
+
+  it('Rule 2 does not trigger when 2 of 3 points are on opposite sides of 2-sigma', () => {
+    const chart = makeChart([12.5, 10, 7.5], 10, 13, 7);
+    const rule2 = detectWesternElectricRules(chart).filter((v) => v.rule === 'RULE_2');
+    expect(rule2).toHaveLength(0);
+  });
+
+  it('all violations have non-empty description strings', () => {
+    const chart = makeChart([14, 12.5, 10, 12.5, 11.5, 11.5, 10, 11.5, 11.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5], 10, 13, 7);
+    const violations = detectWesternElectricRules(chart);
+    for (const v of violations) {
+      expect(typeof v.description).toBe('string');
+      expect(v.description.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('detectWesternElectricRules does not mutate the input chart dataPoints', () => {
+    const chart = makeChart([10, 10, 10, 14, 10], 10, 13, 7);
+    const originalLength = chart.dataPoints.length;
+    detectWesternElectricRules(chart);
+    expect(chart.dataPoints).toHaveLength(originalLength);
+  });
+});

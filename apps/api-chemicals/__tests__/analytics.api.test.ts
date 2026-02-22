@@ -662,3 +662,82 @@ describe('GET /api/analytics/dashboard — comprehensive coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('GET /api/analytics/dashboard — phase28 coverage', () => {
+  const setupZeroMocks = () => {
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncompatAlert.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([]);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+  };
+
+  it('returns 200 when all mocks resolve to zero values', async () => {
+    setupZeroMocks();
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
+describe('GET /api/analytics/dashboard — phase28 coverage', () => {
+  const setupZeroMocks = () => {
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncompatAlert.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([]);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+  };
+
+  it('response data object has at least one key when all counts are zero', async () => {
+    setupZeroMocks();
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(Object.keys(res.body.data).length).toBeGreaterThan(0);
+  });
+
+  it('returns 500 when chemCoshh.count rejects', async () => {
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.count.mockRejectedValue(new Error('coshh count fail'));
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncompatAlert.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([]);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns 500 when chemMonitoring.count rejects', async () => {
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.count.mockRejectedValue(new Error('monitoring fail'));
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncompatAlert.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([]);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('riskLevelBreakdown is an object when groupBy returns empty array', async () => {
+    setupZeroMocks();
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.riskLevelBreakdown).toBe('object');
+  });
+});

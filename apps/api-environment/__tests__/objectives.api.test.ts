@@ -783,3 +783,105 @@ describe('Environment Objectives — extended coverage', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+describe('Environment Objectives — phase28 coverage', () => {
+  let appP28: express.Express;
+
+  beforeAll(() => {
+    appP28 = express();
+    appP28.use(express.json());
+    appP28.use('/api/objectives', objectivesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / filters by category=WATER in where clause', async () => {
+    (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(appP28)
+      .get('/api/objectives?category=WATER')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envObjective.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ category: 'WATER' }),
+      })
+    );
+  });
+
+  it('GET / meta.limit reflects the query parameter value', async () => {
+    (mockPrisma.envObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(appP28)
+      .get('/api/objectives?page=1&limit=25')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.limit).toBe(25);
+  });
+
+  it('POST / referenceNumber contains ENV-OBJ prefix', async () => {
+    (mockPrisma.envObjective.count as jest.Mock).mockResolvedValueOnce(3);
+    (mockPrisma.envObjective.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      referenceNumber: 'ENV-OBJ-2026-004',
+      title: 'Noise Reduction',
+      objectiveStatement: 'Reduce factory noise by 20% within two years',
+      category: 'NOISE',
+      targetDate: new Date('2028-06-30'),
+      owner: 'Jane Smith',
+      status: 'NOT_STARTED',
+      milestones: [],
+    });
+
+    await request(appP28)
+      .post('/api/objectives')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Noise Reduction',
+        objectiveStatement: 'Reduce factory noise by 20% within two years',
+        category: 'NOISE',
+        targetDate: '2028-06-30',
+        owner: 'Jane Smith',
+      });
+
+    const createCall = (mockPrisma.envObjective.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.referenceNumber).toMatch(/ENV-OBJ-/);
+  });
+
+  it('GET /:id findUnique is called with correct id', async () => {
+    (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+      title: 'Reduce carbon emissions',
+      milestones: [],
+    });
+
+    await request(appP28)
+      .get('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envObjective.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '15000000-0000-4000-a000-000000000001' },
+      })
+    );
+  });
+
+  it('DELETE /:id returns 500 when update throws an error', async () => {
+    (mockPrisma.envObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.envObjective.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(appP28)
+      .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

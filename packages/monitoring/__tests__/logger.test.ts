@@ -292,3 +292,35 @@ describe('createLogger — absolute final boundary', () => {
     expect(typeof child.error).toBe('function');
   });
 });
+
+describe('createLogger — phase28 coverage', () => {
+  it('createLogger returns an object with an info method that is callable with no args', () => {
+    const logger = createLogger('phase28-svc-1');
+    expect(() => logger.info('')).not.toThrow();
+  });
+
+  it('createLogger service name is reflected in defaultMeta.service', () => {
+    const logger = createLogger('phase28-unique-service');
+    expect(logger.defaultMeta.service).toBe('phase28-unique-service');
+  });
+
+  it('createRequestLogger produces a child that has a debug method', () => {
+    const parent = createLogger('phase28-parent-svc');
+    const child = createRequestLogger(parent, { correlationId: 'phase28-id' });
+    expect(typeof child.debug).toBe('function');
+  });
+
+  it('createLogger level defaults to info when LOG_LEVEL env is absent', () => {
+    const orig = process.env.LOG_LEVEL;
+    delete process.env.LOG_LEVEL;
+    const logger = createLogger('phase28-default-level');
+    expect(logger.level).toBe('info');
+    if (orig !== undefined) process.env.LOG_LEVEL = orig;
+  });
+
+  it('createRequestLogger child can log warn level without throwing', () => {
+    const parent = createLogger('phase28-child-warn');
+    const child = createRequestLogger(parent, {});
+    expect(() => child.warn('phase28 warning')).not.toThrow();
+  });
+});

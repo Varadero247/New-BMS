@@ -438,3 +438,43 @@ describe('complaints.api — coverage completion', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('complaints.api — phase28 coverage', () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET / returns data as array', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/complaints');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / pagination.total matches count mock', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.count.mockResolvedValue(25);
+    const res = await request(app).get('/api/complaints');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(25);
+  });
+
+  it('POST / returns 400 for invalid priority enum', async () => {
+    const res = await request(app).post('/api/complaints').send({ title: 'Test', priority: 'EXTREME_URGENT' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns 500 with INTERNAL_ERROR on DB error', async () => {
+    mockPrisma.compComplaint.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/complaints/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 404 with NOT_FOUND when record missing', async () => {
+    mockPrisma.compComplaint.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/complaints/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

@@ -501,3 +501,53 @@ describe('metrics — extra coverage', () => {
     expect(res.body.data.status).toBe('DRAFT');
   });
 });
+
+describe('metrics — phase28 coverage', () => {
+  it('GET /:id/data-points returns 200 and has pagination.limit field', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([mockDataPoint]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('POST /:id/data-points stores metricId in create call', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.create as jest.Mock).mockResolvedValue(mockDataPoint);
+    await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({ periodStart: '2026-01-01', periodEnd: '2026-03-31', value: 9999, unit: 'tCO2e' });
+    expect(prisma.esgDataPoint.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ metricId: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET /:id/data-points findMany called with metricId filter', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(prisma.esgDataPoint.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ metricId: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET /:id/data-points returns data items with periodStart field', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([mockDataPoint]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.body.data[0]).toHaveProperty('periodStart');
+  });
+
+  it('POST /:id/data-points with DRAFT status returns 201 with data.status DRAFT', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.create as jest.Mock).mockResolvedValue({ ...mockDataPoint, status: 'DRAFT' });
+    const res = await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({ periodStart: '2026-04-01', periodEnd: '2026-06-30', value: 300, unit: 'MWh', status: 'DRAFT' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('DRAFT');
+  });
+});

@@ -506,3 +506,50 @@ describe('FMEA — comprehensive coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+
+describe('FMEA — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/fmea findMany is called once per list request', async () => {
+    (mockPrisma.fmeaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/fmea');
+    expect(mockPrisma.fmeaStudy.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/fmea with page=2 limit=5 returns correct meta', async () => {
+    (mockPrisma.fmeaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(10);
+    const res = await request(app).get('/api/fmea?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('DELETE /api/fmea/:id calls update with deletedAt set', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
+    (mockPrisma.fmeaStudy.update as jest.Mock).mockResolvedValue({ ...mockStudy, deletedAt: new Date() });
+    await request(app).delete('/api/fmea/' + STUDY_ID);
+    expect(mockPrisma.fmeaStudy.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('PUT /api/fmea/:id returns 200 with updated status APPROVED', async () => {
+    (mockPrisma.fmeaStudy.findUnique as jest.Mock).mockResolvedValue(mockStudy);
+    (mockPrisma.fmeaStudy.update as jest.Mock).mockResolvedValue({ ...mockStudy, status: 'APPROVED' });
+    const res = await request(app).put('/api/fmea/' + STUDY_ID).send({ status: 'APPROVED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+
+  it('GET /api/fmea returns success:true and meta.totalPages=0 when no studies', async () => {
+    (mockPrisma.fmeaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.fmeaStudy.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/fmea');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+});

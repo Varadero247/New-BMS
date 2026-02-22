@@ -750,3 +750,48 @@ describe('Payroll Expenses — additional coverage', () => {
     expect(response.body.data).toHaveLength(0);
   });
 });
+
+
+describe('Payroll Expenses — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/expenses', expensesRoutes);
+  });
+
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET /api/expenses filters by both employeeId and status', async () => {
+    (mockPrisma.expense.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/expenses?employeeId=2a000000-0000-4000-a000-000000000001&status=APPROVED').set('Authorization', 'Bearer token');
+    expect(mockPrisma.expense.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ employeeId: '2a000000-0000-4000-a000-000000000001', status: 'APPROVED' }) })
+    );
+  });
+  it('GET /api/expenses/:id findUnique called with correct id', async () => {
+    (mockPrisma.expense.findUnique as jest.Mock).mockResolvedValueOnce({ id: '38000000-0000-4000-a000-000000000001', expenseNumber: 'EXP-X', employee: {}, report: null });
+    await request(app).get('/api/expenses/38000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token');
+    expect(mockPrisma.expense.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: '38000000-0000-4000-a000-000000000001' } }));
+  });
+  it('PUT /approve: update called with approvedAt Date', async () => {
+    (mockPrisma.expense.update as jest.Mock).mockResolvedValueOnce({ id: '38000000-0000-4000-a000-000000000001', status: 'APPROVED' });
+    await request(app).put('/api/expenses/38000000-0000-4000-a000-000000000001/approve').set('Authorization', 'Bearer token').send({});
+    expect(mockPrisma.expense.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ approvedAt: expect.any(Date) }) }));
+  });
+  it('GET /reports/all filters by both employeeId and status', async () => {
+    (mockPrisma.expenseReport.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/expenses/reports/all?employeeId=2a000000-0000-4000-a000-000000000001&status=APPROVED').set('Authorization', 'Bearer token');
+    expect(mockPrisma.expenseReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ employeeId: '2a000000-0000-4000-a000-000000000001', status: 'APPROVED' }) })
+    );
+  });
+  it('POST /api/expenses returns 400 for zero amount', async () => {
+    const res = await request(app).post('/api/expenses').set('Authorization', 'Bearer token')
+      .send({ employeeId: '11111111-1111-1111-1111-111111111111', category: 'TRAVEL', description: 'Flight', amount: 0, expenseDate: '2024-03-01' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

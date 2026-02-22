@@ -530,3 +530,51 @@ describe('customer-invoices — additional coverage 2', () => {
     );
   });
 });
+
+describe('customer-invoices — phase28 coverage', () => {
+  it('GET list: totalPages is 1 when count equals limit', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(8);
+    const res = await request(app).get('/api/customer/invoices?limit=8');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(1);
+  });
+
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    await request(app).get('/api/customer/invoices');
+    expect(mockPrisma.portalOrder.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id: success true when invoice is found', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      orderNumber: 'INV-P28',
+      portalUserId: 'user-123',
+    });
+    const res = await request(app).get('/api/customer/invoices/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST pay: update is called with where id matching path param', async () => {
+    const invoice = { id: '00000000-0000-0000-0000-000000000002', portalUserId: 'user-123', notes: null };
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(invoice);
+    mockPrisma.portalOrder.update.mockResolvedValue({ ...invoice, notes: 'Payment intent: BANK_TRANSFER' });
+    await request(app)
+      .post('/api/customer/invoices/00000000-0000-0000-0000-000000000002/pay')
+      .send({ paymentMethod: 'BANK_TRANSFER' });
+    expect(mockPrisma.portalOrder.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000002' } })
+    );
+  });
+
+  it('GET list: pagination.limit defaults to a positive value', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/invoices');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+});

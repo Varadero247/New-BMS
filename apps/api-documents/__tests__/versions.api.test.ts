@@ -427,3 +427,52 @@ describe('Versions — final boundary coverage', () => {
     expect(res.body).toHaveProperty('success', true);
   });
 });
+
+describe('Versions — phase28 coverage', () => {
+  it('GET / with limit=7 returns pagination.limit of 7', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([]);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/versions?limit=7');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(7);
+  });
+
+  it('GET / pagination.total matches count mock value', async () => {
+    mockPrisma.docVersion.findMany.mockResolvedValue([]);
+    mockPrisma.docVersion.count.mockResolvedValue(33);
+    const res = await request(app).get('/api/versions');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(33);
+  });
+
+  it('POST / response data has version field matching sent version', async () => {
+    mockPrisma.docVersion.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      documentId: 'doc-30',
+      version: 7,
+    });
+    const res = await request(app)
+      .post('/api/versions')
+      .send({ documentId: 'doc-30', version: 7 });
+    expect(res.status).toBe(201);
+    expect(res.body.data.version).toBe(7);
+  });
+
+  it('PUT /:id response data has id when updated', async () => {
+    mockPrisma.docVersion.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docVersion.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', version: 3 });
+    const res = await request(app)
+      .put('/api/versions/00000000-0000-0000-0000-000000000001')
+      .send({ version: 3 });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('DELETE /:id response has success:true', async () => {
+    mockPrisma.docVersion.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docVersion.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/versions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

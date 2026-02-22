@@ -441,3 +441,53 @@ describe('Partner Onboarding — ≥40 coverage', () => {
     expect(templates).toEqual(['partner_welcome', 'partner_day7_tips', 'partner_day30_casestudy']);
   });
 });
+
+describe('Partner Onboarding — phase28 coverage', () => {
+  it('POST /enqueue with name included returns 201', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-ph28-1' });
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'phase28@example.com', name: 'Phase28 Partner' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /enqueue third job has a scheduledFor set', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-ph28-2' });
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'third28@example.com' });
+    const thirdCall = (prisma.mktEmailJob.create as jest.Mock).mock.calls[2][0];
+    expect(thirdCall.data.scheduledFor).toBeDefined();
+  });
+
+  it('POST /enqueue response data.jobsScheduled equals 3', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-ph28-3' });
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000006')
+      .send({ email: 'count28@example.com' });
+    expect(res.body.data.jobsScheduled).toBe(3);
+  });
+
+  it('POST /enqueue all 3 jobs have sequenceId set', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-ph28-4' });
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/ph28-partner')
+      .send({ email: 'allseq28@example.com' });
+    const calls = (prisma.mktEmailJob.create as jest.Mock).mock.calls;
+    calls.forEach((c: any[]) => {
+      expect(c[0].data.sequenceId).toBe('partner-onboarding-ph28-partner');
+    });
+  });
+
+  it('POST /enqueue returns 500 with error.code INTERNAL_ERROR on second job DB failure', async () => {
+    (prisma.mktEmailJob.create as jest.Mock)
+      .mockResolvedValueOnce({ id: 'job-ok' })
+      .mockRejectedValueOnce(new Error('DB mid-fail'));
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'fail28@example.com' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

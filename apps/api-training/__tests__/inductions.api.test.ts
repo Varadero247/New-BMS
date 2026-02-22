@@ -386,3 +386,40 @@ describe('inductions.api — coverage to 40', () => {
     );
   });
 });
+
+describe('inductions.api — phase28 coverage', () => {
+  it('GET /api/inductions data array is empty when no records', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/inductions data has five records when five returned', async () => {
+    const records = Array.from({ length: 5 }, (_, i) => ({ id: String(i), employeeName: 'Emp ' + i, course: { title: 'T' + i, code: 'C' + i } }));
+    mockPrisma.trainRecord.findMany.mockResolvedValue(records);
+    const res = await request(app).get('/api/inductions');
+    expect(res.body.data).toHaveLength(5);
+  });
+
+  it('GET /api/inductions error response has error.code INTERNAL_ERROR', async () => {
+    mockPrisma.trainRecord.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/inductions');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/inductions findMany called with include option', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    await request(app).get('/api/inductions');
+    const callArg = mockPrisma.trainRecord.findMany.mock.calls[0][0];
+    expect(callArg.include).toBeDefined();
+  });
+
+  it('GET /api/inductions response body has only success and data fields', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+    expect(res.body.pagination).toBeUndefined();
+  });
+});

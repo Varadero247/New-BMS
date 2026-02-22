@@ -516,3 +516,42 @@ describe('fireRiskAssessment — final boundary coverage', () => {
     expect(res.body).toHaveProperty('success', true);
   });
 });
+
+describe('fireRiskAssessment — phase28 coverage', () => {
+  it('GET /api/fra data is an array', async () => {
+    mockFra.findMany.mockResolvedValue([fakeFra]);
+    mockFra.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/fra');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/fra response data has referenceNumber field', async () => {
+    mockFra.count.mockResolvedValue(0);
+    mockFra.create.mockResolvedValue(fakeFra);
+    const res = await request(app).post('/api/fra').send(validCreateBody);
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('GET /api/fra/:id response data.id matches requested id', async () => {
+    mockFra.findFirst.mockResolvedValue({ ...fakeFra });
+    const res = await request(app).get(`/api/fra/${FRA_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(FRA_ID);
+  });
+
+  it('PUT /api/fra/:id calls update exactly once on success', async () => {
+    mockFra.findFirst.mockResolvedValue(fakeFra);
+    mockFra.update.mockResolvedValue({ ...fakeFra, assessorName: 'Phase28 Assessor' });
+    await request(app).put(`/api/fra/${FRA_ID}`).send({ assessorName: 'Phase28 Assessor' });
+    expect(mockFra.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/fra/overdue data is an array', async () => {
+    mockFra.findMany.mockResolvedValue([fakeFra]);
+    const res = await request(app).get('/api/fra/overdue');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

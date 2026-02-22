@@ -528,3 +528,56 @@ describe('Chemicals Disposal — additional coverage 3', () => {
     );
   });
 });
+
+describe('Chemicals Disposal — phase28 coverage', () => {
+  it('GET /disposal success:true is present in response', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /disposal/:id returns 404 when disposal record not found', async () => {
+    mockPrisma.chemDisposal.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/disposal/00000000-0000-0000-0000-000000000099')
+      .send({ certificateRef: 'X' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /disposal returns 404 when chemical not found', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
+    const res = await request(app).post('/api/disposal').send({
+      chemicalId: '00000000-0000-0000-0000-000000000001',
+      quantityDisposed: 5,
+      unit: 'L',
+      disposalDate: '2026-02-15T00:00:00.000Z',
+      disposalMethod: 'Licensed waste contractor',
+      disposedBy: 'user-1',
+    });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /disposal/:id returns 500 when update rejects', async () => {
+    mockPrisma.chemDisposal.findFirst.mockResolvedValue(mockDisposal);
+    mockPrisma.chemDisposal.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/disposal/00000000-0000-0000-0000-000000000060')
+      .send({ certificateRef: 'FAIL' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /disposal pagination has page, limit and total fields', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+});

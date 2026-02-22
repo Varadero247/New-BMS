@@ -262,3 +262,13 @@ describe('API_ENDPOINTS — extended coverage', () => {
     expect(path).toContain('analysis-xyz');
   });
 });
+
+describe('types — phase28 coverage', () => {
+  it('getRiskLevel returns CRITICAL for score of 999', () => {
+    expect(getRiskLevel(999)).toBe('CRITICAL');
+  });
+
+  it('ISO_STANDARD_LABELS has entry for ISO_45001 as a non-empty string', () => {
+    expect(ISO_STANDARD_LABELS['ISO_45001'].length).toBeGreaterThan(0);
+  });
+});

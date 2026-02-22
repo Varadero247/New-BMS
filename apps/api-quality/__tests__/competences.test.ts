@@ -465,3 +465,41 @@ describe('Competences — final coverage', () => {
     expect(res.body.pagination.total).toBe(12);
   });
 });
+
+
+describe('Competences — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/competences findMany called with deletedAt:null filter', async () => {
+    (prisma.qualCompetence.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualCompetence.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/competences');
+    expect(prisma.qualCompetence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('DELETE /api/competences/:id does not call update when not found', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(null);
+    await request(app).delete('/api/competences/00000000-0000-0000-0000-000000000099');
+    expect(prisma.qualCompetence.update).not.toHaveBeenCalled();
+  });
+
+  it('POST /api/competences returns 400 when competencyArea is missing', async () => {
+    const res = await request(app).post('/api/competences').send({
+      employeeName: 'Missing Area',
+      status: 'IN_TRAINING',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/competences/:id returns success:true when found', async () => {
+    (prisma.qualCompetence.findFirst as jest.Mock).mockResolvedValue(mockCompetence);
+    const res = await request(app).get('/api/competences/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

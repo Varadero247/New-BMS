@@ -838,3 +838,45 @@ describe('HR Training API Routes', () => {
     });
   });
 });
+
+describe('HR Training API — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/training', trainingRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/training/courses returns empty list when no courses exist', async () => {
+    (mockPrisma.hRTrainingCourse.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app)
+      .get('/api/training/courses')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/training/sessions returns success:true', async () => {
+    (mockPrisma.hRTrainingSession.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app)
+      .get('/api/training/sessions')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/training/certifications returns data array', async () => {
+    (mockPrisma.employeeCertification.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app)
+      .get('/api/training/certifications')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+});

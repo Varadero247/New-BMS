@@ -419,3 +419,41 @@ describe('courses.api — coverage to 40', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('courses.api — phase28 coverage', () => {
+  it('GET /api/courses response body is not null', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([]);
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/courses');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('POST /api/courses create mock called once on success', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainCourse.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'T', type: 'MANDATORY' });
+    await request(app).post('/api/courses').send({ title: 'T', type: 'MANDATORY' });
+    expect(mockPrisma.trainCourse.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/courses/:id returns 500 error code INTERNAL_ERROR', async () => {
+    mockPrisma.trainCourse.findFirst.mockRejectedValue(new Error('db gone'));
+    const res = await request(app).get('/api/courses/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /api/courses/:id update called once on success', async () => {
+    mockPrisma.trainCourse.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainCourse.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    await request(app).put('/api/courses/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+    expect(mockPrisma.trainCourse.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /api/courses/:id 500 error body success is false', async () => {
+    mockPrisma.trainCourse.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.trainCourse.update.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).delete('/api/courses/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

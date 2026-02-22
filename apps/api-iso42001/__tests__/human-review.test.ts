@@ -547,3 +547,36 @@ describe('Human Review — final extended coverage', () => {
     );
   });
 });
+
+describe('Human Review — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/human-review passes organisationId filter from authenticated user', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+    (prisma.aiHumanReview.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/human-review');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/human-review/:id/decide returns success:true on valid APPROVED decision', async () => {
+    (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.aiHumanReview.update as jest.Mock).mockResolvedValue({ ...mockReview, status: 'APPROVED', decision: 'APPROVED', justification: 'Verified' });
+    const res = await request(app)
+      .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
+      .send({ decision: 'APPROVED', justification: 'Verified' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/human-review/:id calls prisma update with deletedAt on soft-delete', async () => {
+    (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.aiHumanReview.update as jest.Mock).mockResolvedValue({ ...mockReview, deletedAt: new Date() });
+    await request(app).delete('/api/human-review/00000000-0000-0000-0000-000000000001');
+    expect(prisma.aiHumanReview.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

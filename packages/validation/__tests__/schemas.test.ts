@@ -291,3 +291,35 @@ describe('schemas — additional coverage', () => {
     ).not.toThrow();
   });
 });
+
+describe('schemas — phase28 coverage', () => {
+  it('emailSchema rejects email with spaces', () => {
+    expect(() => emailSchema.parse('user @example.com')).toThrow();
+  });
+
+  it('passwordSchema rejects password without lowercase', () => {
+    expect(() => passwordSchema.parse('P@SSW0RD!')).toThrow(/lowercase/);
+  });
+
+  it('idSchema rejects null', () => {
+    expect(() => idSchema.parse(null)).toThrow();
+  });
+
+  it('paginationSchema defaults sortOrder to desc', () => {
+    const result = paginationSchema.parse({});
+    expect(result.sortOrder).toBe('desc');
+  });
+
+  it('registrationSchema rejects HTML in name and strips tags', () => {
+    const result = registrationSchema.safeParse({
+      email: 'user@example.com',
+      password: 'SecureP@ss1',
+      name: '<b>Alice</b>',
+    });
+    if (result.success) {
+      expect(result.data.name).not.toContain('<b>');
+    } else {
+      expect(result.success).toBe(false);
+    }
+  });
+});

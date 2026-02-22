@@ -628,3 +628,53 @@ describe('COSHH — additional coverage 3', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('COSHH — phase28 coverage', () => {
+  it('GET /coshh success:true is present in response', async () => {
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([]);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/coshh');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /coshh returns 400 when chemicalId is missing', async () => {
+    const res = await request(app).post('/api/coshh').send({
+      activityDescription: 'Mixing solvents',
+      assessmentDate: '2026-02-01T00:00:00.000Z',
+      inherentLikelihood: 2,
+      inherentSeverity: 3,
+      residualLikelihood: 1,
+      residualSeverity: 2,
+      controlMeasures: {},
+      reviewDate: '2027-02-01T00:00:00.000Z',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /coshh/:id returns 500 on db error', async () => {
+    mockPrisma.chemCoshh.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/coshh/00000000-0000-0000-0000-000000000020');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /coshh pagination has page and total fields', async () => {
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([]);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/coshh');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+
+  it('POST /coshh/:id/sign-off returns 404 when coshh not found', async () => {
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/coshh/00000000-0000-0000-0000-000000000099/sign-off')
+      .send({ role: 'supervisor', name: 'Nobody' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

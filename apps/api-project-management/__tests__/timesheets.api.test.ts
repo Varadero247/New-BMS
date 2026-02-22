@@ -731,3 +731,61 @@ describe('timesheets.api — extra boundary coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+
+describe('timesheets.api — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/timesheets', timesheetsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/timesheets findMany called with deletedAt:null filter', async () => {
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/timesheets').query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(mockPrisma.projectTimesheet.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('GET /api/timesheets returns success:false on DB error', async () => {
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockRejectedValueOnce(new Error('fail'));
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockRejectedValueOnce(new Error('fail'));
+    const res = await request(app).get('/api/timesheets').query({ projectId: '44000000-0000-4000-a000-000000000001' });
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/timesheets returns 201 with success:true on valid payload', async () => {
+    (mockPrisma.projectTimesheet.create as jest.Mock).mockResolvedValueOnce(mockTimesheet);
+    const res = await request(app).post('/api/timesheets').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      employeeId: 'emp-phase28',
+      workDate: '2026-01-01',
+      hoursWorked: 8,
+      activityType: 'DEVELOPMENT',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/timesheets/:id/approve sets approvedAt to a Date', async () => {
+    (mockPrisma.projectTimesheet.findUnique as jest.Mock).mockResolvedValueOnce(mockTimesheet);
+    (mockPrisma.projectTimesheet.update as jest.Mock).mockResolvedValueOnce({ ...mockTimesheet, status: 'APPROVED', approvedAt: new Date() });
+    await request(app).put('/api/timesheets/48000000-0000-4000-a000-000000000001/approve').send();
+    expect(mockPrisma.projectTimesheet.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ approvedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /api/timesheets meta.totalPages calculated correctly from count', async () => {
+    (mockPrisma.projectTimesheet.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectTimesheet.count as jest.Mock).mockResolvedValueOnce(100);
+    const res = await request(app).get('/api/timesheets').query({ projectId: '44000000-0000-4000-a000-000000000001', limit: '20' });
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(5);
+  });
+});

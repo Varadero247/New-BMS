@@ -327,3 +327,29 @@ describe('@ims/i18n — useT and locale boundary coverage', () => {
     expect(locales).toContain('es');
   });
 });
+
+describe('@ims/i18n — phase28 coverage', () => {
+  beforeEach(() => { mockUseTranslations.mockClear(); });
+
+  it('locales does not contain "jp"', () => {
+    expect(locales).not.toContain('jp');
+  });
+
+  it('locales does not contain "zh"', () => {
+    expect(locales).not.toContain('zh');
+  });
+
+  it('useT with empty string namespace calls useTranslations with empty string', () => {
+    useT('');
+    expect(mockUseTranslations).toHaveBeenCalledWith('');
+  });
+
+  it('defaultLocale is not an empty string', () => {
+    expect(defaultLocale.length).toBeGreaterThan(0);
+  });
+
+  it('locales has no duplicate entries', () => {
+    const unique = [...new Set(locales)];
+    expect(unique).toHaveLength(locales.length);
+  });
+});

@@ -281,3 +281,35 @@ describe('Password policy — additional edge cases', () => {
     expect(result.errors.length).toBeGreaterThan(0);
   });
 });
+
+describe('Password policy — phase28 coverage', () => {
+  it('rejects all-special-char password', () => {
+    const r = validatePasswordStrength('!@#$%^&*()!@#$');
+    expect(r.valid).toBe(false);
+    expect(r.errors).toContain('Password must contain at least one uppercase letter');
+  });
+
+  it('accepts password with number at very end', () => {
+    const r = validatePasswordStrength('UpperLowerSpc!9');
+    expect(r.valid).toBe(true);
+  });
+
+  it('returns valid:true for 12-char password with all required types', () => {
+    const r = validatePasswordStrength('Aa1!Aa1!Aa1!');
+    expect(r.valid).toBe(true);
+    expect(r.errors).toHaveLength(0);
+  });
+
+  it('errors is empty array for valid password', () => {
+    const r = validatePasswordStrength('MySecure1!Pass');
+    expect(Array.isArray(r.errors)).toBe(true);
+    expect(r.errors).toHaveLength(0);
+  });
+
+  it('rejects 71-char password missing uppercase', () => {
+    const pwd = 'a1!' + 'a'.repeat(68);
+    const r = validatePasswordStrength(pwd);
+    expect(r.valid).toBe(false);
+    expect(r.errors).toContain('Password must contain at least one uppercase letter');
+  });
+});

@@ -501,3 +501,52 @@ describe('Additional sanitize property invariants', () => {
     );
   });
 });
+
+describe('sanitize — phase28 coverage', () => {
+  it('sanitizeString output is always a string for sql-like inputs', () => {
+    fc.assert(
+      fc.property(sqlLike, (input) => {
+        expect(typeof sanitizeString(input)).toBe('string');
+      }),
+      { numRuns: 200 }
+    );
+  });
+
+  it('sanitizeUrl never starts with vbscript:', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const result = sanitizeUrl(input).toLowerCase();
+        expect(result.startsWith('vbscript:')).toBe(false);
+      }),
+      { numRuns: 200 }
+    );
+  });
+
+  it('sanitizeFilename output never starts with a double-dot sequence', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const result = sanitizeFilename(input);
+        expect(result.startsWith('..')).toBe(false);
+      }),
+      { numRuns: 200 }
+    );
+  });
+
+  it('containsXss returns boolean for sql-like inputs', () => {
+    fc.assert(
+      fc.property(sqlLike, (input) => {
+        expect(typeof containsXss(input)).toBe('boolean');
+      }),
+      { numRuns: 200 }
+    );
+  });
+
+  it('containsSqlInjection returns boolean for html-like inputs', () => {
+    fc.assert(
+      fc.property(htmlLike, (input) => {
+        expect(typeof containsSqlInjection(input)).toBe('boolean');
+      }),
+      { numRuns: 200 }
+    );
+  });
+});

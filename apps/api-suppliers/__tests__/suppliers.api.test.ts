@@ -457,3 +457,42 @@ describe('suppliers.api — coverage to 40', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('suppliers.api — phase28 coverage', () => {
+  it('GET /api/suppliers with tier filter returns 200', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/suppliers?tier=HIGH');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/suppliers response data has id', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppSupplier.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', name: 'New Co' });
+    const res = await request(app).post('/api/suppliers').send({ name: 'New Co' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBeDefined();
+  });
+
+  it('GET /api/suppliers/:id success is true when found', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', name: 'Acme' });
+    const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000002');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/suppliers/:id 500 error body success is false', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppSupplier.update.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).put('/api/suppliers/00000000-0000-0000-0000-000000000001').send({ name: 'X' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/suppliers findMany called once per list request', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    await request(app).get('/api/suppliers');
+    expect(mockPrisma.suppSupplier.findMany).toHaveBeenCalledTimes(1);
+  });
+});

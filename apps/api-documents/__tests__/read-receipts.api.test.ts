@@ -457,3 +457,53 @@ describe('Read Receipts — final boundary coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Read Receipts — phase28 coverage', () => {
+  it('GET / with limit=3 returns pagination.limit of 3', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/read-receipts?limit=3');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(3);
+  });
+
+  it('GET / pagination.total matches count mock value', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(55);
+    const res = await request(app).get('/api/read-receipts');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(55);
+  });
+
+  it('POST / with READ status returns data with status READ', async () => {
+    mockPrisma.docReadReceipt.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      documentId: 'doc-20',
+      userId: 'user-20',
+      status: 'READ',
+    });
+    const res = await request(app)
+      .post('/api/read-receipts')
+      .send({ documentId: 'doc-20', userId: 'user-20', status: 'READ' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('READ');
+  });
+
+  it('PUT /:id response has data.id when updated', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docReadReceipt.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'READ' });
+    const res = await request(app)
+      .put('/api/read-receipts/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'READ' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('DELETE /:id calls findFirst once then update once', async () => {
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docReadReceipt.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/read-receipts/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.docReadReceipt.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.docReadReceipt.update).toHaveBeenCalledTimes(1);
+  });
+});

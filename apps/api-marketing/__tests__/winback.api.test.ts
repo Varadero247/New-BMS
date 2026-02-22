@@ -476,3 +476,53 @@ describe('Winback — ≥40 coverage', () => {
     expect(prisma.mktWinBackSequence.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Winback — phase28 coverage', () => {
+  it('GET /active returns data with correct length', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue([
+      { id: 'wb-ph28-1', orgId: 'org-ph28', reactivatedAt: null },
+    ]);
+    const res = await request(app).get('/api/winback/active');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('POST /start/:orgId response body.data has a token field', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-tok', orgId: '00000000-0000-0000-0000-000000000001', token: 'tok-ph28' });
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    const res = await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'tok28@org.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET /reason/features returns 200 with update called', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-feat', orgId: 'org-feat' });
+    (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    const res = await request(app).get('/api/winback/reason/features?token=tok-feat');
+    expect(res.status).toBe(200);
+    expect(prisma.mktWinBackSequence.update).toHaveBeenCalled();
+  });
+
+  it('POST /start/:orgId create is called with orgId from URL param', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-url', orgId: '00000000-0000-0000-0000-000000000009' });
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000009')
+      .send({ email: 'url@org.com' });
+    expect(prisma.mktWinBackSequence.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ orgId: '00000000-0000-0000-0000-000000000009' }) })
+    );
+  });
+
+  it('GET /active success:false on DB error', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/winback/active');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -485,3 +485,47 @@ describe('customers.api — final coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('customers.api — phase28 coverage', () => {
+  it('GET / success:true even when count returns 0', async () => {
+    mockPrisma.fsSvcCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcCustomer.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customers');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data array length matches findMany result', async () => {
+    const items = [
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Alpha' },
+      { id: '00000000-0000-0000-0000-000000000002', name: 'Beta' },
+      { id: '00000000-0000-0000-0000-000000000003', name: 'Gamma' },
+    ];
+    mockPrisma.fsSvcCustomer.findMany.mockResolvedValue(items);
+    mockPrisma.fsSvcCustomer.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/customers');
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('POST / returns 400 when name contains only whitespace', async () => {
+    const res = await request(app).post('/api/customers').send({ name: '   ' });
+    expect(res.status).toBe(400);
+    expect(mockPrisma.fsSvcCustomer.create).not.toHaveBeenCalled();
+  });
+
+  it('PUT /:id returns 200 and success:true on valid update', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010' });
+    mockPrisma.fsSvcCustomer.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000010', name: 'Omega Corp' });
+    const res = await request(app)
+      .put('/api/customers/00000000-0000-0000-0000-000000000010')
+      .send({ name: 'Omega Corp' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id findFirst is called once with correct id', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000011' });
+    mockPrisma.fsSvcCustomer.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000011', deletedAt: new Date() });
+    await request(app).delete('/api/customers/00000000-0000-0000-0000-000000000011');
+    expect(mockPrisma.fsSvcCustomer.findFirst).toHaveBeenCalledTimes(1);
+  });
+});

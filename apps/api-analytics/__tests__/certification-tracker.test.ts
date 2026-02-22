@@ -524,3 +524,66 @@ describe('certification-tracker — extra coverage', () => {
     expect(prisma.complianceDeadline.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('certification-tracker.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/certifications returns success:true with deadlines array on success', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'ISO 9001', category: 'COMPLIANCE', status: 'UPCOMING' },
+    ]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.deadlines).toHaveLength(1);
+  });
+
+  it('runCertificationTrackerJob marks DUE_SOON for deadline 7 days from now', async () => {
+    const soon = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([
+      { id: 'cd-soon7', name: '7-Day Cert', dueDate: soon, status: 'UPCOMING', lastCompletedAt: null },
+    ]);
+    (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({});
+    await runCertificationTrackerJob();
+    expect(prisma.complianceDeadline.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'cd-soon7' }, data: { status: 'DUE_SOON' } })
+    );
+  });
+
+  it('GET /api/certifications/seed returns success:true on createMany success', async () => {
+    (prisma.complianceDeadline.createMany as jest.Mock).mockResolvedValue({ count: 5 });
+    const res = await request(app).get('/api/certifications/seed');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/certifications returns 201 with correct category in response', async () => {
+    (prisma.complianceDeadline.create as jest.Mock).mockResolvedValue({
+      id: 'ph28-ct-1',
+      name: 'Phase28 Cert',
+      category: 'REGULATORY',
+      dueDate: new Date('2026-11-01'),
+      status: 'UPCOMING',
+    });
+    const res = await request(app).post('/api/certifications').send({
+      name: 'Phase28 Cert',
+      category: 'REGULATORY',
+      dueDate: '2026-11-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.deadline.category).toBe('REGULATORY');
+  });
+
+  it('PATCH /api/certifications/:id response data.deadline has id field', async () => {
+    (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.complianceDeadline.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DUE_SOON' });
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DUE_SOON' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.deadline).toHaveProperty('id');
+  });
+});

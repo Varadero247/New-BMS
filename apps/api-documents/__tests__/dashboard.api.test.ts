@@ -418,3 +418,52 @@ describe('Documents Dashboard — final additional coverage', () => {
     expect(res.body.data.pendingApprovals).toBe(500);
   });
 });
+
+describe('Documents Dashboard — phase28 coverage', () => {
+  it('GET /stats returns success:true when all counts are positive', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(3);
+    mockPrisma.docVersion.count.mockResolvedValue(9);
+    mockPrisma.docApproval.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /stats data.totalDocuments is 0 when count returns 0', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDocuments).toBe(0);
+  });
+
+  it('GET /stats error.code is INTERNAL_ERROR when docDocument.count throws', async () => {
+    mockPrisma.docDocument.count.mockRejectedValue(new Error('crash'));
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /stats response has data as object not array', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(1);
+    mockPrisma.docVersion.count.mockResolvedValue(2);
+    mockPrisma.docApproval.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+    expect(Array.isArray(res.body.data)).toBe(false);
+  });
+
+  it('GET /stats each counter is called once per request', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(2);
+    mockPrisma.docVersion.count.mockResolvedValue(5);
+    mockPrisma.docApproval.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.docDocument.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.docVersion.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.docApproval.count).toHaveBeenCalledTimes(1);
+  });
+});

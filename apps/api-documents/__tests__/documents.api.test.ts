@@ -439,3 +439,48 @@ describe('Documents — final additional coverage', () => {
     expect(res.body.data).toHaveProperty('message');
   });
 });
+
+describe('Documents — phase28 coverage', () => {
+  it('GET / with limit=5 returns pagination.limit of 5', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/documents?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET / pagination.total matches count mock', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/documents');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(42);
+  });
+
+  it('POST / response body has success:true on 201', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docDocument.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      title: 'Phase28 Doc',
+      referenceNumber: 'DOC-2026-0030',
+    });
+    const res = await request(app).post('/api/documents').send({ title: 'Phase28 Doc' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id calls findFirst exactly once', async () => {
+    mockPrisma.docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Found' });
+    await request(app).get('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.docDocument.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE /:id response has success:true and data.message when deleted', async () => {
+    mockPrisma.docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('message');
+  });
+});

@@ -684,3 +684,59 @@ describe('Dashboards API — supplemental coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('dashboards.api.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/dashboards returns 200 with data array of length 1', async () => {
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Phase28 Dash', ownerId: 'user-123', isPublic: false, analyticsWidgets: [] },
+    ]);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboards');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.pagination.total).toBe(1);
+  });
+
+  it('POST /api/dashboards returns 201 with data.name matching input', async () => {
+    mockPrisma.analyticsDashboard.create.mockResolvedValue({
+      id: 'ph28-dash-1',
+      name: 'Phase28 New',
+      ownerId: 'user-123',
+      isPublic: false,
+    });
+    const res = await request(app).post('/api/dashboards').send({ name: 'Phase28 New' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.name).toBe('Phase28 New');
+  });
+
+  it('GET /api/dashboards/:id returns success:true with data.id matching UUID', async () => {
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Phase28 Detail',
+      analyticsWidgets: [],
+    });
+    const res = await request(app).get('/api/dashboards/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('GET /api/dashboards 500 on DB error returns success:false', async () => {
+    mockPrisma.analyticsDashboard.findMany.mockRejectedValue(new Error('phase28 db error'));
+    const res = await request(app).get('/api/dashboards');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/dashboards pagination.totalPages is a number', async () => {
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboards');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.pagination.totalPages).toBe('number');
+  });
+});

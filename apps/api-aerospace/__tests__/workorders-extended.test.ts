@@ -634,3 +634,47 @@ describe('Work Order Routes (Aerospace)', () => {
     });
   });
 });
+
+describe('Work Order Routes (Aerospace) — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/workorders returns success:true with empty list', async () => {
+    (mockPrisma.workOrder.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.workOrder.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/workorders');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/workorders meta.total reflects count result', async () => {
+    (mockPrisma.workOrder.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.workOrder.count as jest.Mock).mockResolvedValue(77);
+    const res = await request(app).get('/api/workorders');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(77);
+  });
+
+  it('POST /api/workorders returns 500 when count rejects', async () => {
+    (mockPrisma.workOrder.count as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const res = await request(app)
+      .post('/api/workorders')
+      .send({ title: 'C-Check', aircraftType: 'A320', description: 'Heavy maintenance' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/workorders/:id/defer returns 404 when work order not found', async () => {
+    (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/workorders/00000000-0000-0000-0000-000000000099/defer')
+      .send({ deferralRef: 'MEL-01', deferralNotes: 'notes' });
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/workorders/:id returns 500 when findUnique throws', async () => {
+    (mockPrisma.workOrder.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/workorders/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

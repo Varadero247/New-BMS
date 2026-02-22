@@ -315,3 +315,40 @@ describe('DashboardMetrics — absolute final boundary', () => {
     expect(cache?.status).toBe('unhealthy');
   });
 });
+
+describe('DashboardMetrics — phase28 coverage', () => {
+  const startTime = new Date(Date.now() - 1_000);
+
+  it('RollingCounter rate is 0 when no increments recorded', () => {
+    const c = new RollingCounter(60_000, 60);
+    expect(c.rate).toBe(0);
+  });
+
+  it('LatencyTracker count is 3 after three records', () => {
+    const t = new LatencyTracker();
+    t.record(10);
+    t.record(20);
+    t.record(30);
+    expect(t.count).toBe(3);
+  });
+
+  it('DashboardMetrics recordRequest increments latency count', () => {
+    const m = new DashboardMetrics({ startTime });
+    m.recordRequest(50);
+    m.recordRequest(100);
+    expect(m.latency.count).toBe(2);
+  });
+
+  it('DashboardMetrics getSystemHealth returns components array', async () => {
+    const m = new DashboardMetrics({ startTime, checkDatabase: async () => 10 });
+    const snap = await m.getSystemHealth();
+    expect(Array.isArray(snap.components)).toBe(true);
+  });
+
+  it('DashboardMetrics marks database healthy when latency < 100ms', async () => {
+    const m = new DashboardMetrics({ startTime, checkDatabase: async () => 50 });
+    const snap = await m.getSystemHealth();
+    const db = snap.components.find((c) => c.name === 'database');
+    expect(db?.status).toBe('healthy');
+  });
+});

@@ -403,3 +403,33 @@ describe('permits.api — extra boundary coverage', () => {
     expect(mockPrisma.ptwPermit.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+
+describe('permits.api — phase28 coverage', () => {
+  it('GET /api/permits findMany called once per request', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    await request(app).get('/api/permits');
+    expect(mockPrisma.ptwPermit.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/permits returns success:false on DB error', async () => {
+    mockPrisma.ptwPermit.findMany.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/permits');
+    expect(res.body.success).toBe(false);
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/permits count called for reference number generation', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(3);
+    mockPrisma.ptwPermit.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004', title: 'P4' });
+    await request(app).post('/api/permits').send({ title: 'P4' });
+    expect(mockPrisma.ptwPermit.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/permits/:id does not call update when not found', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue(null);
+    await request(app).put('/api/permits/00000000-0000-0000-0000-000000000099').send({ title: 'Updated' });
+    expect(mockPrisma.ptwPermit.update).not.toHaveBeenCalled();
+  });
+});

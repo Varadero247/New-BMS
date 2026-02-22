@@ -508,3 +508,56 @@ describe('board-pack.test.ts — extra coverage', () => {
     await expect(runBoardPackJob()).resolves.toBe('extra-5');
   });
 });
+
+describe('board-pack.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/board-packs returns 200 with pagination.total matching count mock', async () => {
+    (prisma.boardPack.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Q1 2026', status: 'DRAFT', sections: {} },
+    ]);
+    (prisma.boardPack.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.total).toBe(1);
+  });
+
+  it('PATCH /api/board-packs/:id transitions FINAL to DISTRIBUTED successfully', async () => {
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', status: 'FINAL' });
+    (prisma.boardPack.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', status: 'DISTRIBUTED' });
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000002')
+      .send({ status: 'DISTRIBUTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('DISTRIBUTED');
+  });
+
+  it('runBoardPackJob passes title as a non-empty string', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'ph28-1', status: 'DRAFT' });
+    await runBoardPackJob();
+    const arg = (prisma.boardPack.create as jest.Mock).mock.calls[0][0];
+    expect(typeof arg.data.title).toBe('string');
+    expect(arg.data.title.length).toBeGreaterThan(0);
+  });
+
+  it('GET /api/board-packs/:id returns 404 on missing pack', async () => {
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('runBoardPackJob with three snapshots returns the created pack id', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { id: 's1', mrr: 1000, customers: 3, mrrGrowthPct: 2, newCustomers: 1, revenueChurnPct: 0, ndr: 100, founderDraw: 500, trajectory: 'ON_TRACK', monthNumber: 1 },
+      { id: 's2', mrr: 2000, customers: 5, mrrGrowthPct: 4, newCustomers: 2, revenueChurnPct: 1, ndr: 105, founderDraw: 600, trajectory: 'AHEAD', monthNumber: 2 },
+      { id: 's3', mrr: 3000, customers: 7, mrrGrowthPct: 6, newCustomers: 3, revenueChurnPct: 2, ndr: 110, founderDraw: 700, trajectory: 'BEHIND', monthNumber: 3 },
+    ]);
+    (prisma.boardPack.create as jest.Mock).mockResolvedValue({ id: 'ph28-multi', status: 'DRAFT' });
+    const id = await runBoardPackJob();
+    expect(id).toBe('ph28-multi');
+  });
+});

@@ -592,3 +592,53 @@ describe('Risk Assessments — final extended coverage', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Risk Assessments — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns success:true with non-empty data', async () => {
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([mockRisk]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/risk-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET /:id returns 200 with data matching mockRisk id', async () => {
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    const res = await request(app).get(`/api/risk-assessments/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(UUID2);
+  });
+
+  it('PUT /:id update with existingControls field returns 200', async () => {
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockResolvedValue({
+      ...mockRisk, existingControls: 'Updated controls',
+      system: { id: UUID1, name: 'Test AI System', reference: 'AI42-SYS-2602-1111' },
+    });
+    const res = await request(app).put(`/api/risk-assessments/${UUID2}`).send({ existingControls: 'Updated controls' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / calls aiSystem.findFirst to validate system existence', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(null);
+    await request(app).post('/api/risk-assessments').send({
+      systemId: UUID1, title: 'Test', description: 'desc',
+      category: 'PRIVACY_DATA_PROTECTION', likelihood: 'LIKELY', impact: 'MAJOR',
+    });
+    expect(mockPrisma.aiSystem.findFirst).toHaveBeenCalled();
+  });
+
+  it('DELETE /:id returns 200 with deleted:true on success', async () => {
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockResolvedValue({ ...mockRisk, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/risk-assessments/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+});

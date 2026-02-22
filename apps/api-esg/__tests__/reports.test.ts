@@ -474,3 +474,51 @@ describe('reports — extra coverage', () => {
     expect(res.body.data.status).toBe('PUBLISHED');
   });
 });
+
+describe('reports — phase28 coverage', () => {
+  it('GET / returns JSON content-type for list endpoint', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/reports');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET / count is called with same where clause as findMany', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/reports?status=DRAFT');
+    expect(prisma.esgReport.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'DRAFT' }) })
+    );
+  });
+
+  it('GET /:id returns data with title field', async () => {
+    (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(mockReport);
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('title', 'Annual ESG Report 2026');
+  });
+
+  it('POST / creates GRI report type successfully', async () => {
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue({ ...mockReport, reportType: 'GRI' });
+    const res = await request(app).post('/api/reports').send({
+      title: 'GRI Report 2026',
+      reportType: 'GRI',
+      year: 2026,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /dashboard returns data with initiatives object', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgSocialMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('initiatives');
+  });
+});

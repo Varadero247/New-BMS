@@ -772,3 +772,51 @@ describe('Quality Opportunities API — final coverage', () => {
     expect(Array.isArray(response.body.data.items)).toBe(true);
   });
 });
+
+
+describe('Quality Opportunities — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/opportunities', opportunitiesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/opportunities findMany called once per list request', async () => {
+    (mockPrisma.qualOpportunity.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/opportunities').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualOpportunity.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/opportunities data.total is 0 when no records exist', async () => {
+    (mockPrisma.qualOpportunity.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualOpportunity.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/opportunities').set('Authorization', 'Bearer token');
+    expect(response.body.data.total).toBe(0);
+  });
+
+  it('DELETE /api/opportunities/:id does not call update when not found', async () => {
+    (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/opportunities/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualOpportunity.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/opportunities/:id returns NOT_FOUND code when not found', async () => {
+    (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const response = await request(app).get('/api/opportunities/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/opportunities/:id does not call update when not found', async () => {
+    (mockPrisma.qualOpportunity.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).put('/api/opportunities/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token').send({ status: 'CLOSED' });
+    expect(mockPrisma.qualOpportunity.update).not.toHaveBeenCalled();
+  });
+});

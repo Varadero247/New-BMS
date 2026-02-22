@@ -354,3 +354,36 @@ describe('esig — additional coverage', () => {
     expect(result.signature).toBeNull();
   });
 });
+
+describe('esig signature — phase28 coverage', () => {
+  const testPassword = 'SecurePassword123!';
+  let passwordHash: string;
+
+  beforeAll(async () => {
+    const bcrypt = require('bcryptjs');
+    passwordHash = await bcrypt.hash(testPassword, 10);
+  });
+
+  it('isValidMeaning returns false for SIGN (not a valid meaning)', () => {
+    expect(isValidMeaning('SIGN')).toBe(false);
+  });
+
+  it('createSignature RELEASED meaning is accepted', async () => {
+    const req: SignatureRequest = {
+      userId: 'p28-rel',
+      userEmail: 'rel@ims.local',
+      userFullName: 'Released User',
+      password: testPassword,
+      meaning: 'RELEASED' as SignatureMeaning,
+      reason: 'Released for production',
+      resourceType: 'SOP',
+      resourceId: 'sop-p28',
+      resourceRef: 'SOP-P28',
+      ipAddress: '127.0.0.1',
+      userAgent: 'TestAgent',
+    };
+    const result = await createSignature(req, passwordHash);
+    expect(result.signature).not.toBeNull();
+    expect(result.signature!.meaning).toBe('RELEASED');
+  });
+});

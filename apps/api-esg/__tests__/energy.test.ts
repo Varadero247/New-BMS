@@ -451,3 +451,52 @@ describe('energy — extra coverage', () => {
     expect(res.body.data).toHaveProperty('quantity');
   });
 });
+
+describe('energy — phase28 coverage', () => {
+  it('GET / filters by ELECTRICITY energyType in where clause', async () => {
+    (prisma.esgEnergy.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEnergy.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/energy?energyType=ELECTRICITY');
+    expect(prisma.esgEnergy.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ energyType: 'ELECTRICITY' }) })
+    );
+  });
+
+  it('GET / pagination.page reflects query parameter', async () => {
+    (prisma.esgEnergy.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEnergy.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/energy?page=5&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(5);
+  });
+
+  it('POST / SOLAR energy record creates with renewable=true', async () => {
+    (prisma.esgEnergy.create as jest.Mock).mockResolvedValue({ ...mockEnergy, energyType: 'SOLAR', renewable: true });
+    const res = await request(app).post('/api/energy').send({
+      energyType: 'SOLAR',
+      quantity: 500,
+      unit: 'kWh',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-03-31',
+      renewable: true,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id findFirst is called with deletedAt null filter', async () => {
+    (prisma.esgEnergy.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.esgEnergy.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    await request(app).delete('/api/energy/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgEnergy.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('GET /:id data contains energyType field', async () => {
+    (prisma.esgEnergy.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', energyType: 'ELECTRICITY', quantity: 1000 });
+    const res = await request(app).get('/api/energy/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('energyType');
+  });
+});

@@ -554,3 +554,46 @@ describe('Chemicals — additional coverage 3', () => {
     expect(res.body.data[0]).toHaveProperty('severityLevel');
   });
 });
+
+describe('Chemicals — phase28 coverage', () => {
+  it('GET /chemicals success:true is present in response body', async () => {
+    mockPrisma.chemRegister.findMany.mockResolvedValue([]);
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/chemicals');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /chemicals returns 400 when productName is missing', async () => {
+    const res = await request(app).post('/api/chemicals').send({ chemicalName: 'Propan-2-one' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /chemicals/:id returns 500 when findFirst rejects', async () => {
+    mockPrisma.chemRegister.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/chemicals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /chemicals pagination object has page, limit, total, pages fields', async () => {
+    mockPrisma.chemRegister.findMany.mockResolvedValue([]);
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/chemicals');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+
+  it('PUT /chemicals/:id returns 500 when update rejects', async () => {
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemRegister.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/chemicals/00000000-0000-0000-0000-000000000001')
+      .send({ productName: 'NewName' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

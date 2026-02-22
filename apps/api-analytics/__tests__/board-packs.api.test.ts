@@ -452,3 +452,55 @@ describe('board-packs.api — extra coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('board-packs.api — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/board-packs returns success:true with multiple results', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000011', status: 'DRAFT', generatedAt: new Date() },
+      { id: '00000000-0000-0000-0000-000000000012', status: 'FINAL', generatedAt: new Date() },
+    ]);
+    mockPrisma.boardPack.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.boardPacks).toHaveLength(2);
+  });
+
+  it('PATCH /api/board-packs/:id returns 404 success:false when pack not found', async () => {
+    mockPrisma.boardPack.findUnique.mockResolvedValue(null);
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'FINAL' });
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/board-packs pagination.page is 2 when page=2 passed', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.page).toBe(2);
+  });
+
+  it('PATCH /api/board-packs/:id DRAFT to FINAL calls update with correct id', async () => {
+    mockPrisma.boardPack.findUnique.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000011', status: 'DRAFT' });
+    mockPrisma.boardPack.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000011', status: 'FINAL' });
+    await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000011')
+      .send({ status: 'FINAL' });
+    expect(mockPrisma.boardPack.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000011' } })
+    );
+  });
+
+  it('GET /api/board-packs/:id success:false on 404 response', async () => {
+    mockPrisma.boardPack.findUnique.mockResolvedValue(null);
+    const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

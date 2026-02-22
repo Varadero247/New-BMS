@@ -500,3 +500,56 @@ describe('routes.api — final coverage', () => {
     );
   });
 });
+
+describe('routes.api — phase28 coverage', () => {
+  it('GET / data array length matches findMany result', async () => {
+    const items = [
+      { id: '00000000-0000-0000-0000-000000000001', technicianId: 'tech-1', stops: [], technician: {} },
+      { id: '00000000-0000-0000-0000-000000000002', technicianId: 'tech-2', stops: [], technician: {} },
+    ];
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue(items);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/routes');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /:id returns technicianId in data', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      technicianId: 'tech-42',
+      stops: [],
+      technician: {},
+    });
+    const res = await request(app).get('/api/routes/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.technicianId).toBe('tech-42');
+  });
+
+  it('POST / create called once on valid payload', async () => {
+    mockPrisma.fsSvcRoute.create.mockResolvedValue({ id: 'route-xyz', technicianId: 'tech-1', date: new Date(), stops: [] });
+    await request(app).post('/api/routes').send({
+      technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      date: '2026-04-01',
+      stops: [{ jobId: 'job-1', order: 1 }],
+    });
+    expect(mockPrisma.fsSvcRoute.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /:id calls update with correct where id', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000050' });
+    mockPrisma.fsSvcRoute.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000050', status: 'COMPLETED' });
+    await request(app)
+      .put('/api/routes/00000000-0000-0000-0000-000000000050')
+      .send({ status: 'COMPLETED' });
+    expect(mockPrisma.fsSvcRoute.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000050' }) })
+    );
+  });
+
+  it('DELETE /:id findFirst called once with correct id', async () => {
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060' });
+    mockPrisma.fsSvcRoute.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000060', deletedAt: new Date() });
+    await request(app).delete('/api/routes/00000000-0000-0000-0000-000000000060');
+    expect(mockPrisma.fsSvcRoute.findFirst).toHaveBeenCalledTimes(1);
+  });
+});

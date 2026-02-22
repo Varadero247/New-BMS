@@ -844,3 +844,36 @@ describe('HR Performance API Routes', () => {
     });
   });
 });
+
+describe('HR Performance API — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/performance', performanceRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/performance/cycles returns empty array when none exist', async () => {
+    (mockPrisma.performanceCycle.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app)
+      .get('/api/performance/cycles')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/performance/reviews response meta has page key', async () => {
+    (mockPrisma.performanceReview.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.performanceReview.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app)
+      .get('/api/performance/reviews')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.meta).toHaveProperty('page');
+  });
+});

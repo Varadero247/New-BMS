@@ -547,3 +547,66 @@ describe('Analytics Datasets — supplemental coverage', () => {
     expect(mockPrisma.analyticsDataset.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('datasets.api.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/datasets returns 200 with data array of length 2', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'DS Phase28 A', source: 'QUALITY', isActive: true },
+      { id: '00000000-0000-0000-0000-000000000002', name: 'DS Phase28 B', source: 'HR', isActive: true },
+    ]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/datasets');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.pagination.total).toBe(2);
+  });
+
+  it('POST /api/datasets returns 201 with data.source matching input', async () => {
+    mockPrisma.analyticsDataset.create.mockResolvedValue({
+      id: 'ph28-ds-1',
+      name: 'Phase28 Dataset',
+      source: 'INVENTORY',
+      isActive: true,
+    });
+    const res = await request(app).post('/api/datasets').send({
+      name: 'Phase28 Dataset',
+      source: 'INVENTORY',
+      query: 'SELECT * FROM inventory',
+      schema: { columns: ['id', 'name'] },
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.source).toBe('INVENTORY');
+  });
+
+  it('GET /api/datasets/:id returns 200 with data.name for existing dataset', async () => {
+    mockPrisma.analyticsDataset.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Phase28 Detail DS',
+      source: 'FINANCE',
+      isActive: true,
+    });
+    const res = await request(app).get('/api/datasets/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Phase28 Detail DS');
+  });
+
+  it('GET /api/datasets 500 on DB error returns success:false', async () => {
+    mockPrisma.analyticsDataset.findMany.mockRejectedValue(new Error('phase28 db error'));
+    const res = await request(app).get('/api/datasets');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/datasets?isActive=true filters with isActive:true in where clause', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+    await request(app).get('/api/datasets?isActive=true');
+    expect(mockPrisma.analyticsDataset.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isActive: true }) })
+    );
+  });
+});

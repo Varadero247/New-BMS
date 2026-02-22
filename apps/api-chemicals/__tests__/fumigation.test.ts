@@ -458,3 +458,49 @@ describe('Fumigation API — additional coverage 3', () => {
     expect(res.body.pagination).toHaveProperty('total');
   });
 });
+
+describe('Fumigation API — phase28 coverage', () => {
+  it('GET /api/fumigation success:true is present in response', async () => {
+    (mockPrisma.chemFumigation.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.chemFumigation.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/fumigation');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/fumigation/:id returns 404 when record not found', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/fumigation/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/fumigation/:id returns 500 when findUnique rejects', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/fumigation/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/fumigation/:id returns 500 when update rejects', async () => {
+    (mockPrisma.chemFumigation.findUnique as jest.Mock).mockResolvedValue(mockFumigation);
+    (mockPrisma.chemFumigation.update as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/fumigation/00000000-0000-0000-0000-000000000001')
+      .send({ location: 'New Location' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/fumigation with valid body calls create once', async () => {
+    (mockPrisma.chemFumigation.create as jest.Mock).mockResolvedValue(mockFumigation);
+    await request(app).post('/api/fumigation').send({
+      location: 'Silo B',
+      purpose: 'Rodent control',
+      fumigantName: 'Methyl bromide',
+      plannedStartDate: '2026-04-01',
+      competentPersonName: 'Jane Walker',
+    });
+    expect(mockPrisma.chemFumigation.create).toHaveBeenCalledTimes(1);
+  });
+});

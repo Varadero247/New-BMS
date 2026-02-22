@@ -546,3 +546,46 @@ describe('Chemicals Inventory — additional coverage 3', () => {
     expect([400, 200]).toContain(res.status);
   });
 });
+
+describe('Chemicals Inventory — phase28 coverage', () => {
+  it('GET /inventory success:true in response', async () => {
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/inventory');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /inventory/:id returns 404 when record not found', async () => {
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/inventory/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /inventory/:id returns 500 when findFirst rejects', async () => {
+    mockPrisma.chemInventory.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/inventory/00000000-0000-0000-0000-000000000030');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /inventory/:id returns 404 when record not found', async () => {
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/inventory/00000000-0000-0000-0000-000000000099')
+      .send({ location: 'Lab X' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /inventory/:id returns 500 when update rejects', async () => {
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(mockInventory);
+    mockPrisma.chemInventory.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/inventory/00000000-0000-0000-0000-000000000030')
+      .send({ location: 'Lab D' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

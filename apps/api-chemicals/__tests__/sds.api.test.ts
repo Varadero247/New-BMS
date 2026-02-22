@@ -498,3 +498,46 @@ describe('sds.api — additional coverage 3', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('sds.api — phase28 coverage', () => {
+  it('GET /sds success:true in response', async () => {
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/sds');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /sds/:id returns 404 when record not found', async () => {
+    mockPrisma.chemSds.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/sds/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /sds/:id returns 500 when findFirst rejects', async () => {
+    mockPrisma.chemSds.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/sds/00000000-0000-0000-0000-000000000010');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /sds/:id returns 404 when record not found', async () => {
+    mockPrisma.chemSds.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/sds/00000000-0000-0000-0000-000000000099')
+      .send({ version: '9.0' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /sds/:id returns 500 when update rejects', async () => {
+    mockPrisma.chemSds.findFirst.mockResolvedValue(mockSds);
+    mockPrisma.chemSds.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/sds/00000000-0000-0000-0000-000000000010')
+      .send({ version: '2.0' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

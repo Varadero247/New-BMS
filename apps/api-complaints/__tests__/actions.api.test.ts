@@ -434,3 +434,46 @@ describe('actions route — absolute final expansion', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('actions route — phase28 coverage', () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET / returns data array type', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / pagination.total matches count', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(17);
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(17);
+  });
+
+  it('PUT /:id update response data contains id', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'RESOLVED' });
+    const res = await request(app)
+      .put('/api/actions/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'RESOLVED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('GET / response body has success:true', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 when action field is empty string', async () => {
+    const res = await request(app).post('/api/actions').send({ complaintId: 'comp-1', action: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

@@ -779,3 +779,67 @@ describe('Notifications Routes', () => {
     });
   });
 });
+
+
+describe("Notifications Routes — phase28 coverage", () => {
+  let app: import("express").Express;
+
+  beforeEach(() => {
+    const express = require("express");
+    app = express();
+    app.use(express.json());
+    app.use("/api/notifications", require("../src/routes/notifications").default);
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = {
+        id: "00000000-0000-0000-0000-000000000001",
+        email: "admin@ims.local",
+        organisationId: "org-1",
+        roles: ["SUPER_ADMIN", "ORG_ADMIN"],
+      };
+      next();
+    });
+    bellState.clear("00000000-0000-0000-0000-000000000001");
+    bellState.clear("00000000-0000-0000-0000-000000000002");
+    bellState.clear("00000000-0000-0000-0000-000000000099");
+  });
+
+  it("GET /api/notifications returns success:true with zero notifications", async () => {
+    const supertest = require("supertest");
+    const res = await supertest(app).get("/api/notifications").set("Authorization", "Bearer token");
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it("GET /api/notifications/unread unreadCount is 0 initially", async () => {
+    const supertest = require("supertest");
+    const res = await supertest(app).get("/api/notifications/unread").set("Authorization", "Bearer token");
+    expect(res.status).toBe(200);
+    expect(res.body.data.unreadCount).toBe(0);
+  });
+
+  it("PUT /api/notifications/read-all returns markedCount 0 when no notifications", async () => {
+    const supertest = require("supertest");
+    const res = await supertest(app).put("/api/notifications/read-all").set("Authorization", "Bearer token");
+    expect(res.status).toBe(200);
+    expect(res.body.data.markedCount).toBe(0);
+  });
+
+  it("PUT /api/notifications/:id/read returns 404 for unknown id", async () => {
+    const supertest = require("supertest");
+    const res = await supertest(app)
+      .put("/api/notifications/00000000-0000-0000-0000-ffffffffffff/read")
+      .set("Authorization", "Bearer token");
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it("POST /api/notifications/test returns 400 for missing title and message", async () => {
+    const supertest = require("supertest");
+    const res = await supertest(app)
+      .post("/api/notifications/test")
+      .set("Authorization", "Bearer token")
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe("VALIDATION_ERROR");
+  });
+});

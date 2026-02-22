@@ -909,3 +909,58 @@ describe('Aerospace Work Orders — additional coverage', () => {
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Work Order Routes (Aerospace) — phase28 coverage', () => {
+  let localApp: any;
+  beforeAll(() => {
+    const express2 = require('express');
+    localApp = express2();
+    localApp.use(express2.json());
+    localApp.use('/api/workorders', workordersRouter);
+  });
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/workorders returns success:true with empty list', async () => {
+    (mockPrisma.workOrder.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.workOrder.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(localApp).get('/api/workorders').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/workorders meta.total reflects count result', async () => {
+    (mockPrisma.workOrder.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.workOrder.count as jest.Mock).mockResolvedValueOnce(88);
+    const res = await request(localApp).get('/api/workorders').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(88);
+  });
+
+  it('POST /api/workorders returns 500 when count rejects', async () => {
+    (mockPrisma.workOrder.count as jest.Mock).mockRejectedValueOnce(new Error('DB fail'));
+    const res = await request(localApp)
+      .post('/api/workorders')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'D-Check', aircraftType: 'B777', description: 'Major overhaul' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/workorders/:id/defer returns 404 when work order not found', async () => {
+    (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(localApp)
+      .post('/api/workorders/00000000-0000-0000-0000-000000000099/defer')
+      .set('Authorization', 'Bearer token')
+      .send({ deferralRef: 'MEL-01', deferralNotes: 'notes' });
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/workorders/:id returns 500 when findUnique throws', async () => {
+    (mockPrisma.workOrder.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(localApp)
+      .get('/api/workorders/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

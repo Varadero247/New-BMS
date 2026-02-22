@@ -390,3 +390,47 @@ describe('cohort-analysis — extra coverage', () => {
     expect(unique.size).toBe(ages.length);
   });
 });
+
+describe('cohort-analysis.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockPrisma.monthlySnapshot.findMany.mockResolvedValue([]);
+  });
+
+  it('runCohortAnalysis monthNumber=3 creates 3 upsert calls', async () => {
+    mockPrisma.cohortData.upsert.mockResolvedValue({});
+    await runCohortAnalysis(3, '2026-05');
+    expect(mockPrisma.cohortData.upsert).toHaveBeenCalledTimes(3);
+  });
+
+  it('runCohortAnalysis all create blocks have cohortAge as a non-negative integer', async () => {
+    mockPrisma.cohortData.upsert.mockResolvedValue({});
+    await runCohortAnalysis(5, '2026-07');
+    for (const call of mockPrisma.cohortData.upsert.mock.calls) {
+      expect(call[0].create.cohortAge).toBeGreaterThanOrEqual(0);
+      expect(Number.isInteger(call[0].create.cohortAge)).toBe(true);
+    }
+  });
+
+  it('runCohortAnalysis cohortAge=0 block has retentionPct=100 and ndrPct=100', async () => {
+    mockPrisma.cohortData.upsert.mockResolvedValue({});
+    await runCohortAnalysis(4, '2026-06');
+    const calls = mockPrisma.cohortData.upsert.mock.calls;
+    const age0Call = calls.find((c: any) => c[0].create.cohortAge === 0);
+    expect(age0Call![0].create.retentionPct).toBe(100);
+    expect(age0Call![0].create.ndrPct).toBe(100);
+  });
+
+  it('runCohortAnalysis measureMonth of age-0 call equals supplied currentMonth', async () => {
+    mockPrisma.cohortData.upsert.mockResolvedValue({});
+    await runCohortAnalysis(2, '2026-09');
+    const calls = mockPrisma.cohortData.upsert.mock.calls;
+    const age0Call = calls.find((c: any) => c[0].create.cohortAge === 0);
+    expect(age0Call![0].create.measureMonth).toBe('2026-09');
+  });
+
+  it('runCohortAnalysis rejects when upsert throws an error', async () => {
+    mockPrisma.cohortData.upsert.mockRejectedValue(new Error('phase28 db error'));
+    await expect(runCohortAnalysis(2, '2026-04')).rejects.toThrow('phase28 db error');
+  });
+});

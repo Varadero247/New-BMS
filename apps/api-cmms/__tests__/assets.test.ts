@@ -491,3 +491,51 @@ describe('Assets — additional coverage 3', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe("Assets — phase28 coverage", () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it("GET / returns data as an array", async () => {
+    prisma.cmmsAsset.findMany.mockResolvedValue([mockAsset]);
+    prisma.cmmsAsset.count.mockResolvedValue(1);
+    const res = await request(app).get("/api/assets");
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it("GET / with page=1&limit=5 passes skip:0 to findMany", async () => {
+    prisma.cmmsAsset.findMany.mockResolvedValue([]);
+    prisma.cmmsAsset.count.mockResolvedValue(0);
+    await request(app).get("/api/assets?page=1&limit=5");
+    expect(prisma.cmmsAsset.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 5 })
+    );
+  });
+
+  it("POST / returns 400 when assetType is invalid enum", async () => {
+    const res = await request(app).post("/api/assets").send({ name: "Test", assetType: "ROCKET" });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it("DELETE /:id calls update once to soft-delete", async () => {
+    prisma.cmmsAsset.findFirst.mockResolvedValue(mockAsset);
+    prisma.cmmsAsset.update.mockResolvedValue({ ...mockAsset, deletedAt: new Date() });
+    await request(app).delete("/api/assets/00000000-0000-0000-0000-000000000001");
+    expect(prisma.cmmsAsset.update).toHaveBeenCalledTimes(1);
+  });
+
+  it("GET /:id/qr-code returns assetType in QR data payload", async () => {
+    prisma.cmmsAsset.findFirst.mockResolvedValue({
+      id: "00000000-0000-0000-0000-000000000001",
+      code: "ASSET-1001",
+      name: "CNC Machine",
+      assetType: "EQUIPMENT",
+      location: "Building A",
+      serialNumber: "SN-12345",
+    });
+    const res = await request(app).get("/api/assets/00000000-0000-0000-0000-000000000001/qr-code");
+    expect(res.status).toBe(200);
+    expect(res.body.data.assetType).toBe("EQUIPMENT");
+  });
+});

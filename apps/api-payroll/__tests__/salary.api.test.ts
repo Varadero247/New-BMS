@@ -701,3 +701,50 @@ describe('Payroll Salary API Routes — extended coverage', () => {
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+
+describe('Payroll Salary — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/salary', salaryRoutes);
+  });
+
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET /component-types filters by DEDUCTION type', async () => {
+    (mockPrisma.salaryComponentType.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/salary/component-types?type=DEDUCTION').set('Authorization', 'Bearer token');
+    expect(mockPrisma.salaryComponentType.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'DEDUCTION' }) })
+    );
+  });
+  it('POST /component-types: create sets isActive:true', async () => {
+    (mockPrisma.salaryComponentType.create as jest.Mock).mockResolvedValueOnce({ id: 'ct-phase28', isActive: true, code: 'ADV', name: 'Advance', category: 'EARNING', type: 'ALLOWANCE' });
+    const res = await request(app).post('/api/salary/component-types').set('Authorization', 'Bearer token')
+      .send({ code: 'ADV', name: 'Advance', category: 'EARNING', type: 'ALLOWANCE' });
+    expect(res.status).toBe(201);
+  });
+  it('PUT /:id/components: update response data.components is defined', async () => {
+    (mockPrisma.salaryComponent.deleteMany as jest.Mock).mockResolvedValueOnce({ count: 0 });
+    (mockPrisma.employeeSalary.update as jest.Mock).mockResolvedValueOnce({ id: '36000000-0000-4000-a000-000000000001', components: [] });
+    const res = await request(app).put('/api/salary/36000000-0000-4000-a000-000000000001/components').set('Authorization', 'Bearer token').send({ components: [] });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('components');
+  });
+  it('GET /employees/:id where clause has deletedAt:null', async () => {
+    (mockPrisma.employeeSalary.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/salary/employees/2a000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token');
+    expect(mockPrisma.employeeSalary.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) }));
+  });
+  it('POST /employees/:id calls updateMany to deactivate existing records', async () => {
+    (mockPrisma.employeeSalary.updateMany as jest.Mock).mockResolvedValueOnce({ count: 1 });
+    (mockPrisma.employeeSalary.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.employeeSalary.create as jest.Mock).mockResolvedValueOnce({ id: 'x', components: [] });
+    await request(app).post('/api/salary/employees/2a000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token')
+      .send({ baseSalary: 5000, effectiveFrom: '2024-01-01', changeReason: 'Raise', changeType: 'ANNUAL_INCREMENT' });
+    expect(mockPrisma.employeeSalary.updateMany).toHaveBeenCalledWith(expect.objectContaining({ where: { employeeId: '2a000000-0000-4000-a000-000000000001', isActive: true } }));
+  });
+});

@@ -385,3 +385,40 @@ describe('Dual Loan Model — supplemental coverage', () => {
     expect(result.balance).toBeCloseTo(0, 0);
   });
 });
+
+describe('dual-loan.test.ts — phase28 coverage', () => {
+  it('calculateAmortisation payment is a positive finite number for standard inputs', () => {
+    const result = calculateAmortisation(50000, 0.06, 24, 5);
+    expect(Number.isFinite(result.payment)).toBe(true);
+    expect(result.payment).toBeGreaterThan(0);
+  });
+
+  it('calculateAmortisation balance decreases monotonically from month 1 to 12', () => {
+    const balances = Array.from({ length: 12 }, (_, i) =>
+      calculateAmortisation(100000, 0.06, 12, i + 1).balance
+    );
+    for (let i = 0; i < balances.length - 1; i++) {
+      expect(balances[i]).toBeGreaterThanOrEqual(balances[i + 1]);
+    }
+  });
+
+  it('calculateFounderIncome M3 loanPayment is a positive number (loans start at M2/M3)', () => {
+    const result = calculateFounderIncome(3);
+    expect(result.loanPayment).toBeGreaterThan(0);
+  });
+
+  it('calculateFounderIncome all numeric fields are finite for M20', () => {
+    const result = calculateFounderIncome(20);
+    for (const [, value] of Object.entries(result)) {
+      if (typeof value === 'number') {
+        expect(Number.isFinite(value)).toBe(true);
+      }
+    }
+  });
+
+  it('calculateAmortisation principalPaid increases as months progress for same loan', () => {
+    const m1 = calculateAmortisation(100000, 0.06, 12, 1);
+    const m6 = calculateAmortisation(100000, 0.06, 12, 6);
+    expect(m6.principalPaid).toBeGreaterThan(m1.principalPaid);
+  });
+});

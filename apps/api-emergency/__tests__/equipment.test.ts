@@ -552,3 +552,45 @@ describe('equipment — final boundary coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('equipment — phase28 coverage', () => {
+  it('GET /api/equipment data is an array', async () => {
+    mockEquipment.findMany.mockResolvedValue([fakeEquipment]);
+    mockEquipment.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/equipment');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/equipment/premises/:id response data has equipmentType matching sent value', async () => {
+    mockEquipment.create.mockResolvedValue({ ...fakeEquipment, equipmentType: 'FIRE_HOSE_REEL' });
+    const res = await request(app).post(`/api/equipment/premises/${PREMISES_ID}`).send({
+      equipmentType: 'FIRE_HOSE_REEL',
+      location: 'Corridor',
+      nextServiceDue: '2027-01-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.equipmentType).toBe('FIRE_HOSE_REEL');
+  });
+
+  it('PUT /api/equipment/:id calls update exactly once on success', async () => {
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
+    mockEquipment.update.mockResolvedValue({ ...fakeEquipment, location: 'Lobby' });
+    await request(app).put(`/api/equipment/${EQUIPMENT_ID}`).send({ location: 'Lobby' });
+    expect(mockEquipment.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/equipment/service-due response body has success:true', async () => {
+    mockEquipment.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/equipment/service-due');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('GET /api/equipment/premises/:id response body has success:true', async () => {
+    mockEquipment.findMany.mockResolvedValue([fakeEquipment]);
+    const res = await request(app).get(`/api/equipment/premises/${PREMISES_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+});

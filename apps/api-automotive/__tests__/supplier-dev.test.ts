@@ -494,3 +494,45 @@ describe('supplier-dev — comprehensive coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+
+describe('supplier-dev — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/supplier-dev findMany called once per list request', async () => {
+    (mockPrisma.supplierDevelopment.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/supplier-dev');
+    expect(mockPrisma.supplierDevelopment.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/supplier-dev/:id findFirst called with correct where clause', async () => {
+    (mockPrisma.supplierDevelopment.findFirst as jest.Mock).mockResolvedValue(makeRecord());
+    await request(app).get('/api/supplier-dev/' + ID1);
+    expect(mockPrisma.supplierDevelopment.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: ID1, deletedAt: null } })
+    );
+  });
+
+  it('POST /api/supplier-dev count called once to generate devNumber', async () => {
+    (mockPrisma.supplierDevelopment.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.supplierDevelopment.create as jest.Mock).mockResolvedValue(makeRecord());
+    await request(app).post('/api/supplier-dev').send({ supplierName: 'Zeta Parts' });
+    expect(mockPrisma.supplierDevelopment.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT /api/supplier-dev/:id returns 200 with success:true and updated data', async () => {
+    const updated = makeRecord({ status: 'APPROVED' });
+    (mockPrisma.supplierDevelopment.update as jest.Mock).mockResolvedValue(updated);
+    const res = await request(app).put('/api/supplier-dev/' + ID1).send({ status: 'APPROVED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+
+  it('DELETE /api/supplier-dev/:id returns 200 and data.id matches URL param', async () => {
+    (mockPrisma.supplierDevelopment.update as jest.Mock).mockResolvedValue({ id: ID2, deletedAt: new Date() });
+    const res = await request(app).delete('/api/supplier-dev/' + ID2);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(ID2);
+  });
+});

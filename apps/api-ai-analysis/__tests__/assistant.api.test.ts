@@ -560,3 +560,68 @@ describe('POST /api/assistant — extra coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('POST /api/assistant — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('returns 200 with answer for a workflows question without AI', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'How does workflow automation work?' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.answer).toBeTruthy();
+  });
+
+  it('returns 200 for a CRM-related question without AI', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'How does CRM contact management work?' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('ANTHROPIC provider fetch is called with POST method', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue({
+      provider: 'ANTHROPIC',
+      apiKey: 'sk-ant-p28',
+      model: 'claude-3-haiku-20240307',
+      isActive: true,
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ content: [{ text: 'Phase28 answer' }] }),
+    });
+    await request(app).post('/api/assistant').send({ question: 'What modules are available?' });
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://api.anthropic.com/v1/messages',
+      expect.objectContaining({ method: 'POST' })
+    );
+  });
+
+  it('returns 400 for null question field', async () => {
+    const app = createApp();
+    const res = await request(app).post('/api/assistant').send({ question: null });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('response data.answer is a string for any valid non-empty question', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'What is an integrated management system?' });
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.answer).toBe('string');
+    expect(res.body.data.answer.length).toBeGreaterThan(0);
+  });
+});

@@ -506,3 +506,56 @@ describe('emissions — extra coverage', () => {
     expect(res.body.data).toHaveProperty('message');
   });
 });
+
+describe('emissions — phase28 coverage', () => {
+  it('GET / filters by SCOPE_3 scope in where clause', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEmission.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/emissions?scope=SCOPE_3');
+    expect(prisma.esgEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ scope: 'SCOPE_3' }) })
+    );
+  });
+
+  it('GET / pagination.page reflects query param', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgEmission.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/emissions?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+  });
+
+  it('POST / create sets createdBy from auth user', async () => {
+    (prisma.esgEmission.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', scope: 'SCOPE_1' });
+    await request(app).post('/api/emissions').send({
+      scope: 'SCOPE_1',
+      category: 'Fuel Combustion',
+      source: 'Diesel generator',
+      quantity: 100,
+      unit: 'litres',
+      co2Equivalent: 250,
+      periodStart: '2026-01-01',
+      periodEnd: '2026-03-31',
+    });
+    expect(prisma.esgEmission.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('DELETE /:id findFirst called with id filter', async () => {
+    (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.esgEmission.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    await request(app).delete('/api/emissions/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgEmission.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET /:id response has success:true and id in data', async () => {
+    (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', scope: 'SCOPE_1' });
+    const res = await request(app).get('/api/emissions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

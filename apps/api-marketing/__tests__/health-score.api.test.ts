@@ -478,3 +478,35 @@ describe('Health Score — extra coverage to reach 40', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Health Score — phase28 coverage', () => {
+  it('calculateHealthScore: 6 logins = 30pts (5+ bracket)', () => {
+    expect(
+      calculateHealthScore({ loginsLast7Days: 6, recordsCreated: 0, modulesVisited: 0, teamMembersInvited: 0 })
+    ).toBe(30);
+  });
+
+  it('determineTrend: score equal to previous returns STABLE', () => {
+    expect(determineTrend(50, 50)).toBe('STABLE');
+  });
+
+  it('GET /user/:userId response body.data has id field', async () => {
+    (prisma.mktHealthScore.findFirst as jest.Mock).mockResolvedValue({ id: 'hs-2', userId: 'u1', score: 60, trend: 'STABLE' });
+    const res = await request(app).get('/api/health-score/user/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET /org/:orgId response body has success:true', async () => {
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/health-score/org/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /recalculate: data.message is a string', async () => {
+    const res = await request(app).post('/api/health-score/recalculate');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.message).toBe('string');
+  });
+});

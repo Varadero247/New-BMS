@@ -533,3 +533,67 @@ describe('DSARs — extra coverage', () => {
     expect(res.body.data.pagination).toHaveProperty('totalPages');
   });
 });
+
+describe('dsars.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/dsars returns 200 with requests array of length 1', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', type: 'ACCESS', requesterName: 'Phase28 User', status: 'RECEIVED' },
+    ]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/dsars');
+    expect(res.status).toBe(200);
+    expect(res.body.data.requests).toHaveLength(1);
+    expect(res.body.data.pagination.total).toBe(1);
+  });
+
+  it('POST /api/dsars returns 201 with data.request.type matching input', async () => {
+    (prisma.dataRequest.create as jest.Mock).mockResolvedValue({
+      id: 'ph28-dr-1',
+      type: 'PORTABILITY',
+      requesterEmail: 'ph28@test.com',
+      requesterName: 'Phase28 Requester',
+      status: 'RECEIVED',
+      deadlineAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+    const res = await request(app).post('/api/dsars').send({
+      type: 'PORTABILITY',
+      requesterEmail: 'ph28@test.com',
+      requesterName: 'Phase28 Requester',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.request.type).toBe('PORTABILITY');
+  });
+
+  it('GET /api/dsars/:id returns 200 with data.request.requesterName', async () => {
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      type: 'ERASURE',
+      requesterName: 'Phase28 Person',
+      status: 'RECEIVED',
+    });
+    const res = await request(app).get('/api/dsars/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.request.requesterName).toBe('Phase28 Person');
+  });
+
+  it('GET /api/dsars 500 on DB error returns success:false with INTERNAL_ERROR', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockRejectedValue(new Error('phase28 db error'));
+    const res = await request(app).get('/api/dsars');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/dsars?type=RESTRICTION filters by RESTRICTION type', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/dsars?type=RESTRICTION');
+    expect(prisma.dataRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'RESTRICTION' }) })
+    );
+  });
+});

@@ -438,3 +438,52 @@ describe('initiatives — extra coverage', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('initiatives — phase28 coverage', () => {
+  it('GET / filters by IN_PROGRESS status in where clause', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/initiatives?status=IN_PROGRESS');
+    expect(prisma.esgInitiative.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'IN_PROGRESS' }) })
+    );
+  });
+
+  it('GET / pagination.totalPages calculated correctly', async () => {
+    (prisma.esgInitiative.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgInitiative.count as jest.Mock).mockResolvedValue(20);
+    const res = await request(app).get('/api/initiatives?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('POST / create is called with createdBy from auth user', async () => {
+    (prisma.esgInitiative.create as jest.Mock).mockResolvedValue(mockInitiative);
+    await request(app).post('/api/initiatives').send({
+      title: 'Phase28 Initiative',
+      category: 'ENVIRONMENTAL',
+    });
+    expect(prisma.esgInitiative.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ createdBy: 'user-123' }) })
+    );
+  });
+
+  it('PUT /:id update changes title field successfully', async () => {
+    (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
+    (prisma.esgInitiative.update as jest.Mock).mockResolvedValue({ ...mockInitiative, title: 'Renamed Initiative' });
+    const res = await request(app)
+      .put('/api/initiatives/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Renamed Initiative' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Renamed Initiative');
+  });
+
+  it('DELETE /:id update sets deletedAt on the record', async () => {
+    (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
+    (prisma.esgInitiative.update as jest.Mock).mockResolvedValue({ ...mockInitiative, deletedAt: new Date() });
+    await request(app).delete('/api/initiatives/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgInitiative.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

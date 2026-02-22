@@ -434,3 +434,52 @@ describe('audits — extra coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('audits — phase28 coverage', () => {
+  it('GET / filters by THIRD_PARTY auditType', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/audits?auditType=THIRD_PARTY');
+    expect(prisma.esgAudit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ auditType: 'THIRD_PARTY' }) })
+    );
+  });
+
+  it('GET / pagination object has page and limit fields', async () => {
+    (prisma.esgAudit.findMany as jest.Mock).mockResolvedValue([mockAudit]);
+    (prisma.esgAudit.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/audits');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('POST / INTERNAL audit create returns data with id', async () => {
+    (prisma.esgAudit.create as jest.Mock).mockResolvedValue(mockAudit);
+    const res = await request(app).post('/api/audits').send({
+      title: 'Phase28 Audit',
+      auditType: 'INTERNAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('PUT /:id update sets findFirst where id matches', async () => {
+    (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(mockAudit);
+    (prisma.esgAudit.update as jest.Mock).mockResolvedValue({ ...mockAudit, title: 'Renamed Audit' });
+    await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Renamed Audit' });
+    expect(prisma.esgAudit.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('DELETE /:id update sets deletedAt to current Date', async () => {
+    (prisma.esgAudit.findFirst as jest.Mock).mockResolvedValue(mockAudit);
+    (prisma.esgAudit.update as jest.Mock).mockResolvedValue({ ...mockAudit, deletedAt: new Date() });
+    await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgAudit.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

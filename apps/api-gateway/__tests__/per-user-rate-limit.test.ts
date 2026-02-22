@@ -470,3 +470,49 @@ describe('createPerUserRateLimit() — extended final batch', () => {
     jest.useRealTimers();
   });
 });
+
+
+describe("createPerUserRateLimit() — phase28 coverage", () => {
+  let store: InMemoryUserRateLimitStore;
+
+  beforeEach(() => { store = new InMemoryUserRateLimitStore(999_999); });
+  afterEach(() => { store.destroy(); });
+
+  it("increment() returns resetAt greater than current timestamp", () => {
+    const before = Date.now();
+    const entry = store.increment("phase28:1", 60_000);
+    expect(entry.resetAt).toBeGreaterThan(before);
+  });
+
+  it("store.size increases by 1 for each unique key", () => {
+    store.increment("p28-a", 60_000);
+    expect(store.size).toBe(1);
+    store.increment("p28-b", 60_000);
+    expect(store.size).toBe(2);
+  });
+
+  it("TIER_DEFAULTS.basic.maxRequests is a finite positive number", () => {
+    expect(TIER_DEFAULTS.basic.maxRequests).toBeGreaterThan(0);
+    expect(isFinite(TIER_DEFAULTS.basic.maxRequests)).toBe(true);
+  });
+
+  it("get() returns count 1 after a single increment", () => {
+    store.increment("p28-single", 60_000);
+    const entry = store.get("p28-single");
+    expect(entry).toBeDefined();
+    expect(entry!.count).toBe(1);
+  });
+
+  it("429 response error.success is false", () => {
+    const mw = createPerUserRateLimit(
+      { tiers: { standard: { maxRequests: 1, windowMs: 60_000 } } },
+      store
+    );
+    const req = mockReq("p28-u1", "standard");
+    mw(req, mockRes(), next()); // consume
+    const res = mockRes();
+    mw(req, res, next());
+    const body = res.body as { success?: boolean };
+    expect(body.success).toBe(false);
+  });
+});

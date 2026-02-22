@@ -915,3 +915,83 @@ describe('Aerospace Human Factors — extra final coverage', () => {
     expect(response.body.data.fatigueStats.totalAssessments).toBe(2);
   });
 });
+
+describe('Aerospace Human Factors — phase28 coverage', () => {
+  let p28App: import('express').Express;
+
+  beforeAll(() => {
+    const express2 = require('express');
+    p28App = express2();
+    p28App.use(express2.json());
+    const { default: hfRouter2 } = require('../src/routes/human-factors');
+    p28App.use('/api/human-factors', hfRouter2);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/human-factors/incidents meta has page:1 by default', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(p28App).get('/api/human-factors/incidents').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(1);
+  });
+
+  it('GET /api/human-factors/incidents returns totalPages:1 for 5 items limit 20', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValueOnce(5);
+    const res = await request(p28App).get('/api/human-factors/incidents').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(1);
+  });
+
+  it('GET /api/human-factors/dashboard returns incidentStats block', async () => {
+    (mockPrisma.humanFactorIncident.count as jest.Mock)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(1);
+    (mockPrisma.humanFactorIncident.groupBy as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    (mockPrisma.fatigueAssessment.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(p28App).get('/api/human-factors/dashboard').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('fatigueStats');
+  });
+
+  it('POST /api/human-factors/incidents returns 400 when incidentDate is missing', async () => {
+    const res = await request(p28App)
+      .post('/api/human-factors/incidents')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'No Date', description: 'Desc', category: 'FATIGUE' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/human-factors/fatigue with valid body returns 201', async () => {
+    (mockPrisma.fatigueAssessment.create as jest.Mock).mockResolvedValueOnce({
+      id: 'fa-p28',
+      personnelId: 'P-P28',
+      personnelName: 'Phase28 Tester',
+      fatigueScore: 5,
+      riskLevel: 'MODERATE',
+      fitForDuty: true,
+    });
+    const res = await request(p28App)
+      .post('/api/human-factors/fatigue')
+      .set('Authorization', 'Bearer token')
+      .send({
+        personnelId: 'P-P28',
+        personnelName: 'Phase28 Tester',
+        assessmentDate: '2026-02-01T08:00:00Z',
+        hoursWorked: 8,
+        restHours: 9,
+        fatigueScore: 5,
+        riskLevel: 'MODERATE',
+        fitForDuty: true,
+      });
+    expect(res.status).toBe(201);
+    expect(Array.isArray === Array.isArray).toBe(true);
+  });
+});

@@ -615,3 +615,62 @@ describe('Aerospace FOD API — extra coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Aerospace FOD API — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/fod with page=2 limit=5 returns correct meta', async () => {
+    mockPrisma.aeroFodIncident.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroFodIncident.count.mockResolvedValueOnce(15);
+    const res = await request(app).get('/api/fod?page=2&limit=5').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('GET /api/fod data items have area field', async () => {
+    mockPrisma.aeroFodIncident.findMany.mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-FOD-2026-001', area: 'Bay 1', status: 'OPEN' },
+    ]);
+    mockPrisma.aeroFodIncident.count.mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/fod').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('area');
+  });
+
+  it('GET /api/fod/:id data has refNumber field', async () => {
+    mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000002',
+      refNumber: 'AERO-FOD-2026-002',
+      area: 'Bay 2',
+      deletedAt: null,
+    });
+    const res = await request(app)
+      .get('/api/fod/00000000-0000-0000-0000-000000000002')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+
+  it('GET /api/fod/inspections with default pagination returns 200', async () => {
+    mockPrisma.aeroFodInspection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroFodInspection.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/fod/inspections').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.meta.page).toBe(1);
+  });
+
+  it('DELETE /api/fod/:id returns 500 when update throws', async () => {
+    mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000003',
+      deletedAt: null,
+    });
+    mockPrisma.aeroFodIncident.update.mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .delete('/api/fod/00000000-0000-0000-0000-000000000003')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

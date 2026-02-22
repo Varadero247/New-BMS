@@ -459,3 +459,54 @@ describe('materiality — extra coverage', () => {
     expect(prisma.esgMateriality.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('materiality — phase28 coverage', () => {
+  it('GET / count is called with same where clause category as findMany', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/materiality?category=GOVERNANCE');
+    expect(prisma.esgMateriality.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'GOVERNANCE' }) })
+    );
+  });
+
+  it('POST / creates with isMaterial defaulting to false', async () => {
+    (prisma.esgMateriality.create as jest.Mock).mockResolvedValue({ ...mockMateriality, isMaterial: false });
+    const res = await request(app).post('/api/materiality').send({
+      topic: 'Water Usage',
+      category: 'ENVIRONMENTAL',
+      importanceToStakeholders: 6.0,
+      importanceToBusiness: 5.0,
+      isMaterial: false,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /matrix returns matrix with correct nonMaterial count', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([
+      { ...mockMateriality, isMaterial: false },
+      { ...mockMateriality, id: 'mat-99', isMaterial: false },
+    ]);
+    const res = await request(app).get('/api/materiality/matrix');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.nonMaterial).toBe(2);
+  });
+
+  it('GET / pagination.page defaults to 1 when not supplied', async () => {
+    (prisma.esgMateriality.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgMateriality.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/materiality');
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('PUT /:id update succeeds when topic and importanceToStakeholders are both valid', async () => {
+    (prisma.esgMateriality.findFirst as jest.Mock).mockResolvedValue(mockMateriality);
+    (prisma.esgMateriality.update as jest.Mock).mockResolvedValue({ ...mockMateriality, topic: 'Updated Topic', importanceToStakeholders: 7 });
+    const res = await request(app)
+      .put('/api/materiality/00000000-0000-0000-0000-000000000001')
+      .send({ topic: 'Updated Topic', importanceToStakeholders: 7 });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

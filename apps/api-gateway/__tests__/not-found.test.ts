@@ -463,3 +463,42 @@ describe('Not Found Handler — absolute final coverage', () => {
     expect(jsonArg).not.toHaveProperty('data');
   });
 });
+
+
+describe("Not Found Handler — phase28 coverage", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("handles CONNECT method without throwing", () => {
+    expect(() => {
+      const req = mockRequest({ method: "CONNECT", path: "/api/tunnel" });
+      const res = mockResponse();
+      notFoundHandler(req as Request, res as Response);
+    }).not.toThrow();
+  });
+
+  it("error.message is a string value", () => {
+    const req = mockRequest({ method: "GET", path: "/api/str-test" });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(typeof jsonArg.error.message).toBe("string");
+  });
+
+  it("res.status is called with a number", () => {
+    const req = mockRequest({ method: "GET", path: "/api/num-test" });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const statusArg = (res.status as jest.Mock).mock.calls[0][0];
+    expect(typeof statusArg).toBe("number");
+  });
+
+  it("response body top-level keys count is 2", () => {
+    const req = mockRequest({ method: "DELETE", path: "/api/count-test" });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(Object.keys(jsonArg)).toHaveLength(2);
+  });
+});

@@ -354,3 +354,37 @@ describe('Expansion — target coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Expansion — phase28 coverage', () => {
+  it('GET /triggers returns data array regardless of count', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([
+      { id: 'log-x', template: 'expansion_growth_flag', email: 'd@co.com' },
+    ]);
+    const res = await request(app).get('/api/expansion/triggers');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /check response body.data is defined', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('GET /triggers orderBy is present in the query args', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/expansion/triggers');
+    const callArg = (prisma.mktEmailLog.findMany as jest.Mock).mock.calls[0][0];
+    expect(callArg).toHaveProperty('orderBy');
+  });
+
+  it('POST /check results.userLimitApproaching length is 0', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.body.data.results.userLimitApproaching).toHaveLength(0);
+  });
+
+  it('POST /check results.unusedModuleNudge length is 0', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.body.data.results.unusedModuleNudge).toHaveLength(0);
+  });
+});

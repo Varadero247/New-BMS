@@ -399,3 +399,40 @@ describe('tasks — final coverage to reach 40', () => {
     expect(tasks[0].status).toBe('CANCELLED');
   });
 });
+
+describe('tasks — phase28 coverage', () => {
+  beforeEach(() => {
+    resetStore();
+  });
+
+  it('createTask sets status to OPEN by default', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'Phase28', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    expect(task.status).toBe('OPEN');
+  });
+
+  it('getTaskById returns null after the task is deleted', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'Del', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    await deleteTask(task.id);
+    expect(await getTaskById(task.id)).toBeNull();
+  });
+
+  it('getTasks with no options returns all tasks for the org', async () => {
+    await createTask({ orgId: 'org-p28', title: 'T1', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    await createTask({ orgId: 'org-p28', title: 'T2', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    const { total } = await getTasks('org-p28');
+    expect(total).toBe(2);
+  });
+
+  it('completeTask sets completedAt to a recent date', async () => {
+    const before = Date.now();
+    const task = await createTask({ orgId: 'org-1', title: 'Complete', assigneeId: 'u1', assigneeName: 'A', createdById: 'u2' });
+    const completed = await completeTask(task.id);
+    expect(completed.completedAt!.getTime()).toBeGreaterThanOrEqual(before);
+  });
+
+  it('updateTask returns the updated task with new assigneeName', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'T', assigneeId: 'u1', assigneeName: 'Alice', createdById: 'u2' });
+    const updated = await updateTask(task.id, { assigneeName: 'Bob' });
+    expect(updated.assigneeName).toBe('Bob');
+  });
+});

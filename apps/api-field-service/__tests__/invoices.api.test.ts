@@ -532,3 +532,54 @@ describe('invoices.api — final coverage', () => {
     expect(call[0].data).toHaveProperty('deletedAt');
   });
 });
+
+describe('invoices.api — phase28 coverage', () => {
+  it('GET / data array length matches findMany result', async () => {
+    const items = [
+      { id: '00000000-0000-0000-0000-000000000001', number: 'FSI-001', status: 'DRAFT', job: {}, customer: {} },
+      { id: '00000000-0000-0000-0000-000000000002', number: 'FSI-002', status: 'SENT', job: {}, customer: {} },
+    ];
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue(items);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/invoices');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /:id returns number field in data', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      number: 'FSI-2026-0099',
+      job: {},
+      customer: {},
+    });
+    const res = await request(app).get('/api/invoices/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.number).toBe('FSI-2026-0099');
+  });
+
+  it('PUT /:id/send sets status to SENT', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005', status: 'DRAFT' });
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000005', status: 'SENT' });
+    const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000005/send');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('SENT');
+  });
+
+  it('PUT /:id/pay update is called with paidDate', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000006', status: 'SENT' });
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000006', status: 'PAID', paidDate: new Date() });
+    await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000006/pay');
+    expect(mockPrisma.fsSvcInvoice.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'PAID' }),
+      })
+    );
+  });
+
+  it('DELETE /:id findFirst is called once with correct id', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030' });
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000030', deletedAt: new Date() });
+    await request(app).delete('/api/invoices/00000000-0000-0000-0000-000000000030');
+    expect(mockPrisma.fsSvcInvoice.findFirst).toHaveBeenCalledTimes(1);
+  });
+});

@@ -694,3 +694,63 @@ describe('ai-variance — supplemental coverage', () => {
     expect(prompt.length).toBeGreaterThan(50);
   });
 });
+
+describe('ai-variance — phase28 coverage', () => {
+  const snap = {
+    id: 'snap-p28',
+    month: '2026-12',
+    monthNumber: 10,
+    mrr: 10000,
+    arr: 120000,
+    customers: 25,
+    newCustomers: 5,
+    churnedCustomers: 1,
+    mrrGrowthPct: 12,
+    revenueChurnPct: 1,
+    pipelineValue: 100000,
+    wonDeals: 8,
+    winRate: 62,
+    newLeads: 50,
+    activeTrials: 10,
+    trialConversionPct: 50,
+    avgHealthScore: 91,
+  };
+  const plan = {
+    plannedMrr: 9000,
+    plannedCustomers: 24,
+    plannedNewCustomers: 4,
+    plannedChurnPct: 1,
+    plannedArpu: 400,
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('buildVariancePrompt includes newLeads count in prompt text', () => {
+    const prompt = buildVariancePrompt(snap, plan);
+    expect(prompt).toContain('50');
+  });
+
+  it('parseAIResponse fallback has empty recommendations array', () => {
+    const result = parseAIResponse('not json');
+    expect(Array.isArray(result.recommendations)).toBe(true);
+    expect(result.recommendations).toHaveLength(0);
+  });
+
+  it('buildVariancePrompt does not throw for normal snapshot', () => {
+    expect(() => buildVariancePrompt(snap, plan)).not.toThrow();
+  });
+
+  it('parseAIResponse JSON wrapped in code block strips fence correctly', () => {
+    const text = '```json\n{"summary":"Phase28","alerts":[],"recommendations":[],"trajectory":"AHEAD"}\n```';
+    const result = parseAIResponse(text);
+    expect(result.summary).toBe('Phase28');
+    expect(result.trajectory).toBe('AHEAD');
+  });
+
+  it('runVarianceAnalysis returns null when ANTHROPIC_API_KEY is not set', async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+    const result = await runVarianceAnalysis(snap, plan);
+    expect(result).toBeNull();
+    expect(prisma.monthlySnapshot.update).not.toHaveBeenCalled();
+  });
+});

@@ -471,3 +471,53 @@ describe('suppliers.api — comprehensive additional coverage', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000002');
   });
 });
+
+describe('suppliers.api — phase28 coverage', () => {
+  it('GET /api/suppliers response has success:true', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/suppliers');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/suppliers returns created supplier with code field', async () => {
+    mockPrisma.fsSupplier.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000060',
+      name: 'Grain Masters',
+      code: 'FS-SUP-9999',
+      category: 'RAW_MATERIAL',
+    });
+    const res = await request(app).post('/api/suppliers').send({
+      name: 'Grain Masters',
+      category: 'RAW_MATERIAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('code');
+  });
+
+  it('PUT /api/suppliers/:id update calls findFirst to check existence', async () => {
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SUSPENDED' });
+    await request(app).put('/api/suppliers/00000000-0000-0000-0000-000000000001').send({ status: 'SUSPENDED' });
+    expect(mockPrisma.fsSupplier.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/suppliers/due-audit success:true with data array', async () => {
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000010', name: 'FarmCo', nextAuditDate: '2026-02-21' },
+    ]);
+    const res = await request(app).get('/api/suppliers/due-audit');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /api/suppliers/:id 500 returns error code INTERNAL_ERROR', async () => {
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSupplier.update.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

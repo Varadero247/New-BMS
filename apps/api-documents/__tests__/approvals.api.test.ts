@@ -426,3 +426,52 @@ describe('Approvals — final additional coverage', () => {
     expect(res.body.data).toHaveProperty('id');
   });
 });
+
+describe('Approvals — phase28 coverage', () => {
+  it('GET / with limit=1 pagination.limit is 1', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
+    mockPrisma.docApproval.count.mockResolvedValue(10);
+    const res = await request(app).get('/api/approvals?limit=1');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(1);
+  });
+
+  it('GET / pagination.total matches count mock value', async () => {
+    mockPrisma.docApproval.findMany.mockResolvedValue([]);
+    mockPrisma.docApproval.count.mockResolvedValue(77);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(77);
+  });
+
+  it('POST / response data has approver field matching sent approver', async () => {
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    mockPrisma.docApproval.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      documentId: 'doc-20',
+      approver: 'boss@example.com',
+    });
+    const res = await request(app)
+      .post('/api/approvals')
+      .send({ documentId: 'doc-20', approver: 'boss@example.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.approver).toBe('boss@example.com');
+  });
+
+  it('PUT /:id returns success:true on update', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docApproval.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', approver: 'updated@x.com' });
+    const res = await request(app)
+      .put('/api/approvals/00000000-0000-0000-0000-000000000001')
+      .send({ approver: 'updated@x.com' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id response body has data property when found', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).get('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+});

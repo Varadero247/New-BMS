@@ -500,3 +500,64 @@ describe('Investigation — final coverage block', () => {
     expect(res.body.success).toStrictEqual(false);
   });
 });
+
+describe('Investigation — phase28 coverage', () => {
+  it('assign passes investigator field in update data', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'phase28-user',
+      status: 'INVESTIGATING',
+    });
+    await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'phase28-user' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData).toHaveProperty('investigator', 'phase28-user');
+  });
+
+  it('report update response is 200 when rootCause is provided alone', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      rootCause: 'Phase28 root cause',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    const res = await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ rootCause: 'Phase28 root cause' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('assign returns 400 and VALIDATION_ERROR when investigator is null', async () => {
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: null });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('report update with preventiveActions value is passed to update data', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      preventiveActions: 'Phase28 preventive action',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ preventiveActions: 'Phase28 preventive action' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData.preventiveActions).toBe('Phase28 preventive action');
+  });
+
+  it('assign success response content-type is JSON', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'phase28-json-user',
+      status: 'INVESTIGATING',
+    });
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'phase28-json-user' });
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

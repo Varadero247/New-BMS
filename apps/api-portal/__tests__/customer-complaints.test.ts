@@ -524,3 +524,40 @@ describe('customer-complaints — final coverage', () => {
     );
   });
 });
+
+describe('customer-complaints — phase28 coverage', () => {
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    await request(app).get('/api/customer/complaints');
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: data is an array on success', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/complaints');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: response body has success property', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/complaints');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('POST: create not called when validation fails on missing description', async () => {
+    await request(app).post('/api/customer/complaints').send({ severity: 'MAJOR' });
+    expect(mockPrisma.portalQualityReport.create).not.toHaveBeenCalled();
+  });
+
+  it('GET list: pagination has total field', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/customer/complaints');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('total', 5);
+  });
+});

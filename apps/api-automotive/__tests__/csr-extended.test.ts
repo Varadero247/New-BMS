@@ -477,3 +477,49 @@ describe('CSR Routes — extra coverage', () => {
     expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+
+describe('CSR Routes — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/csr/oems calls findMany with orderBy oem asc', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ oem: 'BMW' }]);
+    await request(app).get('/api/csr/oems');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { oem: 'asc' } })
+    );
+  });
+
+  it('GET /api/csr/gaps with limit=5 sets meta.limit to 5', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/csr/gaps?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('PUT /api/csr/:id/status returns data with the updated complianceStatus', async () => {
+    const id = '00000000-0000-0000-0000-000000000001';
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id });
+    (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id, complianceStatus: 'NON_COMPLIANT' });
+    const res = await request(app).put(`/api/csr/${id}/status`).send({ complianceStatus: 'NON_COMPLIANT' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.complianceStatus).toBe('NON_COMPLIANT');
+  });
+
+  it('GET /api/csr/oems/:oem with complianceStatus=NON_COMPLIANT passes it to where', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/csr/oems/Ford?complianceStatus=NON_COMPLIANT');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ complianceStatus: 'NON_COMPLIANT' }) })
+    );
+  });
+
+  it('GET /api/csr/gaps count is called exactly once per request', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/csr/gaps');
+    expect(mockPrisma.csrRequirement.count).toHaveBeenCalledTimes(1);
+  });
+});

@@ -395,3 +395,47 @@ describe('dashboard.api — extra boundary coverage', () => {
     expect(res.body.data.totalToolboxTalks).toBeGreaterThanOrEqual(0);
   });
 });
+
+
+describe('dashboard.api — phase28 coverage', () => {
+  it('GET /api/dashboard/stats ptwPermit.count called exactly once', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(1);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.ptwPermit.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/dashboard/stats returns body with success property', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('GET /api/dashboard/stats totalPermits matches exactly the mocked value', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(77);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalPermits).toBe(77);
+  });
+
+  it('GET /api/dashboard/stats returns 500 when all three counts fail', async () => {
+    mockPrisma.ptwPermit.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.ptwMethodStatement.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.ptwToolboxTalk.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/dashboard/stats ptwMethodStatement.count called exactly once', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(3);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.ptwMethodStatement.count).toHaveBeenCalledTimes(1);
+  });
+});

@@ -548,3 +548,54 @@ describe('PPAP Routes — comprehensive coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+
+describe('PPAP Routes — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/ppap findMany called once per list request', async () => {
+    (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/ppap');
+    expect(mockPrisma.ppapProject.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/ppap count called once per list request', async () => {
+    (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/ppap');
+    expect(mockPrisma.ppapProject.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/ppap with page=2 limit=10 returns correct meta', async () => {
+    (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValue(20);
+    const res = await request(app).get('/api/ppap?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.totalPages).toBe(2);
+  });
+
+  it('GET /api/ppap/:id/readiness returns 500 on DB error', async () => {
+    (mockPrisma.ppapProject.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/ppap/00000000-0000-0000-0000-000000000001/readiness');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/ppap/:id/submit-level accepts level=5', async () => {
+    (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.ppapProject.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      submissionLevel: 5,
+    });
+    const res = await request(app)
+      .post('/api/ppap/00000000-0000-0000-0000-000000000001/submit-level')
+      .send({ level: 5 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.submissionLevel).toBe(5);
+  });
+});

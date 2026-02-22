@@ -460,3 +460,59 @@ describe('scenario-analysis — final coverage', () => {
     expect(typeof res.body.data.byScenarioType).toBe('object');
   });
 });
+
+describe('scenario-analysis — phase28 coverage', () => {
+  it('GET / data items have id field when results returned', async () => {
+    (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([mockScenario]);
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/scenario-analysis');
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('GET / filters by status param when provided', async () => {
+    (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/scenario-analysis?status=APPROVED');
+    const [call] = (mockPrisma.esgScenarioAnalysis.findMany as jest.Mock).mock.calls;
+    expect(call[0].where).toBeDefined();
+  });
+
+  it('POST / create stores analysisDate as Date in create data', async () => {
+    (mockPrisma.esgScenarioAnalysis.create as jest.Mock).mockResolvedValue(mockScenario);
+    await request(app).post('/api/scenario-analysis').send({
+      title: 'Net Zero 2050',
+      scenarioType: 'OPPORTUNITY',
+      baselineScenario: 'NET_ZERO_2050',
+      timeHorizon: 'LONG_TERM',
+      description: 'Analysis',
+      assumptions: 'Carbon neutral by 2050',
+      keyVariables: ['renewables'],
+      analysisDate: '2026-06-01',
+      conductedBy: 'Future Team',
+      reportingYear: 2026,
+    });
+    const [call] = (mockPrisma.esgScenarioAnalysis.create as jest.Mock).mock.calls;
+    expect(call[0].data.analysisDate).toBeInstanceOf(Date);
+  });
+
+  it('PUT /:id update is called with correct where id', async () => {
+    (mockPrisma.esgScenarioAnalysis.findUnique as jest.Mock).mockResolvedValue(mockScenario);
+    (mockPrisma.esgScenarioAnalysis.update as jest.Mock).mockResolvedValue({ ...mockScenario, status: 'IN_REVIEW' });
+    await request(app)
+      .put('/api/scenario-analysis/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'IN_REVIEW' });
+    expect(mockPrisma.esgScenarioAnalysis.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('GET /summary total matches count return value', async () => {
+    (mockPrisma.esgScenarioAnalysis.count as jest.Mock).mockResolvedValue(10);
+    (mockPrisma.esgScenarioAnalysis.groupBy as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/scenario-analysis/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(10);
+  });
+});

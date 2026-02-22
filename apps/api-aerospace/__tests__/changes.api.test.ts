@@ -632,3 +632,72 @@ describe('Aerospace Change Requests API — extra coverage', () => {
     expect(res.body.meta.totalPages).toBe(2);
   });
 });
+
+describe('Aerospace Change Requests API — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / data items have refNumber field', async () => {
+    mockPrisma.aeroChangeRequest.findMany.mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-CR-2026-001', title: 'Title', status: 'DRAFT' },
+    ]);
+    mockPrisma.aeroChangeRequest.count.mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/changes').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('refNumber');
+  });
+
+  it('GET / with page=2 limit=10 returns correct meta', async () => {
+    mockPrisma.aeroChangeRequest.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroChangeRequest.count.mockResolvedValueOnce(30);
+    const res = await request(app).get('/api/changes?page=2&limit=10').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(10);
+  });
+
+  it('POST / returns 201 and success:true with valid body', async () => {
+    mockPrisma.aeroChangeRequest.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroChangeRequest.create.mockResolvedValueOnce({
+      id: 'cr-p28',
+      refNumber: 'AERO-CR-2026-001',
+      title: 'Phase28 Change',
+      status: 'DRAFT',
+    });
+    const res = await request(app)
+      .post('/api/changes')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Phase28 Change', changeType: 'DESIGN', description: 'Something changed', reason: 'Business need' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns data with title field', async () => {
+    mockPrisma.aeroChangeRequest.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      refNumber: 'AERO-CR-2026-001',
+      title: 'Phase28 CR',
+      deletedAt: null,
+    });
+    const res = await request(app)
+      .get('/api/changes/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('title');
+  });
+
+  it('DELETE /:id sets deletedAt on soft-delete', async () => {
+    mockPrisma.aeroChangeRequest.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000003',
+      deletedAt: null,
+    });
+    mockPrisma.aeroChangeRequest.update.mockResolvedValueOnce({});
+    const res = await request(app)
+      .delete('/api/changes/00000000-0000-0000-0000-000000000003')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(204);
+    expect(mockPrisma.aeroChangeRequest.update).toHaveBeenCalledWith({
+      where: { id: '00000000-0000-0000-0000-000000000003' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+});

@@ -663,3 +663,64 @@ describe('milestones.api — boundary and extra coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('milestones.api — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/milestones', milestonesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/milestones: success false when DB fails', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const res = await request(app).get('/api/milestones?projectId=44000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/milestones: meta.totalPages is 1 when count equals limit', async () => {
+    (mockPrisma.projectMilestone.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectMilestone.count as jest.Mock).mockResolvedValueOnce(5);
+    const res = await request(app).get('/api/milestones?projectId=44000000-0000-4000-a000-000000000001&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(1);
+  });
+
+  it('POST /api/milestones: create returns 201 with success true', async () => {
+    (mockPrisma.projectMilestone.create as jest.Mock).mockResolvedValueOnce({
+      id: '1b000000-0000-4000-a000-000000000099',
+      projectId: '44000000-0000-4000-a000-000000000001',
+      milestoneName: 'Phase28 Milestone',
+      plannedDate: '2025-11-01T00:00:00.000Z',
+      status: 'UPCOMING',
+      approvalStatus: 'PENDING',
+      achievementPercentage: 0,
+    });
+    const res = await request(app).post('/api/milestones').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      milestoneName: 'Phase28 Milestone',
+      plannedDate: '2025-11-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/milestones/:id: 404 returns success false', async () => {
+    (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(app)
+      .put('/api/milestones/00000000-0000-4000-a000-ffffffffffff')
+      .send({ milestoneName: 'Not found' });
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /api/milestones/:id: 404 returns success false', async () => {
+    (mockPrisma.projectMilestone.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(app).delete('/api/milestones/00000000-0000-4000-a000-ffffffffffff');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});

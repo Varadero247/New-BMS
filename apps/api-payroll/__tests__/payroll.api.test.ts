@@ -746,3 +746,42 @@ describe('Payroll API Routes', () => {
     });
   });
 });
+
+
+describe('Payroll API — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/payroll', payrollRoutes);
+  });
+
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET /api/payroll/runs response has success:true and data array', async () => {
+    mockPrisma.payrollRun.findMany.mockResolvedValueOnce([]);
+    (mockPrisma.payrollRun.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/payroll/runs');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+  it('GET /api/payroll/payslips returns 200 with empty data (phase28)', async () => {
+    mockPrisma.payslip.findMany.mockResolvedValueOnce([]);
+    (mockPrisma.payslip.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/payroll/payslips');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+  it('POST /api/payroll/runs returns 400 for missing payDate', async () => {
+    const res = await request(app).post('/api/payroll/runs').send({ periodStart: '2024-03-01', periodEnd: '2024-03-31', payFrequency: 'MONTHLY' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+  it('GET /api/payroll/stats response data has monthlyPayroll field', async () => {
+    mockPrisma.payrollRun.count.mockResolvedValue(0);
+    mockPrisma.payrollRun.aggregate.mockResolvedValue({ _sum: { totalNet: 0, totalGross: 0 } });
+    const res = await request(app).get('/api/payroll/stats');
+    expect(res.body.data).toHaveProperty('monthlyPayroll');
+  });
+});

@@ -669,3 +669,66 @@ describe('FAI Routes — extra coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('FAI Routes — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('POST /api/fai with all optional fields returns 201', async () => {
+    (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.firstArticleInspection.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      refNumber: 'FAI-2026-0001',
+      title: 'Optional FAI',
+      status: 'DRAFT',
+    });
+    const res = await request(app).post('/api/fai').send({
+      title: 'Optional FAI',
+      partNumber: 'PN-OPT',
+      partName: 'Optional Part',
+      revision: 'B',
+      faiType: 'PARTIAL',
+      supplier: 'Acme Corp',
+      customerReference: 'CUST-001',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/fai data items have partNumber field', async () => {
+    (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000011', refNumber: 'FAI-2026-0011', partNumber: 'PN-001', status: 'DRAFT' },
+    ]);
+    (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/fai');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('partNumber');
+  });
+
+  it('GET /api/fai with page=2 limit=5 returns correct meta', async () => {
+    (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValue(20);
+    const res = await request(app).get('/api/fai?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('GET /api/fai/:id response has refNumber field', async () => {
+    (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000012',
+      refNumber: 'FAI-2026-0012',
+      partNumber: 'PN-012',
+      deletedAt: null,
+      status: 'DRAFT',
+    });
+    const res = await request(app).get('/api/fai/00000000-0000-0000-0000-000000000012');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+
+  it('DELETE /api/fai/:id returns 404 when record not found', async () => {
+    (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).delete('/api/fai/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+  });
+});

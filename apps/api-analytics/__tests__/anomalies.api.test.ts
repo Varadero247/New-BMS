@@ -320,3 +320,40 @@ describe('anomalies.api — extra coverage', () => {
     }
   });
 });
+
+describe('anomalies.api — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/anomalies response body has data property', async () => {
+    const res = await request(app).get('/api/anomalies');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('GET /api/anomalies/kpis each kpi has a unit property', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    for (const kpi of res.body.data.kpis) {
+      expect(kpi).toHaveProperty('unit');
+    }
+  });
+
+  it('PUT /api/anomalies/:id/dismiss returns 400 for missing reason field', async () => {
+    const res = await request(app).put('/api/anomalies/anom-001/dismiss').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/anomalies pagination.limit defaults to a positive number', async () => {
+    const res = await request(app).get('/api/anomalies');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('GET /api/anomalies/kpis summary has normal count as number', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.summary.normal).toBe('number');
+    expect(res.body.data.summary.normal).toBeGreaterThanOrEqual(0);
+  });
+});

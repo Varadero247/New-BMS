@@ -488,3 +488,49 @@ describe('Checklists — additional coverage 3', () => {
     );
   });
 });
+
+describe("Checklists — phase28 coverage", () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it("GET / returns data array with correct length", async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([mockChecklist, mockChecklist]);
+    prisma.cmmsChecklist.count.mockResolvedValue(2);
+    const res = await request(app).get("/api/checklists");
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it("GET / passes skip:0 for page=1&limit=10", async () => {
+    prisma.cmmsChecklist.findMany.mockResolvedValue([]);
+    prisma.cmmsChecklist.count.mockResolvedValue(0);
+    await request(app).get("/api/checklists?page=1&limit=10");
+    expect(prisma.cmmsChecklist.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 10 })
+    );
+  });
+
+  it("POST / returns 400 when name is empty string", async () => {
+    const res = await request(app).post("/api/checklists").send({ name: "" });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it("PUT /:id updates name and returns updated record", async () => {
+    prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
+    prisma.cmmsChecklist.update.mockResolvedValue({ ...mockChecklist, name: "Renamed Check" });
+    const res = await request(app)
+      .put("/api/checklists/00000000-0000-0000-0000-000000000001")
+      .send({ name: "Renamed Check" });
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe("Renamed Check");
+  });
+
+  it("GET /:id/results success is true when results exist", async () => {
+    prisma.cmmsChecklist.findFirst.mockResolvedValue(mockChecklist);
+    prisma.cmmsChecklistResult.findMany.mockResolvedValue([mockResult]);
+    const res = await request(app).get("/api/checklists/00000000-0000-0000-0000-000000000001/results");
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+});

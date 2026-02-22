@@ -981,3 +981,61 @@ describe('analyze.api — extra coverage', () => {
     expect(res.body.error.code).toBe('NO_AI_CONFIG');
   });
 });
+
+describe('analyze.api — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyze', analyzeRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('POST /api/analyze returns 400 NO_AI_CONFIG when settings is null', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'Phase28 test' } });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('NO_AI_CONFIG');
+  });
+
+  it('POST /api/analyze returns 400 VALIDATION_ERROR when type is missing', async () => {
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ context: { riskTitle: 'Missing type' } });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/analyze returns 400 VALIDATION_ERROR when context is missing', async () => {
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/analyze aISettings.findFirst called exactly once per request', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'LEGAL_REFERENCES', context: { riskTitle: 'call count test' } });
+    expect(mockPrisma.aISettings.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/analyze returns 400 VALIDATION_ERROR for unknown type', async () => {
+    const res = await request(app)
+      .post('/api/analyze')
+      .set('Authorization', 'Bearer test-token')
+      .send({ type: 'INVALID_TYPE_XYZ', context: {} });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+});

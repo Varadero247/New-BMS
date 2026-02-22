@@ -495,3 +495,55 @@ describe('frameworks — extra coverage', () => {
     expect(prisma.esgFramework.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('frameworks — phase28 coverage', () => {
+  it('GET / findMany is called with deletedAt: null in where clause', async () => {
+    (prisma.esgFramework.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgFramework.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/frameworks');
+    expect(prisma.esgFramework.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('GET / pagination has page and limit fields', async () => {
+    (prisma.esgFramework.findMany as jest.Mock).mockResolvedValue([mockFramework]);
+    (prisma.esgFramework.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/frameworks');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('POST / create is called with name and code from request body', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.esgFramework.create as jest.Mock).mockResolvedValue({ ...mockFramework });
+    await request(app).post('/api/frameworks').send({
+      name: 'Phase28 Framework',
+      code: 'P28',
+      version: '1.0',
+    });
+    expect(prisma.esgFramework.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ code: 'P28' }) })
+    );
+  });
+
+  it('DELETE /:id findFirst where id matches', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
+    (prisma.esgFramework.update as jest.Mock).mockResolvedValue({ ...mockFramework, deletedAt: new Date() });
+    await request(app).delete('/api/frameworks/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgFramework.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000001' }) })
+    );
+  });
+
+  it('PUT /:id returns success:true on update', async () => {
+    (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
+    (prisma.esgFramework.update as jest.Mock).mockResolvedValue({ ...mockFramework, isActive: false });
+    const res = await request(app)
+      .put('/api/frameworks/00000000-0000-0000-0000-000000000001')
+      .send({ isActive: false });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

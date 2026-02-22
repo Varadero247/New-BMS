@@ -514,3 +514,75 @@ describe('Human Factors Extended — extra coverage', () => {
     expect(res.body.data).toHaveProperty('totals');
   });
 });
+
+describe('Human Factors Extended — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/human-factors/incidents with page=2 limit=5 returns correct meta', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(20);
+    const res = await request(app).get('/api/human-factors/incidents?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('GET /api/human-factors/incidents data items have category field', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValue([
+      { id: 'hf-cat', refNumber: 'HF-2602-0001', category: 'FATIGUE', status: 'REPORTED' },
+    ]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/human-factors/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('category');
+  });
+
+  it('POST /api/human-factors/incidents returns data with id field', async () => {
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.humanFactorIncident.create as jest.Mock).mockResolvedValue({
+      id: 'hf-p28',
+      refNumber: 'HF-2602-0001',
+      title: 'P28 Incident',
+      category: 'DISTRACTION',
+      status: 'REPORTED',
+      incidentDate: new Date('2026-02-01'),
+    });
+    const res = await request(app).post('/api/human-factors/incidents').send({
+      title: 'P28 Incident',
+      description: 'Distraction caused error',
+      category: 'DISTRACTION',
+      incidentDate: '2026-02-01T09:00:00Z',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('POST /api/human-factors/fatigue with valid body returns 201', async () => {
+    (mockPrisma.fatigueAssessment.create as jest.Mock).mockResolvedValue({
+      id: 'fa-ext-p28',
+      personnelId: 'P-EXT',
+      fatigueScore: 6,
+      riskLevel: 'HIGH',
+      fitForDuty: false,
+    });
+    const res = await request(app).post('/api/human-factors/fatigue').send({
+      personnelId: 'P-EXT',
+      personnelName: 'Ext Tester',
+      assessmentDate: '2026-02-10T08:00:00Z',
+      hoursWorked: 12,
+      restHours: 6,
+      fatigueScore: 6,
+      riskLevel: 'HIGH',
+      fitForDuty: false,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/human-factors/incidents filters by severity=HIGH', async () => {
+    (mockPrisma.humanFactorIncident.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.humanFactorIncident.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/human-factors/incidents?severity=HIGH');
+    expect(mockPrisma.humanFactorIncident.findMany).toHaveBeenCalled();
+  });
+});

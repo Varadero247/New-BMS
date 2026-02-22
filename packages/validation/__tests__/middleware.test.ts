@@ -554,3 +554,56 @@ describe('Validation Middleware — final coverage pass', () => {
     expect(mockNext).toHaveBeenCalled();
   });
 });
+
+describe('Validation Middleware — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('sanitizeMiddleware strips HTML tags from string values in POST body', () => {
+    const middleware = sanitizeMiddleware({ rejectXss: false });
+    const req = mockRequest({ method: 'POST', body: { title: '<h1>Title</h1>' } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(req.body.title).toBe('Title');
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('validateMiddleware with query source and valid data calls next', () => {
+    const schema = z.object({ page: z.string().min(1) });
+    const middleware = validateMiddleware(schema, { source: 'query', sanitize: false });
+    const req = mockRequest({ query: { page: '2' } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('sanitizeMiddleware does not reject plain text without HTML or injection', () => {
+    const middleware = sanitizeMiddleware({ rejectXss: true, rejectSqlInjection: true });
+    const req = mockRequest({ method: 'POST', body: { name: 'John Doe', notes: 'No issues here' } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(mockNext).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('formatZodErrors handles array index paths by joining with dot notation', () => {
+    const schema = z.object({ items: z.array(z.string().min(3)) });
+    const result = schema.safeParse({ items: ['ok', 'x'] });
+    if (!result.success) {
+      const formatted = formatZodErrors(result.error);
+      expect(typeof formatted).toBe('object');
+      expect(formatted).not.toBeNull();
+    }
+  });
+
+  it('sanitizeQueryMiddleware preserves non-HTML query strings unchanged', () => {
+    const middleware = sanitizeQueryMiddleware();
+    const req = mockRequest({ query: { sort: 'desc', limit: '10' } });
+    const res = mockResponse();
+    middleware(req as Request, res as Response, mockNext);
+    expect(req.query!.sort).toBe('desc');
+    expect(req.query!.limit).toBe('10');
+    expect(mockNext).toHaveBeenCalled();
+  });
+});

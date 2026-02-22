@@ -440,3 +440,55 @@ describe('process-parameters — extra coverage', () => {
     expect([200, 404]).toContain(res.status);
   });
 });
+
+describe('process-parameters — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /records with page=2 limit=5 returns correct meta', async () => {
+    (mockPrisma.aeroProcessParameterRecord.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroProcessParameterRecord.count as jest.Mock).mockResolvedValue(15);
+    const res = await request(app).get('/api/process-parameters/records?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET /requalification with page=2 limit=5 returns correct meta', async () => {
+    (mockPrisma.aeroRequalificationTrigger.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroRequalificationTrigger.count as jest.Mock).mockResolvedValue(12);
+    const res = await request(app).get('/api/process-parameters/requalification?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET /records data items have parameters field', async () => {
+    (mockPrisma.aeroProcessParameterRecord.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.aeroProcessParameterRecord.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/process-parameters/records');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('parameters');
+  });
+
+  it('GET /records data item has id field', async () => {
+    (mockPrisma.aeroProcessParameterRecord.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.aeroProcessParameterRecord.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/process-parameters/records');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('POST /records returns 400 when processName is missing', async () => {
+    const res = await request(app).post('/api/process-parameters/records').send({
+      parameterName: 'Temperature',
+      nominalValue: 120,
+      actualValue: 118,
+      unit: 'C',
+      controlLimits: { upper: 125, lower: 115 },
+      measuredAt: '2026-02-01T10:00:00Z',
+      measuredBy: 'Tech-1',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

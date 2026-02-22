@@ -466,3 +466,48 @@ describe('eight-d.api — comprehensive coverage', () => {
     expect(res.body.data).toHaveLength(2);
   });
 });
+
+
+describe('eight-d.api — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/eight-d findMany is called once per list request', async () => {
+    (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/eight-d');
+    expect(mockPrisma.eightDReport.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/eight-d/stats count is called at least once', async () => {
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.eightDReport.groupBy as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/eight-d/stats');
+    expect(mockPrisma.eightDReport.count).toHaveBeenCalled();
+  });
+
+  it('POST /api/eight-d returns 400 when problemStatement is missing', async () => {
+    const res = await request(app).post('/api/eight-d').send({
+      title: 'Test 8D',
+      teamLeader: 'Jane Smith',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/eight-d returns success:true with data array', async () => {
+    (mockPrisma.eightDReport.findMany as jest.Mock).mockResolvedValue([mockReport]);
+    (mockPrisma.eightDReport.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/eight-d');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /api/eight-d/:id returns 200 with success:true on valid update', async () => {
+    (mockPrisma.eightDReport.findUnique as jest.Mock).mockResolvedValue(mockReport);
+    (mockPrisma.eightDReport.update as jest.Mock).mockResolvedValue({ ...mockReport, status: 'D5_CORRECTIVE_ACTIONS' });
+    const res = await request(app).put(`/api/eight-d/${REPORT_ID}`).send({ status: 'D5_CORRECTIVE_ACTIONS' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

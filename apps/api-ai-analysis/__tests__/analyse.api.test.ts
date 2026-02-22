@@ -1129,3 +1129,107 @@ describe('analyse.api — final additional coverage', () => {
     expect([400, 404, 500]).toContain(res.status);
   });
 });
+
+describe('analyse.api — phase28 coverage', () => {
+  let app: express.Express;
+
+  const settings = {
+    id: 'settings-p28',
+    provider: 'OPENAI',
+    apiKey: 'sk-phase28',
+    model: 'gpt-4o-mini',
+    isActive: true,
+    totalTokensUsed: 0,
+    lastUsedAt: null,
+    deletedAt: null,
+  };
+
+  const riskSource = {
+    id: 'risk-p28',
+    title: 'Phase28 Risk',
+    description: 'Phase28 risk description',
+    severity: 3,
+    likelihood: 2,
+    riskScore: 6,
+    deletedAt: null,
+  };
+
+  const analysis = {
+    id: 'analysis-p28',
+    sourceType: 'risk',
+    sourceId: 'risk-p28',
+    aiProvider: 'OPENAI',
+    model: 'gpt-4o-mini',
+    prompt: 'Analyse risk',
+    rawResponse: 'Root cause: Phase28.',
+    parsedResult: { rootCause: 'Phase28' },
+    tokensUsed: 30,
+    createdAt: new Date(),
+  };
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyse', analyseRouter);
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('returns 400 NO_AI_CONFIG when aISettings is null', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'risk-p28' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('NO_AI_CONFIG');
+  });
+
+  it('returns 201 with success:true on valid risk analysis', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(riskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(analysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(settings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: Phase28.' } }],
+        usage: { total_tokens: 30 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'risk-p28' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 400 VALIDATION_ERROR when sourceType is missing', async () => {
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceId: 'risk-p28' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns 400 VALIDATION_ERROR when sourceId is missing', async () => {
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns 404 when risk source is not found', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(settings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'no-such-risk' });
+    expect(res.status).toBe(404);
+  });
+});

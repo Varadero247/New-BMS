@@ -461,3 +461,47 @@ describe('Parts Routes — final coverage expansion', () => {
     expect(prisma.cmmsPart.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Parts Routes — phase28 coverage', () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET / returns data array with correct length', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([mockPart, mockPart]);
+    prisma.cmmsPart.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/parts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET / passes skip:5 for page=2&limit=5', async () => {
+    prisma.cmmsPart.findMany.mockResolvedValue([]);
+    prisma.cmmsPart.count.mockResolvedValue(0);
+    await request(app).get('/api/parts?page=2&limit=5');
+    expect(prisma.cmmsPart.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('POST / returns 409 on duplicate partNumber (P2002 error)', async () => {
+    prisma.cmmsPart.create.mockRejectedValue({ code: 'P2002' });
+    const res = await request(app).post('/api/parts').send({ name: 'Duplicate Part', partNumber: 'BB-6205-2RS' });
+    expect(res.status).toBe(409);
+  });
+
+  it('DELETE /:id calls update once with deletedAt', async () => {
+    prisma.cmmsPart.findFirst.mockResolvedValue(mockPart);
+    prisma.cmmsPart.update.mockResolvedValue({ ...mockPart, deletedAt: new Date() });
+    await request(app).delete('/api/parts/00000000-0000-0000-0000-000000000001');
+    expect(prisma.cmmsPart.update).toHaveBeenCalledTimes(1);
+    expect(prisma.cmmsPart.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+
+  it('GET /:id returns success:true when part found', async () => {
+    prisma.cmmsPart.findFirst.mockResolvedValue({ ...mockPart, partUsages: [] });
+    const res = await request(app).get('/api/parts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

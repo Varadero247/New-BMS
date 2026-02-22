@@ -501,3 +501,44 @@ describe('Prospect Research — ≥40 coverage', () => {
     expect(prisma.mktProspectResearch.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Prospect Research — phase28 coverage', () => {
+  it('GET /api/prospects returns status 200 on success', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/prospects');
+    expect(res.status).toBe(200);
+  });
+
+  it('POST /research with all optional fields returns 201', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', companyName: 'FullCo' });
+    const res = await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'FullCo', industry: 'Tech', website: 'https://fullco.com', sourceContext: 'LinkedIn' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /:id/save-to-hubspot response has success:true on 200', async () => {
+    (prisma.mktProspectResearch.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', companyName: 'TechCo' });
+    const res = await request(app).post('/api/prospects/00000000-0000-0000-0000-000000000001/save-to-hubspot');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/prospects data length matches mocked findMany return', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', companyName: 'A' },
+      { id: '00000000-0000-0000-0000-000000000002', companyName: 'B' },
+    ]);
+    const res = await request(app).get('/api/prospects');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /research 500 response has success:false', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).post('/api/prospects/research').send({ companyName: 'CrashCo', industry: 'Finance' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

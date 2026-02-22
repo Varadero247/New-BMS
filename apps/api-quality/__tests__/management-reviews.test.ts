@@ -622,3 +622,45 @@ describe('Management Reviews — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+
+describe('Management Reviews — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/management-reviews findMany called once per list request', async () => {
+    (prisma.qualManagementReview.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualManagementReview.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/management-reviews');
+    expect(prisma.qualManagementReview.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/management-reviews data is array', async () => {
+    (prisma.qualManagementReview.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.qualManagementReview.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/management-reviews');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('DELETE /api/management-reviews/:id does not call update when not found', async () => {
+    (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
+    await request(app).delete('/api/management-reviews/00000000-0000-0000-0000-000000000099');
+    expect(prisma.qualManagementReview.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/management-reviews/:id returns NOT_FOUND error when missing', async () => {
+    (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/management-reviews/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /api/management-reviews/:id returns success:true on valid update', async () => {
+    (prisma.qualManagementReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.qualManagementReview.update as jest.Mock).mockResolvedValue({ ...mockReview, title: 'Updated Review' });
+    const res = await request(app).put('/api/management-reviews/00000000-0000-0000-0000-000000000001').send({ title: 'Updated Review' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

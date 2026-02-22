@@ -646,3 +646,45 @@ describe('ISO 42001 Incidents — final extended coverage', () => {
     expect(res.body.data.status).toBe('REPORTED');
   });
 });
+
+describe('ISO 42001 Incidents — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns success:true with data array', async () => {
+    mockPrisma.aiIncident.findMany.mockResolvedValue([mockIncident]);
+    mockPrisma.aiIncident.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id returns 200 with success:true on found record', async () => {
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    const res = await request(app).get(`/api/incidents/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id/investigate with investigator field transitions status to INVESTIGATING', async () => {
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockResolvedValue({
+      ...mockIncident, status: 'INVESTIGATING', investigator: 'Dr. Allen',
+      system: { id: UUID1, name: 'Recommendation Engine', reference: 'AI42-SYS-2602-1111' },
+    });
+    const res = await request(app).put(`/api/incidents/${UUID2}/investigate`).send({ investigator: 'Dr. Allen' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('INVESTIGATING');
+  });
+
+  it('DELETE /:id calls prisma update with deletedAt on soft-delete', async () => {
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockResolvedValue({ ...mockIncident, deletedAt: new Date() });
+    await request(app).delete(`/api/incidents/${UUID2}`);
+    expect(mockPrisma.aiIncident.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

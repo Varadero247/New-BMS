@@ -734,3 +734,59 @@ describe('projects.api — boundary and extra coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('projects.api — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/projects', projectsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/projects: success false when DB fails', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const res = await request(app).get('/api/projects');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/projects: meta.totalPages rounds up for non-even division', async () => {
+    (mockPrisma.project.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.project.count as jest.Mock).mockResolvedValueOnce(11);
+    const res = await request(app).get('/api/projects?limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('POST /api/projects: returns success true on valid creation', async () => {
+    (mockPrisma.project.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.project.create as jest.Mock).mockResolvedValueOnce({ ...mockProject, projectCode: 'PRJ0001' });
+    const res = await request(app).post('/api/projects').send({
+      projectName: 'Phase28 Project',
+      projectType: 'INTERNAL',
+      plannedEndDate: '2025-12-31',
+      methodology: 'AGILE',
+      priority: 'HIGH',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/projects/:id: 404 returns success false', async () => {
+    (mockPrisma.project.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(app).delete('/api/projects/00000000-0000-4000-a000-ffffffffffff');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/projects/:id/dashboard: returns data.overview when project found', async () => {
+    (mockPrisma.project.findUnique as jest.Mock).mockResolvedValueOnce({
+      ...mockDashboardProject,
+    });
+    const res = await request(app).get('/api/projects/44000000-0000-4000-a000-000000000001/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overview).toBeDefined();
+  });
+});

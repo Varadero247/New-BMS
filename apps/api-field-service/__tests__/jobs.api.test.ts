@@ -564,3 +564,62 @@ describe('jobs.api — final coverage', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('jobs.api — phase28 coverage', () => {
+  it('GET / data array length matches findMany result', async () => {
+    const items = [
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Job A', status: 'UNASSIGNED', customer: {}, site: {}, technician: null },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Job B', status: 'ASSIGNED', customer: {}, site: {}, technician: {} },
+    ];
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue(items);
+    mockPrisma.fsSvcJob.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/jobs');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /:id returns title field in data', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Air Filter Replacement',
+      customer: {},
+      site: {},
+      technician: null,
+      timeEntries: [],
+      partsUsed: [],
+      jobNotes: [],
+    });
+    const res = await request(app).get('/api/jobs/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Air Filter Replacement');
+  });
+
+  it('PUT /:id/complete returns success:true', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', notes: null });
+    mockPrisma.fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED', actualEnd: new Date() });
+    const res = await request(app)
+      .put('/api/jobs/00000000-0000-0000-0000-000000000001/complete')
+      .send({ notes: 'Done' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id/cancel update is called with CANCELLED status', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', notes: '' });
+    mockPrisma.fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'CANCELLED' });
+    await request(app)
+      .put('/api/jobs/00000000-0000-0000-0000-000000000001/cancel')
+      .send({ reason: 'No longer needed' });
+    expect(mockPrisma.fsSvcJob.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'CANCELLED' }),
+      })
+    );
+  });
+
+  it('DELETE /:id findFirst is called once', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000015' });
+    mockPrisma.fsSvcJob.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000015', deletedAt: new Date() });
+    await request(app).delete('/api/jobs/00000000-0000-0000-0000-000000000015');
+    expect(mockPrisma.fsSvcJob.findFirst).toHaveBeenCalledTimes(1);
+  });
+});

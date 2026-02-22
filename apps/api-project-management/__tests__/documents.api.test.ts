@@ -696,3 +696,58 @@ describe('documents.api — boundary and extra coverage', () => {
     );
   });
 });
+
+describe('documents.api — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/documents', documentsRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/documents: success false in response body when DB fails', async () => {
+    (mockPrisma.projectDocument.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB crash'));
+    const res = await request(app).get('/api/documents?projectId=project-1').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/documents: meta.totalPages is 1 when total equals limit', async () => {
+    (mockPrisma.projectDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectDocument.count as jest.Mock).mockResolvedValueOnce(10);
+    const res = await request(app).get('/api/documents?projectId=project-1&limit=10').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(1);
+  });
+
+  it('POST /api/documents: returns success true on valid creation', async () => {
+    (mockPrisma.projectDocument.create as jest.Mock).mockResolvedValueOnce({
+      id: 'doc-success',
+      projectId: 'project-1',
+      documentCode: 'DOC-S1',
+      documentTitle: 'Success Doc',
+      documentType: 'PLAN',
+      version: '1.0',
+      status: 'DRAFT',
+      createdBy: '20000000-0000-4000-a000-000000000123',
+    });
+    const res = await request(app)
+      .post('/api/documents')
+      .set('Authorization', 'Bearer token')
+      .send({ projectId: 'project-1', documentCode: 'DOC-S1', documentTitle: 'Success Doc', documentType: 'PLAN' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/documents/:id: 404 returns success false', async () => {
+    (mockPrisma.projectDocument.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const res = await request(app)
+      .put('/api/documents/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token')
+      .send({ documentTitle: 'No doc here' });
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});

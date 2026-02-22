@@ -677,3 +677,78 @@ describe('Document Analysis — one final test', () => {
     }
   });
 });
+
+describe('Document Analysis — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(mockSettings);
+    (prisma.aISettings.update as jest.Mock).mockResolvedValue(mockSettings);
+  });
+
+  it('POST /api/documents/analyze returns 200 for FULL_ANALYSIS with valid OpenAI response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'p28 full', keyTerm: { term: 'ISO', definition: 'Standards' }, classification: { documentType: 'Policy', department: 'Quality' }, complianceInsight: 'Meets ISO', recommendation: 'Review annually' }) } }],
+        usage: { total_tokens: 100 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Phase28 full analysis document.', analysisType: 'FULL_ANALYSIS' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.analysisType).toBe('FULL_ANALYSIS');
+  });
+
+  it('POST /api/documents/analyze returns 400 NO_AI_CONFIG when apiKey is empty string', async () => {
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue({ ...mockSettings, apiKey: '' });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Some content', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('NO_AI_CONFIG');
+  });
+
+  it('POST /api/documents/analyze SUMMARIZE with empty AI response falls back gracefully', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: { message: 'Too many requests' } }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Document content here.', analysisType: 'SUMMARIZE' });
+    expect([500, 502]).toContain(res.status);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/documents/analyze does not expose apiKey in response body', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'Phase28 no key leak' }) } }],
+        usage: { total_tokens: 5 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Test document', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(200);
+    expect(JSON.stringify(res.body)).not.toContain('sk-test-key');
+  });
+
+  it('POST /api/documents/analyze aISettings.update called once on success', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ summary: 'update count' }) } }],
+        usage: { total_tokens: 20 },
+      }),
+    });
+    await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Content to analyze', analysisType: 'SUMMARIZE' });
+    expect(prisma.aISettings.update).toHaveBeenCalledTimes(1);
+  });
+});

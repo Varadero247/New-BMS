@@ -472,3 +472,51 @@ describe('annual-accounts — extra coverage', () => {
     expect(findCall.where.month.lte).toBe('2022-03');
   });
 });
+
+describe('annual-accounts — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('runAnnualAccountsJob resolves to a string id', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'p28-id' });
+    const result = await runAnnualAccountsJob('2025-2026');
+    expect(typeof result).toBe('string');
+  });
+
+  it('create data.sections is an object', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'p28-s' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(typeof createCall.data.sections).toBe('object');
+  });
+
+  it('three snapshots produce totalRevenue equal to their mrr sum', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
+      { month: '2025-04', mrr: 1000, arr: 12000, founderSalary: 0, founderLoanPayment: 0, arpu: 100, customers: 10 },
+      { month: '2025-05', mrr: 2000, arr: 24000, founderSalary: 0, founderLoanPayment: 0, arpu: 200, customers: 10 },
+      { month: '2025-06', mrr: 3000, arr: 36000, founderSalary: 0, founderLoanPayment: 0, arpu: 300, customers: 10 },
+    ]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'p28-t' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(Number(createCall.data.totalRevenue)).toBe(6000);
+  });
+
+  it('fiscal year 2026-2027 produces gte=2026-04 and lte=2027-03', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'p28-fy' });
+    await runAnnualAccountsJob('2026-2027');
+    const findCall = (prisma.monthlySnapshot.findMany as jest.Mock).mock.calls[0][0];
+    expect(findCall.where.month.gte).toBe('2026-04');
+    expect(findCall.where.month.lte).toBe('2027-03');
+  });
+
+  it('create is called with fiscalYear equal to the argument', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'p28-fy2' });
+    await runAnnualAccountsJob('2026-2027');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.fiscalYear).toBe('2026-2027');
+  });
+});

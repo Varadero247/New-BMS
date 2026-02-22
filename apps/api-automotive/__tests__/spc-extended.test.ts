@@ -587,3 +587,63 @@ describe('SPC Routes — comprehensive coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+
+describe('SPC Routes — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/spc findMany called once per list request', async () => {
+    (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/spc');
+    expect(mockPrisma.spcChart.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/spc with page=2 limit=5 returns meta.page=2', async () => {
+    (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(10);
+    const res = await request(app).get('/api/spc?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('POST /api/spc returns 201 with refNumber in data', async () => {
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.spcChart.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      refNumber: 'SPC-2602-0001',
+      title: 'Width Chart',
+      status: 'ACTIVE',
+    });
+    const res = await request(app).post('/api/spc').send({
+      title: 'Width Chart',
+      partNumber: 'PT-003',
+      characteristic: 'Width',
+      chartType: 'XBAR_R',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.refNumber).toBe('SPC-2602-0001');
+  });
+
+  it('GET /api/spc/:id/capability returns 500 on dataPoints DB error', async () => {
+    (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      usl: 55,
+      lsl: 45,
+    });
+    (mockPrisma.spcDataPoint.findMany as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/spc/00000000-0000-0000-0000-000000000001/capability');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/spc returns data array even when empty', async () => {
+    (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/spc');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

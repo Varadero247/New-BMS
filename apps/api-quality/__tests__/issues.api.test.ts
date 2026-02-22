@@ -708,3 +708,50 @@ describe('Quality Issues API — supplemental coverage', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+
+describe('Quality Issues — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/issues', issuesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/issues findMany called once per list request', async () => {
+    (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/issues').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualIssue.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/issues data.items is an array', async () => {
+    (mockPrisma.qualIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.qualIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/issues').set('Authorization', 'Bearer token');
+    expect(Array.isArray(response.body.data.items)).toBe(true);
+  });
+
+  it('DELETE /api/issues/:id does not call update when not found', async () => {
+    (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).delete('/api/issues/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token');
+    expect(mockPrisma.qualIssue.update).not.toHaveBeenCalled();
+  });
+
+  it('GET /api/issues/:id returns NOT_FOUND error code when not found', async () => {
+    (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const response = await request(app).get('/api/issues/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token');
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /api/issues/:id does not call update when not found', async () => {
+    (mockPrisma.qualIssue.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await request(app).put('/api/issues/00000000-0000-4000-a000-ffffffffffff').set('Authorization', 'Bearer token').send({ status: 'CLOSED' });
+    expect(mockPrisma.qualIssue.update).not.toHaveBeenCalled();
+  });
+});

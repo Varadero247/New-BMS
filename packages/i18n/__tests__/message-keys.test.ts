@@ -372,3 +372,35 @@ describe('i18n — absolute final boundary', () => {
     }
   });
 });
+
+describe('i18n — phase28 coverage', () => {
+  it('auth.signOut key exists in all locales', () => {
+    expect(enSet.has('auth.signOut')).toBe(true);
+    expect(deSet.has('auth.signOut')).toBe(true);
+    expect(frSet.has('auth.signOut')).toBe(true);
+    expect(esSet.has('auth.signOut')).toBe(true);
+  });
+
+  it('auth.forgotPassword key exists in all locales', () => {
+    expect(enSet.has('auth.forgotPassword')).toBe(true);
+    expect(deSet.has('auth.forgotPassword')).toBe(true);
+    expect(frSet.has('auth.forgotPassword')).toBe(true);
+    expect(esSet.has('auth.forgotPassword')).toBe(true);
+  });
+
+  it('flattenKeys handles an object with mixed string and nested values', () => {
+    const mixed = { a: 'hello', b: { c: 'world' } };
+    const result = flattenKeys(mixed);
+    expect(result).toContain('a');
+    expect(result).toContain('b.c');
+    expect(result).not.toContain('b');
+  });
+
+  it('de key set size equals en key set size', () => {
+    expect(deSet.size).toBe(enSet.size);
+  });
+
+  it('fr key set size equals en key set size', () => {
+    expect(frSet.size).toBe(enSet.size);
+  });
+});

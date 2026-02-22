@@ -502,3 +502,29 @@ describe('feature-flags — additional coverage', () => {
     expect(flags.some((f) => f.name === 'brand_new')).toBe(true);
   });
 });
+
+describe('feature-flags — phase28 coverage', () => {
+  beforeEach(() => { jest.clearAllMocks(); mockFs.existsSync.mockReturnValue(true); emptyStore(); });
+
+  it('isEnabled returns true for enabled flag (phase28)', async () => {
+    setStore({ flags: [{ name: 'p28_flag', description: 'P28', enabled: true, createdAt: '', updatedAt: '' }], orgOverrides: [] });
+    expect(await isEnabled('p28_flag')).toBe(true);
+  });
+
+  it('createFlag returns null for duplicate name (phase28)', () => {
+    setStore({ flags: [{ name: 'dup_p28', description: 'D', enabled: false, createdAt: '', updatedAt: '' }], orgOverrides: [] });
+    expect(createFlag('dup_p28', 'duplicate')).toBeNull();
+  });
+
+  it('updateFlag returns null for non-existent flag (phase28)', () => {
+    expect(updateFlag('ghost_p28', { enabled: true })).toBeNull();
+  });
+
+  it('deleteFlag returns false for non-existent flag (phase28)', () => {
+    expect(deleteFlag('ghost_p28')).toBe(false);
+  });
+
+  it('removeOrgOverride returns false for non-existent override (phase28)', () => {
+    expect(removeOrgOverride('no_flag_p28', 'no_org_p28')).toBe(false);
+  });
+});

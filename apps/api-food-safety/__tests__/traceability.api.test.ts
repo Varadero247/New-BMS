@@ -498,3 +498,51 @@ describe('traceability.api — comprehensive additional coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('traceability.api — phase28 coverage', () => {
+  it('GET /api/traceability response success:true for empty list', async () => {
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/traceability');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/traceability returns 201 with id field', async () => {
+    mockPrisma.fsTraceability.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000050',
+      productName: 'Smoked Salmon',
+      batchNumber: 'SS-2026-005',
+    });
+    const res = await request(app).post('/api/traceability').send({
+      productName: 'Smoked Salmon',
+      batchNumber: 'SS-2026-005',
+      productionDate: '2026-02-22',
+      ingredients: [],
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('PUT /api/traceability/:id calls update once on success', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsTraceability.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'IN_STORAGE' });
+    await request(app).put('/api/traceability/00000000-0000-0000-0000-000000000001').send({ status: 'IN_STORAGE' });
+    expect(mockPrisma.fsTraceability.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/traceability/batch/:batchNumber 404 when not found', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/traceability/batch/NONEXISTENT-BATCH');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('DELETE /api/traceability/:id 500 returns INTERNAL_ERROR', async () => {
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsTraceability.update.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).delete('/api/traceability/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

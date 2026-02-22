@@ -375,3 +375,42 @@ describe('Search — final boundary coverage', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+describe('Search — phase28 coverage', () => {
+  it('GET /search?q=abc returns success:true', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=abc');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /search?q=x findMany called with orgId org-1', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    await request(app).get('/api/search?q=x');
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) }),
+    );
+  });
+
+  it('GET /search?q=test response body is not null', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=test');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('GET /search?q=test data is array of length matching mock', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: 'p1', title: 'Phase28 Doc', description: 'phase 28' },
+    ]);
+    const res = await request(app).get('/api/search?q=test');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET /search?q= returns empty array without calling findMany', async () => {
+    const res = await request(app).get('/api/search?q=');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(mockPrisma.docDocument.findMany).not.toHaveBeenCalled();
+  });
+});

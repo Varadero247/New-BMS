@@ -477,3 +477,52 @@ describe('benchmarks.api — extra coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('benchmarks.api — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/benchmarks data has industry and organization keys', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('industry');
+    expect(res.body.data).toHaveProperty('organization');
+  });
+
+  it('GET /api/benchmarks/:module QUALITY returns 4 industry items', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/QUALITY');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry).toHaveLength(4);
+  });
+
+  it('POST /api/benchmarks creates entry with correct module', async () => {
+    mockPrisma.analyticsKpi.create.mockResolvedValue({ id: 'p28-b', name: 'P28 Benchmark', module: 'ENVIRONMENT', trend: 'UP' });
+    const res = await request(app).post('/api/benchmarks').send({
+      name: 'P28 Benchmark',
+      module: 'ENVIRONMENT',
+      metric: 'P28 Benchmark',
+      industryAverage: 40,
+      topPerformer: 85,
+      currentValue: 60,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/benchmarks/:module returns module in uppercase in response', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/environment');
+    expect(res.status).toBe(200);
+    expect(res.body.data.module).toBe('ENVIRONMENT');
+  });
+
+  it('GET /api/benchmarks industry HEALTH_SAFETY items each have industryAverage field', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(200);
+    for (const item of res.body.data.industry.HEALTH_SAFETY) {
+      expect(item).toHaveProperty('industryAverage');
+    }
+  });
+});

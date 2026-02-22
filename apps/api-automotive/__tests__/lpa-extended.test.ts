@@ -556,3 +556,63 @@ describe('LPA Routes — comprehensive coverage', () => {
     expect(mockPrisma.lpaSchedule.count).toHaveBeenCalledTimes(1);
   });
 });
+
+
+describe('LPA Routes — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/lpa/schedules returns success:true', async () => {
+    (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/lpa/schedules');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/lpa/audits returns success:true', async () => {
+    (mockPrisma.lpaAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaAudit.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/lpa/audits');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/lpa/schedules with page=1 limit=5 returns correct meta', async () => {
+    (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(15);
+    const res = await request(app).get('/api/lpa/schedules?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('POST /api/lpa/schedules  is called once', async () => {
+    (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
+      return cb({
+        lpaSchedule: {
+          create: jest.fn().mockResolvedValue({ id: 'sch-x' }),
+          findUnique: jest.fn().mockResolvedValue({ id: 'sch-x', questions: [] }),
+        },
+        lpaQuestion: { create: jest.fn().mockResolvedValue({}) },
+      });
+    });
+    await request(app).post('/api/lpa/schedules').send({
+      processArea: 'Paint Shop',
+      layer: 3,
+      frequency: 'DAILY',
+      questions: [{ questionText: 'Is safety gear worn?' }],
+    });
+    expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/lpa/dashboard returns data with completedAudits field', async () => {
+    (mockPrisma.lpaAudit.count as jest.Mock)
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(8);
+    (mockPrisma.lpaAudit.findMany as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/lpa/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('completedAudits');
+  });
+});

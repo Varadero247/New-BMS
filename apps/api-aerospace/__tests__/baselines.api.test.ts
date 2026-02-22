@@ -631,3 +631,77 @@ describe('Aerospace Baselines API — extra coverage', () => {
     expect([201, 400]).toContain(res.status);
   });
 });
+
+describe('Aerospace Baselines API — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / with page=2 limit=10 returns correct meta', async () => {
+    mockPrisma.aeroConfigBaseline.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(25);
+    const res = await request(app).get('/api/baselines?page=2&limit=10').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(10);
+  });
+
+  it('POST / with baselineType=PRODUCT returns 201', async () => {
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(1);
+    mockPrisma.aeroConfigBaseline.create.mockResolvedValueOnce({
+      id: 'b-p28',
+      refNumber: 'AERO-BL-2026-002',
+      title: 'Product Baseline',
+      baselineType: 'PRODUCT',
+      status: 'DRAFT',
+    });
+    const res = await request(app)
+      .post('/api/baselines')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Product Baseline', program: 'PGM-X', baselineType: 'PRODUCT' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns data with title field', async () => {
+    mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000005',
+      refNumber: 'AERO-BL-2026-005',
+      title: 'Phase28 Baseline',
+      deletedAt: null,
+    });
+    const res = await request(app)
+      .get('/api/baselines/00000000-0000-0000-0000-000000000005')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('title');
+  });
+
+  it('PUT /:id/approve with valid body updates status to APPROVED', async () => {
+    mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000006',
+      status: 'UNDER_REVIEW',
+      notes: null,
+      deletedAt: null,
+    });
+    mockPrisma.aeroConfigBaseline.update.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000006',
+      status: 'APPROVED',
+      approvedBy: 'Alice',
+    });
+    const res = await request(app)
+      .put('/api/baselines/00000000-0000-0000-0000-000000000006/approve')
+      .set('Authorization', 'Bearer token')
+      .send({ approvedBy: 'Alice', approvalNotes: 'Looks good' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+
+  it('GET / data items have refNumber field when one exists', async () => {
+    mockPrisma.aeroConfigBaseline.findMany.mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000007', refNumber: 'AERO-BL-2026-007', title: 'T', baselineType: 'FUNCTIONAL', status: 'DRAFT' },
+    ]);
+    mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/baselines').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('refNumber');
+  });
+});

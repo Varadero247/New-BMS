@@ -625,3 +625,48 @@ describe('Impact Assessments — final extended coverage', () => {
     );
   });
 });
+
+describe('Impact Assessments — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns totalPages computed from count and limit', async () => {
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/impact-assessments?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it('POST / with valid minimal payload and existing system returns 201', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiImpactAssessment.create.mockResolvedValue({
+      id: UUID2, reference: 'AI42-IMP-9999', systemId: UUID1, title: 'Minimal',
+      impactLevel: 'MINIMAL', humanRightsImpact: 'Low', status: 'DRAFT',
+      createdBy: 'user-123', createdAt: new Date(), updatedAt: new Date(), deletedAt: null,
+      system: { id: UUID1, name: 'Credit Scoring AI', reference: 'AI42-SYS-2602-5555' },
+    });
+    const res = await request(app).post('/api/impact-assessments').send({
+      systemId: UUID1, title: 'Minimal', impactLevel: 'MINIMAL', humanRightsImpact: 'Low',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns success:true when record is found', async () => {
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    const res = await request(app).get(`/api/impact-assessments/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /:id calls update with deletedAt on soft-delete', async () => {
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockResolvedValue({ ...mockAssessment, deletedAt: new Date() });
+    await request(app).delete(`/api/impact-assessments/${UUID2}`);
+    expect(mockPrisma.aiImpactAssessment.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

@@ -574,3 +574,48 @@ describe('monitoring.api — additional coverage 3', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+describe('monitoring.api — phase28 coverage', () => {
+  it('GET /monitoring success:true in response', async () => {
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/monitoring');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /monitoring/:id returns 404 when monitoring record not found', async () => {
+    mockPrisma.chemMonitoring.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000099')
+      .send({ notes: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /monitoring/overdue returns 500 when findMany rejects', async () => {
+    mockPrisma.chemMonitoring.findMany.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/monitoring/overdue');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('PUT /monitoring/:id returns 404 when record not found', async () => {
+    mockPrisma.chemMonitoring.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000099')
+      .send({ notes: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('PUT /monitoring/:id returns 500 when update rejects', async () => {
+    mockPrisma.chemMonitoring.findFirst.mockResolvedValue(mockMonitoring);
+    mockPrisma.chemMonitoring.update.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app)
+      .put('/api/monitoring/00000000-0000-0000-0000-000000000040')
+      .send({ notes: 'Crash' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -563,3 +563,74 @@ describe('competitors.api — extra coverage', () => {
     expect(mockPrisma.competitorMonitor.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('competitors.api.test.ts — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/competitors returns data.competitors array with two items', async () => {
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Alpha Corp', category: 'GENERAL', intel: [] },
+      { id: '00000000-0000-0000-0000-000000000002', name: 'Beta Ltd', category: 'GENERAL', intel: [] },
+    ]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(200);
+    expect(res.body.data.competitors).toHaveLength(2);
+    expect(res.body.data.pagination.total).toBe(2);
+  });
+
+  it('POST /api/competitors returns 201 with correct name in data', async () => {
+    mockPrisma.competitorMonitor.create.mockResolvedValue({
+      id: 'ph28-comp-1',
+      name: 'Phase28 Corp',
+      category: 'GENERAL',
+      intel: [],
+    });
+    const res = await request(app).post('/api/competitors').send({ name: 'Phase28 Corp' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.name).toBe('Phase28 Corp');
+  });
+
+  it('GET /api/competitors/:id returns data.name for existing competitor', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Gamma Inc',
+      category: 'GENERAL',
+      intel: [],
+    });
+    const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Gamma Inc');
+  });
+
+  it('PATCH /api/competitors/:id update called with data.name when name sent', async () => {
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Old Corp',
+      category: 'GENERAL',
+      intel: [],
+    });
+    mockPrisma.competitorMonitor.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'New Corp',
+      category: 'GENERAL',
+      intel: [],
+    });
+    await request(app)
+      .patch('/api/competitors/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'New Corp' });
+    expect(mockPrisma.competitorMonitor.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ name: 'New Corp' }) })
+    );
+  });
+
+  it('GET /api/competitors 500 on findMany DB error returns success:false', async () => {
+    mockPrisma.competitorMonitor.findMany.mockRejectedValue(new Error('phase28 db error'));
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -401,3 +401,49 @@ describe('dashboard.api (suppliers) — coverage to 40', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('dashboard.api (suppliers) — phase28 coverage', () => {
+  it('GET /api/dashboard/stats returns success true on all counts resolving', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(4);
+    mockPrisma.suppScorecard.count.mockResolvedValue(4);
+    mockPrisma.suppDocument.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/dashboard/stats totalSuppliers equals mock value 88', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(88);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalSuppliers).toBe(88);
+  });
+
+  it('GET /api/dashboard/stats totalScorecards equals mock value 55', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(55);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalScorecards).toBe(55);
+  });
+
+  it('GET /api/dashboard/stats error code is INTERNAL_ERROR when suppScorecard throws', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(1);
+    mockPrisma.suppScorecard.count.mockRejectedValue(new Error('scorecard fail'));
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/dashboard/stats data keys are all numbers', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(1);
+    mockPrisma.suppScorecard.count.mockResolvedValue(1);
+    mockPrisma.suppDocument.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    const d = res.body.data;
+    expect(typeof d.totalSuppliers).toBe('number');
+    expect(typeof d.totalScorecards).toBe('number');
+    expect(typeof d.totalDocuments).toBe('number');
+  });
+});

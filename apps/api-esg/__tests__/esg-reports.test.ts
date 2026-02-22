@@ -489,3 +489,52 @@ describe('ESG Reports — extra coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('ESG Reports — phase28 coverage', () => {
+  it('GET / findMany called with orgId from authenticated user', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/esg-reports');
+    expect(prisma.esgReport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-001' }) })
+    );
+  });
+
+  it('POST /generate with ISO_14001 framework creates report', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue({
+      ...mockEsgReport,
+      framework: 'ISO_14001',
+    });
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: 'ISO_14001',
+      period: '2026-Q1',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / response has data as array', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([mockEsgReport]);
+    const res = await request(app).get('/api/esg-reports');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /generate count is called once to build reference number', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(2);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue({ ...mockEsgReport });
+    await request(app).post('/api/esg-reports/generate').send({
+      framework: 'GRI',
+      period: '2026-Q1',
+    });
+    expect(prisma.esgReport.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /generate missing period returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: 'GRI',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

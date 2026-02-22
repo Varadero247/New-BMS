@@ -609,3 +609,64 @@ describe('Compliance Regulatory Intelligence — additional coverage', () => {
     expect(response.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('Compliance Regulatory Intelligence — phase28 coverage', () => {
+  let app3: express.Express;
+  let ids3: string[] = [];
+
+  beforeAll(async () => {
+    app3 = express();
+    app3.use(express.json());
+    app3.use('/api/compliance', complianceRouter);
+
+    const res = await request(app3)
+      .get('/api/compliance/regulations?limit=100')
+      .set('Authorization', 'Bearer token');
+    ids3 = res.body.data.items.map((r: any) => r.id);
+  });
+
+  it('GET /regulations response body is an object', async () => {
+    const res = await request(app3)
+      .get('/api/compliance/regulations')
+      .set('Authorization', 'Bearer token');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /regulations items have title property', async () => {
+    const res = await request(app3)
+      .get('/api/compliance/regulations')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    for (const item of res.body.data.items) {
+      expect(item).toHaveProperty('title');
+    }
+  });
+
+  it('GET /summary returns success:true', async () => {
+    const res = await request(app3)
+      .get('/api/compliance/summary')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /regulations filters by category FOOD_SAFETY', async () => {
+    const res = await request(app3)
+      .get('/api/compliance/regulations?category=FOOD_SAFETY')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    res.body.data.items.forEach((item: any) => {
+      expect(item.category).toBe('FOOD_SAFETY');
+    });
+  });
+
+  it('POST /regulations/:id/import with quality module returns 201', async () => {
+    const id = ids3[5];
+    const res = await request(app3)
+      .post(`/api/compliance/regulations/${id}/import`)
+      .set('Authorization', 'Bearer token')
+      .send({ targetModule: 'quality' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.targetModule).toBe('quality');
+  });
+});

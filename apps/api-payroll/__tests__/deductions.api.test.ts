@@ -1,0 +1,334 @@
+import express from "express";
+import request from "supertest";
+
+jest.mock("../src/prisma", () => ({
+  prisma: {
+    payslipItem: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+  },
+}));
+
+jest.mock("@ims/auth", () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: "20000000-0000-4000-a000-000000000123", email: "test@test.com", role: "USER" };
+    next();
+  }),
+}));
+jest.mock("@ims/service-auth", () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
+
+jest.mock("@ims/monitoring", () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import { prisma } from "../src/prisma";
+import deductionsRoutes from "../src/routes/deductions";
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+describe("Payroll Deductions API Routes", () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use("/api/deductions", deductionsRoutes);
+  });
+
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  const mockDeduction = {
+    id: "00000000-0000-4000-a000-000000000001",
+    payslipId: "11111111-1111-1111-1111-111111111111",
+    name: "Income Tax",
+    type: "DEDUCTION",
+    componentType: "STATUTORY",
+    amount: 800,
+    quantity: 1,
+    rate: 800,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  describe("GET /api/deductions", () => {
+    it("returns list of deductions", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([mockDeduction]);
+      const res = await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveLength(1);
+    });
+    it("returns empty array when none", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+      const res = await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(0);
+    });
+    it("findMany called once per request", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+      await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(mockPrisma.payslipItem.findMany).toHaveBeenCalledTimes(1);
+    });
+    it("response has success:true", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+      const res = await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(res.body.success).toBe(true);
+    });
+    it("response data is array", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+      const res = await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+    it("filters by type=DEDUCTION in where clause", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+      await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(mockPrisma.payslipItem.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ type: "DEDUCTION" }) }));
+    });
+    it("limits to 100 results", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+      await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(mockPrisma.payslipItem.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 100 }));
+    });
+    it("orders by createdAt desc", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+      await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(mockPrisma.payslipItem.findMany).toHaveBeenCalledWith(expect.objectContaining({ orderBy: { createdAt: "desc" } }));
+    });
+    it("returns 500 on DB error", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockRejectedValueOnce(new Error("DB error"));
+      const res = await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe("INTERNAL_ERROR");
+    });
+    it("500 success:false", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockRejectedValueOnce(new Error("fail"));
+      const res = await request(app).get("/api/deductions").set("Authorization", "Bearer token");
+      expect(res.body.success).toBe(false);
+    });
+    it("filters by componentType when type query provided", async () => {
+      (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+      await request(app).get("/api/deductions?type=STATUTORY").set("Authorization", "Bearer token");
+      expect(mockPrisma.payslipItem.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ componentType: "STATUTORY" }) }));
+    });
+  });
+
+  describe("GET /api/deductions/:id", () => {
+    it("returns single deduction", async () => {
+      (mockPrisma.payslipItem.findUnique as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      const res = await request(app).get("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token");
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+    it("returns 404 when not found", async () => {
+      (mockPrisma.payslipItem.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      const res = await request(app).get("/api/deductions/00000000-0000-4000-a000-ffffffffffff").set("Authorization", "Bearer token");
+      expect(res.status).toBe(404);
+      expect(res.body.error.code).toBe("NOT_FOUND");
+    });
+    it("returns 500 on DB error", async () => {
+      (mockPrisma.payslipItem.findUnique as jest.Mock).mockRejectedValueOnce(new Error("DB error"));
+      const res = await request(app).get("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token");
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe("INTERNAL_ERROR");
+    });
+    it("findUnique called with correct id", async () => {
+      (mockPrisma.payslipItem.findUnique as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      await request(app).get("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token");
+      expect(mockPrisma.payslipItem.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: "00000000-0000-4000-a000-000000000001" } }));
+    });
+    it("data.name matches mock", async () => {
+      (mockPrisma.payslipItem.findUnique as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      const res = await request(app).get("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token");
+      expect(res.body.data.name).toBe("Income Tax");
+    });
+    it("404 success:false", async () => {
+      (mockPrisma.payslipItem.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      const res = await request(app).get("/api/deductions/00000000-0000-4000-a000-ffffffffffff").set("Authorization", "Bearer token");
+      expect(res.body.success).toBe(false);
+    });
+  });
+
+  describe("POST /api/deductions", () => {
+    const validPayload = {
+      payslipId: "11111111-1111-1111-1111-111111111111",
+      name: "Pension Contribution",
+      amount: 300,
+      componentType: "PENSION",
+    };
+
+    it("creates deduction successfully", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce({ ...mockDeduction, name: "Pension Contribution" });
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send(validPayload);
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+    it("returns 400 for missing payslipId", async () => {
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send({ name: "Tax", amount: 100 });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+    it("returns 400 for missing name", async () => {
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send({ payslipId: "11111111-1111-1111-1111-111111111111", amount: 100 });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+    it("returns 400 for non-positive amount", async () => {
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send({ ...validPayload, amount: -50 });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+    it("returns 400 for invalid componentType", async () => {
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send({ ...validPayload, componentType: "INVALID" });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+    it("returns 500 on DB error", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockRejectedValueOnce(new Error("DB error"));
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send(validPayload);
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe("INTERNAL_ERROR");
+    });
+    it("create called with type DEDUCTION", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce({ ...mockDeduction });
+      await request(app).post("/api/deductions").set("Authorization", "Bearer token").send(validPayload);
+      expect(mockPrisma.payslipItem.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: "DEDUCTION" }) }));
+    });
+    it("accepts STATUTORY componentType", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send({ ...validPayload, componentType: "STATUTORY" });
+      expect(res.status).toBe(201);
+    });
+    it("accepts VOLUNTARY componentType", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send({ ...validPayload, componentType: "VOLUNTARY" });
+      expect(res.status).toBe(201);
+    });
+    it("accepts HEALTH_INSURANCE componentType", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send({ ...validPayload, componentType: "HEALTH_INSURANCE" });
+      expect(res.status).toBe(201);
+    });
+    it("accepts LOAN_REPAYMENT componentType", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send({ ...validPayload, componentType: "LOAN_REPAYMENT" });
+      expect(res.status).toBe(201);
+    });
+    it("accepts OTHER componentType", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send({ ...validPayload, componentType: "OTHER" });
+      expect(res.status).toBe(201);
+    });
+    it("create called once on success", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      await request(app).post("/api/deductions").set("Authorization", "Bearer token").send(validPayload);
+      expect(mockPrisma.payslipItem.create).toHaveBeenCalledTimes(1);
+    });
+    it("response has data property on success", async () => {
+      (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      const res = await request(app).post("/api/deductions").set("Authorization", "Bearer token").send(validPayload);
+      expect(res.body).toHaveProperty("data");
+    });
+  });
+
+  describe("PUT /api/deductions/:id", () => {
+    it("updates deduction successfully", async () => {
+      (mockPrisma.payslipItem.update as jest.Mock).mockResolvedValueOnce({ ...mockDeduction, amount: 900 });
+      const res = await request(app).put("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token").send({ amount: 900 });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+    it("returns 400 for non-positive amount", async () => {
+      const res = await request(app).put("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token").send({ amount: 0 });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+    it("returns 500 on DB error", async () => {
+      (mockPrisma.payslipItem.update as jest.Mock).mockRejectedValueOnce(new Error("DB error"));
+      const res = await request(app).put("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token").send({ amount: 500 });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe("INTERNAL_ERROR");
+    });
+    it("update called with correct id in where", async () => {
+      (mockPrisma.payslipItem.update as jest.Mock).mockResolvedValueOnce(mockDeduction);
+      await request(app).put("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token").send({ amount: 500 });
+      expect(mockPrisma.payslipItem.update).toHaveBeenCalledWith(expect.objectContaining({ where: { id: "00000000-0000-4000-a000-000000000001" } }));
+    });
+    it("accepts description update", async () => {
+      (mockPrisma.payslipItem.update as jest.Mock).mockResolvedValueOnce({ ...mockDeduction });
+      const res = await request(app).put("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token").send({ description: "Updated" });
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe("DELETE /api/deductions/:id", () => {
+    it("soft deletes deduction", async () => {
+      (mockPrisma.payslipItem.update as jest.Mock).mockResolvedValueOnce({ ...mockDeduction, deletedAt: new Date() });
+      const res = await request(app).delete("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token");
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+    it("returns 500 on DB error", async () => {
+      (mockPrisma.payslipItem.update as jest.Mock).mockRejectedValueOnce(new Error("DB error"));
+      const res = await request(app).delete("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token");
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe("INTERNAL_ERROR");
+    });
+    it("update called with deletedAt", async () => {
+      (mockPrisma.payslipItem.update as jest.Mock).mockResolvedValueOnce({ ...mockDeduction, deletedAt: new Date() });
+      await request(app).delete("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token");
+      expect(mockPrisma.payslipItem.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }));
+    });
+    it("response message is defined", async () => {
+      (mockPrisma.payslipItem.update as jest.Mock).mockResolvedValueOnce({ ...mockDeduction, deletedAt: new Date() });
+      const res = await request(app).delete("/api/deductions/00000000-0000-4000-a000-000000000001").set("Authorization", "Bearer token");
+      expect(res.body.data.message).toBeDefined();
+    });
+  });
+});
+
+
+describe('Payroll Deductions — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/deductions', deductionsRoutes);
+  });
+
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  it('GET / where clause has deletedAt:null', async () => {
+    (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/deductions').set('Authorization', 'Bearer token');
+    expect(mockPrisma.payslipItem.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) }));
+  });
+  it('GET / without type does not include componentType filter', async () => {
+    (mockPrisma.payslipItem.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/deductions').set('Authorization', 'Bearer token');
+    const call = (mockPrisma.payslipItem.findMany as jest.Mock).mock.calls[0][0];
+    expect(call.where).not.toHaveProperty('componentType');
+  });
+  it('GET /:id findUnique called once', async () => {
+    (mockPrisma.payslipItem.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'x', name: 'Tax' });
+    await request(app).get('/api/deductions/00000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token');
+    expect(mockPrisma.payslipItem.findUnique).toHaveBeenCalledTimes(1);
+  });
+  it('POST / returns 201 status on success', async () => {
+    (mockPrisma.payslipItem.create as jest.Mock).mockResolvedValueOnce({ id: 'new', name: 'NI' });
+    const res = await request(app).post('/api/deductions').set('Authorization', 'Bearer token')
+      .send({ payslipId: '11111111-1111-1111-1111-111111111111', name: 'NI', amount: 200, componentType: 'STATUTORY' });
+    expect(res.status).toBe(201);
+  });
+  it('PUT /:id response data has id', async () => {
+    (mockPrisma.payslipItem.update as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-4000-a000-000000000001', amount: 400 });
+    const res = await request(app).put('/api/deductions/00000000-0000-4000-a000-000000000001').set('Authorization', 'Bearer token').send({ amount: 400 });
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

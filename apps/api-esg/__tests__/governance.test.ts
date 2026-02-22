@@ -449,3 +449,55 @@ describe('governance — extra coverage', () => {
     );
   });
 });
+
+describe('governance — phase28 coverage', () => {
+  it('GET / filters by ANTI_CORRUPTION category in where clause', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/governance?category=ANTI_CORRUPTION');
+    expect(prisma.esgGovernanceMetric.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ category: 'ANTI_CORRUPTION' }) })
+    );
+  });
+
+  it('GET / pagination.totalPages is calculated from count and limit', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(50);
+    const res = await request(app).get('/api/governance?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+
+  it('POST / create is called with periodStart as Date object', async () => {
+    (prisma.esgGovernanceMetric.create as jest.Mock).mockResolvedValue(mockGovernance);
+    await request(app).post('/api/governance').send({
+      category: 'BOARD',
+      metric: 'Board Independence',
+      value: '75%',
+      periodStart: '2026-01-01',
+      periodEnd: '2026-03-31',
+    });
+    expect(prisma.esgGovernanceMetric.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ periodStart: expect.any(Date) }) })
+    );
+  });
+
+  it('PUT /:id update changes metric field successfully', async () => {
+    (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue(mockGovernance);
+    (prisma.esgGovernanceMetric.update as jest.Mock).mockResolvedValue({ ...mockGovernance, metric: 'Board Diversity' });
+    const res = await request(app)
+      .put('/api/governance/00000000-0000-0000-0000-000000000001')
+      .send({ metric: 'Board Diversity' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.metric).toBe('Board Diversity');
+  });
+
+  it('DELETE /:id update called with deletedAt', async () => {
+    (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue(mockGovernance);
+    (prisma.esgGovernanceMetric.update as jest.Mock).mockResolvedValue({ ...mockGovernance, deletedAt: new Date() });
+    await request(app).delete('/api/governance/00000000-0000-0000-0000-000000000001');
+    expect(prisma.esgGovernanceMetric.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+    );
+  });
+});

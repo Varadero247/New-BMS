@@ -621,3 +621,73 @@ describe('Aerospace Counterfeit Parts API — extra coverage', () => {
     expect(res.body.data).toHaveProperty('refNumber');
   });
 });
+
+describe('Aerospace Counterfeit Parts API — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / with page=2 limit=10 returns correct meta page and limit', async () => {
+    mockPrisma.aeroCounterfeitReport.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(30);
+    const res = await request(app).get('/api/counterfeit?page=2&limit=10').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(10);
+  });
+
+  it('GET / search query param does not cause 500', async () => {
+    mockPrisma.aeroCounterfeitReport.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/counterfeit?search=suspect').set('Authorization', 'Bearer token');
+    expect([200, 400]).toContain(res.status);
+  });
+
+  it('POST /suspect-parts with all optional fields returns 201', async () => {
+    mockPrisma.aeroSuspectPart.count.mockResolvedValueOnce(2);
+    mockPrisma.aeroSuspectPart.create.mockResolvedValueOnce({
+      id: 'sp-p28',
+      refNumber: 'AERO-SPT-2026-003',
+      partNumber: 'TR-4455',
+      nomenclature: 'Transistor',
+      manufacturer: 'Unknown Co',
+      riskLevel: 'CRITICAL',
+    });
+    const res = await request(app)
+      .post('/api/counterfeit/suspect-parts')
+      .set('Authorization', 'Bearer token')
+      .send({ partNumber: 'TR-4455', nomenclature: 'Transistor', manufacturer: 'Unknown Co', riskLevel: 'HIGH' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id success response has id field in data', async () => {
+    mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000002',
+      refNumber: 'AERO-CF-2026-002',
+      title: 'Suspect Caps',
+      deletedAt: null,
+    });
+    const res = await request(app)
+      .get('/api/counterfeit/00000000-0000-0000-0000-000000000002')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000002');
+  });
+
+  it('PUT /:id response body has success:true when status updated', async () => {
+    mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000003',
+      status: 'OPEN',
+      deletedAt: null,
+    });
+    mockPrisma.aeroCounterfeitReport.update.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000003',
+      status: 'INVESTIGATING',
+    });
+    const res = await request(app)
+      .put('/api/counterfeit/00000000-0000-0000-0000-000000000003')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'INVESTIGATING' });
+    expect(res.body.success).toBe(true);
+  });
+});

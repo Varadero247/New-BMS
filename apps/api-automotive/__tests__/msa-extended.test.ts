@@ -550,3 +550,58 @@ describe('MSA Routes — comprehensive coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+
+describe('MSA Routes — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/msa findMany called once per list request', async () => {
+    (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/msa');
+    expect(mockPrisma.msaStudy.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/msa count is called once per list request', async () => {
+    (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/msa');
+    expect(mockPrisma.msaStudy.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/msa with page=3 limit=10 returns correct meta', async () => {
+    (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(30);
+    const res = await request(app).get('/api/msa?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(3);
+    expect(res.body.meta.limit).toBe(10);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('POST /api/msa returns created study with correct studyType', async () => {
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.msaStudy.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      refNumber: 'MSA-2602-0001',
+      studyType: 'GRR_NESTED',
+    });
+    const res = await request(app).post('/api/msa').send({
+      title: 'Nested GRR Study',
+      studyType: 'GRR_NESTED',
+      gageName: 'CMM',
+      characteristic: 'Diameter',
+      operatorCount: 2,
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.studyType).toBe('GRR_NESTED');
+  });
+
+  it('GET /api/msa returns data array even when empty', async () => {
+    (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/msa');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

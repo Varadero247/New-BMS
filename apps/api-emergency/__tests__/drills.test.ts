@@ -589,3 +589,42 @@ describe('drills — final boundary coverage', () => {
     expect(typeof res.body.data.premisesStats['Office'].avgEvacTime).toBe('number');
   });
 });
+
+describe('drills — phase28 coverage', () => {
+  it('GET /api/drills/analytics response data has totalDrills field', async () => {
+    mockDrill.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/drills/analytics');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('totalDrills');
+  });
+
+  it('POST /api/drills/premises/:id response data has drillType matching sent value', async () => {
+    mockDrill.create.mockResolvedValue({ ...fakeDrill, drillType: 'FIRE' });
+    const res = await request(app)
+      .post(`/api/drills/premises/${PREMISES_ID}`)
+      .send(validCreateBody);
+    expect(res.status).toBe(201);
+    expect(res.body.data.drillType).toBe('FIRE');
+  });
+
+  it('PUT /api/drills/:id calls update exactly once on success', async () => {
+    mockDrill.findFirst.mockResolvedValue(fakeDrill);
+    mockDrill.update.mockResolvedValue({ ...fakeDrill, completedBy: 'Tester' });
+    await request(app).put(`/api/drills/${DRILL_ID}`).send({ completedBy: 'Tester' });
+    expect(mockDrill.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/drills/premises/:id response data is an array', async () => {
+    mockDrill.findMany.mockResolvedValue([fakeDrill]);
+    const res = await request(app).get(`/api/drills/premises/${PREMISES_ID}`);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/drills/analytics response body has success:true', async () => {
+    mockDrill.findMany.mockResolvedValue([{ ...fakeDrill, premises: { name: 'Site P28' } }]);
+    const res = await request(app).get('/api/drills/analytics');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+});

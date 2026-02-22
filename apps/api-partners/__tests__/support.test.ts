@@ -474,3 +474,38 @@ describe('support — response body shape coverage', () => {
     expect(res.body.data).toHaveProperty('messages');
   });
 });
+
+
+describe('support — phase28 coverage', () => {
+  it('GET / uses correct partnerId filter when partner is set', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/support');
+    expect(portalPrisma.mktPartnerSupportTicket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ partnerId: 'partner-1' }) })
+    );
+  });
+  it('POST / returns 400 for subject length zero', async () => {
+    const res = await request(app).post('/api/support').send({ subject: '', description: 'desc' });
+    expect(res.status).toBe(400);
+  });
+  it('PATCH /:id/close update called with status CLOSED', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(mockTicket);
+    (portalPrisma.mktPartnerSupportTicket.update as jest.Mock).mockResolvedValue({ ...mockTicket, status: 'CLOSED' });
+    await request(app).patch('/api/support/00000000-0000-0000-0000-000000000001/close');
+    expect(portalPrisma.mktPartnerSupportTicket.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'CLOSED' }) })
+    );
+  });
+  it('GET / returns 200 and success true with tickets', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findMany as jest.Mock).mockResolvedValue([mockTicket]);
+    const res = await request(app).get('/api/support');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+  it('POST /:id/messages: no update when ticket status is OPEN', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue({ ...mockTicket, status: 'OPEN' });
+    (portalPrisma.mktTicketMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-3', body: 'Hi', ticketId: mockTicket.id });
+    await request(app).post('/api/support/00000000-0000-0000-0000-000000000001/messages').send({ body: 'Hi' });
+    expect(portalPrisma.mktPartnerSupportTicket.update).not.toHaveBeenCalled();
+  });
+});

@@ -518,3 +518,48 @@ describe('OASIS Routes — extra final coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('OASIS Routes — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/oasis/monitor data items have companyName when one exists', async () => {
+    (mockPrisma.oasisMonitoredSupplier.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000010', cageCode: 'ZZZZZ', companyName: 'Phase28 Corp', status: 'ACTIVE' },
+    ]);
+    (mockPrisma.oasisMonitoredSupplier.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/oasis/monitor');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('companyName');
+  });
+
+  it('GET /api/oasis/monitor page=2 limit=10 returns correct meta', async () => {
+    (mockPrisma.oasisMonitoredSupplier.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisMonitoredSupplier.count as jest.Mock).mockResolvedValue(25);
+    const res = await request(app).get('/api/oasis/monitor?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(10);
+  });
+
+  it('GET /api/oasis/alerts page=2 limit=5 returns correct meta', async () => {
+    (mockPrisma.oasisAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.oasisAlert.count as jest.Mock).mockResolvedValue(10);
+    const res = await request(app).get('/api/oasis/alerts?page=2&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(5);
+  });
+
+  it('GET /api/oasis/lookup with cage query returns data response', async () => {
+    const res = await request(app).get('/api/oasis/lookup?cage=P28AB');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST /api/oasis/monitor returns 400 when companyName is missing', async () => {
+    const res = await request(app).post('/api/oasis/monitor').send({ cageCode: 'ABCDE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

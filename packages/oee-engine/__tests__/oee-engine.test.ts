@@ -297,3 +297,41 @@ describe('oee-engine — additional coverage', () => {
     expect(result).toBeCloseTo(200);
   });
 });
+
+describe('oee-engine — phase28 coverage', () => {
+  it('calculateOEE availability is between 0 and 1 for typical inputs', () => {
+    const result = calculateOEE({
+      plannedProductionTime: 480,
+      downtime: 60,
+      idealCycleTime: 1,
+      totalPieces: 380,
+      goodPieces: 360,
+    });
+    expect(result.availability).toBeGreaterThanOrEqual(0);
+    expect(result.availability).toBeLessThanOrEqual(1);
+  });
+
+  it('calculateOEE quality is between 0 and 1 for typical inputs', () => {
+    const result = calculateOEE({
+      plannedProductionTime: 480,
+      downtime: 0,
+      idealCycleTime: 1,
+      totalPieces: 400,
+      goodPieces: 360,
+    });
+    expect(result.quality).toBeGreaterThanOrEqual(0);
+    expect(result.quality).toBeLessThanOrEqual(1);
+  });
+
+  it('getOEECategory returns world-class for OEE of exactly 0.85', () => {
+    expect(getOEECategory(0.85)).toBe('world-class');
+  });
+
+  it('calculateMTTR returns the average of all provided repair times', () => {
+    expect(calculateMTTR([10, 20, 30])).toBe(20);
+  });
+
+  it('isWorldClass returns false for OEE of exactly 0.8499', () => {
+    expect(isWorldClass(0.8499)).toBe(false);
+  });
+});

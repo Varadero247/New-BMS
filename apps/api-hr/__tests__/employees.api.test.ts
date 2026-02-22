@@ -754,3 +754,62 @@ describe('HR Employees API — additional coverage', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+describe('HR Employees API — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/employees', employeesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/employees with search param calls findMany once', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/employees?search=alice');
+    expect(mockPrisma.employee.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/employees returns 400 for missing lastName', async () => {
+    const response = await request(app).post('/api/employees').send({
+      employeeNumber: 'EMP099',
+      firstName: 'OnlyFirst',
+      workEmail: 'onlyfirst@company.com',
+      departmentId: '11111111-1111-1111-1111-111111111111',
+      hireDate: '2024-01-15',
+      jobTitle: 'Analyst',
+    });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/employees/org-chart returns success:true when employees exist', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValueOnce([
+      {
+        id: '53000000-0000-4000-a000-000000000010',
+        firstName: 'CEO',
+        lastName: 'Boss',
+        jobTitle: 'CEO',
+        departmentId: '2b000000-0000-4000-a000-000000000010',
+        managerId: null,
+        department: { name: 'Executive' },
+      },
+    ]);
+    const response = await request(app).get('/api/employees/org-chart');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+
+  it('GET /api/employees response meta has totalPages key', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(0);
+    const response = await request(app).get('/api/employees');
+    expect(response.body.meta).toHaveProperty('totalPages');
+  });
+});

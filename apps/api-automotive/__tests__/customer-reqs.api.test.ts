@@ -462,3 +462,47 @@ describe('customer-reqs — comprehensive coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+
+describe('customer-reqs — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/customer-reqs findMany is called once per list request', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([mockReq]);
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(1);
+    await request(app).get('/api/customer-reqs');
+    expect(mockPrisma.customerReq.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/customer-reqs/compliance-summary total matches count mock', async () => {
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(42);
+    (mockPrisma.customerReq.groupBy as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/customer-reqs/compliance-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(42);
+  });
+
+  it('POST /api/customer-reqs with customer missing returns 400', async () => {
+    const res = await request(app).post('/api/customer-reqs').send({
+      requirementTitle: 'PPAP Level 3',
+      description: 'Test description',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/customer-reqs/:id returns 204 on successful soft delete', async () => {
+    (mockPrisma.customerReq.findUnique as jest.Mock).mockResolvedValue(mockReq);
+    (mockPrisma.customerReq.update as jest.Mock).mockResolvedValue({ ...mockReq, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/customer-reqs/${REQ_ID}`);
+    expect(res.status).toBe(204);
+  });
+
+  it('GET /api/customer-reqs returns meta.totalPages = 0 when no records exist', async () => {
+    (mockPrisma.customerReq.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.customerReq.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/customer-reqs');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+});

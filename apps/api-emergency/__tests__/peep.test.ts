@@ -543,3 +543,45 @@ describe('PEEP — final boundary coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('PEEP — phase28 coverage', () => {
+  it('GET /api/peep/premises/:id data is an array', async () => {
+    mockPeep.findMany.mockResolvedValue([fakePeep]);
+    const res = await request(app).get(`/api/peep/premises/${PREMISES_ID}`);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/peep/premises/:id response data has personName matching sent value', async () => {
+    mockPeep.create.mockResolvedValue({ ...fakePeep, personName: 'Phase28 Person' });
+    const res = await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send({
+      personName: 'Phase28 Person',
+      mobilityLevel: 'WHEELCHAIR_USER',
+      reviewDate: '2027-01-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.personName).toBe('Phase28 Person');
+  });
+
+  it('PUT /api/peep/:id calls update exactly once on success', async () => {
+    mockPeep.findFirst.mockResolvedValue(fakePeep);
+    mockPeep.update.mockResolvedValue({ ...fakePeep, jobTitle: 'Lead Engineer' });
+    await request(app).put(`/api/peep/${PEEP_ID}`).send({ jobTitle: 'Lead Engineer' });
+    expect(mockPeep.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/peep/due-review data is an array', async () => {
+    mockPeep.findMany.mockResolvedValue([fakePeep]);
+    const res = await request(app).get('/api/peep/due-review');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/peep/premises/:id calls create with organisationId in data', async () => {
+    mockPeep.create.mockResolvedValue(fakePeep);
+    await request(app).post(`/api/peep/premises/${PREMISES_ID}`).send(validCreateBody);
+    expect(mockPeep.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ premisesId: PREMISES_ID }) }),
+    );
+  });
+});

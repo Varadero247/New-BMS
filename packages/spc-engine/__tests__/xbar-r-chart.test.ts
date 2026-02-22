@@ -382,3 +382,37 @@ describe('xbarRChart — final coverage to reach 40', () => {
     expect(chart.dataPoints).toHaveLength(3);
   });
 });
+
+describe('xbarRChart — phase28 coverage', () => {
+  it('SPC_CONSTANTS[10].A2 is less than SPC_CONSTANTS[2].A2 (larger subgroups = tighter control)', () => {
+    expect(SPC_CONSTANTS[10].A2).toBeLessThan(SPC_CONSTANTS[2].A2);
+  });
+
+  it('throws for subgroup size 0 even with many data points', () => {
+    const data = makeDataPoints(Array(100).fill(5));
+    expect(() => xbarRChart(data, 0)).toThrow('Subgroup size must be between 2 and 10');
+  });
+
+  it('rangePoints have numeric value fields', () => {
+    const data = makeDataPoints([10, 20, 10, 20, 10, 20]);
+    const chart = xbarRChart(data, 2);
+    for (const p of chart.rangePoints!) {
+      expect(typeof p.value).toBe('number');
+    }
+  });
+
+  it('xbar centerLine equals average of subgroup means', () => {
+    // Subgroup 1: [10, 20] mean=15; Subgroup 2: [30, 40] mean=35
+    const data = makeDataPoints([10, 20, 30, 40]);
+    const chart = xbarRChart(data, 2);
+    expect(chart.centerLine).toBeCloseTo((15 + 35) / 2, 4);
+  });
+
+  it('chart type is always XBAR_R regardless of subgroup size', () => {
+    for (let n = 2; n <= 5; n++) {
+      const data = makeDataPoints(Array(n * 2).fill(50));
+      const chart = xbarRChart(data, n);
+      expect(chart.type).toBe('XBAR_R');
+    }
+  });
+});

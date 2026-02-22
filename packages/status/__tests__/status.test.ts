@@ -316,3 +316,41 @@ describe('Status Package — final coverage to reach 40', () => {
     expect(ps.services).toHaveLength(SERVICE_REGISTRY.length);
   });
 });
+
+describe('Status Package — phase28 coverage', () => {
+  beforeEach(() => {
+    _resetStores();
+  });
+
+  it('setServiceHealth with degraded status returns status degraded', () => {
+    const h = setServiceHealth('Finance', 4013, 'degraded', 300);
+    expect(h.status).toBe('degraded');
+  });
+
+  it('getAllServiceStatus returns objects with lastChecked as a string', () => {
+    const statuses = getAllServiceStatus();
+    for (const s of statuses) {
+      expect(typeof s.lastChecked).toBe('string');
+    }
+  });
+
+  it('SERVICE_REGISTRY port 4000 belongs to a service named API Gateway', () => {
+    const gw = SERVICE_REGISTRY.find((s) => s.port === 4000);
+    expect(gw).toBeDefined();
+    expect(gw!.name).toBe('API Gateway');
+  });
+
+  it('getOverallStatus returns degraded when one service degraded and rest operational', () => {
+    for (const svc of SERVICE_REGISTRY) {
+      setServiceHealth(svc.name, svc.port, 'operational', 5);
+    }
+    const last = SERVICE_REGISTRY[SERVICE_REGISTRY.length - 1];
+    setServiceHealth(last.name, last.port, 'degraded', 250);
+    expect(getOverallStatus()).toBe('degraded');
+  });
+
+  it('getPlatformStatus status field is a string', () => {
+    const ps = getPlatformStatus();
+    expect(typeof ps.status).toBe('string');
+  });
+});

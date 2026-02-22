@@ -490,3 +490,55 @@ describe('DEFRA Factors — extra coverage', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('DEFRA Factors — phase28 coverage', () => {
+  it('GET / response status 200 on empty result', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST / with all optional fields returns 201', async () => {
+    (prisma.esgDefraFactor.create as jest.Mock).mockResolvedValue(mockDefraFactor);
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Fuel',
+      subcategory: 'Diesel',
+      activity: 'Diesel combustion',
+      factor: 2.68,
+      unit: 'kgCO2e/litre',
+      year: 2026,
+      source: 'DEFRA 2026',
+      notes: 'Scope 1 emission',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / findMany called with orgId from user', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/defra-factors');
+    expect(prisma.esgDefraFactor.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-001' }) })
+    );
+  });
+
+  it('POST / missing category returns 400 VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/defra-factors').send({
+      activity: 'Grid electricity',
+      factor: 0.233,
+      unit: 'kgCO2e/kWh',
+      year: 2026,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / response body success:true on single result', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([mockDefraFactor]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+});

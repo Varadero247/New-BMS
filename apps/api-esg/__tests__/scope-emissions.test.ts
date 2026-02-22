@@ -508,3 +508,85 @@ describe('scope-emissions — additional coverage 2', () => {
     );
   });
 });
+
+describe('scope-emissions — phase28 coverage', () => {
+  it('GET / returns items with scope field equal to filter value', async () => {
+    const scopeItem = { ...mockScopeEmission, scope: 2 };
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([scopeItem]);
+    const res = await request(app).get('/api/scope-emissions?scope=2');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].scope).toBe(2);
+  });
+
+  it('POST / returns 201 and data has orgId from authenticated user', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue(mockScopeEmission);
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Gas Combustion',
+      quantity: 2000,
+      unit: 'kWh',
+      period: '2026-06',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('orgId', 'org-001');
+  });
+
+  it('GET / response has success:true and data length matches mock', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission, { ...mockScopeEmission, id: 'id-2' }]);
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / 500 error returns message "Failed to create resource"', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockRejectedValue(new Error('crash'));
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Combustion',
+      quantity: 100,
+      unit: 'kWh',
+      period: '2026-01',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBe('Failed to create resource');
+  });
+
+  it('GET / data items have createdAt field', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('createdAt');
+  });
+
+  it('GET / orderBy is period desc on findMany call', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/scope-emissions');
+    expect(prisma.esgScopeEmission.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { period: 'desc' } })
+    );
+  });
+
+  it('POST / returns referenceNumber with correct year prefix', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    const year = new Date().getFullYear();
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue({ ...mockScopeEmission, referenceNumber: `EMI-${year}-0001` });
+    const res = await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Combustion',
+      quantity: 100,
+      unit: 'kWh',
+      period: '2026-01',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toMatch(new RegExp(`^EMI-${year}-`));
+  });
+
+  it('GET / filters by scope=1 and passes integer 1 in where clause', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/scope-emissions?scope=1');
+    const [call] = (prisma.esgScopeEmission.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.scope).toBe(1);
+  });
+});

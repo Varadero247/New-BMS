@@ -359,3 +359,44 @@ describe('NotificationService — final coverage', () => {
     expect(ch.type).toBe('sms');
   });
 });
+
+describe('NotificationService — phase28 coverage', () => {
+  let service: NotificationService;
+
+  beforeEach(() => {
+    service = new NotificationService();
+  });
+
+  it('send returns a resolved promise', async () => {
+    const notif = createTestNotification({ id: 'phase28-send-1', userId: 'user-phase28' });
+    await expect(service.send(notif)).resolves.not.toThrow();
+  });
+
+  it('getById returns notification with correct userId', async () => {
+    await service.send(createTestNotification({ id: 'phase28-uid-1', userId: 'user-phase28-a' }));
+    const stored = service.getById('phase28-uid-1');
+    expect(stored!.userId).toBe('user-phase28-a');
+  });
+
+  it('getUnread returns empty array for user with all notifications marked read', async () => {
+    await service.send(createTestNotification({ id: 'phase28-read-1', userId: 'user-phase28-b' }));
+    service.markRead('phase28-read-1');
+    expect(service.getUnread('user-phase28-b')).toHaveLength(0);
+  });
+
+  it('getDefaultEscalationRules HIGH priority first rule escalateTo matches supplied manager', () => {
+    const rules = getDefaultEscalationRules('HIGH', 'mgr-phase28');
+    expect(rules[0].escalateTo).toBe('mgr-phase28');
+  });
+
+  it('checkEscalation returns an object with escalatedTo and action on match', () => {
+    const notif = createTestNotification({ status: 'SENT' });
+    const rules: EscalationRule[] = [
+      { afterHours: 1, escalateTo: 'phase28-mgr', action: 'NOTIFY_MANAGER' },
+    ];
+    const result = checkEscalation(notif, 2, rules);
+    expect(result).not.toBeNull();
+    expect(result!.escalatedTo).toBe('phase28-mgr');
+    expect(result!.action).toBe('NOTIFY_MANAGER');
+  });
+});

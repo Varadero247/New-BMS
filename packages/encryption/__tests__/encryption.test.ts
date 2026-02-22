@@ -254,3 +254,35 @@ describe('encryption — absolute final boundary', () => {
     expect(decrypted).toBe('sensitive data');
   });
 });
+
+describe('encryption — phase28 coverage', () => {
+  beforeEach(() => { process.env.ENCRYPTION_KEY = 'a'.repeat(64); });
+  afterEach(() => { delete process.env.ENCRYPTION_KEY; });
+
+  it('encrypt always returns a non-empty string', () => {
+    const ct = encrypt('phase28');
+    expect(typeof ct).toBe('string');
+    expect(ct.length).toBeGreaterThan(0);
+  });
+
+  it('decrypt returns exact original for JSON-like string', () => {
+    const val = '{"key":"value","num":42}';
+    expect(decrypt(encrypt(val))).toBe(val);
+  });
+
+  it('encryptIfPresent returns a string (not original) for non-empty input', () => {
+    const ct = encryptIfPresent('phase28-data');
+    expect(typeof ct).toBe('string');
+    expect(ct).not.toBe('phase28-data');
+  });
+
+  it('decryptIfEncrypted round-trips data through encrypt', () => {
+    const ct = encrypt('round-trip-phase28');
+    expect(decryptIfEncrypted(ct)).toBe('round-trip-phase28');
+  });
+
+  it('isEncryptionConfigured returns true for 64-hex-char key', () => {
+    process.env.ENCRYPTION_KEY = 'f'.repeat(64);
+    expect(isEncryptionConfigured()).toBe(true);
+  });
+});

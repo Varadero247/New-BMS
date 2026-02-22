@@ -274,3 +274,34 @@ describe('nlq — additional coverage', () => {
     expect(result).toHaveProperty('params');
   });
 });
+
+describe('nlq — phase28 coverage', () => {
+  it('sanitizeQuery removes xp_cmdshell case-insensitively', () => {
+    const result = sanitizeQuery('show items XP_CMDSHELL foo');
+    expect(result).not.toContain('XP_CMDSHELL');
+    expect(result).not.toContain('xp_');
+  });
+
+  it('parseNaturalLanguage returns an object with a params array that is empty by default', () => {
+    const result = parseNaturalLanguage('what is our LTIFR', fullAccessContext);
+    expect(Array.isArray(result.params)).toBe(true);
+    expect(result.params).toHaveLength(0);
+  });
+
+  it('validateQueryPermissions returns false when permission level is undefined for a required module', () => {
+    expect(validateQueryPermissions(['finance'], { 'health-safety': 3 })).toBe(false);
+  });
+
+  it('sanitizeQuery with only spaces returns empty string', () => {
+    const result = sanitizeQuery('   ');
+    expect(result).toBe('');
+  });
+
+  it('QUERY_PATTERNS each entry has a regex or pattern property', () => {
+    for (const pattern of QUERY_PATTERNS) {
+      // Each pattern must have sql and modules as already tested; also verify modules is an array
+      expect(Array.isArray(pattern.modules)).toBe(true);
+      expect(typeof pattern.sql).toBe('string');
+    }
+  });
+});

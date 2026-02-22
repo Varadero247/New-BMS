@@ -957,3 +957,57 @@ describe('Automotive LPA — comprehensive coverage', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+
+describe('LPA Routes — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/lpa', lpaRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/lpa/schedules returns success:true', async () => {
+    (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/lpa/schedules').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/lpa/audits returns success:true and meta block', async () => {
+    (mockPrisma.lpaAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaAudit.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/lpa/audits').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.meta).toHaveProperty('page');
+    expect(res.body.meta).toHaveProperty('limit');
+  });
+
+  it('GET /api/lpa/schedules count is called once per request', async () => {
+    (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/lpa/schedules').set('Authorization', 'Bearer token');
+    expect(mockPrisma.lpaSchedule.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/lpa/audits returns data as array', async () => {
+    (mockPrisma.lpaAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaAudit.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/lpa/audits').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /api/lpa/schedules meta.totalPages is 0 when count is 0', async () => {
+    (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/lpa/schedules').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+});

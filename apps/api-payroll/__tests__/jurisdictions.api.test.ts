@@ -613,3 +613,72 @@ describe('Payroll Jurisdictions API Routes', () => {
     });
   });
 });
+
+
+describe('Payroll Jurisdictions — phase28 coverage', () => {
+  let app: express.Express;
+  let localStore: Map<string, any>;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/jurisdictions', jurisdictionsRoutes);
+  });
+
+  beforeEach(() => {
+    localStore = new Map();
+
+    mockJurisdiction.findUnique.mockImplementation(({ where }: any) =>
+      Promise.resolve(localStore.get(where.code) ?? null)
+    );
+
+    mockJurisdiction.findMany.mockImplementation(() =>
+      Promise.resolve(Array.from(localStore.values()))
+    );
+
+    mockJurisdiction.create.mockImplementation(({ data }: any) => {
+      const record = { ...data, customRules: data.customRules ?? null, activatedAt: new Date(), createdAt: new Date(), updatedAt: new Date() };
+      localStore.set(data.code, record);
+      return Promise.resolve(record);
+    });
+
+    mockJurisdiction.upsert.mockImplementation(({ where, create: createData, update }: any) => {
+      const existing = localStore.get(where.code);
+      if (existing) {
+        const updated = { ...existing, ...update, updatedAt: new Date() };
+        localStore.set(where.code, updated);
+        return Promise.resolve(updated);
+      }
+      const record = { ...createData, activatedAt: new Date(), createdAt: new Date(), updatedAt: new Date() };
+      localStore.set(createData.code, record);
+      return Promise.resolve(record);
+    });
+
+    mockJurisdiction.delete.mockImplementation(({ where }: any) => {
+      const existing = localStore.get(where.code);
+      localStore.delete(where.code);
+      return Promise.resolve(existing);
+    });
+  });
+
+  it('POST / registers AU jurisdiction (phase28)', async () => {
+    const response = await request(app).post('/api/jurisdictions').set('Authorization', 'Bearer token').send({ code: 'AU' });
+    expect(response.status).toBe(201);
+    expect(response.body.data.code).toBe('AU');
+  });
+  it('POST / registers NL jurisdiction (phase28)', async () => {
+    const response = await request(app).post('/api/jurisdictions').set('Authorization', 'Bearer token').send({ code: 'NL' });
+    expect(response.status).toBe(201);
+    expect(response.body.data.code).toBe('NL');
+  });
+  it('GET / returns success:true with empty list (phase28)', async () => {
+    const response = await request(app).get('/api/jurisdictions').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+  it('GET /:code/rules returns 200 for AU (phase28)', async () => {
+    const response = await request(app).get('/api/jurisdictions/AU/rules').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data.code).toBe('AU');
+  });
+});

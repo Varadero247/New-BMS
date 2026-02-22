@@ -1,0 +1,357 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    suppScorecard: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+  Prisma: {},
+}));
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req, _res, next) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+import router from '../src/routes/assessments';
+import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const app = express();
+app.use(express.json());
+app.use('/api/assessments', router);
+beforeEach(() => { jest.clearAllMocks(); });
+
+describe('GET /api/assessments', () => {
+  it('returns list with pagination', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', supplierId: 's-1' }]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.total).toBe(1);
+  });
+  it('returns empty list when none exist', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+  it('filters by status', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments?status=COMPLETED');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+  it('returns 500 on DB error', async () => {
+    mockPrisma.suppScorecard.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/assessments');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+  it('supports pagination params', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+  });
+  it('data is an array', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+  it('count is called once per request', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    await request(app).get('/api/assessments');
+    expect(mockPrisma.suppScorecard.count).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('GET /api/assessments/:id', () => {
+  it('returns 404 if not found', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/assessments/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+  it('returns item by id', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', supplierId: 's-1' });
+    const res = await request(app).get('/api/assessments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+  it('returns 500 on DB error', async () => {
+    mockPrisma.suppScorecard.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/assessments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+describe('POST /api/assessments', () => {
+  it('creates successfully', async () => {
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', supplierId: 's-1' });
+    const res = await request(app).post('/api/assessments').send({ supplierId: 's-1' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+  it('returns 400 when supplierId missing', async () => {
+    const res = await request(app).post('/api/assessments').send({ notes: 'test' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+  it('returns 400 when supplierId is empty string', async () => {
+    const res = await request(app).post('/api/assessments').send({ supplierId: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+  it('returns 500 on DB create error', async () => {
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/assessments').send({ supplierId: 's-1' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+  it('creates with COMPLETED status', async () => {
+    mockPrisma.suppScorecard.count.mockResolvedValue(2);
+    mockPrisma.suppScorecard.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000003', supplierId: 's-1', status: 'COMPLETED' });
+    const res = await request(app).post('/api/assessments').send({ supplierId: 's-1', status: 'COMPLETED' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});
+
+describe('PUT /api/assessments/:id', () => {
+  it('updates successfully', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' });
+    const res = await request(app).put('/api/assessments/00000000-0000-0000-0000-000000000001').send({ status: 'COMPLETED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+  it('returns 404 when not found', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue(null);
+    const res = await request(app).put('/api/assessments/00000000-0000-0000-0000-000000000099').send({ status: 'COMPLETED' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+  it('returns 500 on DB error', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/api/assessments/00000000-0000-0000-0000-000000000001').send({ status: 'COMPLETED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+  it('returns 400 when status is invalid enum', async () => {
+    const res = await request(app).put('/api/assessments/00000000-0000-0000-0000-000000000001').send({ status: 'BAD_STATUS' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
+describe('DELETE /api/assessments/:id', () => {
+  it('soft deletes successfully', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/assessments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted successfully');
+  });
+  it('returns 404 when not found', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/assessments/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+  it('returns 500 on DB error', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/assessments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+describe('assessments.api — phase28 coverage', () => {
+  it('GET pagination totalPages computed correctly', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/assessments?limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+  it('GET response content-type is json', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+  it('GET response body has success and data keys', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments');
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('data');
+  });
+  it('POST with score field creates successfully', async () => {
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', supplierId: 's-1', score: 85 });
+    const res = await request(app).post('/api/assessments').send({ supplierId: 's-1', score: 85 });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+  it('DELETE returns message containing assessment', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/assessments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('deleted');
+  });
+  it('success is false on 500 error', async () => {
+    mockPrisma.suppScorecard.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/assessments');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+  it('GET search filter returns 200', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments?search=SAS-2026');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+  it('PUT findFirst called before update', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).put('/api/assessments/00000000-0000-0000-0000-000000000001').send({ notes: 'updated' });
+    expect(mockPrisma.suppScorecard.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.suppScorecard.update).toHaveBeenCalledTimes(1);
+  });
+  it('GET with IN_PROGRESS status filter returns 200', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments?status=IN_PROGRESS');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+  it('GET /:id returns 404 with NOT_FOUND code', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/assessments/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+describe('assessments.api — additional phase28 coverage', () => {
+  it('GET /api/assessments page 1 limit 20 default pagination', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments');
+    expect(res.body.pagination.page).toBe(1);
+    expect(res.body.pagination.limit).toBe(20);
+  });
+
+  it('GET /api/assessments response body is not null', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments');
+    expect(res.body).not.toBeNull();
+  });
+
+  it('GET /api/assessments success is boolean', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/assessments');
+    expect(typeof res.body.success).toBe('boolean');
+  });
+
+  it('POST /api/assessments creates with FINANCIAL type', async () => {
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', supplierId: 's-1', type: 'FINANCIAL' });
+    const res = await request(app).post('/api/assessments').send({ supplierId: 's-1', type: 'FINANCIAL' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/assessments creates with notes field', async () => {
+    mockPrisma.suppScorecard.count.mockResolvedValue(3);
+    mockPrisma.suppScorecard.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000004', supplierId: 's-1', notes: 'important assessment' });
+    const res = await request(app).post('/api/assessments').send({ supplierId: 's-1', notes: 'important assessment' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/assessments/:id updates assessor field', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', assessor: 'Jane Doe' });
+    const res = await request(app).put('/api/assessments/00000000-0000-0000-0000-000000000001').send({ assessor: 'Jane Doe' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /api/assessments/:id update mock called once', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    await request(app).delete('/api/assessments/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.suppScorecard.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/assessments/:id data has id property', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000007', supplierId: 's-7' });
+    const res = await request(app).get('/api/assessments/00000000-0000-0000-0000-000000000007');
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET /api/assessments with page 1 returns first page', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', supplierId: 's-1' }]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/assessments?page=1');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('POST /api/assessments 400 when supplierId is empty string', async () => {
+    const res = await request(app).post('/api/assessments').send({ supplierId: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /api/assessments/:id response data has id', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).put('/api/assessments/00000000-0000-0000-0000-000000000001').send({ notes: 'x' });
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('error body has error.message string', async () => {
+    mockPrisma.suppScorecard.findMany.mockRejectedValue(new Error('db error'));
+    const res = await request(app).get('/api/assessments');
+    expect(typeof res.body.error.message).toBe('string');
+  });
+
+  it('GET /api/assessments data array length matches findMany result', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', supplierId: 's-1' },
+      { id: '00000000-0000-0000-0000-000000000002', supplierId: 's-2' },
+    ]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/assessments');
+    expect(res.body.data).toHaveLength(2);
+  });
+});

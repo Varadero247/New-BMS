@@ -684,3 +684,57 @@ describe('tasks.api — extra boundary coverage', () => {
     expect(mockPrisma.projectTask.count).toHaveBeenCalledTimes(1);
   });
 });
+
+
+describe('tasks.api — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/tasks', tasksRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/tasks findMany called with deletedAt:null filter', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectTask.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001');
+    expect(mockPrisma.projectTask.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('GET /api/tasks returns success:false on DB error', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockRejectedValueOnce(new Error('fail'));
+    (mockPrisma.projectTask.count as jest.Mock).mockRejectedValueOnce(new Error('fail'));
+    const res = await request(app).get('/api/tasks?projectId=44000000-0000-4000-a000-000000000001');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/tasks returns 201 with success:true', async () => {
+    (mockPrisma.projectTask.create as jest.Mock).mockResolvedValueOnce(mockTask);
+    const res = await request(app).post('/api/tasks').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      taskCode: 'TSK-999',
+      taskName: 'Phase28 Task',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/tasks/gantt/:projectId findMany ordered by wbsLevel then sortOrder', async () => {
+    (mockPrisma.projectTask.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/tasks/gantt/44000000-0000-4000-a000-000000000001');
+    expect(mockPrisma.projectTask.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: [{ wbsLevel: 'asc' }, { sortOrder: 'asc' }] })
+    );
+  });
+
+  it('GET /api/tasks/:id 500 on findUnique rejection', async () => {
+    (mockPrisma.projectTask.findUnique as jest.Mock).mockRejectedValueOnce(new Error('timeout'));
+    const res = await request(app).get('/api/tasks/3d000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

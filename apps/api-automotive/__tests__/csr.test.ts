@@ -713,3 +713,61 @@ describe('Automotive CSR API Routes — extra coverage', () => {
     expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+
+describe('Automotive CSR API Routes — phase28 coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/csr', csrRoutes);
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/csr/oems calls findMany with distinct oem', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ oem: 'Audi' }]);
+    await request(app).get('/api/csr/oems');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ distinct: ['oem'] })
+    );
+  });
+
+  it('GET /api/csr/gaps uses notIn filter for complianceStatus', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/csr/gaps');
+    expect(mockPrisma.csrRequirement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { complianceStatus: { notIn: ['COMPLIANT', 'NOT_ASSESSED'] } },
+      })
+    );
+  });
+
+  it('PUT /api/csr/:id/status with NOT_ASSESSED returns 200', async () => {
+    const id = '30000000-0000-4000-a000-000000000001';
+    (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id });
+    (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id, complianceStatus: 'NOT_ASSESSED' });
+    const res = await request(app).put(`/api/csr/${id}/status`).send({ complianceStatus: 'NOT_ASSESSED' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.complianceStatus).toBe('NOT_ASSESSED');
+  });
+
+  it('GET /api/csr/gaps returns data as empty array when count is 0', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/csr/gaps');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /api/csr/oems returns success:true and data array of strings', async () => {
+    (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ oem: 'Volvo' }, { oem: 'Scania' }]);
+    const res = await request(app).get('/api/csr/oems');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toContain('Volvo');
+    expect(res.body.data).toContain('Scania');
+  });
+});

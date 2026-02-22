@@ -450,3 +450,59 @@ describe('RIDDOR — final coverage block', () => {
     expect(res.headers['content-type']).toContain('json');
   });
 });
+
+describe('RIDDOR — phase28 coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/riddor success:true and data is an array', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('assess with reportable=true passes riddorReportable YES to update', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      riddorReportable: 'YES',
+    });
+    await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000020/assess')
+      .send({ reportable: true });
+    const callData = mockPrisma.incIncident.update.mock.calls[0][0].data;
+    expect(callData.riddorReportable).toBe('YES');
+  });
+
+  it('assess where clause uses id from route param', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000030',
+      riddorReportable: 'NO',
+    });
+    await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000030/assess')
+      .send({ reportable: false });
+    const callWhere = mockPrisma.incIncident.update.mock.calls[0][0].where;
+    expect(callWhere.id).toBe('00000000-0000-0000-0000-000000000030');
+  });
+
+  it('GET /api/riddor response data length matches mocked array', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Phase28 Incident A', riddorReportable: 'YES' },
+      { id: '00000000-0000-0000-0000-000000000002', title: 'Phase28 Incident B', riddorReportable: 'YES' },
+    ]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('assess 400 error body has success:false', async () => {
+    const res = await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+});

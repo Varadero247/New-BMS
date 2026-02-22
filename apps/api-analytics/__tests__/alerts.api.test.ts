@@ -527,3 +527,46 @@ describe('alerts.api — extra coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('alerts.api — phase28 coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/alerts returns data array with correct ids', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000010', name: 'P28 Alert', metric: 'trir', status: 'ACTIVE' },
+    ]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/alerts');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].id).toBe('00000000-0000-0000-0000-000000000010');
+  });
+
+  it('POST /api/alerts response body has success:true on 201', async () => {
+    mockPrisma.analyticsAlert.create.mockResolvedValue({ id: 'p28-a', name: 'P28', metric: 'fpy', condition: 'BELOW', threshold: 90, status: 'ACTIVE' });
+    const res = await request(app).post('/api/alerts').send({ name: 'P28', metric: 'fpy', condition: 'BELOW', threshold: 90 });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/alerts/:id 500 when findFirst throws', async () => {
+    mockPrisma.analyticsAlert.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/alerts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/alerts returns 500 when count throws', async () => {
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockRejectedValue(new Error('count fail'));
+    const res = await request(app).get('/api/alerts');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/alerts/triggered returns 500 when findMany throws', async () => {
+    mockPrisma.analyticsAlert.findMany.mockRejectedValue(new Error('triggered fail'));
+    const res = await request(app).get('/api/alerts/triggered');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

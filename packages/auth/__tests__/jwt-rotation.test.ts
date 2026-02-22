@@ -333,3 +333,38 @@ describe('JwtKeyRotationManager — comprehensive coverage', () => {
     expect(manager.isKeyValid('does-not-exist')).toBe(false);
   });
 });
+
+describe('JwtKeyRotationManager — phase28 coverage', () => {
+  let manager: JwtKeyRotationManager;
+
+  beforeEach(() => {
+    manager = new JwtKeyRotationManager(60_000);
+  });
+
+  it('rotateKey() createdAt is within 1 second of Date.now()', async () => {
+    const before = Date.now();
+    const key = await manager.rotateKey();
+    const after = Date.now();
+    expect(key.createdAt.getTime()).toBeGreaterThanOrEqual(before);
+    expect(key.createdAt.getTime()).toBeLessThanOrEqual(after + 50);
+  });
+
+  it('sign() throws when manager has no keys', () => {
+    expect(() => manager.sign({ userId: 'u', role: 'user' }, '1m')).toThrow();
+  });
+
+  it('getKeyById() returns null on fresh manager for any ID', () => {
+    expect(manager.getKeyById('any-id')).toBeNull();
+  });
+
+  it('isKeyValid() returns false on fresh manager for any key ID', () => {
+    expect(manager.isKeyValid('any-key')).toBe(false);
+  });
+
+  it('verify() roundtrip preserves userId in payload', async () => {
+    await manager.rotateKey();
+    const token = manager.sign({ userId: 'u-phase28', role: 'admin' }, '5m');
+    const decoded = manager.verify(token);
+    expect(decoded.userId).toBe('u-phase28');
+  });
+});

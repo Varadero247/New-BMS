@@ -283,3 +283,16 @@ describe('tax-engine', () => {
     });
   });
 });
+
+describe('tax-engine — phase28 coverage', () => {
+  it('calculateUKIncomeTax netPay equals grossPay minus incomeTax minus nationalInsurance', () => {
+    const result = calculateUKIncomeTax(50000, '1257L', 'annual');
+    expect(result.netPay).toBeCloseTo(result.grossPay - result.incomeTax - result.nationalInsurance, 1);
+  });
+
+  it('calculateUSFederal net pay is grossPay minus all deductions', () => {
+    const result = calculateUSFederal(60000, 'single', 'annual');
+    const expected = result.grossPay - result.federalTax - result.socialSecurity - result.medicare;
+    expect(result.netPay).toBeCloseTo(expected, 2);
+  });
+});

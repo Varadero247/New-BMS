@@ -667,3 +667,58 @@ describe('Finance Budgets — extra coverage', () => {
     expect(res.body.data).toHaveProperty('rows');
   });
 });
+
+describe('budgets.api — phase28 coverage', () => {
+  it('GET / returns success:true in response body', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/budgets');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data items have fiscalYear field', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([
+      { id: 'bud-1', name: 'IT Q1', fiscalYear: 2026, budgetAmount: 20000, actualAmount: 0,
+        account: { id: 'acc-1', code: '6000', name: 'IT', type: 'EXPENSE' } },
+    ]);
+    mockPrisma.finBudget.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/budgets');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('fiscalYear', 2026);
+  });
+
+  it('POST / create is called with correct fiscalYear', async () => {
+    mockPrisma.finAccount.findFirst.mockResolvedValue({ id: '550e8400-e29b-41d4-a716-446655440001', code: '5000', name: 'Ops' });
+    mockPrisma.finBudget.create.mockResolvedValue({
+      id: 'bud-phase28', name: 'Ops Budget', fiscalYear: 2027, month: 3, budgetAmount: 15000,
+      actualAmount: 0, variance: 0,
+      account: { id: '550e8400-e29b-41d4-a716-446655440001', code: '5000', name: 'Ops', type: 'EXPENSE' },
+    });
+    await request(app).post('/api/budgets').send({
+      name: 'Ops Budget',
+      accountId: '550e8400-e29b-41d4-a716-446655440001',
+      fiscalYear: 2027,
+      month: 3,
+      budgetAmount: 15000,
+    });
+    expect(mockPrisma.finBudget.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ fiscalYear: 2027 }) })
+    );
+  });
+
+  it('DELETE /:id calls findFirst before update', async () => {
+    mockPrisma.finBudget.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000050' });
+    mockPrisma.finBudget.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000050' });
+    await request(app).delete('/api/budgets/00000000-0000-0000-0000-000000000050');
+    expect(mockPrisma.finBudget.findFirst).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.finBudget.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /variance-report rows array is always defined in response', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/budgets/variance-report?fiscalYear=2026');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.rows)).toBe(true);
+  });
+});

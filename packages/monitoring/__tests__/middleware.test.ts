@@ -476,3 +476,29 @@ describe('middleware — final coverage to reach 40', () => {
     expect(mockReq.correlationId).toBe(longId);
   });
 });
+
+describe('middleware — phase28 coverage', () => {
+  it('correlationIdMiddleware uses provided header value over generating a new UUID', () => {
+    const middleware = correlationIdMiddleware();
+    const suppliedId = 'supplied-correlation-id-phase28';
+    const mockReq = {
+      get: jest.fn((h: string) => (h === CORRELATION_ID_HEADER ? suppliedId : undefined)),
+      correlationId: undefined as string | undefined,
+    };
+    const mockRes = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), json: jest.fn() };
+    middleware(mockReq as any, mockRes as any, jest.fn());
+    expect(mockReq.correlationId).toBe(suppliedId);
+  });
+
+  it('cacheControl with maxAge=3600 sets stale-while-revalidate=7200', () => {
+    const middleware = cacheControl(3600);
+    const setHeader = jest.fn();
+    middleware({} as any, { setHeader } as any, jest.fn());
+    expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=3600, stale-while-revalidate=7200');
+  });
+
+  it('createDownstreamRateLimiter with windowMs=30000 returns a middleware function', () => {
+    const limiter = createDownstreamRateLimiter({ max: 50, windowMs: 30_000 });
+    expect(typeof limiter).toBe('function');
+  });
+});
