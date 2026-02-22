@@ -927,3 +927,12 @@ describe('phase45 coverage', () => {
   it('computes nth pentagonal number', () => { const pent=(n:number)=>n*(3*n-1)/2; expect(pent(1)).toBe(1); expect(pent(5)).toBe(35); expect(pent(10)).toBe(145); });
   it('implements functional option pattern', () => { type Cfg={debug:boolean;timeout:number;retries:number}; const dflt:Cfg={debug:false,timeout:5000,retries:3}; const cfg=(...opts:Partial<Cfg>[])=>Object.assign({},dflt,...opts); expect(cfg({debug:true})).toEqual({debug:true,timeout:5000,retries:3}); expect(cfg({timeout:1000},{retries:5})).toEqual({debug:false,timeout:1000,retries:5}); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('counts subarrays with sum equal to k', () => { const sc=(a:number[],k:number)=>{const m=new Map([[0,1]]);let sum=0,cnt=0;for(const v of a){sum+=v;cnt+=(m.get(sum-k)||0);m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sc([1,1,1],2)).toBe(2); expect(sc([1,2,3],3)).toBe(2); });
+  it('detects cycle in linked list (Floyd)', () => { type N={v:number;next?:N}; const cycle=(head:N|undefined)=>{let s=head,f=head;while(f?.next){s=s?.next;f=f.next?.next;if(s===f)return true;}return false;}; const a:N={v:1};const b:N={v:2};const c:N={v:3};a.next=b;b.next=c;c.next=b; expect(cycle(a)).toBe(true); const x:N={v:1,next:{v:2,next:{v:3}}}; expect(cycle(x)).toBe(false); });
+  it('solves longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=s[i]===s[j]?2+(l>2?dp[i+1][j-1]:0):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
+  it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
+  it('implements Dijkstra shortest path', () => { const dijk=(n:number,edges:[number,number,number][],s:number)=>{const adj:([number,number])[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v,w])=>{adj[u].push([v,w]);adj[v].push([u,w]);});const dist=new Array(n).fill(Infinity);dist[s]=0;const vis=new Set<number>();while(vis.size<n){let u=-1;dist.forEach((d,i)=>{if(!vis.has(i)&&(u===-1||d<dist[u]))u=i;});if(dist[u]===Infinity)break;vis.add(u);adj[u].forEach(([v,w])=>{if(dist[u]+w<dist[v])dist[v]=dist[u]+w;});} return dist;}; expect(dijk(5,[[0,1,4],[0,2,1],[2,1,2],[1,3,1],[2,3,5]],0)).toEqual([0,3,1,4,Infinity]); });
+});

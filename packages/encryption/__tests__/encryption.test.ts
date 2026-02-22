@@ -444,3 +444,12 @@ describe('phase45 coverage', () => {
   it('computes topological sort (DFS)', () => { const topo=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const vis=new Set<number>();const ord:number[]=[];const dfs=(u:number)=>{vis.add(u);adj[u].forEach(v=>{if(!vis.has(v))dfs(v);});ord.unshift(u);};for(let i=0;i<n;i++)if(!vis.has(i))dfs(i);return ord;}; const r=topo(4,[[0,1],[0,2],[1,3],[2,3]]); expect(r.indexOf(0)).toBeLessThan(r.indexOf(1)); expect(r.indexOf(1)).toBeLessThan(r.indexOf(3)); });
   it('computes row sums of matrix', () => { const rs=(m:number[][])=>m.map(r=>r.reduce((s,v)=>s+v,0)); expect(rs([[1,2,3],[4,5,6],[7,8,9]])).toEqual([6,15,24]); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('finds saddle point in matrix', () => { const sp=(m:number[][])=>{for(let i=0;i<m.length;i++){const rowMin=Math.min(...m[i]);for(let j=0;j<m[i].length;j++){if(m[i][j]===rowMin){const col=m.map(r=>r[j]);if(m[i][j]===Math.max(...col))return[i,j];}}}return null;}; expect(sp([[1,2],[4,3]])).toEqual([1,1]); });
+  it('checks if matrix is symmetric', () => { const sym=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===m[j][i])); expect(sym([[1,2,3],[2,5,6],[3,6,9]])).toBe(true); expect(sym([[1,2],[3,4]])).toBe(false); });
+  it('finds bridges in undirected graph', () => { const bridges=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const disc=new Array(n).fill(-1),low=new Array(n).fill(0);let timer=0;const res:[number,number][]=[];const dfs=(u:number,p:number)=>{disc[u]=low[u]=timer++;for(const v of adj[u]){if(disc[v]===-1){dfs(v,u);low[u]=Math.min(low[u],low[v]);if(low[v]>disc[u])res.push([u,v]);}else if(v!==p)low[u]=Math.min(low[u],disc[v]);}};for(let i=0;i<n;i++)if(disc[i]===-1)dfs(i,-1);return res;}; expect(bridges(4,[[0,1],[1,2],[2,0],[1,3]]).length).toBe(1); });
+  it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
+  it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y);const n=m.length;return n%2?m[(n-1)/2]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
+});

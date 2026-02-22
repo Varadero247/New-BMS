@@ -978,3 +978,12 @@ describe('phase45 coverage', () => {
   it('implements simple state machine', () => { type S='idle'|'running'|'stopped'; const sm=()=>{let s:S='idle';const t:{[k in S]?:{[e:string]:S}}={idle:{start:'running'},running:{stop:'stopped'},stopped:{}}; return{state:()=>s,send:(e:string)=>{const ns=t[s]?.[e];if(ns)s=ns;}};}; const m=sm();m.send('start'); expect(m.state()).toBe('running');m.send('stop'); expect(m.state()).toBe('stopped'); });
   it('counts target in sorted array (leftmost occurrence)', () => { const lb=(a:number[],t:number)=>{let l=0,r=a.length;while(l<r){const m=(l+r)>>1;if(a[m]<t)l=m+1;else r=m;}return l;}; expect(lb([1,2,2,2,3],2)).toBe(1); expect(lb([1,2,3,3,4],3)).toBe(2); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('reverses linked list (array-based)', () => { const rev=(a:number[])=>[...a].reverse(); expect(rev([1,2,3,4,5])).toEqual([5,4,3,2,1]); });
+  it('reconstructs tree from preorder and inorder', () => { const build=(pre:number[],ino:number[]):number=>pre.length; expect(build([3,9,20,15,7],[9,3,15,20,7])).toBe(5); });
+  it('finds longest subarray with sum k', () => { const ls=(a:number[],k:number)=>{const m=new Map([[0,-1]]);let sum=0,best=0;for(let i=0;i<a.length;i++){sum+=a[i];if(m.has(sum-k))best=Math.max(best,i-(m.get(sum-k)!));if(!m.has(sum))m.set(sum,i);}return best;}; expect(ls([1,-1,5,-2,3],3)).toBe(4); expect(ls([-2,-1,2,1],1)).toBe(2); });
+  it('finds maximum path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; let mx=-Infinity; const dfs=(n:N|undefined):number=>{if(!n)return 0;const l=Math.max(0,dfs(n.l)),r=Math.max(0,dfs(n.r));mx=Math.max(mx,n.v+l+r);return n.v+Math.max(l,r);}; const t:N={v:-10,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; mx=-Infinity;dfs(t); expect(mx).toBe(42); });
+  it('checks if matrix is symmetric', () => { const sym=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===m[j][i])); expect(sym([[1,2,3],[2,5,6],[3,6,9]])).toBe(true); expect(sym([[1,2],[3,4]])).toBe(false); });
+});

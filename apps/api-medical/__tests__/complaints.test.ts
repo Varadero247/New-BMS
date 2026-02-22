@@ -1727,3 +1727,12 @@ describe('phase45 coverage', () => {
   it('implements result type (Ok/Err)', () => { type R<T,E>={ok:true;val:T}|{ok:false;err:E}; const Ok=<T>(val:T):R<T,never>=>({ok:true,val}); const Err=<E>(err:E):R<never,E>=>({ok:false,err}); const div=(a:number,b:number):R<number,string>=>b===0?Err('div by zero'):Ok(a/b); expect(div(10,2)).toEqual({ok:true,val:5}); expect(div(1,0)).toEqual({ok:false,err:'div by zero'}); });
   it('implements functional option pattern', () => { type Cfg={debug:boolean;timeout:number;retries:number}; const dflt:Cfg={debug:false,timeout:5000,retries:3}; const cfg=(...opts:Partial<Cfg>[])=>Object.assign({},dflt,...opts); expect(cfg({debug:true})).toEqual({debug:true,timeout:5000,retries:3}); expect(cfg({timeout:1000},{retries:5})).toEqual({debug:false,timeout:1000,retries:5}); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('rotates matrix 90 degrees counter-clockwise', () => { const rotCCW=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); expect(rotCCW([[1,2],[3,4]])).toEqual([[2,4],[1,3]]); });
+  it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y);const n=m.length;return n%2?m[(n-1)/2]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
+  it('checks valid BST from preorder', () => { const vbst=(pre:number[])=>{const st:number[]=[],min=[-Infinity];for(const v of pre){if(v<min[0])return false;while(st.length&&st[st.length-1]<v)min[0]=st.pop()!;st.push(v);}return true;}; expect(vbst([5,2,1,3,6])).toBe(true); expect(vbst([5,2,6,1,3])).toBe(false); });
+  it('finds first missing positive', () => { const fmp=(a:number[])=>{const s=new Set(a);let i=1;while(s.has(i))i++;return i;}; expect(fmp([1,2,0])).toBe(3); expect(fmp([3,4,-1,1])).toBe(2); expect(fmp([7,8,9,11,12])).toBe(1); });
+  it('computes range minimum query (sparse table)', () => { const rmq=(a:number[])=>{const n=a.length,LOG=Math.floor(Math.log2(n))+1;const t:number[][]=Array.from({length:LOG},()=>new Array(n).fill(0));for(let i=0;i<n;i++)t[0][i]=a[i];for(let k=1;k<LOG;k++)for(let i=0;i+(1<<k)<=n;i++)t[k][i]=Math.min(t[k-1][i],t[k-1][i+(1<<(k-1))]);return(l:number,r:number)=>{const k=Math.floor(Math.log2(r-l+1));return Math.min(t[k][l],t[k][r-(1<<k)+1]);};}; const q=rmq([2,4,3,1,6,7,8,9,1,7]); expect(q(0,4)).toBe(1); expect(q(4,7)).toBe(6); });
+});

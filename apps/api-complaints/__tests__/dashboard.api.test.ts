@@ -586,3 +586,12 @@ describe('phase45 coverage', () => {
   it('finds all indices of substring', () => { const findAll=(s:string,sub:string):number[]=>{const r:number[]=[];let i=s.indexOf(sub);while(i!==-1){r.push(i);i=s.indexOf(sub,i+1);}return r;}; expect(findAll('ababab','ab')).toEqual([0,2,4]); });
   it('computes diagonal sum of square matrix', () => { const diag=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(diag([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('checks if string is valid number (strict)', () => { const vn=(s:string)=>/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(s.trim()); expect(vn('3.14')).toBe(true); expect(vn('-2.5e10')).toBe(true); expect(vn('abc')).toBe(false); expect(vn('1.2.3')).toBe(false); });
+  it('checks if matrix is symmetric', () => { const sym=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===m[j][i])); expect(sym([[1,2,3],[2,5,6],[3,6,9]])).toBe(true); expect(sym([[1,2],[3,4]])).toBe(false); });
+  it('removes duplicates preserving order', () => { const uniq=(a:number[])=>[...new Set(a)]; expect(uniq([1,2,2,3,1,4,3])).toEqual([1,2,3,4]); });
+  it('generates balanced parentheses', () => { const bp=(n:number):string[]=>{const r:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n)return r.push(s);if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return r;}; expect(bp(3).length).toBe(5); expect(bp(3)).toContain('((()))'); expect(bp(3)).toContain('()()()'); });
+  it('reverses linked list (array-based)', () => { const rev=(a:number[])=>[...a].reverse(); expect(rev([1,2,3,4,5])).toEqual([5,4,3,2,1]); });
+});

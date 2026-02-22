@@ -678,3 +678,12 @@ describe('phase45 coverage', () => {
   it('returns most frequent character', () => { const mfc=(s:string)=>{const f:Record<string,number>={};for(const c of s)f[c]=(f[c]||0)+1;return Object.entries(f).sort((a,b)=>b[1]-a[1])[0][0];}; expect(mfc('aababc')).toBe('a'); });
   it('checks if number is triangular', () => { const isTri=(n:number)=>{const t=(-1+Math.sqrt(1+8*n))/2;return Number.isInteger(t);}; expect(isTri(10)).toBe(true); expect(isTri(15)).toBe(true); expect(isTri(11)).toBe(false); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('finds minimum path sum in grid', () => { const mps=(g:number[][])=>{const m=g.length,n=g[0].length;const dp=Array.from({length:m},(_,i)=>Array.from({length:n},(_,j)=>i===0&&j===0?g[0][0]:Infinity));for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;const a=i>0?dp[i-1][j]:Infinity;const b=j>0?dp[i][j-1]:Infinity;dp[i][j]=Math.min(a,b)+g[i][j];}return dp[m-1][n-1];}; expect(mps([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); });
+  it('implements segment tree range sum', () => { const st=(a:number[])=>{const n=a.length;const t=new Array(4*n).fill(0);const build=(i:number,l:number,r:number)=>{if(l===r){t[i]=a[l];return;}const m=(l+r)>>1;build(2*i,l,m);build(2*i+1,m+1,r);t[i]=t[2*i]+t[2*i+1];};build(1,0,n-1);const query=(i:number,l:number,r:number,ql:number,qr:number):number=>{if(qr<l||r<ql)return 0;if(ql<=l&&r<=qr)return t[i];const m=(l+r)>>1;return query(2*i,l,m,ql,qr)+query(2*i+1,m+1,r,ql,qr);};return(ql:number,qr:number)=>query(1,0,n-1,ql,qr);}; const q=st([1,3,5,7,9,11]); expect(q(1,3)).toBe(15); expect(q(0,5)).toBe(36); });
+  it('checks if string is valid number (strict)', () => { const vn=(s:string)=>/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(s.trim()); expect(vn('3.14')).toBe(true); expect(vn('-2.5e10')).toBe(true); expect(vn('abc')).toBe(false); expect(vn('1.2.3')).toBe(false); });
+  it('removes duplicates preserving order', () => { const uniq=(a:number[])=>[...new Set(a)]; expect(uniq([1,2,2,3,1,4,3])).toEqual([1,2,3,4]); });
+  it('finds largest rectangle in histogram', () => { const lrh=(h:number[])=>{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||h[st[st.length-1]]>=h[i])){const ht=h[st.pop()!];const w=st.length?i-st[st.length-1]-1:i;max=Math.max(max,ht*w);}st.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
+});

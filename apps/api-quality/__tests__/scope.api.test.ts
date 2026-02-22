@@ -880,3 +880,12 @@ describe('phase45 coverage', () => {
   it('generates spiral matrix', () => { const sp=(n:number)=>{const m:number[][]=Array.from({length:n},()=>new Array(n).fill(0));let t=0,b=n-1,l=0,r=n-1,num=1;while(t<=b&&l<=r){for(let i=l;i<=r;i++)m[t][i]=num++;t++;for(let i=t;i<=b;i++)m[i][r]=num++;r--;if(t<=b){for(let i=r;i>=l;i--)m[b][i]=num++;b--;}if(l<=r){for(let i=b;i>=t;i--)m[i][l]=num++;l++;}}return m;}; const s=sp(3); expect(s[0]).toEqual([1,2,3]); expect(s[1]).toEqual([8,9,4]); expect(s[2]).toEqual([7,6,5]); });
   it('implements deque (double-ended queue)', () => { const dq=()=>{const a:number[]=[];return{pushFront:(v:number)=>a.unshift(v),pushBack:(v:number)=>a.push(v),popFront:()=>a.shift(),popBack:()=>a.pop(),size:()=>a.length};}; const d=dq();d.pushBack(1);d.pushBack(2);d.pushFront(0); expect(d.popFront()).toBe(0); expect(d.popBack()).toBe(2); expect(d.size()).toBe(1); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('implements sieve of Eratosthenes', () => { const sieve=(n:number)=>{const p=new Array(n+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=n;i++)if(p[i])for(let j=i*i;j<=n;j+=i)p[j]=false;return Array.from({length:n-1},(_,i)=>i+2).filter(i=>p[i]);}; expect(sieve(30)).toEqual([2,3,5,7,11,13,17,19,23,29]); });
+  it('generates balanced parentheses', () => { const bp=(n:number):string[]=>{const r:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n)return r.push(s);if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return r;}; expect(bp(3).length).toBe(5); expect(bp(3)).toContain('((()))'); expect(bp(3)).toContain('()()()'); });
+  it('finds first missing positive', () => { const fmp=(a:number[])=>{const s=new Set(a);let i=1;while(s.has(i))i++;return i;}; expect(fmp([1,2,0])).toBe(3); expect(fmp([3,4,-1,1])).toBe(2); expect(fmp([7,8,9,11,12])).toBe(1); });
+  it('tokenizes a simple expression', () => { const tok=(s:string)=>s.match(/\d+\.?\d*|[+\-*/()]/g)||[]; expect(tok('3+4*2').sort()).toEqual(['3','4','2','+','*'].sort()); expect(tok('(1+2)*3').length).toBe(7); });
+  it('solves longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=s[i]===s[j]?2+(l>2?dp[i+1][j-1]:0):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
+});

@@ -638,3 +638,12 @@ describe('phase45 coverage', () => {
   it('checks if string is numeric', () => { const isNum=(s:string)=>s.trim()!==''&&!isNaN(Number(s)); expect(isNum('42')).toBe(true); expect(isNum('3.14')).toBe(true); expect(isNum('abc')).toBe(false); expect(isNum('')).toBe(false); });
   it('computes Luhn checksum validity', () => { const luhn=(n:string)=>{const d=[...n].reverse().map(Number);const s=d.reduce((acc,v,i)=>{if(i%2===1){v*=2;if(v>9)v-=9;}return acc+v;},0);return s%10===0;}; expect(luhn('4532015112830366')).toBe(true); expect(luhn('1234567890123456')).toBe(false); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('reverses linked list (array-based)', () => { const rev=(a:number[])=>[...a].reverse(); expect(rev([1,2,3,4,5])).toEqual([5,4,3,2,1]); });
+  it('finds saddle point in matrix', () => { const sp=(m:number[][])=>{for(let i=0;i<m.length;i++){const rowMin=Math.min(...m[i]);for(let j=0;j<m[i].length;j++){if(m[i][j]===rowMin){const col=m.map(r=>r[j]);if(m[i][j]===Math.max(...col))return[i,j];}}}return null;}; expect(sp([[1,2],[4,3]])).toEqual([1,1]); });
+  it('finds number of ways to partition n into k parts', () => { const parts=(n:number,k:number,min=1):number=>k===1?n>=min?1:0:Array.from({length:n-min*(k-1)-min+1},(_,i)=>parts(n-(i+min),k-1,i+min)).reduce((s,v)=>s+v,0); expect(parts(5,2)).toBe(2); expect(parts(6,3,1)).toBe(3); });
+  it('finds path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; const ps=(n:N|undefined,t:number,cur=0):boolean=>!n?false:n.v+cur===t&&!n.l&&!n.r?true:ps(n.l,t,cur+n.v)||ps(n.r,t,cur+n.v); const t:N={v:5,l:{v:4,l:{v:11,l:{v:7},r:{v:2}}},r:{v:8,l:{v:13},r:{v:4,r:{v:1}}}}; expect(ps(t,22)).toBe(true); expect(ps(t,28)).toBe(false); });
+  it('tokenizes a simple expression', () => { const tok=(s:string)=>s.match(/\d+\.?\d*|[+\-*/()]/g)||[]; expect(tok('3+4*2').sort()).toEqual(['3','4','2','+','*'].sort()); expect(tok('(1+2)*3').length).toBe(7); });
+});

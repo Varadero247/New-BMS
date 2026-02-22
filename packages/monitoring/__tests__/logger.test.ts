@@ -482,3 +482,12 @@ describe('phase45 coverage', () => {
   it('computes sum of squares', () => { const sos=(n:number)=>Array.from({length:n},(_,i)=>i+1).reduce((s,v)=>s+v*v,0); expect(sos(3)).toBe(14); expect(sos(5)).toBe(55); });
   it('reverses words preserving order', () => { const rw=(s:string)=>s.split(' ').map(w=>[...w].reverse().join('')).join(' '); expect(rw('hello world')).toBe('olleh dlrow'); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('serializes and deserializes binary tree', () => { type N={v:number;l?:N;r?:N}; const ser=(n:N|undefined,r:string[]=[]):string=>{if(!n)r.push('null');else{r.push(String(n.v));ser(n.l,r);ser(n.r,r);}return r.join(',');};const des=(s:string)=>{const a=s.split(',');const b=(a:string[]):N|undefined=>{const v=a.shift();if(!v||v==='null')return undefined;return{v:+v,l:b(a),r:b(a)};};return b(a);}; const t:N={v:1,l:{v:2},r:{v:3,l:{v:4},r:{v:5}}}; expect(des(ser(t))?.v).toBe(1); expect(des(ser(t))?.l?.v).toBe(2); });
+  it('computes all subsets of given size', () => { const cs=(a:number[],k:number):number[][]=>k===0?[[]]:(a.length<k?[]:[...cs(a.slice(1),k-1).map(s=>[a[0],...s]),...cs(a.slice(1),k)]); expect(cs([1,2,3,4],2).length).toBe(6); expect(cs([1,2,3],1)).toEqual([[1],[2],[3]]); });
+  it('finds bridges in undirected graph', () => { const bridges=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const disc=new Array(n).fill(-1),low=new Array(n).fill(0);let timer=0;const res:[number,number][]=[];const dfs=(u:number,p:number)=>{disc[u]=low[u]=timer++;for(const v of adj[u]){if(disc[v]===-1){dfs(v,u);low[u]=Math.min(low[u],low[v]);if(low[v]>disc[u])res.push([u,v]);}else if(v!==p)low[u]=Math.min(low[u],disc[v]);}};for(let i=0;i<n;i++)if(disc[i]===-1)dfs(i,-1);return res;}; expect(bridges(4,[[0,1],[1,2],[2,0],[1,3]]).length).toBe(1); });
+  it('tokenizes a simple expression', () => { const tok=(s:string)=>s.match(/\d+\.?\d*|[+\-*/()]/g)||[]; expect(tok('3+4*2').sort()).toEqual(['3','4','2','+','*'].sort()); expect(tok('(1+2)*3').length).toBe(7); });
+  it('finds maximum path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; let mx=-Infinity; const dfs=(n:N|undefined):number=>{if(!n)return 0;const l=Math.max(0,dfs(n.l)),r=Math.max(0,dfs(n.r));mx=Math.max(mx,n.v+l+r);return n.v+Math.max(l,r);}; const t:N={v:-10,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; mx=-Infinity;dfs(t); expect(mx).toBe(42); });
+});

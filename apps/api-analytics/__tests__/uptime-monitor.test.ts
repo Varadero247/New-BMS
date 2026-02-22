@@ -671,3 +671,12 @@ describe('phase45 coverage', () => {
   it('computes topological sort (DFS)', () => { const topo=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const vis=new Set<number>();const ord:number[]=[];const dfs=(u:number)=>{vis.add(u);adj[u].forEach(v=>{if(!vis.has(v))dfs(v);});ord.unshift(u);};for(let i=0;i<n;i++)if(!vis.has(i))dfs(i);return ord;}; const r=topo(4,[[0,1],[0,2],[1,3],[2,3]]); expect(r.indexOf(0)).toBeLessThan(r.indexOf(1)); expect(r.indexOf(1)).toBeLessThan(r.indexOf(3)); });
   it('finds minimum in rotated sorted array', () => { const mr=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=(l+r)>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(mr([3,4,5,1,2])).toBe(1); expect(mr([4,5,6,7,0,1,2])).toBe(0); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('checks if array is sorted ascending', () => { const isSorted=(a:number[])=>a.every((v,i)=>i===0||a[i-1]<=v); expect(isSorted([1,2,3,4,5])).toBe(true); expect(isSorted([1,3,2,4])).toBe(false); expect(isSorted([])).toBe(true); });
+  it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let best=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
+  it('finds number of ways to partition n into k parts', () => { const parts=(n:number,k:number,min=1):number=>k===1?n>=min?1:0:Array.from({length:n-min*(k-1)-min+1},(_,i)=>parts(n-(i+min),k-1,i+min)).reduce((s,v)=>s+v,0); expect(parts(5,2)).toBe(2); expect(parts(6,3,1)).toBe(3); });
+  it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
+  it('finds longest subarray with sum k', () => { const ls=(a:number[],k:number)=>{const m=new Map([[0,-1]]);let sum=0,best=0;for(let i=0;i<a.length;i++){sum+=a[i];if(m.has(sum-k))best=Math.max(best,i-(m.get(sum-k)!));if(!m.has(sum))m.set(sum,i);}return best;}; expect(ls([1,-1,5,-2,3],3)).toBe(4); expect(ls([-2,-1,2,1],1)).toBe(2); });
+});

@@ -768,3 +768,12 @@ describe('phase45 coverage', () => {
   it('computes row sums of matrix', () => { const rs=(m:number[][])=>m.map(r=>r.reduce((s,v)=>s+v,0)); expect(rs([[1,2,3],[4,5,6],[7,8,9]])).toEqual([6,15,24]); });
   it('computes digital root', () => { const dr=(n:number):number=>n<10?n:dr(String(n).split('').reduce((s,d)=>s+Number(d),0)); expect(dr(942)).toBe(6); expect(dr(493)).toBe(7); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
+  it('finds bridges in undirected graph', () => { const bridges=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const disc=new Array(n).fill(-1),low=new Array(n).fill(0);let timer=0;const res:[number,number][]=[];const dfs=(u:number,p:number)=>{disc[u]=low[u]=timer++;for(const v of adj[u]){if(disc[v]===-1){dfs(v,u);low[u]=Math.min(low[u],low[v]);if(low[v]>disc[u])res.push([u,v]);}else if(v!==p)low[u]=Math.min(low[u],disc[v]);}};for(let i=0;i<n;i++)if(disc[i]===-1)dfs(i,-1);return res;}; expect(bridges(4,[[0,1],[1,2],[2,0],[1,3]]).length).toBe(1); });
+  it('solves job scheduling (weighted interval)', () => { const js=(jobs:[number,number,number][])=>{const s=[...jobs].sort((a,b)=>a[1]-b[1]);const n=s.length;const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++){const[st,,w]=s[i-1];let p=i-1;while(p>0&&s[p-1][1]>st)p--;dp[i]=Math.max(dp[i-1],dp[p]+w);}return dp[n];}; expect(js([[1,4,3],[3,5,4],[0,6,8],[4,7,2]])).toBe(8); });
+  it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
+  it('counts connected components', () => { const cc=(n:number,edges:[number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};edges.forEach(([u,v])=>union(u,v));return new Set(Array.from({length:n},(_,i)=>find(i))).size;}; expect(cc(5,[[0,1],[1,2],[3,4]])).toBe(2); expect(cc(4,[])).toBe(4); });
+});

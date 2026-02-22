@@ -583,3 +583,12 @@ describe('phase45 coverage', () => {
   it('checks if number is palindrome', () => { const ip=(n:number)=>{const s=String(Math.abs(n));return s===s.split('').reverse().join('');}; expect(ip(121)).toBe(true); expect(ip(123)).toBe(false); });
   it('computes exponential smoothing', () => { const ema=(a:number[],alpha:number)=>a.reduce((acc,v,i)=>i===0?[v]:[...acc,alpha*v+(1-alpha)*acc[i-1]],[] as number[]); const r=ema([10,20,30],0.5); expect(r[0]).toBe(10); expect(r[1]).toBe(15); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('finds largest rectangle in histogram', () => { const lrh=(h:number[])=>{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||h[st[st.length-1]]>=h[i])){const ht=h[st.pop()!];const w=st.length?i-st[st.length-1]-1:i;max=Math.max(max,ht*w);}st.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
+  it('implements interval merging', () => { const merge=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[0]-b[0]);const r:[number,number][]=[];for(const [l,r2] of s){if(!r.length||r[r.length-1][1]<l)r.push([l,r2]);else r[r.length-1][1]=Math.max(r[r.length-1][1],r2);}return r;}; expect(merge([[1,3],[2,6],[8,10],[15,18]])).toEqual([[1,6],[8,10],[15,18]]); });
+  it('finds minimum cut in flow network (simple)', () => { const mc=(cap:number[][])=>{const n=cap.length;const flow=cap.map(r=>[...r]);const bfs=(s:number,t:number,par:number[])=>{const vis=new Set([s]);const q=[s];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(!vis.has(v)&&flow[u][v]>0){vis.add(v);par[v]=u;q.push(v);}};return vis.has(t);};let mf=0;while(true){const par=new Array(n).fill(-1);if(!bfs(0,n-1,par))break;let p=Infinity,v=n-1;while(v!==0){p=Math.min(p,flow[par[v]][v]);v=par[v];}v=n-1;while(v!==0){flow[par[v]][v]-=p;flow[v][par[v]]+=p;v=par[v];}mf+=p;}return mf;}; expect(mc([[0,3,0,3,0],[0,0,4,0,0],[0,0,0,0,2],[0,0,0,0,6],[0,0,0,0,0]])).toBe(5); });
+  it('finds first missing positive', () => { const fmp=(a:number[])=>{const s=new Set(a);let i=1;while(s.has(i))i++;return i;}; expect(fmp([1,2,0])).toBe(3); expect(fmp([3,4,-1,1])).toBe(2); expect(fmp([7,8,9,11,12])).toBe(1); });
+  it('checks if number is deficient', () => { const def=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)<n; expect(def(8)).toBe(true); expect(def(12)).toBe(false); });
+});

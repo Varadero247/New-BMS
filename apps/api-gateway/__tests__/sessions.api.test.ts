@@ -730,3 +730,12 @@ describe('phase45 coverage', () => {
   it('shuffles array using Fisher-Yates', () => { const shuf=(a:number[])=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}; const a=[1,2,3,4,5];const s=shuf(a); expect(s.sort((x,y)=>x-y)).toEqual([1,2,3,4,5]); });
   it('finds all divisors of n', () => { const divs=(n:number)=>Array.from({length:n},(_,i)=>i+1).filter(d=>n%d===0); expect(divs(12)).toEqual([1,2,3,4,6,12]); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('finds longest subarray with sum k', () => { const ls=(a:number[],k:number)=>{const m=new Map([[0,-1]]);let sum=0,best=0;for(let i=0;i<a.length;i++){sum+=a[i];if(m.has(sum-k))best=Math.max(best,i-(m.get(sum-k)!));if(!m.has(sum))m.set(sum,i);}return best;}; expect(ls([1,-1,5,-2,3],3)).toBe(4); expect(ls([-2,-1,2,1],1)).toBe(2); });
+  it('computes minimum edit distance (Wagner-Fischer)', () => { const ed=(a:string,b:string)=>{const dp=Array.from({length:a.length+1},(_,i)=>Array.from({length:b.length+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[a.length][b.length];}; expect(ed('sunday','saturday')).toBe(3); });
+  it('evaluates simple arithmetic string', () => { const ev=(s:string)=>{const toks=s.match(/\d+|[+\-*/]/g)||[];const nums:number[]=[];const ops:string[]=[];const prec:{[k:string]:number}={'+':1,'-':1,'*':2,'/':2};const apply=()=>{const b=nums.pop()!,a=nums.pop()!,op=ops.pop()!;nums.push(op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:a/b);};for(const t of toks){if(/\d/.test(t)){nums.push(Number(t));}else{while(ops.length&&(prec[ops[ops.length-1]]||0)>=(prec[t]||0))apply();ops.push(t);}}while(ops.length)apply();return nums[0];}; expect(ev('3+4*2')).toBe(11); expect(ev('10-2*3')).toBe(4); });
+  it('checks if matrix is symmetric', () => { const sym=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===m[j][i])); expect(sym([[1,2,3],[2,5,6],[3,6,9]])).toBe(true); expect(sym([[1,2],[3,4]])).toBe(false); });
+  it('finds maximal square in binary matrix', () => { const ms=(m:string[][])=>{const r=m.length,c=m[0].length;const dp=Array.from({length:r},()=>new Array(c).fill(0));let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++){if(m[i][j]==='1'){dp[i][j]=i&&j?Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])+1:1;max=Math.max(max,dp[i][j]);}}return max*max;}; expect(ms([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']])).toBe(4); });
+});

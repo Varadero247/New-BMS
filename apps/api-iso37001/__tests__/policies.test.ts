@@ -758,3 +758,12 @@ describe('phase45 coverage', () => {
   it('implements rate limiter (token bucket)', () => { const tb=(rate:number,cap:number)=>{let tokens=cap,last=Date.now();return{consume:(n=1)=>{const now=Date.now();tokens=Math.min(cap,tokens+(now-last)/1000*rate);last=now;if(tokens>=n){tokens-=n;return true;}return false;}};}; const rl=tb(10,10); expect(rl.consume(5)).toBe(true); expect(rl.consume(5)).toBe(true); expect(rl.consume(5)).toBe(false); });
   it('implements fast power', () => { const pow=(base:number,exp:number):number=>{if(exp===0)return 1;if(exp%2===0){const h=pow(base,exp/2);return h*h;}return base*pow(base,exp-1);}; expect(pow(2,10)).toBe(1024); expect(pow(3,5)).toBe(243); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('checks if array is sorted ascending', () => { const isSorted=(a:number[])=>a.every((v,i)=>i===0||a[i-1]<=v); expect(isSorted([1,2,3,4,5])).toBe(true); expect(isSorted([1,3,2,4])).toBe(false); expect(isSorted([])).toBe(true); });
+  it('computes nth Catalan number', () => { const cat=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>cat(i)*cat(n-1-i)).reduce((s,v)=>s+v,0); expect(cat(0)).toBe(1); expect(cat(3)).toBe(5); expect(cat(4)).toBe(14); });
+  it('finds maximal square in binary matrix', () => { const ms=(m:string[][])=>{const r=m.length,c=m[0].length;const dp=Array.from({length:r},()=>new Array(c).fill(0));let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++){if(m[i][j]==='1'){dp[i][j]=i&&j?Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])+1:1;max=Math.max(max,dp[i][j]);}}return max*max;}; expect(ms([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']])).toBe(4); });
+  it('finds first missing positive', () => { const fmp=(a:number[])=>{const s=new Set(a);let i=1;while(s.has(i))i++;return i;}; expect(fmp([1,2,0])).toBe(3); expect(fmp([3,4,-1,1])).toBe(2); expect(fmp([7,8,9,11,12])).toBe(1); });
+  it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
+});

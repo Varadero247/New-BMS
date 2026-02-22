@@ -674,3 +674,12 @@ describe('phase45 coverage', () => {
   it('checks if string contains only digits', () => { const digits=(s:string)=>/^\d+$/.test(s); expect(digits('12345')).toBe(true); expect(digits('123a5')).toBe(false); });
   it('generates spiral matrix', () => { const sp=(n:number)=>{const m:number[][]=Array.from({length:n},()=>new Array(n).fill(0));let t=0,b=n-1,l=0,r=n-1,num=1;while(t<=b&&l<=r){for(let i=l;i<=r;i++)m[t][i]=num++;t++;for(let i=t;i<=b;i++)m[i][r]=num++;r--;if(t<=b){for(let i=r;i>=l;i--)m[b][i]=num++;b--;}if(l<=r){for(let i=b;i>=t;i--)m[i][l]=num++;l++;}}return m;}; const s=sp(3); expect(s[0]).toEqual([1,2,3]); expect(s[1]).toEqual([8,9,4]); expect(s[2]).toEqual([7,6,5]); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('finds non-overlapping intervals count', () => { const noOverlap=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[1]-b[1]);let cnt=0,end=-Infinity;for(const [l,r] of s){if(l>=end)end=r;else cnt++;}return cnt;}; expect(noOverlap([[1,2],[2,3],[3,4],[1,3]])).toBe(1); });
+  it('finds maximum path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; let mx=-Infinity; const dfs=(n:N|undefined):number=>{if(!n)return 0;const l=Math.max(0,dfs(n.l)),r=Math.max(0,dfs(n.r));mx=Math.max(mx,n.v+l+r);return n.v+Math.max(l,r);}; const t:N={v:-10,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; mx=-Infinity;dfs(t); expect(mx).toBe(42); });
+  it('counts connected components', () => { const cc=(n:number,edges:[number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};edges.forEach(([u,v])=>union(u,v));return new Set(Array.from({length:n},(_,i)=>find(i))).size;}; expect(cc(5,[[0,1],[1,2],[3,4]])).toBe(2); expect(cc(4,[])).toBe(4); });
+  it('solves job scheduling (weighted interval)', () => { const js=(jobs:[number,number,number][])=>{const s=[...jobs].sort((a,b)=>a[1]-b[1]);const n=s.length;const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++){const[st,,w]=s[i-1];let p=i-1;while(p>0&&s[p-1][1]>st)p--;dp[i]=Math.max(dp[i-1],dp[p]+w);}return dp[n];}; expect(js([[1,4,3],[3,5,4],[0,6,8],[4,7,2]])).toBe(8); });
+  it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
+});

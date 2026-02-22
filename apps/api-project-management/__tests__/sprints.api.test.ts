@@ -858,3 +858,12 @@ describe('phase45 coverage', () => {
   it('computes harmonic mean', () => { const hm=(a:number[])=>a.length/a.reduce((s,v)=>s+1/v,0); expect(Math.round(hm([1,2,4])*1000)/1000).toBe(1.714); });
   it('finds all divisors of n', () => { const divs=(n:number)=>Array.from({length:n},(_,i)=>i+1).filter(d=>n%d===0); expect(divs(12)).toEqual([1,2,3,4,6,12]); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let best=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
+  it('computes unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+  it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
+  it('implements LCS (longest common subsequence)', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe(4); expect(lcs('AGGTAB','GXTXAYB')).toBe(4); });
+  it('finds minimum cut in flow network (simple)', () => { const mc=(cap:number[][])=>{const n=cap.length;const flow=cap.map(r=>[...r]);const bfs=(s:number,t:number,par:number[])=>{const vis=new Set([s]);const q=[s];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(!vis.has(v)&&flow[u][v]>0){vis.add(v);par[v]=u;q.push(v);}};return vis.has(t);};let mf=0;while(true){const par=new Array(n).fill(-1);if(!bfs(0,n-1,par))break;let p=Infinity,v=n-1;while(v!==0){p=Math.min(p,flow[par[v]][v]);v=par[v];}v=n-1;while(v!==0){flow[par[v]][v]-=p;flow[v][par[v]]+=p;v=par[v];}mf+=p;}return mf;}; expect(mc([[0,3,0,3,0],[0,0,4,0,0],[0,0,0,0,2],[0,0,0,0,6],[0,0,0,0,0]])).toBe(5); });
+});

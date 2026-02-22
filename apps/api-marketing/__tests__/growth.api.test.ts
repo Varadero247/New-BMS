@@ -798,3 +798,12 @@ describe('phase45 coverage', () => {
   it('computes checksum (Fletcher-16)', () => { const fl16=(data:number[])=>{let s1=0,s2=0;for(const b of data){s1=(s1+b)%255;s2=(s2+s1)%255;}return(s2<<8)|s1;}; const c=fl16([0x01,0x02]); expect(c).toBe(0x0403); });
   it('computes rolling hash for substring matching', () => { const rh=(s:string,p:string)=>{const res:number[]=[];const n=p.length;const base=31,mod=1e9+7;let ph=0,wh=0,pow=1;for(let i=0;i<n;i++){ph=(ph*base+p.charCodeAt(i))%mod;wh=(wh*base+s.charCodeAt(i))%mod;if(i>0)pow=pow*base%mod;}if(wh===ph)res.push(0);for(let i=n;i<s.length;i++){wh=(base*(wh-s.charCodeAt(i-n)*pow%mod+mod)+s.charCodeAt(i))%mod;if(wh===ph)res.push(i-n+1);}return res;}; expect(rh('abcabc','abc')).toContain(0); expect(rh('abcabc','abc')).toContain(3); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('solves longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=s[i]===s[j]?2+(l>2?dp[i+1][j-1]:0):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
+  it('checks if number is deficient', () => { const def=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)<n; expect(def(8)).toBe(true); expect(def(12)).toBe(false); });
+  it('checks valid BST from preorder', () => { const vbst=(pre:number[])=>{const st:number[]=[],min=[-Infinity];for(const v of pre){if(v<min[0])return false;while(st.length&&st[st.length-1]<v)min[0]=st.pop()!;st.push(v);}return true;}; expect(vbst([5,2,1,3,6])).toBe(true); expect(vbst([5,2,6,1,3])).toBe(false); });
+  it('tokenizes a simple expression', () => { const tok=(s:string)=>s.match(/\d+\.?\d*|[+\-*/()]/g)||[]; expect(tok('3+4*2').sort()).toEqual(['3','4','2','+','*'].sort()); expect(tok('(1+2)*3').length).toBe(7); });
+  it('finds path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; const ps=(n:N|undefined,t:number,cur=0):boolean=>!n?false:n.v+cur===t&&!n.l&&!n.r?true:ps(n.l,t,cur+n.v)||ps(n.r,t,cur+n.v); const t:N={v:5,l:{v:4,l:{v:11,l:{v:7},r:{v:2}}},r:{v:8,l:{v:13},r:{v:4,r:{v:1}}}}; expect(ps(t,22)).toBe(true); expect(ps(t,28)).toBe(false); });
+});

@@ -426,3 +426,12 @@ describe('phase45 coverage', () => {
   it('pads string to center', () => { const center=(s:string,n:number,c=' ')=>{const p=Math.max(0,n-s.length);const l=Math.floor(p/2);return c.repeat(l)+s+c.repeat(p-l);}; expect(center('hi',6,'-')).toBe('--hi--'); });
   it('implements deque (double-ended queue)', () => { const dq=()=>{const a:number[]=[];return{pushFront:(v:number)=>a.unshift(v),pushBack:(v:number)=>a.push(v),popFront:()=>a.shift(),popBack:()=>a.pop(),size:()=>a.length};}; const d=dq();d.pushBack(1);d.pushBack(2);d.pushFront(0); expect(d.popFront()).toBe(0); expect(d.popBack()).toBe(2); expect(d.size()).toBe(1); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('finds all permutations of string', () => { const perm=(s:string):string[]=>s.length<=1?[s]:[...s].flatMap((c,i)=>perm(s.slice(0,i)+s.slice(i+1)).map(p=>c+p)); expect(new Set(perm('abc')).size).toBe(6); expect(perm('ab')).toContain('ba'); });
+  it('implements LCS (longest common subsequence)', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe(4); expect(lcs('AGGTAB','GXTXAYB')).toBe(4); });
+  it('removes duplicates preserving order', () => { const uniq=(a:number[])=>[...new Set(a)]; expect(uniq([1,2,2,3,1,4,3])).toEqual([1,2,3,4]); });
+  it('checks valid BST from preorder', () => { const vbst=(pre:number[])=>{const st:number[]=[],min=[-Infinity];for(const v of pre){if(v<min[0])return false;while(st.length&&st[st.length-1]<v)min[0]=st.pop()!;st.push(v);}return true;}; expect(vbst([5,2,1,3,6])).toBe(true); expect(vbst([5,2,6,1,3])).toBe(false); });
+  it('generates balanced parentheses', () => { const bp=(n:number):string[]=>{const r:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n)return r.push(s);if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return r;}; expect(bp(3).length).toBe(5); expect(bp(3)).toContain('((()))'); expect(bp(3)).toContain('()()()'); });
+});

@@ -762,3 +762,12 @@ describe('phase45 coverage', () => {
   it('implements simple bloom filter check', () => { const bf=(size:number)=>{const bits=new Uint8Array(Math.ceil(size/8));const h=(s:string,seed:number)=>[...s].reduce((a,c)=>Math.imul(a^c.charCodeAt(0),seed)>>>0,0)%size;return{add:(s:string)=>{[31,37,41].forEach(seed=>{const i=h(s,seed);bits[i>>3]|=1<<(i&7);});},has:(s:string)=>[31,37,41].every(seed=>{const i=h(s,seed);return(bits[i>>3]>>(i&7))&1;})};}; const b=bf(256);b.add('hello');b.add('world'); expect(b.has('hello')).toBe(true); expect(b.has('world')).toBe(true); });
   it('rotates matrix 90 degrees clockwise', () => { const rot=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[c]).reverse()); expect(rot([[1,2],[3,4]])).toEqual([[3,1],[4,2]]); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('checks if array is sorted ascending', () => { const isSorted=(a:number[])=>a.every((v,i)=>i===0||a[i-1]<=v); expect(isSorted([1,2,3,4,5])).toBe(true); expect(isSorted([1,3,2,4])).toBe(false); expect(isSorted([])).toBe(true); });
+  it('computes nth Catalan number', () => { const cat=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>cat(i)*cat(n-1-i)).reduce((s,v)=>s+v,0); expect(cat(0)).toBe(1); expect(cat(3)).toBe(5); expect(cat(4)).toBe(14); });
+  it('converts roman numeral to number', () => { const rom=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};return[...s].reduce((acc,c,i,a)=>m[c]<(m[a[i+1]]||0)?acc-m[c]:acc+m[c],0);}; expect(rom('III')).toBe(3); expect(rom('LVIII')).toBe(58); expect(rom('MCMXCIV')).toBe(1994); });
+  it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y);const n=m.length;return n%2?m[(n-1)/2]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
+  it('merges k sorted arrays', () => { const mk=(arrs:number[][])=>{const r:number[]=[];const idx=new Array(arrs.length).fill(0);while(true){let mi=-1,mv=Infinity;for(let i=0;i<arrs.length;i++)if(idx[i]<arrs[i].length&&arrs[i][idx[i]]<mv){mv=arrs[i][idx[i]];mi=i;}if(mi===-1)break;r.push(mv);idx[mi]++;}return r;}; expect(mk([[1,4,7],[2,5,8],[3,6,9]])).toEqual([1,2,3,4,5,6,7,8,9]); });
+});

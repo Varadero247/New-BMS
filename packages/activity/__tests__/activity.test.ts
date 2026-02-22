@@ -851,3 +851,12 @@ describe('phase45 coverage', () => {
   it('implements simple bloom filter check', () => { const bf=(size:number)=>{const bits=new Uint8Array(Math.ceil(size/8));const h=(s:string,seed:number)=>[...s].reduce((a,c)=>Math.imul(a^c.charCodeAt(0),seed)>>>0,0)%size;return{add:(s:string)=>{[31,37,41].forEach(seed=>{const i=h(s,seed);bits[i>>3]|=1<<(i&7);});},has:(s:string)=>[31,37,41].every(seed=>{const i=h(s,seed);return(bits[i>>3]>>(i&7))&1;})};}; const b=bf(256);b.add('hello');b.add('world'); expect(b.has('hello')).toBe(true); expect(b.has('world')).toBe(true); });
   it('computes row sums of matrix', () => { const rs=(m:number[][])=>m.map(r=>r.reduce((s,v)=>s+v,0)); expect(rs([[1,2,3],[4,5,6],[7,8,9]])).toEqual([6,15,24]); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('computes number of ways to decode string', () => { const nd=(s:string)=>{const n=s.length;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=s[0]!=='0'?1:0;for(let i=2;i<=n;i++){const one=+s[i-1];const two=+(s.slice(i-2,i));if(one>0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(nd('12')).toBe(2); expect(nd('226')).toBe(3); expect(nd('06')).toBe(0); });
+  it('computes range product excluding self', () => { const pe=(a:number[])=>{const l=new Array(a.length).fill(1);const r=new Array(a.length).fill(1);for(let i=1;i<a.length;i++)l[i]=l[i-1]*a[i-1];for(let i=a.length-2;i>=0;i--)r[i]=r[i+1]*a[i+1];return a.map((_,i)=>l[i]*r[i]);}; expect(pe([1,2,3,4])).toEqual([24,12,8,6]); });
+  it('computes unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+  it('finds longest subarray with sum k', () => { const ls=(a:number[],k:number)=>{const m=new Map([[0,-1]]);let sum=0,best=0;for(let i=0;i<a.length;i++){sum+=a[i];if(m.has(sum-k))best=Math.max(best,i-(m.get(sum-k)!));if(!m.has(sum))m.set(sum,i);}return best;}; expect(ls([1,-1,5,-2,3],3)).toBe(4); expect(ls([-2,-1,2,1],1)).toBe(2); });
+  it('finds the kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+});

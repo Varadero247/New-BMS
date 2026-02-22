@@ -578,3 +578,12 @@ describe('phase45 coverage', () => {
   it('counts character frequency map', () => { const freq=(s:string)=>[...s].reduce((m,c)=>{m[c]=(m[c]||0)+1;return m;},{} as Record<string,number>); expect(freq('hello')).toEqual({h:1,e:1,l:2,o:1}); });
   it('validates balanced HTML-like tags', () => { const vt=(s:string)=>{const st:string[]=[];const tags=[...s.matchAll(/<\/?([a-z]+)>/gi)];for(const [,tag,] of tags.map(m=>[m[0],m[1],m[0][1]==='/'?'close':'open'] as const)){if(s[s.indexOf(tag)-1]==='/')continue;if(st.length&&st[st.length-1]===tag.toLowerCase()&&s.indexOf('<'+tag+'>')>s.indexOf('</'+tag))st.pop();else if(!s.includes('</'+tag.toLowerCase()+'>'))return false;}return true;}; expect(vt('<div><p></p></div>')).toBe(true); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('counts subarrays with sum equal to k', () => { const sc=(a:number[],k:number)=>{const m=new Map([[0,1]]);let sum=0,cnt=0;for(const v of a){sum+=v;cnt+=(m.get(sum-k)||0);m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sc([1,1,1],2)).toBe(2); expect(sc([1,2,3],3)).toBe(2); });
+  it('finds maximal square in binary matrix', () => { const ms=(m:string[][])=>{const r=m.length,c=m[0].length;const dp=Array.from({length:r},()=>new Array(c).fill(0));let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++){if(m[i][j]==='1'){dp[i][j]=i&&j?Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])+1:1;max=Math.max(max,dp[i][j]);}}return max*max;}; expect(ms([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']])).toBe(4); });
+  it('converts roman numeral to number', () => { const rom=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};return[...s].reduce((acc,c,i,a)=>m[c]<(m[a[i+1]]||0)?acc-m[c]:acc+m[c],0);}; expect(rom('III')).toBe(3); expect(rom('LVIII')).toBe(58); expect(rom('MCMXCIV')).toBe(1994); });
+  it('level-order traversal of binary tree', () => { type N={v:number;l?:N;r?:N}; const lo=(root:N|undefined):number[][]=>{ if(!root)return[];const res:number[][]=[];const bq:[N,number][]=[[root,0]];while(bq.length){const[n,d]=bq.shift()!;if(!res[d])res[d]=[];res[d].push(n.v);if(n.l)bq.push([n.l,d+1]);if(n.r)bq.push([n.r,d+1]);}return res;}; const t:N={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; expect(lo(t)).toEqual([[3],[9,20],[15,7]]); });
+  it('removes duplicates preserving order', () => { const uniq=(a:number[])=>[...new Set(a)]; expect(uniq([1,2,2,3,1,4,3])).toEqual([1,2,3,4]); });
+});

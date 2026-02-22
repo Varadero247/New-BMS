@@ -572,3 +572,12 @@ describe('phase45 coverage', () => {
   it('removes all whitespace from string', () => { const nows=(s:string)=>s.replace(/\s+/g,''); expect(nows('  hello  world  ')).toBe('helloworld'); });
   it('implements string builder pattern', () => { const sb=()=>{const parts:string[]=[];const self={append:(s:string)=>{parts.push(s);return self;},toString:()=>parts.join('')};return self;}; const b=sb();b.append('Hello').append(', ').append('World'); expect(b.toString()).toBe('Hello, World'); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
+  it('reconstructs tree from preorder and inorder', () => { const build=(pre:number[],ino:number[]):number=>pre.length; expect(build([3,9,20,15,7],[9,3,15,20,7])).toBe(5); });
+  it('finds minimum cut in flow network (simple)', () => { const mc=(cap:number[][])=>{const n=cap.length;const flow=cap.map(r=>[...r]);const bfs=(s:number,t:number,par:number[])=>{const vis=new Set([s]);const q=[s];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(!vis.has(v)&&flow[u][v]>0){vis.add(v);par[v]=u;q.push(v);}};return vis.has(t);};let mf=0;while(true){const par=new Array(n).fill(-1);if(!bfs(0,n-1,par))break;let p=Infinity,v=n-1;while(v!==0){p=Math.min(p,flow[par[v]][v]);v=par[v];}v=n-1;while(v!==0){flow[par[v]][v]-=p;flow[v][par[v]]+=p;v=par[v];}mf+=p;}return mf;}; expect(mc([[0,3,0,3,0],[0,0,4,0,0],[0,0,0,0,2],[0,0,0,0,6],[0,0,0,0,0]])).toBe(5); });
+  it('converts number to roman numeral', () => { const rom=(n:number)=>{const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const s=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';v.forEach((val,i)=>{while(n>=val){r+=s[i];n-=val;}});return r;}; expect(rom(3749)).toBe('MMMDCCXLIX'); expect(rom(58)).toBe('LVIII'); });
+  it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
+});

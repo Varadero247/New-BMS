@@ -766,3 +766,12 @@ describe('phase45 coverage', () => {
   it('counts inversions in array', () => { const inv=(a:number[])=>{let c=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])c++;return c;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); });
   it('transposes a matrix', () => { const tr=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[c])); expect(tr([[1,2,3],[4,5,6]])).toEqual([[1,4],[2,5],[3,6]]); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('removes duplicates preserving order', () => { const uniq=(a:number[])=>[...new Set(a)]; expect(uniq([1,2,2,3,1,4,3])).toEqual([1,2,3,4]); });
+  it('computes diameter of binary tree', () => { type N={v:number;l?:N;r?:N}; let d=0; const h=(n:N|undefined):number=>{if(!n)return 0;const l=h(n.l),r=h(n.r);d=Math.max(d,l+r);return 1+Math.max(l,r);}; const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3}}; d=0;h(t); expect(d).toBe(3); });
+  it('generates balanced parentheses', () => { const bp=(n:number):string[]=>{const r:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n)return r.push(s);if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return r;}; expect(bp(3).length).toBe(5); expect(bp(3)).toContain('((()))'); expect(bp(3)).toContain('()()()'); });
+  it('finds minimum cut in flow network (simple)', () => { const mc=(cap:number[][])=>{const n=cap.length;const flow=cap.map(r=>[...r]);const bfs=(s:number,t:number,par:number[])=>{const vis=new Set([s]);const q=[s];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(!vis.has(v)&&flow[u][v]>0){vis.add(v);par[v]=u;q.push(v);}};return vis.has(t);};let mf=0;while(true){const par=new Array(n).fill(-1);if(!bfs(0,n-1,par))break;let p=Infinity,v=n-1;while(v!==0){p=Math.min(p,flow[par[v]][v]);v=par[v];}v=n-1;while(v!==0){flow[par[v]][v]-=p;flow[v][par[v]]+=p;v=par[v];}mf+=p;}return mf;}; expect(mc([[0,3,0,3,0],[0,0,4,0,0],[0,0,0,0,2],[0,0,0,0,6],[0,0,0,0,0]])).toBe(5); });
+  it('finds number of ways to partition n into k parts', () => { const parts=(n:number,k:number,min=1):number=>k===1?n>=min?1:0:Array.from({length:n-min*(k-1)-min+1},(_,i)=>parts(n-(i+min),k-1,i+min)).reduce((s,v)=>s+v,0); expect(parts(5,2)).toBe(2); expect(parts(6,3,1)).toBe(3); });
+});

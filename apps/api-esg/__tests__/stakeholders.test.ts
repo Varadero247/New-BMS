@@ -609,3 +609,12 @@ describe('phase45 coverage', () => {
   it('counts inversions in array', () => { const inv=(a:number[])=>{let c=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])c++;return c;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); });
   it('generates multiplication table', () => { const mt=(n:number)=>Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>(i+1)*(j+1))); const t=mt(3); expect(t[0]).toEqual([1,2,3]); expect(t[2]).toEqual([3,6,9]); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('removes duplicates preserving order', () => { const uniq=(a:number[])=>[...new Set(a)]; expect(uniq([1,2,2,3,1,4,3])).toEqual([1,2,3,4]); });
+  it('finds first missing positive', () => { const fmp=(a:number[])=>{const s=new Set(a);let i=1;while(s.has(i))i++;return i;}; expect(fmp([1,2,0])).toBe(3); expect(fmp([3,4,-1,1])).toBe(2); expect(fmp([7,8,9,11,12])).toBe(1); });
+  it('finds maximum path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; let mx=-Infinity; const dfs=(n:N|undefined):number=>{if(!n)return 0;const l=Math.max(0,dfs(n.l)),r=Math.max(0,dfs(n.r));mx=Math.max(mx,n.v+l+r);return n.v+Math.max(l,r);}; const t:N={v:-10,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; mx=-Infinity;dfs(t); expect(mx).toBe(42); });
+  it('finds minimum cut in flow network (simple)', () => { const mc=(cap:number[][])=>{const n=cap.length;const flow=cap.map(r=>[...r]);const bfs=(s:number,t:number,par:number[])=>{const vis=new Set([s]);const q=[s];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(!vis.has(v)&&flow[u][v]>0){vis.add(v);par[v]=u;q.push(v);}};return vis.has(t);};let mf=0;while(true){const par=new Array(n).fill(-1);if(!bfs(0,n-1,par))break;let p=Infinity,v=n-1;while(v!==0){p=Math.min(p,flow[par[v]][v]);v=par[v];}v=n-1;while(v!==0){flow[par[v]][v]-=p;flow[v][par[v]]+=p;v=par[v];}mf+=p;}return mf;}; expect(mc([[0,3,0,3,0],[0,0,4,0,0],[0,0,0,0,2],[0,0,0,0,6],[0,0,0,0,0]])).toBe(5); });
+  it('checks valid BST from preorder', () => { const vbst=(pre:number[])=>{const st:number[]=[],min=[-Infinity];for(const v of pre){if(v<min[0])return false;while(st.length&&st[st.length-1]<v)min[0]=st.pop()!;st.push(v);}return true;}; expect(vbst([5,2,1,3,6])).toBe(true); expect(vbst([5,2,6,1,3])).toBe(false); });
+});

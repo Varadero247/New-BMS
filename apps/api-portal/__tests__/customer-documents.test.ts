@@ -679,3 +679,12 @@ describe('phase45 coverage', () => {
   it('validates balanced HTML-like tags', () => { const vt=(s:string)=>{const st:string[]=[];const tags=[...s.matchAll(/<\/?([a-z]+)>/gi)];for(const [,tag,] of tags.map(m=>[m[0],m[1],m[0][1]==='/'?'close':'open'] as const)){if(s[s.indexOf(tag)-1]==='/')continue;if(st.length&&st[st.length-1]===tag.toLowerCase()&&s.indexOf('<'+tag+'>')>s.indexOf('</'+tag))st.pop();else if(!s.includes('</'+tag.toLowerCase()+'>'))return false;}return true;}; expect(vt('<div><p></p></div>')).toBe(true); });
   it('computes maximum product subarray', () => { const mps=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],a[i]*max,a[i]*min);min=Math.min(a[i],a[i]*t,a[i]*min);res=Math.max(res,max);}return res;}; expect(mps([2,3,-2,4])).toBe(6); expect(mps([-2,0,-1])).toBe(0); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('computes minimum edit distance (Wagner-Fischer)', () => { const ed=(a:string,b:string)=>{const dp=Array.from({length:a.length+1},(_,i)=>Array.from({length:b.length+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[a.length][b.length];}; expect(ed('sunday','saturday')).toBe(3); });
+  it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
+  it('checks if array is sorted ascending', () => { const isSorted=(a:number[])=>a.every((v,i)=>i===0||a[i-1]<=v); expect(isSorted([1,2,3,4,5])).toBe(true); expect(isSorted([1,3,2,4])).toBe(false); expect(isSorted([])).toBe(true); });
+  it('finds all permutations of string', () => { const perm=(s:string):string[]=>s.length<=1?[s]:[...s].flatMap((c,i)=>perm(s.slice(0,i)+s.slice(i+1)).map(p=>c+p)); expect(new Set(perm('abc')).size).toBe(6); expect(perm('ab')).toContain('ba'); });
+  it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let best=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
+});

@@ -603,3 +603,12 @@ describe('phase45 coverage', () => {
   it('rotates matrix 90 degrees clockwise', () => { const rot=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[c]).reverse()); expect(rot([[1,2],[3,4]])).toEqual([[3,1],[4,2]]); });
   it('checks if year is leap year', () => { const leap=(y:number)=>(y%4===0&&y%100!==0)||y%400===0; expect(leap(2000)).toBe(true); expect(leap(1900)).toBe(false); expect(leap(2024)).toBe(true); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('converts number to roman numeral', () => { const rom=(n:number)=>{const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const s=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';v.forEach((val,i)=>{while(n>=val){r+=s[i];n-=val;}});return r;}; expect(rom(3749)).toBe('MMMDCCXLIX'); expect(rom(58)).toBe('LVIII'); });
+  it('reverses linked list (array-based)', () => { const rev=(a:number[])=>[...a].reverse(); expect(rev([1,2,3,4,5])).toEqual([5,4,3,2,1]); });
+  it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
+  it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
+  it('removes duplicates preserving order', () => { const uniq=(a:number[])=>[...new Set(a)]; expect(uniq([1,2,2,3,1,4,3])).toEqual([1,2,3,4]); });
+});

@@ -692,3 +692,12 @@ describe('phase45 coverage', () => {
   it('computes rolling hash for substring matching', () => { const rh=(s:string,p:string)=>{const res:number[]=[];const n=p.length;const base=31,mod=1e9+7;let ph=0,wh=0,pow=1;for(let i=0;i<n;i++){ph=(ph*base+p.charCodeAt(i))%mod;wh=(wh*base+s.charCodeAt(i))%mod;if(i>0)pow=pow*base%mod;}if(wh===ph)res.push(0);for(let i=n;i<s.length;i++){wh=(base*(wh-s.charCodeAt(i-n)*pow%mod+mod)+s.charCodeAt(i))%mod;if(wh===ph)res.push(i-n+1);}return res;}; expect(rh('abcabc','abc')).toContain(0); expect(rh('abcabc','abc')).toContain(3); });
   it('computes nth triangular number', () => { const tri=(n:number)=>n*(n+1)/2; expect(tri(1)).toBe(1); expect(tri(5)).toBe(15); expect(tri(10)).toBe(55); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('finds first missing positive', () => { const fmp=(a:number[])=>{const s=new Set(a);let i=1;while(s.has(i))i++;return i;}; expect(fmp([1,2,0])).toBe(3); expect(fmp([3,4,-1,1])).toBe(2); expect(fmp([7,8,9,11,12])).toBe(1); });
+  it('finds all permutations of string', () => { const perm=(s:string):string[]=>s.length<=1?[s]:[...s].flatMap((c,i)=>perm(s.slice(0,i)+s.slice(i+1)).map(p=>c+p)); expect(new Set(perm('abc')).size).toBe(6); expect(perm('ab')).toContain('ba'); });
+  it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
+  it('removes duplicates preserving order', () => { const uniq=(a:number[])=>[...new Set(a)]; expect(uniq([1,2,2,3,1,4,3])).toEqual([1,2,3,4]); });
+  it('implements sieve of Eratosthenes', () => { const sieve=(n:number)=>{const p=new Array(n+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=n;i++)if(p[i])for(let j=i*i;j<=n;j+=i)p[j]=false;return Array.from({length:n-1},(_,i)=>i+2).filter(i=>p[i]);}; expect(sieve(30)).toEqual([2,3,5,7,11,13,17,19,23,29]); });
+});

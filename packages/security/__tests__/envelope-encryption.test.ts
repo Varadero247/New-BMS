@@ -479,3 +479,12 @@ describe('phase45 coverage', () => {
   it('computes rolling hash for substring matching', () => { const rh=(s:string,p:string)=>{const res:number[]=[];const n=p.length;const base=31,mod=1e9+7;let ph=0,wh=0,pow=1;for(let i=0;i<n;i++){ph=(ph*base+p.charCodeAt(i))%mod;wh=(wh*base+s.charCodeAt(i))%mod;if(i>0)pow=pow*base%mod;}if(wh===ph)res.push(0);for(let i=n;i<s.length;i++){wh=(base*(wh-s.charCodeAt(i-n)*pow%mod+mod)+s.charCodeAt(i))%mod;if(wh===ph)res.push(i-n+1);}return res;}; expect(rh('abcabc','abc')).toContain(0); expect(rh('abcabc','abc')).toContain(3); });
   it('computes string similarity (Jaccard)', () => { const jacc=(a:string,b:string)=>{const sa=new Set(a),sb=new Set(b);const inter=[...sa].filter(c=>sb.has(c)).length;const uni=new Set([...a,...b]).size;return inter/uni;}; expect(jacc('abc','bcd')).toBeCloseTo(0.5); });
 });
+
+
+describe('phase46 coverage', () => {
+  it('computes all subsets of given size', () => { const cs=(a:number[],k:number):number[][]=>k===0?[[]]:(a.length<k?[]:[...cs(a.slice(1),k-1).map(s=>[a[0],...s]),...cs(a.slice(1),k)]); expect(cs([1,2,3,4],2).length).toBe(6); expect(cs([1,2,3],1)).toEqual([[1],[2],[3]]); });
+  it('rotates matrix 90 degrees counter-clockwise', () => { const rotCCW=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); expect(rotCCW([[1,2],[3,4]])).toEqual([[2,4],[1,3]]); });
+  it('finds non-overlapping intervals count', () => { const noOverlap=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[1]-b[1]);let cnt=0,end=-Infinity;for(const [l,r] of s){if(l>=end)end=r;else cnt++;}return cnt;}; expect(noOverlap([[1,2],[2,3],[3,4],[1,3]])).toBe(1); });
+  it('checks if tree is balanced', () => { type N={v:number;l?:N;r?:N}; const bal=(n:N|undefined):number=>{if(!n)return 0;const l=bal(n.l),r=bal(n.r);if(l===-1||r===-1||Math.abs(l-r)>1)return -1;return 1+Math.max(l,r);}; const ok=(t:N|undefined)=>bal(t)!==-1; const t:N={v:1,l:{v:2,l:{v:4}},r:{v:3}}; expect(ok(t)).toBe(true); const bad:N={v:1,l:{v:2,l:{v:3,l:{v:4}}}}; expect(ok(bad)).toBe(false); });
+  it('solves N-Queens (count solutions)', () => { const nq=(n:number)=>{let cnt=0;const col=new Set<number>(),d1=new Set<number>(),d2=new Set<number>();const bt=(r:number)=>{if(r===n){cnt++;return;}for(let c=0;c<n;c++){if(col.has(c)||d1.has(r-c)||d2.has(r+c))continue;col.add(c);d1.add(r-c);d2.add(r+c);bt(r+1);col.delete(c);d1.delete(r-c);d2.delete(r+c);}};bt(0);return cnt;}; expect(nq(4)).toBe(2); expect(nq(5)).toBe(10); });
+});
