@@ -1,5 +1,36 @@
 # IMS — Fixes Log
 
+## Phase 20 — Frontend Gap Closure (February 22, 2026)
+
+Systematic audit of remaining API-to-web-app pairs. 9 new pages across 6 apps. 6 sidebars updated.
+
+**New pages — web-health-safety (2):**
+- `/contractor-management` — ISO 45001 Cl. 8.4 contractor OHS management (company, induction, insurance, status)
+- `/management-reviews` — ISO 45001 management review register (ref HS-MR-YYYY-NN, performance summaries, decisions)
+
+**New pages — web-aerospace (2):**
+- `/nadcap-scope` — Nadcap commodity code scope verification (gap detection: required vs certified)
+- `/oasis` — OASIS database supplier lookup (CAGE code, DUNS, certifications, status)
+
+**New pages — web-suppliers (1):**
+- `/portal` — Supplier self-service profile portal (banking details, masked account, certifications, capabilities)
+
+**New pages — web-complaints (1):**
+- `/public` — Unauthenticated public complaint submission form (reference number on success)
+
+**New pages — web-emergency (2):**
+- `/analytics` — Emergency KPI dashboard (wardens, drills, BCP, equipment, incident trend bars)
+- `/wardens` — Emergency warden/ICS role register (training expiry colour coding)
+
+**New pages — web-chemicals (1):**
+- `/analytics` — Chemicals/COSHH analytics (CMR count, SDS overdue, category + risk distribution bars)
+
+**Sidebars updated (6):** web-health-safety, web-aerospace, web-suppliers, web-complaints, web-emergency, web-chemicals
+
+**Commit:** 3d90d228 | Tests: 17,853/674 | TypeScript: 0 errors
+
+---
+
 ## Phase 19 — Frontend Gap Closure (February 22, 2026)
 
 Systematic audit of remaining API services. Built 17 missing frontend pages across 7 apps.
