@@ -588,3 +588,145 @@ model EsgScopeEmission {
   @@index([scope])
   @@index([deletedAt])
 }
+
+// ===== GRI & TCFD GAP CLOSURE MODELS =====
+
+// GRI 2-26 - Ethics & Whistleblowing
+model EsgWhistleblow {
+  id                 String                  @id @default(uuid())
+  referenceNumber    String                  @unique
+  channel            String
+  reportDate         DateTime                @default(now())
+  category           EsgWhistleblowCategory
+  description        String                  @db.Text
+  anonymous          Boolean                 @default(false)
+  status             EsgWhistleblowStatus    @default(RECEIVED)
+  assignedTo         String?
+  investigationNotes String?                 @db.Text
+  outcomeCategory    String?
+  outcome            String?                 @db.Text
+  remedialActions    String?                 @db.Text
+  closedAt           DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  deletedAt          DateTime?
+
+  @@map("esg_whistleblows")
+}
+
+// GRI 2-29 - Stakeholder Engagement Plans
+model EsgStakeholderPlan {
+  id                     String   @id @default(uuid())
+  stakeholderGroup       String
+  engagementTopics       String[]
+  methods                String[]
+  frequency              String
+  objectives             String   @db.Text
+  responsibilityOwner    String
+  year                   Int
+  status                 String   @default("ACTIVE")
+  outcomes               String?  @db.Text
+  feedbackIncorporated   String?  @db.Text
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  deletedAt              DateTime?
+
+  @@map("esg_stakeholder_plans")
+}
+
+// GRI 414-1 - Supplier Social Screening
+model EsgSupplierSocialScreen {
+  id                      String                 @id @default(uuid())
+  supplierName            String
+  supplierCountry         String
+  screeningYear           Int
+  isNewSupplier           Boolean                @default(true)
+  screeningMethod         String
+  criteriaAssessed        String[]
+  labourPracticesResult   String?
+  humanRightsResult       String?
+  freedomAssocResult      String?
+  childLabourResult       String?
+  forcedLabourResult      String?
+  wagesResult             String?
+  nonDiscriminationResult String?
+  overallResult           EsgSocialScreenResult  @default(PENDING)
+  concernsIdentified      String?                @db.Text
+  actionsTaken            String?                @db.Text
+  followUpRequired        Boolean                @default(false)
+  followUpDate            DateTime?
+  followUpNotes           String?
+  screenedBy              String
+  screeningDate           DateTime               @default(now())
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  deletedAt               DateTime?
+
+  @@map("esg_supplier_social_screens")
+}
+
+// TCFD - Climate Scenario Analysis
+model EsgScenarioAnalysis {
+  id                 String           @id @default(uuid())
+  title              String
+  scenarioType       EsgScenarioType
+  scenarioName       String
+  framework          String
+  timeHorizon        String
+  description        String           @db.Text
+  assumptions        String           @db.Text
+  physicalRisks      String?          @db.Text
+  transitionRisks    String?          @db.Text
+  financialImpact    String?          @db.Text
+  opportunities      String?          @db.Text
+  adaptationMeasures String?          @db.Text
+  resilienceConclusion String?        @db.Text
+  status             String           @default("DRAFT")
+  approvedBy         String?
+  approvedAt         DateTime?
+  analysisYear       Int
+  createdBy          String
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  deletedAt          DateTime?
+
+  @@map("esg_scenario_analyses")
+}
+
+enum EsgWhistleblowCategory {
+  FRAUD
+  CORRUPTION
+  BRIBERY
+  ENVIRONMENTAL
+  HEALTH_SAFETY
+  HUMAN_RIGHTS
+  DATA_PRIVACY
+  FINANCIAL_MISCONDUCT
+  HARASSMENT
+  DISCRIMINATION
+  OTHER
+}
+
+enum EsgWhistleblowStatus {
+  RECEIVED
+  ACKNOWLEDGED
+  UNDER_INVESTIGATION
+  AWAITING_INFORMATION
+  RESOLVED
+  CLOSED
+}
+
+enum EsgSocialScreenResult {
+  PENDING
+  PASSED
+  CONCERNS_IDENTIFIED
+  FAILED
+  CORRECTIVE_PLAN_AGREED
+  TERMINATED
+}
+
+enum EsgScenarioType {
+  PHYSICAL
+  TRANSITION
+  COMBINED
+}

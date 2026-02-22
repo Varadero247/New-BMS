@@ -19,6 +19,9 @@ import {
   Home,
   Settings,
   BarChart3,
+  Bell,
+  Truck,
+  TrendingUp,
 } from 'lucide-react';
 
 const mainNavigation = [
@@ -37,6 +40,8 @@ const environmentalNavigation = [
 const socialGovernanceNavigation = [
   { name: 'Social Metrics', href: '/social', icon: Users },
   { name: 'Governance', href: '/governance', icon: Shield },
+  { name: 'Whistleblowing', href: '/whistleblowing', icon: Bell },
+  { name: 'Supplier Screening', href: '/supplier-screening', icon: Truck },
 ];
 
 const reportingNavigation = [
@@ -44,6 +49,8 @@ const reportingNavigation = [
   { name: 'Frameworks', href: '/frameworks', icon: BookOpen },
   { name: 'Materiality', href: '/materiality', icon: Grid3X3 },
   { name: 'Stakeholders', href: '/stakeholders', icon: UserCheck },
+  { name: 'Stakeholder Plans', href: '/stakeholder-plans', icon: Target },
+  { name: 'Scenario Analysis', href: '/scenario-analysis', icon: TrendingUp },
   { name: 'Audits', href: '/audits', icon: ClipboardCheck },
   { name: 'Initiatives', href: '/initiatives', icon: Target },
   { name: 'Metrics Dashboard', href: '/metrics-dashboard', icon: BarChart3 },

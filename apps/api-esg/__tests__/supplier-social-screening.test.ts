@@ -1,0 +1,246 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    esgSupplierSocialScreen: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+      groupBy: jest.fn(),
+    },
+  },
+  Prisma: {},
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { id: 'user-1', orgId: 'org-1', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+jest.mock('@ims/shared', () => ({
+  validateIdParam: () => (_req: any, _res: any, next: any) => next(),
+  parsePagination: (query: Record<string, any>) => {
+    const page = Math.max(1, parseInt(query.page as string, 10) || 1);
+    const limit = Math.min(Math.max(1, parseInt(query.limit as string, 10) || 20), 100);
+    const skip = (page - 1) * limit;
+    return { page, limit, skip };
+  },
+}));
+
+import router from '../src/routes/supplier-social-screening';
+import { prisma } from '../src/prisma';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+const app = express();
+app.use(express.json());
+app.use('/api/supplier-social-screening', router);
+
+beforeEach(() => jest.clearAllMocks());
+
+const mockScreening = {
+  id: '00000000-0000-0000-0000-000000000001',
+  supplierName: 'Acme Corp',
+  supplierCountry: 'UK',
+  screeningDate: new Date('2026-01-15'),
+  screenedBy: 'Procurement Team',
+  criteriaUsed: ['child_labour', 'forced_labour', 'wages', 'health_safety'],
+  result: 'PASSED',
+  riskRating: 'MEDIUM',
+  deletedAt: null,
+  createdAt: new Date('2026-01-15'),
+};
+
+// ── GET / ─────────────────────────────────────────────────────────────────
+
+describe('GET /api/supplier-social-screening', () => {
+  it('returns paginated screening records', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mockResolvedValue([mockScreening]);
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/supplier-social-screening');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('filters by riskRating', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mockResolvedValue([mockScreening]);
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock).mockResolvedValue(1);
+    await request(app).get('/api/supplier-social-screening?riskRating=HIGH');
+    const [call] = (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.riskRating).toBe('HIGH');
+  });
+
+  it('filters by result', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/supplier-social-screening?result=FAILED');
+    const [call] = (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mock.calls;
+    expect(call[0].where.result).toBe('FAILED');
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/supplier-social-screening');
+    expect(res.status).toBe(500);
+  });
+});
+
+// ── POST / ────────────────────────────────────────────────────────────────
+
+describe('POST /api/supplier-social-screening', () => {
+  const validBody = {
+    supplierName: 'Acme Corp',
+    screeningDate: '2026-01-15',
+    screenedBy: 'Procurement Team',
+    criteriaUsed: ['child_labour', 'forced_labour'],
+    result: 'PASSED',
+  };
+
+  it('creates a supplier social screening', async () => {
+    (mockPrisma.esgSupplierSocialScreen.create as jest.Mock).mockResolvedValue(mockScreening);
+    const res = await request(app).post('/api/supplier-social-screening').send(validBody);
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('accepts all result values', async () => {
+    for (const result of ['PASSED', 'CONDITIONAL_PASS', 'FAILED', 'UNDER_REVIEW', 'PENDING']) {
+      (mockPrisma.esgSupplierSocialScreen.create as jest.Mock).mockResolvedValue({ ...mockScreening, result });
+      const res = await request(app).post('/api/supplier-social-screening').send({ ...validBody, result });
+      expect(res.status).toBe(201);
+    }
+  });
+
+  it('accepts all riskRating values', async () => {
+    for (const riskRating of ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']) {
+      (mockPrisma.esgSupplierSocialScreen.create as jest.Mock).mockResolvedValue({ ...mockScreening, riskRating });
+      const res = await request(app).post('/api/supplier-social-screening').send({ ...validBody, riskRating });
+      expect(res.status).toBe(201);
+    }
+  });
+
+  it('accepts optional check fields', async () => {
+    const bodyFull = {
+      ...validBody,
+      childLaborCheck: true,
+      forcedLaborCheck: true,
+      healthSafetyCheck: true,
+      isNewSupplier: true,
+    };
+    (mockPrisma.esgSupplierSocialScreen.create as jest.Mock).mockResolvedValue(mockScreening);
+    const res = await request(app).post('/api/supplier-social-screening').send(bodyFull);
+    expect(res.status).toBe(201);
+  });
+
+  it('returns 400 when required fields missing', async () => {
+    const res = await request(app).post('/api/supplier-social-screening').send({ supplierName: 'Acme' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 400 for empty criteriaUsed', async () => {
+    const res = await request(app).post('/api/supplier-social-screening').send({ ...validBody, criteriaUsed: [] });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 for invalid result', async () => {
+    const res = await request(app).post('/api/supplier-social-screening').send({ ...validBody, result: 'CONDITIONAL' });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.esgSupplierSocialScreen.create as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).post('/api/supplier-social-screening').send(validBody);
+    expect(res.status).toBe(500);
+  });
+});
+
+// ── GET /stats ────────────────────────────────────────────────────────────
+
+describe('GET /api/supplier-social-screening/stats', () => {
+  it('returns screening stats with screening rate', async () => {
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock)
+      .mockResolvedValueOnce(100)  // total
+      .mockResolvedValueOnce(80)   // thisYear
+      .mockResolvedValueOnce(70)   // passed
+      .mockResolvedValueOnce(10);  // failed
+    (mockPrisma.esgSupplierSocialScreen.groupBy as jest.Mock).mockResolvedValue([
+      { riskRating: 'LOW', _count: { id: 40 } },
+      { riskRating: 'MEDIUM', _count: { id: 30 } },
+    ]);
+    const res = await request(app).get('/api/supplier-social-screening/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total');
+    expect(res.body.data).toHaveProperty('screeningRate');
+    expect(res.body.data).toHaveProperty('byRiskRating');
+  });
+
+  it('returns 500 on DB error', async () => {
+    (mockPrisma.esgSupplierSocialScreen.count as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/supplier-social-screening/stats');
+    expect(res.status).toBe(500);
+  });
+});
+
+// ── GET /:id ──────────────────────────────────────────────────────────────
+
+describe('GET /api/supplier-social-screening/:id', () => {
+  it('returns a single screening', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findUnique as jest.Mock).mockResolvedValue(mockScreening);
+    const res = await request(app).get('/api/supplier-social-screening/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.supplierName).toBe('Acme Corp');
+  });
+
+  it('returns 404 for missing screening', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/supplier-social-screening/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for soft-deleted screening', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findUnique as jest.Mock).mockResolvedValue({ ...mockScreening, deletedAt: new Date() });
+    const res = await request(app).get('/api/supplier-social-screening/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(404);
+  });
+});
+
+// ── PUT /:id ──────────────────────────────────────────────────────────────
+
+describe('PUT /api/supplier-social-screening/:id', () => {
+  it('updates a screening result', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findUnique as jest.Mock).mockResolvedValue(mockScreening);
+    (mockPrisma.esgSupplierSocialScreen.update as jest.Mock).mockResolvedValue({ ...mockScreening, result: 'CONDITIONAL_PASS' });
+    const res = await request(app)
+      .put('/api/supplier-social-screening/00000000-0000-0000-0000-000000000001')
+      .send({ result: 'CONDITIONAL_PASS' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.result).toBe('CONDITIONAL_PASS');
+  });
+
+  it('returns 404 when not found', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/supplier-social-screening/00000000-0000-0000-0000-000000000099')
+      .send({ result: 'PASSED' });
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 400 for invalid result on update', async () => {
+    (mockPrisma.esgSupplierSocialScreen.findUnique as jest.Mock).mockResolvedValue(mockScreening);
+    const res = await request(app)
+      .put('/api/supplier-social-screening/00000000-0000-0000-0000-000000000001')
+      .send({ result: 'INVALID_RESULT' });
+    expect(res.status).toBe(400);
+  });
+});

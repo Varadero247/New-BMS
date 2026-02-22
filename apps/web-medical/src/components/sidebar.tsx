@@ -23,6 +23,10 @@ import {
   Code,
   FileCheck,
   ChevronDown,
+  Lock,
+  ShieldAlert,
+  Bell,
+  FileLock,
 } from 'lucide-react';
 
 interface NavItem {
@@ -89,6 +93,17 @@ const navGroups: NavGroup[] = [
       { name: 'Regulatory Submissions', href: '/submissions', icon: FileCheck },
       { name: 'Post-Market Surveillance', href: '/pms', icon: Activity },
       { name: 'Software Validation', href: '/software', icon: Code },
+    ],
+  },
+  {
+    title: 'HIPAA Compliance',
+    clause: 'hipaa',
+    collapsible: true,
+    items: [
+      { name: 'Privacy Officer', href: '/hipaa/privacy', icon: Lock },
+      { name: 'Security Risk Assessment', href: '/hipaa/security', icon: ShieldAlert },
+      { name: 'Breach Notification', href: '/hipaa/breach', icon: Bell },
+      { name: 'Business Associates', href: '/hipaa/baa', icon: FileLock },
     ],
   },
   {

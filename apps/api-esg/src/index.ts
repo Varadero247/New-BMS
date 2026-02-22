@@ -48,6 +48,10 @@ import materialityRouter from './routes/materiality';
 import defraFactorsRouter from './routes/defra-factors';
 import scopeEmissionsRouter from './routes/scope-emissions';
 import esgReportsRouter from './routes/esg-reports';
+import whistleblowingRouter from './routes/whistleblowing';
+import stakeholderPlansRouter from './routes/stakeholder-plans';
+import supplierSocialScreeningRouter from './routes/supplier-social-screening';
+import scenarioAnalysisRouter from './routes/scenario-analysis';
 import { writeRoleGuard } from '@ims/auth';
 import { errorHandler } from '@ims/shared';
 
@@ -98,6 +102,15 @@ app.use('/api/defra-factors', defraFactorsRouter);
 app.use('/api/scope-emissions', scopeEmissionsRouter);
 app.use('/api/esg-reports', esgReportsRouter);
 app.use('/api/materiality', materialityRouter);
+
+// GRI 2-26 — Whistleblowing Mechanisms
+app.use('/api/whistleblowing', whistleblowingRouter);
+// GRI 2-29 — Stakeholder Engagement Plans
+app.use('/api/stakeholder-plans', stakeholderPlansRouter);
+// GRI 414-1 — Supplier Social Screening
+app.use('/api/supplier-social-screening', supplierSocialScreeningRouter);
+// TCFD Strategy (b) — Climate Scenario Analysis
+app.use('/api/scenario-analysis', scenarioAnalysisRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

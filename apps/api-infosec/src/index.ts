@@ -38,6 +38,10 @@ import risksRouter from './routes/risks';
 import incidentsRouter from './routes/incidents';
 import auditsRouter from './routes/audits';
 import privacyRouter from './routes/privacy';
+import threatIntelligenceRouter from './routes/threat-intelligence';
+import cloudSecurityRouter from './routes/cloud-security';
+import dlpMonitoringRouter from './routes/dlp-monitoring';
+import gdprExtendedRouter from './routes/gdpr-extended';
 import { writeRoleGuard } from '@ims/auth';
 import { errorHandler } from '@ims/shared';
 
@@ -80,6 +84,14 @@ app.use('/api/audits', auditsRouter);
 app.use('/api/vulnerability-scans', auditsRouter);
 app.use('/api/penetration-tests', auditsRouter);
 app.use('/api/privacy', privacyRouter);
+
+// ISO 27001:2022 New Controls (A.5.7, A.5.23, A.5.30, A.7.4, A.8.9, A.8.10, A.8.12, A.8.16)
+app.use('/api/threat-intelligence', threatIntelligenceRouter);
+app.use('/api/cloud-security', cloudSecurityRouter);
+app.use('/api/dlp', dlpMonitoringRouter);
+
+// GDPR Extended (Art 25, 28, 37-39, 46, 77)
+app.use('/api/gdpr', gdprExtendedRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

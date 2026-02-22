@@ -1262,3 +1262,183 @@ enum AeroNadcapApprovalStatus {
   SUSPENDED
   REVOKED
 }
+
+// ===== AS9100D GAP CLOSURE MODELS =====
+
+// Clause 8.1.3 - Product/Process Risk Management
+model AeroProductRisk {
+  id                    String           @id @default(uuid())
+  referenceNumber       String           @unique
+  title                 String
+  productProcess        String
+  riskCategory          AeroRiskCategory
+  description           String           @db.Text
+  consequence           String           @db.Text
+  likelihood            Int
+  severity              Int
+  detectability         Int
+  rpn                   Int
+  riskLevel             String
+  mitigationPlan        String?          @db.Text
+  mitigationStatus      String           @default("OPEN")
+  residualLikelihood    Int?
+  residualSeverity      Int?
+  residualDetectability Int?
+  residualRpn           Int?
+  owner                 String
+  targetDate            DateTime?
+  closedDate            DateTime?
+  status                String           @default("ACTIVE")
+  flightSafety          Boolean          @default(false)
+  productSafety         Boolean          @default(false)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  deletedAt             DateTime?
+
+  @@map("aero_product_risks")
+}
+
+// Clause 8.5.6 - Manufacturing Change Control
+model AeroManufacturingChange {
+  id                          String               @id @default(uuid())
+  referenceNumber             String               @unique
+  title                       String
+  changeType                  AeroChangeType
+  description                 String               @db.Text
+  reason                      String               @db.Text
+  affectedParts               String[]
+  affectedProcesses           String[]
+  drawingRevision             String?
+  customerApprovalRequired    Boolean              @default(false)
+  customerApprovalStatus      String?
+  customerApprovalRef         String?
+  firstArticleRequired        Boolean              @default(false)
+  faiRef                      String?
+  qualificationRequired       Boolean              @default(false)
+  qualificationStatus         String               @default("NOT_REQUIRED")
+  flightSafetyCritical        Boolean              @default(false)
+  flightSafetyReviewRequired  Boolean              @default(false)
+  flightSafetyReviewStatus    String?
+  status                      AeroMfgChangeStatus  @default(DRAFT)
+  initiatedBy                 String
+  reviewedBy                  String?
+  approvedBy                  String?
+  approvedAt                  DateTime?
+  effectiveDate               DateTime?
+  implementedDate             DateTime?
+  rejectionReason             String?
+  verificationMethod          String?              @db.Text
+  verificationStatus          String               @default("PENDING")
+  verifiedBy                  String?
+  verifiedAt                  DateTime?
+  createdAt                   DateTime             @default(now())
+  updatedAt                   DateTime             @updatedAt
+  deletedAt                   DateTime?
+
+  @@map("aero_manufacturing_changes")
+}
+
+// 8.5.1.2 - Nadcap Scope Verification
+model AeroNadcapScope {
+  id              String   @id @default(uuid())
+  supplierName    String
+  nadcapCertRef   String
+  commodityCode   String
+  commodityName   String
+  scope           String   @db.Text
+  certifiedSince  DateTime
+  expiryDate      DateTime
+  accreditingBody String   @default("PRI Nadcap")
+  status          String   @default("ACTIVE")
+  lastAuditDate   DateTime?
+  nextAuditDate   DateTime?
+  limitationsNotes String? @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  @@map("aero_nadcap_scopes")
+}
+
+// 8.5.1.2 - Process Parameter Records
+model AeroProcessParameterRecord {
+  id                      String   @id @default(uuid())
+  specialProcessType      String
+  workOrderRef            String
+  partNumber              String
+  lotNumber               String?
+  serialNumber            String?
+  operatorId              String
+  operatorCertRef         String?
+  processDate             DateTime
+  equipment               String
+  equipmentCalibrationRef String?
+  parameters              String   @db.Text
+  parametersWithinSpec    Boolean  @default(true)
+  deviations              String?  @db.Text
+  deviationDisposition    String?
+  ncrRef                  String?
+  inspectionResult        String
+  inspectedBy             String
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@map("aero_process_parameter_records")
+}
+
+// 8.5.1.2 - Requalification Triggers
+model AeroRequalificationTrigger {
+  id                            String   @id @default(uuid())
+  processType                   String
+  triggerType                   String
+  description                   String   @db.Text
+  detectedDate                  DateTime @default(now())
+  detectedBy                    String
+  requalificationRequired       Boolean  @default(true)
+  requalificationStatus         String   @default("PENDING")
+  requalificationDue            DateTime?
+  requalificationCompletedDate  DateTime?
+  requalificationRef            String?
+  waiverJustification           String?
+  waiverApprovedBy              String?
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  @@map("aero_requalification_triggers")
+}
+
+enum AeroRiskCategory {
+  DESIGN
+  MANUFACTURING
+  SUPPLY_CHAIN
+  TOOLING
+  PROCESS
+  HUMAN_FACTORS
+  REGULATORY
+  CUSTOMER
+  ENVIRONMENTAL
+}
+
+enum AeroChangeType {
+  DESIGN
+  PROCESS
+  MATERIAL
+  SUPPLIER
+  TOOLING
+  SOFTWARE
+  FACILITY
+  REGULATORY
+  CUSTOMER_DRIVEN
+}
+
+enum AeroMfgChangeStatus {
+  DRAFT
+  PENDING_REVIEW
+  PENDING_CUSTOMER_APPROVAL
+  APPROVED
+  IN_IMPLEMENTATION
+  VERIFICATION
+  EFFECTIVE
+  REJECTED
+  CANCELLED
+}

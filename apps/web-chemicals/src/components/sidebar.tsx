@@ -16,6 +16,9 @@ import {
   Settings,
   LogOut,
   ChevronDown,
+  Stethoscope,
+  Microscope,
+  Wind,
 } from 'lucide-react';
 
 interface NavItem {
@@ -69,6 +72,16 @@ const navGroups: NavGroup[] = [
     clause: '8',
     collapsible: true,
     items: [{ name: 'Chemical Incidents', href: '/incidents', icon: AlertTriangle }],
+  },
+  {
+    title: 'Health Monitoring (Regs 11-18)',
+    clause: '11',
+    collapsible: true,
+    items: [
+      { name: 'Health Surveillance', href: '/health-surveillance', icon: Stethoscope },
+      { name: 'Biological Monitoring', href: '/biological-monitoring', icon: Microscope },
+      { name: 'Fumigation', href: '/fumigation', icon: Wind },
+    ],
   },
 ];
 

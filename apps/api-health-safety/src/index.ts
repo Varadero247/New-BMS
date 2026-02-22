@@ -43,6 +43,9 @@ import capaRouter from './routes/capa';
 import managementReviewsRouter from './routes/management-reviews';
 import communicationsRouter from './routes/communications';
 import actionsRouter from './routes/actions';
+import managementOfChangeRouter from './routes/management-of-change';
+import contractorManagementRouter from './routes/contractor-management';
+import workerConsultationRouter from './routes/worker-consultation';
 import { writeRoleGuard } from '@ims/auth';
 import { errorHandler } from '@ims/shared';
 
@@ -87,6 +90,13 @@ app.use('/api/capa', capaRouter);
 app.use('/api/management-reviews', managementReviewsRouter);
 app.use('/api/communications', communicationsRouter);
 app.use('/api/actions', actionsRouter);
+
+// ISO 45001:2018 Clause 8.1.3 — Management of Change
+app.use('/api/management-of-change', managementOfChangeRouter);
+// ISO 45001:2018 Clause 8.4 — Contractor OHS Management
+app.use('/api/contractors', contractorManagementRouter);
+// ISO 45001:2018 Clause 5.4 — Worker Participation and Consultation
+app.use('/api/worker-consultation', workerConsultationRouter);
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

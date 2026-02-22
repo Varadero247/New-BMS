@@ -18,6 +18,8 @@ import {
   Wrench,
   Users,
   FileText,
+  Gauge,
+  Medal,
 } from 'lucide-react';
 
 // Aerospace Section
@@ -35,6 +37,8 @@ const aerospaceNavigation = [
 const modulesNavigation = [
   { name: 'First Article Inspection', href: '/fai', icon: FileCheck },
   { name: 'Special Processes', href: '/special-processes', icon: Zap },
+  { name: 'Nadcap Scope', href: '/nadcap', icon: Medal },
+  { name: 'Process Parameters', href: '/process-parameters', icon: Gauge },
   { name: 'Counterfeit Parts', href: '/counterfeit', icon: AlertOctagon },
   { name: 'FOD Prevention', href: '/fod', icon: Eye },
   { name: 'MRO Work Orders', href: '/workorders', icon: Wrench },

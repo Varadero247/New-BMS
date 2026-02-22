@@ -19,6 +19,9 @@ import {
   FileText,
   Grid3X3,
   ChevronDown,
+  Users,
+  HardHat,
+  RefreshCw,
 } from 'lucide-react';
 
 interface NavItem {
@@ -45,7 +48,10 @@ const navGroups: NavGroup[] = [
     title: 'Leadership (Cl. 5)',
     clause: '5',
     collapsible: true,
-    items: [{ name: 'Objectives', href: '/objectives', icon: Target }],
+    items: [
+      { name: 'Objectives', href: '/objectives', icon: Target },
+      { name: 'Worker Consultation', href: '/worker-consultation', icon: Users },
+    ],
   },
   {
     title: 'Planning (Cl. 6)',
@@ -74,6 +80,8 @@ const navGroups: NavGroup[] = [
       { name: 'Incidents', href: '/incidents', icon: FileWarning },
       { name: 'Actions', href: '/actions', icon: ClipboardList },
       { name: 'CAPA', href: '/capa', icon: ShieldCheck },
+      { name: 'Management of Change', href: '/management-of-change', icon: RefreshCw },
+      { name: 'Contractors', href: '/contractors', icon: HardHat },
     ],
   },
   {

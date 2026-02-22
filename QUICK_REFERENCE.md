@@ -274,7 +274,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 ## Run Tests
 
 ```bash
-pnpm test                                # All Jest tests (17,410 across 654 suites — all passing)
+pnpm test                                # All Jest tests (17,853 across 674 suites — all passing)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 9 modules)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -310,10 +310,10 @@ npx prisma generate --schema=prisma/schemas/<domain>.prisma
 npx prisma studio --schema=prisma/schemas/health-safety.prisma
 ```
 
-## Current Status (Feb 21, 2026)
+## Current Status (Feb 22, 2026)
 
 - 42 API services + 44 web apps + PostgreSQL + Redis + main API
-- **All 42 modules fully implemented** across Phases 0-16+:
+- **All 42 modules fully implemented** across Phases 0-17:
   - **Core**: H&S, Environment, Quality, HR, Payroll, Inventory, Workflows, PM, AI, Automotive, Medical, Aerospace
   - **Phase 2-11**: Finance, CRM, InfoSec, ESG, CMMS, Portals (Customer + Supplier), Food Safety, Energy, Analytics, Field Service, ISO 42001, ISO 37001
   - **Phase 12**: Marketing, Partners, Admin Dashboard, Setup Wizard
@@ -324,7 +324,8 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
 - 44 Prisma schemas, ~589 database models
 - 61 shared packages (all with test suites)
-- **Tests**: **17,410 Jest tests (654 suites)** + 9 integration test scripts (~465+ assertions) — ALL PASSING, 0 failures
+- **Phase 17**: Compliance gap closure — ISO 45001 MOC/Contractors/Worker Consultation, HIPAA Privacy/Security/Breach, COSHH Regs 11/14/18, GRI 2-26/2-29/414-1, TCFD, ISO 27001:2022 A.5.7/A.5.23/A.8.12, AS9100D 8.5.1.2 (Nadcap/Process Parameters). 20 new route files, 15 new frontend pages, 443 new tests.
+- **Tests**: **17,853 Jest tests (674 suites)** + 9 integration test scripts (~465+ assertions) — ALL PASSING, 0 failures
 - **TypeScript**: 0 errors across all 42 APIs + 44 web apps + 61 packages (148 projects)
 - **E2E**: 48 Playwright spec files, 195 tests across all 44 modules
 - **Code Evaluation**: 100/100 composite score (Security 100, Architecture 100, Code Quality 100)

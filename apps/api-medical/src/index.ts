@@ -48,6 +48,10 @@ import capaRouter from './routes/capa';
 import traceabilityRouter from './routes/traceability';
 import validationRouter from './routes/validation';
 import verificationRouter from './routes/verification';
+import hipaaPrivacyRouter from './routes/hipaa-privacy';
+import hipaaBaaRouter from './routes/hipaa-baa';
+import hipaaSecurityRouter from './routes/hipaa-security';
+import hipaaBreachRouter from './routes/hipaa-breach';
 import { writeRoleGuard } from '@ims/auth';
 import { errorHandler } from '@ims/shared';
 
@@ -121,6 +125,12 @@ app.use('/api/verification', verificationRouter);
 app.use('/api/device-records', deviceRecordsRouter);
 app.use('/api/dhf', dhfRouter);
 app.use('/api/suppliers', suppliersRouter);
+
+// HIPAA Compliance Routes (45 CFR Part 164)
+app.use('/api/hipaa/privacy', hipaaPrivacyRouter);
+app.use('/api/hipaa/baa', hipaaBaaRouter);
+app.use('/api/hipaa/security', hipaaSecurityRouter);
+app.use('/api/hipaa/breach', hipaaBreachRouter);
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response, _next: express.NextFunction) => {

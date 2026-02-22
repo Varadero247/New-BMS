@@ -19,7 +19,11 @@ import {
   Home,
   Settings,
   Map,
-  BarChart3 } from 'lucide-react';
+  BarChart3,
+  Globe,
+  Cloud,
+  Lock,
+} from 'lucide-react';
 
 const ismsNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -53,6 +57,12 @@ const privacyNavigation = [
   { name: 'DPIA', href: '/privacy/dpia', icon: Eye },
   { name: 'DSAR', href: '/privacy/dsar', icon: UserCheck },
   { name: 'Data Map', href: '/data-map', icon: Map },
+];
+
+const advancedControlsNavigation = [
+  { name: 'Threat Intelligence', href: '/threat-intel', icon: Globe },
+  { name: 'Cloud Security', href: '/cloud-security', icon: Cloud },
+  { name: 'DLP', href: '/dlp', icon: Lock },
 ];
 
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
@@ -129,6 +139,7 @@ export function Sidebar() {
         <NavSection title="Incidents" items={incidentsNavigation} pathname={pathname} />
         <NavSection title="Assessments" items={assessmentsNavigation} pathname={pathname} />
         <NavSection title="Privacy (ISO 27701)" items={privacyNavigation} pathname={pathname} />
+        <NavSection title="Advanced Controls (2022)" items={advancedControlsNavigation} pathname={pathname} />
 
         {/* Quick Links */}
         <div className="mt-4 pt-4 border-t border-border">

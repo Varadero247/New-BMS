@@ -1264,3 +1264,224 @@ model MedicalSupplier {
 
   @@map("medical_suppliers")
 }
+
+// ===== HIPAA COMPLIANCE MODELS =====
+
+model HipaaPrivacyPolicy {
+  id             String            @id @default(uuid())
+  version        String
+  effectiveDate  DateTime
+  status         HipaaPolicyStatus @default(DRAFT)
+  nppSummary     String            @db.Text
+  fullText       String            @db.Text
+  reviewedBy     String?
+  approvedBy     String?
+  approvedAt     DateTime?
+  nextReviewDate DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime?
+
+  @@map("hipaa_privacy_policies")
+}
+
+model HipaaPhiDisclosure {
+  id                String             @id @default(uuid())
+  disclosureDate    DateTime
+  recipient         String
+  recipientType     HipaaRecipientType
+  purpose           String
+  phiCategories     String[]
+  minimumNecessary  Boolean            @default(true)
+  patientAuthorized Boolean            @default(false)
+  authorizationRef  String?
+  legalBasis        String?
+  recordedBy        String
+  notes             String?            @db.Text
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+
+  @@map("hipaa_phi_disclosures")
+}
+
+model HipaaBaa {
+  id                String         @id @default(uuid())
+  businessAssociate String
+  contactName       String?
+  contactEmail      String?
+  effectiveDate     DateTime
+  expiryDate        DateTime?
+  status            HipaaBaaStatus @default(ACTIVE)
+  servicesProvided  String         @db.Text
+  phiAccessed       String[]
+  subcontractors    String?
+  terminationReason String?
+  terminatedAt      DateTime?
+  documentRef       String?
+  lastReviewDate    DateTime?
+  nextReviewDate    DateTime?
+  createdBy         String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  deletedAt         DateTime?
+
+  @@map("hipaa_baas")
+}
+
+model HipaaSecurityControl {
+  id                   String                @id @default(uuid())
+  cfr45Section         String
+  category             HipaaSecurityCategory
+  specification        String
+  title                String
+  description          String                @db.Text
+  implementationStatus HipaaImplStatus       @default(NOT_IMPLEMENTED)
+  implementationNotes  String?               @db.Text
+  evidence             String?               @db.Text
+  owner                String?
+  riskIfNotImplemented String?               @db.Text
+  lastAssessed         DateTime?
+  nextReviewDate       DateTime?
+  updatedBy            String?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  @@map("hipaa_security_controls")
+}
+
+model HipaaBreachNotification {
+  id                        String            @id @default(uuid())
+  referenceNumber           String            @unique
+  discoveredDate            DateTime
+  breachDate                DateTime?
+  description               String            @db.Text
+  phiInvolved               String[]
+  individualsAffected       Int
+  breachType                HipaaBreachType
+  status                    HipaaBreachStatus @default(INVESTIGATING)
+  riskAssessment            String?           @db.Text
+  lowProbabilityOfPhi       Boolean           @default(false)
+  individualNotificationDue DateTime?
+  individualNotifiedAt      DateTime?
+  hhsNotificationDue        DateTime?
+  hhsNotifiedAt             DateTime?
+  mediaNotificationRequired Boolean           @default(false)
+  mediaNotifiedAt           DateTime?
+  containmentActions        String?           @db.Text
+  preventiveActions         String?           @db.Text
+  discoveredBy              String
+  investigatedBy            String?
+  closedAt                  DateTime?
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+  deletedAt                 DateTime?
+
+  @@map("hipaa_breach_notifications")
+}
+
+model HipaaTrainingRecord {
+  id             String            @id @default(uuid())
+  employeeId     String
+  employeeName   String
+  trainingType   HipaaTrainingType
+  completedDate  DateTime
+  expiryDate     DateTime?
+  score          Int?
+  passed         Boolean           @default(true)
+  trainingModule String
+  certifiedBy    String?
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@map("hipaa_training_records")
+}
+
+model HipaaMinimumNecessary {
+  id            String   @id @default(uuid())
+  role          String
+  phiCategory   String
+  accessLevel   String
+  justification String   @db.Text
+  approvedBy    String
+  effectiveDate DateTime
+  reviewDate    DateTime?
+  status        String   @default("ACTIVE")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  @@map("hipaa_minimum_necessary")
+}
+
+enum HipaaPolicyStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  ACTIVE
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum HipaaRecipientType {
+  TREATMENT_PROVIDER
+  PAYMENT_ENTITY
+  HEALTHCARE_OPERATIONS
+  BUSINESS_ASSOCIATE
+  INDIVIDUAL
+  PUBLIC_HEALTH
+  LAW_ENFORCEMENT
+  LEGAL
+  RESEARCH
+  OTHER
+}
+
+enum HipaaBaaStatus {
+  DRAFT
+  PENDING_SIGNATURE
+  ACTIVE
+  UNDER_REVIEW
+  EXPIRED
+  TERMINATED
+}
+
+enum HipaaSecurityCategory {
+  ADMINISTRATIVE
+  PHYSICAL
+  TECHNICAL
+}
+
+enum HipaaImplStatus {
+  NOT_IMPLEMENTED
+  PARTIALLY_IMPLEMENTED
+  FULLY_IMPLEMENTED
+  NOT_APPLICABLE
+}
+
+enum HipaaBreachType {
+  HACKING_IT_INCIDENT
+  UNAUTHORIZED_ACCESS
+  THEFT
+  LOSS
+  IMPROPER_DISPOSAL
+  UNAUTHORIZED_DISCLOSURE
+  OTHER
+}
+
+enum HipaaBreachStatus {
+  INVESTIGATING
+  CONFIRMED
+  NOTIFICATION_PENDING
+  NOTIFICATION_COMPLETE
+  CLOSED_NOT_BREACH
+  CLOSED
+}
+
+enum HipaaTrainingType {
+  INITIAL_TRAINING
+  ANNUAL_REFRESHER
+  ROLE_SPECIFIC
+  BREACH_RESPONSE
+  NEW_POLICY
+}

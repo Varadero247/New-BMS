@@ -39,6 +39,9 @@ import monitoringRouter from './routes/monitoring';
 import incidentsRouter from './routes/incidents';
 import disposalRouter from './routes/disposal';
 import analyticsRouter from './routes/analytics';
+import healthSurveillanceRouter from './routes/health-surveillance';
+import biologicalMonitoringRouter from './routes/biological-monitoring';
+import fumigationRouter from './routes/fumigation';
 import { writeRoleGuard } from '@ims/auth';
 import { errorHandler } from '@ims/shared';
 
@@ -81,6 +84,11 @@ app.use('/api/monitoring', monitoringRouter);
 app.use('/api/incidents', incidentsRouter);
 app.use('/api/disposal', disposalRouter);
 app.use('/api/analytics', analyticsRouter);
+
+// COSHH 2002 Extended Routes
+app.use('/api/health-surveillance', healthSurveillanceRouter);       // Reg 11
+app.use('/api/biological-monitoring', biologicalMonitoringRouter);   // Reg 14
+app.use('/api/fumigation', fumigationRouter);                        // Reg 18
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

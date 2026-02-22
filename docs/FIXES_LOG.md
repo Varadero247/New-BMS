@@ -1340,3 +1340,114 @@ Three sprint phases brought the composite Code Evaluation score from 65 → 100/
 
 ### Final Test Count
 **17,361 tests across 652 suites — ALL PASSING (0 failures, 0 TypeScript errors)**
+
+---
+
+## Session 26 — February 22, 2026 — Compliance Gap Closure Sprint (Phase 17)
+
+### Scope
+Closed 20 compliance standard gaps across 5 domains: ISO 45001, COSHH, GRI/TCFD, ISO 27001:2022, AS9100D. Created 11 new API route files + test suites (245 tests), and 15 new frontend pages.
+
+### Test Fixes
+
+**worker-consultation.test.ts — POST /barriers returning 400**
+- Root cause: `consultationId: 'cons-1'` failed `z.string().uuid()` in `barrierSchema`
+- Fix: Changed test body to use `'00000000-0000-0000-0000-000000000001'`
+
+**contractor-management.test.ts — 2 inspection POST tests returning 400**
+- Root cause: Route merges `req.params.id` into `inspectionSchema` as `contractorId` (uuid-typed); non-UUID `:id` like `'cont-1'` fails before DB is reached
+- Fix: Changed both test paths from `/cont-1/inspections` to `/00000000-0000-0000-0000-000000000001/inspections`
+
+### TypeScript Fix
+
+**web-aerospace/nadcap/page.tsx — 3 TS errors in toggleCommodity**
+- Root cause: `setList(prev => prev.includes(c) ? ...)` used React updater-function pattern, but `setList` was typed as `(v: string[]) => void`
+- Fix: Used the already-available `list` param directly: `setList(list.includes(c) ? list.filter(x => x !== c) : [...list, c])`
+
+### New Backend Routes (api-health-safety)
+
+| Route file | Standard | Clause | Tests |
+|---|---|---|---|
+| `management-of-change.ts` | ISO 45001 | 8.1.3 | 20 |
+| `contractor-management.ts` | ISO 45001 | 8.1.4 | 22 |
+| `worker-consultation.ts` | ISO 45001 | 5.4 | 23 |
+
+### New Backend Routes (api-medical — HIPAA)
+
+| Route file | Standard | Module | Tests |
+|---|---|---|---|
+| `hipaa-privacy.ts` | HIPAA | Privacy Officer | 21 |
+| `hipaa-security.ts` | HIPAA | Security Risk Assessment | 22 |
+| `hipaa-breach.ts` | HIPAA | Breach Notification | 20 |
+
+### New Backend Routes (api-chemicals — COSHH)
+
+| Route file | Standard | Regulation | Tests |
+|---|---|---|---|
+| `health-surveillance.ts` | COSHH | Reg 11 | 21 |
+| `biological-monitoring.ts` | COSHH | Reg 14 | 22 |
+| `fumigation.ts` | COSHH | Reg 18 | 21 |
+
+### New Backend Routes (api-esg — GRI/TCFD)
+
+| Route file | Standard | Clause | Tests |
+|---|---|---|---|
+| `whistleblowing.ts` | GRI | 2-26 | 20 |
+| `stakeholder-plans.ts` | GRI | 2-29 | 20 |
+| `supplier-social-screening.ts` | GRI | 414-1 | 21 |
+| `scenario-analysis.ts` | TCFD | Risk Scenarios | 20 |
+
+### New Backend Routes (api-infosec — ISO 27001:2022)
+
+| Route file | Standard | Control | Tests |
+|---|---|---|---|
+| `threat-intel.ts` | ISO 27001:2022 | A.5.7 | 20 |
+| `cloud-security.ts` | ISO 27001:2022 | A.5.23 | 22 |
+| `dlp.ts` | ISO 27001:2022 | A.8.12 | 20 |
+
+### New Backend Routes (api-aerospace — AS9100D)
+
+| Route file | Standard | Clause | Tests |
+|---|---|---|---|
+| `nadcap-scope.ts` | AS9100D | 8.5.1.2 | 22 |
+| `process-parameters.ts` | AS9100D | 8.5.1.2 | 21 |
+
+### New Frontend Pages (15 total)
+
+| Page | App | Standard |
+|---|---|---|
+| `management-of-change/page.tsx` | web-health-safety | ISO 45001 §8.1.3 |
+| `contractors/page.tsx` | web-health-safety | ISO 45001 §8.1.4 |
+| `worker-consultation/page.tsx` | web-health-safety | ISO 45001 §5.4 |
+| `whistleblowing/page.tsx` | web-esg | GRI 2-26 |
+| `stakeholder-plans/page.tsx` | web-esg | GRI 2-29 |
+| `supplier-screening/page.tsx` | web-esg | GRI 414-1 |
+| `scenario-analysis/page.tsx` | web-esg | TCFD |
+| `health-surveillance/page.tsx` | web-chemicals | COSHH Reg 11 |
+| `biological-monitoring/page.tsx` | web-chemicals | COSHH Reg 14 |
+| `fumigation/page.tsx` | web-chemicals | COSHH Reg 18 |
+| `threat-intel/page.tsx` | web-infosec | ISO 27001 A.5.7 |
+| `cloud-security/page.tsx` | web-infosec | ISO 27001 A.5.23 |
+| `dlp/page.tsx` | web-infosec | ISO 27001 A.8.12 |
+| `nadcap/page.tsx` | web-aerospace | AS9100D 8.5.1.2 |
+| `process-parameters/page.tsx` | web-aerospace | AS9100D 8.5.1.2 |
+
+### Sidebar Navigation Updates (Feb 22, 2026)
+
+All 15 new compliance-gap pages (and 4 HIPAA pages in web-medical) added to their respective sidebar navigation components:
+
+| App | New Nav Items Added |
+|---|---|
+| web-health-safety | Worker Consultation (Cl. 5), Management of Change (Cl. 8), Contractors (Cl. 8) |
+| web-esg | Whistleblowing (Social & Governance), Supplier Screening (Social & Governance), Stakeholder Plans (Reporting), Scenario Analysis (Reporting) |
+| web-chemicals | Health Surveillance, Biological Monitoring, Fumigation (new "Health Monitoring Regs 11-18" section) |
+| web-infosec | Threat Intelligence, Cloud Security, DLP (new "Advanced Controls (2022)" section) |
+| web-aerospace | Nadcap Scope, Process Parameters (Modules section) |
+| web-medical | Privacy Officer, Security Risk Assessment, Breach Notification, Business Associates (new "HIPAA Compliance" section) |
+
+New icons imported per app: `Users`, `HardHat`, `RefreshCw` (H&S); `Bell`, `Truck`, `TrendingUp` (ESG); `Stethoscope`, `Microscope`, `Wind` (Chemicals); `Globe`, `Cloud`, `Lock` (InfoSec); `Medal`, `Gauge` (Aerospace); `Lock`, `ShieldAlert`, `Bell`, `FileLock` (Medical).
+
+**All 6 apps: 0 TypeScript errors after sidebar updates.**
+
+### Final Test Count
+**17,853 tests across 674 suites — ALL PASSING (0 failures, 0 TypeScript errors)**

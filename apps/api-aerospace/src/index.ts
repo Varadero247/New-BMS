@@ -46,6 +46,8 @@ import counterfeitRouter from './routes/counterfeit';
 import fodRouter from './routes/fod';
 import productSafetyRouter from './routes/product-safety';
 import specialProcessesRouter from './routes/special-processes';
+import nadcapScopeRouter from './routes/nadcap-scope';
+import processParametersRouter from './routes/process-parameters';
 import { writeRoleGuard } from '@ims/auth';
 import { errorHandler } from '@ims/shared';
 
@@ -104,6 +106,10 @@ app.use('/api/fod', fodRouter);
 app.use('/api/product-safety', productSafetyRouter);
 // Routes - Special Processes (Nadcap)
 app.use('/api/special-processes', specialProcessesRouter);
+// Routes - AS9100D 8.5.1.2 Nadcap Scope Verification
+app.use('/api/nadcap-scope', nadcapScopeRouter);
+// Routes - AS9100D 8.5.1.2 Process Parameters & Requalification
+app.use('/api/process-parameters', processParametersRouter);
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response, _next: express.NextFunction) => {
