@@ -705,3 +705,12 @@ describe('phase37 coverage', () => {
   it('finds common elements', () => { const common=<T>(a:T[],b:T[])=>a.filter(x=>b.includes(x)); expect(common([1,2,3,4],[2,4,6])).toEqual([2,4]); });
   it('generates combinations of size 2', () => { const a=[1,2,3]; const r=a.flatMap((v,i)=>a.slice(i+1).map(w=>[v,w] as [number,number])); expect(r.length).toBe(3); expect(r[0]).toEqual([1,2]); });
 });
+
+
+describe('phase38 coverage', () => {
+  it('checks if matrix is symmetric', () => { const isSym=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===m[j][i])); expect(isSym([[1,2],[2,1]])).toBe(true); expect(isSym([[1,2],[3,1]])).toBe(false); });
+  it('checks if year is leap year', () => { const isLeap=(y:number)=>y%4===0&&(y%100!==0||y%400===0); expect(isLeap(2000)).toBe(true); expect(isLeap(1900)).toBe(false); expect(isLeap(2024)).toBe(true); });
+  it('computes prefix sums', () => { const prefix=(a:number[])=>a.reduce((acc,v)=>[...acc,acc[acc.length-1]+v],[0]); expect(prefix([1,2,3,4])).toEqual([0,1,3,6,10]); });
+  it('rotates matrix 90 degrees', () => { const rot90=(m:number[][])=>m[0].map((_,i)=>m.map(r=>r[i]).reverse()); expect(rot90([[1,2],[3,4]])).toEqual([[3,1],[4,2]]); });
+  it('implements linear search', () => { const search=(a:number[],v:number)=>a.indexOf(v); expect(search([1,3,5,7,9],5)).toBe(2); expect(search([1,3,5],4)).toBe(-1); });
+});

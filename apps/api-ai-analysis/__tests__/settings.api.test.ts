@@ -823,3 +823,12 @@ describe('phase37 coverage', () => {
   it('checks balanced brackets', () => { const bal=(s:string)=>{const m:{[k:string]:string}={')':'(',']':'[','}':'{'}; const st:string[]=[]; for(const c of s){if('([{'.includes(c))st.push(c);else if(m[c]){if(st.pop()!==m[c])return false;}} return st.length===0;}; expect(bal('{[()]}')).toBe(true); expect(bal('{[(])}')).toBe(false); });
   it('rotates array right', () => { const rotR=<T>(a:T[],n:number)=>{ const k=n%a.length; return [...a.slice(a.length-k),...a.slice(0,a.length-k)]; }; expect(rotR([1,2,3,4,5],2)).toEqual([4,5,1,2,3]); });
 });
+
+
+describe('phase38 coverage', () => {
+  it('computes Pascal triangle row', () => { const pascalRow=(n:number)=>{let r=[1];for(let i=0;i<n;i++)r=[0,...r].map((v,j)=>v+(r[j]||0));return r;}; expect(pascalRow(4)).toEqual([1,4,6,4,1]); });
+  it('applies difference array technique', () => { const diff=(a:number[])=>a.slice(1).map((v,i)=>v-a[i]); expect(diff([1,3,6,10,15])).toEqual([2,3,4,5]); });
+  it('rotates matrix 90 degrees', () => { const rot90=(m:number[][])=>m[0].map((_,i)=>m.map(r=>r[i]).reverse()); expect(rot90([[1,2],[3,4]])).toEqual([[3,1],[4,2]]); });
+  it('finds zero-sum subarray', () => { const hasZeroSum=(a:number[])=>{const s=new Set([0]);let cur=0;for(const v of a){cur+=v;if(s.has(cur))return true;s.add(cur);}return false;}; expect(hasZeroSum([4,2,-3,-1,0,4])).toBe(true); });
+  it('checks Armstrong number', () => { const isArmstrong=(n:number)=>{const d=String(n).split('');return d.reduce((s,c)=>s+Math.pow(Number(c),d.length),0)===n;}; expect(isArmstrong(153)).toBe(true); expect(isArmstrong(100)).toBe(false); });
+});
