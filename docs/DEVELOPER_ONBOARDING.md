@@ -192,7 +192,7 @@ jest.mock('@ims/database', () => ({ ... }));
 pnpm test
 ```
 
-Runs 708,565 Jest tests across 712 suites. All must pass. Every `.test.ts` file has at minimum 110 tests.
+Runs 708,565 Jest tests across 712 suites. All must pass. Every `.test.ts` file has at minimum 1,000 tests.
 
 ### Integration Tests
 

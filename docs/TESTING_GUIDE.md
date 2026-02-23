@@ -75,7 +75,7 @@ apps/api-health-safety/
     routes/
 ```
 
-Every test file must contain at least 110 tests.
+Every test file must contain at least 1,000 tests.
 
 ### Standard mock pattern
 
