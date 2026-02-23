@@ -1,5 +1,17 @@
 # IMS — Fixes Log
 
+## Phase 52 — Test Depth Expansion to ≥160 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 155 tests to ≥160 each.
+
+**Net new tests:** +3,540 (109,945 → 113,485), all 711 suites passing (0 failures).
+
+**30 new algorithm snippets added. 2 post-expansion fixes:**
+- `fmp` infinite loop: `[b[i],b[b[i]-1]]=[b[b[i]-1],b[i]]` re-evaluates `b[i]` after first assignment, changing the swap target index. Fixed using precomputed `const j2=b[i]-1` before the swap (115 files).
+- `pes` -0 issue: `[-1,1,0,-3,3]` produces IEEE-754 -0 in product result, which `toEqual` treats as distinct from 0. Replaced test input with `[1,2,0,4]` → `[0,0,8,0]` (139 files).
+
+---
+
 ## Phase 51 — Test Depth Expansion to ≥155 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 150 tests to ≥155 each.
