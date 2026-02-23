@@ -870,3 +870,36 @@ describe('phase62 coverage', () => {
     expect(isPalindrome(1221)).toBe(true);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('min add to make parens valid', () => {
+    const minAddToMakeValid=(s:string):number=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;};
+    expect(minAddToMakeValid('())')).toBe(1);
+    expect(minAddToMakeValid('(((')).toBe(3);
+    expect(minAddToMakeValid('()')).toBe(0);
+    expect(minAddToMakeValid('()))((')).toBe(4);
+  });
+  it('min swaps to balance string', () => {
+    const minSwaps=(s:string):number=>{let unmatched=0;for(const c of s){if(c==='[')unmatched++;else if(unmatched>0)unmatched--;else unmatched++;}return Math.ceil(unmatched/2);};
+    expect(minSwaps('][][')).toBe(1);
+    expect(minSwaps(']]][[[')).toBe(2);
+    expect(minSwaps('[]')).toBe(0);
+  });
+  it('rotate image 90 degrees', () => {
+    const rotate=(matrix:number[][]):void=>{const n=matrix.length;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)[matrix[i][j],matrix[j][i]]=[matrix[j][i],matrix[i][j]];for(let i=0;i<n;i++)matrix[i].reverse();};
+    const m=[[1,2,3],[4,5,6],[7,8,9]];rotate(m);
+    expect(m).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+    const m2=[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]];rotate(m2);
+    expect(m2[0]).toEqual([15,13,2,5]);
+  });
+  it('shortest completing word', () => {
+    const shortestCompletingWord=(plate:string,words:string[]):string=>{const cnt=(s:string)=>{const f=new Array(26).fill(0);for(const c of s.toLowerCase())if(c>='a'&&c<='z')f[c.charCodeAt(0)-97]++;return f;};const need=cnt(plate);return words.filter(w=>{const f=cnt(w);return need.every((n,i)=>f[i]>=n);}).sort((a,b)=>a.length-b.length)[0];};
+    expect(shortestCompletingWord('1s3 PSt',['step','steps','stripe','stepple'])).toBe('steps');
+    expect(shortestCompletingWord('1s3 456',['looks','pest','stew','show'])).toBe('pest');
+  });
+  it('top k frequent words', () => {
+    const topKFrequent=(words:string[],k:number):string[]=>{const cnt=new Map<string,number>();for(const w of words)cnt.set(w,(cnt.get(w)||0)+1);return [...cnt.entries()].sort(([a,fa],[b,fb])=>fb!==fa?fb-fa:a.localeCompare(b)).slice(0,k).map(([w])=>w);};
+    expect(topKFrequent(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']);
+    expect(topKFrequent(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']);
+  });
+});

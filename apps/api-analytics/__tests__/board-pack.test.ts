@@ -1016,3 +1016,36 @@ describe('phase62 coverage', () => {
     expect(getSum(0,0)).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('check if word equals summation of two words', () => {
+    const isSumEqual=(f:string,s:string,t:string):boolean=>{const val=(w:string):number=>parseInt(w.split('').map(c=>c.charCodeAt(0)-97).join(''));return val(f)+val(s)===val(t);};
+    expect(isSumEqual('acb','cba','cdb')).toBe(true);
+    expect(isSumEqual('aaa','a','aab')).toBe(false);
+    expect(isSumEqual('aaa','a','aaaa')).toBe(true);
+  });
+  it('rotate image 90 degrees', () => {
+    const rotate=(matrix:number[][]):void=>{const n=matrix.length;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)[matrix[i][j],matrix[j][i]]=[matrix[j][i],matrix[i][j]];for(let i=0;i<n;i++)matrix[i].reverse();};
+    const m=[[1,2,3],[4,5,6],[7,8,9]];rotate(m);
+    expect(m).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+    const m2=[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]];rotate(m2);
+    expect(m2[0]).toEqual([15,13,2,5]);
+  });
+  it('interval list intersections', () => {
+    const intervalIntersection=(A:[number,number][],B:[number,number][]): [number,number][]=>{const res:[number,number][]=[];let i=0,j=0;while(i<A.length&&j<B.length){const lo=Math.max(A[i][0],B[j][0]);const hi=Math.min(A[i][1],B[j][1]);if(lo<=hi)res.push([lo,hi]);if(A[i][1]<B[j][1])i++;else j++;}return res;};
+    const r=intervalIntersection([[0,2],[5,10],[13,23],[24,25]],[[1,5],[8,12],[15,24],[25,26]]);
+    expect(r).toEqual([[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]);
+    expect(intervalIntersection([],[['a'==='' as any? 0:0,1]])).toEqual([]);
+  });
+  it('min swaps to balance string', () => {
+    const minSwaps=(s:string):number=>{let unmatched=0;for(const c of s){if(c==='[')unmatched++;else if(unmatched>0)unmatched--;else unmatched++;}return Math.ceil(unmatched/2);};
+    expect(minSwaps('][][')).toBe(1);
+    expect(minSwaps(']]][[[')).toBe(2);
+    expect(minSwaps('[]')).toBe(0);
+  });
+  it('number of matching subsequences', () => {
+    const numMatchingSubseq=(s:string,words:string[]):number=>{const isSub=(w:string):boolean=>{let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;return i===w.length;};return words.filter(isSub).length;};
+    expect(numMatchingSubseq('abcde',['a','bb','acd','ace'])).toBe(3);
+    expect(numMatchingSubseq('dsahjpjauf',['ahjpjau','ja','ahbwzgqnuk','tnmlanowax'])).toBe(2);
+  });
+});

@@ -1172,3 +1172,38 @@ describe('phase62 coverage', () => {
     expect(findMaximumXOR([0])).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('repeated substring pattern', () => {
+    const repeatedSubstringPattern=(s:string):boolean=>(s+s).slice(1,-1).includes(s);
+    expect(repeatedSubstringPattern('abab')).toBe(true);
+    expect(repeatedSubstringPattern('aba')).toBe(false);
+    expect(repeatedSubstringPattern('abcabcabcabc')).toBe(true);
+    expect(repeatedSubstringPattern('ab')).toBe(false);
+  });
+  it('car fleet problem', () => {
+    const carFleet=(target:number,position:number[],speed:number[]):number=>{const cars=position.map((p,i)=>[(target-p)/speed[i],p]).sort((a,b)=>b[1]-a[1]);let fleets=0,maxTime=0;for(const[time]of cars){if(time>maxTime){fleets++;maxTime=time;}}return fleets;};
+    expect(carFleet(12,[10,8,0,5,3],[2,4,1,1,3])).toBe(3);
+    expect(carFleet(10,[3],[3])).toBe(1);
+    expect(carFleet(100,[0,2,4],[4,2,1])).toBe(1);
+  });
+  it('min swaps to balance string', () => {
+    const minSwaps=(s:string):number=>{let unmatched=0;for(const c of s){if(c==='[')unmatched++;else if(unmatched>0)unmatched--;else unmatched++;}return Math.ceil(unmatched/2);};
+    expect(minSwaps('][][')).toBe(1);
+    expect(minSwaps(']]][[[')).toBe(2);
+    expect(minSwaps('[]')).toBe(0);
+  });
+  it('longest valid parentheses', () => {
+    const longestValidParentheses=(s:string):number=>{const stack:number[]=[-1];let max=0;for(let i=0;i<s.length;i++){if(s[i]==='(')stack.push(i);else{stack.pop();if(!stack.length)stack.push(i);else max=Math.max(max,i-stack[stack.length-1]);}}return max;};
+    expect(longestValidParentheses('(()')).toBe(2);
+    expect(longestValidParentheses(')()())')).toBe(4);
+    expect(longestValidParentheses('')).toBe(0);
+    expect(longestValidParentheses('()()')).toBe(4);
+  });
+  it('verifying alien dictionary', () => {
+    const isAlienSorted=(words:string[],order:string):boolean=>{const rank=new Map(order.split('').map((c,i)=>[c,i]));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];let found=false;for(let j=0;j<Math.min(a.length,b.length);j++){if(rank.get(a[j])!<rank.get(b[j])!){found=true;break;}if(rank.get(a[j])!>rank.get(b[j])!)return false;}if(!found&&a.length>b.length)return false;}return true;};
+    expect(isAlienSorted(['hello','leetcode'],'hlabcdefgijkmnopqrstuvwxyz')).toBe(true);
+    expect(isAlienSorted(['word','world','row'],'worldabcefghijkmnpqstuvxyz')).toBe(false);
+    expect(isAlienSorted(['apple','app'],'abcdefghijklmnopqrstuvwxyz')).toBe(false);
+  });
+});

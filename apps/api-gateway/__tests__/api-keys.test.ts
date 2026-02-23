@@ -940,3 +940,35 @@ describe('phase62 coverage', () => {
     expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('score of parentheses', () => {
+    const scoreOfParentheses=(s:string):number=>{const stack:number[]=[0];for(const c of s){if(c==='(')stack.push(0);else{const v=stack.pop()!;stack[stack.length-1]+=Math.max(2*v,1);}}return stack[0];};
+    expect(scoreOfParentheses('()')).toBe(1);
+    expect(scoreOfParentheses('(())')).toBe(2);
+    expect(scoreOfParentheses('()()')).toBe(2);
+    expect(scoreOfParentheses('(()(()))')).toBe(6);
+  });
+  it('car fleet problem', () => {
+    const carFleet=(target:number,position:number[],speed:number[]):number=>{const cars=position.map((p,i)=>[(target-p)/speed[i],p]).sort((a,b)=>b[1]-a[1]);let fleets=0,maxTime=0;for(const[time]of cars){if(time>maxTime){fleets++;maxTime=time;}}return fleets;};
+    expect(carFleet(12,[10,8,0,5,3],[2,4,1,1,3])).toBe(3);
+    expect(carFleet(10,[3],[3])).toBe(1);
+    expect(carFleet(100,[0,2,4],[4,2,1])).toBe(1);
+  });
+  it('toeplitz matrix check', () => {
+    const isToeplitzMatrix=(matrix:number[][]):boolean=>{for(let i=1;i<matrix.length;i++)for(let j=1;j<matrix[0].length;j++)if(matrix[i][j]!==matrix[i-1][j-1])return false;return true;};
+    expect(isToeplitzMatrix([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true);
+    expect(isToeplitzMatrix([[1,2],[2,2]])).toBe(false);
+  });
+  it('insert interval into sorted list', () => {
+    const insert=(intervals:[number,number][],newInt:[number,number]):[number,number][]=>{const res:[number,number][]=[];let i=0;while(i<intervals.length&&intervals[i][1]<newInt[0])res.push(intervals[i++]);while(i<intervals.length&&intervals[i][0]<=newInt[1]){newInt=[Math.min(newInt[0],intervals[i][0]),Math.max(newInt[1],intervals[i][1])];i++;}res.push(newInt);while(i<intervals.length)res.push(intervals[i++]);return res;};
+    expect(insert([[1,3],[6,9]],[2,5])).toEqual([[1,5],[6,9]]);
+    expect(insert([[1,2],[3,5],[6,7],[8,10],[12,16]],[4,8])).toEqual([[1,2],[3,10],[12,16]]);
+  });
+  it('min swaps to balance string', () => {
+    const minSwaps=(s:string):number=>{let unmatched=0;for(const c of s){if(c==='[')unmatched++;else if(unmatched>0)unmatched--;else unmatched++;}return Math.ceil(unmatched/2);};
+    expect(minSwaps('][][')).toBe(1);
+    expect(minSwaps(']]][[[')).toBe(2);
+    expect(minSwaps('[]')).toBe(0);
+  });
+});

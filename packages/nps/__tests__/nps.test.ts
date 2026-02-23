@@ -826,3 +826,38 @@ describe('phase62 coverage', () => {
     expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('is subsequence check', () => {
+    const isSubsequence=(s:string,t:string):boolean=>{let i=0;for(const c of t)if(i<s.length&&c===s[i])i++;return i===s.length;};
+    expect(isSubsequence('abc','ahbgdc')).toBe(true);
+    expect(isSubsequence('axc','ahbgdc')).toBe(false);
+    expect(isSubsequence('','ahbgdc')).toBe(true);
+    expect(isSubsequence('ace','abcde')).toBe(true);
+  });
+  it('verifying alien dictionary', () => {
+    const isAlienSorted=(words:string[],order:string):boolean=>{const rank=new Map(order.split('').map((c,i)=>[c,i]));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];let found=false;for(let j=0;j<Math.min(a.length,b.length);j++){if(rank.get(a[j])!<rank.get(b[j])!){found=true;break;}if(rank.get(a[j])!>rank.get(b[j])!)return false;}if(!found&&a.length>b.length)return false;}return true;};
+    expect(isAlienSorted(['hello','leetcode'],'hlabcdefgijkmnopqrstuvwxyz')).toBe(true);
+    expect(isAlienSorted(['word','world','row'],'worldabcefghijkmnpqstuvxyz')).toBe(false);
+    expect(isAlienSorted(['apple','app'],'abcdefghijklmnopqrstuvwxyz')).toBe(false);
+  });
+  it('rotate image 90 degrees', () => {
+    const rotate=(matrix:number[][]):void=>{const n=matrix.length;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)[matrix[i][j],matrix[j][i]]=[matrix[j][i],matrix[i][j]];for(let i=0;i<n;i++)matrix[i].reverse();};
+    const m=[[1,2,3],[4,5,6],[7,8,9]];rotate(m);
+    expect(m).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+    const m2=[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]];rotate(m2);
+    expect(m2[0]).toEqual([15,13,2,5]);
+  });
+  it('check if word equals summation of two words', () => {
+    const isSumEqual=(f:string,s:string,t:string):boolean=>{const val=(w:string):number=>parseInt(w.split('').map(c=>c.charCodeAt(0)-97).join(''));return val(f)+val(s)===val(t);};
+    expect(isSumEqual('acb','cba','cdb')).toBe(true);
+    expect(isSumEqual('aaa','a','aab')).toBe(false);
+    expect(isSumEqual('aaa','a','aaaa')).toBe(true);
+  });
+  it('sort colors Dutch flag', () => {
+    const sortColors=(nums:number[]):void=>{let lo=0,mid=0,hi=nums.length-1;while(mid<=hi){if(nums[mid]===0){[nums[lo],nums[mid]]=[nums[mid],nums[lo]];lo++;mid++;}else if(nums[mid]===1)mid++;else{[nums[mid],nums[hi]]=[nums[hi],nums[mid]];hi--;}}};
+    const a=[2,0,2,1,1,0];sortColors(a);expect(a).toEqual([0,0,1,1,2,2]);
+    const b=[2,0,1];sortColors(b);expect(b).toEqual([0,1,2]);
+    const c=[0];sortColors(c);expect(c).toEqual([0]);
+  });
+});

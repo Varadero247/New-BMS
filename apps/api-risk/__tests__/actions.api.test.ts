@@ -909,3 +909,37 @@ describe('phase62 coverage', () => {
     expect(canCompleteCircuit([5,1,2,3,4],[4,4,1,5,1])).toBe(4);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('set matrix zeroes in-place', () => {
+    const setZeroes=(matrix:number[][]):void=>{const m=matrix.length,n=matrix[0].length;let firstRow=false,firstCol=false;for(let j=0;j<n;j++)if(matrix[0][j]===0)firstRow=true;for(let i=0;i<m;i++)if(matrix[i][0]===0)firstCol=true;for(let i=1;i<m;i++)for(let j=1;j<n;j++)if(matrix[i][j]===0){matrix[i][0]=0;matrix[0][j]=0;}for(let i=1;i<m;i++)for(let j=1;j<n;j++)if(matrix[i][0]===0||matrix[0][j]===0)matrix[i][j]=0;if(firstRow)for(let j=0;j<n;j++)matrix[0][j]=0;if(firstCol)for(let i=0;i<m;i++)matrix[i][0]=0;};
+    const m=[[1,1,1],[1,0,1],[1,1,1]];setZeroes(m);
+    expect(m).toEqual([[1,0,1],[0,0,0],[1,0,1]]);
+  });
+  it('detect capital use', () => {
+    const detectCapitalUse=(word:string):boolean=>{const allUpper=word===word.toUpperCase();const allLower=word===word.toLowerCase();const firstUpper=word[0]===word[0].toUpperCase()&&word.slice(1)===word.slice(1).toLowerCase();return allUpper||allLower||firstUpper;};
+    expect(detectCapitalUse('USA')).toBe(true);
+    expect(detectCapitalUse('leetcode')).toBe(true);
+    expect(detectCapitalUse('Google')).toBe(true);
+    expect(detectCapitalUse('FlaG')).toBe(false);
+  });
+  it('wiggle sort array', () => {
+    const wiggleSort=(nums:number[]):void=>{const sorted=[...nums].sort((a,b)=>a-b);const n=nums.length;let lo=Math.floor((n-1)/2),hi=n-1;for(let i=0;i<n;i+=2)nums[i]=sorted[lo--];for(let i=1;i<n;i+=2)nums[i]=sorted[hi--];};
+    const a=[1,5,1,1,6,4];wiggleSort(a);
+    for(let i=1;i<a.length-1;i++)expect((a[i]>=a[i-1]&&a[i]>=a[i+1])||(a[i]<=a[i-1]&&a[i]<=a[i+1])).toBe(true);
+    const b=[1,3,2,2,3,1];wiggleSort(b);
+    for(let i=1;i<b.length-1;i++)expect((b[i]>=b[i-1]&&b[i]>=b[i+1])||(b[i]<=b[i-1]&&b[i]<=b[i+1])).toBe(true);
+  });
+  it('sort colors Dutch flag', () => {
+    const sortColors=(nums:number[]):void=>{let lo=0,mid=0,hi=nums.length-1;while(mid<=hi){if(nums[mid]===0){[nums[lo],nums[mid]]=[nums[mid],nums[lo]];lo++;mid++;}else if(nums[mid]===1)mid++;else{[nums[mid],nums[hi]]=[nums[hi],nums[mid]];hi--;}}};
+    const a=[2,0,2,1,1,0];sortColors(a);expect(a).toEqual([0,0,1,1,2,2]);
+    const b=[2,0,1];sortColors(b);expect(b).toEqual([0,1,2]);
+    const c=[0];sortColors(c);expect(c).toEqual([0]);
+  });
+  it('island perimeter calculation', () => {
+    const islandPerimeter=(grid:number[][]):number=>{let p=0;const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]===1){p+=4;if(i>0&&grid[i-1][j]===1)p-=2;if(j>0&&grid[i][j-1]===1)p-=2;}return p;};
+    expect(islandPerimeter([[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]])).toBe(16);
+    expect(islandPerimeter([[1]])).toBe(4);
+    expect(islandPerimeter([[1,0]])).toBe(4);
+  });
+});

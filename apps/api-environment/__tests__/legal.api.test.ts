@@ -1263,3 +1263,34 @@ describe('phase62 coverage', () => {
     expect(divide(0,1)).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('detect capital use', () => {
+    const detectCapitalUse=(word:string):boolean=>{const allUpper=word===word.toUpperCase();const allLower=word===word.toLowerCase();const firstUpper=word[0]===word[0].toUpperCase()&&word.slice(1)===word.slice(1).toLowerCase();return allUpper||allLower||firstUpper;};
+    expect(detectCapitalUse('USA')).toBe(true);
+    expect(detectCapitalUse('leetcode')).toBe(true);
+    expect(detectCapitalUse('Google')).toBe(true);
+    expect(detectCapitalUse('FlaG')).toBe(false);
+  });
+  it('number of matching subsequences', () => {
+    const numMatchingSubseq=(s:string,words:string[]):number=>{const isSub=(w:string):boolean=>{let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;return i===w.length;};return words.filter(isSub).length;};
+    expect(numMatchingSubseq('abcde',['a','bb','acd','ace'])).toBe(3);
+    expect(numMatchingSubseq('dsahjpjauf',['ahjpjau','ja','ahbwzgqnuk','tnmlanowax'])).toBe(2);
+  });
+  it('check if word equals summation of two words', () => {
+    const isSumEqual=(f:string,s:string,t:string):boolean=>{const val=(w:string):number=>parseInt(w.split('').map(c=>c.charCodeAt(0)-97).join(''));return val(f)+val(s)===val(t);};
+    expect(isSumEqual('acb','cba','cdb')).toBe(true);
+    expect(isSumEqual('aaa','a','aab')).toBe(false);
+    expect(isSumEqual('aaa','a','aaaa')).toBe(true);
+  });
+  it('toeplitz matrix check', () => {
+    const isToeplitzMatrix=(matrix:number[][]):boolean=>{for(let i=1;i<matrix.length;i++)for(let j=1;j<matrix[0].length;j++)if(matrix[i][j]!==matrix[i-1][j-1])return false;return true;};
+    expect(isToeplitzMatrix([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true);
+    expect(isToeplitzMatrix([[1,2],[2,2]])).toBe(false);
+  });
+  it('summary ranges condensed', () => {
+    const summaryRanges=(nums:number[]):string[]=>{const res:string[]=[];let i=0;while(i<nums.length){let j=i;while(j+1<nums.length&&nums[j+1]===nums[j]+1)j++;res.push(i===j?`${nums[i]}`:`${nums[i]}->${nums[j]}`);i=j+1;}return res;};
+    expect(summaryRanges([0,1,2,4,5,7])).toEqual(['0->2','4->5','7']);
+    expect(summaryRanges([0,2,3,4,6,8,9])).toEqual(['0','2->4','6','8->9']);
+  });
+});

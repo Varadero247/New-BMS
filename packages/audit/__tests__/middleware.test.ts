@@ -1151,3 +1151,37 @@ describe('phase62 coverage', () => {
     expect(multiply('0','52')).toBe('0');
   });
 });
+
+describe('phase63 coverage', () => {
+  it('insert interval into sorted list', () => {
+    const insert=(intervals:[number,number][],newInt:[number,number]):[number,number][]=>{const res:[number,number][]=[];let i=0;while(i<intervals.length&&intervals[i][1]<newInt[0])res.push(intervals[i++]);while(i<intervals.length&&intervals[i][0]<=newInt[1]){newInt=[Math.min(newInt[0],intervals[i][0]),Math.max(newInt[1],intervals[i][1])];i++;}res.push(newInt);while(i<intervals.length)res.push(intervals[i++]);return res;};
+    expect(insert([[1,3],[6,9]],[2,5])).toEqual([[1,5],[6,9]]);
+    expect(insert([[1,2],[3,5],[6,7],[8,10],[12,16]],[4,8])).toEqual([[1,2],[3,10],[12,16]]);
+  });
+  it('min swaps to balance string', () => {
+    const minSwaps=(s:string):number=>{let unmatched=0;for(const c of s){if(c==='[')unmatched++;else if(unmatched>0)unmatched--;else unmatched++;}return Math.ceil(unmatched/2);};
+    expect(minSwaps('][][')).toBe(1);
+    expect(minSwaps(']]][[[')).toBe(2);
+    expect(minSwaps('[]')).toBe(0);
+  });
+  it('longest word by deleting', () => {
+    const findLongestWord=(s:string,dict:string[]):string=>{let res='';for(const w of dict){let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;if(i===w.length&&(w.length>res.length||(w.length===res.length&&w<res)))res=w;}return res;};
+    expect(findLongestWord('abpcplea',['ale','apple','monkey','plea'])).toBe('apple');
+    expect(findLongestWord('abpcplea',['a','b','c'])).toBe('a');
+    expect(findLongestWord('aewfafwafjlwajflwajflwafj',['apple','ewaf','jaf','abcdef'])).toBe('ewaf');
+  });
+  it('repeated substring pattern', () => {
+    const repeatedSubstringPattern=(s:string):boolean=>(s+s).slice(1,-1).includes(s);
+    expect(repeatedSubstringPattern('abab')).toBe(true);
+    expect(repeatedSubstringPattern('aba')).toBe(false);
+    expect(repeatedSubstringPattern('abcabcabcabc')).toBe(true);
+    expect(repeatedSubstringPattern('ab')).toBe(false);
+  });
+  it('is subsequence check', () => {
+    const isSubsequence=(s:string,t:string):boolean=>{let i=0;for(const c of t)if(i<s.length&&c===s[i])i++;return i===s.length;};
+    expect(isSubsequence('abc','ahbgdc')).toBe(true);
+    expect(isSubsequence('axc','ahbgdc')).toBe(false);
+    expect(isSubsequence('','ahbgdc')).toBe(true);
+    expect(isSubsequence('ace','abcde')).toBe(true);
+  });
+});

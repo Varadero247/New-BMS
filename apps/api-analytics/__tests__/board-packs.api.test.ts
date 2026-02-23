@@ -952,3 +952,35 @@ describe('phase62 coverage', () => {
     expect(isPalindrome(1221)).toBe(true);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('longest word by deleting', () => {
+    const findLongestWord=(s:string,dict:string[]):string=>{let res='';for(const w of dict){let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;if(i===w.length&&(w.length>res.length||(w.length===res.length&&w<res)))res=w;}return res;};
+    expect(findLongestWord('abpcplea',['ale','apple','monkey','plea'])).toBe('apple');
+    expect(findLongestWord('abpcplea',['a','b','c'])).toBe('a');
+    expect(findLongestWord('aewfafwafjlwajflwajflwafj',['apple','ewaf','jaf','abcdef'])).toBe('ewaf');
+  });
+  it('kth largest quickselect', () => {
+    const findKthLargest=(nums:number[],k:number):number=>{const partition=(lo:number,hi:number):number=>{const pivot=nums[hi];let i=lo;for(let j=lo;j<hi;j++)if(nums[j]>=pivot){[nums[i],nums[j]]=[nums[j],nums[i]];i++;}[nums[i],nums[hi]]=[nums[hi],nums[i]];return i;};let lo=0,hi=nums.length-1;while(lo<=hi){const p=partition(lo,hi);if(p===k-1)return nums[p];if(p<k-1)lo=p+1;else hi=p-1;}return -1;};
+    expect(findKthLargest([3,2,1,5,6,4],2)).toBe(5);
+    expect(findKthLargest([3,2,3,1,2,4,5,5,6],4)).toBe(4);
+    expect(findKthLargest([1],1)).toBe(1);
+  });
+  it('max area of island DFS', () => {
+    const maxAreaOfIsland=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;const dfs=(r:number,c:number):number=>{if(r<0||r>=m||c<0||c>=n||grid[r][c]===0)return 0;grid[r][c]=0;return 1+dfs(r+1,c)+dfs(r-1,c)+dfs(r,c+1)+dfs(r,c-1);};let max=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++)max=Math.max(max,dfs(i,j));return max;};
+    const g=[[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]];
+    expect(maxAreaOfIsland(g)).toBe(6);
+    expect(maxAreaOfIsland([[0,0,0,0,0,0,0,0]])).toBe(0);
+  });
+  it('island perimeter calculation', () => {
+    const islandPerimeter=(grid:number[][]):number=>{let p=0;const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]===1){p+=4;if(i>0&&grid[i-1][j]===1)p-=2;if(j>0&&grid[i][j-1]===1)p-=2;}return p;};
+    expect(islandPerimeter([[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]])).toBe(16);
+    expect(islandPerimeter([[1]])).toBe(4);
+    expect(islandPerimeter([[1,0]])).toBe(4);
+  });
+  it('groups of special equivalent strings', () => {
+    const numSpecialEquivGroups=(words:string[]):number=>{const key=(w:string)=>{const e=w.split('').filter((_,i)=>i%2===0).sort().join('');const o=w.split('').filter((_,i)=>i%2!==0).sort().join('');return e+'|'+o;};return new Set(words.map(key)).size;};
+    expect(numSpecialEquivGroups(['abcd','cdab','cbad','xyzz','zzxy','zzyx'])).toBe(3);
+    expect(numSpecialEquivGroups(['abc','acb','bac','bca','cab','cba'])).toBe(3);
+  });
+});

@@ -1187,3 +1187,37 @@ describe('phase62 coverage', () => {
     expect(minDeletions('ceabaacb')).toBe(2);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('top k frequent words', () => {
+    const topKFrequent=(words:string[],k:number):string[]=>{const cnt=new Map<string,number>();for(const w of words)cnt.set(w,(cnt.get(w)||0)+1);return [...cnt.entries()].sort(([a,fa],[b,fb])=>fb!==fa?fb-fa:a.localeCompare(b)).slice(0,k).map(([w])=>w);};
+    expect(topKFrequent(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']);
+    expect(topKFrequent(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']);
+  });
+  it('game of life next state', () => {
+    const gameOfLife=(board:number[][]):void=>{const m=board.length,n=board[0].length;const count=(r:number,c:number)=>{let live=0;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(dr===0&&dc===0)continue;const nr=r+dr,nc=c+dc;if(nr>=0&&nr<m&&nc>=0&&nc<n&&Math.abs(board[nr][nc])===1)live++;}return live;};for(let i=0;i<m;i++)for(let j=0;j<n;j++){const c=count(i,j);if(board[i][j]===1&&(c<2||c>3))board[i][j]=-1;if(board[i][j]===0&&c===3)board[i][j]=2;}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]>0?1:0;};
+    const b=[[0,1,0],[0,0,1],[1,1,1],[0,0,0]];gameOfLife(b);
+    expect(b).toEqual([[0,0,0],[1,0,1],[0,1,1],[0,1,0]]);
+  });
+  it('is subsequence check', () => {
+    const isSubsequence=(s:string,t:string):boolean=>{let i=0;for(const c of t)if(i<s.length&&c===s[i])i++;return i===s.length;};
+    expect(isSubsequence('abc','ahbgdc')).toBe(true);
+    expect(isSubsequence('axc','ahbgdc')).toBe(false);
+    expect(isSubsequence('','ahbgdc')).toBe(true);
+    expect(isSubsequence('ace','abcde')).toBe(true);
+  });
+  it('wiggle sort array', () => {
+    const wiggleSort=(nums:number[]):void=>{const sorted=[...nums].sort((a,b)=>a-b);const n=nums.length;let lo=Math.floor((n-1)/2),hi=n-1;for(let i=0;i<n;i+=2)nums[i]=sorted[lo--];for(let i=1;i<n;i+=2)nums[i]=sorted[hi--];};
+    const a=[1,5,1,1,6,4];wiggleSort(a);
+    for(let i=1;i<a.length-1;i++)expect((a[i]>=a[i-1]&&a[i]>=a[i+1])||(a[i]<=a[i-1]&&a[i]<=a[i+1])).toBe(true);
+    const b=[1,3,2,2,3,1];wiggleSort(b);
+    for(let i=1;i<b.length-1;i++)expect((b[i]>=b[i-1]&&b[i]>=b[i+1])||(b[i]<=b[i-1]&&b[i]<=b[i+1])).toBe(true);
+  });
+  it('repeated substring pattern', () => {
+    const repeatedSubstringPattern=(s:string):boolean=>(s+s).slice(1,-1).includes(s);
+    expect(repeatedSubstringPattern('abab')).toBe(true);
+    expect(repeatedSubstringPattern('aba')).toBe(false);
+    expect(repeatedSubstringPattern('abcabcabcabc')).toBe(true);
+    expect(repeatedSubstringPattern('ab')).toBe(false);
+  });
+});

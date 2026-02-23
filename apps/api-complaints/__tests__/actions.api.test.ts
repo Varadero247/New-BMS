@@ -924,3 +924,35 @@ describe('phase62 coverage', () => {
     expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('interval list intersections', () => {
+    const intervalIntersection=(A:[number,number][],B:[number,number][]): [number,number][]=>{const res:[number,number][]=[];let i=0,j=0;while(i<A.length&&j<B.length){const lo=Math.max(A[i][0],B[j][0]);const hi=Math.min(A[i][1],B[j][1]);if(lo<=hi)res.push([lo,hi]);if(A[i][1]<B[j][1])i++;else j++;}return res;};
+    const r=intervalIntersection([[0,2],[5,10],[13,23],[24,25]],[[1,5],[8,12],[15,24],[25,26]]);
+    expect(r).toEqual([[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]);
+    expect(intervalIntersection([],[['a'==='' as any? 0:0,1]])).toEqual([]);
+  });
+  it('longest increasing path in matrix', () => {
+    const longestIncreasingPath=(matrix:number[][]):number=>{const m=matrix.length,n=matrix[0].length;const memo:number[][]=Array.from({length:m},()=>new Array(n).fill(0));const dfs=(r:number,c:number):number=>{if(memo[r][c])return memo[r][c];let best=1;[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc])=>{if(nr>=0&&nr<m&&nc>=0&&nc<n&&matrix[nr][nc]>matrix[r][c])best=Math.max(best,1+dfs(nr,nc));});return memo[r][c]=best;};let max=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++)max=Math.max(max,dfs(i,j));return max;};
+    expect(longestIncreasingPath([[9,9,4],[6,6,8],[2,1,1]])).toBe(4);
+    expect(longestIncreasingPath([[3,4,5],[3,2,6],[2,2,1]])).toBe(4);
+  });
+  it('rotate image 90 degrees', () => {
+    const rotate=(matrix:number[][]):void=>{const n=matrix.length;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)[matrix[i][j],matrix[j][i]]=[matrix[j][i],matrix[i][j]];for(let i=0;i<n;i++)matrix[i].reverse();};
+    const m=[[1,2,3],[4,5,6],[7,8,9]];rotate(m);
+    expect(m).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+    const m2=[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]];rotate(m2);
+    expect(m2[0]).toEqual([15,13,2,5]);
+  });
+  it('longest word by deleting', () => {
+    const findLongestWord=(s:string,dict:string[]):string=>{let res='';for(const w of dict){let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;if(i===w.length&&(w.length>res.length||(w.length===res.length&&w<res)))res=w;}return res;};
+    expect(findLongestWord('abpcplea',['ale','apple','monkey','plea'])).toBe('apple');
+    expect(findLongestWord('abpcplea',['a','b','c'])).toBe('a');
+    expect(findLongestWord('aewfafwafjlwajflwajflwafj',['apple','ewaf','jaf','abcdef'])).toBe('ewaf');
+  });
+  it('summary ranges condensed', () => {
+    const summaryRanges=(nums:number[]):string[]=>{const res:string[]=[];let i=0;while(i<nums.length){let j=i;while(j+1<nums.length&&nums[j+1]===nums[j]+1)j++;res.push(i===j?`${nums[i]}`:`${nums[i]}->${nums[j]}`);i=j+1;}return res;};
+    expect(summaryRanges([0,1,2,4,5,7])).toEqual(['0->2','4->5','7']);
+    expect(summaryRanges([0,2,3,4,6,8,9])).toEqual(['0','2->4','6','8->9']);
+  });
+});

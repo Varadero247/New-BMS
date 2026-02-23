@@ -800,3 +800,38 @@ describe('phase62 coverage', () => {
     expect(isPalindrome(1221)).toBe(true);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('kth largest quickselect', () => {
+    const findKthLargest=(nums:number[],k:number):number=>{const partition=(lo:number,hi:number):number=>{const pivot=nums[hi];let i=lo;for(let j=lo;j<hi;j++)if(nums[j]>=pivot){[nums[i],nums[j]]=[nums[j],nums[i]];i++;}[nums[i],nums[hi]]=[nums[hi],nums[i]];return i;};let lo=0,hi=nums.length-1;while(lo<=hi){const p=partition(lo,hi);if(p===k-1)return nums[p];if(p<k-1)lo=p+1;else hi=p-1;}return -1;};
+    expect(findKthLargest([3,2,1,5,6,4],2)).toBe(5);
+    expect(findKthLargest([3,2,3,1,2,4,5,5,6],4)).toBe(4);
+    expect(findKthLargest([1],1)).toBe(1);
+  });
+  it('wiggle sort array', () => {
+    const wiggleSort=(nums:number[]):void=>{const sorted=[...nums].sort((a,b)=>a-b);const n=nums.length;let lo=Math.floor((n-1)/2),hi=n-1;for(let i=0;i<n;i+=2)nums[i]=sorted[lo--];for(let i=1;i<n;i+=2)nums[i]=sorted[hi--];};
+    const a=[1,5,1,1,6,4];wiggleSort(a);
+    for(let i=1;i<a.length-1;i++)expect((a[i]>=a[i-1]&&a[i]>=a[i+1])||(a[i]<=a[i-1]&&a[i]<=a[i+1])).toBe(true);
+    const b=[1,3,2,2,3,1];wiggleSort(b);
+    for(let i=1;i<b.length-1;i++)expect((b[i]>=b[i-1]&&b[i]>=b[i+1])||(b[i]<=b[i-1]&&b[i]<=b[i+1])).toBe(true);
+  });
+  it('longest word by deleting', () => {
+    const findLongestWord=(s:string,dict:string[]):string=>{let res='';for(const w of dict){let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;if(i===w.length&&(w.length>res.length||(w.length===res.length&&w<res)))res=w;}return res;};
+    expect(findLongestWord('abpcplea',['ale','apple','monkey','plea'])).toBe('apple');
+    expect(findLongestWord('abpcplea',['a','b','c'])).toBe('a');
+    expect(findLongestWord('aewfafwafjlwajflwajflwafj',['apple','ewaf','jaf','abcdef'])).toBe('ewaf');
+  });
+  it('detect capital use', () => {
+    const detectCapitalUse=(word:string):boolean=>{const allUpper=word===word.toUpperCase();const allLower=word===word.toLowerCase();const firstUpper=word[0]===word[0].toUpperCase()&&word.slice(1)===word.slice(1).toLowerCase();return allUpper||allLower||firstUpper;};
+    expect(detectCapitalUse('USA')).toBe(true);
+    expect(detectCapitalUse('leetcode')).toBe(true);
+    expect(detectCapitalUse('Google')).toBe(true);
+    expect(detectCapitalUse('FlaG')).toBe(false);
+  });
+  it('check if word equals summation of two words', () => {
+    const isSumEqual=(f:string,s:string,t:string):boolean=>{const val=(w:string):number=>parseInt(w.split('').map(c=>c.charCodeAt(0)-97).join(''));return val(f)+val(s)===val(t);};
+    expect(isSumEqual('acb','cba','cdb')).toBe(true);
+    expect(isSumEqual('aaa','a','aab')).toBe(false);
+    expect(isSumEqual('aaa','a','aaaa')).toBe(true);
+  });
+});

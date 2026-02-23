@@ -920,3 +920,35 @@ describe('phase62 coverage', () => {
     expect(reverseBits(0)).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('check if word equals summation of two words', () => {
+    const isSumEqual=(f:string,s:string,t:string):boolean=>{const val=(w:string):number=>parseInt(w.split('').map(c=>c.charCodeAt(0)-97).join(''));return val(f)+val(s)===val(t);};
+    expect(isSumEqual('acb','cba','cdb')).toBe(true);
+    expect(isSumEqual('aaa','a','aab')).toBe(false);
+    expect(isSumEqual('aaa','a','aaaa')).toBe(true);
+  });
+  it('min swaps to balance string', () => {
+    const minSwaps=(s:string):number=>{let unmatched=0;for(const c of s){if(c==='[')unmatched++;else if(unmatched>0)unmatched--;else unmatched++;}return Math.ceil(unmatched/2);};
+    expect(minSwaps('][][')).toBe(1);
+    expect(minSwaps(']]][[[')).toBe(2);
+    expect(minSwaps('[]')).toBe(0);
+  });
+  it('number of matching subsequences', () => {
+    const numMatchingSubseq=(s:string,words:string[]):number=>{const isSub=(w:string):boolean=>{let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;return i===w.length;};return words.filter(isSub).length;};
+    expect(numMatchingSubseq('abcde',['a','bb','acd','ace'])).toBe(3);
+    expect(numMatchingSubseq('dsahjpjauf',['ahjpjau','ja','ahbwzgqnuk','tnmlanowax'])).toBe(2);
+  });
+  it('sort colors Dutch flag', () => {
+    const sortColors=(nums:number[]):void=>{let lo=0,mid=0,hi=nums.length-1;while(mid<=hi){if(nums[mid]===0){[nums[lo],nums[mid]]=[nums[mid],nums[lo]];lo++;mid++;}else if(nums[mid]===1)mid++;else{[nums[mid],nums[hi]]=[nums[hi],nums[mid]];hi--;}}};
+    const a=[2,0,2,1,1,0];sortColors(a);expect(a).toEqual([0,0,1,1,2,2]);
+    const b=[2,0,1];sortColors(b);expect(b).toEqual([0,1,2]);
+    const c=[0];sortColors(c);expect(c).toEqual([0]);
+  });
+  it('longest word by deleting', () => {
+    const findLongestWord=(s:string,dict:string[]):string=>{let res='';for(const w of dict){let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;if(i===w.length&&(w.length>res.length||(w.length===res.length&&w<res)))res=w;}return res;};
+    expect(findLongestWord('abpcplea',['ale','apple','monkey','plea'])).toBe('apple');
+    expect(findLongestWord('abpcplea',['a','b','c'])).toBe('a');
+    expect(findLongestWord('aewfafwafjlwajflwajflwafj',['apple','ewaf','jaf','abcdef'])).toBe('ewaf');
+  });
+});

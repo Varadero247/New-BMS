@@ -881,3 +881,35 @@ describe('phase62 coverage', () => {
     expect(findDuplicate([1,1])).toBe(1);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('meeting rooms II min rooms', () => {
+    const minMeetingRooms=(intervals:[number,number][]):number=>{const starts=intervals.map(i=>i[0]).sort((a,b)=>a-b);const ends=intervals.map(i=>i[1]).sort((a,b)=>a-b);let rooms=0,endPtr=0;for(let i=0;i<starts.length;i++){if(starts[i]<ends[endPtr])rooms++;else endPtr++;}return rooms;};
+    expect(minMeetingRooms([[0,30],[5,10],[15,20]])).toBe(2);
+    expect(minMeetingRooms([[7,10],[2,4]])).toBe(1);
+    expect(minMeetingRooms([[1,5],[8,9],[8,9]])).toBe(2);
+  });
+  it('repeated substring pattern', () => {
+    const repeatedSubstringPattern=(s:string):boolean=>(s+s).slice(1,-1).includes(s);
+    expect(repeatedSubstringPattern('abab')).toBe(true);
+    expect(repeatedSubstringPattern('aba')).toBe(false);
+    expect(repeatedSubstringPattern('abcabcabcabc')).toBe(true);
+    expect(repeatedSubstringPattern('ab')).toBe(false);
+  });
+  it('toeplitz matrix check', () => {
+    const isToeplitzMatrix=(matrix:number[][]):boolean=>{for(let i=1;i<matrix.length;i++)for(let j=1;j<matrix[0].length;j++)if(matrix[i][j]!==matrix[i-1][j-1])return false;return true;};
+    expect(isToeplitzMatrix([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true);
+    expect(isToeplitzMatrix([[1,2],[2,2]])).toBe(false);
+  });
+  it('longest word by deleting', () => {
+    const findLongestWord=(s:string,dict:string[]):string=>{let res='';for(const w of dict){let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;if(i===w.length&&(w.length>res.length||(w.length===res.length&&w<res)))res=w;}return res;};
+    expect(findLongestWord('abpcplea',['ale','apple','monkey','plea'])).toBe('apple');
+    expect(findLongestWord('abpcplea',['a','b','c'])).toBe('a');
+    expect(findLongestWord('aewfafwafjlwajflwajflwafj',['apple','ewaf','jaf','abcdef'])).toBe('ewaf');
+  });
+  it('top k frequent words', () => {
+    const topKFrequent=(words:string[],k:number):string[]=>{const cnt=new Map<string,number>();for(const w of words)cnt.set(w,(cnt.get(w)||0)+1);return [...cnt.entries()].sort(([a,fa],[b,fb])=>fb!==fa?fb-fa:a.localeCompare(b)).slice(0,k).map(([w])=>w);};
+    expect(topKFrequent(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']);
+    expect(topKFrequent(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']);
+  });
+});

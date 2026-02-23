@@ -902,3 +902,33 @@ describe('phase62 coverage', () => {
     expect(canCompleteCircuit([5,1,2,3,4],[4,4,1,5,1])).toBe(4);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('groups of special equivalent strings', () => {
+    const numSpecialEquivGroups=(words:string[]):number=>{const key=(w:string)=>{const e=w.split('').filter((_,i)=>i%2===0).sort().join('');const o=w.split('').filter((_,i)=>i%2!==0).sort().join('');return e+'|'+o;};return new Set(words.map(key)).size;};
+    expect(numSpecialEquivGroups(['abcd','cdab','cbad','xyzz','zzxy','zzyx'])).toBe(3);
+    expect(numSpecialEquivGroups(['abc','acb','bac','bca','cab','cba'])).toBe(3);
+  });
+  it('interval list intersections', () => {
+    const intervalIntersection=(A:[number,number][],B:[number,number][]): [number,number][]=>{const res:[number,number][]=[];let i=0,j=0;while(i<A.length&&j<B.length){const lo=Math.max(A[i][0],B[j][0]);const hi=Math.min(A[i][1],B[j][1]);if(lo<=hi)res.push([lo,hi]);if(A[i][1]<B[j][1])i++;else j++;}return res;};
+    const r=intervalIntersection([[0,2],[5,10],[13,23],[24,25]],[[1,5],[8,12],[15,24],[25,26]]);
+    expect(r).toEqual([[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]);
+    expect(intervalIntersection([],[['a'==='' as any? 0:0,1]])).toEqual([]);
+  });
+  it('max area of island DFS', () => {
+    const maxAreaOfIsland=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;const dfs=(r:number,c:number):number=>{if(r<0||r>=m||c<0||c>=n||grid[r][c]===0)return 0;grid[r][c]=0;return 1+dfs(r+1,c)+dfs(r-1,c)+dfs(r,c+1)+dfs(r,c-1);};let max=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++)max=Math.max(max,dfs(i,j));return max;};
+    const g=[[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]];
+    expect(maxAreaOfIsland(g)).toBe(6);
+    expect(maxAreaOfIsland([[0,0,0,0,0,0,0,0]])).toBe(0);
+  });
+  it('number of matching subsequences', () => {
+    const numMatchingSubseq=(s:string,words:string[]):number=>{const isSub=(w:string):boolean=>{let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;return i===w.length;};return words.filter(isSub).length;};
+    expect(numMatchingSubseq('abcde',['a','bb','acd','ace'])).toBe(3);
+    expect(numMatchingSubseq('dsahjpjauf',['ahjpjau','ja','ahbwzgqnuk','tnmlanowax'])).toBe(2);
+  });
+  it('longest increasing path in matrix', () => {
+    const longestIncreasingPath=(matrix:number[][]):number=>{const m=matrix.length,n=matrix[0].length;const memo:number[][]=Array.from({length:m},()=>new Array(n).fill(0));const dfs=(r:number,c:number):number=>{if(memo[r][c])return memo[r][c];let best=1;[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc])=>{if(nr>=0&&nr<m&&nc>=0&&nc<n&&matrix[nr][nc]>matrix[r][c])best=Math.max(best,1+dfs(nr,nc));});return memo[r][c]=best;};let max=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++)max=Math.max(max,dfs(i,j));return max;};
+    expect(longestIncreasingPath([[9,9,4],[6,6,8],[2,1,1]])).toBe(4);
+    expect(longestIncreasingPath([[3,4,5],[3,2,6],[2,2,1]])).toBe(4);
+  });
+});

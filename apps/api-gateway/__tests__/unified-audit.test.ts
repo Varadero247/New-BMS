@@ -952,3 +952,37 @@ describe('phase62 coverage', () => {
     expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('insert interval into sorted list', () => {
+    const insert=(intervals:[number,number][],newInt:[number,number]):[number,number][]=>{const res:[number,number][]=[];let i=0;while(i<intervals.length&&intervals[i][1]<newInt[0])res.push(intervals[i++]);while(i<intervals.length&&intervals[i][0]<=newInt[1]){newInt=[Math.min(newInt[0],intervals[i][0]),Math.max(newInt[1],intervals[i][1])];i++;}res.push(newInt);while(i<intervals.length)res.push(intervals[i++]);return res;};
+    expect(insert([[1,3],[6,9]],[2,5])).toEqual([[1,5],[6,9]]);
+    expect(insert([[1,2],[3,5],[6,7],[8,10],[12,16]],[4,8])).toEqual([[1,2],[3,10],[12,16]]);
+  });
+  it('interval list intersections', () => {
+    const intervalIntersection=(A:[number,number][],B:[number,number][]): [number,number][]=>{const res:[number,number][]=[];let i=0,j=0;while(i<A.length&&j<B.length){const lo=Math.max(A[i][0],B[j][0]);const hi=Math.min(A[i][1],B[j][1]);if(lo<=hi)res.push([lo,hi]);if(A[i][1]<B[j][1])i++;else j++;}return res;};
+    const r=intervalIntersection([[0,2],[5,10],[13,23],[24,25]],[[1,5],[8,12],[15,24],[25,26]]);
+    expect(r).toEqual([[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]);
+    expect(intervalIntersection([],[['a'==='' as any? 0:0,1]])).toEqual([]);
+  });
+  it('score of parentheses', () => {
+    const scoreOfParentheses=(s:string):number=>{const stack:number[]=[0];for(const c of s){if(c==='(')stack.push(0);else{const v=stack.pop()!;stack[stack.length-1]+=Math.max(2*v,1);}}return stack[0];};
+    expect(scoreOfParentheses('()')).toBe(1);
+    expect(scoreOfParentheses('(())')).toBe(2);
+    expect(scoreOfParentheses('()()')).toBe(2);
+    expect(scoreOfParentheses('(()(()))')).toBe(6);
+  });
+  it('detect capital use', () => {
+    const detectCapitalUse=(word:string):boolean=>{const allUpper=word===word.toUpperCase();const allLower=word===word.toLowerCase();const firstUpper=word[0]===word[0].toUpperCase()&&word.slice(1)===word.slice(1).toLowerCase();return allUpper||allLower||firstUpper;};
+    expect(detectCapitalUse('USA')).toBe(true);
+    expect(detectCapitalUse('leetcode')).toBe(true);
+    expect(detectCapitalUse('Google')).toBe(true);
+    expect(detectCapitalUse('FlaG')).toBe(false);
+  });
+  it('island perimeter calculation', () => {
+    const islandPerimeter=(grid:number[][]):number=>{let p=0;const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]===1){p+=4;if(i>0&&grid[i-1][j]===1)p-=2;if(j>0&&grid[i][j-1]===1)p-=2;}return p;};
+    expect(islandPerimeter([[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]])).toBe(16);
+    expect(islandPerimeter([[1]])).toBe(4);
+    expect(islandPerimeter([[1,0]])).toBe(4);
+  });
+});

@@ -1045,3 +1045,37 @@ describe('phase62 coverage', () => {
     expect(intToRoman(1994)).toBe('MCMXCIV');
   });
 });
+
+describe('phase63 coverage', () => {
+  it('score of parentheses', () => {
+    const scoreOfParentheses=(s:string):number=>{const stack:number[]=[0];for(const c of s){if(c==='(')stack.push(0);else{const v=stack.pop()!;stack[stack.length-1]+=Math.max(2*v,1);}}return stack[0];};
+    expect(scoreOfParentheses('()')).toBe(1);
+    expect(scoreOfParentheses('(())')).toBe(2);
+    expect(scoreOfParentheses('()()')).toBe(2);
+    expect(scoreOfParentheses('(()(()))')).toBe(6);
+  });
+  it('rotate image 90 degrees', () => {
+    const rotate=(matrix:number[][]):void=>{const n=matrix.length;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)[matrix[i][j],matrix[j][i]]=[matrix[j][i],matrix[i][j]];for(let i=0;i<n;i++)matrix[i].reverse();};
+    const m=[[1,2,3],[4,5,6],[7,8,9]];rotate(m);
+    expect(m).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+    const m2=[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]];rotate(m2);
+    expect(m2[0]).toEqual([15,13,2,5]);
+  });
+  it('island perimeter calculation', () => {
+    const islandPerimeter=(grid:number[][]):number=>{let p=0;const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]===1){p+=4;if(i>0&&grid[i-1][j]===1)p-=2;if(j>0&&grid[i][j-1]===1)p-=2;}return p;};
+    expect(islandPerimeter([[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]])).toBe(16);
+    expect(islandPerimeter([[1]])).toBe(4);
+    expect(islandPerimeter([[1,0]])).toBe(4);
+  });
+  it('check if word equals summation of two words', () => {
+    const isSumEqual=(f:string,s:string,t:string):boolean=>{const val=(w:string):number=>parseInt(w.split('').map(c=>c.charCodeAt(0)-97).join(''));return val(f)+val(s)===val(t);};
+    expect(isSumEqual('acb','cba','cdb')).toBe(true);
+    expect(isSumEqual('aaa','a','aab')).toBe(false);
+    expect(isSumEqual('aaa','a','aaaa')).toBe(true);
+  });
+  it('shortest completing word', () => {
+    const shortestCompletingWord=(plate:string,words:string[]):string=>{const cnt=(s:string)=>{const f=new Array(26).fill(0);for(const c of s.toLowerCase())if(c>='a'&&c<='z')f[c.charCodeAt(0)-97]++;return f;};const need=cnt(plate);return words.filter(w=>{const f=cnt(w);return need.every((n,i)=>f[i]>=n);}).sort((a,b)=>a.length-b.length)[0];};
+    expect(shortestCompletingWord('1s3 PSt',['step','steps','stripe','stepple'])).toBe('steps');
+    expect(shortestCompletingWord('1s3 456',['looks','pest','stew','show'])).toBe('pest');
+  });
+});

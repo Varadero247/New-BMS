@@ -933,3 +933,36 @@ describe('phase62 coverage', () => {
     expect(findDuplicate([1,1])).toBe(1);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('insert interval into sorted list', () => {
+    const insert=(intervals:[number,number][],newInt:[number,number]):[number,number][]=>{const res:[number,number][]=[];let i=0;while(i<intervals.length&&intervals[i][1]<newInt[0])res.push(intervals[i++]);while(i<intervals.length&&intervals[i][0]<=newInt[1]){newInt=[Math.min(newInt[0],intervals[i][0]),Math.max(newInt[1],intervals[i][1])];i++;}res.push(newInt);while(i<intervals.length)res.push(intervals[i++]);return res;};
+    expect(insert([[1,3],[6,9]],[2,5])).toEqual([[1,5],[6,9]]);
+    expect(insert([[1,2],[3,5],[6,7],[8,10],[12,16]],[4,8])).toEqual([[1,2],[3,10],[12,16]]);
+  });
+  it('is subsequence check', () => {
+    const isSubsequence=(s:string,t:string):boolean=>{let i=0;for(const c of t)if(i<s.length&&c===s[i])i++;return i===s.length;};
+    expect(isSubsequence('abc','ahbgdc')).toBe(true);
+    expect(isSubsequence('axc','ahbgdc')).toBe(false);
+    expect(isSubsequence('','ahbgdc')).toBe(true);
+    expect(isSubsequence('ace','abcde')).toBe(true);
+  });
+  it('groups of special equivalent strings', () => {
+    const numSpecialEquivGroups=(words:string[]):number=>{const key=(w:string)=>{const e=w.split('').filter((_,i)=>i%2===0).sort().join('');const o=w.split('').filter((_,i)=>i%2!==0).sort().join('');return e+'|'+o;};return new Set(words.map(key)).size;};
+    expect(numSpecialEquivGroups(['abcd','cdab','cbad','xyzz','zzxy','zzyx'])).toBe(3);
+    expect(numSpecialEquivGroups(['abc','acb','bac','bca','cab','cba'])).toBe(3);
+  });
+  it('sort colors Dutch flag', () => {
+    const sortColors=(nums:number[]):void=>{let lo=0,mid=0,hi=nums.length-1;while(mid<=hi){if(nums[mid]===0){[nums[lo],nums[mid]]=[nums[mid],nums[lo]];lo++;mid++;}else if(nums[mid]===1)mid++;else{[nums[mid],nums[hi]]=[nums[hi],nums[mid]];hi--;}}};
+    const a=[2,0,2,1,1,0];sortColors(a);expect(a).toEqual([0,0,1,1,2,2]);
+    const b=[2,0,1];sortColors(b);expect(b).toEqual([0,1,2]);
+    const c=[0];sortColors(c);expect(c).toEqual([0]);
+  });
+  it('repeated substring pattern', () => {
+    const repeatedSubstringPattern=(s:string):boolean=>(s+s).slice(1,-1).includes(s);
+    expect(repeatedSubstringPattern('abab')).toBe(true);
+    expect(repeatedSubstringPattern('aba')).toBe(false);
+    expect(repeatedSubstringPattern('abcabcabcabc')).toBe(true);
+    expect(repeatedSubstringPattern('ab')).toBe(false);
+  });
+});

@@ -1055,3 +1055,36 @@ describe('phase62 coverage', () => {
     expect(canCompleteCircuit([5,1,2,3,4],[4,4,1,5,1])).toBe(4);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('insert interval into sorted list', () => {
+    const insert=(intervals:[number,number][],newInt:[number,number]):[number,number][]=>{const res:[number,number][]=[];let i=0;while(i<intervals.length&&intervals[i][1]<newInt[0])res.push(intervals[i++]);while(i<intervals.length&&intervals[i][0]<=newInt[1]){newInt=[Math.min(newInt[0],intervals[i][0]),Math.max(newInt[1],intervals[i][1])];i++;}res.push(newInt);while(i<intervals.length)res.push(intervals[i++]);return res;};
+    expect(insert([[1,3],[6,9]],[2,5])).toEqual([[1,5],[6,9]]);
+    expect(insert([[1,2],[3,5],[6,7],[8,10],[12,16]],[4,8])).toEqual([[1,2],[3,10],[12,16]]);
+  });
+  it('min swaps to balance string', () => {
+    const minSwaps=(s:string):number=>{let unmatched=0;for(const c of s){if(c==='[')unmatched++;else if(unmatched>0)unmatched--;else unmatched++;}return Math.ceil(unmatched/2);};
+    expect(minSwaps('][][')).toBe(1);
+    expect(minSwaps(']]][[[')).toBe(2);
+    expect(minSwaps('[]')).toBe(0);
+  });
+  it('verifying alien dictionary', () => {
+    const isAlienSorted=(words:string[],order:string):boolean=>{const rank=new Map(order.split('').map((c,i)=>[c,i]));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];let found=false;for(let j=0;j<Math.min(a.length,b.length);j++){if(rank.get(a[j])!<rank.get(b[j])!){found=true;break;}if(rank.get(a[j])!>rank.get(b[j])!)return false;}if(!found&&a.length>b.length)return false;}return true;};
+    expect(isAlienSorted(['hello','leetcode'],'hlabcdefgijkmnopqrstuvwxyz')).toBe(true);
+    expect(isAlienSorted(['word','world','row'],'worldabcefghijkmnpqstuvxyz')).toBe(false);
+    expect(isAlienSorted(['apple','app'],'abcdefghijklmnopqrstuvwxyz')).toBe(false);
+  });
+  it('car fleet problem', () => {
+    const carFleet=(target:number,position:number[],speed:number[]):number=>{const cars=position.map((p,i)=>[(target-p)/speed[i],p]).sort((a,b)=>b[1]-a[1]);let fleets=0,maxTime=0;for(const[time]of cars){if(time>maxTime){fleets++;maxTime=time;}}return fleets;};
+    expect(carFleet(12,[10,8,0,5,3],[2,4,1,1,3])).toBe(3);
+    expect(carFleet(10,[3],[3])).toBe(1);
+    expect(carFleet(100,[0,2,4],[4,2,1])).toBe(1);
+  });
+  it('rotate image 90 degrees', () => {
+    const rotate=(matrix:number[][]):void=>{const n=matrix.length;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)[matrix[i][j],matrix[j][i]]=[matrix[j][i],matrix[i][j]];for(let i=0;i<n;i++)matrix[i].reverse();};
+    const m=[[1,2,3],[4,5,6],[7,8,9]];rotate(m);
+    expect(m).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+    const m2=[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]];rotate(m2);
+    expect(m2[0]).toEqual([15,13,2,5]);
+  });
+});

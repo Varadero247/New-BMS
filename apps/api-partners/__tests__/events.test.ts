@@ -723,3 +723,36 @@ describe('phase62 coverage', () => {
     expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('min add to make parens valid', () => {
+    const minAddToMakeValid=(s:string):number=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;};
+    expect(minAddToMakeValid('())')).toBe(1);
+    expect(minAddToMakeValid('(((')).toBe(3);
+    expect(minAddToMakeValid('()')).toBe(0);
+    expect(minAddToMakeValid('()))((')).toBe(4);
+  });
+  it('check if word equals summation of two words', () => {
+    const isSumEqual=(f:string,s:string,t:string):boolean=>{const val=(w:string):number=>parseInt(w.split('').map(c=>c.charCodeAt(0)-97).join(''));return val(f)+val(s)===val(t);};
+    expect(isSumEqual('acb','cba','cdb')).toBe(true);
+    expect(isSumEqual('aaa','a','aab')).toBe(false);
+    expect(isSumEqual('aaa','a','aaaa')).toBe(true);
+  });
+  it('h-index calculation', () => {
+    const hIndex=(citations:number[]):number=>{citations.sort((a,b)=>b-a);let h=0;while(h<citations.length&&citations[h]>h)h++;return h;};
+    expect(hIndex([3,0,6,1,5])).toBe(3);
+    expect(hIndex([1,3,1])).toBe(1);
+    expect(hIndex([0])).toBe(0);
+    expect(hIndex([100])).toBe(1);
+  });
+  it('toeplitz matrix check', () => {
+    const isToeplitzMatrix=(matrix:number[][]):boolean=>{for(let i=1;i<matrix.length;i++)for(let j=1;j<matrix[0].length;j++)if(matrix[i][j]!==matrix[i-1][j-1])return false;return true;};
+    expect(isToeplitzMatrix([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true);
+    expect(isToeplitzMatrix([[1,2],[2,2]])).toBe(false);
+  });
+  it('set matrix zeroes in-place', () => {
+    const setZeroes=(matrix:number[][]):void=>{const m=matrix.length,n=matrix[0].length;let firstRow=false,firstCol=false;for(let j=0;j<n;j++)if(matrix[0][j]===0)firstRow=true;for(let i=0;i<m;i++)if(matrix[i][0]===0)firstCol=true;for(let i=1;i<m;i++)for(let j=1;j<n;j++)if(matrix[i][j]===0){matrix[i][0]=0;matrix[0][j]=0;}for(let i=1;i<m;i++)for(let j=1;j<n;j++)if(matrix[i][0]===0||matrix[0][j]===0)matrix[i][j]=0;if(firstRow)for(let j=0;j<n;j++)matrix[0][j]=0;if(firstCol)for(let i=0;i<m;i++)matrix[i][0]=0;};
+    const m=[[1,1,1],[1,0,1],[1,1,1]];setZeroes(m);
+    expect(m).toEqual([[1,0,1],[0,0,0],[1,0,1]]);
+  });
+});

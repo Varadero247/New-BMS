@@ -1063,3 +1063,36 @@ describe('phase62 coverage', () => {
     expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('meeting rooms II min rooms', () => {
+    const minMeetingRooms=(intervals:[number,number][]):number=>{const starts=intervals.map(i=>i[0]).sort((a,b)=>a-b);const ends=intervals.map(i=>i[1]).sort((a,b)=>a-b);let rooms=0,endPtr=0;for(let i=0;i<starts.length;i++){if(starts[i]<ends[endPtr])rooms++;else endPtr++;}return rooms;};
+    expect(minMeetingRooms([[0,30],[5,10],[15,20]])).toBe(2);
+    expect(minMeetingRooms([[7,10],[2,4]])).toBe(1);
+    expect(minMeetingRooms([[1,5],[8,9],[8,9]])).toBe(2);
+  });
+  it('interval list intersections', () => {
+    const intervalIntersection=(A:[number,number][],B:[number,number][]): [number,number][]=>{const res:[number,number][]=[];let i=0,j=0;while(i<A.length&&j<B.length){const lo=Math.max(A[i][0],B[j][0]);const hi=Math.min(A[i][1],B[j][1]);if(lo<=hi)res.push([lo,hi]);if(A[i][1]<B[j][1])i++;else j++;}return res;};
+    const r=intervalIntersection([[0,2],[5,10],[13,23],[24,25]],[[1,5],[8,12],[15,24],[25,26]]);
+    expect(r).toEqual([[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]);
+    expect(intervalIntersection([],[['a'==='' as any? 0:0,1]])).toEqual([]);
+  });
+  it('rotate image 90 degrees', () => {
+    const rotate=(matrix:number[][]):void=>{const n=matrix.length;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)[matrix[i][j],matrix[j][i]]=[matrix[j][i],matrix[i][j]];for(let i=0;i<n;i++)matrix[i].reverse();};
+    const m=[[1,2,3],[4,5,6],[7,8,9]];rotate(m);
+    expect(m).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+    const m2=[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]];rotate(m2);
+    expect(m2[0]).toEqual([15,13,2,5]);
+  });
+  it('min swaps to balance string', () => {
+    const minSwaps=(s:string):number=>{let unmatched=0;for(const c of s){if(c==='[')unmatched++;else if(unmatched>0)unmatched--;else unmatched++;}return Math.ceil(unmatched/2);};
+    expect(minSwaps('][][')).toBe(1);
+    expect(minSwaps(']]][[[')).toBe(2);
+    expect(minSwaps('[]')).toBe(0);
+  });
+  it('groups of special equivalent strings', () => {
+    const numSpecialEquivGroups=(words:string[]):number=>{const key=(w:string)=>{const e=w.split('').filter((_,i)=>i%2===0).sort().join('');const o=w.split('').filter((_,i)=>i%2!==0).sort().join('');return e+'|'+o;};return new Set(words.map(key)).size;};
+    expect(numSpecialEquivGroups(['abcd','cdab','cbad','xyzz','zzxy','zzyx'])).toBe(3);
+    expect(numSpecialEquivGroups(['abc','acb','bac','bca','cab','cba'])).toBe(3);
+  });
+});

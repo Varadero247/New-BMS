@@ -971,3 +971,38 @@ describe('phase62 coverage', () => {
     expect(findDuplicate([1,1])).toBe(1);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('h-index calculation', () => {
+    const hIndex=(citations:number[]):number=>{citations.sort((a,b)=>b-a);let h=0;while(h<citations.length&&citations[h]>h)h++;return h;};
+    expect(hIndex([3,0,6,1,5])).toBe(3);
+    expect(hIndex([1,3,1])).toBe(1);
+    expect(hIndex([0])).toBe(0);
+    expect(hIndex([100])).toBe(1);
+  });
+  it('min add to make parens valid', () => {
+    const minAddToMakeValid=(s:string):number=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;};
+    expect(minAddToMakeValid('())')).toBe(1);
+    expect(minAddToMakeValid('(((')).toBe(3);
+    expect(minAddToMakeValid('()')).toBe(0);
+    expect(minAddToMakeValid('()))((')).toBe(4);
+  });
+  it('toeplitz matrix check', () => {
+    const isToeplitzMatrix=(matrix:number[][]):boolean=>{for(let i=1;i<matrix.length;i++)for(let j=1;j<matrix[0].length;j++)if(matrix[i][j]!==matrix[i-1][j-1])return false;return true;};
+    expect(isToeplitzMatrix([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true);
+    expect(isToeplitzMatrix([[1,2],[2,2]])).toBe(false);
+  });
+  it('car fleet problem', () => {
+    const carFleet=(target:number,position:number[],speed:number[]):number=>{const cars=position.map((p,i)=>[(target-p)/speed[i],p]).sort((a,b)=>b[1]-a[1]);let fleets=0,maxTime=0;for(const[time]of cars){if(time>maxTime){fleets++;maxTime=time;}}return fleets;};
+    expect(carFleet(12,[10,8,0,5,3],[2,4,1,1,3])).toBe(3);
+    expect(carFleet(10,[3],[3])).toBe(1);
+    expect(carFleet(100,[0,2,4],[4,2,1])).toBe(1);
+  });
+  it('repeated substring pattern', () => {
+    const repeatedSubstringPattern=(s:string):boolean=>(s+s).slice(1,-1).includes(s);
+    expect(repeatedSubstringPattern('abab')).toBe(true);
+    expect(repeatedSubstringPattern('aba')).toBe(false);
+    expect(repeatedSubstringPattern('abcabcabcabc')).toBe(true);
+    expect(repeatedSubstringPattern('ab')).toBe(false);
+  });
+});

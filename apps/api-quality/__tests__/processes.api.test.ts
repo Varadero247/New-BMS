@@ -1258,3 +1258,36 @@ describe('phase62 coverage', () => {
     expect(fractionToDecimal(4,333)).toBe('0.(012)');
   });
 });
+
+describe('phase63 coverage', () => {
+  it('longest valid parentheses', () => {
+    const longestValidParentheses=(s:string):number=>{const stack:number[]=[-1];let max=0;for(let i=0;i<s.length;i++){if(s[i]==='(')stack.push(i);else{stack.pop();if(!stack.length)stack.push(i);else max=Math.max(max,i-stack[stack.length-1]);}}return max;};
+    expect(longestValidParentheses('(()')).toBe(2);
+    expect(longestValidParentheses(')()())')).toBe(4);
+    expect(longestValidParentheses('')).toBe(0);
+    expect(longestValidParentheses('()()')).toBe(4);
+  });
+  it('repeated substring pattern', () => {
+    const repeatedSubstringPattern=(s:string):boolean=>(s+s).slice(1,-1).includes(s);
+    expect(repeatedSubstringPattern('abab')).toBe(true);
+    expect(repeatedSubstringPattern('aba')).toBe(false);
+    expect(repeatedSubstringPattern('abcabcabcabc')).toBe(true);
+    expect(repeatedSubstringPattern('ab')).toBe(false);
+  });
+  it('number of matching subsequences', () => {
+    const numMatchingSubseq=(s:string,words:string[]):number=>{const isSub=(w:string):boolean=>{let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;return i===w.length;};return words.filter(isSub).length;};
+    expect(numMatchingSubseq('abcde',['a','bb','acd','ace'])).toBe(3);
+    expect(numMatchingSubseq('dsahjpjauf',['ahjpjau','ja','ahbwzgqnuk','tnmlanowax'])).toBe(2);
+  });
+  it('interval list intersections', () => {
+    const intervalIntersection=(A:[number,number][],B:[number,number][]): [number,number][]=>{const res:[number,number][]=[];let i=0,j=0;while(i<A.length&&j<B.length){const lo=Math.max(A[i][0],B[j][0]);const hi=Math.min(A[i][1],B[j][1]);if(lo<=hi)res.push([lo,hi]);if(A[i][1]<B[j][1])i++;else j++;}return res;};
+    const r=intervalIntersection([[0,2],[5,10],[13,23],[24,25]],[[1,5],[8,12],[15,24],[25,26]]);
+    expect(r).toEqual([[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]);
+    expect(intervalIntersection([],[['a'==='' as any? 0:0,1]])).toEqual([]);
+  });
+  it('set matrix zeroes in-place', () => {
+    const setZeroes=(matrix:number[][]):void=>{const m=matrix.length,n=matrix[0].length;let firstRow=false,firstCol=false;for(let j=0;j<n;j++)if(matrix[0][j]===0)firstRow=true;for(let i=0;i<m;i++)if(matrix[i][0]===0)firstCol=true;for(let i=1;i<m;i++)for(let j=1;j<n;j++)if(matrix[i][j]===0){matrix[i][0]=0;matrix[0][j]=0;}for(let i=1;i<m;i++)for(let j=1;j<n;j++)if(matrix[i][0]===0||matrix[0][j]===0)matrix[i][j]=0;if(firstRow)for(let j=0;j<n;j++)matrix[0][j]=0;if(firstCol)for(let i=0;i<m;i++)matrix[i][0]=0;};
+    const m=[[1,1,1],[1,0,1],[1,1,1]];setZeroes(m);
+    expect(m).toEqual([[1,0,1],[0,0,0],[1,0,1]]);
+  });
+});

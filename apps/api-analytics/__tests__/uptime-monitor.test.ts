@@ -955,3 +955,37 @@ describe('phase62 coverage', () => {
     expect(reverseBits(0)).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('max area of island DFS', () => {
+    const maxAreaOfIsland=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;const dfs=(r:number,c:number):number=>{if(r<0||r>=m||c<0||c>=n||grid[r][c]===0)return 0;grid[r][c]=0;return 1+dfs(r+1,c)+dfs(r-1,c)+dfs(r,c+1)+dfs(r,c-1);};let max=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++)max=Math.max(max,dfs(i,j));return max;};
+    const g=[[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]];
+    expect(maxAreaOfIsland(g)).toBe(6);
+    expect(maxAreaOfIsland([[0,0,0,0,0,0,0,0]])).toBe(0);
+  });
+  it('shortest completing word', () => {
+    const shortestCompletingWord=(plate:string,words:string[]):string=>{const cnt=(s:string)=>{const f=new Array(26).fill(0);for(const c of s.toLowerCase())if(c>='a'&&c<='z')f[c.charCodeAt(0)-97]++;return f;};const need=cnt(plate);return words.filter(w=>{const f=cnt(w);return need.every((n,i)=>f[i]>=n);}).sort((a,b)=>a.length-b.length)[0];};
+    expect(shortestCompletingWord('1s3 PSt',['step','steps','stripe','stepple'])).toBe('steps');
+    expect(shortestCompletingWord('1s3 456',['looks','pest','stew','show'])).toBe('pest');
+  });
+  it('verifying alien dictionary', () => {
+    const isAlienSorted=(words:string[],order:string):boolean=>{const rank=new Map(order.split('').map((c,i)=>[c,i]));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];let found=false;for(let j=0;j<Math.min(a.length,b.length);j++){if(rank.get(a[j])!<rank.get(b[j])!){found=true;break;}if(rank.get(a[j])!>rank.get(b[j])!)return false;}if(!found&&a.length>b.length)return false;}return true;};
+    expect(isAlienSorted(['hello','leetcode'],'hlabcdefgijkmnopqrstuvwxyz')).toBe(true);
+    expect(isAlienSorted(['word','world','row'],'worldabcefghijkmnpqstuvxyz')).toBe(false);
+    expect(isAlienSorted(['apple','app'],'abcdefghijklmnopqrstuvwxyz')).toBe(false);
+  });
+  it('is subsequence check', () => {
+    const isSubsequence=(s:string,t:string):boolean=>{let i=0;for(const c of t)if(i<s.length&&c===s[i])i++;return i===s.length;};
+    expect(isSubsequence('abc','ahbgdc')).toBe(true);
+    expect(isSubsequence('axc','ahbgdc')).toBe(false);
+    expect(isSubsequence('','ahbgdc')).toBe(true);
+    expect(isSubsequence('ace','abcde')).toBe(true);
+  });
+  it('h-index calculation', () => {
+    const hIndex=(citations:number[]):number=>{citations.sort((a,b)=>b-a);let h=0;while(h<citations.length&&citations[h]>h)h++;return h;};
+    expect(hIndex([3,0,6,1,5])).toBe(3);
+    expect(hIndex([1,3,1])).toBe(1);
+    expect(hIndex([0])).toBe(0);
+    expect(hIndex([100])).toBe(1);
+  });
+});

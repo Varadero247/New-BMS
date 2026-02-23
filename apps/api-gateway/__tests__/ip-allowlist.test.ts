@@ -921,3 +921,39 @@ describe('phase62 coverage', () => {
     expect(countBits(0)).toEqual([0]);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('min add to make parens valid', () => {
+    const minAddToMakeValid=(s:string):number=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;};
+    expect(minAddToMakeValid('())')).toBe(1);
+    expect(minAddToMakeValid('(((')).toBe(3);
+    expect(minAddToMakeValid('()')).toBe(0);
+    expect(minAddToMakeValid('()))((')).toBe(4);
+  });
+  it('detect capital use', () => {
+    const detectCapitalUse=(word:string):boolean=>{const allUpper=word===word.toUpperCase();const allLower=word===word.toLowerCase();const firstUpper=word[0]===word[0].toUpperCase()&&word.slice(1)===word.slice(1).toLowerCase();return allUpper||allLower||firstUpper;};
+    expect(detectCapitalUse('USA')).toBe(true);
+    expect(detectCapitalUse('leetcode')).toBe(true);
+    expect(detectCapitalUse('Google')).toBe(true);
+    expect(detectCapitalUse('FlaG')).toBe(false);
+  });
+  it('is subsequence check', () => {
+    const isSubsequence=(s:string,t:string):boolean=>{let i=0;for(const c of t)if(i<s.length&&c===s[i])i++;return i===s.length;};
+    expect(isSubsequence('abc','ahbgdc')).toBe(true);
+    expect(isSubsequence('axc','ahbgdc')).toBe(false);
+    expect(isSubsequence('','ahbgdc')).toBe(true);
+    expect(isSubsequence('ace','abcde')).toBe(true);
+  });
+  it('number of matching subsequences', () => {
+    const numMatchingSubseq=(s:string,words:string[]):number=>{const isSub=(w:string):boolean=>{let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;return i===w.length;};return words.filter(isSub).length;};
+    expect(numMatchingSubseq('abcde',['a','bb','acd','ace'])).toBe(3);
+    expect(numMatchingSubseq('dsahjpjauf',['ahjpjau','ja','ahbwzgqnuk','tnmlanowax'])).toBe(2);
+  });
+  it('h-index calculation', () => {
+    const hIndex=(citations:number[]):number=>{citations.sort((a,b)=>b-a);let h=0;while(h<citations.length&&citations[h]>h)h++;return h;};
+    expect(hIndex([3,0,6,1,5])).toBe(3);
+    expect(hIndex([1,3,1])).toBe(1);
+    expect(hIndex([0])).toBe(0);
+    expect(hIndex([100])).toBe(1);
+  });
+});

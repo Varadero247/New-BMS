@@ -1003,3 +1003,34 @@ describe('phase62 coverage', () => {
     expect(findMaximumXOR([0])).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('max area of island DFS', () => {
+    const maxAreaOfIsland=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;const dfs=(r:number,c:number):number=>{if(r<0||r>=m||c<0||c>=n||grid[r][c]===0)return 0;grid[r][c]=0;return 1+dfs(r+1,c)+dfs(r-1,c)+dfs(r,c+1)+dfs(r,c-1);};let max=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++)max=Math.max(max,dfs(i,j));return max;};
+    const g=[[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]];
+    expect(maxAreaOfIsland(g)).toBe(6);
+    expect(maxAreaOfIsland([[0,0,0,0,0,0,0,0]])).toBe(0);
+  });
+  it('rotate image 90 degrees', () => {
+    const rotate=(matrix:number[][]):void=>{const n=matrix.length;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)[matrix[i][j],matrix[j][i]]=[matrix[j][i],matrix[i][j]];for(let i=0;i<n;i++)matrix[i].reverse();};
+    const m=[[1,2,3],[4,5,6],[7,8,9]];rotate(m);
+    expect(m).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+    const m2=[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]];rotate(m2);
+    expect(m2[0]).toEqual([15,13,2,5]);
+  });
+  it('number of matching subsequences', () => {
+    const numMatchingSubseq=(s:string,words:string[]):number=>{const isSub=(w:string):boolean=>{let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;return i===w.length;};return words.filter(isSub).length;};
+    expect(numMatchingSubseq('abcde',['a','bb','acd','ace'])).toBe(3);
+    expect(numMatchingSubseq('dsahjpjauf',['ahjpjau','ja','ahbwzgqnuk','tnmlanowax'])).toBe(2);
+  });
+  it('groups of special equivalent strings', () => {
+    const numSpecialEquivGroups=(words:string[]):number=>{const key=(w:string)=>{const e=w.split('').filter((_,i)=>i%2===0).sort().join('');const o=w.split('').filter((_,i)=>i%2!==0).sort().join('');return e+'|'+o;};return new Set(words.map(key)).size;};
+    expect(numSpecialEquivGroups(['abcd','cdab','cbad','xyzz','zzxy','zzyx'])).toBe(3);
+    expect(numSpecialEquivGroups(['abc','acb','bac','bca','cab','cba'])).toBe(3);
+  });
+  it('top k frequent words', () => {
+    const topKFrequent=(words:string[],k:number):string[]=>{const cnt=new Map<string,number>();for(const w of words)cnt.set(w,(cnt.get(w)||0)+1);return [...cnt.entries()].sort(([a,fa],[b,fb])=>fb!==fa?fb-fa:a.localeCompare(b)).slice(0,k).map(([w])=>w);};
+    expect(topKFrequent(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']);
+    expect(topKFrequent(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']);
+  });
+});

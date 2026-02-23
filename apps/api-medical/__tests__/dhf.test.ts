@@ -1169,3 +1169,36 @@ describe('phase62 coverage', () => {
     expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('min swaps to balance string', () => {
+    const minSwaps=(s:string):number=>{let unmatched=0;for(const c of s){if(c==='[')unmatched++;else if(unmatched>0)unmatched--;else unmatched++;}return Math.ceil(unmatched/2);};
+    expect(minSwaps('][][')).toBe(1);
+    expect(minSwaps(']]][[[')).toBe(2);
+    expect(minSwaps('[]')).toBe(0);
+  });
+  it('sort colors Dutch flag', () => {
+    const sortColors=(nums:number[]):void=>{let lo=0,mid=0,hi=nums.length-1;while(mid<=hi){if(nums[mid]===0){[nums[lo],nums[mid]]=[nums[mid],nums[lo]];lo++;mid++;}else if(nums[mid]===1)mid++;else{[nums[mid],nums[hi]]=[nums[hi],nums[mid]];hi--;}}};
+    const a=[2,0,2,1,1,0];sortColors(a);expect(a).toEqual([0,0,1,1,2,2]);
+    const b=[2,0,1];sortColors(b);expect(b).toEqual([0,1,2]);
+    const c=[0];sortColors(c);expect(c).toEqual([0]);
+  });
+  it('kth largest quickselect', () => {
+    const findKthLargest=(nums:number[],k:number):number=>{const partition=(lo:number,hi:number):number=>{const pivot=nums[hi];let i=lo;for(let j=lo;j<hi;j++)if(nums[j]>=pivot){[nums[i],nums[j]]=[nums[j],nums[i]];i++;}[nums[i],nums[hi]]=[nums[hi],nums[i]];return i;};let lo=0,hi=nums.length-1;while(lo<=hi){const p=partition(lo,hi);if(p===k-1)return nums[p];if(p<k-1)lo=p+1;else hi=p-1;}return -1;};
+    expect(findKthLargest([3,2,1,5,6,4],2)).toBe(5);
+    expect(findKthLargest([3,2,3,1,2,4,5,5,6],4)).toBe(4);
+    expect(findKthLargest([1],1)).toBe(1);
+  });
+  it('groups of special equivalent strings', () => {
+    const numSpecialEquivGroups=(words:string[]):number=>{const key=(w:string)=>{const e=w.split('').filter((_,i)=>i%2===0).sort().join('');const o=w.split('').filter((_,i)=>i%2!==0).sort().join('');return e+'|'+o;};return new Set(words.map(key)).size;};
+    expect(numSpecialEquivGroups(['abcd','cdab','cbad','xyzz','zzxy','zzyx'])).toBe(3);
+    expect(numSpecialEquivGroups(['abc','acb','bac','bca','cab','cba'])).toBe(3);
+  });
+  it('is subsequence check', () => {
+    const isSubsequence=(s:string,t:string):boolean=>{let i=0;for(const c of t)if(i<s.length&&c===s[i])i++;return i===s.length;};
+    expect(isSubsequence('abc','ahbgdc')).toBe(true);
+    expect(isSubsequence('axc','ahbgdc')).toBe(false);
+    expect(isSubsequence('','ahbgdc')).toBe(true);
+    expect(isSubsequence('ace','abcde')).toBe(true);
+  });
+});

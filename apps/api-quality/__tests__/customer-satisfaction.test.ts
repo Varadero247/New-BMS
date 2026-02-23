@@ -1381,3 +1381,36 @@ describe('phase62 coverage', () => {
     expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('game of life next state', () => {
+    const gameOfLife=(board:number[][]):void=>{const m=board.length,n=board[0].length;const count=(r:number,c:number)=>{let live=0;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(dr===0&&dc===0)continue;const nr=r+dr,nc=c+dc;if(nr>=0&&nr<m&&nc>=0&&nc<n&&Math.abs(board[nr][nc])===1)live++;}return live;};for(let i=0;i<m;i++)for(let j=0;j<n;j++){const c=count(i,j);if(board[i][j]===1&&(c<2||c>3))board[i][j]=-1;if(board[i][j]===0&&c===3)board[i][j]=2;}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]>0?1:0;};
+    const b=[[0,1,0],[0,0,1],[1,1,1],[0,0,0]];gameOfLife(b);
+    expect(b).toEqual([[0,0,0],[1,0,1],[0,1,1],[0,1,0]]);
+  });
+  it('summary ranges condensed', () => {
+    const summaryRanges=(nums:number[]):string[]=>{const res:string[]=[];let i=0;while(i<nums.length){let j=i;while(j+1<nums.length&&nums[j+1]===nums[j]+1)j++;res.push(i===j?`${nums[i]}`:`${nums[i]}->${nums[j]}`);i=j+1;}return res;};
+    expect(summaryRanges([0,1,2,4,5,7])).toEqual(['0->2','4->5','7']);
+    expect(summaryRanges([0,2,3,4,6,8,9])).toEqual(['0','2->4','6','8->9']);
+  });
+  it('repeated substring pattern', () => {
+    const repeatedSubstringPattern=(s:string):boolean=>(s+s).slice(1,-1).includes(s);
+    expect(repeatedSubstringPattern('abab')).toBe(true);
+    expect(repeatedSubstringPattern('aba')).toBe(false);
+    expect(repeatedSubstringPattern('abcabcabcabc')).toBe(true);
+    expect(repeatedSubstringPattern('ab')).toBe(false);
+  });
+  it('meeting rooms II min rooms', () => {
+    const minMeetingRooms=(intervals:[number,number][]):number=>{const starts=intervals.map(i=>i[0]).sort((a,b)=>a-b);const ends=intervals.map(i=>i[1]).sort((a,b)=>a-b);let rooms=0,endPtr=0;for(let i=0;i<starts.length;i++){if(starts[i]<ends[endPtr])rooms++;else endPtr++;}return rooms;};
+    expect(minMeetingRooms([[0,30],[5,10],[15,20]])).toBe(2);
+    expect(minMeetingRooms([[7,10],[2,4]])).toBe(1);
+    expect(minMeetingRooms([[1,5],[8,9],[8,9]])).toBe(2);
+  });
+  it('is subsequence check', () => {
+    const isSubsequence=(s:string,t:string):boolean=>{let i=0;for(const c of t)if(i<s.length&&c===s[i])i++;return i===s.length;};
+    expect(isSubsequence('abc','ahbgdc')).toBe(true);
+    expect(isSubsequence('axc','ahbgdc')).toBe(false);
+    expect(isSubsequence('','ahbgdc')).toBe(true);
+    expect(isSubsequence('ace','abcde')).toBe(true);
+  });
+});

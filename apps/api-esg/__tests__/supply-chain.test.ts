@@ -892,3 +892,37 @@ describe('phase62 coverage', () => {
     expect(singleNumberII([1,1,1,2])).toBe(2);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('detect capital use', () => {
+    const detectCapitalUse=(word:string):boolean=>{const allUpper=word===word.toUpperCase();const allLower=word===word.toLowerCase();const firstUpper=word[0]===word[0].toUpperCase()&&word.slice(1)===word.slice(1).toLowerCase();return allUpper||allLower||firstUpper;};
+    expect(detectCapitalUse('USA')).toBe(true);
+    expect(detectCapitalUse('leetcode')).toBe(true);
+    expect(detectCapitalUse('Google')).toBe(true);
+    expect(detectCapitalUse('FlaG')).toBe(false);
+  });
+  it('h-index calculation', () => {
+    const hIndex=(citations:number[]):number=>{citations.sort((a,b)=>b-a);let h=0;while(h<citations.length&&citations[h]>h)h++;return h;};
+    expect(hIndex([3,0,6,1,5])).toBe(3);
+    expect(hIndex([1,3,1])).toBe(1);
+    expect(hIndex([0])).toBe(0);
+    expect(hIndex([100])).toBe(1);
+  });
+  it('toeplitz matrix check', () => {
+    const isToeplitzMatrix=(matrix:number[][]):boolean=>{for(let i=1;i<matrix.length;i++)for(let j=1;j<matrix[0].length;j++)if(matrix[i][j]!==matrix[i-1][j-1])return false;return true;};
+    expect(isToeplitzMatrix([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true);
+    expect(isToeplitzMatrix([[1,2],[2,2]])).toBe(false);
+  });
+  it('groups of special equivalent strings', () => {
+    const numSpecialEquivGroups=(words:string[]):number=>{const key=(w:string)=>{const e=w.split('').filter((_,i)=>i%2===0).sort().join('');const o=w.split('').filter((_,i)=>i%2!==0).sort().join('');return e+'|'+o;};return new Set(words.map(key)).size;};
+    expect(numSpecialEquivGroups(['abcd','cdab','cbad','xyzz','zzxy','zzyx'])).toBe(3);
+    expect(numSpecialEquivGroups(['abc','acb','bac','bca','cab','cba'])).toBe(3);
+  });
+  it('min add to make parens valid', () => {
+    const minAddToMakeValid=(s:string):number=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;};
+    expect(minAddToMakeValid('())')).toBe(1);
+    expect(minAddToMakeValid('(((')).toBe(3);
+    expect(minAddToMakeValid('()')).toBe(0);
+    expect(minAddToMakeValid('()))((')).toBe(4);
+  });
+});

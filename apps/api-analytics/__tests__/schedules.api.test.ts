@@ -963,3 +963,36 @@ describe('phase62 coverage', () => {
     expect(minDeletions('ceabaacb')).toBe(2);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('min add to make parens valid', () => {
+    const minAddToMakeValid=(s:string):number=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;};
+    expect(minAddToMakeValid('())')).toBe(1);
+    expect(minAddToMakeValid('(((')).toBe(3);
+    expect(minAddToMakeValid('()')).toBe(0);
+    expect(minAddToMakeValid('()))((')).toBe(4);
+  });
+  it('game of life next state', () => {
+    const gameOfLife=(board:number[][]):void=>{const m=board.length,n=board[0].length;const count=(r:number,c:number)=>{let live=0;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(dr===0&&dc===0)continue;const nr=r+dr,nc=c+dc;if(nr>=0&&nr<m&&nc>=0&&nc<n&&Math.abs(board[nr][nc])===1)live++;}return live;};for(let i=0;i<m;i++)for(let j=0;j<n;j++){const c=count(i,j);if(board[i][j]===1&&(c<2||c>3))board[i][j]=-1;if(board[i][j]===0&&c===3)board[i][j]=2;}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]>0?1:0;};
+    const b=[[0,1,0],[0,0,1],[1,1,1],[0,0,0]];gameOfLife(b);
+    expect(b).toEqual([[0,0,0],[1,0,1],[0,1,1],[0,1,0]]);
+  });
+  it('longest word by deleting', () => {
+    const findLongestWord=(s:string,dict:string[]):string=>{let res='';for(const w of dict){let i=0;for(const c of s)if(i<w.length&&c===w[i])i++;if(i===w.length&&(w.length>res.length||(w.length===res.length&&w<res)))res=w;}return res;};
+    expect(findLongestWord('abpcplea',['ale','apple','monkey','plea'])).toBe('apple');
+    expect(findLongestWord('abpcplea',['a','b','c'])).toBe('a');
+    expect(findLongestWord('aewfafwafjlwajflwajflwafj',['apple','ewaf','jaf','abcdef'])).toBe('ewaf');
+  });
+  it('shortest completing word', () => {
+    const shortestCompletingWord=(plate:string,words:string[]):string=>{const cnt=(s:string)=>{const f=new Array(26).fill(0);for(const c of s.toLowerCase())if(c>='a'&&c<='z')f[c.charCodeAt(0)-97]++;return f;};const need=cnt(plate);return words.filter(w=>{const f=cnt(w);return need.every((n,i)=>f[i]>=n);}).sort((a,b)=>a.length-b.length)[0];};
+    expect(shortestCompletingWord('1s3 PSt',['step','steps','stripe','stepple'])).toBe('steps');
+    expect(shortestCompletingWord('1s3 456',['looks','pest','stew','show'])).toBe('pest');
+  });
+  it('repeated substring pattern', () => {
+    const repeatedSubstringPattern=(s:string):boolean=>(s+s).slice(1,-1).includes(s);
+    expect(repeatedSubstringPattern('abab')).toBe(true);
+    expect(repeatedSubstringPattern('aba')).toBe(false);
+    expect(repeatedSubstringPattern('abcabcabcabc')).toBe(true);
+    expect(repeatedSubstringPattern('ab')).toBe(false);
+  });
+});

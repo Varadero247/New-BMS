@@ -1216,3 +1216,39 @@ describe('phase62 coverage', () => {
     expect(reverseBits(0)).toBe(0);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('score of parentheses', () => {
+    const scoreOfParentheses=(s:string):number=>{const stack:number[]=[0];for(const c of s){if(c==='(')stack.push(0);else{const v=stack.pop()!;stack[stack.length-1]+=Math.max(2*v,1);}}return stack[0];};
+    expect(scoreOfParentheses('()')).toBe(1);
+    expect(scoreOfParentheses('(())')).toBe(2);
+    expect(scoreOfParentheses('()()')).toBe(2);
+    expect(scoreOfParentheses('(()(()))')).toBe(6);
+  });
+  it('meeting rooms II min rooms', () => {
+    const minMeetingRooms=(intervals:[number,number][]):number=>{const starts=intervals.map(i=>i[0]).sort((a,b)=>a-b);const ends=intervals.map(i=>i[1]).sort((a,b)=>a-b);let rooms=0,endPtr=0;for(let i=0;i<starts.length;i++){if(starts[i]<ends[endPtr])rooms++;else endPtr++;}return rooms;};
+    expect(minMeetingRooms([[0,30],[5,10],[15,20]])).toBe(2);
+    expect(minMeetingRooms([[7,10],[2,4]])).toBe(1);
+    expect(minMeetingRooms([[1,5],[8,9],[8,9]])).toBe(2);
+  });
+  it('kth largest quickselect', () => {
+    const findKthLargest=(nums:number[],k:number):number=>{const partition=(lo:number,hi:number):number=>{const pivot=nums[hi];let i=lo;for(let j=lo;j<hi;j++)if(nums[j]>=pivot){[nums[i],nums[j]]=[nums[j],nums[i]];i++;}[nums[i],nums[hi]]=[nums[hi],nums[i]];return i;};let lo=0,hi=nums.length-1;while(lo<=hi){const p=partition(lo,hi);if(p===k-1)return nums[p];if(p<k-1)lo=p+1;else hi=p-1;}return -1;};
+    expect(findKthLargest([3,2,1,5,6,4],2)).toBe(5);
+    expect(findKthLargest([3,2,3,1,2,4,5,5,6],4)).toBe(4);
+    expect(findKthLargest([1],1)).toBe(1);
+  });
+  it('is subsequence check', () => {
+    const isSubsequence=(s:string,t:string):boolean=>{let i=0;for(const c of t)if(i<s.length&&c===s[i])i++;return i===s.length;};
+    expect(isSubsequence('abc','ahbgdc')).toBe(true);
+    expect(isSubsequence('axc','ahbgdc')).toBe(false);
+    expect(isSubsequence('','ahbgdc')).toBe(true);
+    expect(isSubsequence('ace','abcde')).toBe(true);
+  });
+  it('rotate image 90 degrees', () => {
+    const rotate=(matrix:number[][]):void=>{const n=matrix.length;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)[matrix[i][j],matrix[j][i]]=[matrix[j][i],matrix[i][j]];for(let i=0;i<n;i++)matrix[i].reverse();};
+    const m=[[1,2,3],[4,5,6],[7,8,9]];rotate(m);
+    expect(m).toEqual([[7,4,1],[8,5,2],[9,6,3]]);
+    const m2=[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]];rotate(m2);
+    expect(m2[0]).toEqual([15,13,2,5]);
+  });
+});

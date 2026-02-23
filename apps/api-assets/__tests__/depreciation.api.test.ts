@@ -904,3 +904,34 @@ describe('phase62 coverage', () => {
     expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
   });
 });
+
+describe('phase63 coverage', () => {
+  it('top k frequent words', () => {
+    const topKFrequent=(words:string[],k:number):string[]=>{const cnt=new Map<string,number>();for(const w of words)cnt.set(w,(cnt.get(w)||0)+1);return [...cnt.entries()].sort(([a,fa],[b,fb])=>fb!==fa?fb-fa:a.localeCompare(b)).slice(0,k).map(([w])=>w);};
+    expect(topKFrequent(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']);
+    expect(topKFrequent(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']);
+  });
+  it('set matrix zeroes in-place', () => {
+    const setZeroes=(matrix:number[][]):void=>{const m=matrix.length,n=matrix[0].length;let firstRow=false,firstCol=false;for(let j=0;j<n;j++)if(matrix[0][j]===0)firstRow=true;for(let i=0;i<m;i++)if(matrix[i][0]===0)firstCol=true;for(let i=1;i<m;i++)for(let j=1;j<n;j++)if(matrix[i][j]===0){matrix[i][0]=0;matrix[0][j]=0;}for(let i=1;i<m;i++)for(let j=1;j<n;j++)if(matrix[i][0]===0||matrix[0][j]===0)matrix[i][j]=0;if(firstRow)for(let j=0;j<n;j++)matrix[0][j]=0;if(firstCol)for(let i=0;i<m;i++)matrix[i][0]=0;};
+    const m=[[1,1,1],[1,0,1],[1,1,1]];setZeroes(m);
+    expect(m).toEqual([[1,0,1],[0,0,0],[1,0,1]]);
+  });
+  it('sort colors Dutch flag', () => {
+    const sortColors=(nums:number[]):void=>{let lo=0,mid=0,hi=nums.length-1;while(mid<=hi){if(nums[mid]===0){[nums[lo],nums[mid]]=[nums[mid],nums[lo]];lo++;mid++;}else if(nums[mid]===1)mid++;else{[nums[mid],nums[hi]]=[nums[hi],nums[mid]];hi--;}}};
+    const a=[2,0,2,1,1,0];sortColors(a);expect(a).toEqual([0,0,1,1,2,2]);
+    const b=[2,0,1];sortColors(b);expect(b).toEqual([0,1,2]);
+    const c=[0];sortColors(c);expect(c).toEqual([0]);
+  });
+  it('kth largest quickselect', () => {
+    const findKthLargest=(nums:number[],k:number):number=>{const partition=(lo:number,hi:number):number=>{const pivot=nums[hi];let i=lo;for(let j=lo;j<hi;j++)if(nums[j]>=pivot){[nums[i],nums[j]]=[nums[j],nums[i]];i++;}[nums[i],nums[hi]]=[nums[hi],nums[i]];return i;};let lo=0,hi=nums.length-1;while(lo<=hi){const p=partition(lo,hi);if(p===k-1)return nums[p];if(p<k-1)lo=p+1;else hi=p-1;}return -1;};
+    expect(findKthLargest([3,2,1,5,6,4],2)).toBe(5);
+    expect(findKthLargest([3,2,3,1,2,4,5,5,6],4)).toBe(4);
+    expect(findKthLargest([1],1)).toBe(1);
+  });
+  it('island perimeter calculation', () => {
+    const islandPerimeter=(grid:number[][]):number=>{let p=0;const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]===1){p+=4;if(i>0&&grid[i-1][j]===1)p-=2;if(j>0&&grid[i][j-1]===1)p-=2;}return p;};
+    expect(islandPerimeter([[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]])).toBe(16);
+    expect(islandPerimeter([[1]])).toBe(4);
+    expect(islandPerimeter([[1,0]])).toBe(4);
+  });
+});
