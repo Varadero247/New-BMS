@@ -135,7 +135,7 @@
 
 1. Run `pnpm install --no-frozen-lockfile`
 2. Resolve any peer dependency warnings
-3. Run `pnpm test` to verify all 11,808 tests still pass
+3. Run `pnpm test` to verify all 708,565 tests still pass
 4. Run `pnpm build` to verify all apps build successfully
 
 ---
@@ -169,13 +169,19 @@
 - **Alerting:** PagerDuty/OpsGenie integration
 - **APM:** Datadog or New Relic (optional)
 
-**Steps:**
+**Progress (code-complete):**
+- ✅ ServiceMonitor resources created (`deploy/k8s/base/service-monitors.yaml`) — 42 CRDs covering all services
+- ✅ Grafana dashboards ready (`deploy/monitoring/grafana/dashboards/`) — 4 dashboards (overview, API performance, security events, SLO overview)
+- ✅ Prometheus alert rules ready (`deploy/monitoring/prometheus/alerts.yaml`) — 19 rules with SLO burn rate model
+- ✅ Prometheus recording rules ready (`deploy/monitoring/prometheus/rules/recording.yaml`) — 23 pre-computed metrics
+- ✅ AlertManager config ready (`deploy/monitoring/alertmanager/`) — Slack + email routing
 
-1. Deploy Prometheus in K8s cluster
-2. Configure ServiceMonitor resources for each API service
-3. Import Grafana dashboards
-4. Set up alert rules (error rate > 1%, latency p99 > 2s, pod restarts)
-5. Configure notification channels (Slack, PagerDuty)
+**Remaining steps (human/ops required):**
+
+1. Deploy Prometheus + Grafana in K8s cluster (e.g., `helm install kube-prometheus-stack`)
+2. Verify ServiceMonitor resources are discovered by Prometheus Operator
+3. Configure Slack/PagerDuty webhook URLs in `alertmanager/alertmanager.yml`
+4. Verify dashboards load in Grafana after provisioning
 
 ---
 
