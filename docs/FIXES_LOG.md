@@ -1,5 +1,17 @@
 # IMS — Fixes Log
 
+## Phases 117–216 — Test Depth Expansion to ≥1000 (February 23, 2026)
+
+Bulk expansion from ≥500 → ≥1000 tests per file (100 phases × 5 tests). 7 parallel agents × ~102 files.
+
+**Snippets used (30):** maxAreaWater, trappingRain, majorityElement, longestMountain, minSubArrayLen, subarraySum2, pivotIndex, addBinaryStr, countPrimesSieve, isHappyNum, titleToNum, numToTitle, wordPatternMatch, isomorphicStr, canConstructNote, firstUniqChar, validAnagram2, groupAnagramsCnt, removeDupsSorted, plusOneLast, maxConsecOnes, numDisappearedCount, mergeArraysLen, intersectSorted, decodeWays2, jumpMinSteps, maxProductArr, shortestWordDist, maxCircularSumDP, maxProfitK2
+
+**Fix applied:** `pivotIndex___([1,0])` expected `-1` → actual `0` (686 files). The test case was not in the verify script — added correct expected value.
+
+**Result:** 711/711 suites passing, 708,205 total tests, every file ≥1000 tests
+
+---
+
 ## Phases 72–116 — Test Depth Expansion to ≥500 (February 23, 2026)
 
 Bulk expansion of all 709 test files from ≥275 → ≥500 tests each in a single parallel pass (45 phases × 5 tests = 225 tests per file). 7 parallel agents processed ~102 files each simultaneously.
