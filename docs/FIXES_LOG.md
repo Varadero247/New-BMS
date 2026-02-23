@@ -1,5 +1,16 @@
 # IMS — Fixes Log
 
+## Phase 65 — Test Depth Expansion to ≥245 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 240 tests to ≥245 each (1 snippet × 5 its = 5 tests per file, using ceil formula).
+
+**Fixes applied:**
+- `combinationSum([2,3,5],9)`: wrong expected 5 → corrected to 3 (valid combos: [2,2,2,3],[2,2,5],[3,3,3]) (22 files)
+
+**Results:** 173,665 tests, 711/711 suites, 0 failures
+
+---
+
 ## Phase 64 — Test Depth Expansion to ≥240 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 215 tests to ≥220 each (5 snippets × 5 its = 25 tests per file → actual minimum 240).
