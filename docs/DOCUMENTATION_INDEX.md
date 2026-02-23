@@ -1,7 +1,7 @@
 # NEXARA IMS PLATFORM — DOCUMENTATION INDEX
 
 **Updated:** February 23, 2026
-**Total documentation:** ~215 KB primary references + 50+ supporting docs + 16 UAT test plans
+**Total documentation:** ~215 KB primary references + 50+ supporting docs + 40 UAT test plans
 
 ---
 
@@ -29,8 +29,11 @@
 | [SECURITY.md](./SECURITY.md) | Security implementation details |
 | [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) | System architecture overview |
 | [TEMPLATES.md](./TEMPLATES.md) | 192 built-in template library guide |
+| [DEVELOPER_ONBOARDING.md](./DEVELOPER_ONBOARDING.md) | New developer setup guide — prerequisites, architecture, common gotchas |
 | [LOGGING_GUIDE.md](./LOGGING_GUIDE.md) | Structured logging patterns, correlation IDs, jq examples |
 | [MUTATION_TESTING.md](./MUTATION_TESTING.md) | Stryker mutation testing — how to run, interpret scores, add packages |
+| [RUNBOOK.md](./RUNBOOK.md) | Operational runbook — alert response, incident procedures, deployment |
+| [TESTING_GUIDE.md](./TESTING_GUIDE.md) | All 7 test layers — unit, integration, mutation, load, coverage, Lighthouse, UAT |
 | [TRACING.md](./TRACING.md) | OpenTelemetry distributed tracing — setup, custom spans, production |
 | [STRATEGIC_RECOMMENDATIONS_REPORT.md](./STRATEGIC_RECOMMENDATIONS_REPORT.md) | Implemented and deferred strategic recommendations |
 | [NON_CODEABLE_ITEMS.md](./NON_CODEABLE_ITEMS.md) | Items requiring human/ops intervention before production launch |
