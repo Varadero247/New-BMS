@@ -32,6 +32,38 @@ patches:
       kind: Deployment
       labelSelector: 'tier=backend'
 
+configMapGenerator:
+  # Grafana datasource provisioning
+  - name: grafana-provisioning-datasources
+    options:
+      disableNameSuffixHash: true
+    files:
+      - ../../monitoring/grafana/provisioning/datasources/prometheus.yaml
+      - ../../monitoring/grafana/provisioning/datasources/alertmanager.yaml
+  # Grafana dashboard provider config
+  - name: grafana-provisioning-dashboards
+    options:
+      disableNameSuffixHash: true
+    files:
+      - ../../monitoring/grafana/provisioning/dashboards/dashboards.yaml
+  # Grafana alerting provisioning
+  - name: grafana-provisioning-alerting
+    options:
+      disableNameSuffixHash: true
+    files:
+      - ../../monitoring/grafana/provisioning/alerting/contact-points.yaml
+      - ../../monitoring/grafana/provisioning/alerting/notification-policy.yaml
+      - ../../monitoring/grafana/provisioning/alerting/rules.yaml
+  # Grafana dashboard JSON files (auto-discovered by the provisioning config)
+  - name: grafana-dashboards
+    options:
+      disableNameSuffixHash: true
+    files:
+      - ../../monitoring/grafana/dashboards/ims-overview.json
+      - ../../monitoring/grafana/dashboards/api-performance.json
+      - ../../monitoring/grafana/dashboards/security-events.json
+      - ../../monitoring/grafana/dashboards/slo-overview.json
+
 commonLabels:
   app.kubernetes.io/name: ims
   app.kubernetes.io/part-of: integrated-management-system

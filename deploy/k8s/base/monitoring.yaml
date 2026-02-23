@@ -626,8 +626,14 @@ spec:
           volumeMounts:
             - name: grafana-data
               mountPath: /var/lib/grafana
-            - name: provisioning
-              mountPath: /etc/grafana/provisioning
+            - name: provisioning-datasources
+              mountPath: /etc/grafana/provisioning/datasources
+              readOnly: true
+            - name: provisioning-dashboards
+              mountPath: /etc/grafana/provisioning/dashboards
+              readOnly: true
+            - name: provisioning-alerting
+              mountPath: /etc/grafana/provisioning/alerting
               readOnly: true
             - name: dashboards
               mountPath: /var/lib/grafana/dashboards
@@ -655,9 +661,15 @@ spec:
         - name: grafana-data
           persistentVolumeClaim:
             claimName: grafana-data
-        - name: provisioning
+        - name: provisioning-datasources
           configMap:
-            name: grafana-provisioning
+            name: grafana-provisioning-datasources
+        - name: provisioning-dashboards
+          configMap:
+            name: grafana-provisioning-dashboards
+        - name: provisioning-alerting
+          configMap:
+            name: grafana-provisioning-alerting
         - name: dashboards
           configMap:
             name: grafana-dashboards
