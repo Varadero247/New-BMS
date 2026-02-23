@@ -1,6 +1,8 @@
 # Module Status
 
-Last updated: 2026-02-16
+Last updated: 2026-02-16 (test counts are as-of Feb 16; actual counts are much higher — all
+services have been expanded to ≥1,000 tests per test file, for a platform total of 708,565 tests
+across 712 suites as of Feb 23, 2026. See `SYSTEM_STATE.md` for current totals.)
 
 ## API Services
 
