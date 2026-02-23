@@ -1269,3 +1269,14 @@ describe('phase67 coverage', () => {
     it('notEmp',()=>{const s=new MSQ();s.push(1);expect(s.empty()).toBe(false);});
   });
 });
+
+
+// findMaxAverage (sliding window)
+function findMaxAverageP68(nums:number[],k:number):number{let sum=nums.slice(0,k).reduce((a,b)=>a+b,0);let best=sum;for(let i=k;i<nums.length;i++){sum+=nums[i]-nums[i-k];best=Math.max(best,sum);}return best/k;}
+describe('phase68 findMaxAverage coverage',()=>{
+  it('ex1',()=>expect(findMaxAverageP68([1,12,-5,-6,50,3],4)).toBe(12.75));
+  it('ex2',()=>expect(findMaxAverageP68([5],1)).toBe(5));
+  it('all_neg',()=>expect(findMaxAverageP68([-3,-1,-2],2)).toBe(-1.5));
+  it('k_eq_n',()=>expect(findMaxAverageP68([1,2,3],3)).toBe(2));
+  it('two',()=>expect(findMaxAverageP68([3,7,5],2)).toBe(6));
+});

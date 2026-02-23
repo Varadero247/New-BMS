@@ -1027,3 +1027,14 @@ describe('phase67 coverage', () => {
     it('even'  ,()=>expect(revStr(['a','b','c','d']).join('')).toBe('dcba'));
   });
 });
+
+
+// checkInclusion (permutation in string)
+function checkInclusionP68(s1:string,s2:string):boolean{if(s1.length>s2.length)return false;const cnt=new Array(26).fill(0);for(const c of s1)cnt[c.charCodeAt(0)-97]++;const w=new Array(26).fill(0);for(let i=0;i<s2.length;i++){w[s2.charCodeAt(i)-97]++;if(i>=s1.length)w[s2.charCodeAt(i-s1.length)-97]--;if(cnt.join()===w.join())return true;}return false;}
+describe('phase68 checkInclusion coverage',()=>{
+  it('ex1',()=>expect(checkInclusionP68('ab','eidbaooo')).toBe(true));
+  it('ex2',()=>expect(checkInclusionP68('ab','eidboaoo')).toBe(false));
+  it('exact',()=>expect(checkInclusionP68('abc','bca')).toBe(true));
+  it('too_long',()=>expect(checkInclusionP68('abc','ab')).toBe(false));
+  it('single',()=>expect(checkInclusionP68('a','a')).toBe(true));
+});

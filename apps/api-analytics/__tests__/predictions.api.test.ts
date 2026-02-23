@@ -900,3 +900,14 @@ describe('phase67 coverage', () => {
     it('ba'    ,()=>expect(isIso('ba','aa')).toBe(false));
   });
 });
+
+
+// searchRotated (search in rotated sorted array)
+function searchRotatedP68(nums:number[],target:number):number{let l=0,r=nums.length-1;while(l<=r){const m=l+r>>1;if(nums[m]===target)return m;if(nums[l]<=nums[m]){if(nums[l]<=target&&target<nums[m])r=m-1;else l=m+1;}else{if(nums[m]<target&&target<=nums[r])l=m+1;else r=m-1;}}return -1;}
+describe('phase68 searchRotated coverage',()=>{
+  it('ex1',()=>expect(searchRotatedP68([4,5,6,7,0,1,2],0)).toBe(4));
+  it('ex2',()=>expect(searchRotatedP68([4,5,6,7,0,1,2],3)).toBe(-1));
+  it('ex3',()=>expect(searchRotatedP68([1],0)).toBe(-1));
+  it('found_left',()=>expect(searchRotatedP68([3,1],3)).toBe(0));
+  it('found_right',()=>expect(searchRotatedP68([3,1],1)).toBe(1));
+});

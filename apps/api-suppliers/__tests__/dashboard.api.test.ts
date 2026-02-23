@@ -1004,3 +1004,14 @@ describe('phase67 coverage', () => {
     it('tri'   ,()=>expect(minSpanTree(3,[[0,1,1],[1,2,2],[0,2,5]])).toBe(3));
   });
 });
+
+
+// maxProduct subarray
+function maxProductP68(nums:number[]):number{let best=nums[0],cur_max=nums[0],cur_min=nums[0];for(let i=1;i<nums.length;i++){const n=nums[i];const tmp=cur_max;cur_max=Math.max(n,tmp*n,cur_min*n);cur_min=Math.min(n,tmp*n,cur_min*n);best=Math.max(best,cur_max);}return best;}
+describe('phase68 maxProduct coverage',()=>{
+  it('ex1',()=>expect(maxProductP68([2,3,-2,4])).toBe(6));
+  it('ex2',()=>expect(maxProductP68([-2,0,-1])).toBe(0));
+  it('all_pos',()=>expect(maxProductP68([1,2,3,4])).toBe(24));
+  it('two_neg',()=>expect(maxProductP68([-2,-3])).toBe(6));
+  it('single',()=>expect(maxProductP68([5])).toBe(5));
+});

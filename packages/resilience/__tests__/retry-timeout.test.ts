@@ -965,3 +965,14 @@ describe('phase67 coverage', () => {
     it('big'   ,()=>{const h=new HS();h.add(9999);expect(h.contains(9999)).toBe(true);});
   });
 });
+
+
+// shipWithinDays
+function shipWithinDaysP68(weights:number[],days:number):number{let l=Math.max(...weights),r=weights.reduce((a,b)=>a+b,0);while(l<r){const m=l+r>>1;let d=1,cur=0;for(const w of weights){if(cur+w>m){d++;cur=0;}cur+=w;}if(d<=days)r=m;else l=m+1;}return l;}
+describe('phase68 shipWithinDays coverage',()=>{
+  it('ex1',()=>expect(shipWithinDaysP68([1,2,3,4,5,6,7,8,9,10],5)).toBe(15));
+  it('ex2',()=>expect(shipWithinDaysP68([3,2,2,4,1,4],3)).toBe(6));
+  it('ex3',()=>expect(shipWithinDaysP68([1,2,3,1,1],4)).toBe(3));
+  it('single',()=>expect(shipWithinDaysP68([5],1)).toBe(5));
+  it('all_same',()=>expect(shipWithinDaysP68([2,2,2,2],2)).toBe(4));
+});

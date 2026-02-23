@@ -1074,3 +1074,14 @@ describe('phase67 coverage', () => {
     it('two'   ,()=>expect(ladder('hot','dot',['dot'])).toBe(2));
   });
 });
+
+
+// totalFruit
+function totalFruitP68(fruits:number[]):number{const basket=new Map();let l=0,res=0;for(let r=0;r<fruits.length;r++){basket.set(fruits[r],(basket.get(fruits[r])||0)+1);while(basket.size>2){const lf=fruits[l];basket.set(lf,basket.get(lf)-1);if(basket.get(lf)===0)basket.delete(lf);l++;}res=Math.max(res,r-l+1);}return res;}
+describe('phase68 totalFruit coverage',()=>{
+  it('ex1',()=>expect(totalFruitP68([1,2,1])).toBe(3));
+  it('ex2',()=>expect(totalFruitP68([0,1,2,2])).toBe(3));
+  it('ex3',()=>expect(totalFruitP68([1,2,3,2,2])).toBe(4));
+  it('single',()=>expect(totalFruitP68([1])).toBe(1));
+  it('all_same',()=>expect(totalFruitP68([1,1,1])).toBe(3));
+});

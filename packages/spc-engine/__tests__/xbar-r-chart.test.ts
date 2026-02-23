@@ -974,3 +974,14 @@ describe('phase67 coverage', () => {
     it('big'   ,()=>{const h=new HS();h.add(9999);expect(h.contains(9999)).toBe(true);});
   });
 });
+
+
+// findMedianSortedArrays
+function findMedianSortedArraysP68(nums1:number[],nums2:number[]):number{if(nums1.length>nums2.length)return findMedianSortedArraysP68(nums2,nums1);const m=nums1.length,n=nums2.length;let l=0,r=m;while(l<=r){const i=l+r>>1;const j=(m+n+1>>1)-i;const maxL1=i===0?-Infinity:nums1[i-1];const minR1=i===m?Infinity:nums1[i];const maxL2=j===0?-Infinity:nums2[j-1];const minR2=j===n?Infinity:nums2[j];if(maxL1<=minR2&&maxL2<=minR1){if((m+n)%2===1)return Math.max(maxL1,maxL2);return(Math.max(maxL1,maxL2)+Math.min(minR1,minR2))/2;}else if(maxL1>minR2)r=i-1;else l=i+1;}return 0;}
+describe('phase68 findMedianSortedArrays coverage',()=>{
+  it('ex1',()=>expect(findMedianSortedArraysP68([1,3],[2])).toBe(2));
+  it('ex2',()=>expect(findMedianSortedArraysP68([1,2],[3,4])).toBe(2.5));
+  it('empty1',()=>expect(findMedianSortedArraysP68([],[1])).toBe(1));
+  it('empty2',()=>expect(findMedianSortedArraysP68([2],[])).toBe(2));
+  it('longer',()=>expect(findMedianSortedArraysP68([1,2],[3,4,5])).toBe(3));
+});

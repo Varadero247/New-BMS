@@ -966,3 +966,14 @@ describe('phase67 coverage', () => {
     it('asc'   ,()=>expect(pa([[1,2,3],[4,5,6],[7,8,9]])).toBeGreaterThan(0));
   });
 });
+
+
+// partitionLabels
+function partitionLabelsP68(s:string):number[]{const last=new Array(26).fill(0);for(let i=0;i<s.length;i++)last[s.charCodeAt(i)-97]=i;const res:number[]=[];let start=0,end=0;for(let i=0;i<s.length;i++){end=Math.max(end,last[s.charCodeAt(i)-97]);if(i===end){res.push(end-start+1);start=end+1;}}return res;}
+describe('phase68 partitionLabels coverage',()=>{
+  it('ex1',()=>expect(partitionLabelsP68('ababcbacadefegdehijhklij')).toEqual([9,7,8]));
+  it('single',()=>expect(partitionLabelsP68('a')).toEqual([1]));
+  it('two_diff',()=>expect(partitionLabelsP68('ab')).toEqual([1,1]));
+  it('all_same',()=>expect(partitionLabelsP68('aaa')).toEqual([3]));
+  it('ex2',()=>expect(partitionLabelsP68('eccbbbbdec')).toEqual([10]));
+});

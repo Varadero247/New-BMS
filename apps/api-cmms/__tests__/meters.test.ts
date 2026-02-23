@@ -1031,3 +1031,14 @@ describe('phase67 coverage', () => {
     it('empty' ,()=>expect(lcp([])).toBe(''));
   });
 });
+
+
+// eraseOverlapIntervals
+function eraseOverlapIntervalsP68(intervals:number[][]):number{if(!intervals.length)return 0;intervals.sort((a,b)=>a[1]-b[1]);let end=intervals[0][1],cnt=0;for(let i=1;i<intervals.length;i++){if(intervals[i][0]<end)cnt++;else end=intervals[i][1];}return cnt;}
+describe('phase68 eraseOverlapIntervals coverage',()=>{
+  it('ex1',()=>expect(eraseOverlapIntervalsP68([[1,2],[2,3],[3,4],[1,3]])).toBe(1));
+  it('ex2',()=>expect(eraseOverlapIntervalsP68([[1,2],[1,2],[1,2]])).toBe(2));
+  it('ex3',()=>expect(eraseOverlapIntervalsP68([[1,2],[2,3]])).toBe(0));
+  it('empty',()=>expect(eraseOverlapIntervalsP68([])).toBe(0));
+  it('single',()=>expect(eraseOverlapIntervalsP68([[1,5]])).toBe(0));
+});

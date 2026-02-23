@@ -1095,3 +1095,14 @@ describe('phase67 coverage', () => {
     it('order' ,()=>{const c=new LRU(2);c.put(1,1);c.put(2,2);c.get(1);c.put(3,3);expect(c.get(2)).toBe(-1);expect(c.get(1)).toBe(1);});
   });
 });
+
+
+// lengthOfLongestSubstring
+function lengthOfLongestSubstringP68(s:string):number{const map=new Map();let l=0,best=0;for(let r=0;r<s.length;r++){if(map.has(s[r])&&map.get(s[r])>=l)l=map.get(s[r])+1;map.set(s[r],r);best=Math.max(best,r-l+1);}return best;}
+describe('phase68 lengthOfLongestSubstring coverage',()=>{
+  it('ex1',()=>expect(lengthOfLongestSubstringP68('abcabcbb')).toBe(3));
+  it('ex2',()=>expect(lengthOfLongestSubstringP68('bbbbb')).toBe(1));
+  it('ex3',()=>expect(lengthOfLongestSubstringP68('pwwkew')).toBe(3));
+  it('empty',()=>expect(lengthOfLongestSubstringP68('')).toBe(0));
+  it('unique',()=>expect(lengthOfLongestSubstringP68('abcd')).toBe(4));
+});

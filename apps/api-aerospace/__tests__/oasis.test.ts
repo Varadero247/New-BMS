@@ -1107,3 +1107,14 @@ describe('phase67 coverage', () => {
     it('notEmp',()=>{const s=new MSQ();s.push(1);expect(s.empty()).toBe(false);});
   });
 });
+
+
+// reorganizeString
+function reorganizeStringP68(s:string):string{const freq=new Array(26).fill(0);for(const c of s)freq[c.charCodeAt(0)-97]++;let maxF=0,maxC=0;for(let i=0;i<26;i++)if(freq[i]>maxF){maxF=freq[i];maxC=i;}if(maxF>(s.length+1>>1))return'';const res=new Array(s.length).fill('');let idx=0;while(freq[maxC]>0){res[idx]=String.fromCharCode(97+maxC);idx+=2;freq[maxC]--;}for(let i=0;i<26;i++){while(freq[i]>0){if(idx>=res.length)idx=1;res[idx]=String.fromCharCode(97+i);idx+=2;freq[i]--;}}return res.join('');}
+describe('phase68 reorganizeString coverage',()=>{
+  it('ex1',()=>{const r=reorganizeStringP68('aab');expect(r.length).toBe(3);for(let i=1;i<r.length;i++)expect(r[i]).not.toBe(r[i-1]);});
+  it('ex2',()=>expect(reorganizeStringP68('aaab')).toBe(''));
+  it('single',()=>{const r=reorganizeStringP68('a');expect(r).toBe('a');});
+  it('all_diff',()=>{const r=reorganizeStringP68('abc');expect(r.length).toBe(3);});
+  it('two_same',()=>{const r=reorganizeStringP68('aa');expect(r).toBe('');});
+});

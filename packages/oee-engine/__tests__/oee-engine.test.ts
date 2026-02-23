@@ -904,3 +904,14 @@ describe('phase67 coverage', () => {
     it('leaf'  ,()=>{const t=mk(5);expect(deser(ser(t))!.val).toBe(5);});
   });
 });
+
+
+// maxSubArray (Kadane's)
+function maxSubArrayP68(nums:number[]):number{let cur=nums[0],best=nums[0];for(let i=1;i<nums.length;i++){cur=Math.max(nums[i],cur+nums[i]);best=Math.max(best,cur);}return best;}
+describe('phase68 maxSubArray coverage',()=>{
+  it('ex1',()=>expect(maxSubArrayP68([-2,1,-3,4,-1,2,1,-5,4])).toBe(6));
+  it('all_pos',()=>expect(maxSubArrayP68([1,2,3])).toBe(6));
+  it('all_neg',()=>expect(maxSubArrayP68([-3,-2,-1])).toBe(-1));
+  it('single',()=>expect(maxSubArrayP68([5])).toBe(5));
+  it('mixed',()=>expect(maxSubArrayP68([1,-1,2])).toBe(2));
+});

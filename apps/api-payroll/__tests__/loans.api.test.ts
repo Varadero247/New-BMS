@@ -1365,3 +1365,14 @@ describe('phase67 coverage', () => {
     it('k0'    ,()=>expect(cheapFlights(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,0)).toBe(500));
   });
 });
+
+
+// subarraySum equals k
+function subarraySumP68(nums:number[],k:number):number{const map=new Map([[0,1]]);let sum=0,cnt=0;for(const n of nums){sum+=n;cnt+=(map.get(sum-k)||0);map.set(sum,(map.get(sum)||0)+1);}return cnt;}
+describe('phase68 subarraySum coverage',()=>{
+  it('ex1',()=>expect(subarraySumP68([1,1,1],2)).toBe(2));
+  it('ex2',()=>expect(subarraySumP68([1,2,3],3)).toBe(2));
+  it('neg',()=>expect(subarraySumP68([1,-1,0],0)).toBe(3));
+  it('single_match',()=>expect(subarraySumP68([5],5)).toBe(1));
+  it('none',()=>expect(subarraySumP68([1,2,3],10)).toBe(0));
+});

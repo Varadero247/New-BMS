@@ -872,3 +872,14 @@ describe('phase67 coverage', () => {
     it('single',()=>expect(wp('a','dog')).toBe(true));
   });
 });
+
+
+// searchMatrix
+function searchMatrixP68(matrix:number[][],target:number):boolean{let l=0,r=matrix.length*matrix[0].length-1;const cols=matrix[0].length;while(l<=r){const m=l+r>>1;const v=matrix[Math.floor(m/cols)][m%cols];if(v===target)return true;if(v<target)l=m+1;else r=m-1;}return false;}
+describe('phase68 searchMatrix coverage',()=>{
+  it('ex1',()=>expect(searchMatrixP68([[1,3,5,7],[10,11,16,20],[23,30,34,60]],3)).toBe(true));
+  it('ex2',()=>expect(searchMatrixP68([[1,3,5,7],[10,11,16,20],[23,30,34,60]],13)).toBe(false));
+  it('first',()=>expect(searchMatrixP68([[1]],1)).toBe(true));
+  it('last',()=>expect(searchMatrixP68([[1,2],[3,4]],4)).toBe(true));
+  it('miss',()=>expect(searchMatrixP68([[1,2],[3,4]],5)).toBe(false));
+});

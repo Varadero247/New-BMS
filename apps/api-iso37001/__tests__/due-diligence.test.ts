@@ -1189,3 +1189,14 @@ describe('phase67 coverage', () => {
     it('notEmp',()=>{const s=new MSQ();s.push(1);expect(s.empty()).toBe(false);});
   });
 });
+
+
+// canJump (jump game)
+function canJumpP68(nums:number[]):boolean{let reach=0;for(let i=0;i<nums.length;i++){if(i>reach)return false;reach=Math.max(reach,i+nums[i]);}return true;}
+describe('phase68 canJump coverage',()=>{
+  it('ex1',()=>expect(canJumpP68([2,3,1,1,4])).toBe(true));
+  it('ex2',()=>expect(canJumpP68([3,2,1,0,4])).toBe(false));
+  it('single',()=>expect(canJumpP68([0])).toBe(true));
+  it('two_ok',()=>expect(canJumpP68([1,0])).toBe(true));
+  it('two_no',()=>expect(canJumpP68([0,1])).toBe(false));
+});

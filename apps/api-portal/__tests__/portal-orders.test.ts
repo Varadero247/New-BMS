@@ -1128,3 +1128,14 @@ describe('phase67 coverage', () => {
     it('k0'    ,()=>expect(cheapFlights(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,0)).toBe(500));
   });
 });
+
+
+// numberOfSubarrays (odd count k)
+function numberOfSubarraysP68(nums:number[],k:number):number{const cnt=new Map([[0,1]]);let odds=0,res=0;for(const n of nums){if(n%2!==0)odds++;res+=(cnt.get(odds-k)||0);cnt.set(odds,(cnt.get(odds)||0)+1);}return res;}
+describe('phase68 numberOfSubarrays coverage',()=>{
+  it('ex1',()=>expect(numberOfSubarraysP68([1,1,2,1,1],3)).toBe(2));
+  it('ex2',()=>expect(numberOfSubarraysP68([2,4,6],1)).toBe(0));
+  it('ex3',()=>expect(numberOfSubarraysP68([2,2,2,1,2,2,1,2,2,2],2)).toBe(16));
+  it('single',()=>expect(numberOfSubarraysP68([1],1)).toBe(1));
+  it('none',()=>expect(numberOfSubarraysP68([2,2],1)).toBe(0));
+});

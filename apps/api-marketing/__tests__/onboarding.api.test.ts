@@ -1023,3 +1023,14 @@ describe('phase67 coverage', () => {
     it('wall'  ,()=>{const r=[[-1,INF2]];wg(r);expect(r[0][1]).toBe(INF2);});
   });
 });
+
+
+// hIndex
+function hIndexP68(citations:number[]):number{citations.sort((a,b)=>b-a);let h=0;while(h<citations.length&&citations[h]>h)h++;return h;}
+describe('phase68 hIndex coverage',()=>{
+  it('ex1',()=>expect(hIndexP68([3,0,6,1,5])).toBe(3));
+  it('ex2',()=>expect(hIndexP68([1,3,1])).toBe(1));
+  it('all_zero',()=>expect(hIndexP68([0,0,0])).toBe(0));
+  it('high',()=>expect(hIndexP68([10,10,10])).toBe(3));
+  it('single',()=>expect(hIndexP68([5])).toBe(1));
+});

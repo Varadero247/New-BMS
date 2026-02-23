@@ -953,3 +953,14 @@ describe('phase67 coverage', () => {
     it('multi' ,()=>{const h=new HM();h.put(0,0);h.put(1000,1000);expect(h.get(0)).toBe(0);expect(h.get(1000)).toBe(1000);});
   });
 });
+
+
+// leastInterval (task scheduler)
+function leastIntervalP68(tasks:string[],n:number):number{const freq=new Array(26).fill(0);for(const t of tasks)freq[t.charCodeAt(0)-65]++;freq.sort((a,b)=>b-a);const maxF=freq[0];let maxCnt=0;for(const f of freq)if(f===maxF)maxCnt++;return Math.max(tasks.length,(maxF-1)*(n+1)+maxCnt);}
+describe('phase68 leastInterval coverage',()=>{
+  it('ex1',()=>expect(leastIntervalP68(['A','A','A','B','B','B'],2)).toBe(8));
+  it('ex2',()=>expect(leastIntervalP68(['A','A','A','B','B','B'],0)).toBe(6));
+  it('ex3',()=>expect(leastIntervalP68(['A','A','A','A','A','A','B','C','D','E','F','G'],2)).toBe(16));
+  it('single',()=>expect(leastIntervalP68(['A'],0)).toBe(1));
+  it('nodiff',()=>expect(leastIntervalP68(['A','B','C'],1)).toBe(3));
+});

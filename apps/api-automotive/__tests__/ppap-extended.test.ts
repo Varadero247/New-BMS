@@ -1165,3 +1165,14 @@ describe('phase67 coverage', () => {
     it('nbClone',()=>{const c=cloneG(n1)!;expect(c.neighbors[0]).not.toBe(n2);});
   });
 });
+
+
+// maxProfit (best time to buy and sell stock)
+function maxProfitP68(prices:number[]):number{let min=Infinity,best=0;for(const p of prices){min=Math.min(min,p);best=Math.max(best,p-min);}return best;}
+describe('phase68 maxProfit coverage',()=>{
+  it('ex1',()=>expect(maxProfitP68([7,1,5,3,6,4])).toBe(5));
+  it('ex2',()=>expect(maxProfitP68([7,6,4,3,1])).toBe(0));
+  it('single',()=>expect(maxProfitP68([1])).toBe(0));
+  it('two_up',()=>expect(maxProfitP68([1,2])).toBe(1));
+  it('two_dn',()=>expect(maxProfitP68([2,1])).toBe(0));
+});

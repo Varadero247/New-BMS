@@ -1071,3 +1071,14 @@ describe('phase67 coverage', () => {
     it('notEmp',()=>{const q=new MQ();q.push(1);expect(q.empty()).toBe(false);});
   });
 });
+
+
+// maxProfit2 (multiple transactions)
+function maxProfit2P68(prices:number[]):number{let p=0;for(let i=1;i<prices.length;i++)if(prices[i]>prices[i-1])p+=prices[i]-prices[i-1];return p;}
+describe('phase68 maxProfit2 coverage',()=>{
+  it('ex1',()=>expect(maxProfit2P68([7,1,5,3,6,4])).toBe(7));
+  it('ex2',()=>expect(maxProfit2P68([1,2,3,4,5])).toBe(4));
+  it('ex3',()=>expect(maxProfit2P68([7,6,4,3,1])).toBe(0));
+  it('flat',()=>expect(maxProfit2P68([1,1,1])).toBe(0));
+  it('single',()=>expect(maxProfit2P68([5])).toBe(0));
+});

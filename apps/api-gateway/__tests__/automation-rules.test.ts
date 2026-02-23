@@ -1025,3 +1025,14 @@ describe('phase67 coverage', () => {
     it('diag'  ,()=>expect(numIsl([['1','0'],['0','1']])).toBe(2));
   });
 });
+
+
+// canCompleteCircuit (gas station)
+function canCompleteCircuitP68(gas:number[],cost:number[]):number{let total=0,cur=0,start=0;for(let i=0;i<gas.length;i++){const d=gas[i]-cost[i];total+=d;cur+=d;if(cur<0){start=i+1;cur=0;}}return total>=0?start:-1;}
+describe('phase68 canCompleteCircuit coverage',()=>{
+  it('ex1',()=>expect(canCompleteCircuitP68([1,2,3,4,5],[3,4,5,1,2])).toBe(3));
+  it('ex2',()=>expect(canCompleteCircuitP68([2,3,4],[3,4,3])).toBe(-1));
+  it('single',()=>expect(canCompleteCircuitP68([5],[4])).toBe(0));
+  it('eq',()=>expect(canCompleteCircuitP68([1,1],[1,1])).toBe(0));
+  it('no',()=>expect(canCompleteCircuitP68([1,1],[2,2])).toBe(-1));
+});

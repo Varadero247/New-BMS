@@ -997,3 +997,14 @@ describe('phase67 coverage', () => {
     it('multi' ,()=>{const h=new HM();h.put(0,0);h.put(1000,1000);expect(h.get(0)).toBe(0);expect(h.get(1000)).toBe(1000);});
   });
 });
+
+
+// reconstructQueue
+function reconstructQueueP68(people:number[][]):number[][]{people.sort((a,b)=>b[0]-a[0]||a[1]-b[1]);const res:number[][]=[];for(const p of people)res.splice(p[1],0,p);return res;}
+describe('phase68 reconstructQueue coverage',()=>{
+  it('ex1',()=>expect(reconstructQueueP68([[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]])).toEqual([[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]]));
+  it('single',()=>expect(reconstructQueueP68([[6,0]])).toEqual([[6,0]]));
+  it('two',()=>expect(reconstructQueueP68([[7,0],[7,1]])).toEqual([[7,0],[7,1]]));
+  it('same_h',()=>expect(reconstructQueueP68([[5,0],[5,1]])).toEqual([[5,0],[5,1]]));
+  it('ex2',()=>expect(reconstructQueueP68([[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]])).toEqual([[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]));
+});

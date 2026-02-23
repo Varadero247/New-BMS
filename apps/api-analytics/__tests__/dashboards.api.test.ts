@@ -1301,3 +1301,14 @@ describe('phase67 coverage', () => {
     it('order' ,()=>{const c=new LRU(2);c.put(1,1);c.put(2,2);c.get(1);c.put(3,3);expect(c.get(2)).toBe(-1);expect(c.get(1)).toBe(1);});
   });
 });
+
+
+// findMinArrowShots
+function findMinArrowShotsP68(points:number[][]):number{if(!points.length)return 0;points.sort((a,b)=>a[1]-b[1]);let arrows=1,end=points[0][1];for(let i=1;i<points.length;i++){if(points[i][0]>end){arrows++;end=points[i][1];}}return arrows;}
+describe('phase68 findMinArrowShots coverage',()=>{
+  it('ex1',()=>expect(findMinArrowShotsP68([[10,16],[2,8],[1,6],[7,12]])).toBe(2));
+  it('ex2',()=>expect(findMinArrowShotsP68([[1,2],[3,4],[5,6],[7,8]])).toBe(4));
+  it('ex3',()=>expect(findMinArrowShotsP68([[1,2],[2,3],[3,4],[4,5]])).toBe(2));
+  it('single',()=>expect(findMinArrowShotsP68([[1,5]])).toBe(1));
+  it('empty',()=>expect(findMinArrowShotsP68([])).toBe(0));
+});

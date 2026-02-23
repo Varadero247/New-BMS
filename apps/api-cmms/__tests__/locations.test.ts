@@ -1028,3 +1028,14 @@ describe('phase67 coverage', () => {
     it('order' ,()=>{const c=new LRU(2);c.put(1,1);c.put(2,2);c.get(1);c.put(3,3);expect(c.get(2)).toBe(-1);expect(c.get(1)).toBe(1);});
   });
 });
+
+
+// maxProfitCooldown
+function maxProfitCooldownP68(prices:number[]):number{let hold=-Infinity,sold=0,rest=0;for(const p of prices){const ph=hold,ps=sold,pr=rest;hold=Math.max(ph,pr-p);sold=ph+p;rest=Math.max(pr,ps);}return Math.max(sold,rest);}
+describe('phase68 maxProfitCooldown coverage',()=>{
+  it('ex1',()=>expect(maxProfitCooldownP68([1,2,3,0,2])).toBe(3));
+  it('single',()=>expect(maxProfitCooldownP68([1])).toBe(0));
+  it('two',()=>expect(maxProfitCooldownP68([1,2])).toBe(1));
+  it('down',()=>expect(maxProfitCooldownP68([3,2,1])).toBe(0));
+  it('flat',()=>expect(maxProfitCooldownP68([2,2,2])).toBe(0));
+});

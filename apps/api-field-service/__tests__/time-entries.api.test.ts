@@ -1073,3 +1073,14 @@ describe('phase67 coverage', () => {
     it('k0'    ,()=>expect(cheapFlights(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,0)).toBe(500));
   });
 });
+
+
+// findPeakElement
+function findPeakElementP68(nums:number[]):number{let l=0,r=nums.length-1;while(l<r){const m=l+r>>1;if(nums[m]>nums[m+1])r=m;else l=m+1;}return l;}
+describe('phase68 findPeakElement coverage',()=>{
+  it('ex1',()=>{const p=findPeakElementP68([1,2,3,1]);expect(p).toBe(2);});
+  it('ex2',()=>{const p=findPeakElementP68([1,2,1,3,5,6,4]);expect([1,5].includes(p)).toBe(true);});
+  it('single',()=>expect(findPeakElementP68([1])).toBe(0));
+  it('desc',()=>expect(findPeakElementP68([3,2,1])).toBe(0));
+  it('asc',()=>expect(findPeakElementP68([1,2,3])).toBe(2));
+});

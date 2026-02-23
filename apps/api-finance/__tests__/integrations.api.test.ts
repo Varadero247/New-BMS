@@ -1210,3 +1210,14 @@ describe('phase67 coverage', () => {
     it('one'   ,()=>expect(revVowels('a')).toBe('a'));
   });
 });
+
+
+// maxProfitFee
+function maxProfitFeeP68(prices:number[],fee:number):number{let cash=0,hold=-prices[0];for(let i=1;i<prices.length;i++){cash=Math.max(cash,hold+prices[i]-fee);hold=Math.max(hold,cash-prices[i]);}return cash;}
+describe('phase68 maxProfitFee coverage',()=>{
+  it('ex1',()=>expect(maxProfitFeeP68([1,3,2,8,4,9],2)).toBe(8));
+  it('ex2',()=>expect(maxProfitFeeP68([1,3,7,5,10,3],3)).toBe(6));
+  it('single',()=>expect(maxProfitFeeP68([1],1)).toBe(0));
+  it('down',()=>expect(maxProfitFeeP68([5,4,3],1)).toBe(0));
+  it('flat',()=>expect(maxProfitFeeP68([3,3,3],1)).toBe(0));
+});

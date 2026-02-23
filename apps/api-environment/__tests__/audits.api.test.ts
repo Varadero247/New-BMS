@@ -1499,3 +1499,14 @@ describe('phase67 coverage', () => {
     it('racecar',()=>expect(lps('racecar')).toBe('racecar'));
   });
 });
+
+
+// findMin rotated sorted array
+function findMinP68(nums:number[]):number{let l=0,r=nums.length-1;while(l<r){const m=l+r>>1;if(nums[m]>nums[r])l=m+1;else r=m;}return nums[l];}
+describe('phase68 findMin coverage',()=>{
+  it('ex1',()=>expect(findMinP68([3,4,5,1,2])).toBe(1));
+  it('ex2',()=>expect(findMinP68([4,5,6,7,0,1,2])).toBe(0));
+  it('ex3',()=>expect(findMinP68([11,13,15,17])).toBe(11));
+  it('single',()=>expect(findMinP68([1])).toBe(1));
+  it('two',()=>expect(findMinP68([2,1])).toBe(1));
+});

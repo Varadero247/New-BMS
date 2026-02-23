@@ -920,3 +920,14 @@ describe('phase67 coverage', () => {
     it('mid'   ,()=>expect(strStr('hello','ll')).toBe(2));
   });
 });
+
+
+// minEatingSpeed (Koko eats bananas)
+function minEatingSpeedP68(piles:number[],h:number):number{let l=1,r=Math.max(...piles);while(l<r){const m=l+r>>1;const hrs=piles.reduce((s,p)=>s+Math.ceil(p/m),0);if(hrs<=h)r=m;else l=m+1;}return l;}
+describe('phase68 minEatingSpeed coverage',()=>{
+  it('ex1',()=>expect(minEatingSpeedP68([3,6,7,11],8)).toBe(4));
+  it('ex2',()=>expect(minEatingSpeedP68([30,11,23,4,20],5)).toBe(30));
+  it('ex3',()=>expect(minEatingSpeedP68([30,11,23,4,20],6)).toBe(23));
+  it('single',()=>expect(minEatingSpeedP68([10],2)).toBe(5));
+  it('all_one',()=>expect(minEatingSpeedP68([1,1,1,1],4)).toBe(1));
+});

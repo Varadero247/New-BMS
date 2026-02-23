@@ -863,3 +863,14 @@ describe('phase67 coverage', () => {
     it('tri'   ,()=>expect(minSpanTree(3,[[0,1,1],[1,2,2],[0,2,5]])).toBe(3));
   });
 });
+
+
+// minWindow (minimum window substring)
+function minWindowP68(s:string,t:string):string{const need=new Map();for(const c of t)need.set(c,(need.get(c)||0)+1);let have=0,total=need.size,l=0,best='';for(let r=0;r<s.length;r++){const c=s[r];if(need.has(c)){need.set(c,need.get(c)-1);if(need.get(c)===0)have++;}while(have===total){if(best===''||r-l+1<best.length)best=s.slice(l,r+1);const lc=s[l];if(need.has(lc)){need.set(lc,need.get(lc)+1);if(need.get(lc)>0)have--;}l++;}}return best;}
+describe('phase68 minWindow coverage',()=>{
+  it('ex1',()=>expect(minWindowP68('ADOBECODEBANC','ABC')).toBe('BANC'));
+  it('ex2',()=>expect(minWindowP68('a','a')).toBe('a'));
+  it('ex3',()=>expect(minWindowP68('a','aa')).toBe(''));
+  it('longer_t',()=>expect(minWindowP68('abc','d')).toBe(''));
+  it('exact',()=>expect(minWindowP68('ab','ab')).toBe('ab'));
+});

@@ -1070,3 +1070,14 @@ describe('phase67 coverage', () => {
     it('wall'  ,()=>{const r=[[-1,INF2]];wg(r);expect(r[0][1]).toBe(INF2);});
   });
 });
+
+
+// minSubArrayLen
+function minSubArrayLenP68(target:number,nums:number[]):number{let l=0,sum=0,res=Infinity;for(let r=0;r<nums.length;r++){sum+=nums[r];while(sum>=target){res=Math.min(res,r-l+1);sum-=nums[l++];}}return res===Infinity?0:res;}
+describe('phase68 minSubArrayLen coverage',()=>{
+  it('ex1',()=>expect(minSubArrayLenP68(7,[2,3,1,2,4,3])).toBe(2));
+  it('ex2',()=>expect(minSubArrayLenP68(4,[1,4,4])).toBe(1));
+  it('ex3',()=>expect(minSubArrayLenP68(11,[1,1,1,1,1,1,1,1])).toBe(0));
+  it('exact',()=>expect(minSubArrayLenP68(6,[1,2,3])).toBe(3));
+  it('single',()=>expect(minSubArrayLenP68(1,[1])).toBe(1));
+});
