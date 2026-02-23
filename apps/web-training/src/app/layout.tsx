@@ -17,7 +17,16 @@ const dmMono = DM_Mono({
 });
 export const metadata: Metadata = {
   title: 'Training — Nexara IMS',
-  description: 'Training management module',
+  description: 'Training Management and LMS — schedule training programmes, track competency, manage certifications and ensure compliance training completion.',
+  keywords: ['Training Management', 'LMS', 'Competency', 'Compliance Training'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Training — Nexara IMS',
+    description: 'Training Management and LMS — schedule training programmes, track competency, manage certifications and ensure compliance training completion.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {

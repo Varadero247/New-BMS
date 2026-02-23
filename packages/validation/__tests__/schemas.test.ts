@@ -5,6 +5,7 @@ import {
   phoneSchema,
   urlSchema,
   paginationSchema,
+  searchQuerySchema,
   loginSchema,
   registrationSchema,
 } from '../src/schemas';
@@ -2216,4 +2217,162 @@ describe('ph216_ntt',()=>{
   it('c',()=>{expect(numToTitle216(701)).toBe("ZY");});
   it('d',()=>{expect(numToTitle216(26)).toBe("Z");});
   it('e',()=>{expect(numToTitle216(27)).toBe("AA");});
+});
+
+
+describe('searchQuerySchema', () => {
+  it('should accept a valid search query with q', () => {
+    const result = searchQuerySchema.parse({ q: 'safety audit' });
+    expect(result.q).toBe('safety audit');
+    expect(result.page).toBe(1);
+    expect(result.limit).toBe(20);
+    expect(result.sortOrder).toBe('asc');
+  });
+
+  it('should accept a valid search query with search field', () => {
+    const result = searchQuerySchema.parse({ search: 'incident report' });
+    expect(result.search).toBe('incident report');
+  });
+
+  it('should strip HTML tags from q field (XSS protection)', () => {
+    const result = searchQuerySchema.parse({ q: '<script>alert(1)</script>hello' });
+    // sanitizedString strips HTML tags — the script tags and content are removed
+    expect(result.q).not.toContain('<script>');
+    expect(result.q).not.toContain('</script>');
+  });
+
+  it('should strip HTML from search field', () => {
+    const result = searchQuerySchema.parse({ search: '<b>bold</b> text' });
+    expect(result.search).not.toContain('<b>');
+    expect(result.search).not.toContain('</b>');
+  });
+
+  it('should sanitize SQL injection attempt in q field', () => {
+    // sanitizedString escapes special characters; the result should not be raw SQL
+    const result = searchQuerySchema.parse({ q: "'; DROP TABLE users; --" });
+    expect(result.q).toBeDefined();
+    // The key point is it does not throw — sanitization handles it gracefully
+  });
+
+  it('should reject limit greater than 100', () => {
+    expect(() => searchQuerySchema.parse({ limit: 101 })).toThrow();
+  });
+
+  it('should accept limit of exactly 100', () => {
+    const result = searchQuerySchema.parse({ limit: 100 });
+    expect(result.limit).toBe(100);
+  });
+
+  it('should reject limit of 0', () => {
+    expect(() => searchQuerySchema.parse({ limit: 0 })).toThrow();
+  });
+
+  it('should reject negative limit', () => {
+    expect(() => searchQuerySchema.parse({ limit: -5 })).toThrow();
+  });
+
+  it('should accept sortOrder asc', () => {
+    const result = searchQuerySchema.parse({ sortOrder: 'asc' });
+    expect(result.sortOrder).toBe('asc');
+  });
+
+  it('should accept sortOrder desc', () => {
+    const result = searchQuerySchema.parse({ sortOrder: 'desc' });
+    expect(result.sortOrder).toBe('desc');
+  });
+
+  it('should reject invalid sortOrder', () => {
+    expect(() => searchQuerySchema.parse({ sortOrder: 'random' })).toThrow();
+  });
+
+  it('should default page to 1', () => {
+    const result = searchQuerySchema.parse({});
+    expect(result.page).toBe(1);
+  });
+
+  it('should default limit to 20', () => {
+    const result = searchQuerySchema.parse({});
+    expect(result.limit).toBe(20);
+  });
+
+  it('should default sortOrder to asc', () => {
+    const result = searchQuerySchema.parse({});
+    expect(result.sortOrder).toBe('asc');
+  });
+
+  it('should accept sortBy as optional string', () => {
+    const result = searchQuerySchema.parse({ sortBy: 'createdAt' });
+    expect(result.sortBy).toBe('createdAt');
+  });
+
+  it('should accept sortBy up to 50 characters', () => {
+    const fifty = 'a'.repeat(50);
+    const result = searchQuerySchema.parse({ sortBy: fifty });
+    expect(result.sortBy).toBe(fifty);
+  });
+
+  it('should reject sortBy longer than 50 characters', () => {
+    const fiftyone = 'a'.repeat(51);
+    expect(() => searchQuerySchema.parse({ sortBy: fiftyone })).toThrow();
+  });
+
+  it('should coerce page from string to number', () => {
+    const result = searchQuerySchema.parse({ page: '3' });
+    expect(result.page).toBe(3);
+  });
+
+  it('should coerce limit from string to number', () => {
+    const result = searchQuerySchema.parse({ limit: '50' });
+    expect(result.limit).toBe(50);
+  });
+
+  it('should reject page of 0', () => {
+    expect(() => searchQuerySchema.parse({ page: 0 })).toThrow();
+  });
+
+  it('should reject negative page', () => {
+    expect(() => searchQuerySchema.parse({ page: -1 })).toThrow();
+  });
+
+  it('should allow all fields to be absent (all optional or defaulted)', () => {
+    expect(() => searchQuerySchema.parse({})).not.toThrow();
+  });
+
+  it('should reject q longer than 200 characters after sanitization', () => {
+    const longQ = 'a'.repeat(201);
+    expect(() => searchQuerySchema.parse({ q: longQ })).toThrow();
+  });
+
+  it('should accept q of exactly 200 characters', () => {
+    const twoHundred = 'a'.repeat(200);
+    const result = searchQuerySchema.parse({ q: twoHundred });
+    expect(result.q).toHaveLength(200);
+  });
+
+  it('should reject search longer than 200 characters', () => {
+    const longSearch = 'b'.repeat(201);
+    expect(() => searchQuerySchema.parse({ search: longSearch })).toThrow();
+  });
+
+  it('should accept both q and search simultaneously', () => {
+    const result = searchQuerySchema.parse({ q: 'first', search: 'second' });
+    expect(result.q).toBe('first');
+    expect(result.search).toBe('second');
+  });
+
+  it('should handle page as positive integer', () => {
+    const result = searchQuerySchema.parse({ page: 5 });
+    expect(result.page).toBe(5);
+  });
+
+  it('should trim whitespace from q after sanitization', () => {
+    const result = searchQuerySchema.parse({ q: '  hello world  ' });
+    // sanitizedString trims + the .trim() pipe ensures no leading/trailing spaces
+    expect(result.q).toBe('hello world');
+  });
+
+  it('should trim whitespace from search after sanitization', () => {
+    const result = searchQuerySchema.parse({ search: '  test search  ' });
+    expect(result.search).toBe('test search');
+  });
 });

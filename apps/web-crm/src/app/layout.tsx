@@ -20,7 +20,16 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: 'CRM — Nexara IMS',
-  description: 'Customer Relationship Management System',
+  description: 'Customer Relationship Management System — manage leads, contacts, accounts, sales pipelines and customer interactions.',
+  keywords: ['CRM', 'Customer Management', 'Sales', 'Leads'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'CRM — Nexara IMS',
+    description: 'Customer Relationship Management System — manage leads, contacts, accounts, sales pipelines and customer interactions.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 

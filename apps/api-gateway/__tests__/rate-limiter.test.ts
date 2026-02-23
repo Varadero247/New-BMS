@@ -8,6 +8,7 @@ import {
   apiLimiter,
   passwordResetLimiter,
   strictApiLimiter,
+  refreshLimiter,
 } from '../src/middleware/rate-limiter';
 
 describe('Rate Limiter Middleware', () => {
@@ -66,6 +67,11 @@ describe('Rate Limiter Middleware', () => {
     it('should export password reset limiter', () => {
       expect(passwordResetLimiter).toBeDefined();
       expect(typeof passwordResetLimiter).toBe('function');
+    });
+
+    it('should export refresh limiter', () => {
+      expect(refreshLimiter).toBeDefined();
+      expect(typeof refreshLimiter).toBe('function');
     });
 
     it('should export strict API limiter', () => {

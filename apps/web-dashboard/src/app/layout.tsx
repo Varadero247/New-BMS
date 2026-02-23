@@ -20,7 +20,16 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: 'Dashboard — Nexara IMS',
-  description: 'Integrated Management System - ISO 45001, 14001, 9001',
+  description: 'Integrated Management System — central dashboard for ISO 45001, 14001, 9001 and all compliance modules.',
+  keywords: ['IMS', 'Dashboard', 'Nexara', 'Compliance', 'ISO Management'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Dashboard — Nexara IMS',
+    description: 'Integrated Management System — central dashboard for ISO 45001, 14001, 9001 and all compliance modules.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 

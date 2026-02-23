@@ -32,6 +32,7 @@ export {
   urlSchema,
   dateSchema,
   paginationSchema,
+  searchQuerySchema,
   riskSchema,
   incidentSchema,
   registrationSchema,
@@ -47,6 +48,7 @@ export {
   type UpdateProfileInput,
   type ChangePasswordInput,
   type SearchInput,
+  type SearchQuery,
 } from './schemas';
 
 // Re-export Zod for convenience

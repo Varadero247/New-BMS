@@ -20,7 +20,16 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: 'Environment — Nexara IMS',
-  description: 'ISO 14001 Environmental Management System',
+  description: 'ISO 14001 Environmental Management System — track environmental aspects, events, legal obligations, objectives and corrective actions.',
+  keywords: ['Environment', 'ISO 14001', 'Environmental Management', 'Carbon'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Environment — Nexara IMS',
+    description: 'ISO 14001 Environmental Management System — track environmental aspects, events, legal obligations, objectives and corrective actions.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 

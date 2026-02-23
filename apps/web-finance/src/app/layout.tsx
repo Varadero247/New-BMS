@@ -20,7 +20,16 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: 'Finance — Nexara IMS',
-  description: 'Finance & Accounting Management System',
+  description: 'Finance & Accounting Management System — handle invoicing, budgets, expenses, financial reporting and multi-currency transactions.',
+  keywords: ['Finance', 'Invoicing', 'Budgets', 'Financial Management'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Finance — Nexara IMS',
+    description: 'Finance & Accounting Management System — handle invoicing, budgets, expenses, financial reporting and multi-currency transactions.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 

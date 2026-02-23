@@ -20,7 +20,16 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: 'Quality — Nexara IMS',
-  description: 'ISO 9001 Quality Management System',
+  description: 'ISO 9001 Quality Management System — manage nonconformances, CAPA, audits, document control and continual improvement.',
+  keywords: ['Quality Management', 'ISO 9001', 'QMS', 'CAPA'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Quality — Nexara IMS',
+    description: 'ISO 9001 Quality Management System — manage nonconformances, CAPA, audits, document control and continual improvement.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 

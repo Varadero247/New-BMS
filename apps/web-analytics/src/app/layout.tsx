@@ -18,7 +18,16 @@ const dmMono = DM_Mono({
 });
 export const metadata: Metadata = {
   title: 'Analytics — Nexara IMS',
-  description: 'Business Intelligence and Analytics Platform',
+  description: 'Business Intelligence and Analytics Platform — interactive KPI dashboards, trend analysis and performance reporting across all IMS modules.',
+  keywords: ['Analytics', 'KPIs', 'Business Intelligence', 'Dashboards'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Analytics — Nexara IMS',
+    description: 'Business Intelligence and Analytics Platform — interactive KPI dashboards, trend analysis and performance reporting across all IMS modules.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {

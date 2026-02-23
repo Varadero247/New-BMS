@@ -17,7 +17,16 @@ const dmMono = DM_Mono({
 });
 export const metadata: Metadata = {
   title: 'Risk & CAPA — Nexara IMS',
-  description: 'Risk & CAPA management module',
+  description: 'Risk Management and CAPA module — maintain the enterprise risk register, run risk assessments and track corrective and preventive actions.',
+  keywords: ['Risk Management', 'Risk Register', 'Risk Assessment'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Risk & CAPA — Nexara IMS',
+    description: 'Risk Management and CAPA module — maintain the enterprise risk register, run risk assessments and track corrective and preventive actions.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -86,6 +86,26 @@ export const paginationSchema = z.object({
 });
 
 /**
+ * Search query validation schema
+ * Validates and sanitises the ?q= / ?search= query parameter.
+ * Both fields are optional; either can be used as the search term.
+ * Inputs are HTML-stripped by sanitizedString() before the max-length
+ * and trim constraints are applied.
+ */
+export const searchQuerySchema = z.object({
+  q: sanitizedString()
+    .pipe(z.string().max(200).trim())
+    .optional(),
+  search: sanitizedString()
+    .pipe(z.string().max(200).trim())
+    .optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  sortBy: z.string().max(50).optional(),
+  sortOrder: z.enum(['asc', 'desc']).default('asc'),
+});
+
+/**
  * Common risk schema
  */
 export const riskSchema = z.object({
@@ -175,3 +195,4 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type SearchInput = z.infer<typeof searchSchema>;
+export type SearchQuery = z.infer<typeof searchQuerySchema>;

@@ -19,7 +19,8 @@ const logFormat = winston.format.combine(
   winston.format.json()
 );
 
-const consoleFormat = winston.format.combine(
+// Human-readable format for development — colorized, compact single-line output.
+const devConsoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({ format: 'HH:mm:ss' }),
   winston.format.printf((info) => {
@@ -35,16 +36,29 @@ const consoleFormat = winston.format.combine(
   })
 );
 
+// Pure JSON format for production — no ANSI colour codes, no printf.
+// Container log aggregators (Loki, Datadog, CloudWatch) parse this directly.
+const prodConsoleFormat = winston.format.combine(
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.errors({ stack: true }),
+  winston.format.splat(),
+  winston.format.json()
+);
+
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const createLogger = (serviceName: string) => {
   const transports: winston.transport[] = [
     new winston.transports.Console({
-      format: consoleFormat,
+      // Production: pure JSON (machine-parseable, no ANSI codes).
+      // Development: colourised human-readable text.
+      format: isProduction ? prodConsoleFormat : devConsoleFormat,
     }),
   ];
 
   // Only add file transports in non-production (containers should use stdout/stderr only).
   // Rotation: 10 MB per file, 5 files retained — prevents unbounded disk growth.
-  if (process.env.NODE_ENV !== 'production' && fs.existsSync(logsDir)) {
+  if (!isProduction && fs.existsSync(logsDir)) {
     transports.push(
       new winston.transports.File({
         filename: path.join(logsDir, `${serviceName}-error.log`),

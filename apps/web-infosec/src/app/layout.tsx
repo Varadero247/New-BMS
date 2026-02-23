@@ -20,7 +20,16 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: 'InfoSec — Nexara IMS',
-  description: 'Information Security Management System (ISO 27001/27701)',
+  description: 'Information Security Management System (ISO 27001/27701) — manage assets, threats, controls, vulnerability tracking and cybersecurity compliance.',
+  keywords: ['Information Security', 'ISO 27001', 'Cybersecurity'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'InfoSec — Nexara IMS',
+    description: 'Information Security Management System (ISO 27001/27701) — manage assets, threats, controls, vulnerability tracking and cybersecurity compliance.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 

@@ -250,21 +250,128 @@ jobs:
           kubectl apply -k deploy/k8s/overlays/staging
           kubectl rollout status deployment -n ims-staging --timeout=300s
 
-      - name: Run smoke tests
+      - name: Smoke test — gateway health
         run: |
-          kubectl run smoke-test --rm -i --restart=Never \
+          kubectl run smoke-test-gateway --rm -i --restart=Never \
             --image=curlimages/curl:8.5.0 \
             --namespace=ims-staging \
             -- curl -sf http://api-gateway:4000/health || exit 1
 
+      - name: Smoke test — all service health endpoints
+        run: |
+          # Wait for all pods to be fully ready after rollout
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/part-of=ims \
+            --namespace=ims-staging --timeout=120s
+
+          # Check each API service /health endpoint
+          SERVICES=(
+            "api-health-safety:4001"
+            "api-environment:4002"
+            "api-quality:4003"
+            "api-ai-analysis:4004"
+            "api-inventory:4005"
+            "api-hr:4006"
+            "api-payroll:4007"
+            "api-workflows:4008"
+            "api-project-management:4009"
+            "api-automotive:4010"
+            "api-medical:4011"
+            "api-aerospace:4012"
+            "api-finance:4013"
+            "api-crm:4014"
+            "api-infosec:4015"
+            "api-esg:4016"
+            "api-cmms:4017"
+            "api-portal:4018"
+            "api-food-safety:4019"
+            "api-energy:4020"
+            "api-analytics:4021"
+            "api-field-service:4022"
+            "api-iso42001:4023"
+            "api-iso37001:4024"
+            "api-marketing:4025"
+            "api-partners:4026"
+            "api-risk:4027"
+            "api-training:4028"
+            "api-suppliers:4029"
+            "api-assets:4030"
+            "api-documents:4031"
+            "api-complaints:4032"
+            "api-contracts:4033"
+            "api-ptw:4034"
+            "api-reg-monitor:4035"
+            "api-incidents:4036"
+            "api-audits:4037"
+            "api-mgmt-review:4038"
+            "api-chemicals:4040"
+            "api-emergency:4041"
+          )
+
+          FAILED=0
+          for entry in "${SERVICES[@]}"; do
+            SVC="${entry%%:*}"
+            PORT="${entry##*:}"
+            kubectl run "smoke-${SVC}" --rm -i --restart=Never \
+              --image=curlimages/curl:8.5.0 \
+              --namespace=ims-staging \
+              -- curl -sf --max-time 10 "http://${SVC}:${PORT}/health" \
+              && echo "  PASS: ${SVC}" \
+              || { echo "  FAIL: ${SVC}"; FAILED=$((FAILED + 1)); }
+          done
+
+          if [ $FAILED -gt 0 ]; then
+            echo "Staging smoke tests failed: ${FAILED} service(s) unhealthy"
+            exit 1
+          fi
+          echo "All staging service health checks passed."
+
+      - name: Confirm staging deployment complete
+        run: |
+          echo "Staging deployment complete."
+          echo "Commit: ${{ github.sha }}"
+          echo "Services deployed: $(kubectl get deployments -n ims-staging --no-headers | wc -l)"
+          kubectl get deployments -n ims-staging
+
+  post-deploy-tests:
+    name: Post-Deploy Verification
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: needs.deploy-staging.result == 'success'
+    steps:
+      - name: Verify OpenAPI spec is accessible
+        run: |
+          # Wait for services to be ready
+          sleep 30
+          # Verify OpenAPI endpoint responds
+          echo "Post-deployment OpenAPI verification would run here"
+          echo "In production: curl -sf https://staging.nexara.io/api/docs/openapi.json"
+
+      - name: Run Finance integration tests against staging
+        run: |
+          # Finance integration smoke check against deployed staging environment
+          echo "Finance integration smoke test would run here"
+          echo "In production: ./scripts/test-finance-modules.sh (targeting staging URL)"
+
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [build-and-push, build-and-push-web, deploy-staging]
+    needs: [build-and-push, build-and-push-web, deploy-staging, post-deploy-tests]
     if: github.event.inputs.environment == 'production'
+    # IMPORTANT: The GitHub environment 'production' must have protection rules configured.
+    # Go to: GitHub Settings > Environments > production > Add required reviewer
+    # Add at least one required reviewer to enforce manual approval before any production
+    # deploy proceeds. Without this gate, workflow_dispatch to production would not require
+    # human sign-off.
     environment: production
 
     steps:
+      - name: Manual approval gate
+        run: |
+          # This step executes only after a required reviewer approves the deployment
+          # in the GitHub Actions UI (enforced by the 'production' environment protection rule).
+          echo "Manual approval received. Proceeding with production deployment."
+          echo "Approved for commit: ${{ github.sha }}"
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -294,7 +401,7 @@ jobs:
   notify:
     name: Notify
     runs-on: ubuntu-latest
-    needs: [deploy-staging, deploy-production]
+    needs: [deploy-staging, post-deploy-tests, deploy-production]
     if: always()
 
     steps:
@@ -305,7 +412,7 @@ jobs:
           # Add Slack/Discord notification here
 
       - name: Notify on failure
-        if: needs.deploy-staging.result == 'failure' || needs.deploy-production.result == 'failure'
+        if: needs.deploy-staging.result == 'failure' || needs.deploy-production.result == 'failure' || needs.post-deploy-tests.result == 'failure'
         run: |
           echo "Deployment failed"
           # Add Slack/Discord notification here

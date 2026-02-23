@@ -17,7 +17,7 @@ import { getEmailService, templates } from '@ims/email';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger, authFailuresTotal } from '@ims/monitoring';
-import { authLimiter, registerLimiter, passwordResetLimiter } from '../middleware/rate-limiter';
+import { authLimiter, registerLimiter, passwordResetLimiter, refreshLimiter } from '../middleware/rate-limiter';
 import { getAccountLockoutManager, checkAccountLockout } from '../middleware/account-lockout';
 
 const logger = createLogger('auth-routes');
@@ -305,8 +305,9 @@ router.get('/me', authenticate, async (req: Request, res: Response) => {
 });
 
 // POST /api/auth/refresh
+// Rate limited: 20 attempts per 15 minutes per IP
 // Refresh access token using refresh token
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', refreshLimiter, async (req, res) => {
   try {
     const { refreshToken } = z.object({ refreshToken: z.string().trim().min(1) }).parse(req.body);
 

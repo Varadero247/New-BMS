@@ -6,7 +6,7 @@ set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Module test scripts in order
+# Module test scripts in order — 40 modules total
 MODULES=(
   "test-hs-modules.sh:Health & Safety"
   "test-env-modules.sh:Environment"
@@ -16,6 +16,38 @@ MODULES=(
   "test-inventory-modules.sh:Inventory"
   "test-workflows-modules.sh:Workflows"
   "test-pm-modules.sh:Project Management"
+  "test-finance-modules.sh:Finance"
+  "test-ai-modules.sh:AI Analysis"
+  "test-automotive-modules.sh:Automotive"
+  "test-medical-modules.sh:Medical"
+  "test-aerospace-modules.sh:Aerospace"
+  "test-crm-modules.sh:CRM"
+  "test-infosec-modules.sh:InfoSec"
+  "test-esg-modules.sh:ESG"
+  "test-cmms-modules.sh:CMMS"
+  "test-portal-modules.sh:Portal"
+  "test-food-safety-modules.sh:Food Safety"
+  "test-energy-modules.sh:Energy"
+  "test-analytics-modules.sh:Analytics"
+  "test-field-service-modules.sh:Field Service"
+  "test-iso42001-modules.sh:ISO 42001"
+  "test-iso37001-modules.sh:ISO 37001"
+  "test-marketing-modules.sh:Marketing"
+  "test-partners-modules.sh:Partners"
+  "test-risk-modules.sh:Risk"
+  "test-training-modules.sh:Training"
+  "test-suppliers-modules.sh:Suppliers"
+  "test-assets-modules.sh:Assets"
+  "test-documents-modules.sh:Documents"
+  "test-complaints-modules.sh:Complaints"
+  "test-contracts-modules.sh:Contracts"
+  "test-ptw-modules.sh:PTW"
+  "test-reg-monitor-modules.sh:Regulatory Monitor"
+  "test-incidents-modules.sh:Incidents"
+  "test-audits-modules.sh:Audits"
+  "test-mgmt-review-modules.sh:Mgmt Review"
+  "test-chemicals-modules.sh:Chemicals"
+  "test-emergency-modules.sh:Emergency"
 )
 
 TOTAL_MODULES=0
@@ -86,8 +118,8 @@ echo "============================================================"
 echo "  MASTER TEST SUMMARY"
 echo "============================================================"
 echo ""
-printf "  %-20s %-10s %s\n" "MODULE" "RESULT" "DETAILS"
-printf "  %-20s %-10s %s\n" "────────────────────" "──────────" "──────────────────────────────────"
+printf "  %-25s %-10s %s\n" "MODULE" "RESULT" "DETAILS"
+printf "  %-25s %-10s %s\n" "─────────────────────────" "──────────" "──────────────────────────────────"
 
 for i in "${!MODULE_NAMES[@]}"; do
   RESULT="${MODULE_RESULTS[$i]}"
@@ -97,7 +129,7 @@ for i in "${!MODULE_NAMES[@]}"; do
     SKIP) INDICATOR="SKIP" ;;
     *)    INDICATOR="????" ;;
   esac
-  printf "  %-20s %-10s %s\n" "${MODULE_NAMES[$i]}" "$INDICATOR" "${MODULE_DETAILS[$i]}"
+  printf "  %-25s %-10s %s\n" "${MODULE_NAMES[$i]}" "$INDICATOR" "${MODULE_DETAILS[$i]}"
 done
 
 echo ""

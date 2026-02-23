@@ -20,7 +20,16 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: 'Health & Safety — Nexara IMS',
-  description: 'ISO 45001 Health & Safety Management System',
+  description: 'ISO 45001 Occupational Health & Safety Management System — manage incidents, risk assessments, legal requirements and OHS objectives.',
+  keywords: ['Health & Safety', 'ISO 45001', 'OHS', 'Incident Management'],
+  authors: [{ name: 'Nexara' }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Health & Safety — Nexara IMS',
+    description: 'ISO 45001 Occupational Health & Safety Management System — manage incidents, risk assessments, legal requirements and OHS objectives.',
+    type: 'website',
+    siteName: 'Nexara IMS',
+  },
   themeColor: '#080B12',
 };
 

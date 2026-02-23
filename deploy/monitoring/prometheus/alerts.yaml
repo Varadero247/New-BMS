@@ -9,6 +9,7 @@ groups:
         annotations:
           summary: 'Service {{ $labels.job }} is down'
           description: 'Service {{ $labels.job }} has been down for more than 1 minute.'
+          runbook_url: "https://docs.nexara.io/runbooks/ServiceDown"
 
       - alert: HighErrorRate
         expr: |
@@ -20,6 +21,7 @@ groups:
         annotations:
           summary: 'High error rate on {{ $labels.job }}'
           description: 'Service {{ $labels.job }} has error rate > 5% for 5 minutes.'
+          runbook_url: "https://docs.nexara.io/runbooks/HighErrorRate"
 
       - alert: CriticalErrorRate
         expr: |
@@ -31,6 +33,7 @@ groups:
         annotations:
           summary: 'Critical error rate on {{ $labels.job }}'
           description: 'Service {{ $labels.job }} has error rate > 10% for 2 minutes.'
+          runbook_url: "https://docs.nexara.io/runbooks/CriticalErrorRate"
 
   - name: ims-latency
     rules:
@@ -43,6 +46,7 @@ groups:
         annotations:
           summary: 'High latency on {{ $labels.job }}'
           description: 'Service {{ $labels.job }} P95 latency > 500ms for 5 minutes.'
+          runbook_url: "https://docs.nexara.io/runbooks/HighLatency"
 
       - alert: CriticalLatency
         expr: |
@@ -53,6 +57,7 @@ groups:
         annotations:
           summary: 'Critical latency on {{ $labels.job }}'
           description: 'Service {{ $labels.job }} P99 latency > 2s for 2 minutes.'
+          runbook_url: "https://docs.nexara.io/runbooks/CriticalLatency"
 
   - name: ims-resources
     rules:
@@ -65,6 +70,7 @@ groups:
         annotations:
           summary: 'High memory usage on {{ $labels.job }}'
           description: 'Service {{ $labels.job }} is using more than 400MB of memory.'
+          runbook_url: "https://docs.nexara.io/runbooks/HighMemoryUsage"
 
       - alert: HighCPUUsage
         expr: |
@@ -75,6 +81,7 @@ groups:
         annotations:
           summary: 'High CPU usage on {{ $labels.job }}'
           description: 'Service {{ $labels.job }} CPU usage > 80% for 10 minutes.'
+          runbook_url: "https://docs.nexara.io/runbooks/HighCPUUsage"
 
   - name: ims-security
     rules:
@@ -88,6 +95,7 @@ groups:
         annotations:
           summary: 'High authentication failures'
           description: 'More than 10 auth failures per second detected.'
+          runbook_url: "https://docs.nexara.io/runbooks/HighAuthenticationFailures"
 
       # rate_limit_exceeded_total is now emitted by api-gateway/src/middleware/rate-limiter.ts
       - alert: RateLimitBreached
@@ -99,3 +107,52 @@ groups:
         annotations:
           summary: 'Rate limit frequently exceeded'
           description: 'Rate limiting is being triggered frequently.'
+          runbook_url: "https://docs.nexara.io/runbooks/RateLimitBreached"
+
+  - name: slo
+    rules:
+      - alert: SLOErrorBudgetCritical
+        expr: |
+          (1 - (sum(rate(http_requests_total{status!~"5.."}[1h])) / sum(rate(http_requests_total[1h])))) > 0.001
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "SLO error budget critically depleted"
+          description: "Error budget consumption rate indicates SLO breach within 24 hours"
+          runbook_url: "https://docs.nexara.io/runbooks/SLOErrorBudgetCritical"
+
+      - alert: SLOLatencyBudgetCritical
+        expr: |
+          histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1h])) by (le)) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "P99 latency SLO breach"
+          description: "P99 latency exceeds 2 seconds, impacting SLO compliance"
+          runbook_url: "https://docs.nexara.io/runbooks/SLOLatencyBudgetCritical"
+
+  - name: database
+    rules:
+      - alert: PostgreSQLConnectionsHigh
+        expr: pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL connections approaching limit"
+          description: "Active connections {{ $value }} approaching max_connections=100"
+          runbook_url: "https://docs.nexara.io/runbooks/PostgreSQLConnectionsHigh"
+
+      - alert: PostgreSQLReplicationLag
+        expr: pg_replication_lag > 30
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL replication lag high"
+          description: "Replication lag {{ $value }}s exceeds 30s threshold"
+          runbook_url: "https://docs.nexara.io/runbooks/PostgreSQLReplicationLag"

@@ -172,6 +172,27 @@ export const passwordResetLimiter: RateLimitRequestHandler = rateLimit({
 });
 
 /**
+ * Token refresh rate limiter - prevent JWT refresh token cracking
+ * 20 refresh attempts per 15 minutes per IP
+ */
+export const refreshLimiter: RateLimitRequestHandler = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: skipRateLimit,
+  keyGenerator: (req: Request) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    return `refresh:${ip}`;
+  },
+  store: createStore(),
+  handler: createRateLimitHandler(
+    'Too many token refresh attempts. Please try again later.',
+    'refresh'
+  ),
+});
+
+/**
  * General API rate limiter - more relaxed
  * 300 requests per 15 minutes per IP
  */

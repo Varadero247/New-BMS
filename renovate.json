@@ -1,0 +1,81 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    "group:monorepos",
+    "group:recommended"
+  ],
+  "timezone": "Europe/London",
+  "schedule": ["before 6am on monday"],
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 10,
+  "labels": ["dependencies", "automated"],
+  "assignees": [],
+  "reviewers": [],
+  "packageRules": [
+    {
+      "description": "Auto-merge patch updates for safe packages",
+      "matchUpdateTypes": ["patch"],
+      "matchPackagePatterns": ["*"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "Group all Next.js updates",
+      "matchPackageNames": ["next", "react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "React & Next.js",
+      "automerge": false
+    },
+    {
+      "description": "Group all OpenTelemetry packages",
+      "matchPackagePatterns": ["@opentelemetry/*"],
+      "groupName": "OpenTelemetry",
+      "automerge": false
+    },
+    {
+      "description": "Group all Prisma packages",
+      "matchPackagePatterns": ["prisma", "@prisma/*"],
+      "groupName": "Prisma ORM",
+      "automerge": false,
+      "schedule": ["before 6am on the first day of the month"]
+    },
+    {
+      "description": "Group all @stryker-mutator packages",
+      "matchPackagePatterns": ["@stryker-mutator/*"],
+      "groupName": "Stryker Mutation Testing",
+      "automerge": false
+    },
+    {
+      "description": "Security updates — always auto-merge patch",
+      "matchUpdateTypes": ["patch"],
+      "matchCategories": ["security"],
+      "automerge": true,
+      "labels": ["security", "dependencies", "automated"],
+      "prPriority": 10
+    },
+    {
+      "description": "Hold major updates for manual review",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["major-update", "dependencies"],
+      "prPriority": -1
+    },
+    {
+      "description": "Group all @ims/* internal packages — never update automatically",
+      "matchPackagePatterns": ["^@ims/"],
+      "enabled": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "automerge": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on the first day of the month"]
+  },
+  "ignoreDeps": [],
+  "ignorePaths": ["**/node_modules/**", "**/.next/**", "**/dist/**"]
+}
