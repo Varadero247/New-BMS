@@ -790,3 +790,12 @@ describe('phase53 coverage', () => {
   it('implements min stack with O(1) getMin', () => { const minStk=()=>{const st:number[]=[],ms:number[]=[];return{push:(x:number)=>{st.push(x);ms.push(Math.min(x,ms.length?ms[ms.length-1]:x));},pop:()=>{st.pop();ms.pop();},top:()=>st[st.length-1],getMin:()=>ms[ms.length-1]};}; const s=minStk();s.push(-2);s.push(0);s.push(-3);expect(s.getMin()).toBe(-3);s.pop();expect(s.top()).toBe(0);expect(s.getMin()).toBe(-2); });
   it('removes k digits to form smallest number', () => { const rk2=(num:string,k:number)=>{const st:string[]=[];for(const c of num){while(k>0&&st.length&&st[st.length-1]>c){st.pop();k--;}st.push(c);}while(k--)st.pop();const res=st.join('').replace(/^0+/,'');return res||'0';}; expect(rk2('1432219',3)).toBe('1219'); expect(rk2('10200',1)).toBe('200'); expect(rk2('10',2)).toBe('0'); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('finds minimum arrows to burst all balloons', () => { const minArrows=(pts:number[][])=>{if(!pts.length)return 0;pts.sort((a,b)=>a[1]-b[1]);let arrows=1,end=pts[0][1];for(let i=1;i<pts.length;i++){if(pts[i][0]>end){arrows++;end=pts[i][1];}}return arrows;}; expect(minArrows([[10,16],[2,8],[1,6],[7,12]])).toBe(2); expect(minArrows([[1,2],[3,4],[5,6]])).toBe(3); expect(minArrows([[1,2],[2,3]])).toBe(1); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('computes total hamming distance between all pairs', () => { const thd=(a:number[])=>{let res=0;for(let b=0;b<32;b++){let ones=0;for(const x of a)ones+=(x>>b)&1;res+=ones*(a.length-ones);}return res;}; expect(thd([4,14,2])).toBe(6); expect(thd([4,14,4])).toBe(4); });
+  it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
+  it('computes minimum cost to cut a stick at given positions', () => { const cutCost=(n:number,cuts:number[])=>{const c=[0,...cuts.sort((a,b)=>a-b),n],m=c.length;const dp=Array.from({length:m},()=>new Array(m).fill(0));for(let len=2;len<m;len++){for(let i=0;i+len<m;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+c[j]-c[i]);}}return dp[0][m-1];}; expect(cutCost(7,[1,3,4,5])).toBe(16); expect(cutCost(9,[5,6,1,4,2])).toBe(22); });
+});

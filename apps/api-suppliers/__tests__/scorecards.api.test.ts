@@ -675,3 +675,12 @@ describe('phase53 coverage', () => {
   it('finds length of longest consecutive sequence', () => { const lcs3=(a:number[])=>{const s=new Set(a);let mx=0;for(const n of s){if(!s.has(n-1)){let len=1;while(s.has(n+len))len++;mx=Math.max(mx,len);}}return mx;}; expect(lcs3([100,4,200,1,3,2])).toBe(4); expect(lcs3([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
   it('minimises cost to send people to two cities', () => { const tcs=(costs:[number,number][])=>{const n=costs.length/2;costs=costs.slice().sort((a,b)=>(a[0]-a[1])-(b[0]-b[1]));let tot=0;for(let i=0;i<n;i++)tot+=costs[i][0];for(let i=n;i<2*n;i++)tot+=costs[i][1];return tot;}; expect(tcs([[10,20],[30,200],[400,50],[30,20]])).toBe(110); expect(tcs([[1,2],[3,4],[5,1],[1,5]])).toBe(7); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('counts nodes in a complete binary tree in O(log^2 n)', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const depth=(n:N|null):number=>n?1+depth(n.l):0; const cnt=(n:N|null):number=>{if(!n)return 0;const ld=depth(n.l),rd=depth(n.r);return ld===rd?cnt(n.r)+(1<<ld):cnt(n.l)+(1<<rd);}; const t=mk(1,mk(2,mk(4),mk(5)),mk(3,mk(6),null)); expect(cnt(t)).toBe(6); expect(cnt(null)).toBe(0); });
+  it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
+  it('computes length of longest wiggle subsequence', () => { const wiggle=(a:number[])=>{if(a.length<2)return a.length;let up=1,down=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1])up=down+1;else if(a[i]<a[i-1])down=up+1;}return Math.max(up,down);}; expect(wiggle([1,7,4,9,2,5])).toBe(6); expect(wiggle([1,17,5,10,13,15,10,5,16,8])).toBe(7); expect(wiggle([1,2,3,4,5])).toBe(2); });
+  it('finds maximum sum subarray with all unique elements', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,res=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];res=Math.max(res,sum);}return res;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+});

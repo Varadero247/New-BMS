@@ -887,3 +887,12 @@ describe('phase53 coverage', () => {
   it('finds length of longest consecutive sequence', () => { const lcs3=(a:number[])=>{const s=new Set(a);let mx=0;for(const n of s){if(!s.has(n-1)){let len=1;while(s.has(n+len))len++;mx=Math.max(mx,len);}}return mx;}; expect(lcs3([100,4,200,1,3,2])).toBe(4); expect(lcs3([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
   it('finds intersection of two arrays with duplicates', () => { const intersect=(a:number[],b:number[])=>{const cnt=new Map<number,number>();for(const n of a)cnt.set(n,(cnt.get(n)||0)+1);const res:number[]=[];for(const n of b)if((cnt.get(n)||0)>0){res.push(n);cnt.set(n,cnt.get(n)!-1);}return res.sort((x,y)=>x-y);}; expect(intersect([1,2,2,1],[2,2])).toEqual([2,2]); expect(intersect([4,9,5],[9,4,9,8,4])).toEqual([4,9]); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
+  it('finds longest harmonious subsequence (max-min = 1)', () => { const lhs=(a:number[])=>{const m=new Map<number,number>();for(const x of a)m.set(x,(m.get(x)||0)+1);let res=0;for(const [k,v] of m)if(m.has(k+1))res=Math.max(res,v+m.get(k+1)!);return res;}; expect(lhs([1,3,2,2,5,2,3,7])).toBe(5); expect(lhs([1,1,1,1])).toBe(0); expect(lhs([1,2,3,4])).toBe(2); });
+  it('finds maximum sum subarray with all unique elements', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,res=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];res=Math.max(res,sum);}return res;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
+  it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
+  it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
+});

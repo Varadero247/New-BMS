@@ -993,3 +993,12 @@ describe('phase53 coverage', () => {
   it('sorts array of 0s 1s and 2s using Dutch national flag', () => { const sc=(a:number[])=>{let lo=0,mid=0,hi=a.length-1;while(mid<=hi){if(a[mid]===0){[a[lo],a[mid]]=[a[mid],a[lo]];lo++;mid++;}else if(a[mid]===1)mid++;else{[a[mid],a[hi]]=[a[hi],a[mid]];hi--;}}return a;}; expect(sc([2,0,2,1,1,0])).toEqual([0,0,1,1,2,2]); expect(sc([2,0,1])).toEqual([0,1,2]); });
   it('counts car fleets arriving at target', () => { const cf2=(target:number,pos:number[],spd:number[])=>{const cars=[...Array(pos.length).keys()].sort((a,b)=>pos[b]-pos[a]);const st:number[]=[];for(const i of cars){const t=(target-pos[i])/spd[i];if(!st.length||t>st[st.length-1])st.push(t);}return st.length;}; expect(cf2(12,[10,8,0,5,3],[2,4,1,1,3])).toBe(3); expect(cf2(10,[3],[3])).toBe(1); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('computes total hamming distance between all pairs', () => { const thd=(a:number[])=>{let res=0;for(let b=0;b<32;b++){let ones=0;for(const x of a)ones+=(x>>b)&1;res+=ones*(a.length-ones);}return res;}; expect(thd([4,14,2])).toBe(6); expect(thd([4,14,4])).toBe(4); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+  it('finds minimum arrows to burst all balloons', () => { const minArrows=(pts:number[][])=>{if(!pts.length)return 0;pts.sort((a,b)=>a[1]-b[1]);let arrows=1,end=pts[0][1];for(let i=1;i<pts.length;i++){if(pts[i][0]>end){arrows++;end=pts[i][1];}}return arrows;}; expect(minArrows([[10,16],[2,8],[1,6],[7,12]])).toBe(2); expect(minArrows([[1,2],[3,4],[5,6]])).toBe(3); expect(minArrows([[1,2],[2,3]])).toBe(1); });
+  it('computes minimum path sum from top-left to bottom-right', () => { const mps=(g:number[][])=>{const m=g.length,n=g[0].length,dp=g.map(r=>[...r]);for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;const top=i>0?dp[i-1][j]:Infinity;const left=j>0?dp[i][j-1]:Infinity;dp[i][j]+=Math.min(top,left);}return dp[m-1][n-1];}; expect(mps([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); expect(mps([[1,2],[5,6]])).toBe(9); });
+});

@@ -964,3 +964,12 @@ describe('phase53 coverage', () => {
   it('partitions string into maximum parts where each letter appears in one part', () => { const pl2=(s:string)=>{const last:Record<string,number>={};for(let i=0;i<s.length;i++)last[s[i]]=i;const res:number[]=[];let st=0,end=0;for(let i=0;i<s.length;i++){end=Math.max(end,last[s[i]]);if(i===end){res.push(end-st+1);st=i+1;}}return res;}; expect(pl2('ababcbacadefegdehijhklij')).toEqual([9,7,8]); expect(pl2('eccbbbbdec')).toEqual([10]); });
   it('counts subarrays with maximum bounded in range', () => { const nsb=(a:number[],L:number,R:number)=>{let cnt=0,dp=0,last=-1;for(let i=0;i<a.length;i++){if(a[i]>R){dp=0;last=i;}else if(a[i]>=L)dp=i-last;cnt+=dp;}return cnt;}; expect(nsb([2,1,4,3],2,3)).toBe(3); expect(nsb([2,9,2,5,6],2,8)).toBe(7); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('computes total hamming distance between all pairs', () => { const thd=(a:number[])=>{let res=0;for(let b=0;b<32;b++){let ones=0;for(const x of a)ones+=(x>>b)&1;res+=ones*(a.length-ones);}return res;}; expect(thd([4,14,2])).toBe(6); expect(thd([4,14,4])).toBe(4); });
+  it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
+  it('computes minimum score triangulation of a convex polygon', () => { const mst=(v:number[])=>{const n=v.length,dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let i=0;i+len<n;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+v[i]*v[k]*v[j]);}}return dp[0][n-1];}; expect(mst([1,2,3])).toBe(6); expect(mst([3,7,4,5])).toBe(144); });
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+  it('finds minimum arrows to burst all balloons', () => { const minArrows=(pts:number[][])=>{if(!pts.length)return 0;pts.sort((a,b)=>a[1]-b[1]);let arrows=1,end=pts[0][1];for(let i=1;i<pts.length;i++){if(pts[i][0]>end){arrows++;end=pts[i][1];}}return arrows;}; expect(minArrows([[10,16],[2,8],[1,6],[7,12]])).toBe(2); expect(minArrows([[1,2],[3,4],[5,6]])).toBe(3); expect(minArrows([[1,2],[2,3]])).toBe(1); });
+});

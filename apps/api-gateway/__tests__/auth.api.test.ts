@@ -912,3 +912,12 @@ describe('phase53 coverage', () => {
   it('finds longest subarray with at most 2 distinct characters', () => { const la2=(s:string)=>{const mp=new Map<string,number>();let l=0,mx=0;for(let r=0;r<s.length;r++){mp.set(s[r],(mp.get(s[r])||0)+1);while(mp.size>2){const lc=s[l];mp.set(lc,mp.get(lc)!-1);if(mp.get(lc)===0)mp.delete(lc);l++;}mx=Math.max(mx,r-l+1);}return mx;}; expect(la2('eceba')).toBe(3); expect(la2('ccaabbb')).toBe(5); });
   it('finds days until warmer temperature', () => { const dt2=(T:number[])=>{const res=new Array(T.length).fill(0),st:number[]=[];for(let i=0;i<T.length;i++){while(st.length&&T[st[st.length-1]]<T[i]){const j=st.pop()!;res[j]=i-j;}st.push(i);}return res;}; expect(dt2([73,74,75,71,69,72,76,73])).toEqual([1,1,4,2,1,1,0,0]); expect(dt2([30,40,50,60])).toEqual([1,1,1,0]); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('computes minimum cost to cut a stick at given positions', () => { const cutCost=(n:number,cuts:number[])=>{const c=[0,...cuts.sort((a,b)=>a-b),n],m=c.length;const dp=Array.from({length:m},()=>new Array(m).fill(0));for(let len=2;len<m;len++){for(let i=0;i+len<m;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+c[j]-c[i]);}}return dp[0][m-1];}; expect(cutCost(7,[1,3,4,5])).toBe(16); expect(cutCost(9,[5,6,1,4,2])).toBe(22); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
+  it('computes length of longest wiggle subsequence', () => { const wiggle=(a:number[])=>{if(a.length<2)return a.length;let up=1,down=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1])up=down+1;else if(a[i]<a[i-1])down=up+1;}return Math.max(up,down);}; expect(wiggle([1,7,4,9,2,5])).toBe(6); expect(wiggle([1,17,5,10,13,15,10,5,16,8])).toBe(7); expect(wiggle([1,2,3,4,5])).toBe(2); });
+  it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
+});

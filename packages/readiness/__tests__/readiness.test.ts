@@ -728,3 +728,12 @@ describe('phase53 coverage', () => {
   it('finds peak element index using binary search', () => { const pe2=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]<a[m+1])l=m+1;else r=m;}return l;}; expect(pe2([1,2,3,1])).toBe(2); expect(pe2([1,2,1,3,5,6,4])).toBe(5); expect(pe2([1])).toBe(0); });
   it('finds length of longest consecutive sequence', () => { const lcs3=(a:number[])=>{const s=new Set(a);let mx=0;for(const n of s){if(!s.has(n-1)){let len=1;while(s.has(n+len))len++;mx=Math.max(mx,len);}}return mx;}; expect(lcs3([100,4,200,1,3,2])).toBe(4); expect(lcs3([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('finds minimum length subarray to sort to make array sorted', () => { const mws=(a:number[])=>{const n=a.length;let l=n,r=-1;for(let i=0;i<n-1;i++)if(a[i]>a[i+1]){if(l===n)l=i;r=i+1;}if(r===-1)return 0;const sub=a.slice(l,r+1);const mn=Math.min(...sub),mx=Math.max(...sub);while(l>0&&a[l-1]>mn)l--;while(r<n-1&&a[r+1]<mx)r++;return r-l+1;}; expect(mws([2,6,4,8,10,9,15])).toBe(5); expect(mws([1,2,3])).toBe(0); expect(mws([3,2,1])).toBe(3); });
+  it('counts nodes in a complete binary tree in O(log^2 n)', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const depth=(n:N|null):number=>n?1+depth(n.l):0; const cnt=(n:N|null):number=>{if(!n)return 0;const ld=depth(n.l),rd=depth(n.r);return ld===rd?cnt(n.r)+(1<<ld):cnt(n.l)+(1<<rd);}; const t=mk(1,mk(2,mk(4),mk(5)),mk(3,mk(6),null)); expect(cnt(t)).toBe(6); expect(cnt(null)).toBe(0); });
+  it('computes total hamming distance between all pairs', () => { const thd=(a:number[])=>{let res=0;for(let b=0;b<32;b++){let ones=0;for(const x of a)ones+=(x>>b)&1;res+=ones*(a.length-ones);}return res;}; expect(thd([4,14,2])).toBe(6); expect(thd([4,14,4])).toBe(4); });
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+  it('counts total number of digit 1 appearing in all numbers from 1 to n', () => { const cnt1=(n:number)=>{let res=0;for(let f=1;f<=n;f*=10){const hi=Math.floor(n/(f*10)),cur=Math.floor(n/f)%10,lo=n%f;res+=hi*f+(cur>1?f:cur===1?lo+1:0);}return res;}; expect(cnt1(13)).toBe(6); expect(cnt1(0)).toBe(0); expect(cnt1(100)).toBe(21); });
+});

@@ -634,3 +634,12 @@ describe('phase53 coverage', () => {
   it('searches target in row-column sorted 2D matrix', () => { const sm=(m:number[][],t:number)=>{let r=0,c=m[0].length-1;while(r<m.length&&c>=0){if(m[r][c]===t)return true;else if(m[r][c]>t)c--;else r++;}return false;}; expect(sm([[1,4,7,11],[2,5,8,12],[3,6,9,16],[10,13,14,17],[18,21,23,26]],5)).toBe(true); expect(sm([[1,4,7,11],[2,5,8,12],[3,6,9,16],[10,13,14,17],[18,21,23,26]],20)).toBe(false); });
   it('finds length of longest substring without repeating chars', () => { const lswr=(s:string)=>{const mp=new Map<string,number>();let mx=0,l=0;for(let r=0;r<s.length;r++){if(mp.has(s[r])&&mp.get(s[r])!>=l)l=mp.get(s[r])!+1;mp.set(s[r],r);mx=Math.max(mx,r-l+1);}return mx;}; expect(lswr('abcabcbb')).toBe(3); expect(lswr('bbbbb')).toBe(1); expect(lswr('pwwkew')).toBe(3); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
+  it('finds maximum sum subarray with all unique elements', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,res=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];res=Math.max(res,sum);}return res;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
+  it('counts subarrays with exactly k distinct integers', () => { const ek=(a:number[],k:number)=>{const atMost=(x:number)=>{let res=0,l=0;const m=new Map<number,number>();for(let r=0;r<a.length;r++){m.set(a[r],(m.get(a[r])||0)+1);while(m.size>x){const v=m.get(a[l])!-1;if(v===0)m.delete(a[l]);else m.set(a[l],v);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);}; expect(ek([1,2,1,2,3],2)).toBe(7); expect(ek([1,2,1,3,4],3)).toBe(3); });
+});

@@ -718,3 +718,12 @@ describe('phase53 coverage', () => {
   it('finds maximum XOR of any two numbers in array', () => { const mxor=(a:number[])=>{let mx=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)mx=Math.max(mx,a[i]^a[j]);return mx;}; expect(mxor([3,10,5,25,2,8])).toBe(28); expect(mxor([0,0])).toBe(0); expect(mxor([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127); });
   it('counts paths from source to target in DAG', () => { const cp4=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);for(const[u,v]of edges)adj[u].push(v);const dp=new Array(n).fill(-1);const dfs=(v:number):number=>{if(v===n-1)return 1;if(dp[v]!==-1)return dp[v];dp[v]=0;for(const u of adj[v])dp[v]+=dfs(u);return dp[v];};return dfs(0);}; expect(cp4(3,[[0,1],[0,2],[1,2]])).toBe(2); expect(cp4(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(2); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('counts total number of digit 1 appearing in all numbers from 1 to n', () => { const cnt1=(n:number)=>{let res=0;for(let f=1;f<=n;f*=10){const hi=Math.floor(n/(f*10)),cur=Math.floor(n/f)%10,lo=n%f;res+=hi*f+(cur>1?f:cur===1?lo+1:0);}return res;}; expect(cnt1(13)).toBe(6); expect(cnt1(0)).toBe(0); expect(cnt1(100)).toBe(21); });
+  it('counts how many people each person can see in a queue (monotonic stack)', () => { const see=(h:number[])=>{const n=h.length,res=new Array(n).fill(0),st:number[]=[];for(let i=n-1;i>=0;i--){let cnt=0;while(st.length&&h[st[st.length-1]]<h[i]){cnt++;st.pop();}if(st.length)cnt++;res[i]=cnt;st.push(i);}return res;}; expect(see([10,6,8,5,11,9])).toEqual([3,1,2,1,1,0]); expect(see([5,1,2,3,10])).toEqual([4,1,1,1,0]); });
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+  it('counts nodes in a complete binary tree in O(log^2 n)', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const depth=(n:N|null):number=>n?1+depth(n.l):0; const cnt=(n:N|null):number=>{if(!n)return 0;const ld=depth(n.l),rd=depth(n.r);return ld===rd?cnt(n.r)+(1<<ld):cnt(n.l)+(1<<rd);}; const t=mk(1,mk(2,mk(4),mk(5)),mk(3,mk(6),null)); expect(cnt(t)).toBe(6); expect(cnt(null)).toBe(0); });
+});

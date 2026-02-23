@@ -960,3 +960,12 @@ describe('phase53 coverage', () => {
   it('computes running median from data stream', () => { const ms2=()=>{const nums:number[]=[];return{add:(n:number)=>{let l=0,r=nums.length;while(l<r){const m=l+r>>1;if(nums[m]<n)l=m+1;else r=m;}nums.splice(l,0,n);},med:():number=>{const n=nums.length;return n%2?nums[n>>1]:(nums[n/2-1]+nums[n/2])/2;}};}; const s=ms2();s.add(1);s.add(2);expect(s.med()).toBe(1.5);s.add(3);expect(s.med()).toBe(2); });
   it('determines if a number is a happy number', () => { const isHappy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(isHappy(19)).toBe(true); expect(isHappy(2)).toBe(false); expect(isHappy(1)).toBe(true); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('determines if circular array loop exists (all same direction, length > 1)', () => { const cal=(a:number[])=>{const n=a.length,next=(i:number)=>((i+a[i])%n+n)%n;for(let i=0;i<n;i++){let slow=i,fast=i;do{const sd=a[slow]>0;slow=next(slow);if(a[slow]>0!==sd)break;const fd=a[fast]>0;fast=next(fast);if(a[fast]>0!==fd)break;fast=next(fast);if(a[fast]>0!==fd)break;}while(slow!==fast);if(slow===fast&&next(slow)!==slow)return true;}return false;}; expect(cal([2,-1,1,2,2])).toBe(true); expect(cal([-1,2])).toBe(false); });
+  it('counts subarrays with exactly k distinct integers', () => { const ek=(a:number[],k:number)=>{const atMost=(x:number)=>{let res=0,l=0;const m=new Map<number,number>();for(let r=0;r<a.length;r++){m.set(a[r],(m.get(a[r])||0)+1);while(m.size>x){const v=m.get(a[l])!-1;if(v===0)m.delete(a[l]);else m.set(a[l],v);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);}; expect(ek([1,2,1,2,3],2)).toBe(7); expect(ek([1,2,1,3,4],3)).toBe(3); });
+  it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+});

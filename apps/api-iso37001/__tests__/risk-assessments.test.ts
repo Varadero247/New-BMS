@@ -947,3 +947,12 @@ describe('phase53 coverage', () => {
   it('validates binary search tree from array representation', () => { const isBST=(a:(number|null)[])=>{const dfs=(i:number,mn:number,mx:number):boolean=>{if(i>=a.length||a[i]===null)return true;const v=a[i] as number;if(v<=mn||v>=mx)return false;return dfs(2*i+1,mn,v)&&dfs(2*i+2,v,mx);};return dfs(0,-Infinity,Infinity);}; expect(isBST([2,1,3])).toBe(true); expect(isBST([5,1,4,null,null,3,6])).toBe(false); });
   it('finds maximum XOR of any two numbers in array', () => { const mxor=(a:number[])=>{let mx=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)mx=Math.max(mx,a[i]^a[j]);return mx;}; expect(mxor([3,10,5,25,2,8])).toBe(28); expect(mxor([0,0])).toBe(0); expect(mxor([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
+  it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
+  it('finds all lonely numbers (no adjacent values exist in array)', () => { const lonely=(a:number[])=>{const s=new Set(a),cnt=new Map<number,number>();for(const x of a)cnt.set(x,(cnt.get(x)||0)+1);return a.filter(x=>cnt.get(x)===1&&!s.has(x-1)&&!s.has(x+1)).sort((a,b)=>a-b);}; expect(lonely([10,6,5,8])).toEqual([8,10]); expect(lonely([1,3,5,3])).toEqual([1,5]); });
+  it('finds maximum sum subarray with all unique elements', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,res=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];res=Math.max(res,sum);}return res;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
+  it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
+});

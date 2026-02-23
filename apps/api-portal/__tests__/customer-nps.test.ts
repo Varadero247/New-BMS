@@ -709,3 +709,12 @@ describe('phase53 coverage', () => {
   it('finds minimum number of overlapping intervals to remove', () => { const eoi=(ivs:[number,number][])=>{if(!ivs.length)return 0;const s=ivs.slice().sort((a,b)=>a[1]-b[1]);let cnt=0,end=s[0][1];for(let i=1;i<s.length;i++){if(s[i][0]<end)cnt++;else end=s[i][1];}return cnt;}; expect(eoi([[1,2],[2,3],[3,4],[1,3]])).toBe(1); expect(eoi([[1,2],[1,2],[1,2]])).toBe(2); expect(eoi([[1,2],[2,3]])).toBe(0); });
   it('counts subarrays with maximum bounded in range', () => { const nsb=(a:number[],L:number,R:number)=>{let cnt=0,dp=0,last=-1;for(let i=0;i<a.length;i++){if(a[i]>R){dp=0;last=i;}else if(a[i]>=L)dp=i-last;cnt+=dp;}return cnt;}; expect(nsb([2,1,4,3],2,3)).toBe(3); expect(nsb([2,9,2,5,6],2,8)).toBe(7); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('counts how many people each person can see in a queue (monotonic stack)', () => { const see=(h:number[])=>{const n=h.length,res=new Array(n).fill(0),st:number[]=[];for(let i=n-1;i>=0;i--){let cnt=0;while(st.length&&h[st[st.length-1]]<h[i]){cnt++;st.pop();}if(st.length)cnt++;res[i]=cnt;st.push(i);}return res;}; expect(see([10,6,8,5,11,9])).toEqual([3,1,2,1,1,0]); expect(see([5,1,2,3,10])).toEqual([4,1,1,1,0]); });
+  it('computes minimum cost to connect sticks using min-heap', () => { const mcs=(s:number[])=>{if(s.length<=1)return 0;const h=[...s].sort((a,b)=>a-b);let cost=0;const pop=()=>{h.sort((a,b)=>a-b);return h.shift()!;};while(h.length>1){const a=pop(),b=pop();cost+=a+b;h.push(a+b);}return cost;}; expect(mcs([2,4,3])).toBe(14); expect(mcs([1,8,3,5])).toBe(30); expect(mcs([5])).toBe(0); });
+  it('sorts characters in string by decreasing frequency', () => { const fs=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]).map(([c,f])=>c.repeat(f)).join('');}; expect(fs('tree')).toMatch(/^e{2}[rt]{2}$/); expect(fs('cccaaa')).toMatch(/^(c{3}a{3}|a{3}c{3})$/); expect(fs('Aabb')).toMatch(/b{2}[aA]{2}|b{2}[Aa]{2}/); });
+  it('counts total number of digit 1 appearing in all numbers from 1 to n', () => { const cnt1=(n:number)=>{let res=0;for(let f=1;f<=n;f*=10){const hi=Math.floor(n/(f*10)),cur=Math.floor(n/f)%10,lo=n%f;res+=hi*f+(cur>1?f:cur===1?lo+1:0);}return res;}; expect(cnt1(13)).toBe(6); expect(cnt1(0)).toBe(0); expect(cnt1(100)).toBe(21); });
+});

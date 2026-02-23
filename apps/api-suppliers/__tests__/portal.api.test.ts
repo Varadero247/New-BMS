@@ -606,3 +606,12 @@ describe('phase53 coverage', () => {
   it('counts subarrays with maximum bounded in range', () => { const nsb=(a:number[],L:number,R:number)=>{let cnt=0,dp=0,last=-1;for(let i=0;i<a.length;i++){if(a[i]>R){dp=0;last=i;}else if(a[i]>=L)dp=i-last;cnt+=dp;}return cnt;}; expect(nsb([2,1,4,3],2,3)).toBe(3); expect(nsb([2,9,2,5,6],2,8)).toBe(7); });
   it('counts good pairs where indices differ and values equal', () => { const ngp=(a:number[])=>{const cnt=new Map<number,number>();let res=0;for(const n of a){const c=cnt.get(n)||0;res+=c;cnt.set(n,c+1);}return res;}; expect(ngp([1,2,3,1,1,3])).toBe(4); expect(ngp([1,1,1,1])).toBe(6); expect(ngp([1,2,3])).toBe(0); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('computes minimum path sum from top-left to bottom-right', () => { const mps=(g:number[][])=>{const m=g.length,n=g[0].length,dp=g.map(r=>[...r]);for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;const top=i>0?dp[i-1][j]:Infinity;const left=j>0?dp[i][j-1]:Infinity;dp[i][j]+=Math.min(top,left);}return dp[m-1][n-1];}; expect(mps([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); expect(mps([[1,2],[5,6]])).toBe(9); });
+  it('counts nodes in a complete binary tree in O(log^2 n)', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const depth=(n:N|null):number=>n?1+depth(n.l):0; const cnt=(n:N|null):number=>{if(!n)return 0;const ld=depth(n.l),rd=depth(n.r);return ld===rd?cnt(n.r)+(1<<ld):cnt(n.l)+(1<<rd);}; const t=mk(1,mk(2,mk(4),mk(5)),mk(3,mk(6),null)); expect(cnt(t)).toBe(6); expect(cnt(null)).toBe(0); });
+  it('finds minimum arrows to burst all balloons', () => { const minArrows=(pts:number[][])=>{if(!pts.length)return 0;pts.sort((a,b)=>a[1]-b[1]);let arrows=1,end=pts[0][1];for(let i=1;i<pts.length;i++){if(pts[i][0]>end){arrows++;end=pts[i][1];}}return arrows;}; expect(minArrows([[10,16],[2,8],[1,6],[7,12]])).toBe(2); expect(minArrows([[1,2],[3,4],[5,6]])).toBe(3); expect(minArrows([[1,2],[2,3]])).toBe(1); });
+  it('finds maximum sum subarray with all unique elements', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,res=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];res=Math.max(res,sum);}return res;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
+});

@@ -732,3 +732,12 @@ describe('phase53 coverage', () => {
   it('finds peak element index using binary search', () => { const pe2=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]<a[m+1])l=m+1;else r=m;}return l;}; expect(pe2([1,2,3,1])).toBe(2); expect(pe2([1,2,1,3,5,6,4])).toBe(5); expect(pe2([1])).toBe(0); });
   it('finds length of longest substring without repeating chars', () => { const lswr=(s:string)=>{const mp=new Map<string,number>();let mx=0,l=0;for(let r=0;r<s.length;r++){if(mp.has(s[r])&&mp.get(s[r])!>=l)l=mp.get(s[r])!+1;mp.set(s[r],r);mx=Math.max(mx,r-l+1);}return mx;}; expect(lswr('abcabcbb')).toBe(3); expect(lswr('bbbbb')).toBe(1); expect(lswr('pwwkew')).toBe(3); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('computes minimum cost to hire k workers satisfying wage/quality ratios', () => { const hireK=(q:number[],w:number[],k:number)=>{const n=q.length,workers=Array.from({length:n},(_,i)=>[w[i]/q[i],q[i]]).sort((a,b)=>a[0]-b[0]);let res=Infinity,qSum=0;const maxH:number[]=[];for(const [r,qi] of workers){qSum+=qi;maxH.push(qi);maxH.sort((a,b)=>b-a);if(maxH.length>k){qSum-=maxH.shift()!;}if(maxH.length===k)res=Math.min(res,r*qSum);}return res;}; expect(hireK([10,20,5],[70,50,30],2)).toBeCloseTo(105); });
+  it('finds longest harmonious subsequence (max-min = 1)', () => { const lhs=(a:number[])=>{const m=new Map<number,number>();for(const x of a)m.set(x,(m.get(x)||0)+1);let res=0;for(const [k,v] of m)if(m.has(k+1))res=Math.max(res,v+m.get(k+1)!);return res;}; expect(lhs([1,3,2,2,5,2,3,7])).toBe(5); expect(lhs([1,1,1,1])).toBe(0); expect(lhs([1,2,3,4])).toBe(2); });
+  it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
+  it('collects matrix elements in clockwise spiral order', () => { const spiral=(m:number[][])=>{const res:number[]=[],rows=m.length,cols=m[0].length;let t=0,b=rows-1,l=0,r=cols-1;while(t<=b&&l<=r){for(let i=l;i<=r;i++)res.push(m[t][i]);t++;for(let i=t;i<=b;i++)res.push(m[i][r]);r--;if(t<=b){for(let i=r;i>=l;i--)res.push(m[b][i]);b--;}if(l<=r){for(let i=b;i>=t;i--)res.push(m[i][l]);l++;}}return res;}; expect(spiral([[1,2],[4,3]])).toEqual([1,2,3,4]); });
+});

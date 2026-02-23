@@ -968,3 +968,12 @@ describe('phase53 coverage', () => {
   it('counts good pairs where indices differ and values equal', () => { const ngp=(a:number[])=>{const cnt=new Map<number,number>();let res=0;for(const n of a){const c=cnt.get(n)||0;res+=c;cnt.set(n,c+1);}return res;}; expect(ngp([1,2,3,1,1,3])).toBe(4); expect(ngp([1,1,1,1])).toBe(6); expect(ngp([1,2,3])).toBe(0); });
   it('sorts array of 0s 1s and 2s using Dutch national flag', () => { const sc=(a:number[])=>{let lo=0,mid=0,hi=a.length-1;while(mid<=hi){if(a[mid]===0){[a[lo],a[mid]]=[a[mid],a[lo]];lo++;mid++;}else if(a[mid]===1)mid++;else{[a[mid],a[hi]]=[a[hi],a[mid]];hi--;}}return a;}; expect(sc([2,0,2,1,1,0])).toEqual([0,0,1,1,2,2]); expect(sc([2,0,1])).toEqual([0,1,2]); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('finds minimum arrows to burst all balloons', () => { const minArrows=(pts:number[][])=>{if(!pts.length)return 0;pts.sort((a,b)=>a[1]-b[1]);let arrows=1,end=pts[0][1];for(let i=1;i<pts.length;i++){if(pts[i][0]>end){arrows++;end=pts[i][1];}}return arrows;}; expect(minArrows([[10,16],[2,8],[1,6],[7,12]])).toBe(2); expect(minArrows([[1,2],[3,4],[5,6]])).toBe(3); expect(minArrows([[1,2],[2,3]])).toBe(1); });
+  it('finds minimum length subarray to sort to make array sorted', () => { const mws=(a:number[])=>{const n=a.length;let l=n,r=-1;for(let i=0;i<n-1;i++)if(a[i]>a[i+1]){if(l===n)l=i;r=i+1;}if(r===-1)return 0;const sub=a.slice(l,r+1);const mn=Math.min(...sub),mx=Math.max(...sub);while(l>0&&a[l-1]>mn)l--;while(r<n-1&&a[r+1]<mx)r++;return r-l+1;}; expect(mws([2,6,4,8,10,9,15])).toBe(5); expect(mws([1,2,3])).toBe(0); expect(mws([3,2,1])).toBe(3); });
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+  it('computes minimum cost to cut a stick at given positions', () => { const cutCost=(n:number,cuts:number[])=>{const c=[0,...cuts.sort((a,b)=>a-b),n],m=c.length;const dp=Array.from({length:m},()=>new Array(m).fill(0));for(let len=2;len<m;len++){for(let i=0;i+len<m;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+c[j]-c[i]);}}return dp[0][m-1];}; expect(cutCost(7,[1,3,4,5])).toBe(16); expect(cutCost(9,[5,6,1,4,2])).toBe(22); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+});

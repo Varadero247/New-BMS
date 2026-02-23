@@ -647,3 +647,12 @@ describe('phase53 coverage', () => {
   it('implements queue using two stacks', () => { const myQ=()=>{const ib:number[]=[],ob:number[]=[];const load=()=>{if(!ob.length)while(ib.length)ob.push(ib.pop()!);};return{push:(x:number)=>ib.push(x),pop:():number=>{load();return ob.pop()!;},peek:():number=>{load();return ob[ob.length-1];},empty:()=>!ib.length&&!ob.length};}; const q=myQ();q.push(1);q.push(2);expect(q.peek()).toBe(1);expect(q.pop()).toBe(1);expect(q.empty()).toBe(false); });
   it('finds length of longest consecutive sequence', () => { const lcs3=(a:number[])=>{const s=new Set(a);let mx=0;for(const n of s){if(!s.has(n-1)){let len=1;while(s.has(n+len))len++;mx=Math.max(mx,len);}}return mx;}; expect(lcs3([100,4,200,1,3,2])).toBe(4); expect(lcs3([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
+  it('finds minimum number of jumps to reach last index', () => { const jump=(a:number[])=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<a.length-1;i++){farthest=Math.max(farthest,i+a[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;}; expect(jump([2,3,1,1,4])).toBe(2); expect(jump([2,3,0,1,4])).toBe(2); expect(jump([1,2,3])).toBe(2); });
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+  it('finds maximum sum subarray with all unique elements', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,res=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];res=Math.max(res,sum);}return res;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
+  it('sorts characters in string by decreasing frequency', () => { const fs=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]).map(([c,f])=>c.repeat(f)).join('');}; expect(fs('tree')).toMatch(/^e{2}[rt]{2}$/); expect(fs('cccaaa')).toMatch(/^(c{3}a{3}|a{3}c{3})$/); expect(fs('Aabb')).toMatch(/b{2}[aA]{2}|b{2}[Aa]{2}/); });
+});

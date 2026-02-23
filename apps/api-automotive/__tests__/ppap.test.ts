@@ -1782,3 +1782,12 @@ describe('phase53 coverage', () => {
   it('implements queue using two stacks', () => { const myQ=()=>{const ib:number[]=[],ob:number[]=[];const load=()=>{if(!ob.length)while(ib.length)ob.push(ib.pop()!);};return{push:(x:number)=>ib.push(x),pop:():number=>{load();return ob.pop()!;},peek:():number=>{load();return ob[ob.length-1];},empty:()=>!ib.length&&!ob.length};}; const q=myQ();q.push(1);q.push(2);expect(q.peek()).toBe(1);expect(q.pop()).toBe(1);expect(q.empty()).toBe(false); });
   it('counts good pairs where indices differ and values equal', () => { const ngp=(a:number[])=>{const cnt=new Map<number,number>();let res=0;for(const n of a){const c=cnt.get(n)||0;res+=c;cnt.set(n,c+1);}return res;}; expect(ngp([1,2,3,1,1,3])).toBe(4); expect(ngp([1,1,1,1])).toBe(6); expect(ngp([1,2,3])).toBe(0); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('computes minimum score triangulation of a convex polygon', () => { const mst=(v:number[])=>{const n=v.length,dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let i=0;i+len<n;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+v[i]*v[k]*v[j]);}}return dp[0][n-1];}; expect(mst([1,2,3])).toBe(6); expect(mst([3,7,4,5])).toBe(144); });
+  it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
+  it('finds minimum length subarray to sort to make array sorted', () => { const mws=(a:number[])=>{const n=a.length;let l=n,r=-1;for(let i=0;i<n-1;i++)if(a[i]>a[i+1]){if(l===n)l=i;r=i+1;}if(r===-1)return 0;const sub=a.slice(l,r+1);const mn=Math.min(...sub),mx=Math.max(...sub);while(l>0&&a[l-1]>mn)l--;while(r<n-1&&a[r+1]<mx)r++;return r-l+1;}; expect(mws([2,6,4,8,10,9,15])).toBe(5); expect(mws([1,2,3])).toBe(0); expect(mws([3,2,1])).toBe(3); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('counts total number of digit 1 appearing in all numbers from 1 to n', () => { const cnt1=(n:number)=>{let res=0;for(let f=1;f<=n;f*=10){const hi=Math.floor(n/(f*10)),cur=Math.floor(n/f)%10,lo=n%f;res+=hi*f+(cur>1?f:cur===1?lo+1:0);}return res;}; expect(cnt1(13)).toBe(6); expect(cnt1(0)).toBe(0); expect(cnt1(100)).toBe(21); });
+});

@@ -727,3 +727,12 @@ describe('phase53 coverage', () => {
   it('finds peak element index using binary search', () => { const pe2=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]<a[m+1])l=m+1;else r=m;}return l;}; expect(pe2([1,2,3,1])).toBe(2); expect(pe2([1,2,1,3,5,6,4])).toBe(5); expect(pe2([1])).toBe(0); });
   it('minimises cost to send people to two cities', () => { const tcs=(costs:[number,number][])=>{const n=costs.length/2;costs=costs.slice().sort((a,b)=>(a[0]-a[1])-(b[0]-b[1]));let tot=0;for(let i=0;i<n;i++)tot+=costs[i][0];for(let i=n;i<2*n;i++)tot+=costs[i][1];return tot;}; expect(tcs([[10,20],[30,200],[400,50],[30,20]])).toBe(110); expect(tcs([[1,2],[3,4],[5,1],[1,5]])).toBe(7); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('counts total number of digit 1 appearing in all numbers from 1 to n', () => { const cnt1=(n:number)=>{let res=0;for(let f=1;f<=n;f*=10){const hi=Math.floor(n/(f*10)),cur=Math.floor(n/f)%10,lo=n%f;res+=hi*f+(cur>1?f:cur===1?lo+1:0);}return res;}; expect(cnt1(13)).toBe(6); expect(cnt1(0)).toBe(0); expect(cnt1(100)).toBe(21); });
+  it('finds the smallest range covering one element from each list', () => { const sr=(lists:number[][])=>{const h:number[][]=[];for(let i=0;i<lists.length;i++)h.push([lists[i][0],i,0]);let res:number[]=[0,Infinity];while(true){h.sort((a,b)=>a[0]-b[0]);const mn=h[0][0],mx=h[h.length-1][0];if(mx-mn<res[1]-res[0])res=[mn,mx];const [,i,j]=h[0];if(j+1>=lists[i].length)break;h[0]=[lists[i][j+1],i,j+1];}return res;}; expect(sr([[4,10,15,24,26],[0,9,12,20],[5,18,22,30]])).toEqual([20,24]); });
+  it('computes total hamming distance between all pairs', () => { const thd=(a:number[])=>{let res=0;for(let b=0;b<32;b++){let ones=0;for(const x of a)ones+=(x>>b)&1;res+=ones*(a.length-ones);}return res;}; expect(thd([4,14,2])).toBe(6); expect(thd([4,14,4])).toBe(4); });
+  it('computes length of longest wiggle subsequence', () => { const wiggle=(a:number[])=>{if(a.length<2)return a.length;let up=1,down=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1])up=down+1;else if(a[i]<a[i-1])down=up+1;}return Math.max(up,down);}; expect(wiggle([1,7,4,9,2,5])).toBe(6); expect(wiggle([1,17,5,10,13,15,10,5,16,8])).toBe(7); expect(wiggle([1,2,3,4,5])).toBe(2); });
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+});

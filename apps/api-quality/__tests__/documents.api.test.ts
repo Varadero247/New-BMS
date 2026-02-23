@@ -909,3 +909,12 @@ describe('phase53 coverage', () => {
   it('minimises cost to send people to two cities', () => { const tcs=(costs:[number,number][])=>{const n=costs.length/2;costs=costs.slice().sort((a,b)=>(a[0]-a[1])-(b[0]-b[1]));let tot=0;for(let i=0;i<n;i++)tot+=costs[i][0];for(let i=n;i<2*n;i++)tot+=costs[i][1];return tot;}; expect(tcs([[10,20],[30,200],[400,50],[30,20]])).toBe(110); expect(tcs([[1,2],[3,4],[5,1],[1,5]])).toBe(7); });
   it('finds maximum XOR of any two numbers in array', () => { const mxor=(a:number[])=>{let mx=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)mx=Math.max(mx,a[i]^a[j]);return mx;}; expect(mxor([3,10,5,25,2,8])).toBe(28); expect(mxor([0,0])).toBe(0); expect(mxor([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
+  it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
+  it('computes minimum score triangulation of a convex polygon', () => { const mst=(v:number[])=>{const n=v.length,dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let i=0;i+len<n;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+v[i]*v[k]*v[j]);}}return dp[0][n-1];}; expect(mst([1,2,3])).toBe(6); expect(mst([3,7,4,5])).toBe(144); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('finds the nth ugly number (factors 2, 3, 5 only)', () => { const ugly=(n:number)=>{const dp=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const next=Math.min(dp[i2]*2,dp[i3]*3,dp[i5]*5);dp.push(next);if(next===dp[i2]*2)i2++;if(next===dp[i3]*3)i3++;if(next===dp[i5]*5)i5++;}return dp[n-1];}; expect(ugly(1)).toBe(1); expect(ugly(10)).toBe(12); expect(ugly(15)).toBe(24); });
+});

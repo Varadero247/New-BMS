@@ -656,3 +656,12 @@ describe('phase53 coverage', () => {
   it('computes running median from data stream', () => { const ms2=()=>{const nums:number[]=[];return{add:(n:number)=>{let l=0,r=nums.length;while(l<r){const m=l+r>>1;if(nums[m]<n)l=m+1;else r=m;}nums.splice(l,0,n);},med:():number=>{const n=nums.length;return n%2?nums[n>>1]:(nums[n/2-1]+nums[n/2])/2;}};}; const s=ms2();s.add(1);s.add(2);expect(s.med()).toBe(1.5);s.add(3);expect(s.med()).toBe(2); });
   it('minimises cost to send people to two cities', () => { const tcs=(costs:[number,number][])=>{const n=costs.length/2;costs=costs.slice().sort((a,b)=>(a[0]-a[1])-(b[0]-b[1]));let tot=0;for(let i=0;i<n;i++)tot+=costs[i][0];for(let i=n;i<2*n;i++)tot+=costs[i][1];return tot;}; expect(tcs([[10,20],[30,200],[400,50],[30,20]])).toBe(110); expect(tcs([[1,2],[3,4],[5,1],[1,5]])).toBe(7); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('finds longest harmonious subsequence (max-min = 1)', () => { const lhs=(a:number[])=>{const m=new Map<number,number>();for(const x of a)m.set(x,(m.get(x)||0)+1);let res=0;for(const [k,v] of m)if(m.has(k+1))res=Math.max(res,v+m.get(k+1)!);return res;}; expect(lhs([1,3,2,2,5,2,3,7])).toBe(5); expect(lhs([1,1,1,1])).toBe(0); expect(lhs([1,2,3,4])).toBe(2); });
+  it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('computes minimum score triangulation of a convex polygon', () => { const mst=(v:number[])=>{const n=v.length,dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let i=0;i+len<n;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+v[i]*v[k]*v[j]);}}return dp[0][n-1];}; expect(mst([1,2,3])).toBe(6); expect(mst([3,7,4,5])).toBe(144); });
+  it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
+});

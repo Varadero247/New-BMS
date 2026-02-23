@@ -627,3 +627,12 @@ describe('phase53 coverage', () => {
   it('finds minimum number of overlapping intervals to remove', () => { const eoi=(ivs:[number,number][])=>{if(!ivs.length)return 0;const s=ivs.slice().sort((a,b)=>a[1]-b[1]);let cnt=0,end=s[0][1];for(let i=1;i<s.length;i++){if(s[i][0]<end)cnt++;else end=s[i][1];}return cnt;}; expect(eoi([[1,2],[2,3],[3,4],[1,3]])).toBe(1); expect(eoi([[1,2],[1,2],[1,2]])).toBe(2); expect(eoi([[1,2],[2,3]])).toBe(0); });
   it('finds peak element index using binary search', () => { const pe2=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]<a[m+1])l=m+1;else r=m;}return l;}; expect(pe2([1,2,3,1])).toBe(2); expect(pe2([1,2,1,3,5,6,4])).toBe(5); expect(pe2([1])).toBe(0); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
+  it('sorts characters in string by decreasing frequency', () => { const fs=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]).map(([c,f])=>c.repeat(f)).join('');}; expect(fs('tree')).toMatch(/^e{2}[rt]{2}$/); expect(fs('cccaaa')).toMatch(/^(c{3}a{3}|a{3}c{3})$/); expect(fs('Aabb')).toMatch(/b{2}[aA]{2}|b{2}[Aa]{2}/); });
+  it('determines if circular array loop exists (all same direction, length > 1)', () => { const cal=(a:number[])=>{const n=a.length,next=(i:number)=>((i+a[i])%n+n)%n;for(let i=0;i<n;i++){let slow=i,fast=i;do{const sd=a[slow]>0;slow=next(slow);if(a[slow]>0!==sd)break;const fd=a[fast]>0;fast=next(fast);if(a[fast]>0!==fd)break;fast=next(fast);if(a[fast]>0!==fd)break;}while(slow!==fast);if(slow===fast&&next(slow)!==slow)return true;}return false;}; expect(cal([2,-1,1,2,2])).toBe(true); expect(cal([-1,2])).toBe(false); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+  it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
+});

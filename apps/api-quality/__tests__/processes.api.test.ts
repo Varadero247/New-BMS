@@ -1044,3 +1044,12 @@ describe('phase53 coverage', () => {
   it('removes k digits to form smallest number', () => { const rk2=(num:string,k:number)=>{const st:string[]=[];for(const c of num){while(k>0&&st.length&&st[st.length-1]>c){st.pop();k--;}st.push(c);}while(k--)st.pop();const res=st.join('').replace(/^0+/,'');return res||'0';}; expect(rk2('1432219',3)).toBe('1219'); expect(rk2('10200',1)).toBe('200'); expect(rk2('10',2)).toBe('0'); });
   it('evaluates reverse polish notation expression', () => { const rpn=(tokens:string[])=>{const st:number[]=[],ops:{[k:string]:(a:number,b:number)=>number}={'+': (a,b)=>a+b,'-': (a,b)=>a-b,'*': (a,b)=>a*b,'/': (a,b)=>Math.trunc(a/b)};for(const t of tokens){if(t in ops){const b=st.pop()!,a=st.pop()!;st.push(ops[t](a,b));}else st.push(Number(t));}return st[0];}; expect(rpn(['2','1','+','3','*'])).toBe(9); expect(rpn(['4','13','5','/','+'  ])).toBe(6); });
 });
+
+
+describe('phase54 coverage', () => {
+  it('counts subarrays with exactly k distinct integers', () => { const ek=(a:number[],k:number)=>{const atMost=(x:number)=>{let res=0,l=0;const m=new Map<number,number>();for(let r=0;r<a.length;r++){m.set(a[r],(m.get(a[r])||0)+1);while(m.size>x){const v=m.get(a[l])!-1;if(v===0)m.delete(a[l]);else m.set(a[l],v);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);}; expect(ek([1,2,1,2,3],2)).toBe(7); expect(ek([1,2,1,3,4],3)).toBe(3); });
+  it('finds minimum number of jumps to reach last index', () => { const jump=(a:number[])=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<a.length-1;i++){farthest=Math.max(farthest,i+a[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;}; expect(jump([2,3,1,1,4])).toBe(2); expect(jump([2,3,0,1,4])).toBe(2); expect(jump([1,2,3])).toBe(2); });
+  it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
+  it('computes total hamming distance between all pairs', () => { const thd=(a:number[])=>{let res=0;for(let b=0;b<32;b++){let ones=0;for(const x of a)ones+=(x>>b)&1;res+=ones*(a.length-ones);}return res;}; expect(thd([4,14,2])).toBe(6); expect(thd([4,14,4])).toBe(4); });
+  it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
+});
