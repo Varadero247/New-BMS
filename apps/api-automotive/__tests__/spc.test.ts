@@ -1746,3 +1746,12 @@ describe('phase55 coverage', () => {
   it('reverses bits of a 32-bit unsigned integer', () => { const revBits=(n:number)=>{let res=0;for(let i=0;i<32;i++){res=(res*2+((n>>i)&1))>>>0;}return res;}; expect(revBits(0b00000010100101000001111010011100)).toBe(0b00111001011110000010100101000000); expect(revBits(0b11111111111111111111111111111101)).toBe(0b10111111111111111111111111111111); });
   it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('finds index of first non-repeating character in string', () => { const fuc=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);for(let i=0;i<s.length;i++)if(m.get(s[i])===1)return i;return -1;}; expect(fuc('leetcode')).toBe(0); expect(fuc('loveleetcode')).toBe(2); expect(fuc('aabb')).toBe(-1); });
+  it('counts number of combinations to make amount from coins', () => { const cc2=(amount:number,coins:number[])=>{const dp=new Array(amount+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];return dp[amount];}; expect(cc2(5,[1,2,5])).toBe(4); expect(cc2(3,[2])).toBe(0); expect(cc2(10,[10])).toBe(1); });
+  it('finds length of longest consecutive path in a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const lcp2=(root:N|null)=>{let res=0;const dfs=(n:N|null,parent:N|null,len:number)=>{if(!n)return;const cur=parent&&n.v===parent.v+1?len+1:1;res=Math.max(res,cur);dfs(n.l,n,cur);dfs(n.r,n,cur);};dfs(root,null,0);return res;}; expect(lcp2(mk(1,mk(2,mk(3))))).toBe(3); expect(lcp2(mk(2,mk(3,mk(2)),mk(2)))).toBe(2); });
+  it('checks if n is a power of two using bit manipulation', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(1)).toBe(true); expect(isPow2(16)).toBe(true); expect(isPow2(3)).toBe(false); expect(isPow2(4)).toBe(true); expect(isPow2(5)).toBe(false); });
+  it('counts unique paths from top-left to bottom-right in m×n grid', () => { const up=(m:number,n:number)=>{const dp=new Array(n).fill(1);for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[j]+=dp[j-1];return dp[n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+});

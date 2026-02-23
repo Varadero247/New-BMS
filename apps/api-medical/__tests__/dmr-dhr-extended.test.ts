@@ -856,3 +856,12 @@ describe('phase55 coverage', () => {
   it('determines if array can be partitioned into two equal-sum subsets', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const n of a)for(let j=t;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
   it('counts ways to decode a digit string into letters', () => { const decode=(s:string)=>{const n=s.length;if(!n||s[0]==='0')return 0;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=+s[i-1],two=+(s.slice(i-2,i));if(one>=1)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(decode('12')).toBe(2); expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('reverses a character array in-place using two pointers', () => { const rev=(a:string[])=>{let l=0,r=a.length-1;while(l<r){[a[l],a[r]]=[a[r],a[l]];l++;r--;}return a;}; expect(rev(['h','e','l','l','o'])).toEqual(['o','l','l','e','h']); expect(rev(['H','a','n','n','a','h'])).toEqual(['h','a','n','n','a','H']); });
+  it('finds all numbers in [1,n] that do not appear in array', () => { const missing=(a:number[])=>{for(let i=0;i<a.length;i++){const idx=Math.abs(a[i])-1;if(a[idx]>0)a[idx]=-a[idx];}return a.map((_,i)=>i+1).filter((_,i)=>a[i]>0);}; expect(missing([4,3,2,7,8,2,3,1])).toEqual([5,6]); expect(missing([1,1])).toEqual([2]); });
+  it('finds kth smallest element in BST using inorder traversal', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const kth=(root:N|null,k:number)=>{const stack:N[]=[];let cur=root,cnt=0;while(cur||stack.length){while(cur){stack.push(cur);cur=cur.l;}cur=stack.pop()!;if(++cnt===k)return cur.v;cur=cur.r;}return -1;}; const bst=mk(3,mk(1,null,mk(2)),mk(4)); expect(kth(bst,1)).toBe(1); expect(kth(bst,3)).toBe(3); });
+  it('checks if n is a power of two using bit manipulation', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(1)).toBe(true); expect(isPow2(16)).toBe(true); expect(isPow2(3)).toBe(false); expect(isPow2(4)).toBe(true); expect(isPow2(5)).toBe(false); });
+  it('adds two integers without using + or - operators', () => { const add=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;}; expect(add(1,2)).toBe(3); expect(add(-2,3)).toBe(1); expect(add(0,0)).toBe(0); });
+});

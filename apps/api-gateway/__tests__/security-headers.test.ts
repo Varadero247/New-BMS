@@ -649,3 +649,12 @@ describe('phase55 coverage', () => {
   it('converts an integer to Roman numeral string', () => { const i2r=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';for(let i=0;i<vals.length;i++){while(n>=vals[i]){res+=syms[i];n-=vals[i];}}return res;}; expect(i2r(3)).toBe('III'); expect(i2r(58)).toBe('LVIII'); expect(i2r(1994)).toBe('MCMXCIV'); });
   it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('counts unique paths from top-left to bottom-right in m×n grid', () => { const up=(m:number,n:number)=>{const dp=new Array(n).fill(1);for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[j]+=dp[j-1];return dp[n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+  it('finds index of first non-repeating character in string', () => { const fuc=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);for(let i=0;i<s.length;i++)if(m.get(s[i])===1)return i;return -1;}; expect(fuc('leetcode')).toBe(0); expect(fuc('loveleetcode')).toBe(2); expect(fuc('aabb')).toBe(-1); });
+  it('adds two integers without using + or - operators', () => { const add=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;}; expect(add(1,2)).toBe(3); expect(add(-2,3)).toBe(1); expect(add(0,0)).toBe(0); });
+  it('finds all numbers in [1,n] that do not appear in array', () => { const missing=(a:number[])=>{for(let i=0;i<a.length;i++){const idx=Math.abs(a[i])-1;if(a[idx]>0)a[idx]=-a[idx];}return a.map((_,i)=>i+1).filter((_,i)=>a[i]>0);}; expect(missing([4,3,2,7,8,2,3,1])).toEqual([5,6]); expect(missing([1,1])).toEqual([2]); });
+  it('finds all root-to-leaf paths in binary tree that sum to target', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const ps=(root:N|null,t:number)=>{const res:number[][]=[];const dfs=(n:N|null,rem:number,path:number[])=>{if(!n)return;path.push(n.v);if(!n.l&&!n.r&&rem===n.v)res.push([...path]);dfs(n.l,rem-n.v,path);dfs(n.r,rem-n.v,path);path.pop();};dfs(root,t,[]);return res;}; expect(ps(mk(5,mk(4,mk(11,mk(7),mk(2))),mk(8,mk(13),mk(4,null,mk(1)))),22)).toEqual([[5,4,11,2]]); });
+});

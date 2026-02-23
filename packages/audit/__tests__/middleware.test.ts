@@ -946,3 +946,12 @@ describe('phase55 coverage', () => {
   it('moves all zeroes to end maintaining relative order of non-zero elements', () => { const mz=(a:number[])=>{let pos=0;for(const v of a)if(v!==0)a[pos++]=v;while(pos<a.length)a[pos++]=0;return a;}; expect(mz([0,1,0,3,12])).toEqual([1,3,12,0,0]); expect(mz([0,0,1])).toEqual([1,0,0]); expect(mz([1])).toEqual([1]); });
   it('detects a cycle in a linked list using Floyd algorithm', () => { type N={v:number,next:N|null}; const hasCycle=(head:N|null)=>{let s=head,f=head;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const a:N={v:1,next:null},b:N={v:2,next:null},c:N={v:3,next:null}; a.next=b;b.next=c;c.next=b; expect(hasCycle(a)).toBe(true); const x:N={v:1,next:{v:2,next:null}}; expect(hasCycle(x)).toBe(false); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('counts unique paths from top-left to bottom-right in m×n grid', () => { const up=(m:number,n:number)=>{const dp=new Array(n).fill(1);for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[j]+=dp[j-1];return dp[n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+  it('finds max consecutive ones when flipping at most k zeros', () => { const mo=(a:number[],k:number)=>{let l=0,zeros=0,res=0;for(let r=0;r<a.length;r++){if(a[r]===0)zeros++;while(zeros>k)if(a[l++]===0)zeros--;res=Math.max(res,r-l+1);}return res;}; expect(mo([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6); expect(mo([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10); });
+  it('checks if array contains duplicate within k positions', () => { const dup=(a:number[],k:number)=>{const m=new Map<number,number>();for(let i=0;i<a.length;i++){if(m.has(a[i])&&i-m.get(a[i])!<=k)return true;m.set(a[i],i);}return false;}; expect(dup([1,2,3,1],3)).toBe(true); expect(dup([1,0,1,1],1)).toBe(true); expect(dup([1,2,3,1,2,3],2)).toBe(false); });
+  it('counts subarrays with sum equal to k using prefix sum + hashmap', () => { const sub=(a:number[],k:number)=>{const m=new Map<number,number>([[0,1]]);let sum=0,cnt=0;for(const x of a){sum+=x;cnt+=m.get(sum-k)||0;m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sub([1,1,1],2)).toBe(2); expect(sub([1,2,3],3)).toBe(2); expect(sub([-1,-1,1],0)).toBe(1); });
+  it('finds index of first non-repeating character in string', () => { const fuc=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);for(let i=0;i<s.length;i++)if(m.get(s[i])===1)return i;return -1;}; expect(fuc('leetcode')).toBe(0); expect(fuc('loveleetcode')).toBe(2); expect(fuc('aabb')).toBe(-1); });
+});

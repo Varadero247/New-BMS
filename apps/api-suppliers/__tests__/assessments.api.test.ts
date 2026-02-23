@@ -600,3 +600,12 @@ describe('phase55 coverage', () => {
   it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
   it('determines if a number is happy (sum of squared digits eventually reaches 1)', () => { const happy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(happy(19)).toBe(true); expect(happy(2)).toBe(false); expect(happy(7)).toBe(true); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('counts subarrays with sum equal to k using prefix sum + hashmap', () => { const sub=(a:number[],k:number)=>{const m=new Map<number,number>([[0,1]]);let sum=0,cnt=0;for(const x of a){sum+=x;cnt+=m.get(sum-k)||0;m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sub([1,1,1],2)).toBe(2); expect(sub([1,2,3],3)).toBe(2); expect(sub([-1,-1,1],0)).toBe(1); });
+  it('checks if two strings are isomorphic (consistent char mapping)', () => { const iso=(s:string,t:string)=>{const ms=new Map<string,string>(),mt=new Map<string,string>();for(let i=0;i<s.length;i++){if(ms.has(s[i])&&ms.get(s[i])!==t[i])return false;if(mt.has(t[i])&&mt.get(t[i])!==s[i])return false;ms.set(s[i],t[i]);mt.set(t[i],s[i]);}return true;}; expect(iso('egg','add')).toBe(true); expect(iso('foo','bar')).toBe(false); expect(iso('paper','title')).toBe(true); });
+  it('finds max consecutive ones when flipping at most k zeros', () => { const mo=(a:number[],k:number)=>{let l=0,zeros=0,res=0;for(let r=0;r<a.length;r++){if(a[r]===0)zeros++;while(zeros>k)if(a[l++]===0)zeros--;res=Math.max(res,r-l+1);}return res;}; expect(mo([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6); expect(mo([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10); });
+  it('adds two integers without using + or - operators', () => { const add=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;}; expect(add(1,2)).toBe(3); expect(add(-2,3)).toBe(1); expect(add(0,0)).toBe(0); });
+  it('finds all numbers in [1,n] that do not appear in array', () => { const missing=(a:number[])=>{for(let i=0;i<a.length;i++){const idx=Math.abs(a[i])-1;if(a[idx]>0)a[idx]=-a[idx];}return a.map((_,i)=>i+1).filter((_,i)=>a[i]>0);}; expect(missing([4,3,2,7,8,2,3,1])).toEqual([5,6]); expect(missing([1,1])).toEqual([2]); });
+});

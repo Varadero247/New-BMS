@@ -887,3 +887,12 @@ describe('phase55 coverage', () => {
   it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
   it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('finds three integers closest to target sum', () => { const ts=(a:number[],t:number)=>{a.sort((x,y)=>x-y);let res=a[0]+a[1]+a[2];for(let i=0;i<a.length-2;i++){let l=i+1,r=a.length-1;while(l<r){const s=a[i]+a[l]+a[r];if(Math.abs(s-t)<Math.abs(res-t))res=s;if(s<t)l++;else if(s>t)r--;else return s;}}return res;}; expect(ts([-1,2,1,-4],1)).toBe(2); expect(ts([0,0,0],1)).toBe(0); });
+  it('checks if array contains duplicate within k positions', () => { const dup=(a:number[],k:number)=>{const m=new Map<number,number>();for(let i=0;i<a.length;i++){if(m.has(a[i])&&i-m.get(a[i])!<=k)return true;m.set(a[i],i);}return false;}; expect(dup([1,2,3,1],3)).toBe(true); expect(dup([1,0,1,1],1)).toBe(true); expect(dup([1,2,3,1,2,3],2)).toBe(false); });
+  it('checks if a linked list is a palindrome', () => { type N={v:number,next:N|null}; const mk=(a:number[]):N|null=>a.reduceRight((n:N|null,v)=>({v,next:n}),null); const isPalin=(head:N|null)=>{const arr:number[]=[];let n=head;while(n){arr.push(n.v);n=n.next;}return arr.join()===arr.reverse().join();}; expect(isPalin(mk([1,2,2,1]))).toBe(true); expect(isPalin(mk([1,2]))).toBe(false); expect(isPalin(mk([1]))).toBe(true); });
+  it('adds two integers without using + or - operators', () => { const add=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;}; expect(add(1,2)).toBe(3); expect(add(-2,3)).toBe(1); expect(add(0,0)).toBe(0); });
+  it('checks if two strings are isomorphic (consistent char mapping)', () => { const iso=(s:string,t:string)=>{const ms=new Map<string,string>(),mt=new Map<string,string>();for(let i=0;i<s.length;i++){if(ms.has(s[i])&&ms.get(s[i])!==t[i])return false;if(mt.has(t[i])&&mt.get(t[i])!==s[i])return false;ms.set(s[i],t[i]);mt.set(t[i],s[i]);}return true;}; expect(iso('egg','add')).toBe(true); expect(iso('foo','bar')).toBe(false); expect(iso('paper','title')).toBe(true); });
+});

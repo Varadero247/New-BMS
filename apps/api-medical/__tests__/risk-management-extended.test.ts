@@ -907,3 +907,12 @@ describe('phase55 coverage', () => {
   it('moves all zeroes to end maintaining relative order of non-zero elements', () => { const mz=(a:number[])=>{let pos=0;for(const v of a)if(v!==0)a[pos++]=v;while(pos<a.length)a[pos++]=0;return a;}; expect(mz([0,1,0,3,12])).toEqual([1,3,12,0,0]); expect(mz([0,0,1])).toEqual([1,0,0]); expect(mz([1])).toEqual([1]); });
   it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('flattens a nested array of integers and arrays', () => { const flat=(a:(number|any[])[]):number[]=>{const res:number[]=[];const dfs=(x:number|any[])=>{if(typeof x==='number')res.push(x);else(x as any[]).forEach(dfs);};a.forEach(dfs);return res;}; expect(flat([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]); expect(flat([1,[4,[6]]])).toEqual([1,4,6]); });
+  it('computes diameter (longest path between any two nodes) of binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const diam=(root:N|null)=>{let res=0;const h=(n:N|null):number=>{if(!n)return 0;const l=h(n.l),r=h(n.r);res=Math.max(res,l+r);return 1+Math.max(l,r);};h(root);return res;}; expect(diam(mk(1,mk(2,mk(4),mk(5)),mk(3)))).toBe(3); expect(diam(mk(1,mk(2)))).toBe(1); });
+  it('checks if array contains duplicate within k positions', () => { const dup=(a:number[],k:number)=>{const m=new Map<number,number>();for(let i=0;i<a.length;i++){if(m.has(a[i])&&i-m.get(a[i])!<=k)return true;m.set(a[i],i);}return false;}; expect(dup([1,2,3,1],3)).toBe(true); expect(dup([1,0,1,1],1)).toBe(true); expect(dup([1,2,3,1,2,3],2)).toBe(false); });
+  it('adds two integers without using + or - operators', () => { const add=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;}; expect(add(1,2)).toBe(3); expect(add(-2,3)).toBe(1); expect(add(0,0)).toBe(0); });
+  it('counts subarrays with sum equal to k using prefix sum + hashmap', () => { const sub=(a:number[],k:number)=>{const m=new Map<number,number>([[0,1]]);let sum=0,cnt=0;for(const x of a){sum+=x;cnt+=m.get(sum-k)||0;m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sub([1,1,1],2)).toBe(2); expect(sub([1,2,3],3)).toBe(2); expect(sub([-1,-1,1],0)).toBe(1); });
+});

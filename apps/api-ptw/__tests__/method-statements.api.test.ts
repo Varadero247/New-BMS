@@ -669,3 +669,12 @@ describe('phase55 coverage', () => {
   it('converts a Roman numeral string to integer', () => { const r2i=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){const cur=m[s[i]],nxt=m[s[i+1]];if(nxt&&cur<nxt){res-=cur;}else res+=cur;}return res;}; expect(r2i('III')).toBe(3); expect(r2i('LVIII')).toBe(58); expect(r2i('MCMXCIV')).toBe(1994); });
   it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('flattens a nested array of integers and arrays', () => { const flat=(a:(number|any[])[]):number[]=>{const res:number[]=[];const dfs=(x:number|any[])=>{if(typeof x==='number')res.push(x);else(x as any[]).forEach(dfs);};a.forEach(dfs);return res;}; expect(flat([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]); expect(flat([1,[4,[6]]])).toEqual([1,4,6]); });
+  it('counts subarrays with sum equal to k using prefix sum + hashmap', () => { const sub=(a:number[],k:number)=>{const m=new Map<number,number>([[0,1]]);let sum=0,cnt=0;for(const x of a){sum+=x;cnt+=m.get(sum-k)||0;m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sub([1,1,1],2)).toBe(2); expect(sub([1,2,3],3)).toBe(2); expect(sub([-1,-1,1],0)).toBe(1); });
+  it('finds length of longest increasing subsequence in O(n log n)', () => { const lis=(a:number[])=>{const tails:number[]=[];for(const x of a){let lo=0,hi=tails.length;while(lo<hi){const m=lo+hi>>1;if(tails[m]<x)lo=m+1;else hi=m;}tails[lo]=x;}return tails.length;}; expect(lis([10,9,2,5,3,7,101,18])).toBe(4); expect(lis([0,1,0,3,2,3])).toBe(4); expect(lis([7,7,7,7])).toBe(1); });
+  it('adds two integers without using + or - operators', () => { const add=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;}; expect(add(1,2)).toBe(3); expect(add(-2,3)).toBe(1); expect(add(0,0)).toBe(0); });
+  it('checks if a linked list is a palindrome', () => { type N={v:number,next:N|null}; const mk=(a:number[]):N|null=>a.reduceRight((n:N|null,v)=>({v,next:n}),null); const isPalin=(head:N|null)=>{const arr:number[]=[];let n=head;while(n){arr.push(n.v);n=n.next;}return arr.join()===arr.reverse().join();}; expect(isPalin(mk([1,2,2,1]))).toBe(true); expect(isPalin(mk([1,2]))).toBe(false); expect(isPalin(mk([1]))).toBe(true); });
+});

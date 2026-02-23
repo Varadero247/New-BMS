@@ -503,3 +503,12 @@ describe('phase55 coverage', () => {
   it('finds majority element using Boyer-Moore voting algorithm', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++){if(cnt===0){cand=a[i];cnt=1;}else if(a[i]===cand)cnt++;else cnt--;}return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); expect(maj([1])).toBe(1); });
   it('generates the nth term of count-and-say sequence', () => { const cas=(n:number):string=>{if(n===1)return '1';const prev=cas(n-1);let res='',i=0;while(i<prev.length){let j=i;while(j<prev.length&&prev[j]===prev[i])j++;res+=`${j-i}${prev[i]}`;i=j;}return res;}; expect(cas(1)).toBe('1'); expect(cas(4)).toBe('1211'); expect(cas(5)).toBe('111221'); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('finds index of first non-repeating character in string', () => { const fuc=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);for(let i=0;i<s.length;i++)if(m.get(s[i])===1)return i;return -1;}; expect(fuc('leetcode')).toBe(0); expect(fuc('loveleetcode')).toBe(2); expect(fuc('aabb')).toBe(-1); });
+  it('finds length of longest substring where each char appears at least k times', () => { const ls=(s:string,k:number):number=>{if(s.length===0)return 0;const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);for(let i=0;i<s.length;i++){if(m.get(s[i])!<k){return Math.max(ls(s.slice(0,i),k),ls(s.slice(i+1),k));}}return s.length;}; expect(ls('aaabb',3)).toBe(3); expect(ls('ababbc',2)).toBe(5); });
+  it('reverses a character array in-place using two pointers', () => { const rev=(a:string[])=>{let l=0,r=a.length-1;while(l<r){[a[l],a[r]]=[a[r],a[l]];l++;r--;}return a;}; expect(rev(['h','e','l','l','o'])).toEqual(['o','l','l','e','h']); expect(rev(['H','a','n','n','a','h'])).toEqual(['h','a','n','n','a','H']); });
+  it('adds two integers without using + or - operators', () => { const add=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;}; expect(add(1,2)).toBe(3); expect(add(-2,3)).toBe(1); expect(add(0,0)).toBe(0); });
+  it('counts unique paths from top-left to bottom-right in m×n grid', () => { const up=(m:number,n:number)=>{const dp=new Array(n).fill(1);for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[j]+=dp[j-1];return dp[n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+});

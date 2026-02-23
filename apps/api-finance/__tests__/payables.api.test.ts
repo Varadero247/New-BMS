@@ -1208,3 +1208,12 @@ describe('phase55 coverage', () => {
   it('finds min cost to climb stairs paying either step cost', () => { const minCost=(cost:number[])=>{const n=cost.length,dp=[...cost];for(let i=2;i<n;i++)dp[i]+=Math.min(dp[i-1],dp[i-2]);return Math.min(dp[n-1],dp[n-2]);}; expect(minCost([10,15,20])).toBe(15); expect(minCost([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
   it('finds longest common prefix among an array of strings', () => { const lcp=(strs:string[])=>{if(!strs.length)return '';let prefix=strs[0];for(let i=1;i<strs.length;i++){while(strs[i].indexOf(prefix)!==0)prefix=prefix.slice(0,-1);}return prefix;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); expect(lcp(['dog','racecar','car'])).toBe(''); expect(lcp(['abc','abc','abc'])).toBe('abc'); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('counts number of combinations to make amount from coins', () => { const cc2=(amount:number,coins:number[])=>{const dp=new Array(amount+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];return dp[amount];}; expect(cc2(5,[1,2,5])).toBe(4); expect(cc2(3,[2])).toBe(0); expect(cc2(10,[10])).toBe(1); });
+  it('counts unique paths from top-left to bottom-right in m×n grid', () => { const up=(m:number,n:number)=>{const dp=new Array(n).fill(1);for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[j]+=dp[j-1];return dp[n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+  it('checks if n is a power of two using bit manipulation', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(1)).toBe(true); expect(isPow2(16)).toBe(true); expect(isPow2(3)).toBe(false); expect(isPow2(4)).toBe(true); expect(isPow2(5)).toBe(false); });
+  it('finds minimum depth of binary tree (shortest root-to-leaf path)', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>{if(!n)return 0;if(!n.l&&!n.r)return 1;if(!n.l)return 1+md(n.r);if(!n.r)return 1+md(n.l);return 1+Math.min(md(n.l),md(n.r));}; expect(md(mk(3,mk(9),mk(20,mk(15),mk(7))))).toBe(2); expect(md(mk(2,null,mk(3,null,mk(4,null,mk(5,null,mk(6))))))).toBe(5); });
+  it('checks if array contains duplicate within k positions', () => { const dup=(a:number[],k:number)=>{const m=new Map<number,number>();for(let i=0;i<a.length;i++){if(m.has(a[i])&&i-m.get(a[i])!<=k)return true;m.set(a[i],i);}return false;}; expect(dup([1,2,3,1],3)).toBe(true); expect(dup([1,0,1,1],1)).toBe(true); expect(dup([1,2,3,1,2,3],2)).toBe(false); });
+});

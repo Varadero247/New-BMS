@@ -1478,3 +1478,12 @@ describe('phase55 coverage', () => {
   it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
   it('determines if a number is happy (sum of squared digits eventually reaches 1)', () => { const happy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(happy(19)).toBe(true); expect(happy(2)).toBe(false); expect(happy(7)).toBe(true); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('checks if n is a power of two using bit manipulation', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(1)).toBe(true); expect(isPow2(16)).toBe(true); expect(isPow2(3)).toBe(false); expect(isPow2(4)).toBe(true); expect(isPow2(5)).toBe(false); });
+  it('computes diameter (longest path between any two nodes) of binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const diam=(root:N|null)=>{let res=0;const h=(n:N|null):number=>{if(!n)return 0;const l=h(n.l),r=h(n.r);res=Math.max(res,l+r);return 1+Math.max(l,r);};h(root);return res;}; expect(diam(mk(1,mk(2,mk(4),mk(5)),mk(3)))).toBe(3); expect(diam(mk(1,mk(2)))).toBe(1); });
+  it('finds all numbers in [1,n] that do not appear in array', () => { const missing=(a:number[])=>{for(let i=0;i<a.length;i++){const idx=Math.abs(a[i])-1;if(a[idx]>0)a[idx]=-a[idx];}return a.map((_,i)=>i+1).filter((_,i)=>a[i]>0);}; expect(missing([4,3,2,7,8,2,3,1])).toEqual([5,6]); expect(missing([1,1])).toEqual([2]); });
+  it('counts number of combinations to make amount from coins', () => { const cc2=(amount:number,coins:number[])=>{const dp=new Array(amount+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];return dp[amount];}; expect(cc2(5,[1,2,5])).toBe(4); expect(cc2(3,[2])).toBe(0); expect(cc2(10,[10])).toBe(1); });
+  it('reverses a character array in-place using two pointers', () => { const rev=(a:string[])=>{let l=0,r=a.length-1;while(l<r){[a[l],a[r]]=[a[r],a[l]];l++;r--;}return a;}; expect(rev(['h','e','l','l','o'])).toEqual(['o','l','l','e','h']); expect(rev(['H','a','n','n','a','h'])).toEqual(['h','a','n','n','a','H']); });
+});

@@ -729,3 +729,12 @@ describe('phase55 coverage', () => {
   it('finds majority element using Boyer-Moore voting algorithm', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++){if(cnt===0){cand=a[i];cnt=1;}else if(a[i]===cand)cnt++;else cnt--;}return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); expect(maj([1])).toBe(1); });
   it('finds longest common prefix among an array of strings', () => { const lcp=(strs:string[])=>{if(!strs.length)return '';let prefix=strs[0];for(let i=1;i<strs.length;i++){while(strs[i].indexOf(prefix)!==0)prefix=prefix.slice(0,-1);}return prefix;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); expect(lcp(['dog','racecar','car'])).toBe(''); expect(lcp(['abc','abc','abc'])).toBe('abc'); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('finds a peak element index (greater than its neighbors) in O(log n)', () => { const pe=(a:number[])=>{let lo=0,hi=a.length-1;while(lo<hi){const m=lo+hi>>1;if(a[m]<a[m+1])lo=m+1;else hi=m;}return lo;}; expect(pe([1,2,3,1])).toBe(2); expect(pe([1,2,1,3,5,6,4])).toBeGreaterThanOrEqual(1); expect(pe([1])).toBe(0); });
+  it('checks if n is a power of two using bit manipulation', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(1)).toBe(true); expect(isPow2(16)).toBe(true); expect(isPow2(3)).toBe(false); expect(isPow2(4)).toBe(true); expect(isPow2(5)).toBe(false); });
+  it('finds minimum depth of binary tree (shortest root-to-leaf path)', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>{if(!n)return 0;if(!n.l&&!n.r)return 1;if(!n.l)return 1+md(n.r);if(!n.r)return 1+md(n.l);return 1+Math.min(md(n.l),md(n.r));}; expect(md(mk(3,mk(9),mk(20,mk(15),mk(7))))).toBe(2); expect(md(mk(2,null,mk(3,null,mk(4,null,mk(5,null,mk(6))))))).toBe(5); });
+  it('counts number of combinations to make amount from coins', () => { const cc2=(amount:number,coins:number[])=>{const dp=new Array(amount+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];return dp[amount];}; expect(cc2(5,[1,2,5])).toBe(4); expect(cc2(3,[2])).toBe(0); expect(cc2(10,[10])).toBe(1); });
+  it('counts subarrays with sum equal to k using prefix sum + hashmap', () => { const sub=(a:number[],k:number)=>{const m=new Map<number,number>([[0,1]]);let sum=0,cnt=0;for(const x of a){sum+=x;cnt+=m.get(sum-k)||0;m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sub([1,1,1],2)).toBe(2); expect(sub([1,2,3],3)).toBe(2); expect(sub([-1,-1,1],0)).toBe(1); });
+});

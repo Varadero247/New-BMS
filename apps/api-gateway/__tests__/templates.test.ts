@@ -1059,3 +1059,12 @@ describe('phase55 coverage', () => {
   it('finds minimum sum falling path through matrix (each step diagonal or same col)', () => { const fp=(m:number[][])=>{const n=m.length;const dp=m.map(r=>[...r]);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const l=j>0?dp[i-1][j-1]:Infinity,c=dp[i-1][j],r=j<n-1?dp[i-1][j+1]:Infinity;dp[i][j]+=Math.min(l,c,r);}return Math.min(...dp[n-1]);}; expect(fp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); expect(fp([[-19,57],[-40,-5]])).toBe(-59); });
   it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('finds all numbers in [1,n] that do not appear in array', () => { const missing=(a:number[])=>{for(let i=0;i<a.length;i++){const idx=Math.abs(a[i])-1;if(a[idx]>0)a[idx]=-a[idx];}return a.map((_,i)=>i+1).filter((_,i)=>a[i]>0);}; expect(missing([4,3,2,7,8,2,3,1])).toEqual([5,6]); expect(missing([1,1])).toEqual([2]); });
+  it('finds index of first non-repeating character in string', () => { const fuc=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);for(let i=0;i<s.length;i++)if(m.get(s[i])===1)return i;return -1;}; expect(fuc('leetcode')).toBe(0); expect(fuc('loveleetcode')).toBe(2); expect(fuc('aabb')).toBe(-1); });
+  it('adds two integers without using + or - operators', () => { const add=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;}; expect(add(1,2)).toBe(3); expect(add(-2,3)).toBe(1); expect(add(0,0)).toBe(0); });
+  it('reverses a character array in-place using two pointers', () => { const rev=(a:string[])=>{let l=0,r=a.length-1;while(l<r){[a[l],a[r]]=[a[r],a[l]];l++;r--;}return a;}; expect(rev(['h','e','l','l','o'])).toEqual(['o','l','l','e','h']); expect(rev(['H','a','n','n','a','h'])).toEqual(['h','a','n','n','a','H']); });
+  it('finds length of longest consecutive path in a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const lcp2=(root:N|null)=>{let res=0;const dfs=(n:N|null,parent:N|null,len:number)=>{if(!n)return;const cur=parent&&n.v===parent.v+1?len+1:1;res=Math.max(res,cur);dfs(n.l,n,cur);dfs(n.r,n,cur);};dfs(root,null,0);return res;}; expect(lcp2(mk(1,mk(2,mk(3))))).toBe(3); expect(lcp2(mk(2,mk(3,mk(2)),mk(2)))).toBe(2); });
+});

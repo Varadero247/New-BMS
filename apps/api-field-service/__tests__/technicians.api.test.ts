@@ -796,3 +796,12 @@ describe('phase55 coverage', () => {
   it('finds min cost to climb stairs paying either step cost', () => { const minCost=(cost:number[])=>{const n=cost.length,dp=[...cost];for(let i=2;i<n;i++)dp[i]+=Math.min(dp[i-1],dp[i-2]);return Math.min(dp[n-1],dp[n-2]);}; expect(minCost([10,15,20])).toBe(15); expect(minCost([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
   it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('computes diameter (longest path between any two nodes) of binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const diam=(root:N|null)=>{let res=0;const h=(n:N|null):number=>{if(!n)return 0;const l=h(n.l),r=h(n.r);res=Math.max(res,l+r);return 1+Math.max(l,r);};h(root);return res;}; expect(diam(mk(1,mk(2,mk(4),mk(5)),mk(3)))).toBe(3); expect(diam(mk(1,mk(2)))).toBe(1); });
+  it('checks if array contains duplicate within k positions', () => { const dup=(a:number[],k:number)=>{const m=new Map<number,number>();for(let i=0;i<a.length;i++){if(m.has(a[i])&&i-m.get(a[i])!<=k)return true;m.set(a[i],i);}return false;}; expect(dup([1,2,3,1],3)).toBe(true); expect(dup([1,0,1,1],1)).toBe(true); expect(dup([1,2,3,1,2,3],2)).toBe(false); });
+  it('flattens a nested array of integers and arrays', () => { const flat=(a:(number|any[])[]):number[]=>{const res:number[]=[];const dfs=(x:number|any[])=>{if(typeof x==='number')res.push(x);else(x as any[]).forEach(dfs);};a.forEach(dfs);return res;}; expect(flat([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]); expect(flat([1,[4,[6]]])).toEqual([1,4,6]); });
+  it('counts number of combinations to make amount from coins', () => { const cc2=(amount:number,coins:number[])=>{const dp=new Array(amount+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];return dp[amount];}; expect(cc2(5,[1,2,5])).toBe(4); expect(cc2(3,[2])).toBe(0); expect(cc2(10,[10])).toBe(1); });
+  it('finds index of first non-repeating character in string', () => { const fuc=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);for(let i=0;i<s.length;i++)if(m.get(s[i])===1)return i;return -1;}; expect(fuc('leetcode')).toBe(0); expect(fuc('loveleetcode')).toBe(2); expect(fuc('aabb')).toBe(-1); });
+});

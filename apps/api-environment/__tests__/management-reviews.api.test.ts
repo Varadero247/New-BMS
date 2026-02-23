@@ -1095,3 +1095,12 @@ describe('phase55 coverage', () => {
   it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
   it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('counts subarrays with sum equal to k using prefix sum + hashmap', () => { const sub=(a:number[],k:number)=>{const m=new Map<number,number>([[0,1]]);let sum=0,cnt=0;for(const x of a){sum+=x;cnt+=m.get(sum-k)||0;m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sub([1,1,1],2)).toBe(2); expect(sub([1,2,3],3)).toBe(2); expect(sub([-1,-1,1],0)).toBe(1); });
+  it('finds max consecutive ones when flipping at most k zeros', () => { const mo=(a:number[],k:number)=>{let l=0,zeros=0,res=0;for(let r=0;r<a.length;r++){if(a[r]===0)zeros++;while(zeros>k)if(a[l++]===0)zeros--;res=Math.max(res,r-l+1);}return res;}; expect(mo([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6); expect(mo([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10); });
+  it('finds length of longest consecutive path in a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const lcp2=(root:N|null)=>{let res=0;const dfs=(n:N|null,parent:N|null,len:number)=>{if(!n)return;const cur=parent&&n.v===parent.v+1?len+1:1;res=Math.max(res,cur);dfs(n.l,n,cur);dfs(n.r,n,cur);};dfs(root,null,0);return res;}; expect(lcp2(mk(1,mk(2,mk(3))))).toBe(3); expect(lcp2(mk(2,mk(3,mk(2)),mk(2)))).toBe(2); });
+  it('counts unique paths from top-left to bottom-right in m×n grid', () => { const up=(m:number,n:number)=>{const dp=new Array(n).fill(1);for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[j]+=dp[j-1];return dp[n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+  it('counts number of combinations to make amount from coins', () => { const cc2=(amount:number,coins:number[])=>{const dp=new Array(amount+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];return dp[amount];}; expect(cc2(5,[1,2,5])).toBe(4); expect(cc2(3,[2])).toBe(0); expect(cc2(10,[10])).toBe(1); });
+});

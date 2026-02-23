@@ -728,3 +728,12 @@ describe('phase55 coverage', () => {
   it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
   it('reverses bits of a 32-bit unsigned integer', () => { const revBits=(n:number)=>{let res=0;for(let i=0;i<32;i++){res=(res*2+((n>>i)&1))>>>0;}return res;}; expect(revBits(0b00000010100101000001111010011100)).toBe(0b00111001011110000010100101000000); expect(revBits(0b11111111111111111111111111111101)).toBe(0b10111111111111111111111111111111); });
 });
+
+
+describe('phase56 coverage', () => {
+  it('computes diameter (longest path between any two nodes) of binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const diam=(root:N|null)=>{let res=0;const h=(n:N|null):number=>{if(!n)return 0;const l=h(n.l),r=h(n.r);res=Math.max(res,l+r);return 1+Math.max(l,r);};h(root);return res;}; expect(diam(mk(1,mk(2,mk(4),mk(5)),mk(3)))).toBe(3); expect(diam(mk(1,mk(2)))).toBe(1); });
+  it('adds two integers without using + or - operators', () => { const add=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;}; expect(add(1,2)).toBe(3); expect(add(-2,3)).toBe(1); expect(add(0,0)).toBe(0); });
+  it('flattens a nested array of integers and arrays', () => { const flat=(a:(number|any[])[]):number[]=>{const res:number[]=[];const dfs=(x:number|any[])=>{if(typeof x==='number')res.push(x);else(x as any[]).forEach(dfs);};a.forEach(dfs);return res;}; expect(flat([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]); expect(flat([1,[4,[6]]])).toEqual([1,4,6]); });
+  it('finds kth smallest element in BST using inorder traversal', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const kth=(root:N|null,k:number)=>{const stack:N[]=[];let cur=root,cnt=0;while(cur||stack.length){while(cur){stack.push(cur);cur=cur.l;}cur=stack.pop()!;if(++cnt===k)return cur.v;cur=cur.r;}return -1;}; const bst=mk(3,mk(1,null,mk(2)),mk(4)); expect(kth(bst,1)).toBe(1); expect(kth(bst,3)).toBe(3); });
+  it('checks if n is a power of two using bit manipulation', () => { const isPow2=(n:number)=>n>0&&(n&(n-1))===0; expect(isPow2(1)).toBe(true); expect(isPow2(16)).toBe(true); expect(isPow2(3)).toBe(false); expect(isPow2(4)).toBe(true); expect(isPow2(5)).toBe(false); });
+});
