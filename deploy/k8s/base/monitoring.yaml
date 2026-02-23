@@ -262,6 +262,66 @@ data:
               summary: 'Rate limit frequently exceeded'
               description: 'Rate limiting is being triggered frequently.'
 
+  recording.yaml: |
+    groups:
+      - name: ims:request_rates
+        interval: 30s
+        rules:
+          - record: job:http_requests:rate5m
+            expr: sum(rate(http_requests_total{job=~"ims-.*"}[5m])) by (job)
+          - record: job:http_requests_errors:rate5m
+            expr: sum(rate(http_requests_total{job=~"ims-.*", status_code=~"5.."}[5m])) by (job)
+          - record: job:http_requests_error_ratio:rate5m
+            expr: |
+              job:http_requests_errors:rate5m / on(job) job:http_requests:rate5m
+          - record: cluster:http_requests:rate5m
+            expr: sum(rate(http_requests_total{job=~"ims-.*"}[5m]))
+          - record: cluster:http_requests_errors:rate5m
+            expr: sum(rate(http_requests_total{job=~"ims-.*", status_code=~"5.."}[5m]))
+          - record: cluster:http_requests_error_ratio:rate5m
+            expr: cluster:http_requests_errors:rate5m / cluster:http_requests:rate5m
+      - name: ims:latency
+        interval: 30s
+        rules:
+          - record: job:http_request_duration_seconds:p95
+            expr: |
+              histogram_quantile(0.95,
+                sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le))
+          - record: job:http_request_duration_seconds:p99
+            expr: |
+              histogram_quantile(0.99,
+                sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le))
+          - record: cluster:http_request_duration_seconds:p95
+            expr: |
+              histogram_quantile(0.95,
+                sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (le))
+          - record: cluster:http_request_duration_seconds:p99
+            expr: |
+              histogram_quantile(0.99,
+                sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (le))
+      - name: ims:slo
+        interval: 60s
+        rules:
+          - record: cluster:availability:rate1h
+            expr: |
+              sum(rate(http_requests_total{job=~"ims-.*", status_code!~"5.."}[1h]))
+              / sum(rate(http_requests_total{job=~"ims-.*"}[1h]))
+          - record: cluster:http_requests_error_ratio:rate1h
+            expr: |
+              1 - (sum(rate(http_requests_total{job=~"ims-.*", status_code!~"5.."}[1h]))
+              / sum(rate(http_requests_total{job=~"ims-.*"}[1h])))
+          - record: cluster:http_requests_error_ratio:rate6h
+            expr: |
+              1 - (sum(rate(http_requests_total{job=~"ims-.*", status_code!~"5.."}[6h]))
+              / sum(rate(http_requests_total{job=~"ims-.*"}[6h])))
+      - name: ims:security
+        interval: 60s
+        rules:
+          - record: cluster:auth_failures:rate5m
+            expr: sum(rate(auth_failures_total{job=~"ims-.*"}[5m]))
+          - record: cluster:rate_limit_exceeded:rate5m
+            expr: sum(rate(rate_limit_exceeded_total{job=~"ims-.*"}[5m]))
+
 # ── Alertmanager ConfigMap ─────────────────────────────────────────────────────
 ---
 apiVersion: v1
@@ -418,6 +478,8 @@ spec:
             items:
               - key: alerts.yaml
                 path: alerts.yaml
+              - key: recording.yaml
+                path: recording.yaml
         - name: data
           persistentVolumeClaim:
             claimName: prometheus-data
