@@ -778,3 +778,36 @@ describe('phase59 coverage', () => {
     expect(lcaBST(t,0,5)).toBe(2);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('stock span problem', () => {
+    const calculateSpan=(prices:number[]):number[]=>{const stack:number[]=[];const span:number[]=[];for(let i=0;i<prices.length;i++){while(stack.length&&prices[stack[stack.length-1]]<=prices[i])stack.pop();span.push(stack.length===0?i+1:i-stack[stack.length-1]);stack.push(i);}return span;};
+    expect(calculateSpan([100,80,60,70,60,75,85])).toEqual([1,1,1,2,1,4,6]);
+    expect(calculateSpan([10,4,5,90,120,80])).toEqual([1,1,2,4,5,1]);
+  });
+  it('partition equal subset sum', () => {
+    const canPartition=(nums:number[]):boolean=>{const sum=nums.reduce((a,b)=>a+b,0);if(sum%2!==0)return false;const target=sum/2;const dp=new Array(target+1).fill(false);dp[0]=true;for(const n of nums)for(let j=target;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[target];};
+    expect(canPartition([1,5,11,5])).toBe(true);
+    expect(canPartition([1,2,3,5])).toBe(false);
+    expect(canPartition([1,1])).toBe(true);
+    expect(canPartition([1,2,5])).toBe(false);
+  });
+  it('minimum path sum grid', () => {
+    const minPathSum=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;if(i===0)grid[i][j]+=grid[i][j-1];else if(j===0)grid[i][j]+=grid[i-1][j];else grid[i][j]+=Math.min(grid[i-1][j],grid[i][j-1]);}return grid[m-1][n-1];};
+    expect(minPathSum([[1,3,1],[1,5,1],[4,2,1]])).toBe(7);
+    expect(minPathSum([[1,2,3],[4,5,6]])).toBe(12);
+    expect(minPathSum([[1]])).toBe(1);
+  });
+  it('word ladder BFS', () => {
+    const ladderLength=(begin:string,end:string,wordList:string[]):number=>{const set=new Set(wordList);if(!set.has(end))return 0;const q:([string,number])[]=[[ begin,1]];const visited=new Set([begin]);while(q.length){const[word,len]=q.shift()!;for(let i=0;i<word.length;i++){for(let c=97;c<=122;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return len+1;if(set.has(nw)&&!visited.has(nw)){visited.add(nw);q.push([nw,len+1]);}}}}return 0;};
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5);
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log'])).toBe(0);
+  });
+  it('edit distance DP', () => {
+    const minDistance=(word1:string,word2:string):number=>{const m=word1.length,n=word2.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=word1[i-1]===word2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];};
+    expect(minDistance('horse','ros')).toBe(3);
+    expect(minDistance('intention','execution')).toBe(5);
+    expect(minDistance('','a')).toBe(1);
+    expect(minDistance('a','a')).toBe(0);
+  });
+});

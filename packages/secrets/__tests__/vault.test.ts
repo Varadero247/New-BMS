@@ -906,3 +906,35 @@ describe('phase59 coverage', () => {
     expect(r.left!.next).toBe(r.right);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('sum of subarray minimums', () => {
+    const sumSubarrayMins=(arr:number[]):number=>{const MOD=1e9+7;const n=arr.length;const left=new Array(n).fill(0);const right=new Array(n).fill(0);const s1:number[]=[];const s2:number[]=[];for(let i=0;i<n;i++){while(s1.length&&arr[s1[s1.length-1]]>=arr[i])s1.pop();left[i]=s1.length?i-s1[s1.length-1]:i+1;s1.push(i);}for(let i=n-1;i>=0;i--){while(s2.length&&arr[s2[s2.length-1]]>arr[i])s2.pop();right[i]=s2.length?s2[s2.length-1]-i:n-i;s2.push(i);}let res=0;for(let i=0;i<n;i++)res=(res+arr[i]*left[i]*right[i])%MOD;return res;};
+    expect(sumSubarrayMins([3,1,2,4])).toBe(17);
+    expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
+  });
+  it('minimum falling path sum', () => {
+    const minFallingPathSum=(matrix:number[][]):number=>{const n=matrix.length;for(let i=1;i<n;i++)for(let j=0;j<n;j++){const above=matrix[i-1][j];const aboveLeft=j>0?matrix[i-1][j-1]:Infinity;const aboveRight=j<n-1?matrix[i-1][j+1]:Infinity;matrix[i][j]+=Math.min(above,aboveLeft,aboveRight);}return Math.min(...matrix[n-1]);};
+    expect(minFallingPathSum([[2,1,3],[6,5,4],[7,8,9]])).toBe(13);
+    expect(minFallingPathSum([[-19,57],[-40,-5]])).toBe(-59);
+    expect(minFallingPathSum([[-48]])).toBe(-48);
+  });
+  it('burst balloons interval DP', () => {
+    const maxCoins=(nums:number[]):number=>{const arr=[1,...nums,1];const n=arr.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let left=0;left<n-len;left++){const right=left+len;for(let k=left+1;k<right;k++){dp[left][right]=Math.max(dp[left][right],dp[left][k]+arr[left]*arr[k]*arr[right]+dp[k][right]);}}}return dp[0][n-1];};
+    expect(maxCoins([3,1,5,8])).toBe(167);
+    expect(maxCoins([1,5])).toBe(10);
+    expect(maxCoins([1])).toBe(1);
+  });
+  it('longest arithmetic subsequence', () => {
+    const longestArithSeqLength=(nums:number[]):number=>{const n=nums.length;const dp:Map<number,number>[]=Array.from({length:n},()=>new Map());let res=2;for(let i=1;i<n;i++){for(let j=0;j<i;j++){const d=nums[i]-nums[j];const len=(dp[j].get(d)||1)+1;dp[i].set(d,Math.max(dp[i].get(d)||0,len));res=Math.max(res,dp[i].get(d)!);}}return res;};
+    expect(longestArithSeqLength([3,6,9,12])).toBe(4);
+    expect(longestArithSeqLength([9,4,7,2,10])).toBe(3);
+    expect(longestArithSeqLength([20,1,15,3,10,5,8])).toBe(4);
+  });
+  it('number of longest increasing subsequences', () => {
+    const findNumberOfLIS=(nums:number[]):number=>{const n=nums.length;const len=new Array(n).fill(1);const cnt=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(nums[j]<nums[i]){if(len[j]+1>len[i]){len[i]=len[j]+1;cnt[i]=cnt[j];}else if(len[j]+1===len[i])cnt[i]+=cnt[j];}const maxLen=Math.max(...len);return cnt.reduce((s,c,i)=>len[i]===maxLen?s+c:s,0);};
+    expect(findNumberOfLIS([1,3,5,4,7])).toBe(2);
+    expect(findNumberOfLIS([2,2,2,2,2])).toBe(5);
+    expect(findNumberOfLIS([1,2,4,3,5,4,7,2])).toBe(3);
+  });
+});

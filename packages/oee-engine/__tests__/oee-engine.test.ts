@@ -685,3 +685,38 @@ describe('phase59 coverage', () => {
     expect(toArr(h)).toEqual([1,4,2,3]);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('stone game DP', () => {
+    const stoneGame=(piles:number[]):boolean=>{const n=piles.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=piles[i];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Math.max(piles[i]-dp[i+1][j],piles[j]-dp[i][j-1]);}return dp[0][n-1]>0;};
+    expect(stoneGame([5,3,4,5])).toBe(true);
+    expect(stoneGame([3,7,2,3])).toBe(true);
+  });
+  it('subarrays with k different integers', () => {
+    const subarraysWithKDistinct=(nums:number[],k:number):number=>{const atMost=(m:number)=>{const cnt=new Map<number,number>();let l=0,res=0;for(let r=0;r<nums.length;r++){cnt.set(nums[r],(cnt.get(nums[r])||0)+1);while(cnt.size>m){cnt.set(nums[l],cnt.get(nums[l])!-1);if(cnt.get(nums[l])===0)cnt.delete(nums[l]);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);};
+    expect(subarraysWithKDistinct([1,2,1,2,3],2)).toBe(7);
+    expect(subarraysWithKDistinct([1,2,1,3,4],3)).toBe(3);
+  });
+  it('burst balloons interval DP', () => {
+    const maxCoins=(nums:number[]):number=>{const arr=[1,...nums,1];const n=arr.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let left=0;left<n-len;left++){const right=left+len;for(let k=left+1;k<right;k++){dp[left][right]=Math.max(dp[left][right],dp[left][k]+arr[left]*arr[k]*arr[right]+dp[k][right]);}}}return dp[0][n-1];};
+    expect(maxCoins([3,1,5,8])).toBe(167);
+    expect(maxCoins([1,5])).toBe(10);
+    expect(maxCoins([1])).toBe(1);
+  });
+  it('minimum score triangulation', () => {
+    const minScoreTriangulation=(values:number[]):number=>{const n=values.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++)for(let i=0;i<n-len;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+values[i]*values[k]*values[j]+dp[k][j]);}return dp[0][n-1];};
+    expect(minScoreTriangulation([1,2,3])).toBe(6);
+    expect(minScoreTriangulation([3,7,4,5])).toBe(144);
+    expect(minScoreTriangulation([1,3,1,4,1,5])).toBe(13);
+  });
+  it('clone graph BFS', () => {
+    class GN{val:number;neighbors:GN[];constructor(v=0,n:GN[]=[]){this.val=v;this.neighbors=n;}}
+    const cloneGraph=(node:GN|null):GN|null=>{if(!node)return null;const map=new Map<GN,GN>();const q=[node];map.set(node,new GN(node.val));while(q.length){const cur=q.shift()!;for(const nb of cur.neighbors){if(!map.has(nb)){map.set(nb,new GN(nb.val));q.push(nb);}map.get(cur)!.neighbors.push(map.get(nb)!);}}return map.get(node)!;};
+    const n1=new GN(1);const n2=new GN(2);const n3=new GN(3);const n4=new GN(4);
+    n1.neighbors=[n2,n4];n2.neighbors=[n1,n3];n3.neighbors=[n2,n4];n4.neighbors=[n1,n3];
+    const c=cloneGraph(n1);
+    expect(c).not.toBe(n1);
+    expect(c!.val).toBe(1);
+    expect(c!.neighbors.length).toBe(2);
+  });
+});

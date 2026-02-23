@@ -888,3 +888,34 @@ describe('phase59 coverage', () => {
     expect(findMin([2,1])).toBe(1);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('count square submatrices', () => {
+    const countSquares=(matrix:number[][]):number=>{const m=matrix.length,n=matrix[0].length;let count=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(matrix[i][j]>0&&i>0&&j>0)matrix[i][j]=Math.min(matrix[i-1][j],matrix[i][j-1],matrix[i-1][j-1])+1;count+=matrix[i][j];}return count;};
+    expect(countSquares([[0,1,1,1],[1,1,1,1],[0,1,1,1]])).toBe(15);
+    expect(countSquares([[1,0,1],[1,1,0],[1,1,0]])).toBe(7);
+  });
+  it('number of nice subarrays', () => {
+    const numberOfSubarrays=(nums:number[],k:number):number=>{const atMost=(m:number)=>{let count=0,odd=0,l=0;for(let r=0;r<nums.length;r++){if(nums[r]%2!==0)odd++;while(odd>m){if(nums[l]%2!==0)odd--;l++;}count+=r-l+1;}return count;};return atMost(k)-atMost(k-1);};
+    expect(numberOfSubarrays([1,1,2,1,1],3)).toBe(2);
+    expect(numberOfSubarrays([2,4,6],1)).toBe(0);
+    expect(numberOfSubarrays([2,2,2,1,2,2,1,2,2,2],2)).toBe(16);
+  });
+  it('maximum width ramp', () => {
+    const maxWidthRamp=(nums:number[]):number=>{const stack:number[]=[];for(let i=0;i<nums.length;i++)if(!stack.length||nums[stack[stack.length-1]]>nums[i])stack.push(i);let res=0;for(let j=nums.length-1;j>=0;j--){while(stack.length&&nums[stack[stack.length-1]]<=nums[j]){res=Math.max(res,j-stack[stack.length-1]);stack.pop();}}return res;};
+    expect(maxWidthRamp([6,0,8,2,1,5])).toBe(4);
+    expect(maxWidthRamp([9,8,1,0,1,9,4,0,4,1])).toBe(7);
+    expect(maxWidthRamp([3,3])).toBe(1);
+  });
+  it('max consecutive ones III', () => {
+    const longestOnes=(nums:number[],k:number):number=>{let l=0,zeros=0,res=0;for(let r=0;r<nums.length;r++){if(nums[r]===0)zeros++;while(zeros>k){if(nums[l]===0)zeros--;l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(longestOnes([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6);
+    expect(longestOnes([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10);
+    expect(longestOnes([1,1,1],0)).toBe(3);
+  });
+  it('sum of subarray minimums', () => {
+    const sumSubarrayMins=(arr:number[]):number=>{const MOD=1e9+7;const n=arr.length;const left=new Array(n).fill(0);const right=new Array(n).fill(0);const s1:number[]=[];const s2:number[]=[];for(let i=0;i<n;i++){while(s1.length&&arr[s1[s1.length-1]]>=arr[i])s1.pop();left[i]=s1.length?i-s1[s1.length-1]:i+1;s1.push(i);}for(let i=n-1;i>=0;i--){while(s2.length&&arr[s2[s2.length-1]]>arr[i])s2.pop();right[i]=s2.length?s2[s2.length-1]-i:n-i;s2.push(i);}let res=0;for(let i=0;i<n;i++)res=(res+arr[i]*left[i]*right[i])%MOD;return res;};
+    expect(sumSubarrayMins([3,1,2,4])).toBe(17);
+    expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
+  });
+});

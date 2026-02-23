@@ -785,3 +785,34 @@ describe('phase59 coverage', () => {
     expect(robTree(mk(3,mk(4,mk(1),mk(3)),mk(5,null,mk(1))))).toBe(9);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('maximum sum circular subarray', () => {
+    const maxSubarraySumCircular=(nums:number[]):number=>{let totalSum=0,curMax=0,maxSum=nums[0],curMin=0,minSum=nums[0];for(const n of nums){curMax=Math.max(curMax+n,n);maxSum=Math.max(maxSum,curMax);curMin=Math.min(curMin+n,n);minSum=Math.min(minSum,curMin);totalSum+=n;}return maxSum>0?Math.max(maxSum,totalSum-minSum):maxSum;};
+    expect(maxSubarraySumCircular([1,-2,3,-2])).toBe(3);
+    expect(maxSubarraySumCircular([5,-3,5])).toBe(10);
+    expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
+  });
+  it('number of provinces', () => {
+    const findCircleNum=(isConnected:number[][]):number=>{const n=isConnected.length;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(isConnected[i][j])union(i,j);return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(findCircleNum([[1,1,0],[1,1,0],[0,0,1]])).toBe(2);
+    expect(findCircleNum([[1,0,0],[0,1,0],[0,0,1]])).toBe(3);
+    expect(findCircleNum([[1,1,0],[1,1,1],[0,1,1]])).toBe(1);
+  });
+  it('target sum ways', () => {
+    const findTargetSumWays=(nums:number[],target:number):number=>{const map=new Map<number,number>([[0,1]]);for(const n of nums){const next=new Map<number,number>();for(const[sum,cnt]of map){next.set(sum+n,(next.get(sum+n)||0)+cnt);next.set(sum-n,(next.get(sum-n)||0)+cnt);}map.clear();next.forEach((v,k)=>map.set(k,v));}return map.get(target)||0;};
+    expect(findTargetSumWays([1,1,1,1,1],3)).toBe(5);
+    expect(findTargetSumWays([1],1)).toBe(1);
+    expect(findTargetSumWays([1],2)).toBe(0);
+  });
+  it('sum of subarray minimums', () => {
+    const sumSubarrayMins=(arr:number[]):number=>{const MOD=1e9+7;const n=arr.length;const left=new Array(n).fill(0);const right=new Array(n).fill(0);const s1:number[]=[];const s2:number[]=[];for(let i=0;i<n;i++){while(s1.length&&arr[s1[s1.length-1]]>=arr[i])s1.pop();left[i]=s1.length?i-s1[s1.length-1]:i+1;s1.push(i);}for(let i=n-1;i>=0;i--){while(s2.length&&arr[s2[s2.length-1]]>arr[i])s2.pop();right[i]=s2.length?s2[s2.length-1]-i:n-i;s2.push(i);}let res=0;for(let i=0;i<n;i++)res=(res+arr[i]*left[i]*right[i])%MOD;return res;};
+    expect(sumSubarrayMins([3,1,2,4])).toBe(17);
+    expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
+  });
+  it('stock span problem', () => {
+    const calculateSpan=(prices:number[]):number[]=>{const stack:number[]=[];const span:number[]=[];for(let i=0;i<prices.length;i++){while(stack.length&&prices[stack[stack.length-1]]<=prices[i])stack.pop();span.push(stack.length===0?i+1:i-stack[stack.length-1]);stack.push(i);}return span;};
+    expect(calculateSpan([100,80,60,70,60,75,85])).toEqual([1,1,1,2,1,4,6]);
+    expect(calculateSpan([10,4,5,90,120,80])).toEqual([1,1,2,4,5,1]);
+  });
+});

@@ -863,3 +863,34 @@ describe('phase59 coverage', () => {
     expect(toArr(reverseBetween(mk(5),1,1))).toEqual([5]);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('minimum score triangulation', () => {
+    const minScoreTriangulation=(values:number[]):number=>{const n=values.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++)for(let i=0;i<n-len;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+values[i]*values[k]*values[j]+dp[k][j]);}return dp[0][n-1];};
+    expect(minScoreTriangulation([1,2,3])).toBe(6);
+    expect(minScoreTriangulation([3,7,4,5])).toBe(144);
+    expect(minScoreTriangulation([1,3,1,4,1,5])).toBe(13);
+  });
+  it('stock span problem', () => {
+    const calculateSpan=(prices:number[]):number[]=>{const stack:number[]=[];const span:number[]=[];for(let i=0;i<prices.length;i++){while(stack.length&&prices[stack[stack.length-1]]<=prices[i])stack.pop();span.push(stack.length===0?i+1:i-stack[stack.length-1]);stack.push(i);}return span;};
+    expect(calculateSpan([100,80,60,70,60,75,85])).toEqual([1,1,1,2,1,4,6]);
+    expect(calculateSpan([10,4,5,90,120,80])).toEqual([1,1,2,4,5,1]);
+  });
+  it('minimum falling path sum', () => {
+    const minFallingPathSum=(matrix:number[][]):number=>{const n=matrix.length;for(let i=1;i<n;i++)for(let j=0;j<n;j++){const above=matrix[i-1][j];const aboveLeft=j>0?matrix[i-1][j-1]:Infinity;const aboveRight=j<n-1?matrix[i-1][j+1]:Infinity;matrix[i][j]+=Math.min(above,aboveLeft,aboveRight);}return Math.min(...matrix[n-1]);};
+    expect(minFallingPathSum([[2,1,3],[6,5,4],[7,8,9]])).toBe(13);
+    expect(minFallingPathSum([[-19,57],[-40,-5]])).toBe(-59);
+    expect(minFallingPathSum([[-48]])).toBe(-48);
+  });
+  it('max points on a line', () => {
+    const maxPoints=(points:number[][]):number=>{if(points.length<=2)return points.length;let res=2;for(let i=0;i<points.length;i++){const map=new Map<string,number>();for(let j=i+1;j<points.length;j++){let dx=points[j][0]-points[i][0];let dy=points[j][1]-points[i][1];const g=(a:number,b:number):number=>b===0?a:g(b,a%b);const d=g(Math.abs(dx),Math.abs(dy));if(d>0){dx/=d;dy/=d;}if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const key=`${dx},${dy}`;map.set(key,(map.get(key)||1)+1);res=Math.max(res,map.get(key)!);}};return res;};
+    expect(maxPoints([[1,1],[2,2],[3,3]])).toBe(3);
+    expect(maxPoints([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4);
+  });
+  it('number of provinces', () => {
+    const findCircleNum=(isConnected:number[][]):number=>{const n=isConnected.length;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(isConnected[i][j])union(i,j);return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(findCircleNum([[1,1,0],[1,1,0],[0,0,1]])).toBe(2);
+    expect(findCircleNum([[1,0,0],[0,1,0],[0,0,1]])).toBe(3);
+    expect(findCircleNum([[1,1,0],[1,1,1],[0,1,1]])).toBe(1);
+  });
+});

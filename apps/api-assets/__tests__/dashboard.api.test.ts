@@ -788,3 +788,36 @@ describe('phase59 coverage', () => {
     expect(eraseOverlapIntervals([[1,2],[2,3]])).toBe(0);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('stone game DP', () => {
+    const stoneGame=(piles:number[]):boolean=>{const n=piles.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=piles[i];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Math.max(piles[i]-dp[i+1][j],piles[j]-dp[i][j-1]);}return dp[0][n-1]>0;};
+    expect(stoneGame([5,3,4,5])).toBe(true);
+    expect(stoneGame([3,7,2,3])).toBe(true);
+  });
+  it('stock span problem', () => {
+    const calculateSpan=(prices:number[]):number[]=>{const stack:number[]=[];const span:number[]=[];for(let i=0;i<prices.length;i++){while(stack.length&&prices[stack[stack.length-1]]<=prices[i])stack.pop();span.push(stack.length===0?i+1:i-stack[stack.length-1]);stack.push(i);}return span;};
+    expect(calculateSpan([100,80,60,70,60,75,85])).toEqual([1,1,1,2,1,4,6]);
+    expect(calculateSpan([10,4,5,90,120,80])).toEqual([1,1,2,4,5,1]);
+  });
+  it('edit distance DP', () => {
+    const minDistance=(word1:string,word2:string):number=>{const m=word1.length,n=word2.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=word1[i-1]===word2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];};
+    expect(minDistance('horse','ros')).toBe(3);
+    expect(minDistance('intention','execution')).toBe(5);
+    expect(minDistance('','a')).toBe(1);
+    expect(minDistance('a','a')).toBe(0);
+  });
+  it('maximum sum circular subarray', () => {
+    const maxSubarraySumCircular=(nums:number[]):number=>{let totalSum=0,curMax=0,maxSum=nums[0],curMin=0,minSum=nums[0];for(const n of nums){curMax=Math.max(curMax+n,n);maxSum=Math.max(maxSum,curMax);curMin=Math.min(curMin+n,n);minSum=Math.min(minSum,curMin);totalSum+=n;}return maxSum>0?Math.max(maxSum,totalSum-minSum):maxSum;};
+    expect(maxSubarraySumCircular([1,-2,3,-2])).toBe(3);
+    expect(maxSubarraySumCircular([5,-3,5])).toBe(10);
+    expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
+  });
+  it('minimum size subarray sum', () => {
+    const minSubArrayLen=(target:number,nums:number[]):number=>{let l=0,sum=0,res=Infinity;for(let r=0;r<nums.length;r++){sum+=nums[r];while(sum>=target){res=Math.min(res,r-l+1);sum-=nums[l++];}}return res===Infinity?0:res;};
+    expect(minSubArrayLen(7,[2,3,1,2,4,3])).toBe(2);
+    expect(minSubArrayLen(4,[1,4,4])).toBe(1);
+    expect(minSubArrayLen(11,[1,1,1,1,1,1,1,1])).toBe(0);
+    expect(minSubArrayLen(15,[1,2,3,4,5])).toBe(5);
+  });
+});

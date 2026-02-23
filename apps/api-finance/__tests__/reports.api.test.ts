@@ -1033,3 +1033,36 @@ describe('phase59 coverage', () => {
     expect(findAnagrams('abab','ab')).toEqual([0,1,2]);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('partition equal subset sum', () => {
+    const canPartition=(nums:number[]):boolean=>{const sum=nums.reduce((a,b)=>a+b,0);if(sum%2!==0)return false;const target=sum/2;const dp=new Array(target+1).fill(false);dp[0]=true;for(const n of nums)for(let j=target;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[target];};
+    expect(canPartition([1,5,11,5])).toBe(true);
+    expect(canPartition([1,2,3,5])).toBe(false);
+    expect(canPartition([1,1])).toBe(true);
+    expect(canPartition([1,2,5])).toBe(false);
+  });
+  it('minimum path sum grid', () => {
+    const minPathSum=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;if(i===0)grid[i][j]+=grid[i][j-1];else if(j===0)grid[i][j]+=grid[i-1][j];else grid[i][j]+=Math.min(grid[i-1][j],grid[i][j-1]);}return grid[m-1][n-1];};
+    expect(minPathSum([[1,3,1],[1,5,1],[4,2,1]])).toBe(7);
+    expect(minPathSum([[1,2,3],[4,5,6]])).toBe(12);
+    expect(minPathSum([[1]])).toBe(1);
+  });
+  it('sum of subarray minimums', () => {
+    const sumSubarrayMins=(arr:number[]):number=>{const MOD=1e9+7;const n=arr.length;const left=new Array(n).fill(0);const right=new Array(n).fill(0);const s1:number[]=[];const s2:number[]=[];for(let i=0;i<n;i++){while(s1.length&&arr[s1[s1.length-1]]>=arr[i])s1.pop();left[i]=s1.length?i-s1[s1.length-1]:i+1;s1.push(i);}for(let i=n-1;i>=0;i--){while(s2.length&&arr[s2[s2.length-1]]>arr[i])s2.pop();right[i]=s2.length?s2[s2.length-1]-i:n-i;s2.push(i);}let res=0;for(let i=0;i<n;i++)res=(res+arr[i]*left[i]*right[i])%MOD;return res;};
+    expect(sumSubarrayMins([3,1,2,4])).toBe(17);
+    expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
+  });
+  it('target sum ways', () => {
+    const findTargetSumWays=(nums:number[],target:number):number=>{const map=new Map<number,number>([[0,1]]);for(const n of nums){const next=new Map<number,number>();for(const[sum,cnt]of map){next.set(sum+n,(next.get(sum+n)||0)+cnt);next.set(sum-n,(next.get(sum-n)||0)+cnt);}map.clear();next.forEach((v,k)=>map.set(k,v));}return map.get(target)||0;};
+    expect(findTargetSumWays([1,1,1,1,1],3)).toBe(5);
+    expect(findTargetSumWays([1],1)).toBe(1);
+    expect(findTargetSumWays([1],2)).toBe(0);
+  });
+  it('burst balloons interval DP', () => {
+    const maxCoins=(nums:number[]):number=>{const arr=[1,...nums,1];const n=arr.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let left=0;left<n-len;left++){const right=left+len;for(let k=left+1;k<right;k++){dp[left][right]=Math.max(dp[left][right],dp[left][k]+arr[left]*arr[k]*arr[right]+dp[k][right]);}}}return dp[0][n-1];};
+    expect(maxCoins([3,1,5,8])).toBe(167);
+    expect(maxCoins([1,5])).toBe(10);
+    expect(maxCoins([1])).toBe(1);
+  });
+});

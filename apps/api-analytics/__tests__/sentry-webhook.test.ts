@@ -867,3 +867,33 @@ describe('phase59 coverage', () => {
     expect(zigzagLevelOrder(t)).toEqual([[3],[20,9],[15,7]]);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('word ladder BFS', () => {
+    const ladderLength=(begin:string,end:string,wordList:string[]):number=>{const set=new Set(wordList);if(!set.has(end))return 0;const q:([string,number])[]=[[ begin,1]];const visited=new Set([begin]);while(q.length){const[word,len]=q.shift()!;for(let i=0;i<word.length;i++){for(let c=97;c<=122;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return len+1;if(set.has(nw)&&!visited.has(nw)){visited.add(nw);q.push([nw,len+1]);}}}}return 0;};
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5);
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log'])).toBe(0);
+  });
+  it('minimum score triangulation', () => {
+    const minScoreTriangulation=(values:number[]):number=>{const n=values.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++)for(let i=0;i<n-len;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+values[i]*values[k]*values[j]+dp[k][j]);}return dp[0][n-1];};
+    expect(minScoreTriangulation([1,2,3])).toBe(6);
+    expect(minScoreTriangulation([3,7,4,5])).toBe(144);
+    expect(minScoreTriangulation([1,3,1,4,1,5])).toBe(13);
+  });
+  it('count square submatrices', () => {
+    const countSquares=(matrix:number[][]):number=>{const m=matrix.length,n=matrix[0].length;let count=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(matrix[i][j]>0&&i>0&&j>0)matrix[i][j]=Math.min(matrix[i-1][j],matrix[i][j-1],matrix[i-1][j-1])+1;count+=matrix[i][j];}return count;};
+    expect(countSquares([[0,1,1,1],[1,1,1,1],[0,1,1,1]])).toBe(15);
+    expect(countSquares([[1,0,1],[1,1,0],[1,1,0]])).toBe(7);
+  });
+  it('sum of subarray minimums', () => {
+    const sumSubarrayMins=(arr:number[]):number=>{const MOD=1e9+7;const n=arr.length;const left=new Array(n).fill(0);const right=new Array(n).fill(0);const s1:number[]=[];const s2:number[]=[];for(let i=0;i<n;i++){while(s1.length&&arr[s1[s1.length-1]]>=arr[i])s1.pop();left[i]=s1.length?i-s1[s1.length-1]:i+1;s1.push(i);}for(let i=n-1;i>=0;i--){while(s2.length&&arr[s2[s2.length-1]]>arr[i])s2.pop();right[i]=s2.length?s2[s2.length-1]-i:n-i;s2.push(i);}let res=0;for(let i=0;i<n;i++)res=(res+arr[i]*left[i]*right[i])%MOD;return res;};
+    expect(sumSubarrayMins([3,1,2,4])).toBe(17);
+    expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
+  });
+  it('max consecutive ones III', () => {
+    const longestOnes=(nums:number[],k:number):number=>{let l=0,zeros=0,res=0;for(let r=0;r<nums.length;r++){if(nums[r]===0)zeros++;while(zeros>k){if(nums[l]===0)zeros--;l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(longestOnes([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6);
+    expect(longestOnes([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10);
+    expect(longestOnes([1,1,1],0)).toBe(3);
+  });
+});

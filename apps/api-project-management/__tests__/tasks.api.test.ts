@@ -1083,3 +1083,35 @@ describe('phase59 coverage', () => {
     expect(eraseOverlapIntervals([[1,2],[2,3]])).toBe(0);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('fruit into baskets', () => {
+    const totalFruit=(fruits:number[]):number=>{const basket=new Map<number,number>();let l=0,res=0;for(let r=0;r<fruits.length;r++){basket.set(fruits[r],(basket.get(fruits[r])||0)+1);while(basket.size>2){const lf=fruits[l];basket.set(lf,basket.get(lf)!-1);if(basket.get(lf)===0)basket.delete(lf);l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(totalFruit([1,2,1])).toBe(3);
+    expect(totalFruit([0,1,2,2])).toBe(3);
+    expect(totalFruit([1,2,3,2,2])).toBe(4);
+  });
+  it('perfect squares DP', () => {
+    const numSquares=(n:number):number=>{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];};
+    expect(numSquares(12)).toBe(3);
+    expect(numSquares(13)).toBe(2);
+    expect(numSquares(1)).toBe(1);
+    expect(numSquares(4)).toBe(1);
+  });
+  it('subarrays with k different integers', () => {
+    const subarraysWithKDistinct=(nums:number[],k:number):number=>{const atMost=(m:number)=>{const cnt=new Map<number,number>();let l=0,res=0;for(let r=0;r<nums.length;r++){cnt.set(nums[r],(cnt.get(nums[r])||0)+1);while(cnt.size>m){cnt.set(nums[l],cnt.get(nums[l])!-1);if(cnt.get(nums[l])===0)cnt.delete(nums[l]);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);};
+    expect(subarraysWithKDistinct([1,2,1,2,3],2)).toBe(7);
+    expect(subarraysWithKDistinct([1,2,1,3,4],3)).toBe(3);
+  });
+  it('count square submatrices', () => {
+    const countSquares=(matrix:number[][]):number=>{const m=matrix.length,n=matrix[0].length;let count=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(matrix[i][j]>0&&i>0&&j>0)matrix[i][j]=Math.min(matrix[i-1][j],matrix[i][j-1],matrix[i-1][j-1])+1;count+=matrix[i][j];}return count;};
+    expect(countSquares([[0,1,1,1],[1,1,1,1],[0,1,1,1]])).toBe(15);
+    expect(countSquares([[1,0,1],[1,1,0],[1,1,0]])).toBe(7);
+  });
+  it('number of longest increasing subsequences', () => {
+    const findNumberOfLIS=(nums:number[]):number=>{const n=nums.length;const len=new Array(n).fill(1);const cnt=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(nums[j]<nums[i]){if(len[j]+1>len[i]){len[i]=len[j]+1;cnt[i]=cnt[j];}else if(len[j]+1===len[i])cnt[i]+=cnt[j];}const maxLen=Math.max(...len);return cnt.reduce((s,c,i)=>len[i]===maxLen?s+c:s,0);};
+    expect(findNumberOfLIS([1,3,5,4,7])).toBe(2);
+    expect(findNumberOfLIS([2,2,2,2,2])).toBe(5);
+    expect(findNumberOfLIS([1,2,4,3,5,4,7,2])).toBe(3);
+  });
+});

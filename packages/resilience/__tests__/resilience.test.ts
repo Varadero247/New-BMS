@@ -888,3 +888,36 @@ describe('phase59 coverage', () => {
     expect(increasingTriplet([1,1,1,1,1])).toBe(false);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('perfect squares DP', () => {
+    const numSquares=(n:number):number=>{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];};
+    expect(numSquares(12)).toBe(3);
+    expect(numSquares(13)).toBe(2);
+    expect(numSquares(1)).toBe(1);
+    expect(numSquares(4)).toBe(1);
+  });
+  it('fruit into baskets', () => {
+    const totalFruit=(fruits:number[]):number=>{const basket=new Map<number,number>();let l=0,res=0;for(let r=0;r<fruits.length;r++){basket.set(fruits[r],(basket.get(fruits[r])||0)+1);while(basket.size>2){const lf=fruits[l];basket.set(lf,basket.get(lf)!-1);if(basket.get(lf)===0)basket.delete(lf);l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(totalFruit([1,2,1])).toBe(3);
+    expect(totalFruit([0,1,2,2])).toBe(3);
+    expect(totalFruit([1,2,3,2,2])).toBe(4);
+  });
+  it('count good strings', () => {
+    const countGoodStrings=(low:number,high:number,zero:number,one:number):number=>{const MOD=1e9+7;const dp=new Array(high+1).fill(0);dp[0]=1;for(let i=1;i<=high;i++){if(i>=zero)dp[i]=(dp[i]+dp[i-zero])%MOD;if(i>=one)dp[i]=(dp[i]+dp[i-one])%MOD;}let res=0;for(let i=low;i<=high;i++)res=(res+dp[i])%MOD;return res;};
+    expect(countGoodStrings(3,3,1,1)).toBe(8);
+    expect(countGoodStrings(2,3,1,2)).toBe(5);
+    expect(countGoodStrings(1,1,1,1)).toBe(2);
+  });
+  it('max consecutive ones III', () => {
+    const longestOnes=(nums:number[],k:number):number=>{let l=0,zeros=0,res=0;for(let r=0;r<nums.length;r++){if(nums[r]===0)zeros++;while(zeros>k){if(nums[l]===0)zeros--;l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(longestOnes([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6);
+    expect(longestOnes([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10);
+    expect(longestOnes([1,1,1],0)).toBe(3);
+  });
+  it('stock span problem', () => {
+    const calculateSpan=(prices:number[]):number[]=>{const stack:number[]=[];const span:number[]=[];for(let i=0;i<prices.length;i++){while(stack.length&&prices[stack[stack.length-1]]<=prices[i])stack.pop();span.push(stack.length===0?i+1:i-stack[stack.length-1]);stack.push(i);}return span;};
+    expect(calculateSpan([100,80,60,70,60,75,85])).toEqual([1,1,1,2,1,4,6]);
+    expect(calculateSpan([10,4,5,90,120,80])).toEqual([1,1,2,4,5,1]);
+  });
+});

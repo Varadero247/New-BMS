@@ -722,3 +722,36 @@ describe('phase59 coverage', () => {
     expect(findAnagrams('abab','ab')).toEqual([0,1,2]);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('max consecutive ones III', () => {
+    const longestOnes=(nums:number[],k:number):number=>{let l=0,zeros=0,res=0;for(let r=0;r<nums.length;r++){if(nums[r]===0)zeros++;while(zeros>k){if(nums[l]===0)zeros--;l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(longestOnes([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6);
+    expect(longestOnes([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10);
+    expect(longestOnes([1,1,1],0)).toBe(3);
+  });
+  it('edit distance DP', () => {
+    const minDistance=(word1:string,word2:string):number=>{const m=word1.length,n=word2.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=word1[i-1]===word2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];};
+    expect(minDistance('horse','ros')).toBe(3);
+    expect(minDistance('intention','execution')).toBe(5);
+    expect(minDistance('','a')).toBe(1);
+    expect(minDistance('a','a')).toBe(0);
+  });
+  it('longest arithmetic subsequence', () => {
+    const longestArithSeqLength=(nums:number[]):number=>{const n=nums.length;const dp:Map<number,number>[]=Array.from({length:n},()=>new Map());let res=2;for(let i=1;i<n;i++){for(let j=0;j<i;j++){const d=nums[i]-nums[j];const len=(dp[j].get(d)||1)+1;dp[i].set(d,Math.max(dp[i].get(d)||0,len));res=Math.max(res,dp[i].get(d)!);}}return res;};
+    expect(longestArithSeqLength([3,6,9,12])).toBe(4);
+    expect(longestArithSeqLength([9,4,7,2,10])).toBe(3);
+    expect(longestArithSeqLength([20,1,15,3,10,5,8])).toBe(4);
+  });
+  it('interleaving string DP', () => {
+    const isInterleave=(s1:string,s2:string,s3:string):boolean=>{const m=s1.length,n=s2.length;if(m+n!==s3.length)return false;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let i=1;i<=m;i++)dp[i][0]=dp[i-1][0]&&s1[i-1]===s3[i-1];for(let j=1;j<=n;j++)dp[0][j]=dp[0][j-1]&&s2[j-1]===s3[j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=(dp[i-1][j]&&s1[i-1]===s3[i+j-1])||(dp[i][j-1]&&s2[j-1]===s3[i+j-1]);return dp[m][n];};
+    expect(isInterleave('aabcc','dbbca','aadbbcbcac')).toBe(true);
+    expect(isInterleave('aabcc','dbbca','aadbbbaccc')).toBe(false);
+    expect(isInterleave('','','b')).toBe(false);
+  });
+  it('count square submatrices', () => {
+    const countSquares=(matrix:number[][]):number=>{const m=matrix.length,n=matrix[0].length;let count=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(matrix[i][j]>0&&i>0&&j>0)matrix[i][j]=Math.min(matrix[i-1][j],matrix[i][j-1],matrix[i-1][j-1])+1;count+=matrix[i][j];}return count;};
+    expect(countSquares([[0,1,1,1],[1,1,1,1],[0,1,1,1]])).toBe(15);
+    expect(countSquares([[1,0,1],[1,1,0],[1,1,0]])).toBe(7);
+  });
+});

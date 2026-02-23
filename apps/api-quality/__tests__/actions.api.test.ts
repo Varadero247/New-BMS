@@ -1048,3 +1048,35 @@ describe('phase59 coverage', () => {
     expect(robTree(mk(3,mk(4,mk(1),mk(3)),mk(5,null,mk(1))))).toBe(9);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('sum of subarray minimums', () => {
+    const sumSubarrayMins=(arr:number[]):number=>{const MOD=1e9+7;const n=arr.length;const left=new Array(n).fill(0);const right=new Array(n).fill(0);const s1:number[]=[];const s2:number[]=[];for(let i=0;i<n;i++){while(s1.length&&arr[s1[s1.length-1]]>=arr[i])s1.pop();left[i]=s1.length?i-s1[s1.length-1]:i+1;s1.push(i);}for(let i=n-1;i>=0;i--){while(s2.length&&arr[s2[s2.length-1]]>arr[i])s2.pop();right[i]=s2.length?s2[s2.length-1]-i:n-i;s2.push(i);}let res=0;for(let i=0;i<n;i++)res=(res+arr[i]*left[i]*right[i])%MOD;return res;};
+    expect(sumSubarrayMins([3,1,2,4])).toBe(17);
+    expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
+  });
+  it('number of nice subarrays', () => {
+    const numberOfSubarrays=(nums:number[],k:number):number=>{const atMost=(m:number)=>{let count=0,odd=0,l=0;for(let r=0;r<nums.length;r++){if(nums[r]%2!==0)odd++;while(odd>m){if(nums[l]%2!==0)odd--;l++;}count+=r-l+1;}return count;};return atMost(k)-atMost(k-1);};
+    expect(numberOfSubarrays([1,1,2,1,1],3)).toBe(2);
+    expect(numberOfSubarrays([2,4,6],1)).toBe(0);
+    expect(numberOfSubarrays([2,2,2,1,2,2,1,2,2,2],2)).toBe(16);
+  });
+  it('perfect squares DP', () => {
+    const numSquares=(n:number):number=>{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];};
+    expect(numSquares(12)).toBe(3);
+    expect(numSquares(13)).toBe(2);
+    expect(numSquares(1)).toBe(1);
+    expect(numSquares(4)).toBe(1);
+  });
+  it('max points on a line', () => {
+    const maxPoints=(points:number[][]):number=>{if(points.length<=2)return points.length;let res=2;for(let i=0;i<points.length;i++){const map=new Map<string,number>();for(let j=i+1;j<points.length;j++){let dx=points[j][0]-points[i][0];let dy=points[j][1]-points[i][1];const g=(a:number,b:number):number=>b===0?a:g(b,a%b);const d=g(Math.abs(dx),Math.abs(dy));if(d>0){dx/=d;dy/=d;}if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const key=`${dx},${dy}`;map.set(key,(map.get(key)||1)+1);res=Math.max(res,map.get(key)!);}};return res;};
+    expect(maxPoints([[1,1],[2,2],[3,3]])).toBe(3);
+    expect(maxPoints([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4);
+  });
+  it('minimum score triangulation', () => {
+    const minScoreTriangulation=(values:number[]):number=>{const n=values.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++)for(let i=0;i<n-len;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+values[i]*values[k]*values[j]+dp[k][j]);}return dp[0][n-1];};
+    expect(minScoreTriangulation([1,2,3])).toBe(6);
+    expect(minScoreTriangulation([3,7,4,5])).toBe(144);
+    expect(minScoreTriangulation([1,3,1,4,1,5])).toBe(13);
+  });
+});

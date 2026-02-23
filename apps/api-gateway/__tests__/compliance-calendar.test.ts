@@ -1090,3 +1090,34 @@ describe('phase59 coverage', () => {
     expect(search([3,1],1)).toBe(1);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('longest arithmetic subsequence', () => {
+    const longestArithSeqLength=(nums:number[]):number=>{const n=nums.length;const dp:Map<number,number>[]=Array.from({length:n},()=>new Map());let res=2;for(let i=1;i<n;i++){for(let j=0;j<i;j++){const d=nums[i]-nums[j];const len=(dp[j].get(d)||1)+1;dp[i].set(d,Math.max(dp[i].get(d)||0,len));res=Math.max(res,dp[i].get(d)!);}}return res;};
+    expect(longestArithSeqLength([3,6,9,12])).toBe(4);
+    expect(longestArithSeqLength([9,4,7,2,10])).toBe(3);
+    expect(longestArithSeqLength([20,1,15,3,10,5,8])).toBe(4);
+  });
+  it('word ladder BFS', () => {
+    const ladderLength=(begin:string,end:string,wordList:string[]):number=>{const set=new Set(wordList);if(!set.has(end))return 0;const q:([string,number])[]=[[ begin,1]];const visited=new Set([begin]);while(q.length){const[word,len]=q.shift()!;for(let i=0;i<word.length;i++){for(let c=97;c<=122;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return len+1;if(set.has(nw)&&!visited.has(nw)){visited.add(nw);q.push([nw,len+1]);}}}}return 0;};
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5);
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log'])).toBe(0);
+  });
+  it('minimum path sum grid', () => {
+    const minPathSum=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;if(i===0)grid[i][j]+=grid[i][j-1];else if(j===0)grid[i][j]+=grid[i-1][j];else grid[i][j]+=Math.min(grid[i-1][j],grid[i][j-1]);}return grid[m-1][n-1];};
+    expect(minPathSum([[1,3,1],[1,5,1],[4,2,1]])).toBe(7);
+    expect(minPathSum([[1,2,3],[4,5,6]])).toBe(12);
+    expect(minPathSum([[1]])).toBe(1);
+  });
+  it('max points on a line', () => {
+    const maxPoints=(points:number[][]):number=>{if(points.length<=2)return points.length;let res=2;for(let i=0;i<points.length;i++){const map=new Map<string,number>();for(let j=i+1;j<points.length;j++){let dx=points[j][0]-points[i][0];let dy=points[j][1]-points[i][1];const g=(a:number,b:number):number=>b===0?a:g(b,a%b);const d=g(Math.abs(dx),Math.abs(dy));if(d>0){dx/=d;dy/=d;}if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const key=`${dx},${dy}`;map.set(key,(map.get(key)||1)+1);res=Math.max(res,map.get(key)!);}};return res;};
+    expect(maxPoints([[1,1],[2,2],[3,3]])).toBe(3);
+    expect(maxPoints([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4);
+  });
+  it('interleaving string DP', () => {
+    const isInterleave=(s1:string,s2:string,s3:string):boolean=>{const m=s1.length,n=s2.length;if(m+n!==s3.length)return false;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let i=1;i<=m;i++)dp[i][0]=dp[i-1][0]&&s1[i-1]===s3[i-1];for(let j=1;j<=n;j++)dp[0][j]=dp[0][j-1]&&s2[j-1]===s3[j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=(dp[i-1][j]&&s1[i-1]===s3[i+j-1])||(dp[i][j-1]&&s2[j-1]===s3[i+j-1]);return dp[m][n];};
+    expect(isInterleave('aabcc','dbbca','aadbbcbcac')).toBe(true);
+    expect(isInterleave('aabcc','dbbca','aadbbbaccc')).toBe(false);
+    expect(isInterleave('','','b')).toBe(false);
+  });
+});

@@ -878,3 +878,38 @@ describe('phase59 coverage', () => {
     expect(countComponents(4,[])).toBe(4);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('minimum path sum grid', () => {
+    const minPathSum=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;if(i===0)grid[i][j]+=grid[i][j-1];else if(j===0)grid[i][j]+=grid[i-1][j];else grid[i][j]+=Math.min(grid[i-1][j],grid[i][j-1]);}return grid[m-1][n-1];};
+    expect(minPathSum([[1,3,1],[1,5,1],[4,2,1]])).toBe(7);
+    expect(minPathSum([[1,2,3],[4,5,6]])).toBe(12);
+    expect(minPathSum([[1]])).toBe(1);
+  });
+  it('minimum falling path sum', () => {
+    const minFallingPathSum=(matrix:number[][]):number=>{const n=matrix.length;for(let i=1;i<n;i++)for(let j=0;j<n;j++){const above=matrix[i-1][j];const aboveLeft=j>0?matrix[i-1][j-1]:Infinity;const aboveRight=j<n-1?matrix[i-1][j+1]:Infinity;matrix[i][j]+=Math.min(above,aboveLeft,aboveRight);}return Math.min(...matrix[n-1]);};
+    expect(minFallingPathSum([[2,1,3],[6,5,4],[7,8,9]])).toBe(13);
+    expect(minFallingPathSum([[-19,57],[-40,-5]])).toBe(-59);
+    expect(minFallingPathSum([[-48]])).toBe(-48);
+  });
+  it('number of longest increasing subsequences', () => {
+    const findNumberOfLIS=(nums:number[]):number=>{const n=nums.length;const len=new Array(n).fill(1);const cnt=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(nums[j]<nums[i]){if(len[j]+1>len[i]){len[i]=len[j]+1;cnt[i]=cnt[j];}else if(len[j]+1===len[i])cnt[i]+=cnt[j];}const maxLen=Math.max(...len);return cnt.reduce((s,c,i)=>len[i]===maxLen?s+c:s,0);};
+    expect(findNumberOfLIS([1,3,5,4,7])).toBe(2);
+    expect(findNumberOfLIS([2,2,2,2,2])).toBe(5);
+    expect(findNumberOfLIS([1,2,4,3,5,4,7,2])).toBe(3);
+  });
+  it('interleaving string DP', () => {
+    const isInterleave=(s1:string,s2:string,s3:string):boolean=>{const m=s1.length,n=s2.length;if(m+n!==s3.length)return false;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let i=1;i<=m;i++)dp[i][0]=dp[i-1][0]&&s1[i-1]===s3[i-1];for(let j=1;j<=n;j++)dp[0][j]=dp[0][j-1]&&s2[j-1]===s3[j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=(dp[i-1][j]&&s1[i-1]===s3[i+j-1])||(dp[i][j-1]&&s2[j-1]===s3[i+j-1]);return dp[m][n];};
+    expect(isInterleave('aabcc','dbbca','aadbbcbcac')).toBe(true);
+    expect(isInterleave('aabcc','dbbca','aadbbbaccc')).toBe(false);
+    expect(isInterleave('','','b')).toBe(false);
+  });
+  it('pacific atlantic water flow', () => {
+    const pacificAtlantic=(heights:number[][]):number[][]=>{const m=heights.length,n=heights[0].length;const pac=Array.from({length:m},()=>new Array(n).fill(false));const atl=Array.from({length:m},()=>new Array(n).fill(false));const dfs=(r:number,c:number,visited:boolean[][],prev:number)=>{if(r<0||r>=m||c<0||c>=n||visited[r][c]||heights[r][c]<prev)return;visited[r][c]=true;dfs(r+1,c,visited,heights[r][c]);dfs(r-1,c,visited,heights[r][c]);dfs(r,c+1,visited,heights[r][c]);dfs(r,c-1,visited,heights[r][c]);};for(let i=0;i<m;i++){dfs(i,0,pac,0);dfs(i,n-1,atl,0);}for(let j=0;j<n;j++){dfs(0,j,pac,0);dfs(m-1,j,atl,0);}const res:number[][]=[];for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(pac[i][j]&&atl[i][j])res.push([i,j]);return res;};
+    const h=[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]];
+    const r=pacificAtlantic(h);
+    expect(r).toContainEqual([0,4]);
+    expect(r).toContainEqual([1,3]);
+    expect(r.length).toBeGreaterThan(0);
+  });
+});

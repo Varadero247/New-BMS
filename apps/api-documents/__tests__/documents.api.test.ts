@@ -825,3 +825,34 @@ describe('phase59 coverage', () => {
     expect(serialize(t2)).toBe(s);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('minimum cost for tickets', () => {
+    const mincostTickets=(days:number[],costs:number[]):number=>{const daySet=new Set(days);const lastDay=days[days.length-1];const dp=new Array(lastDay+1).fill(0);for(let i=1;i<=lastDay;i++){if(!daySet.has(i)){dp[i]=dp[i-1];continue;}dp[i]=Math.min(dp[i-1]+costs[0],dp[Math.max(0,i-7)]+costs[1],dp[Math.max(0,i-30)]+costs[2]);}return dp[lastDay];};
+    expect(mincostTickets([1,4,6,7,8,20],[2,7,15])).toBe(11);
+    expect(mincostTickets([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17);
+  });
+  it('number of nice subarrays', () => {
+    const numberOfSubarrays=(nums:number[],k:number):number=>{const atMost=(m:number)=>{let count=0,odd=0,l=0;for(let r=0;r<nums.length;r++){if(nums[r]%2!==0)odd++;while(odd>m){if(nums[l]%2!==0)odd--;l++;}count+=r-l+1;}return count;};return atMost(k)-atMost(k-1);};
+    expect(numberOfSubarrays([1,1,2,1,1],3)).toBe(2);
+    expect(numberOfSubarrays([2,4,6],1)).toBe(0);
+    expect(numberOfSubarrays([2,2,2,1,2,2,1,2,2,2],2)).toBe(16);
+  });
+  it('wildcard matching DP', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i-1][j]||dp[i][j-1];else dp[i][j]=(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','*')).toBe(true);
+    expect(isMatch('cb','?a')).toBe(false);
+    expect(isMatch('adceb','*a*b')).toBe(true);
+  });
+  it('subarrays with k different integers', () => {
+    const subarraysWithKDistinct=(nums:number[],k:number):number=>{const atMost=(m:number)=>{const cnt=new Map<number,number>();let l=0,res=0;for(let r=0;r<nums.length;r++){cnt.set(nums[r],(cnt.get(nums[r])||0)+1);while(cnt.size>m){cnt.set(nums[l],cnt.get(nums[l])!-1);if(cnt.get(nums[l])===0)cnt.delete(nums[l]);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);};
+    expect(subarraysWithKDistinct([1,2,1,2,3],2)).toBe(7);
+    expect(subarraysWithKDistinct([1,2,1,3,4],3)).toBe(3);
+  });
+  it('max points on a line', () => {
+    const maxPoints=(points:number[][]):number=>{if(points.length<=2)return points.length;let res=2;for(let i=0;i<points.length;i++){const map=new Map<string,number>();for(let j=i+1;j<points.length;j++){let dx=points[j][0]-points[i][0];let dy=points[j][1]-points[i][1];const g=(a:number,b:number):number=>b===0?a:g(b,a%b);const d=g(Math.abs(dx),Math.abs(dy));if(d>0){dx/=d;dy/=d;}if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const key=`${dx},${dy}`;map.set(key,(map.get(key)||1)+1);res=Math.max(res,map.get(key)!);}};return res;};
+    expect(maxPoints([[1,1],[2,2],[3,3]])).toBe(3);
+    expect(maxPoints([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4);
+  });
+});

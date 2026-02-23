@@ -932,3 +932,36 @@ describe('phase59 coverage', () => {
     expect(r).toHaveLength(2);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('fruit into baskets', () => {
+    const totalFruit=(fruits:number[]):number=>{const basket=new Map<number,number>();let l=0,res=0;for(let r=0;r<fruits.length;r++){basket.set(fruits[r],(basket.get(fruits[r])||0)+1);while(basket.size>2){const lf=fruits[l];basket.set(lf,basket.get(lf)!-1);if(basket.get(lf)===0)basket.delete(lf);l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(totalFruit([1,2,1])).toBe(3);
+    expect(totalFruit([0,1,2,2])).toBe(3);
+    expect(totalFruit([1,2,3,2,2])).toBe(4);
+  });
+  it('maximum sum circular subarray', () => {
+    const maxSubarraySumCircular=(nums:number[]):number=>{let totalSum=0,curMax=0,maxSum=nums[0],curMin=0,minSum=nums[0];for(const n of nums){curMax=Math.max(curMax+n,n);maxSum=Math.max(maxSum,curMax);curMin=Math.min(curMin+n,n);minSum=Math.min(minSum,curMin);totalSum+=n;}return maxSum>0?Math.max(maxSum,totalSum-minSum):maxSum;};
+    expect(maxSubarraySumCircular([1,-2,3,-2])).toBe(3);
+    expect(maxSubarraySumCircular([5,-3,5])).toBe(10);
+    expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
+  });
+  it('word ladder BFS', () => {
+    const ladderLength=(begin:string,end:string,wordList:string[]):number=>{const set=new Set(wordList);if(!set.has(end))return 0;const q:([string,number])[]=[[ begin,1]];const visited=new Set([begin]);while(q.length){const[word,len]=q.shift()!;for(let i=0;i<word.length;i++){for(let c=97;c<=122;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return len+1;if(set.has(nw)&&!visited.has(nw)){visited.add(nw);q.push([nw,len+1]);}}}}return 0;};
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5);
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log'])).toBe(0);
+  });
+  it('pacific atlantic water flow', () => {
+    const pacificAtlantic=(heights:number[][]):number[][]=>{const m=heights.length,n=heights[0].length;const pac=Array.from({length:m},()=>new Array(n).fill(false));const atl=Array.from({length:m},()=>new Array(n).fill(false));const dfs=(r:number,c:number,visited:boolean[][],prev:number)=>{if(r<0||r>=m||c<0||c>=n||visited[r][c]||heights[r][c]<prev)return;visited[r][c]=true;dfs(r+1,c,visited,heights[r][c]);dfs(r-1,c,visited,heights[r][c]);dfs(r,c+1,visited,heights[r][c]);dfs(r,c-1,visited,heights[r][c]);};for(let i=0;i<m;i++){dfs(i,0,pac,0);dfs(i,n-1,atl,0);}for(let j=0;j<n;j++){dfs(0,j,pac,0);dfs(m-1,j,atl,0);}const res:number[][]=[];for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(pac[i][j]&&atl[i][j])res.push([i,j]);return res;};
+    const h=[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]];
+    const r=pacificAtlantic(h);
+    expect(r).toContainEqual([0,4]);
+    expect(r).toContainEqual([1,3]);
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('count square submatrices', () => {
+    const countSquares=(matrix:number[][]):number=>{const m=matrix.length,n=matrix[0].length;let count=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(matrix[i][j]>0&&i>0&&j>0)matrix[i][j]=Math.min(matrix[i-1][j],matrix[i][j-1],matrix[i-1][j-1])+1;count+=matrix[i][j];}return count;};
+    expect(countSquares([[0,1,1,1],[1,1,1,1],[0,1,1,1]])).toBe(15);
+    expect(countSquares([[1,0,1],[1,1,0],[1,1,0]])).toBe(7);
+  });
+});

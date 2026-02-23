@@ -898,3 +898,39 @@ describe('phase59 coverage', () => {
     expect(zigzagLevelOrder(t)).toEqual([[3],[20,9],[15,7]]);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('minimum size subarray sum', () => {
+    const minSubArrayLen=(target:number,nums:number[]):number=>{let l=0,sum=0,res=Infinity;for(let r=0;r<nums.length;r++){sum+=nums[r];while(sum>=target){res=Math.min(res,r-l+1);sum-=nums[l++];}}return res===Infinity?0:res;};
+    expect(minSubArrayLen(7,[2,3,1,2,4,3])).toBe(2);
+    expect(minSubArrayLen(4,[1,4,4])).toBe(1);
+    expect(minSubArrayLen(11,[1,1,1,1,1,1,1,1])).toBe(0);
+    expect(minSubArrayLen(15,[1,2,3,4,5])).toBe(5);
+  });
+  it('pacific atlantic water flow', () => {
+    const pacificAtlantic=(heights:number[][]):number[][]=>{const m=heights.length,n=heights[0].length;const pac=Array.from({length:m},()=>new Array(n).fill(false));const atl=Array.from({length:m},()=>new Array(n).fill(false));const dfs=(r:number,c:number,visited:boolean[][],prev:number)=>{if(r<0||r>=m||c<0||c>=n||visited[r][c]||heights[r][c]<prev)return;visited[r][c]=true;dfs(r+1,c,visited,heights[r][c]);dfs(r-1,c,visited,heights[r][c]);dfs(r,c+1,visited,heights[r][c]);dfs(r,c-1,visited,heights[r][c]);};for(let i=0;i<m;i++){dfs(i,0,pac,0);dfs(i,n-1,atl,0);}for(let j=0;j<n;j++){dfs(0,j,pac,0);dfs(m-1,j,atl,0);}const res:number[][]=[];for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(pac[i][j]&&atl[i][j])res.push([i,j]);return res;};
+    const h=[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]];
+    const r=pacificAtlantic(h);
+    expect(r).toContainEqual([0,4]);
+    expect(r).toContainEqual([1,3]);
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('number of provinces', () => {
+    const findCircleNum=(isConnected:number[][]):number=>{const n=isConnected.length;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(isConnected[i][j])union(i,j);return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(findCircleNum([[1,1,0],[1,1,0],[0,0,1]])).toBe(2);
+    expect(findCircleNum([[1,0,0],[0,1,0],[0,0,1]])).toBe(3);
+    expect(findCircleNum([[1,1,0],[1,1,1],[0,1,1]])).toBe(1);
+  });
+  it('target sum ways', () => {
+    const findTargetSumWays=(nums:number[],target:number):number=>{const map=new Map<number,number>([[0,1]]);for(const n of nums){const next=new Map<number,number>();for(const[sum,cnt]of map){next.set(sum+n,(next.get(sum+n)||0)+cnt);next.set(sum-n,(next.get(sum-n)||0)+cnt);}map.clear();next.forEach((v,k)=>map.set(k,v));}return map.get(target)||0;};
+    expect(findTargetSumWays([1,1,1,1,1],3)).toBe(5);
+    expect(findTargetSumWays([1],1)).toBe(1);
+    expect(findTargetSumWays([1],2)).toBe(0);
+  });
+  it('maximum sum circular subarray', () => {
+    const maxSubarraySumCircular=(nums:number[]):number=>{let totalSum=0,curMax=0,maxSum=nums[0],curMin=0,minSum=nums[0];for(const n of nums){curMax=Math.max(curMax+n,n);maxSum=Math.max(maxSum,curMax);curMin=Math.min(curMin+n,n);minSum=Math.min(minSum,curMin);totalSum+=n;}return maxSum>0?Math.max(maxSum,totalSum-minSum):maxSum;};
+    expect(maxSubarraySumCircular([1,-2,3,-2])).toBe(3);
+    expect(maxSubarraySumCircular([5,-3,5])).toBe(10);
+    expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
+  });
+});

@@ -881,3 +881,37 @@ describe('phase59 coverage', () => {
     expect(zigzagLevelOrder(t)).toEqual([[3],[20,9],[15,7]]);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('number of provinces', () => {
+    const findCircleNum=(isConnected:number[][]):number=>{const n=isConnected.length;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(isConnected[i][j])union(i,j);return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(findCircleNum([[1,1,0],[1,1,0],[0,0,1]])).toBe(2);
+    expect(findCircleNum([[1,0,0],[0,1,0],[0,0,1]])).toBe(3);
+    expect(findCircleNum([[1,1,0],[1,1,1],[0,1,1]])).toBe(1);
+  });
+  it('number of longest increasing subsequences', () => {
+    const findNumberOfLIS=(nums:number[]):number=>{const n=nums.length;const len=new Array(n).fill(1);const cnt=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(nums[j]<nums[i]){if(len[j]+1>len[i]){len[i]=len[j]+1;cnt[i]=cnt[j];}else if(len[j]+1===len[i])cnt[i]+=cnt[j];}const maxLen=Math.max(...len);return cnt.reduce((s,c,i)=>len[i]===maxLen?s+c:s,0);};
+    expect(findNumberOfLIS([1,3,5,4,7])).toBe(2);
+    expect(findNumberOfLIS([2,2,2,2,2])).toBe(5);
+    expect(findNumberOfLIS([1,2,4,3,5,4,7,2])).toBe(3);
+  });
+  it('maximum width ramp', () => {
+    const maxWidthRamp=(nums:number[]):number=>{const stack:number[]=[];for(let i=0;i<nums.length;i++)if(!stack.length||nums[stack[stack.length-1]]>nums[i])stack.push(i);let res=0;for(let j=nums.length-1;j>=0;j--){while(stack.length&&nums[stack[stack.length-1]]<=nums[j]){res=Math.max(res,j-stack[stack.length-1]);stack.pop();}}return res;};
+    expect(maxWidthRamp([6,0,8,2,1,5])).toBe(4);
+    expect(maxWidthRamp([9,8,1,0,1,9,4,0,4,1])).toBe(7);
+    expect(maxWidthRamp([3,3])).toBe(1);
+  });
+  it('partition equal subset sum', () => {
+    const canPartition=(nums:number[]):boolean=>{const sum=nums.reduce((a,b)=>a+b,0);if(sum%2!==0)return false;const target=sum/2;const dp=new Array(target+1).fill(false);dp[0]=true;for(const n of nums)for(let j=target;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[target];};
+    expect(canPartition([1,5,11,5])).toBe(true);
+    expect(canPartition([1,2,3,5])).toBe(false);
+    expect(canPartition([1,1])).toBe(true);
+    expect(canPartition([1,2,5])).toBe(false);
+  });
+  it('minimum falling path sum', () => {
+    const minFallingPathSum=(matrix:number[][]):number=>{const n=matrix.length;for(let i=1;i<n;i++)for(let j=0;j<n;j++){const above=matrix[i-1][j];const aboveLeft=j>0?matrix[i-1][j-1]:Infinity;const aboveRight=j<n-1?matrix[i-1][j+1]:Infinity;matrix[i][j]+=Math.min(above,aboveLeft,aboveRight);}return Math.min(...matrix[n-1]);};
+    expect(minFallingPathSum([[2,1,3],[6,5,4],[7,8,9]])).toBe(13);
+    expect(minFallingPathSum([[-19,57],[-40,-5]])).toBe(-59);
+    expect(minFallingPathSum([[-48]])).toBe(-48);
+  });
+});

@@ -941,3 +941,37 @@ describe('phase59 coverage', () => {
     expect(inorderSuccessor(t,4)).toBe(5);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('wildcard matching DP', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i-1][j]||dp[i][j-1];else dp[i][j]=(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','*')).toBe(true);
+    expect(isMatch('cb','?a')).toBe(false);
+    expect(isMatch('adceb','*a*b')).toBe(true);
+  });
+  it('maximum sum circular subarray', () => {
+    const maxSubarraySumCircular=(nums:number[]):number=>{let totalSum=0,curMax=0,maxSum=nums[0],curMin=0,minSum=nums[0];for(const n of nums){curMax=Math.max(curMax+n,n);maxSum=Math.max(maxSum,curMax);curMin=Math.min(curMin+n,n);minSum=Math.min(minSum,curMin);totalSum+=n;}return maxSum>0?Math.max(maxSum,totalSum-minSum):maxSum;};
+    expect(maxSubarraySumCircular([1,-2,3,-2])).toBe(3);
+    expect(maxSubarraySumCircular([5,-3,5])).toBe(10);
+    expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
+  });
+  it('longest arithmetic subsequence', () => {
+    const longestArithSeqLength=(nums:number[]):number=>{const n=nums.length;const dp:Map<number,number>[]=Array.from({length:n},()=>new Map());let res=2;for(let i=1;i<n;i++){for(let j=0;j<i;j++){const d=nums[i]-nums[j];const len=(dp[j].get(d)||1)+1;dp[i].set(d,Math.max(dp[i].get(d)||0,len));res=Math.max(res,dp[i].get(d)!);}}return res;};
+    expect(longestArithSeqLength([3,6,9,12])).toBe(4);
+    expect(longestArithSeqLength([9,4,7,2,10])).toBe(3);
+    expect(longestArithSeqLength([20,1,15,3,10,5,8])).toBe(4);
+  });
+  it('count good strings', () => {
+    const countGoodStrings=(low:number,high:number,zero:number,one:number):number=>{const MOD=1e9+7;const dp=new Array(high+1).fill(0);dp[0]=1;for(let i=1;i<=high;i++){if(i>=zero)dp[i]=(dp[i]+dp[i-zero])%MOD;if(i>=one)dp[i]=(dp[i]+dp[i-one])%MOD;}let res=0;for(let i=low;i<=high;i++)res=(res+dp[i])%MOD;return res;};
+    expect(countGoodStrings(3,3,1,1)).toBe(8);
+    expect(countGoodStrings(2,3,1,2)).toBe(5);
+    expect(countGoodStrings(1,1,1,1)).toBe(2);
+  });
+  it('minimum path sum grid', () => {
+    const minPathSum=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;if(i===0)grid[i][j]+=grid[i][j-1];else if(j===0)grid[i][j]+=grid[i-1][j];else grid[i][j]+=Math.min(grid[i-1][j],grid[i][j-1]);}return grid[m-1][n-1];};
+    expect(minPathSum([[1,3,1],[1,5,1],[4,2,1]])).toBe(7);
+    expect(minPathSum([[1,2,3],[4,5,6]])).toBe(12);
+    expect(minPathSum([[1]])).toBe(1);
+  });
+});

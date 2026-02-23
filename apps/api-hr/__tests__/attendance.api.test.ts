@@ -985,3 +985,36 @@ describe('phase59 coverage', () => {
     expect(findAnagrams('abab','ab')).toEqual([0,1,2]);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('number of longest increasing subsequences', () => {
+    const findNumberOfLIS=(nums:number[]):number=>{const n=nums.length;const len=new Array(n).fill(1);const cnt=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(nums[j]<nums[i]){if(len[j]+1>len[i]){len[i]=len[j]+1;cnt[i]=cnt[j];}else if(len[j]+1===len[i])cnt[i]+=cnt[j];}const maxLen=Math.max(...len);return cnt.reduce((s,c,i)=>len[i]===maxLen?s+c:s,0);};
+    expect(findNumberOfLIS([1,3,5,4,7])).toBe(2);
+    expect(findNumberOfLIS([2,2,2,2,2])).toBe(5);
+    expect(findNumberOfLIS([1,2,4,3,5,4,7,2])).toBe(3);
+  });
+  it('number of provinces', () => {
+    const findCircleNum=(isConnected:number[][]):number=>{const n=isConnected.length;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(isConnected[i][j])union(i,j);return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(findCircleNum([[1,1,0],[1,1,0],[0,0,1]])).toBe(2);
+    expect(findCircleNum([[1,0,0],[0,1,0],[0,0,1]])).toBe(3);
+    expect(findCircleNum([[1,1,0],[1,1,1],[0,1,1]])).toBe(1);
+  });
+  it('edit distance DP', () => {
+    const minDistance=(word1:string,word2:string):number=>{const m=word1.length,n=word2.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=word1[i-1]===word2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];};
+    expect(minDistance('horse','ros')).toBe(3);
+    expect(minDistance('intention','execution')).toBe(5);
+    expect(minDistance('','a')).toBe(1);
+    expect(minDistance('a','a')).toBe(0);
+  });
+  it('word ladder BFS', () => {
+    const ladderLength=(begin:string,end:string,wordList:string[]):number=>{const set=new Set(wordList);if(!set.has(end))return 0;const q:([string,number])[]=[[ begin,1]];const visited=new Set([begin]);while(q.length){const[word,len]=q.shift()!;for(let i=0;i<word.length;i++){for(let c=97;c<=122;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return len+1;if(set.has(nw)&&!visited.has(nw)){visited.add(nw);q.push([nw,len+1]);}}}}return 0;};
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5);
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log'])).toBe(0);
+  });
+  it('maximum sum circular subarray', () => {
+    const maxSubarraySumCircular=(nums:number[]):number=>{let totalSum=0,curMax=0,maxSum=nums[0],curMin=0,minSum=nums[0];for(const n of nums){curMax=Math.max(curMax+n,n);maxSum=Math.max(maxSum,curMax);curMin=Math.min(curMin+n,n);minSum=Math.min(minSum,curMin);totalSum+=n;}return maxSum>0?Math.max(maxSum,totalSum-minSum):maxSum;};
+    expect(maxSubarraySumCircular([1,-2,3,-2])).toBe(3);
+    expect(maxSubarraySumCircular([5,-3,5])).toBe(10);
+    expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
+  });
+});

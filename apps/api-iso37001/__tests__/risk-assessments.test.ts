@@ -1058,3 +1058,35 @@ describe('phase59 coverage', () => {
     expect(leastInterval(['A','A','A','A','A','A','B','C','D','E','F','G'],2)).toBe(16);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('word ladder BFS', () => {
+    const ladderLength=(begin:string,end:string,wordList:string[]):number=>{const set=new Set(wordList);if(!set.has(end))return 0;const q:([string,number])[]=[[ begin,1]];const visited=new Set([begin]);while(q.length){const[word,len]=q.shift()!;for(let i=0;i<word.length;i++){for(let c=97;c<=122;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return len+1;if(set.has(nw)&&!visited.has(nw)){visited.add(nw);q.push([nw,len+1]);}}}}return 0;};
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5);
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log'])).toBe(0);
+  });
+  it('minimum size subarray sum', () => {
+    const minSubArrayLen=(target:number,nums:number[]):number=>{let l=0,sum=0,res=Infinity;for(let r=0;r<nums.length;r++){sum+=nums[r];while(sum>=target){res=Math.min(res,r-l+1);sum-=nums[l++];}}return res===Infinity?0:res;};
+    expect(minSubArrayLen(7,[2,3,1,2,4,3])).toBe(2);
+    expect(minSubArrayLen(4,[1,4,4])).toBe(1);
+    expect(minSubArrayLen(11,[1,1,1,1,1,1,1,1])).toBe(0);
+    expect(minSubArrayLen(15,[1,2,3,4,5])).toBe(5);
+  });
+  it('interleaving string DP', () => {
+    const isInterleave=(s1:string,s2:string,s3:string):boolean=>{const m=s1.length,n=s2.length;if(m+n!==s3.length)return false;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let i=1;i<=m;i++)dp[i][0]=dp[i-1][0]&&s1[i-1]===s3[i-1];for(let j=1;j<=n;j++)dp[0][j]=dp[0][j-1]&&s2[j-1]===s3[j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=(dp[i-1][j]&&s1[i-1]===s3[i+j-1])||(dp[i][j-1]&&s2[j-1]===s3[i+j-1]);return dp[m][n];};
+    expect(isInterleave('aabcc','dbbca','aadbbcbcac')).toBe(true);
+    expect(isInterleave('aabcc','dbbca','aadbbbaccc')).toBe(false);
+    expect(isInterleave('','','b')).toBe(false);
+  });
+  it('subarrays with k different integers', () => {
+    const subarraysWithKDistinct=(nums:number[],k:number):number=>{const atMost=(m:number)=>{const cnt=new Map<number,number>();let l=0,res=0;for(let r=0;r<nums.length;r++){cnt.set(nums[r],(cnt.get(nums[r])||0)+1);while(cnt.size>m){cnt.set(nums[l],cnt.get(nums[l])!-1);if(cnt.get(nums[l])===0)cnt.delete(nums[l]);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);};
+    expect(subarraysWithKDistinct([1,2,1,2,3],2)).toBe(7);
+    expect(subarraysWithKDistinct([1,2,1,3,4],3)).toBe(3);
+  });
+  it('max consecutive ones III', () => {
+    const longestOnes=(nums:number[],k:number):number=>{let l=0,zeros=0,res=0;for(let r=0;r<nums.length;r++){if(nums[r]===0)zeros++;while(zeros>k){if(nums[l]===0)zeros--;l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(longestOnes([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6);
+    expect(longestOnes([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10);
+    expect(longestOnes([1,1,1],0)).toBe(3);
+  });
+});

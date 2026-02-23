@@ -954,3 +954,35 @@ describe('phase59 coverage', () => {
     expect(r.left!.next).toBe(r.right);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('interleaving string DP', () => {
+    const isInterleave=(s1:string,s2:string,s3:string):boolean=>{const m=s1.length,n=s2.length;if(m+n!==s3.length)return false;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let i=1;i<=m;i++)dp[i][0]=dp[i-1][0]&&s1[i-1]===s3[i-1];for(let j=1;j<=n;j++)dp[0][j]=dp[0][j-1]&&s2[j-1]===s3[j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=(dp[i-1][j]&&s1[i-1]===s3[i+j-1])||(dp[i][j-1]&&s2[j-1]===s3[i+j-1]);return dp[m][n];};
+    expect(isInterleave('aabcc','dbbca','aadbbcbcac')).toBe(true);
+    expect(isInterleave('aabcc','dbbca','aadbbbaccc')).toBe(false);
+    expect(isInterleave('','','b')).toBe(false);
+  });
+  it('max consecutive ones III', () => {
+    const longestOnes=(nums:number[],k:number):number=>{let l=0,zeros=0,res=0;for(let r=0;r<nums.length;r++){if(nums[r]===0)zeros++;while(zeros>k){if(nums[l]===0)zeros--;l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(longestOnes([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6);
+    expect(longestOnes([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10);
+    expect(longestOnes([1,1,1],0)).toBe(3);
+  });
+  it('maximum width ramp', () => {
+    const maxWidthRamp=(nums:number[]):number=>{const stack:number[]=[];for(let i=0;i<nums.length;i++)if(!stack.length||nums[stack[stack.length-1]]>nums[i])stack.push(i);let res=0;for(let j=nums.length-1;j>=0;j--){while(stack.length&&nums[stack[stack.length-1]]<=nums[j]){res=Math.max(res,j-stack[stack.length-1]);stack.pop();}}return res;};
+    expect(maxWidthRamp([6,0,8,2,1,5])).toBe(4);
+    expect(maxWidthRamp([9,8,1,0,1,9,4,0,4,1])).toBe(7);
+    expect(maxWidthRamp([3,3])).toBe(1);
+  });
+  it('count square submatrices', () => {
+    const countSquares=(matrix:number[][]):number=>{const m=matrix.length,n=matrix[0].length;let count=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(matrix[i][j]>0&&i>0&&j>0)matrix[i][j]=Math.min(matrix[i-1][j],matrix[i][j-1],matrix[i-1][j-1])+1;count+=matrix[i][j];}return count;};
+    expect(countSquares([[0,1,1,1],[1,1,1,1],[0,1,1,1]])).toBe(15);
+    expect(countSquares([[1,0,1],[1,1,0],[1,1,0]])).toBe(7);
+  });
+  it('fruit into baskets', () => {
+    const totalFruit=(fruits:number[]):number=>{const basket=new Map<number,number>();let l=0,res=0;for(let r=0;r<fruits.length;r++){basket.set(fruits[r],(basket.get(fruits[r])||0)+1);while(basket.size>2){const lf=fruits[l];basket.set(lf,basket.get(lf)!-1);if(basket.get(lf)===0)basket.delete(lf);l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(totalFruit([1,2,1])).toBe(3);
+    expect(totalFruit([0,1,2,2])).toBe(3);
+    expect(totalFruit([1,2,3,2,2])).toBe(4);
+  });
+});

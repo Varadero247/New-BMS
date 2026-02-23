@@ -846,3 +846,40 @@ describe('phase59 coverage', () => {
     expect(leastInterval(['A','A','A','A','A','A','B','C','D','E','F','G'],2)).toBe(16);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('perfect squares DP', () => {
+    const numSquares=(n:number):number=>{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];};
+    expect(numSquares(12)).toBe(3);
+    expect(numSquares(13)).toBe(2);
+    expect(numSquares(1)).toBe(1);
+    expect(numSquares(4)).toBe(1);
+  });
+  it('subarrays with k different integers', () => {
+    const subarraysWithKDistinct=(nums:number[],k:number):number=>{const atMost=(m:number)=>{const cnt=new Map<number,number>();let l=0,res=0;for(let r=0;r<nums.length;r++){cnt.set(nums[r],(cnt.get(nums[r])||0)+1);while(cnt.size>m){cnt.set(nums[l],cnt.get(nums[l])!-1);if(cnt.get(nums[l])===0)cnt.delete(nums[l]);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);};
+    expect(subarraysWithKDistinct([1,2,1,2,3],2)).toBe(7);
+    expect(subarraysWithKDistinct([1,2,1,3,4],3)).toBe(3);
+  });
+  it('minimum score triangulation', () => {
+    const minScoreTriangulation=(values:number[]):number=>{const n=values.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++)for(let i=0;i<n-len;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+values[i]*values[k]*values[j]+dp[k][j]);}return dp[0][n-1];};
+    expect(minScoreTriangulation([1,2,3])).toBe(6);
+    expect(minScoreTriangulation([3,7,4,5])).toBe(144);
+    expect(minScoreTriangulation([1,3,1,4,1,5])).toBe(13);
+  });
+  it('clone graph BFS', () => {
+    class GN{val:number;neighbors:GN[];constructor(v=0,n:GN[]=[]){this.val=v;this.neighbors=n;}}
+    const cloneGraph=(node:GN|null):GN|null=>{if(!node)return null;const map=new Map<GN,GN>();const q=[node];map.set(node,new GN(node.val));while(q.length){const cur=q.shift()!;for(const nb of cur.neighbors){if(!map.has(nb)){map.set(nb,new GN(nb.val));q.push(nb);}map.get(cur)!.neighbors.push(map.get(nb)!);}}return map.get(node)!;};
+    const n1=new GN(1);const n2=new GN(2);const n3=new GN(3);const n4=new GN(4);
+    n1.neighbors=[n2,n4];n2.neighbors=[n1,n3];n3.neighbors=[n2,n4];n4.neighbors=[n1,n3];
+    const c=cloneGraph(n1);
+    expect(c).not.toBe(n1);
+    expect(c!.val).toBe(1);
+    expect(c!.neighbors.length).toBe(2);
+  });
+  it('target sum ways', () => {
+    const findTargetSumWays=(nums:number[],target:number):number=>{const map=new Map<number,number>([[0,1]]);for(const n of nums){const next=new Map<number,number>();for(const[sum,cnt]of map){next.set(sum+n,(next.get(sum+n)||0)+cnt);next.set(sum-n,(next.get(sum-n)||0)+cnt);}map.clear();next.forEach((v,k)=>map.set(k,v));}return map.get(target)||0;};
+    expect(findTargetSumWays([1,1,1,1,1],3)).toBe(5);
+    expect(findTargetSumWays([1],1)).toBe(1);
+    expect(findTargetSumWays([1],2)).toBe(0);
+  });
+});

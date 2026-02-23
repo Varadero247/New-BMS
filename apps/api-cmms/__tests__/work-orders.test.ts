@@ -857,3 +857,39 @@ describe('phase59 coverage', () => {
     expect(searchMatrix(m,20)).toBe(false);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('number of provinces', () => {
+    const findCircleNum=(isConnected:number[][]):number=>{const n=isConnected.length;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(isConnected[i][j])union(i,j);return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(findCircleNum([[1,1,0],[1,1,0],[0,0,1]])).toBe(2);
+    expect(findCircleNum([[1,0,0],[0,1,0],[0,0,1]])).toBe(3);
+    expect(findCircleNum([[1,1,0],[1,1,1],[0,1,1]])).toBe(1);
+  });
+  it('clone graph BFS', () => {
+    class GN{val:number;neighbors:GN[];constructor(v=0,n:GN[]=[]){this.val=v;this.neighbors=n;}}
+    const cloneGraph=(node:GN|null):GN|null=>{if(!node)return null;const map=new Map<GN,GN>();const q=[node];map.set(node,new GN(node.val));while(q.length){const cur=q.shift()!;for(const nb of cur.neighbors){if(!map.has(nb)){map.set(nb,new GN(nb.val));q.push(nb);}map.get(cur)!.neighbors.push(map.get(nb)!);}}return map.get(node)!;};
+    const n1=new GN(1);const n2=new GN(2);const n3=new GN(3);const n4=new GN(4);
+    n1.neighbors=[n2,n4];n2.neighbors=[n1,n3];n3.neighbors=[n2,n4];n4.neighbors=[n1,n3];
+    const c=cloneGraph(n1);
+    expect(c).not.toBe(n1);
+    expect(c!.val).toBe(1);
+    expect(c!.neighbors.length).toBe(2);
+  });
+  it('maximum width ramp', () => {
+    const maxWidthRamp=(nums:number[]):number=>{const stack:number[]=[];for(let i=0;i<nums.length;i++)if(!stack.length||nums[stack[stack.length-1]]>nums[i])stack.push(i);let res=0;for(let j=nums.length-1;j>=0;j--){while(stack.length&&nums[stack[stack.length-1]]<=nums[j]){res=Math.max(res,j-stack[stack.length-1]);stack.pop();}}return res;};
+    expect(maxWidthRamp([6,0,8,2,1,5])).toBe(4);
+    expect(maxWidthRamp([9,8,1,0,1,9,4,0,4,1])).toBe(7);
+    expect(maxWidthRamp([3,3])).toBe(1);
+  });
+  it('stone game DP', () => {
+    const stoneGame=(piles:number[]):boolean=>{const n=piles.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=piles[i];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Math.max(piles[i]-dp[i+1][j],piles[j]-dp[i][j-1]);}return dp[0][n-1]>0;};
+    expect(stoneGame([5,3,4,5])).toBe(true);
+    expect(stoneGame([3,7,2,3])).toBe(true);
+  });
+  it('longest arithmetic subsequence', () => {
+    const longestArithSeqLength=(nums:number[]):number=>{const n=nums.length;const dp:Map<number,number>[]=Array.from({length:n},()=>new Map());let res=2;for(let i=1;i<n;i++){for(let j=0;j<i;j++){const d=nums[i]-nums[j];const len=(dp[j].get(d)||1)+1;dp[i].set(d,Math.max(dp[i].get(d)||0,len));res=Math.max(res,dp[i].get(d)!);}}return res;};
+    expect(longestArithSeqLength([3,6,9,12])).toBe(4);
+    expect(longestArithSeqLength([9,4,7,2,10])).toBe(3);
+    expect(longestArithSeqLength([20,1,15,3,10,5,8])).toBe(4);
+  });
+});

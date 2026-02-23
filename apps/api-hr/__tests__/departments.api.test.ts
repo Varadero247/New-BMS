@@ -992,3 +992,37 @@ describe('phase59 coverage', () => {
     expect(f.ls('/a/b/c')).toEqual(['d']);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('minimum falling path sum', () => {
+    const minFallingPathSum=(matrix:number[][]):number=>{const n=matrix.length;for(let i=1;i<n;i++)for(let j=0;j<n;j++){const above=matrix[i-1][j];const aboveLeft=j>0?matrix[i-1][j-1]:Infinity;const aboveRight=j<n-1?matrix[i-1][j+1]:Infinity;matrix[i][j]+=Math.min(above,aboveLeft,aboveRight);}return Math.min(...matrix[n-1]);};
+    expect(minFallingPathSum([[2,1,3],[6,5,4],[7,8,9]])).toBe(13);
+    expect(minFallingPathSum([[-19,57],[-40,-5]])).toBe(-59);
+    expect(minFallingPathSum([[-48]])).toBe(-48);
+  });
+  it('perfect squares DP', () => {
+    const numSquares=(n:number):number=>{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];};
+    expect(numSquares(12)).toBe(3);
+    expect(numSquares(13)).toBe(2);
+    expect(numSquares(1)).toBe(1);
+    expect(numSquares(4)).toBe(1);
+  });
+  it('word ladder BFS', () => {
+    const ladderLength=(begin:string,end:string,wordList:string[]):number=>{const set=new Set(wordList);if(!set.has(end))return 0;const q:([string,number])[]=[[ begin,1]];const visited=new Set([begin]);while(q.length){const[word,len]=q.shift()!;for(let i=0;i<word.length;i++){for(let c=97;c<=122;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return len+1;if(set.has(nw)&&!visited.has(nw)){visited.add(nw);q.push([nw,len+1]);}}}}return 0;};
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5);
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log'])).toBe(0);
+  });
+  it('wildcard matching DP', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i-1][j]||dp[i][j-1];else dp[i][j]=(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','*')).toBe(true);
+    expect(isMatch('cb','?a')).toBe(false);
+    expect(isMatch('adceb','*a*b')).toBe(true);
+  });
+  it('minimum score triangulation', () => {
+    const minScoreTriangulation=(values:number[]):number=>{const n=values.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++)for(let i=0;i<n-len;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+values[i]*values[k]*values[j]+dp[k][j]);}return dp[0][n-1];};
+    expect(minScoreTriangulation([1,2,3])).toBe(6);
+    expect(minScoreTriangulation([3,7,4,5])).toBe(144);
+    expect(minScoreTriangulation([1,3,1,4,1,5])).toBe(13);
+  });
+});

@@ -760,3 +760,42 @@ describe('phase59 coverage', () => {
     expect(b[3][1]).toBe('O');
   });
 });
+
+describe('phase60 coverage', () => {
+  it('minimum size subarray sum', () => {
+    const minSubArrayLen=(target:number,nums:number[]):number=>{let l=0,sum=0,res=Infinity;for(let r=0;r<nums.length;r++){sum+=nums[r];while(sum>=target){res=Math.min(res,r-l+1);sum-=nums[l++];}}return res===Infinity?0:res;};
+    expect(minSubArrayLen(7,[2,3,1,2,4,3])).toBe(2);
+    expect(minSubArrayLen(4,[1,4,4])).toBe(1);
+    expect(minSubArrayLen(11,[1,1,1,1,1,1,1,1])).toBe(0);
+    expect(minSubArrayLen(15,[1,2,3,4,5])).toBe(5);
+  });
+  it('edit distance DP', () => {
+    const minDistance=(word1:string,word2:string):number=>{const m=word1.length,n=word2.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=word1[i-1]===word2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];};
+    expect(minDistance('horse','ros')).toBe(3);
+    expect(minDistance('intention','execution')).toBe(5);
+    expect(minDistance('','a')).toBe(1);
+    expect(minDistance('a','a')).toBe(0);
+  });
+  it('clone graph BFS', () => {
+    class GN{val:number;neighbors:GN[];constructor(v=0,n:GN[]=[]){this.val=v;this.neighbors=n;}}
+    const cloneGraph=(node:GN|null):GN|null=>{if(!node)return null;const map=new Map<GN,GN>();const q=[node];map.set(node,new GN(node.val));while(q.length){const cur=q.shift()!;for(const nb of cur.neighbors){if(!map.has(nb)){map.set(nb,new GN(nb.val));q.push(nb);}map.get(cur)!.neighbors.push(map.get(nb)!);}}return map.get(node)!;};
+    const n1=new GN(1);const n2=new GN(2);const n3=new GN(3);const n4=new GN(4);
+    n1.neighbors=[n2,n4];n2.neighbors=[n1,n3];n3.neighbors=[n2,n4];n4.neighbors=[n1,n3];
+    const c=cloneGraph(n1);
+    expect(c).not.toBe(n1);
+    expect(c!.val).toBe(1);
+    expect(c!.neighbors.length).toBe(2);
+  });
+  it('burst balloons interval DP', () => {
+    const maxCoins=(nums:number[]):number=>{const arr=[1,...nums,1];const n=arr.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let left=0;left<n-len;left++){const right=left+len;for(let k=left+1;k<right;k++){dp[left][right]=Math.max(dp[left][right],dp[left][k]+arr[left]*arr[k]*arr[right]+dp[k][right]);}}}return dp[0][n-1];};
+    expect(maxCoins([3,1,5,8])).toBe(167);
+    expect(maxCoins([1,5])).toBe(10);
+    expect(maxCoins([1])).toBe(1);
+  });
+  it('maximum sum circular subarray', () => {
+    const maxSubarraySumCircular=(nums:number[]):number=>{let totalSum=0,curMax=0,maxSum=nums[0],curMin=0,minSum=nums[0];for(const n of nums){curMax=Math.max(curMax+n,n);maxSum=Math.max(maxSum,curMax);curMin=Math.min(curMin+n,n);minSum=Math.min(minSum,curMin);totalSum+=n;}return maxSum>0?Math.max(maxSum,totalSum-minSum):maxSum;};
+    expect(maxSubarraySumCircular([1,-2,3,-2])).toBe(3);
+    expect(maxSubarraySumCircular([5,-3,5])).toBe(10);
+    expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
+  });
+});

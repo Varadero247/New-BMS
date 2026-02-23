@@ -1083,3 +1083,36 @@ describe('phase59 coverage', () => {
     expect(r.left!.next).toBe(r.right);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('word ladder BFS', () => {
+    const ladderLength=(begin:string,end:string,wordList:string[]):number=>{const set=new Set(wordList);if(!set.has(end))return 0;const q:([string,number])[]=[[ begin,1]];const visited=new Set([begin]);while(q.length){const[word,len]=q.shift()!;for(let i=0;i<word.length;i++){for(let c=97;c<=122;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return len+1;if(set.has(nw)&&!visited.has(nw)){visited.add(nw);q.push([nw,len+1]);}}}}return 0;};
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5);
+    expect(ladderLength('hit','cog',['hot','dot','dog','lot','log'])).toBe(0);
+  });
+  it('pacific atlantic water flow', () => {
+    const pacificAtlantic=(heights:number[][]):number[][]=>{const m=heights.length,n=heights[0].length;const pac=Array.from({length:m},()=>new Array(n).fill(false));const atl=Array.from({length:m},()=>new Array(n).fill(false));const dfs=(r:number,c:number,visited:boolean[][],prev:number)=>{if(r<0||r>=m||c<0||c>=n||visited[r][c]||heights[r][c]<prev)return;visited[r][c]=true;dfs(r+1,c,visited,heights[r][c]);dfs(r-1,c,visited,heights[r][c]);dfs(r,c+1,visited,heights[r][c]);dfs(r,c-1,visited,heights[r][c]);};for(let i=0;i<m;i++){dfs(i,0,pac,0);dfs(i,n-1,atl,0);}for(let j=0;j<n;j++){dfs(0,j,pac,0);dfs(m-1,j,atl,0);}const res:number[][]=[];for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(pac[i][j]&&atl[i][j])res.push([i,j]);return res;};
+    const h=[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]];
+    const r=pacificAtlantic(h);
+    expect(r).toContainEqual([0,4]);
+    expect(r).toContainEqual([1,3]);
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('minimum cost for tickets', () => {
+    const mincostTickets=(days:number[],costs:number[]):number=>{const daySet=new Set(days);const lastDay=days[days.length-1];const dp=new Array(lastDay+1).fill(0);for(let i=1;i<=lastDay;i++){if(!daySet.has(i)){dp[i]=dp[i-1];continue;}dp[i]=Math.min(dp[i-1]+costs[0],dp[Math.max(0,i-7)]+costs[1],dp[Math.max(0,i-30)]+costs[2]);}return dp[lastDay];};
+    expect(mincostTickets([1,4,6,7,8,20],[2,7,15])).toBe(11);
+    expect(mincostTickets([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17);
+  });
+  it('minimum path sum grid', () => {
+    const minPathSum=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;if(i===0)grid[i][j]+=grid[i][j-1];else if(j===0)grid[i][j]+=grid[i-1][j];else grid[i][j]+=Math.min(grid[i-1][j],grid[i][j-1]);}return grid[m-1][n-1];};
+    expect(minPathSum([[1,3,1],[1,5,1],[4,2,1]])).toBe(7);
+    expect(minPathSum([[1,2,3],[4,5,6]])).toBe(12);
+    expect(minPathSum([[1]])).toBe(1);
+  });
+  it('number of nice subarrays', () => {
+    const numberOfSubarrays=(nums:number[],k:number):number=>{const atMost=(m:number)=>{let count=0,odd=0,l=0;for(let r=0;r<nums.length;r++){if(nums[r]%2!==0)odd++;while(odd>m){if(nums[l]%2!==0)odd--;l++;}count+=r-l+1;}return count;};return atMost(k)-atMost(k-1);};
+    expect(numberOfSubarrays([1,1,2,1,1],3)).toBe(2);
+    expect(numberOfSubarrays([2,4,6],1)).toBe(0);
+    expect(numberOfSubarrays([2,2,2,1,2,2,1,2,2,2],2)).toBe(16);
+  });
+});

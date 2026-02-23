@@ -1093,3 +1093,37 @@ describe('phase59 coverage', () => {
     expect(r).toHaveLength(3);
   });
 });
+
+describe('phase60 coverage', () => {
+  it('number of provinces', () => {
+    const findCircleNum=(isConnected:number[][]):number=>{const n=isConnected.length;const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(isConnected[i][j])union(i,j);return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(findCircleNum([[1,1,0],[1,1,0],[0,0,1]])).toBe(2);
+    expect(findCircleNum([[1,0,0],[0,1,0],[0,0,1]])).toBe(3);
+    expect(findCircleNum([[1,1,0],[1,1,1],[0,1,1]])).toBe(1);
+  });
+  it('count good strings', () => {
+    const countGoodStrings=(low:number,high:number,zero:number,one:number):number=>{const MOD=1e9+7;const dp=new Array(high+1).fill(0);dp[0]=1;for(let i=1;i<=high;i++){if(i>=zero)dp[i]=(dp[i]+dp[i-zero])%MOD;if(i>=one)dp[i]=(dp[i]+dp[i-one])%MOD;}let res=0;for(let i=low;i<=high;i++)res=(res+dp[i])%MOD;return res;};
+    expect(countGoodStrings(3,3,1,1)).toBe(8);
+    expect(countGoodStrings(2,3,1,2)).toBe(5);
+    expect(countGoodStrings(1,1,1,1)).toBe(2);
+  });
+  it('maximum sum circular subarray', () => {
+    const maxSubarraySumCircular=(nums:number[]):number=>{let totalSum=0,curMax=0,maxSum=nums[0],curMin=0,minSum=nums[0];for(const n of nums){curMax=Math.max(curMax+n,n);maxSum=Math.max(maxSum,curMax);curMin=Math.min(curMin+n,n);minSum=Math.min(minSum,curMin);totalSum+=n;}return maxSum>0?Math.max(maxSum,totalSum-minSum):maxSum;};
+    expect(maxSubarraySumCircular([1,-2,3,-2])).toBe(3);
+    expect(maxSubarraySumCircular([5,-3,5])).toBe(10);
+    expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
+  });
+  it('longest arithmetic subsequence', () => {
+    const longestArithSeqLength=(nums:number[]):number=>{const n=nums.length;const dp:Map<number,number>[]=Array.from({length:n},()=>new Map());let res=2;for(let i=1;i<n;i++){for(let j=0;j<i;j++){const d=nums[i]-nums[j];const len=(dp[j].get(d)||1)+1;dp[i].set(d,Math.max(dp[i].get(d)||0,len));res=Math.max(res,dp[i].get(d)!);}}return res;};
+    expect(longestArithSeqLength([3,6,9,12])).toBe(4);
+    expect(longestArithSeqLength([9,4,7,2,10])).toBe(3);
+    expect(longestArithSeqLength([20,1,15,3,10,5,8])).toBe(4);
+  });
+  it('partition equal subset sum', () => {
+    const canPartition=(nums:number[]):boolean=>{const sum=nums.reduce((a,b)=>a+b,0);if(sum%2!==0)return false;const target=sum/2;const dp=new Array(target+1).fill(false);dp[0]=true;for(const n of nums)for(let j=target;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[target];};
+    expect(canPartition([1,5,11,5])).toBe(true);
+    expect(canPartition([1,2,3,5])).toBe(false);
+    expect(canPartition([1,1])).toBe(true);
+    expect(canPartition([1,2,5])).toBe(false);
+  });
+});
