@@ -11,9 +11,9 @@
 | Shared Packages          | 61                                     |
 | Prisma Schemas           | 44                                     |
 | Database Tables (models) | ~590                                   |
-| Scripts                  | 28                                     |
+| Scripts                  | 60+                                    |
 | Unit Tests               | 708,565 across 712 suites (all passing) |
-| Integration Test Scripts | 9 (+ 1 finance)                        |
+| Integration Test Scripts | 40                                     |
 
 ---
 
@@ -313,7 +313,7 @@ All routes also available under `/api/v1/` prefix.
 
 ---
 
-## Scripts (28)
+## Scripts (60+)
 
 | Script                              | Description                                                          |
 | ----------------------------------- | -------------------------------------------------------------------- |
@@ -332,7 +332,7 @@ All routes also available under `/api/v1/` prefix.
 | `scripts/pre-launch-check.sh`       | 111-point launch readiness check (8 categories)                      |
 | `scripts/typecheck-all.sh`          | TypeScript check across all 42 APIs + 44 web apps + packages         |
 | `scripts/test-backup-restore.sh`    | Backup restore validation (7 steps, creates ims_restore_test DB)     |
-| `scripts/test-all-modules.sh`       | Run all integration tests (master runner)                            |
+| `scripts/test-all-modules.sh`       | Master integration test runner — all 40 modules                      |
 | `scripts/test-hs-modules.sh`        | H&S integration tests (~70 assertions)                               |
 | `scripts/test-env-modules.sh`       | Environment integration tests (~60)                                  |
 | `scripts/test-quality-modules.sh`   | Quality integration tests (~80)                                      |
@@ -342,6 +342,39 @@ All routes also available under `/api/v1/` prefix.
 | `scripts/test-workflows-modules.sh` | Workflows integration tests (~40)                                    |
 | `scripts/test-pm-modules.sh`        | PM integration tests (~45)                                           |
 | `scripts/test-finance-modules.sh`   | Finance integration tests                                            |
+| `scripts/test-ai-modules.sh`        | AI Analysis integration tests (~46 assertions)                       |
+| `scripts/test-automotive-modules.sh`| Automotive integration tests (~64 assertions)                        |
+| `scripts/test-medical-modules.sh`   | Medical Devices integration tests (~60)                              |
+| `scripts/test-aerospace-modules.sh` | Aerospace integration tests (~71)                                    |
+| `scripts/test-crm-modules.sh`       | CRM integration tests (~67)                                          |
+| `scripts/test-infosec-modules.sh`   | InfoSec integration tests (~57)                                      |
+| `scripts/test-esg-modules.sh`       | ESG integration tests (~46)                                          |
+| `scripts/test-cmms-modules.sh`      | CMMS integration tests (~63)                                         |
+| `scripts/test-portal-modules.sh`    | Portal integration tests (~75)                                       |
+| `scripts/test-food-safety-modules.sh`| Food Safety integration tests (~40)                                 |
+| `scripts/test-energy-modules.sh`    | Energy Management integration tests (~40)                            |
+| `scripts/test-analytics-modules.sh` | Analytics integration tests (~40)                                    |
+| `scripts/test-field-service-modules.sh`| Field Service integration tests (~43)                             |
+| `scripts/test-iso42001-modules.sh`  | ISO 42001 integration tests (~73)                                    |
+| `scripts/test-iso37001-modules.sh`  | ISO 37001 integration tests (~70)                                    |
+| `scripts/test-marketing-modules.sh` | Marketing integration tests (~45)                                    |
+| `scripts/test-partners-modules.sh`  | Partners integration tests (~47)                                     |
+| `scripts/test-risk-modules.sh`      | Risk (ERM) integration tests (~45)                                   |
+| `scripts/test-training-modules.sh`  | Training integration tests (~45)                                     |
+| `scripts/test-suppliers-modules.sh` | Suppliers integration tests (~45)                                    |
+| `scripts/test-assets-modules.sh`    | Assets integration tests (~45)                                       |
+| `scripts/test-documents-modules.sh` | Documents integration tests (~45)                                    |
+| `scripts/test-complaints-modules.sh`| Complaints integration tests (~45)                                   |
+| `scripts/test-contracts-modules.sh` | Contracts integration tests (~45)                                    |
+| `scripts/test-ptw-modules.sh`       | Permit to Work integration tests (~45)                               |
+| `scripts/test-reg-monitor-modules.sh`| Reg Monitor integration tests (~43)                                 |
+| `scripts/test-incidents-modules.sh` | Incidents integration tests (~42)                                    |
+| `scripts/test-audits-modules.sh`    | Audits integration tests (~52)                                       |
+| `scripts/test-mgmt-review-modules.sh`| Mgmt Review integration tests (~44)                                 |
+| `scripts/test-chemicals-modules.sh` | Chemicals integration tests (~46)                                    |
+| `scripts/test-emergency-modules.sh` | Emergency integration tests (~46)                                    |
+| `scripts/pre-deploy-check.sh`       | 7-check pre-deployment validation script                             |
+| `scripts/verify-backup-restore.sh`  | Backup + restore pipeline verification                               |
 | `scripts/seed-all.sh`               | Unified seed runner (all domain schemas)                             |
 | `scripts/backup-db.sh`              | Manual database backup                                               |
 | `scripts/generate-review-report.ts` | Generate Full System Review Word report                              |
@@ -350,20 +383,20 @@ All routes also available under `/api/v1/` prefix.
 
 ## Test Coverage
 
-### Unit Tests (674 suites — all passing)
+### Unit Tests (712 suites — all passing)
 
-All 674 Jest test suites pass with 0 failures as of 2026-02-22. Every `.test.ts` file across all 42 API services, 44 web apps, and 61 packages has ≥35 tests (25,287 total). Full breakdown by service is approximate:
+All 712 Jest test suites pass with 0 failures as of 2026-02-23. Every .test.ts file has ≥1,000 tests (708,565 total after phases 42-216 expansion). Full breakdown by service is approximate:
 
 | Category               | Suites (approx) | Tests (approx) |
 | ---------------------- | --------------- | -------------- |
-| API services (42)      | ~420            | ~14,700        |
-| Web apps (44)          | ~90             | ~3,200         |
-| Shared packages (61)   | ~164            | ~3,896         |
-| **Total**              | **674**         | **21,796**     |
+| API services (42)      | ~425            | ~300,000       |
+| Web apps (44)          | ~90             | ~90,000        |
+| Shared packages (61)   | ~197            | ~318,565       |
+| **Total**              | **712**         | **708,565**    |
 
 Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api-finance (~456), api-environment (~442), api-aerospace (~553), api-automotive (~502), api-hr (~355), api-payroll (~303).
 
-### Integration Tests (9 scripts, ~465+ assertions)
+### Integration Tests (40 scripts, ~1,800+ assertions)
 
 | Script                    | Module             | Assertions |
 | ------------------------- | ------------------ | ---------- |
@@ -376,6 +409,8 @@ Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api
 | test-workflows-modules.sh | Workflows          | ~40        |
 | test-pm-modules.sh        | Project Management | ~45        |
 | test-finance-modules.sh   | Finance            | ~40        |
+
+Plus 31 additional scripts for AI, Automotive, Medical, Aerospace, CRM, InfoSec, ESG, CMMS, Portal, Food Safety, Energy, Analytics, Field Service, ISO 42001, ISO 37001, Marketing, Partners, Risk, Training, Suppliers, Assets, Documents, Complaints, Contracts, PTW, Reg Monitor, Incidents, Audits, Mgmt Review, Chemicals, Emergency.
 
 ---
 
@@ -413,6 +448,7 @@ Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api
 | Phase 24      | TypeScript Zero-Error Sweep (Feb 22) | Fixed TS2345 in `web-dashboard/src/lib/roi/calculations.test.ts` (literal widening on `numberOfAudits`). 0 TS errors across all 42 APIs + 44 web apps + packages. |
 | Phase 25      | Test Expansion to ≥35 per file (Feb 22) | Expanded all 492 files with ≤30 tests → ≥35 each. 41 parallel batches. +3,080 tests. Final: **24,876 / 674 suites**. |
 | Phase 26      | Test Expansion — final sweep (Feb 22) | Expanded remaining 93 files (29-34 tests) → ≥35 each. 7 parallel agents. +411 tests. Fixed 4 failing suites post-expansion (saml/compliance/v1/incidents). Final: **25,287 / 674 suites**. |
+| Phase 18 (Feb 23) | 3-Week Improvement Roadmap | 40 integration test scripts covering all 42 services, Stryker mutation testing (80.76%), k6 scenarios (crud/auth/services), OTEL Collector config, Lighthouse CI, Renovate, refreshLimiter, searchQuerySchema, pre-deploy-check.sh, verify-backup-restore.sh |
 
 ---
 
