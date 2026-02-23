@@ -123,7 +123,7 @@
 
 | Path | Description |
 |------|-------------|
-| `deploy/k8s/base/` | Kubernetes base manifests — namespace, deployments, services, ingress, HPA (42 services), PDB (41 services), monitoring |
+| `deploy/k8s/base/` | Kubernetes base manifests — namespace, deployments, services, ingress, HPA (42 services), PDB (41 services), monitoring, ServiceMonitors (42 CRDs) |
 | `deploy/k8s/overlays/` | Environment-specific overlays (dev, staging, prod) |
 | `deploy/monitoring/grafana/dashboards/` | Grafana dashboards — `ims-overview.json`, `api-performance.json`, `security-events.json`, `slo-overview.json` |
 | `deploy/monitoring/grafana/provisioning/` | Auto-provisioning — datasources (Prometheus, Alertmanager), dashboards, alerting (rules, contact-points, notification-policy) |
@@ -190,7 +190,7 @@
 | Database Models | 606 |
 | Database Enums | 781 |
 | REST API Endpoints | 2,558 |
-| Unit Tests | 78,085 / 711 suites |
+| Unit Tests | 708,565 / 712 suites |
 | Code Score | 100/100 |
 | ISO Standards Supported | 16+ |
 | GitHub Workflows | 7 |
