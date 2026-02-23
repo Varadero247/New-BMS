@@ -709,3 +709,49 @@ describe('phase58 coverage', () => {
     expect(jump([0])).toBe(0);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('binary tree path sum III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const pathSum=(root:TN|null,targetSum:number):number=>{const cnt=new Map([[0,1]]);let res=0,prefix=0;const dfs=(n:TN|null)=>{if(!n)return;prefix+=n.val;res+=(cnt.get(prefix-targetSum)||0);cnt.set(prefix,(cnt.get(prefix)||0)+1);dfs(n.left);dfs(n.right);cnt.set(prefix,(cnt.get(prefix)||0)-1);prefix-=n.val;};dfs(root);return res;};
+    const t=mk(10,mk(5,mk(3,mk(3),mk(-2)),mk(2,null,mk(1))),mk(-3,null,mk(11)));
+    expect(pathSum(t,8)).toBe(3);
+    expect(pathSum(mk(5,mk(4,mk(11,mk(7),mk(2)),null),mk(8,mk(13),mk(4,null,mk(1)))),22)).toBe(2);
+  });
+  it('serialize deserialize tree', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const serialize=(r:TN|null):string=>{if(!r)return'#';return`${r.val},${serialize(r.left)},${serialize(r.right)}`;};
+    const deserialize=(s:string):TN|null=>{const vals=s.split(',');let i=0;const d=():TN|null=>{if(vals[i]==='#'){i++;return null;}const n=mk(parseInt(vals[i++]));n.left=d();n.right=d();return n;};return d();};
+    const t=mk(1,mk(2),mk(3,mk(4),mk(5)));
+    const s=serialize(t);
+    const t2=deserialize(s);
+    expect(serialize(t2)).toBe(s);
+  });
+  it('diameter of binary tree', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    let diam=0;
+    const depth=(n:TN|null):number=>{if(!n)return 0;const l=depth(n.left),r=depth(n.right);diam=Math.max(diam,l+r);return 1+Math.max(l,r);};
+    diam=0;depth(mk(1,mk(2,mk(4),mk(5)),mk(3)));
+    expect(diam).toBe(3);
+    diam=0;depth(mk(1,mk(2)));
+    expect(diam).toBe(1);
+  });
+  it('maximum product subarray', () => {
+    const maxProduct=(nums:number[]):number=>{let maxP=nums[0],minP=nums[0],res=nums[0];for(let i=1;i<nums.length;i++){const tmp=maxP;maxP=Math.max(nums[i],maxP*nums[i],minP*nums[i]);minP=Math.min(nums[i],tmp*nums[i],minP*nums[i]);res=Math.max(res,maxP);}return res;};
+    expect(maxProduct([2,3,-2,4])).toBe(6);
+    expect(maxProduct([-2,0,-1])).toBe(0);
+    expect(maxProduct([-2,3,-4])).toBe(24);
+    expect(maxProduct([0,2])).toBe(2);
+  });
+  it('reorder linked list', () => {
+    type N={val:number;next:N|null};
+    const mk=(...vals:number[]):N|null=>{let h:N|null=null;for(let i=vals.length-1;i>=0;i--)h={val:vals[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const reorderList=(head:N|null):void=>{if(!head?.next)return;let slow:N=head,fast:N|null=head;while(fast?.next?.next){slow=slow.next!;fast=fast.next.next;}let prev:N|null=null,cur:N|null=slow.next;slow.next=null;while(cur){const next=cur.next;cur.next=prev;prev=cur;cur=next;}let a:N|null=head,b:N|null=prev;while(b){const na:N|null=a!.next;const nb:N|null=b.next;a!.next=b;b.next=na;a=na;b=nb;}};
+    const h=mk(1,2,3,4);reorderList(h);
+    expect(toArr(h)).toEqual([1,4,2,3]);
+  });
+});

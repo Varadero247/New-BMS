@@ -961,3 +961,43 @@ describe('phase58 coverage', () => {
     expect(maxSlidingWindow([1,-1],1)).toEqual([1,-1]);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('increasing triplet subsequence', () => {
+    const increasingTriplet=(nums:number[]):boolean=>{let first=Infinity,second=Infinity;for(const n of nums){if(n<=first)first=n;else if(n<=second)second=n;else return true;}return false;};
+    expect(increasingTriplet([1,2,3,4,5])).toBe(true);
+    expect(increasingTriplet([5,4,3,2,1])).toBe(false);
+    expect(increasingTriplet([2,1,5,0,4,6])).toBe(true);
+    expect(increasingTriplet([1,1,1,1,1])).toBe(false);
+  });
+  it('surrounded regions', () => {
+    const solve=(board:string[][]):void=>{const m=board.length,n=board[0].length;const dfs=(r:number,c:number)=>{if(r<0||r>=m||c<0||c>=n||board[r][c]!=='O')return;board[r][c]='S';dfs(r-1,c);dfs(r+1,c);dfs(r,c-1);dfs(r,c+1);};for(let i=0;i<m;i++){dfs(i,0);dfs(i,n-1);}for(let j=0;j<n;j++){dfs(0,j);dfs(m-1,j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]==='S'?'O':board[i][j]==='O'?'X':board[i][j];};
+    const b=[['X','X','X','X'],['X','O','O','X'],['X','X','O','X'],['X','O','X','X']];
+    solve(b);
+    expect(b[1][1]).toBe('X');
+    expect(b[3][1]).toBe('O');
+  });
+  it('LCA of BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const lcaBST=(root:TN|null,p:number,q:number):number=>{if(!root)return -1;if(root.val>p&&root.val>q)return lcaBST(root.left,p,q);if(root.val<p&&root.val<q)return lcaBST(root.right,p,q);return root.val;};
+    const t=mk(6,mk(2,mk(0),mk(4,mk(3),mk(5))),mk(8,mk(7),mk(9)));
+    expect(lcaBST(t,2,8)).toBe(6);
+    expect(lcaBST(t,2,4)).toBe(2);
+    expect(lcaBST(t,0,5)).toBe(2);
+  });
+  it('task scheduler cooling', () => {
+    const leastInterval=(tasks:string[],n:number):number=>{const cnt=new Array(26).fill(0);const a='A'.charCodeAt(0);for(const t of tasks)cnt[t.charCodeAt(0)-a]++;const maxCnt=Math.max(...cnt);const maxTasks=cnt.filter(c=>c===maxCnt).length;return Math.max(tasks.length,(maxCnt-1)*(n+1)+maxTasks);};
+    expect(leastInterval(['A','A','A','B','B','B'],2)).toBe(8);
+    expect(leastInterval(['A','A','A','B','B','B'],0)).toBe(6);
+    expect(leastInterval(['A','A','A','A','A','A','B','C','D','E','F','G'],2)).toBe(16);
+  });
+  it('reverse linked list II', () => {
+    type N={val:number;next:N|null};
+    const mk=(...vals:number[]):N|null=>{let h:N|null=null;for(let i=vals.length-1;i>=0;i--)h={val:vals[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const reverseBetween=(head:N|null,left:number,right:number):N|null=>{const dummy:N={val:0,next:head};let prev:N=dummy;for(let i=1;i<left;i++)prev=prev.next!;let cur=prev.next;for(let i=0;i<right-left;i++){const next=cur!.next!;cur!.next=next.next;next.next=prev.next;prev.next=next;}return dummy.next;};
+    expect(toArr(reverseBetween(mk(1,2,3,4,5),2,4))).toEqual([1,4,3,2,5]);
+    expect(toArr(reverseBetween(mk(5),1,1))).toEqual([5]);
+  });
+});

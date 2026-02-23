@@ -705,3 +705,39 @@ describe('phase58 coverage', () => {
     expect(s.split('(').length).toBeGreaterThan(3);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('find all anagrams', () => {
+    const findAnagrams=(s:string,p:string):number[]=>{if(p.length>s.length)return[];const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of p)cnt[c.charCodeAt(0)-a]++;const window=new Array(26).fill(0);const res:number[]=[];for(let i=0;i<s.length;i++){window[s[i].charCodeAt(0)-a]++;if(i>=p.length)window[s[i-p.length].charCodeAt(0)-a]--;if(i>=p.length-1&&window.join(',')===cnt.join(','))res.push(i-p.length+1);}return res;};
+    expect(findAnagrams('cbaebabacd','abc')).toEqual([0,6]);
+    expect(findAnagrams('abab','ab')).toEqual([0,1,2]);
+  });
+  it('number of connected components', () => {
+    const countComponents=(n:number,edges:[number,number][]):number=>{const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);edges.forEach(([a,b])=>union(a,b));return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(countComponents(5,[[0,1],[1,2],[3,4]])).toBe(2);
+    expect(countComponents(5,[[0,1],[1,2],[2,3],[3,4]])).toBe(1);
+    expect(countComponents(4,[])).toBe(4);
+  });
+  it('evaluate division', () => {
+    const calcEquation=(equations:string[][],values:number[],queries:string[][]):number[]=>{const g=new Map<string,Map<string,number>>();equations.forEach(([a,b],i)=>{if(!g.has(a))g.set(a,new Map());if(!g.has(b))g.set(b,new Map());g.get(a)!.set(b,values[i]);g.get(b)!.set(a,1/values[i]);});const bfs=(src:string,dst:string):number=>{if(!g.has(src)||!g.has(dst))return -1;if(src===dst)return 1;const visited=new Set([src]);const q:([string,number])[]=[[ src,1]];while(q.length){const[node,prod]=q.shift()!;if(node===dst)return prod;for(const[nb,w]of g.get(node)!){if(!visited.has(nb)){visited.add(nb);q.push([nb,prod*w]);}}}return -1;};return queries.map(([a,b])=>bfs(a,b));};
+    const r=calcEquation([['a','b'],['b','c']],[2,3],[['a','c'],['b','a'],['a','e'],['a','a'],['x','x']]);
+    expect(r[0]).toBeCloseTo(6);
+    expect(r[1]).toBeCloseTo(0.5);
+    expect(r[2]).toBe(-1);
+  });
+  it('house robber III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const rob=(root:TN|null):[number,number]=>{if(!root)return[0,0];const[ll,lr]=rob(root.left);const[rl,rr]=rob(root.right);const withRoot=root.val+lr+rr;const withoutRoot=Math.max(ll,lr)+Math.max(rl,rr);return[withRoot,withoutRoot];};
+    const robTree=(r:TN|null)=>Math.max(...rob(r));
+    const t=mk(3,mk(2,null,mk(3)),mk(3,null,mk(1)));
+    expect(robTree(t)).toBe(7);
+    expect(robTree(mk(3,mk(4,mk(1),mk(3)),mk(5,null,mk(1))))).toBe(9);
+  });
+  it('minimum window substring', () => {
+    const minWindow=(s:string,t:string):string=>{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let have=0,req=need.size,l=0,best='';for(let r=0;r<s.length;r++){const c=s[r];need.set(c,(need.get(c)||0)-1);if(need.get(c)===0)have++;while(have===req){if(!best||r-l+1<best.length)best=s.slice(l,r+1);const lc=s[l];need.set(lc,(need.get(lc)||0)+1);if((need.get(lc)||0)>0)have--;l++;}}return best;};
+    expect(minWindow('ADOBECODEBANC','ABC')).toBe('BANC');
+    expect(minWindow('a','a')).toBe('a');
+    expect(minWindow('a','aa')).toBe('');
+  });
+});

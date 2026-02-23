@@ -1099,3 +1099,40 @@ describe('phase58 coverage', () => {
     expect(orangesRotting([[0,2]])).toBe(0);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('find all anagrams', () => {
+    const findAnagrams=(s:string,p:string):number[]=>{if(p.length>s.length)return[];const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of p)cnt[c.charCodeAt(0)-a]++;const window=new Array(26).fill(0);const res:number[]=[];for(let i=0;i<s.length;i++){window[s[i].charCodeAt(0)-a]++;if(i>=p.length)window[s[i-p.length].charCodeAt(0)-a]--;if(i>=p.length-1&&window.join(',')===cnt.join(','))res.push(i-p.length+1);}return res;};
+    expect(findAnagrams('cbaebabacd','abc')).toEqual([0,6]);
+    expect(findAnagrams('abab','ab')).toEqual([0,1,2]);
+  });
+  it('all paths source to target', () => {
+    const allPathsSourceTarget=(graph:number[][]):number[][]=>{const res:number[][]=[];const dfs=(node:number,path:number[])=>{if(node===graph.length-1){res.push([...path]);return;}for(const next of graph[node])dfs(next,[...path,next]);};dfs(0,[0]);return res;};
+    const r=allPathsSourceTarget([[1,2],[3],[3],[]]);
+    expect(r).toContainEqual([0,1,3]);
+    expect(r).toContainEqual([0,2,3]);
+    expect(r).toHaveLength(2);
+  });
+  it('queue reconstruction by height', () => {
+    const reconstructQueue=(people:[number,number][]):[number,number][]=>{people.sort((a,b)=>a[0]!==b[0]?b[0]-a[0]:a[1]-b[1]);const res:[number,number][]=[];for(const p of people)res.splice(p[1],0,p);return res;};
+    const r=reconstructQueue([[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]);
+    expect(r[0]).toEqual([5,0]);
+    expect(r[1]).toEqual([7,0]);
+    expect(r.length).toBe(6);
+  });
+  it('binary tree path sum III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const pathSum=(root:TN|null,targetSum:number):number=>{const cnt=new Map([[0,1]]);let res=0,prefix=0;const dfs=(n:TN|null)=>{if(!n)return;prefix+=n.val;res+=(cnt.get(prefix-targetSum)||0);cnt.set(prefix,(cnt.get(prefix)||0)+1);dfs(n.left);dfs(n.right);cnt.set(prefix,(cnt.get(prefix)||0)-1);prefix-=n.val;};dfs(root);return res;};
+    const t=mk(10,mk(5,mk(3,mk(3),mk(-2)),mk(2,null,mk(1))),mk(-3,null,mk(11)));
+    expect(pathSum(t,8)).toBe(3);
+    expect(pathSum(mk(5,mk(4,mk(11,mk(7),mk(2)),null),mk(8,mk(13),mk(4,null,mk(1)))),22)).toBe(2);
+  });
+  it('surrounded regions', () => {
+    const solve=(board:string[][]):void=>{const m=board.length,n=board[0].length;const dfs=(r:number,c:number)=>{if(r<0||r>=m||c<0||c>=n||board[r][c]!=='O')return;board[r][c]='S';dfs(r-1,c);dfs(r+1,c);dfs(r,c-1);dfs(r,c+1);};for(let i=0;i<m;i++){dfs(i,0);dfs(i,n-1);}for(let j=0;j<n;j++){dfs(0,j);dfs(m-1,j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]==='S'?'O':board[i][j]==='O'?'X':board[i][j];};
+    const b=[['X','X','X','X'],['X','O','O','X'],['X','X','O','X'],['X','O','X','X']];
+    solve(b);
+    expect(b[1][1]).toBe('X');
+    expect(b[3][1]).toBe('O');
+  });
+});

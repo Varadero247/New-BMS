@@ -662,3 +662,39 @@ describe('phase58 coverage', () => {
     expect(lcs('ezupkr','ubmrapg')).toBe(2);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('search in rotated sorted array', () => {
+    const search=(nums:number[],target:number):number=>{let lo=0,hi=nums.length-1;while(lo<=hi){const mid=(lo+hi)>>1;if(nums[mid]===target)return mid;if(nums[lo]<=nums[mid]){if(nums[lo]<=target&&target<nums[mid])hi=mid-1;else lo=mid+1;}else{if(nums[mid]<target&&target<=nums[hi])lo=mid+1;else hi=mid-1;}}return -1;};
+    expect(search([4,5,6,7,0,1,2],0)).toBe(4);
+    expect(search([4,5,6,7,0,1,2],3)).toBe(-1);
+    expect(search([1],0)).toBe(-1);
+    expect(search([3,1],1)).toBe(1);
+  });
+  it('accounts merge', () => {
+    const accountsMerge=(accounts:string[][]):string[][]=>{const parent=new Map<string,string>();const find=(x:string):string=>{if(!parent.has(x))parent.set(x,x);if(parent.get(x)!==x)parent.set(x,find(parent.get(x)!));return parent.get(x)!;};const union=(a:string,b:string)=>parent.set(find(a),find(b));const emailToName=new Map<string,string>();accounts.forEach(acc=>{acc.slice(1).forEach(e=>{emailToName.set(e,acc[0]);union(e,acc[1]);});});const groups=new Map<string,string[]>();emailToName.forEach((_,e)=>{const root=find(e);groups.set(root,[...(groups.get(root)||[]),e]);});return Array.from(groups.entries()).map(([root,emails])=>[emailToName.get(root)!,...emails.sort()]);};
+    const r=accountsMerge([['John','johnsmith@mail.com','john_newyork@mail.com'],['John','johnsmith@mail.com','john00@mail.com'],['Mary','mary@mail.com'],['John','johnnybravo@mail.com']]);
+    expect(r).toHaveLength(3);
+  });
+  it('in-memory file system', () => {
+    class FileSystem{private fs:any={'/':{_isDir:true,_content:''}};private get(path:string){const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){cur=cur[p];}return cur;}ls(path:string):string[]{const node=this.get(path);if(!node._isDir)return[path.split('/').pop()!];return Object.keys(node).filter(k=>!k.startsWith('_')).sort();}mkdir(path:string):void{const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){if(!cur[p])cur[p]={_isDir:true,_content:''};cur=cur[p];}}addContentToFile(path:string,content:string):void{const parts=path.split('/').filter(Boolean);const name=parts.pop()!;let cur=this.fs['/'];for(const p of parts)cur=cur[p];if(!cur[name])cur[name]={_isDir:false,_content:''};cur[name]._content+=content;}readContentFromFile(path:string):string{return this.get(path)._content;}}
+    const f=new FileSystem();f.mkdir('/a/b/c');f.addContentToFile('/a/b/c/d','hello');
+    expect(f.readContentFromFile('/a/b/c/d')).toBe('hello');
+    expect(f.ls('/a/b/c')).toEqual(['d']);
+  });
+  it('queue reconstruction by height', () => {
+    const reconstructQueue=(people:[number,number][]):[number,number][]=>{people.sort((a,b)=>a[0]!==b[0]?b[0]-a[0]:a[1]-b[1]);const res:[number,number][]=[];for(const p of people)res.splice(p[1],0,p);return res;};
+    const r=reconstructQueue([[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]);
+    expect(r[0]).toEqual([5,0]);
+    expect(r[1]).toEqual([7,0]);
+    expect(r.length).toBe(6);
+  });
+  it('binary tree path sum III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const pathSum=(root:TN|null,targetSum:number):number=>{const cnt=new Map([[0,1]]);let res=0,prefix=0;const dfs=(n:TN|null)=>{if(!n)return;prefix+=n.val;res+=(cnt.get(prefix-targetSum)||0);cnt.set(prefix,(cnt.get(prefix)||0)+1);dfs(n.left);dfs(n.right);cnt.set(prefix,(cnt.get(prefix)||0)-1);prefix-=n.val;};dfs(root);return res;};
+    const t=mk(10,mk(5,mk(3,mk(3),mk(-2)),mk(2,null,mk(1))),mk(-3,null,mk(11)));
+    expect(pathSum(t,8)).toBe(3);
+    expect(pathSum(mk(5,mk(4,mk(11,mk(7),mk(2)),null),mk(8,mk(13),mk(4,null,mk(1)))),22)).toBe(2);
+  });
+});

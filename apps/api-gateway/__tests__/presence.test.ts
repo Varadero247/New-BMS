@@ -724,3 +724,49 @@ describe('phase58 coverage', () => {
     expect(lcs('ezupkr','ubmrapg')).toBe(2);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('LCA of BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const lcaBST=(root:TN|null,p:number,q:number):number=>{if(!root)return -1;if(root.val>p&&root.val>q)return lcaBST(root.left,p,q);if(root.val<p&&root.val<q)return lcaBST(root.right,p,q);return root.val;};
+    const t=mk(6,mk(2,mk(0),mk(4,mk(3),mk(5))),mk(8,mk(7),mk(9)));
+    expect(lcaBST(t,2,8)).toBe(6);
+    expect(lcaBST(t,2,4)).toBe(2);
+    expect(lcaBST(t,0,5)).toBe(2);
+  });
+  it('inorder successor BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const inorderSuccessor=(root:TN|null,p:number):number=>{let res=-1;while(root){if(root.val>p){res=root.val;root=root.left;}else root=root.right;}return res;};
+    const t=mk(5,mk(3,mk(2),mk(4)),mk(6));
+    expect(inorderSuccessor(t,3)).toBe(4);
+    expect(inorderSuccessor(t,6)).toBe(-1);
+    expect(inorderSuccessor(t,4)).toBe(5);
+  });
+  it('populating next right pointers', () => {
+    type TN={val:number;left:TN|null;right:TN|null;next:TN|null};
+    const mk=(v:number):TN=>({val:v,left:null,right:null,next:null});
+    const connect=(root:TN|null):TN|null=>{if(!root)return null;const q=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i<sz-1)n.next=q[0]||null;if(n.left)q.push(n.left as TN);if(n.right)q.push(n.right as TN);}};return root;};
+    const r=mk(1);r.left=mk(2);r.right=mk(3);(r.left as TN).left=mk(4);(r.left as TN).right=mk(5);(r.right as TN).right=mk(7);
+    connect(r);
+    expect(r.next).toBeNull();
+    expect(r.left!.next).toBe(r.right);
+  });
+  it('binary tree right side view', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const rightSideView=(root:TN|null):number[]=>{if(!root)return[];const res:number[]=[];const q=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i===sz-1)res.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}};return res;};
+    expect(rightSideView(mk(1,mk(2,null,mk(5)),mk(3,null,mk(4))))).toEqual([1,3,4]);
+    expect(rightSideView(null)).toEqual([]);
+    expect(rightSideView(mk(1,mk(2),null))).toEqual([1,2]);
+  });
+  it('binary tree path sum III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const pathSum=(root:TN|null,targetSum:number):number=>{const cnt=new Map([[0,1]]);let res=0,prefix=0;const dfs=(n:TN|null)=>{if(!n)return;prefix+=n.val;res+=(cnt.get(prefix-targetSum)||0);cnt.set(prefix,(cnt.get(prefix)||0)+1);dfs(n.left);dfs(n.right);cnt.set(prefix,(cnt.get(prefix)||0)-1);prefix-=n.val;};dfs(root);return res;};
+    const t=mk(10,mk(5,mk(3,mk(3),mk(-2)),mk(2,null,mk(1))),mk(-3,null,mk(11)));
+    expect(pathSum(t,8)).toBe(3);
+    expect(pathSum(mk(5,mk(4,mk(11,mk(7),mk(2)),null),mk(8,mk(13),mk(4,null,mk(1)))),22)).toBe(2);
+  });
+});

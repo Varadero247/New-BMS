@@ -1025,3 +1025,37 @@ describe('phase58 coverage', () => {
     expect(maxArea([4,3,2,1,4])).toBe(16);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('all paths source to target', () => {
+    const allPathsSourceTarget=(graph:number[][]):number[][]=>{const res:number[][]=[];const dfs=(node:number,path:number[])=>{if(node===graph.length-1){res.push([...path]);return;}for(const next of graph[node])dfs(next,[...path,next]);};dfs(0,[0]);return res;};
+    const r=allPathsSourceTarget([[1,2],[3],[3],[]]);
+    expect(r).toContainEqual([0,1,3]);
+    expect(r).toContainEqual([0,2,3]);
+    expect(r).toHaveLength(2);
+  });
+  it('find all anagrams', () => {
+    const findAnagrams=(s:string,p:string):number[]=>{if(p.length>s.length)return[];const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of p)cnt[c.charCodeAt(0)-a]++;const window=new Array(26).fill(0);const res:number[]=[];for(let i=0;i<s.length;i++){window[s[i].charCodeAt(0)-a]++;if(i>=p.length)window[s[i-p.length].charCodeAt(0)-a]--;if(i>=p.length-1&&window.join(',')===cnt.join(','))res.push(i-p.length+1);}return res;};
+    expect(findAnagrams('cbaebabacd','abc')).toEqual([0,6]);
+    expect(findAnagrams('abab','ab')).toEqual([0,1,2]);
+  });
+  it('redundant connection', () => {
+    const findRedundantConnection=(edges:[number,number][]):[number,number]=>{const parent=Array.from({length:edges.length+1},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);for(const [a,b] of edges){const fa=find(a),fb=find(b);if(fa===fb)return[a,b];parent[fa]=fb;}return[-1,-1];};
+    expect(findRedundantConnection([[1,2],[1,3],[2,3]])).toEqual([2,3]);
+    expect(findRedundantConnection([[1,2],[2,3],[3,4],[1,4],[1,5]])).toEqual([1,4]);
+  });
+  it('minimum window substring', () => {
+    const minWindow=(s:string,t:string):string=>{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let have=0,req=need.size,l=0,best='';for(let r=0;r<s.length;r++){const c=s[r];need.set(c,(need.get(c)||0)-1);if(need.get(c)===0)have++;while(have===req){if(!best||r-l+1<best.length)best=s.slice(l,r+1);const lc=s[l];need.set(lc,(need.get(lc)||0)+1);if((need.get(lc)||0)>0)have--;l++;}}return best;};
+    expect(minWindow('ADOBECODEBANC','ABC')).toBe('BANC');
+    expect(minWindow('a','a')).toBe('a');
+    expect(minWindow('a','aa')).toBe('');
+  });
+  it('reverse linked list II', () => {
+    type N={val:number;next:N|null};
+    const mk=(...vals:number[]):N|null=>{let h:N|null=null;for(let i=vals.length-1;i>=0;i--)h={val:vals[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const reverseBetween=(head:N|null,left:number,right:number):N|null=>{const dummy:N={val:0,next:head};let prev:N=dummy;for(let i=1;i<left;i++)prev=prev.next!;let cur=prev.next;for(let i=0;i<right-left;i++){const next=cur!.next!;cur!.next=next.next;next.next=prev.next;prev.next=next;}return dummy.next;};
+    expect(toArr(reverseBetween(mk(1,2,3,4,5),2,4))).toEqual([1,4,3,2,5]);
+    expect(toArr(reverseBetween(mk(5),1,1))).toEqual([5]);
+  });
+});

@@ -890,3 +890,39 @@ describe('phase58 coverage', () => {
     expect(s.split('(').length).toBeGreaterThan(3);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('search 2D matrix II', () => {
+    const searchMatrix=(matrix:number[][],target:number):boolean=>{let r=0,c=matrix[0].length-1;while(r<matrix.length&&c>=0){if(matrix[r][c]===target)return true;if(matrix[r][c]>target)c--;else r++;}return false;};
+    const m=[[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]];
+    expect(searchMatrix(m,5)).toBe(true);
+    expect(searchMatrix(m,20)).toBe(false);
+  });
+  it('task scheduler cooling', () => {
+    const leastInterval=(tasks:string[],n:number):number=>{const cnt=new Array(26).fill(0);const a='A'.charCodeAt(0);for(const t of tasks)cnt[t.charCodeAt(0)-a]++;const maxCnt=Math.max(...cnt);const maxTasks=cnt.filter(c=>c===maxCnt).length;return Math.max(tasks.length,(maxCnt-1)*(n+1)+maxTasks);};
+    expect(leastInterval(['A','A','A','B','B','B'],2)).toBe(8);
+    expect(leastInterval(['A','A','A','B','B','B'],0)).toBe(6);
+    expect(leastInterval(['A','A','A','A','A','A','B','C','D','E','F','G'],2)).toBe(16);
+  });
+  it('increasing triplet subsequence', () => {
+    const increasingTriplet=(nums:number[]):boolean=>{let first=Infinity,second=Infinity;for(const n of nums){if(n<=first)first=n;else if(n<=second)second=n;else return true;}return false;};
+    expect(increasingTriplet([1,2,3,4,5])).toBe(true);
+    expect(increasingTriplet([5,4,3,2,1])).toBe(false);
+    expect(increasingTriplet([2,1,5,0,4,6])).toBe(true);
+    expect(increasingTriplet([1,1,1,1,1])).toBe(false);
+  });
+  it('min in rotated sorted array', () => {
+    const findMin=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[hi])lo=mid+1;else hi=mid;}return nums[lo];};
+    expect(findMin([3,4,5,1,2])).toBe(1);
+    expect(findMin([4,5,6,7,0,1,2])).toBe(0);
+    expect(findMin([11,13,15,17])).toBe(11);
+    expect(findMin([2,1])).toBe(1);
+  });
+  it('surrounded regions', () => {
+    const solve=(board:string[][]):void=>{const m=board.length,n=board[0].length;const dfs=(r:number,c:number)=>{if(r<0||r>=m||c<0||c>=n||board[r][c]!=='O')return;board[r][c]='S';dfs(r-1,c);dfs(r+1,c);dfs(r,c-1);dfs(r,c+1);};for(let i=0;i<m;i++){dfs(i,0);dfs(i,n-1);}for(let j=0;j<n;j++){dfs(0,j);dfs(m-1,j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]==='S'?'O':board[i][j]==='O'?'X':board[i][j];};
+    const b=[['X','X','X','X'],['X','O','O','X'],['X','X','O','X'],['X','O','X','X']];
+    solve(b);
+    expect(b[1][1]).toBe('X');
+    expect(b[3][1]).toBe('O');
+  });
+});

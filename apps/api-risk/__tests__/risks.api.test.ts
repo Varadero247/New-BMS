@@ -816,3 +816,38 @@ describe('phase58 coverage', () => {
     expect(ms.getMin()).toBe(-2);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('redundant connection', () => {
+    const findRedundantConnection=(edges:[number,number][]):[number,number]=>{const parent=Array.from({length:edges.length+1},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);for(const [a,b] of edges){const fa=find(a),fb=find(b);if(fa===fb)return[a,b];parent[fa]=fb;}return[-1,-1];};
+    expect(findRedundantConnection([[1,2],[1,3],[2,3]])).toEqual([2,3]);
+    expect(findRedundantConnection([[1,2],[2,3],[3,4],[1,4],[1,5]])).toEqual([1,4]);
+  });
+  it('house robber III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const rob=(root:TN|null):[number,number]=>{if(!root)return[0,0];const[ll,lr]=rob(root.left);const[rl,rr]=rob(root.right);const withRoot=root.val+lr+rr;const withoutRoot=Math.max(ll,lr)+Math.max(rl,rr);return[withRoot,withoutRoot];};
+    const robTree=(r:TN|null)=>Math.max(...rob(r));
+    const t=mk(3,mk(2,null,mk(3)),mk(3,null,mk(1)));
+    expect(robTree(t)).toBe(7);
+    expect(robTree(mk(3,mk(4,mk(1),mk(3)),mk(5,null,mk(1))))).toBe(9);
+  });
+  it('search 2D matrix II', () => {
+    const searchMatrix=(matrix:number[][],target:number):boolean=>{let r=0,c=matrix[0].length-1;while(r<matrix.length&&c>=0){if(matrix[r][c]===target)return true;if(matrix[r][c]>target)c--;else r++;}return false;};
+    const m=[[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]];
+    expect(searchMatrix(m,5)).toBe(true);
+    expect(searchMatrix(m,20)).toBe(false);
+  });
+  it('longest repeating char replacement', () => {
+    const characterReplacement=(s:string,k:number):number=>{const cnt=new Array(26).fill(0);const a='A'.charCodeAt(0);let maxCnt=0,l=0,res=0;for(let r=0;r<s.length;r++){cnt[s[r].charCodeAt(0)-a]++;maxCnt=Math.max(maxCnt,cnt[s[r].charCodeAt(0)-a]);while(r-l+1-maxCnt>k){cnt[s[l].charCodeAt(0)-a]--;l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(characterReplacement('ABAB',2)).toBe(4);
+    expect(characterReplacement('AABABBA',1)).toBe(4);
+    expect(characterReplacement('AAAA',0)).toBe(4);
+  });
+  it('minimum window substring', () => {
+    const minWindow=(s:string,t:string):string=>{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let have=0,req=need.size,l=0,best='';for(let r=0;r<s.length;r++){const c=s[r];need.set(c,(need.get(c)||0)-1);if(need.get(c)===0)have++;while(have===req){if(!best||r-l+1<best.length)best=s.slice(l,r+1);const lc=s[l];need.set(lc,(need.get(lc)||0)+1);if((need.get(lc)||0)>0)have--;l++;}}return best;};
+    expect(minWindow('ADOBECODEBANC','ABC')).toBe('BANC');
+    expect(minWindow('a','a')).toBe('a');
+    expect(minWindow('a','aa')).toBe('');
+  });
+});

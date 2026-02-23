@@ -972,3 +972,45 @@ describe('phase58 coverage', () => {
     expect(change(0,[1,2,3])).toBe(1);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('house robber III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const rob=(root:TN|null):[number,number]=>{if(!root)return[0,0];const[ll,lr]=rob(root.left);const[rl,rr]=rob(root.right);const withRoot=root.val+lr+rr;const withoutRoot=Math.max(ll,lr)+Math.max(rl,rr);return[withRoot,withoutRoot];};
+    const robTree=(r:TN|null)=>Math.max(...rob(r));
+    const t=mk(3,mk(2,null,mk(3)),mk(3,null,mk(1)));
+    expect(robTree(t)).toBe(7);
+    expect(robTree(mk(3,mk(4,mk(1),mk(3)),mk(5,null,mk(1))))).toBe(9);
+  });
+  it('surrounded regions', () => {
+    const solve=(board:string[][]):void=>{const m=board.length,n=board[0].length;const dfs=(r:number,c:number)=>{if(r<0||r>=m||c<0||c>=n||board[r][c]!=='O')return;board[r][c]='S';dfs(r-1,c);dfs(r+1,c);dfs(r,c-1);dfs(r,c+1);};for(let i=0;i<m;i++){dfs(i,0);dfs(i,n-1);}for(let j=0;j<n;j++){dfs(0,j);dfs(m-1,j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]==='S'?'O':board[i][j]==='O'?'X':board[i][j];};
+    const b=[['X','X','X','X'],['X','O','O','X'],['X','X','O','X'],['X','O','X','X']];
+    solve(b);
+    expect(b[1][1]).toBe('X');
+    expect(b[3][1]).toBe('O');
+  });
+  it('maximum product subarray', () => {
+    const maxProduct=(nums:number[]):number=>{let maxP=nums[0],minP=nums[0],res=nums[0];for(let i=1;i<nums.length;i++){const tmp=maxP;maxP=Math.max(nums[i],maxP*nums[i],minP*nums[i]);minP=Math.min(nums[i],tmp*nums[i],minP*nums[i]);res=Math.max(res,maxP);}return res;};
+    expect(maxProduct([2,3,-2,4])).toBe(6);
+    expect(maxProduct([-2,0,-1])).toBe(0);
+    expect(maxProduct([-2,3,-4])).toBe(24);
+    expect(maxProduct([0,2])).toBe(2);
+  });
+  it('reverse linked list II', () => {
+    type N={val:number;next:N|null};
+    const mk=(...vals:number[]):N|null=>{let h:N|null=null;for(let i=vals.length-1;i>=0;i--)h={val:vals[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const reverseBetween=(head:N|null,left:number,right:number):N|null=>{const dummy:N={val:0,next:head};let prev:N=dummy;for(let i=1;i<left;i++)prev=prev.next!;let cur=prev.next;for(let i=0;i<right-left;i++){const next=cur!.next!;cur!.next=next.next;next.next=prev.next;prev.next=next;}return dummy.next;};
+    expect(toArr(reverseBetween(mk(1,2,3,4,5),2,4))).toEqual([1,4,3,2,5]);
+    expect(toArr(reverseBetween(mk(5),1,1))).toEqual([5]);
+  });
+  it('binary tree path sum III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const pathSum=(root:TN|null,targetSum:number):number=>{const cnt=new Map([[0,1]]);let res=0,prefix=0;const dfs=(n:TN|null)=>{if(!n)return;prefix+=n.val;res+=(cnt.get(prefix-targetSum)||0);cnt.set(prefix,(cnt.get(prefix)||0)+1);dfs(n.left);dfs(n.right);cnt.set(prefix,(cnt.get(prefix)||0)-1);prefix-=n.val;};dfs(root);return res;};
+    const t=mk(10,mk(5,mk(3,mk(3),mk(-2)),mk(2,null,mk(1))),mk(-3,null,mk(11)));
+    expect(pathSum(t,8)).toBe(3);
+    expect(pathSum(mk(5,mk(4,mk(11,mk(7),mk(2)),null),mk(8,mk(13),mk(4,null,mk(1)))),22)).toBe(2);
+  });
+});

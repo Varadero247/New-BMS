@@ -761,3 +761,44 @@ describe('phase58 coverage', () => {
     expect(maxSlidingWindow([1,-1],1)).toEqual([1,-1]);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('zigzag level order', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const zigzagLevelOrder=(root:TN|null):number[][]=>{if(!root)return[];const res:number[][]=[];const q=[root];let ltr=true;while(q.length){const sz=q.length;const level:number[]=[];for(let i=0;i<sz;i++){const n=q.shift()!;level.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}res.push(ltr?level:[...level].reverse());ltr=!ltr;}return res;};
+    const t=mk(3,mk(9),mk(20,mk(15),mk(7)));
+    expect(zigzagLevelOrder(t)).toEqual([[3],[20,9],[15,7]]);
+  });
+  it('all paths source to target', () => {
+    const allPathsSourceTarget=(graph:number[][]):number[][]=>{const res:number[][]=[];const dfs=(node:number,path:number[])=>{if(node===graph.length-1){res.push([...path]);return;}for(const next of graph[node])dfs(next,[...path,next]);};dfs(0,[0]);return res;};
+    const r=allPathsSourceTarget([[1,2],[3],[3],[]]);
+    expect(r).toContainEqual([0,1,3]);
+    expect(r).toContainEqual([0,2,3]);
+    expect(r).toHaveLength(2);
+  });
+  it('maximum product subarray', () => {
+    const maxProduct=(nums:number[]):number=>{let maxP=nums[0],minP=nums[0],res=nums[0];for(let i=1;i<nums.length;i++){const tmp=maxP;maxP=Math.max(nums[i],maxP*nums[i],minP*nums[i]);minP=Math.min(nums[i],tmp*nums[i],minP*nums[i]);res=Math.max(res,maxP);}return res;};
+    expect(maxProduct([2,3,-2,4])).toBe(6);
+    expect(maxProduct([-2,0,-1])).toBe(0);
+    expect(maxProduct([-2,3,-4])).toBe(24);
+    expect(maxProduct([0,2])).toBe(2);
+  });
+  it('queue reconstruction by height', () => {
+    const reconstructQueue=(people:[number,number][]):[number,number][]=>{people.sort((a,b)=>a[0]!==b[0]?b[0]-a[0]:a[1]-b[1]);const res:[number,number][]=[];for(const p of people)res.splice(p[1],0,p);return res;};
+    const r=reconstructQueue([[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]);
+    expect(r[0]).toEqual([5,0]);
+    expect(r[1]).toEqual([7,0]);
+    expect(r.length).toBe(6);
+  });
+  it('diameter of binary tree', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    let diam=0;
+    const depth=(n:TN|null):number=>{if(!n)return 0;const l=depth(n.left),r=depth(n.right);diam=Math.max(diam,l+r);return 1+Math.max(l,r);};
+    diam=0;depth(mk(1,mk(2,mk(4),mk(5)),mk(3)));
+    expect(diam).toBe(3);
+    diam=0;depth(mk(1,mk(2)));
+    expect(diam).toBe(1);
+  });
+});

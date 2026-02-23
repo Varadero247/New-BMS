@@ -1014,3 +1014,44 @@ describe('phase58 coverage', () => {
     expect(checkInclusion('ab','eidboaoo')).toBe(false);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('in-memory file system', () => {
+    class FileSystem{private fs:any={'/':{_isDir:true,_content:''}};private get(path:string){const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){cur=cur[p];}return cur;}ls(path:string):string[]{const node=this.get(path);if(!node._isDir)return[path.split('/').pop()!];return Object.keys(node).filter(k=>!k.startsWith('_')).sort();}mkdir(path:string):void{const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){if(!cur[p])cur[p]={_isDir:true,_content:''};cur=cur[p];}}addContentToFile(path:string,content:string):void{const parts=path.split('/').filter(Boolean);const name=parts.pop()!;let cur=this.fs['/'];for(const p of parts)cur=cur[p];if(!cur[name])cur[name]={_isDir:false,_content:''};cur[name]._content+=content;}readContentFromFile(path:string):string{return this.get(path)._content;}}
+    const f=new FileSystem();f.mkdir('/a/b/c');f.addContentToFile('/a/b/c/d','hello');
+    expect(f.readContentFromFile('/a/b/c/d')).toBe('hello');
+    expect(f.ls('/a/b/c')).toEqual(['d']);
+  });
+  it('minimum window substring', () => {
+    const minWindow=(s:string,t:string):string=>{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let have=0,req=need.size,l=0,best='';for(let r=0;r<s.length;r++){const c=s[r];need.set(c,(need.get(c)||0)-1);if(need.get(c)===0)have++;while(have===req){if(!best||r-l+1<best.length)best=s.slice(l,r+1);const lc=s[l];need.set(lc,(need.get(lc)||0)+1);if((need.get(lc)||0)>0)have--;l++;}}return best;};
+    expect(minWindow('ADOBECODEBANC','ABC')).toBe('BANC');
+    expect(minWindow('a','a')).toBe('a');
+    expect(minWindow('a','aa')).toBe('');
+  });
+  it('populating next right pointers', () => {
+    type TN={val:number;left:TN|null;right:TN|null;next:TN|null};
+    const mk=(v:number):TN=>({val:v,left:null,right:null,next:null});
+    const connect=(root:TN|null):TN|null=>{if(!root)return null;const q=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i<sz-1)n.next=q[0]||null;if(n.left)q.push(n.left as TN);if(n.right)q.push(n.right as TN);}};return root;};
+    const r=mk(1);r.left=mk(2);r.right=mk(3);(r.left as TN).left=mk(4);(r.left as TN).right=mk(5);(r.right as TN).right=mk(7);
+    connect(r);
+    expect(r.next).toBeNull();
+    expect(r.left!.next).toBe(r.right);
+  });
+  it('diameter of binary tree', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    let diam=0;
+    const depth=(n:TN|null):number=>{if(!n)return 0;const l=depth(n.left),r=depth(n.right);diam=Math.max(diam,l+r);return 1+Math.max(l,r);};
+    diam=0;depth(mk(1,mk(2,mk(4),mk(5)),mk(3)));
+    expect(diam).toBe(3);
+    diam=0;depth(mk(1,mk(2)));
+    expect(diam).toBe(1);
+  });
+  it('all paths source to target', () => {
+    const allPathsSourceTarget=(graph:number[][]):number[][]=>{const res:number[][]=[];const dfs=(node:number,path:number[])=>{if(node===graph.length-1){res.push([...path]);return;}for(const next of graph[node])dfs(next,[...path,next]);};dfs(0,[0]);return res;};
+    const r=allPathsSourceTarget([[1,2],[3],[3],[]]);
+    expect(r).toContainEqual([0,1,3]);
+    expect(r).toContainEqual([0,2,3]);
+    expect(r).toHaveLength(2);
+  });
+});

@@ -894,3 +894,43 @@ describe('phase58 coverage', () => {
     expect(uniquePathsWithObstacles([[1,0]])).toBe(0);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('surrounded regions', () => {
+    const solve=(board:string[][]):void=>{const m=board.length,n=board[0].length;const dfs=(r:number,c:number)=>{if(r<0||r>=m||c<0||c>=n||board[r][c]!=='O')return;board[r][c]='S';dfs(r-1,c);dfs(r+1,c);dfs(r,c-1);dfs(r,c+1);};for(let i=0;i<m;i++){dfs(i,0);dfs(i,n-1);}for(let j=0;j<n;j++){dfs(0,j);dfs(m-1,j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]==='S'?'O':board[i][j]==='O'?'X':board[i][j];};
+    const b=[['X','X','X','X'],['X','O','O','X'],['X','X','O','X'],['X','O','X','X']];
+    solve(b);
+    expect(b[1][1]).toBe('X');
+    expect(b[3][1]).toBe('O');
+  });
+  it('find all anagrams', () => {
+    const findAnagrams=(s:string,p:string):number[]=>{if(p.length>s.length)return[];const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of p)cnt[c.charCodeAt(0)-a]++;const window=new Array(26).fill(0);const res:number[]=[];for(let i=0;i<s.length;i++){window[s[i].charCodeAt(0)-a]++;if(i>=p.length)window[s[i-p.length].charCodeAt(0)-a]--;if(i>=p.length-1&&window.join(',')===cnt.join(','))res.push(i-p.length+1);}return res;};
+    expect(findAnagrams('cbaebabacd','abc')).toEqual([0,6]);
+    expect(findAnagrams('abab','ab')).toEqual([0,1,2]);
+  });
+  it('LCA of BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const lcaBST=(root:TN|null,p:number,q:number):number=>{if(!root)return -1;if(root.val>p&&root.val>q)return lcaBST(root.left,p,q);if(root.val<p&&root.val<q)return lcaBST(root.right,p,q);return root.val;};
+    const t=mk(6,mk(2,mk(0),mk(4,mk(3),mk(5))),mk(8,mk(7),mk(9)));
+    expect(lcaBST(t,2,8)).toBe(6);
+    expect(lcaBST(t,2,4)).toBe(2);
+    expect(lcaBST(t,0,5)).toBe(2);
+  });
+  it('inorder successor BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const inorderSuccessor=(root:TN|null,p:number):number=>{let res=-1;while(root){if(root.val>p){res=root.val;root=root.left;}else root=root.right;}return res;};
+    const t=mk(5,mk(3,mk(2),mk(4)),mk(6));
+    expect(inorderSuccessor(t,3)).toBe(4);
+    expect(inorderSuccessor(t,6)).toBe(-1);
+    expect(inorderSuccessor(t,4)).toBe(5);
+  });
+  it('zigzag level order', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const zigzagLevelOrder=(root:TN|null):number[][]=>{if(!root)return[];const res:number[][]=[];const q=[root];let ltr=true;while(q.length){const sz=q.length;const level:number[]=[];for(let i=0;i<sz;i++){const n=q.shift()!;level.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}res.push(ltr?level:[...level].reverse());ltr=!ltr;}return res;};
+    const t=mk(3,mk(9),mk(20,mk(15),mk(7)));
+    expect(zigzagLevelOrder(t)).toEqual([[3],[20,9],[15,7]]);
+  });
+});

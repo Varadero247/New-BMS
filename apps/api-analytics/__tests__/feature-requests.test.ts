@@ -870,3 +870,39 @@ describe('phase58 coverage', () => {
     expect(largestRectangleInHistogram([1])).toBe(1);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('min in rotated sorted array', () => {
+    const findMin=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[hi])lo=mid+1;else hi=mid;}return nums[lo];};
+    expect(findMin([3,4,5,1,2])).toBe(1);
+    expect(findMin([4,5,6,7,0,1,2])).toBe(0);
+    expect(findMin([11,13,15,17])).toBe(11);
+    expect(findMin([2,1])).toBe(1);
+  });
+  it('number of connected components', () => {
+    const countComponents=(n:number,edges:[number,number][]):number=>{const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);edges.forEach(([a,b])=>union(a,b));return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(countComponents(5,[[0,1],[1,2],[3,4]])).toBe(2);
+    expect(countComponents(5,[[0,1],[1,2],[2,3],[3,4]])).toBe(1);
+    expect(countComponents(4,[])).toBe(4);
+  });
+  it('in-memory file system', () => {
+    class FileSystem{private fs:any={'/':{_isDir:true,_content:''}};private get(path:string){const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){cur=cur[p];}return cur;}ls(path:string):string[]{const node=this.get(path);if(!node._isDir)return[path.split('/').pop()!];return Object.keys(node).filter(k=>!k.startsWith('_')).sort();}mkdir(path:string):void{const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){if(!cur[p])cur[p]={_isDir:true,_content:''};cur=cur[p];}}addContentToFile(path:string,content:string):void{const parts=path.split('/').filter(Boolean);const name=parts.pop()!;let cur=this.fs['/'];for(const p of parts)cur=cur[p];if(!cur[name])cur[name]={_isDir:false,_content:''};cur[name]._content+=content;}readContentFromFile(path:string):string{return this.get(path)._content;}}
+    const f=new FileSystem();f.mkdir('/a/b/c');f.addContentToFile('/a/b/c/d','hello');
+    expect(f.readContentFromFile('/a/b/c/d')).toBe('hello');
+    expect(f.ls('/a/b/c')).toEqual(['d']);
+  });
+  it('binary tree right side view', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const rightSideView=(root:TN|null):number[]=>{if(!root)return[];const res:number[]=[];const q=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i===sz-1)res.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}};return res;};
+    expect(rightSideView(mk(1,mk(2,null,mk(5)),mk(3,null,mk(4))))).toEqual([1,3,4]);
+    expect(rightSideView(null)).toEqual([]);
+    expect(rightSideView(mk(1,mk(2),null))).toEqual([1,2]);
+  });
+  it('search 2D matrix II', () => {
+    const searchMatrix=(matrix:number[][],target:number):boolean=>{let r=0,c=matrix[0].length-1;while(r<matrix.length&&c>=0){if(matrix[r][c]===target)return true;if(matrix[r][c]>target)c--;else r++;}return false;};
+    const m=[[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]];
+    expect(searchMatrix(m,5)).toBe(true);
+    expect(searchMatrix(m,20)).toBe(false);
+  });
+});

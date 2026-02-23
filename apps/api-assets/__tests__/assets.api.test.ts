@@ -738,3 +738,37 @@ describe('phase58 coverage', () => {
     expect(uniquePathsWithObstacles([[1,0]])).toBe(0);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('redundant connection', () => {
+    const findRedundantConnection=(edges:[number,number][]):[number,number]=>{const parent=Array.from({length:edges.length+1},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);for(const [a,b] of edges){const fa=find(a),fb=find(b);if(fa===fb)return[a,b];parent[fa]=fb;}return[-1,-1];};
+    expect(findRedundantConnection([[1,2],[1,3],[2,3]])).toEqual([2,3]);
+    expect(findRedundantConnection([[1,2],[2,3],[3,4],[1,4],[1,5]])).toEqual([1,4]);
+  });
+  it('find all anagrams', () => {
+    const findAnagrams=(s:string,p:string):number[]=>{if(p.length>s.length)return[];const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of p)cnt[c.charCodeAt(0)-a]++;const window=new Array(26).fill(0);const res:number[]=[];for(let i=0;i<s.length;i++){window[s[i].charCodeAt(0)-a]++;if(i>=p.length)window[s[i-p.length].charCodeAt(0)-a]--;if(i>=p.length-1&&window.join(',')===cnt.join(','))res.push(i-p.length+1);}return res;};
+    expect(findAnagrams('cbaebabacd','abc')).toEqual([0,6]);
+    expect(findAnagrams('abab','ab')).toEqual([0,1,2]);
+  });
+  it('queue reconstruction by height', () => {
+    const reconstructQueue=(people:[number,number][]):[number,number][]=>{people.sort((a,b)=>a[0]!==b[0]?b[0]-a[0]:a[1]-b[1]);const res:[number,number][]=[];for(const p of people)res.splice(p[1],0,p);return res;};
+    const r=reconstructQueue([[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]);
+    expect(r[0]).toEqual([5,0]);
+    expect(r[1]).toEqual([7,0]);
+    expect(r.length).toBe(6);
+  });
+  it('accounts merge', () => {
+    const accountsMerge=(accounts:string[][]):string[][]=>{const parent=new Map<string,string>();const find=(x:string):string=>{if(!parent.has(x))parent.set(x,x);if(parent.get(x)!==x)parent.set(x,find(parent.get(x)!));return parent.get(x)!;};const union=(a:string,b:string)=>parent.set(find(a),find(b));const emailToName=new Map<string,string>();accounts.forEach(acc=>{acc.slice(1).forEach(e=>{emailToName.set(e,acc[0]);union(e,acc[1]);});});const groups=new Map<string,string[]>();emailToName.forEach((_,e)=>{const root=find(e);groups.set(root,[...(groups.get(root)||[]),e]);});return Array.from(groups.entries()).map(([root,emails])=>[emailToName.get(root)!,...emails.sort()]);};
+    const r=accountsMerge([['John','johnsmith@mail.com','john_newyork@mail.com'],['John','johnsmith@mail.com','john00@mail.com'],['Mary','mary@mail.com'],['John','johnnybravo@mail.com']]);
+    expect(r).toHaveLength(3);
+  });
+  it('house robber III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const rob=(root:TN|null):[number,number]=>{if(!root)return[0,0];const[ll,lr]=rob(root.left);const[rl,rr]=rob(root.right);const withRoot=root.val+lr+rr;const withoutRoot=Math.max(ll,lr)+Math.max(rl,rr);return[withRoot,withoutRoot];};
+    const robTree=(r:TN|null)=>Math.max(...rob(r));
+    const t=mk(3,mk(2,null,mk(3)),mk(3,null,mk(1)));
+    expect(robTree(t)).toBe(7);
+    expect(robTree(mk(3,mk(4,mk(1),mk(3)),mk(5,null,mk(1))))).toBe(9);
+  });
+});

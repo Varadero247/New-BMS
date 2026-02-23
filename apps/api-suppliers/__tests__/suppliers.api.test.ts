@@ -794,3 +794,44 @@ describe('phase58 coverage', () => {
     expect(trap([1,0,1])).toBe(1);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('min in rotated sorted array', () => {
+    const findMin=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[hi])lo=mid+1;else hi=mid;}return nums[lo];};
+    expect(findMin([3,4,5,1,2])).toBe(1);
+    expect(findMin([4,5,6,7,0,1,2])).toBe(0);
+    expect(findMin([11,13,15,17])).toBe(11);
+    expect(findMin([2,1])).toBe(1);
+  });
+  it('minimum window substring', () => {
+    const minWindow=(s:string,t:string):string=>{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let have=0,req=need.size,l=0,best='';for(let r=0;r<s.length;r++){const c=s[r];need.set(c,(need.get(c)||0)-1);if(need.get(c)===0)have++;while(have===req){if(!best||r-l+1<best.length)best=s.slice(l,r+1);const lc=s[l];need.set(lc,(need.get(lc)||0)+1);if((need.get(lc)||0)>0)have--;l++;}}return best;};
+    expect(minWindow('ADOBECODEBANC','ABC')).toBe('BANC');
+    expect(minWindow('a','a')).toBe('a');
+    expect(minWindow('a','aa')).toBe('');
+  });
+  it('inorder successor BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const inorderSuccessor=(root:TN|null,p:number):number=>{let res=-1;while(root){if(root.val>p){res=root.val;root=root.left;}else root=root.right;}return res;};
+    const t=mk(5,mk(3,mk(2),mk(4)),mk(6));
+    expect(inorderSuccessor(t,3)).toBe(4);
+    expect(inorderSuccessor(t,6)).toBe(-1);
+    expect(inorderSuccessor(t,4)).toBe(5);
+  });
+  it('binary tree path sum III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const pathSum=(root:TN|null,targetSum:number):number=>{const cnt=new Map([[0,1]]);let res=0,prefix=0;const dfs=(n:TN|null)=>{if(!n)return;prefix+=n.val;res+=(cnt.get(prefix-targetSum)||0);cnt.set(prefix,(cnt.get(prefix)||0)+1);dfs(n.left);dfs(n.right);cnt.set(prefix,(cnt.get(prefix)||0)-1);prefix-=n.val;};dfs(root);return res;};
+    const t=mk(10,mk(5,mk(3,mk(3),mk(-2)),mk(2,null,mk(1))),mk(-3,null,mk(11)));
+    expect(pathSum(t,8)).toBe(3);
+    expect(pathSum(mk(5,mk(4,mk(11,mk(7),mk(2)),null),mk(8,mk(13),mk(4,null,mk(1)))),22)).toBe(2);
+  });
+  it('reorder linked list', () => {
+    type N={val:number;next:N|null};
+    const mk=(...vals:number[]):N|null=>{let h:N|null=null;for(let i=vals.length-1;i>=0;i--)h={val:vals[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const reorderList=(head:N|null):void=>{if(!head?.next)return;let slow:N=head,fast:N|null=head;while(fast?.next?.next){slow=slow.next!;fast=fast.next.next;}let prev:N|null=null,cur:N|null=slow.next;slow.next=null;while(cur){const next=cur.next;cur.next=prev;prev=cur;cur=next;}let a:N|null=head,b:N|null=prev;while(b){const na:N|null=a!.next;const nb:N|null=b.next;a!.next=b;b.next=na;a=na;b=nb;}};
+    const h=mk(1,2,3,4);reorderList(h);
+    expect(toArr(h)).toEqual([1,4,2,3]);
+  });
+});

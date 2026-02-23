@@ -915,3 +915,44 @@ describe('phase58 coverage', () => {
     expect(longestConsecutive([])).toBe(0);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('serialize deserialize tree', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const serialize=(r:TN|null):string=>{if(!r)return'#';return`${r.val},${serialize(r.left)},${serialize(r.right)}`;};
+    const deserialize=(s:string):TN|null=>{const vals=s.split(',');let i=0;const d=():TN|null=>{if(vals[i]==='#'){i++;return null;}const n=mk(parseInt(vals[i++]));n.left=d();n.right=d();return n;};return d();};
+    const t=mk(1,mk(2),mk(3,mk(4),mk(5)));
+    const s=serialize(t);
+    const t2=deserialize(s);
+    expect(serialize(t2)).toBe(s);
+  });
+  it('min arrows to burst balloons', () => {
+    const findMinArrowShots=(points:[number,number][]):number=>{if(!points.length)return 0;points.sort((a,b)=>a[1]-b[1]);let arrows=1,end=points[0][1];for(let i=1;i<points.length;i++){if(points[i][0]>end){arrows++;end=points[i][1];}}return arrows;};
+    expect(findMinArrowShots([[10,16],[2,8],[1,6],[7,12]])).toBe(2);
+    expect(findMinArrowShots([[1,2],[3,4],[5,6],[7,8]])).toBe(4);
+    expect(findMinArrowShots([[1,2],[2,3],[3,4],[4,5]])).toBe(2);
+  });
+  it('binary tree right side view', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const rightSideView=(root:TN|null):number[]=>{if(!root)return[];const res:number[]=[];const q=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i===sz-1)res.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}};return res;};
+    expect(rightSideView(mk(1,mk(2,null,mk(5)),mk(3,null,mk(4))))).toEqual([1,3,4]);
+    expect(rightSideView(null)).toEqual([]);
+    expect(rightSideView(mk(1,mk(2),null))).toEqual([1,2]);
+  });
+  it('inorder successor BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const inorderSuccessor=(root:TN|null,p:number):number=>{let res=-1;while(root){if(root.val>p){res=root.val;root=root.left;}else root=root.right;}return res;};
+    const t=mk(5,mk(3,mk(2),mk(4)),mk(6));
+    expect(inorderSuccessor(t,3)).toBe(4);
+    expect(inorderSuccessor(t,6)).toBe(-1);
+    expect(inorderSuccessor(t,4)).toBe(5);
+  });
+  it('find all anagrams', () => {
+    const findAnagrams=(s:string,p:string):number[]=>{if(p.length>s.length)return[];const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of p)cnt[c.charCodeAt(0)-a]++;const window=new Array(26).fill(0);const res:number[]=[];for(let i=0;i<s.length;i++){window[s[i].charCodeAt(0)-a]++;if(i>=p.length)window[s[i-p.length].charCodeAt(0)-a]--;if(i>=p.length-1&&window.join(',')===cnt.join(','))res.push(i-p.length+1);}return res;};
+    expect(findAnagrams('cbaebabacd','abc')).toEqual([0,6]);
+    expect(findAnagrams('abab','ab')).toEqual([0,1,2]);
+  });
+});

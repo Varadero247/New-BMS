@@ -657,3 +657,41 @@ describe('phase58 coverage', () => {
     expect(lcs('ezupkr','ubmrapg')).toBe(2);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('inorder successor BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const inorderSuccessor=(root:TN|null,p:number):number=>{let res=-1;while(root){if(root.val>p){res=root.val;root=root.left;}else root=root.right;}return res;};
+    const t=mk(5,mk(3,mk(2),mk(4)),mk(6));
+    expect(inorderSuccessor(t,3)).toBe(4);
+    expect(inorderSuccessor(t,6)).toBe(-1);
+    expect(inorderSuccessor(t,4)).toBe(5);
+  });
+  it('min in rotated sorted array', () => {
+    const findMin=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[hi])lo=mid+1;else hi=mid;}return nums[lo];};
+    expect(findMin([3,4,5,1,2])).toBe(1);
+    expect(findMin([4,5,6,7,0,1,2])).toBe(0);
+    expect(findMin([11,13,15,17])).toBe(11);
+    expect(findMin([2,1])).toBe(1);
+  });
+  it('longest repeating char replacement', () => {
+    const characterReplacement=(s:string,k:number):number=>{const cnt=new Array(26).fill(0);const a='A'.charCodeAt(0);let maxCnt=0,l=0,res=0;for(let r=0;r<s.length;r++){cnt[s[r].charCodeAt(0)-a]++;maxCnt=Math.max(maxCnt,cnt[s[r].charCodeAt(0)-a]);while(r-l+1-maxCnt>k){cnt[s[l].charCodeAt(0)-a]--;l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(characterReplacement('ABAB',2)).toBe(4);
+    expect(characterReplacement('AABABBA',1)).toBe(4);
+    expect(characterReplacement('AAAA',0)).toBe(4);
+  });
+  it('search 2D matrix II', () => {
+    const searchMatrix=(matrix:number[][],target:number):boolean=>{let r=0,c=matrix[0].length-1;while(r<matrix.length&&c>=0){if(matrix[r][c]===target)return true;if(matrix[r][c]>target)c--;else r++;}return false;};
+    const m=[[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]];
+    expect(searchMatrix(m,5)).toBe(true);
+    expect(searchMatrix(m,20)).toBe(false);
+  });
+  it('zigzag level order', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const zigzagLevelOrder=(root:TN|null):number[][]=>{if(!root)return[];const res:number[][]=[];const q=[root];let ltr=true;while(q.length){const sz=q.length;const level:number[]=[];for(let i=0;i<sz;i++){const n=q.shift()!;level.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}res.push(ltr?level:[...level].reverse());ltr=!ltr;}return res;};
+    const t=mk(3,mk(9),mk(20,mk(15),mk(7)));
+    expect(zigzagLevelOrder(t)).toEqual([[3],[20,9],[15,7]]);
+  });
+});

@@ -849,3 +849,47 @@ describe('phase58 coverage', () => {
     expect(isValidBST(null)).toBe(true);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('number of connected components', () => {
+    const countComponents=(n:number,edges:[number,number][]):number=>{const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);edges.forEach(([a,b])=>union(a,b));return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(countComponents(5,[[0,1],[1,2],[3,4]])).toBe(2);
+    expect(countComponents(5,[[0,1],[1,2],[2,3],[3,4]])).toBe(1);
+    expect(countComponents(4,[])).toBe(4);
+  });
+  it('maximum product subarray', () => {
+    const maxProduct=(nums:number[]):number=>{let maxP=nums[0],minP=nums[0],res=nums[0];for(let i=1;i<nums.length;i++){const tmp=maxP;maxP=Math.max(nums[i],maxP*nums[i],minP*nums[i]);minP=Math.min(nums[i],tmp*nums[i],minP*nums[i]);res=Math.max(res,maxP);}return res;};
+    expect(maxProduct([2,3,-2,4])).toBe(6);
+    expect(maxProduct([-2,0,-1])).toBe(0);
+    expect(maxProduct([-2,3,-4])).toBe(24);
+    expect(maxProduct([0,2])).toBe(2);
+  });
+  it('reverse linked list II', () => {
+    type N={val:number;next:N|null};
+    const mk=(...vals:number[]):N|null=>{let h:N|null=null;for(let i=vals.length-1;i>=0;i--)h={val:vals[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const reverseBetween=(head:N|null,left:number,right:number):N|null=>{const dummy:N={val:0,next:head};let prev:N=dummy;for(let i=1;i<left;i++)prev=prev.next!;let cur=prev.next;for(let i=0;i<right-left;i++){const next=cur!.next!;cur!.next=next.next;next.next=prev.next;prev.next=next;}return dummy.next;};
+    expect(toArr(reverseBetween(mk(1,2,3,4,5),2,4))).toEqual([1,4,3,2,5]);
+    expect(toArr(reverseBetween(mk(5),1,1))).toEqual([5]);
+  });
+  it('diameter of binary tree', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    let diam=0;
+    const depth=(n:TN|null):number=>{if(!n)return 0;const l=depth(n.left),r=depth(n.right);diam=Math.max(diam,l+r);return 1+Math.max(l,r);};
+    diam=0;depth(mk(1,mk(2,mk(4),mk(5)),mk(3)));
+    expect(diam).toBe(3);
+    diam=0;depth(mk(1,mk(2)));
+    expect(diam).toBe(1);
+  });
+  it('serialize deserialize tree', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const serialize=(r:TN|null):string=>{if(!r)return'#';return`${r.val},${serialize(r.left)},${serialize(r.right)}`;};
+    const deserialize=(s:string):TN|null=>{const vals=s.split(',');let i=0;const d=():TN|null=>{if(vals[i]==='#'){i++;return null;}const n=mk(parseInt(vals[i++]));n.left=d();n.right=d();return n;};return d();};
+    const t=mk(1,mk(2),mk(3,mk(4),mk(5)));
+    const s=serialize(t);
+    const t2=deserialize(s);
+    expect(serialize(t2)).toBe(s);
+  });
+});

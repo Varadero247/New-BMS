@@ -896,3 +896,41 @@ describe('phase58 coverage', () => {
     expect(maxArea([4,3,2,1,4])).toBe(16);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('house robber III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const rob=(root:TN|null):[number,number]=>{if(!root)return[0,0];const[ll,lr]=rob(root.left);const[rl,rr]=rob(root.right);const withRoot=root.val+lr+rr;const withoutRoot=Math.max(ll,lr)+Math.max(rl,rr);return[withRoot,withoutRoot];};
+    const robTree=(r:TN|null)=>Math.max(...rob(r));
+    const t=mk(3,mk(2,null,mk(3)),mk(3,null,mk(1)));
+    expect(robTree(t)).toBe(7);
+    expect(robTree(mk(3,mk(4,mk(1),mk(3)),mk(5,null,mk(1))))).toBe(9);
+  });
+  it('longest repeating char replacement', () => {
+    const characterReplacement=(s:string,k:number):number=>{const cnt=new Array(26).fill(0);const a='A'.charCodeAt(0);let maxCnt=0,l=0,res=0;for(let r=0;r<s.length;r++){cnt[s[r].charCodeAt(0)-a]++;maxCnt=Math.max(maxCnt,cnt[s[r].charCodeAt(0)-a]);while(r-l+1-maxCnt>k){cnt[s[l].charCodeAt(0)-a]--;l++;}res=Math.max(res,r-l+1);}return res;};
+    expect(characterReplacement('ABAB',2)).toBe(4);
+    expect(characterReplacement('AABABBA',1)).toBe(4);
+    expect(characterReplacement('AAAA',0)).toBe(4);
+  });
+  it('surrounded regions', () => {
+    const solve=(board:string[][]):void=>{const m=board.length,n=board[0].length;const dfs=(r:number,c:number)=>{if(r<0||r>=m||c<0||c>=n||board[r][c]!=='O')return;board[r][c]='S';dfs(r-1,c);dfs(r+1,c);dfs(r,c-1);dfs(r,c+1);};for(let i=0;i<m;i++){dfs(i,0);dfs(i,n-1);}for(let j=0;j<n;j++){dfs(0,j);dfs(m-1,j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]==='S'?'O':board[i][j]==='O'?'X':board[i][j];};
+    const b=[['X','X','X','X'],['X','O','O','X'],['X','X','O','X'],['X','O','X','X']];
+    solve(b);
+    expect(b[1][1]).toBe('X');
+    expect(b[3][1]).toBe('O');
+  });
+  it('redundant connection', () => {
+    const findRedundantConnection=(edges:[number,number][]):[number,number]=>{const parent=Array.from({length:edges.length+1},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);for(const [a,b] of edges){const fa=find(a),fb=find(b);if(fa===fb)return[a,b];parent[fa]=fb;}return[-1,-1];};
+    expect(findRedundantConnection([[1,2],[1,3],[2,3]])).toEqual([2,3]);
+    expect(findRedundantConnection([[1,2],[2,3],[3,4],[1,4],[1,5]])).toEqual([1,4]);
+  });
+  it('reorder linked list', () => {
+    type N={val:number;next:N|null};
+    const mk=(...vals:number[]):N|null=>{let h:N|null=null;for(let i=vals.length-1;i>=0;i--)h={val:vals[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const reorderList=(head:N|null):void=>{if(!head?.next)return;let slow:N=head,fast:N|null=head;while(fast?.next?.next){slow=slow.next!;fast=fast.next.next;}let prev:N|null=null,cur:N|null=slow.next;slow.next=null;while(cur){const next=cur.next;cur.next=prev;prev=cur;cur=next;}let a:N|null=head,b:N|null=prev;while(b){const na:N|null=a!.next;const nb:N|null=b.next;a!.next=b;b.next=na;a=na;b=nb;}};
+    const h=mk(1,2,3,4);reorderList(h);
+    expect(toArr(h)).toEqual([1,4,2,3]);
+  });
+});

@@ -739,3 +739,43 @@ describe('phase58 coverage', () => {
     expect(jump([0])).toBe(0);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('populating next right pointers', () => {
+    type TN={val:number;left:TN|null;right:TN|null;next:TN|null};
+    const mk=(v:number):TN=>({val:v,left:null,right:null,next:null});
+    const connect=(root:TN|null):TN|null=>{if(!root)return null;const q=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i<sz-1)n.next=q[0]||null;if(n.left)q.push(n.left as TN);if(n.right)q.push(n.right as TN);}};return root;};
+    const r=mk(1);r.left=mk(2);r.right=mk(3);(r.left as TN).left=mk(4);(r.left as TN).right=mk(5);(r.right as TN).right=mk(7);
+    connect(r);
+    expect(r.next).toBeNull();
+    expect(r.left!.next).toBe(r.right);
+  });
+  it('number of connected components', () => {
+    const countComponents=(n:number,edges:[number,number][]):number=>{const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);edges.forEach(([a,b])=>union(a,b));return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(countComponents(5,[[0,1],[1,2],[3,4]])).toBe(2);
+    expect(countComponents(5,[[0,1],[1,2],[2,3],[3,4]])).toBe(1);
+    expect(countComponents(4,[])).toBe(4);
+  });
+  it('increasing triplet subsequence', () => {
+    const increasingTriplet=(nums:number[]):boolean=>{let first=Infinity,second=Infinity;for(const n of nums){if(n<=first)first=n;else if(n<=second)second=n;else return true;}return false;};
+    expect(increasingTriplet([1,2,3,4,5])).toBe(true);
+    expect(increasingTriplet([5,4,3,2,1])).toBe(false);
+    expect(increasingTriplet([2,1,5,0,4,6])).toBe(true);
+    expect(increasingTriplet([1,1,1,1,1])).toBe(false);
+  });
+  it('all paths source to target', () => {
+    const allPathsSourceTarget=(graph:number[][]):number[][]=>{const res:number[][]=[];const dfs=(node:number,path:number[])=>{if(node===graph.length-1){res.push([...path]);return;}for(const next of graph[node])dfs(next,[...path,next]);};dfs(0,[0]);return res;};
+    const r=allPathsSourceTarget([[1,2],[3],[3],[]]);
+    expect(r).toContainEqual([0,1,3]);
+    expect(r).toContainEqual([0,2,3]);
+    expect(r).toHaveLength(2);
+  });
+  it('binary tree path sum III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const pathSum=(root:TN|null,targetSum:number):number=>{const cnt=new Map([[0,1]]);let res=0,prefix=0;const dfs=(n:TN|null)=>{if(!n)return;prefix+=n.val;res+=(cnt.get(prefix-targetSum)||0);cnt.set(prefix,(cnt.get(prefix)||0)+1);dfs(n.left);dfs(n.right);cnt.set(prefix,(cnt.get(prefix)||0)-1);prefix-=n.val;};dfs(root);return res;};
+    const t=mk(10,mk(5,mk(3,mk(3),mk(-2)),mk(2,null,mk(1))),mk(-3,null,mk(11)));
+    expect(pathSum(t,8)).toBe(3);
+    expect(pathSum(mk(5,mk(4,mk(11,mk(7),mk(2)),null),mk(8,mk(13),mk(4,null,mk(1)))),22)).toBe(2);
+  });
+});

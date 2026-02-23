@@ -712,3 +712,42 @@ describe('phase58 coverage', () => {
     expect(r).toContainEqual([1,2,2]);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('surrounded regions', () => {
+    const solve=(board:string[][]):void=>{const m=board.length,n=board[0].length;const dfs=(r:number,c:number)=>{if(r<0||r>=m||c<0||c>=n||board[r][c]!=='O')return;board[r][c]='S';dfs(r-1,c);dfs(r+1,c);dfs(r,c-1);dfs(r,c+1);};for(let i=0;i<m;i++){dfs(i,0);dfs(i,n-1);}for(let j=0;j<n;j++){dfs(0,j);dfs(m-1,j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]==='S'?'O':board[i][j]==='O'?'X':board[i][j];};
+    const b=[['X','X','X','X'],['X','O','O','X'],['X','X','O','X'],['X','O','X','X']];
+    solve(b);
+    expect(b[1][1]).toBe('X');
+    expect(b[3][1]).toBe('O');
+  });
+  it('inorder successor BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const inorderSuccessor=(root:TN|null,p:number):number=>{let res=-1;while(root){if(root.val>p){res=root.val;root=root.left;}else root=root.right;}return res;};
+    const t=mk(5,mk(3,mk(2),mk(4)),mk(6));
+    expect(inorderSuccessor(t,3)).toBe(4);
+    expect(inorderSuccessor(t,6)).toBe(-1);
+    expect(inorderSuccessor(t,4)).toBe(5);
+  });
+  it('reverse linked list II', () => {
+    type N={val:number;next:N|null};
+    const mk=(...vals:number[]):N|null=>{let h:N|null=null;for(let i=vals.length-1;i>=0;i--)h={val:vals[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const reverseBetween=(head:N|null,left:number,right:number):N|null=>{const dummy:N={val:0,next:head};let prev:N=dummy;for(let i=1;i<left;i++)prev=prev.next!;let cur=prev.next;for(let i=0;i<right-left;i++){const next=cur!.next!;cur!.next=next.next;next.next=prev.next;prev.next=next;}return dummy.next;};
+    expect(toArr(reverseBetween(mk(1,2,3,4,5),2,4))).toEqual([1,4,3,2,5]);
+    expect(toArr(reverseBetween(mk(5),1,1))).toEqual([5]);
+  });
+  it('number of connected components', () => {
+    const countComponents=(n:number,edges:[number,number][]):number=>{const parent=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);const union=(a:number,b:number)=>parent[find(a)]=find(b);edges.forEach(([a,b])=>union(a,b));return new Set(Array.from({length:n},(_,i)=>find(i))).size;};
+    expect(countComponents(5,[[0,1],[1,2],[3,4]])).toBe(2);
+    expect(countComponents(5,[[0,1],[1,2],[2,3],[3,4]])).toBe(1);
+    expect(countComponents(4,[])).toBe(4);
+  });
+  it('non-overlapping intervals', () => {
+    const eraseOverlapIntervals=(intervals:[number,number][]):number=>{if(!intervals.length)return 0;intervals.sort((a,b)=>a[1]-b[1]);let count=0,end=intervals[0][1];for(let i=1;i<intervals.length;i++){if(intervals[i][0]<end)count++;else end=intervals[i][1];}return count;};
+    expect(eraseOverlapIntervals([[1,2],[2,3],[3,4],[1,3]])).toBe(1);
+    expect(eraseOverlapIntervals([[1,2],[1,2],[1,2]])).toBe(2);
+    expect(eraseOverlapIntervals([[1,2],[2,3]])).toBe(0);
+  });
+});

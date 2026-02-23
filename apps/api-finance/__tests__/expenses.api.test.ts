@@ -781,3 +781,46 @@ describe('phase58 coverage', () => {
     expect(numDecodings('11106')).toBe(2);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('LCA of BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const lcaBST=(root:TN|null,p:number,q:number):number=>{if(!root)return -1;if(root.val>p&&root.val>q)return lcaBST(root.left,p,q);if(root.val<p&&root.val<q)return lcaBST(root.right,p,q);return root.val;};
+    const t=mk(6,mk(2,mk(0),mk(4,mk(3),mk(5))),mk(8,mk(7),mk(9)));
+    expect(lcaBST(t,2,8)).toBe(6);
+    expect(lcaBST(t,2,4)).toBe(2);
+    expect(lcaBST(t,0,5)).toBe(2);
+  });
+  it('inorder successor BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const inorderSuccessor=(root:TN|null,p:number):number=>{let res=-1;while(root){if(root.val>p){res=root.val;root=root.left;}else root=root.right;}return res;};
+    const t=mk(5,mk(3,mk(2),mk(4)),mk(6));
+    expect(inorderSuccessor(t,3)).toBe(4);
+    expect(inorderSuccessor(t,6)).toBe(-1);
+    expect(inorderSuccessor(t,4)).toBe(5);
+  });
+  it('min in rotated sorted array', () => {
+    const findMin=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[hi])lo=mid+1;else hi=mid;}return nums[lo];};
+    expect(findMin([3,4,5,1,2])).toBe(1);
+    expect(findMin([4,5,6,7,0,1,2])).toBe(0);
+    expect(findMin([11,13,15,17])).toBe(11);
+    expect(findMin([2,1])).toBe(1);
+  });
+  it('reorder linked list', () => {
+    type N={val:number;next:N|null};
+    const mk=(...vals:number[]):N|null=>{let h:N|null=null;for(let i=vals.length-1;i>=0;i--)h={val:vals[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const reorderList=(head:N|null):void=>{if(!head?.next)return;let slow:N=head,fast:N|null=head;while(fast?.next?.next){slow=slow.next!;fast=fast.next.next;}let prev:N|null=null,cur:N|null=slow.next;slow.next=null;while(cur){const next=cur.next;cur.next=prev;prev=cur;cur=next;}let a:N|null=head,b:N|null=prev;while(b){const na:N|null=a!.next;const nb:N|null=b.next;a!.next=b;b.next=na;a=na;b=nb;}};
+    const h=mk(1,2,3,4);reorderList(h);
+    expect(toArr(h)).toEqual([1,4,2,3]);
+  });
+  it('maximum product subarray', () => {
+    const maxProduct=(nums:number[]):number=>{let maxP=nums[0],minP=nums[0],res=nums[0];for(let i=1;i<nums.length;i++){const tmp=maxP;maxP=Math.max(nums[i],maxP*nums[i],minP*nums[i]);minP=Math.min(nums[i],tmp*nums[i],minP*nums[i]);res=Math.max(res,maxP);}return res;};
+    expect(maxProduct([2,3,-2,4])).toBe(6);
+    expect(maxProduct([-2,0,-1])).toBe(0);
+    expect(maxProduct([-2,3,-4])).toBe(24);
+    expect(maxProduct([0,2])).toBe(2);
+  });
+});

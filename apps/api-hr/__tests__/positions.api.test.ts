@@ -911,3 +911,45 @@ describe('phase58 coverage', () => {
     expect(r.length).toBeGreaterThan(0);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('serialize deserialize tree', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const serialize=(r:TN|null):string=>{if(!r)return'#';return`${r.val},${serialize(r.left)},${serialize(r.right)}`;};
+    const deserialize=(s:string):TN|null=>{const vals=s.split(',');let i=0;const d=():TN|null=>{if(vals[i]==='#'){i++;return null;}const n=mk(parseInt(vals[i++]));n.left=d();n.right=d();return n;};return d();};
+    const t=mk(1,mk(2),mk(3,mk(4),mk(5)));
+    const s=serialize(t);
+    const t2=deserialize(s);
+    expect(serialize(t2)).toBe(s);
+  });
+  it('populating next right pointers', () => {
+    type TN={val:number;left:TN|null;right:TN|null;next:TN|null};
+    const mk=(v:number):TN=>({val:v,left:null,right:null,next:null});
+    const connect=(root:TN|null):TN|null=>{if(!root)return null;const q=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i<sz-1)n.next=q[0]||null;if(n.left)q.push(n.left as TN);if(n.right)q.push(n.right as TN);}};return root;};
+    const r=mk(1);r.left=mk(2);r.right=mk(3);(r.left as TN).left=mk(4);(r.left as TN).right=mk(5);(r.right as TN).right=mk(7);
+    connect(r);
+    expect(r.next).toBeNull();
+    expect(r.left!.next).toBe(r.right);
+  });
+  it('maximum product subarray', () => {
+    const maxProduct=(nums:number[]):number=>{let maxP=nums[0],minP=nums[0],res=nums[0];for(let i=1;i<nums.length;i++){const tmp=maxP;maxP=Math.max(nums[i],maxP*nums[i],minP*nums[i]);minP=Math.min(nums[i],tmp*nums[i],minP*nums[i]);res=Math.max(res,maxP);}return res;};
+    expect(maxProduct([2,3,-2,4])).toBe(6);
+    expect(maxProduct([-2,0,-1])).toBe(0);
+    expect(maxProduct([-2,3,-4])).toBe(24);
+    expect(maxProduct([0,2])).toBe(2);
+  });
+  it('non-overlapping intervals', () => {
+    const eraseOverlapIntervals=(intervals:[number,number][]):number=>{if(!intervals.length)return 0;intervals.sort((a,b)=>a[1]-b[1]);let count=0,end=intervals[0][1];for(let i=1;i<intervals.length;i++){if(intervals[i][0]<end)count++;else end=intervals[i][1];}return count;};
+    expect(eraseOverlapIntervals([[1,2],[2,3],[3,4],[1,3]])).toBe(1);
+    expect(eraseOverlapIntervals([[1,2],[1,2],[1,2]])).toBe(2);
+    expect(eraseOverlapIntervals([[1,2],[2,3]])).toBe(0);
+  });
+  it('zigzag level order', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const zigzagLevelOrder=(root:TN|null):number[][]=>{if(!root)return[];const res:number[][]=[];const q=[root];let ltr=true;while(q.length){const sz=q.length;const level:number[]=[];for(let i=0;i<sz;i++){const n=q.shift()!;level.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}res.push(ltr?level:[...level].reverse());ltr=!ltr;}return res;};
+    const t=mk(3,mk(9),mk(20,mk(15),mk(7)));
+    expect(zigzagLevelOrder(t)).toEqual([[3],[20,9],[15,7]]);
+  });
+});

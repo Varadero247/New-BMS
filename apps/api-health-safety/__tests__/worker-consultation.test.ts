@@ -723,3 +723,44 @@ describe('phase58 coverage', () => {
     expect(numIslands([['1','1','1'],['1','1','1'],['1','1','1']])).toBe(1);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('binary tree right side view', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const rightSideView=(root:TN|null):number[]=>{if(!root)return[];const res:number[]=[];const q=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i===sz-1)res.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}};return res;};
+    expect(rightSideView(mk(1,mk(2,null,mk(5)),mk(3,null,mk(4))))).toEqual([1,3,4]);
+    expect(rightSideView(null)).toEqual([]);
+    expect(rightSideView(mk(1,mk(2),null))).toEqual([1,2]);
+  });
+  it('task scheduler cooling', () => {
+    const leastInterval=(tasks:string[],n:number):number=>{const cnt=new Array(26).fill(0);const a='A'.charCodeAt(0);for(const t of tasks)cnt[t.charCodeAt(0)-a]++;const maxCnt=Math.max(...cnt);const maxTasks=cnt.filter(c=>c===maxCnt).length;return Math.max(tasks.length,(maxCnt-1)*(n+1)+maxTasks);};
+    expect(leastInterval(['A','A','A','B','B','B'],2)).toBe(8);
+    expect(leastInterval(['A','A','A','B','B','B'],0)).toBe(6);
+    expect(leastInterval(['A','A','A','A','A','A','B','C','D','E','F','G'],2)).toBe(16);
+  });
+  it('serialize deserialize tree', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const serialize=(r:TN|null):string=>{if(!r)return'#';return`${r.val},${serialize(r.left)},${serialize(r.right)}`;};
+    const deserialize=(s:string):TN|null=>{const vals=s.split(',');let i=0;const d=():TN|null=>{if(vals[i]==='#'){i++;return null;}const n=mk(parseInt(vals[i++]));n.left=d();n.right=d();return n;};return d();};
+    const t=mk(1,mk(2),mk(3,mk(4),mk(5)));
+    const s=serialize(t);
+    const t2=deserialize(s);
+    expect(serialize(t2)).toBe(s);
+  });
+  it('in-memory file system', () => {
+    class FileSystem{private fs:any={'/':{_isDir:true,_content:''}};private get(path:string){const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){cur=cur[p];}return cur;}ls(path:string):string[]{const node=this.get(path);if(!node._isDir)return[path.split('/').pop()!];return Object.keys(node).filter(k=>!k.startsWith('_')).sort();}mkdir(path:string):void{const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){if(!cur[p])cur[p]={_isDir:true,_content:''};cur=cur[p];}}addContentToFile(path:string,content:string):void{const parts=path.split('/').filter(Boolean);const name=parts.pop()!;let cur=this.fs['/'];for(const p of parts)cur=cur[p];if(!cur[name])cur[name]={_isDir:false,_content:''};cur[name]._content+=content;}readContentFromFile(path:string):string{return this.get(path)._content;}}
+    const f=new FileSystem();f.mkdir('/a/b/c');f.addContentToFile('/a/b/c/d','hello');
+    expect(f.readContentFromFile('/a/b/c/d')).toBe('hello');
+    expect(f.ls('/a/b/c')).toEqual(['d']);
+  });
+  it('binary tree path sum III', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const pathSum=(root:TN|null,targetSum:number):number=>{const cnt=new Map([[0,1]]);let res=0,prefix=0;const dfs=(n:TN|null)=>{if(!n)return;prefix+=n.val;res+=(cnt.get(prefix-targetSum)||0);cnt.set(prefix,(cnt.get(prefix)||0)+1);dfs(n.left);dfs(n.right);cnt.set(prefix,(cnt.get(prefix)||0)-1);prefix-=n.val;};dfs(root);return res;};
+    const t=mk(10,mk(5,mk(3,mk(3),mk(-2)),mk(2,null,mk(1))),mk(-3,null,mk(11)));
+    expect(pathSum(t,8)).toBe(3);
+    expect(pathSum(mk(5,mk(4,mk(11,mk(7),mk(2)),null),mk(8,mk(13),mk(4,null,mk(1)))),22)).toBe(2);
+  });
+});

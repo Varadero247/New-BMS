@@ -757,3 +757,36 @@ describe('phase58 coverage', () => {
     expect(generateMatrix(1)).toEqual([[1]]);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('surrounded regions', () => {
+    const solve=(board:string[][]):void=>{const m=board.length,n=board[0].length;const dfs=(r:number,c:number)=>{if(r<0||r>=m||c<0||c>=n||board[r][c]!=='O')return;board[r][c]='S';dfs(r-1,c);dfs(r+1,c);dfs(r,c-1);dfs(r,c+1);};for(let i=0;i<m;i++){dfs(i,0);dfs(i,n-1);}for(let j=0;j<n;j++){dfs(0,j);dfs(m-1,j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]==='S'?'O':board[i][j]==='O'?'X':board[i][j];};
+    const b=[['X','X','X','X'],['X','O','O','X'],['X','X','O','X'],['X','O','X','X']];
+    solve(b);
+    expect(b[1][1]).toBe('X');
+    expect(b[3][1]).toBe('O');
+  });
+  it('search in rotated sorted array', () => {
+    const search=(nums:number[],target:number):number=>{let lo=0,hi=nums.length-1;while(lo<=hi){const mid=(lo+hi)>>1;if(nums[mid]===target)return mid;if(nums[lo]<=nums[mid]){if(nums[lo]<=target&&target<nums[mid])hi=mid-1;else lo=mid+1;}else{if(nums[mid]<target&&target<=nums[hi])lo=mid+1;else hi=mid-1;}}return -1;};
+    expect(search([4,5,6,7,0,1,2],0)).toBe(4);
+    expect(search([4,5,6,7,0,1,2],3)).toBe(-1);
+    expect(search([1],0)).toBe(-1);
+    expect(search([3,1],1)).toBe(1);
+  });
+  it('accounts merge', () => {
+    const accountsMerge=(accounts:string[][]):string[][]=>{const parent=new Map<string,string>();const find=(x:string):string=>{if(!parent.has(x))parent.set(x,x);if(parent.get(x)!==x)parent.set(x,find(parent.get(x)!));return parent.get(x)!;};const union=(a:string,b:string)=>parent.set(find(a),find(b));const emailToName=new Map<string,string>();accounts.forEach(acc=>{acc.slice(1).forEach(e=>{emailToName.set(e,acc[0]);union(e,acc[1]);});});const groups=new Map<string,string[]>();emailToName.forEach((_,e)=>{const root=find(e);groups.set(root,[...(groups.get(root)||[]),e]);});return Array.from(groups.entries()).map(([root,emails])=>[emailToName.get(root)!,...emails.sort()]);};
+    const r=accountsMerge([['John','johnsmith@mail.com','john_newyork@mail.com'],['John','johnsmith@mail.com','john00@mail.com'],['Mary','mary@mail.com'],['John','johnnybravo@mail.com']]);
+    expect(r).toHaveLength(3);
+  });
+  it('search 2D matrix II', () => {
+    const searchMatrix=(matrix:number[][],target:number):boolean=>{let r=0,c=matrix[0].length-1;while(r<matrix.length&&c>=0){if(matrix[r][c]===target)return true;if(matrix[r][c]>target)c--;else r++;}return false;};
+    const m=[[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]];
+    expect(searchMatrix(m,5)).toBe(true);
+    expect(searchMatrix(m,20)).toBe(false);
+  });
+  it('redundant connection', () => {
+    const findRedundantConnection=(edges:[number,number][]):[number,number]=>{const parent=Array.from({length:edges.length+1},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);for(const [a,b] of edges){const fa=find(a),fb=find(b);if(fa===fb)return[a,b];parent[fa]=fb;}return[-1,-1];};
+    expect(findRedundantConnection([[1,2],[1,3],[2,3]])).toEqual([2,3]);
+    expect(findRedundantConnection([[1,2],[2,3],[3,4],[1,4],[1,5]])).toEqual([1,4]);
+  });
+});

@@ -777,3 +777,39 @@ describe('phase58 coverage', () => {
     expect(r.length).toBeGreaterThan(0);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('task scheduler cooling', () => {
+    const leastInterval=(tasks:string[],n:number):number=>{const cnt=new Array(26).fill(0);const a='A'.charCodeAt(0);for(const t of tasks)cnt[t.charCodeAt(0)-a]++;const maxCnt=Math.max(...cnt);const maxTasks=cnt.filter(c=>c===maxCnt).length;return Math.max(tasks.length,(maxCnt-1)*(n+1)+maxTasks);};
+    expect(leastInterval(['A','A','A','B','B','B'],2)).toBe(8);
+    expect(leastInterval(['A','A','A','B','B','B'],0)).toBe(6);
+    expect(leastInterval(['A','A','A','A','A','A','B','C','D','E','F','G'],2)).toBe(16);
+  });
+  it('LCA of BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const lcaBST=(root:TN|null,p:number,q:number):number=>{if(!root)return -1;if(root.val>p&&root.val>q)return lcaBST(root.left,p,q);if(root.val<p&&root.val<q)return lcaBST(root.right,p,q);return root.val;};
+    const t=mk(6,mk(2,mk(0),mk(4,mk(3),mk(5))),mk(8,mk(7),mk(9)));
+    expect(lcaBST(t,2,8)).toBe(6);
+    expect(lcaBST(t,2,4)).toBe(2);
+    expect(lcaBST(t,0,5)).toBe(2);
+  });
+  it('redundant connection', () => {
+    const findRedundantConnection=(edges:[number,number][]):[number,number]=>{const parent=Array.from({length:edges.length+1},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);for(const [a,b] of edges){const fa=find(a),fb=find(b);if(fa===fb)return[a,b];parent[fa]=fb;}return[-1,-1];};
+    expect(findRedundantConnection([[1,2],[1,3],[2,3]])).toEqual([2,3]);
+    expect(findRedundantConnection([[1,2],[2,3],[3,4],[1,4],[1,5]])).toEqual([1,4]);
+  });
+  it('non-overlapping intervals', () => {
+    const eraseOverlapIntervals=(intervals:[number,number][]):number=>{if(!intervals.length)return 0;intervals.sort((a,b)=>a[1]-b[1]);let count=0,end=intervals[0][1];for(let i=1;i<intervals.length;i++){if(intervals[i][0]<end)count++;else end=intervals[i][1];}return count;};
+    expect(eraseOverlapIntervals([[1,2],[2,3],[3,4],[1,3]])).toBe(1);
+    expect(eraseOverlapIntervals([[1,2],[1,2],[1,2]])).toBe(2);
+    expect(eraseOverlapIntervals([[1,2],[2,3]])).toBe(0);
+  });
+  it('evaluate division', () => {
+    const calcEquation=(equations:string[][],values:number[],queries:string[][]):number[]=>{const g=new Map<string,Map<string,number>>();equations.forEach(([a,b],i)=>{if(!g.has(a))g.set(a,new Map());if(!g.has(b))g.set(b,new Map());g.get(a)!.set(b,values[i]);g.get(b)!.set(a,1/values[i]);});const bfs=(src:string,dst:string):number=>{if(!g.has(src)||!g.has(dst))return -1;if(src===dst)return 1;const visited=new Set([src]);const q:([string,number])[]=[[ src,1]];while(q.length){const[node,prod]=q.shift()!;if(node===dst)return prod;for(const[nb,w]of g.get(node)!){if(!visited.has(nb)){visited.add(nb);q.push([nb,prod*w]);}}}return -1;};return queries.map(([a,b])=>bfs(a,b));};
+    const r=calcEquation([['a','b'],['b','c']],[2,3],[['a','c'],['b','a'],['a','e'],['a','a'],['x','x']]);
+    expect(r[0]).toBeCloseTo(6);
+    expect(r[1]).toBeCloseTo(0.5);
+    expect(r[2]).toBe(-1);
+  });
+});

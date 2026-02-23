@@ -726,3 +726,43 @@ describe('phase58 coverage', () => {
     expect(orangesRotting([[0,2]])).toBe(0);
   });
 });
+
+describe('phase59 coverage', () => {
+  it('all paths source to target', () => {
+    const allPathsSourceTarget=(graph:number[][]):number[][]=>{const res:number[][]=[];const dfs=(node:number,path:number[])=>{if(node===graph.length-1){res.push([...path]);return;}for(const next of graph[node])dfs(next,[...path,next]);};dfs(0,[0]);return res;};
+    const r=allPathsSourceTarget([[1,2],[3],[3],[]]);
+    expect(r).toContainEqual([0,1,3]);
+    expect(r).toContainEqual([0,2,3]);
+    expect(r).toHaveLength(2);
+  });
+  it('increasing triplet subsequence', () => {
+    const increasingTriplet=(nums:number[]):boolean=>{let first=Infinity,second=Infinity;for(const n of nums){if(n<=first)first=n;else if(n<=second)second=n;else return true;}return false;};
+    expect(increasingTriplet([1,2,3,4,5])).toBe(true);
+    expect(increasingTriplet([5,4,3,2,1])).toBe(false);
+    expect(increasingTriplet([2,1,5,0,4,6])).toBe(true);
+    expect(increasingTriplet([1,1,1,1,1])).toBe(false);
+  });
+  it('surrounded regions', () => {
+    const solve=(board:string[][]):void=>{const m=board.length,n=board[0].length;const dfs=(r:number,c:number)=>{if(r<0||r>=m||c<0||c>=n||board[r][c]!=='O')return;board[r][c]='S';dfs(r-1,c);dfs(r+1,c);dfs(r,c-1);dfs(r,c+1);};for(let i=0;i<m;i++){dfs(i,0);dfs(i,n-1);}for(let j=0;j<n;j++){dfs(0,j);dfs(m-1,j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)board[i][j]=board[i][j]==='S'?'O':board[i][j]==='O'?'X':board[i][j];};
+    const b=[['X','X','X','X'],['X','O','O','X'],['X','X','O','X'],['X','O','X','X']];
+    solve(b);
+    expect(b[1][1]).toBe('X');
+    expect(b[3][1]).toBe('O');
+  });
+  it('evaluate division', () => {
+    const calcEquation=(equations:string[][],values:number[],queries:string[][]):number[]=>{const g=new Map<string,Map<string,number>>();equations.forEach(([a,b],i)=>{if(!g.has(a))g.set(a,new Map());if(!g.has(b))g.set(b,new Map());g.get(a)!.set(b,values[i]);g.get(b)!.set(a,1/values[i]);});const bfs=(src:string,dst:string):number=>{if(!g.has(src)||!g.has(dst))return -1;if(src===dst)return 1;const visited=new Set([src]);const q:([string,number])[]=[[ src,1]];while(q.length){const[node,prod]=q.shift()!;if(node===dst)return prod;for(const[nb,w]of g.get(node)!){if(!visited.has(nb)){visited.add(nb);q.push([nb,prod*w]);}}}return -1;};return queries.map(([a,b])=>bfs(a,b));};
+    const r=calcEquation([['a','b'],['b','c']],[2,3],[['a','c'],['b','a'],['a','e'],['a','a'],['x','x']]);
+    expect(r[0]).toBeCloseTo(6);
+    expect(r[1]).toBeCloseTo(0.5);
+    expect(r[2]).toBe(-1);
+  });
+  it('LCA of BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const lcaBST=(root:TN|null,p:number,q:number):number=>{if(!root)return -1;if(root.val>p&&root.val>q)return lcaBST(root.left,p,q);if(root.val<p&&root.val<q)return lcaBST(root.right,p,q);return root.val;};
+    const t=mk(6,mk(2,mk(0),mk(4,mk(3),mk(5))),mk(8,mk(7),mk(9)));
+    expect(lcaBST(t,2,8)).toBe(6);
+    expect(lcaBST(t,2,4)).toBe(2);
+    expect(lcaBST(t,0,5)).toBe(2);
+  });
+});

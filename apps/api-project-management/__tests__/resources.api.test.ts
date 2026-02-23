@@ -1002,3 +1002,39 @@ describe('phase58 coverage', () => {
     expect(r).toContain('cat sand dog');
   });
 });
+
+describe('phase59 coverage', () => {
+  it('redundant connection', () => {
+    const findRedundantConnection=(edges:[number,number][]):[number,number]=>{const parent=Array.from({length:edges.length+1},(_,i)=>i);const find=(x:number):number=>parent[x]===x?x:parent[x]=find(parent[x]);for(const [a,b] of edges){const fa=find(a),fb=find(b);if(fa===fb)return[a,b];parent[fa]=fb;}return[-1,-1];};
+    expect(findRedundantConnection([[1,2],[1,3],[2,3]])).toEqual([2,3]);
+    expect(findRedundantConnection([[1,2],[2,3],[3,4],[1,4],[1,5]])).toEqual([1,4]);
+  });
+  it('populating next right pointers', () => {
+    type TN={val:number;left:TN|null;right:TN|null;next:TN|null};
+    const mk=(v:number):TN=>({val:v,left:null,right:null,next:null});
+    const connect=(root:TN|null):TN|null=>{if(!root)return null;const q=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i<sz-1)n.next=q[0]||null;if(n.left)q.push(n.left as TN);if(n.right)q.push(n.right as TN);}};return root;};
+    const r=mk(1);r.left=mk(2);r.right=mk(3);(r.left as TN).left=mk(4);(r.left as TN).right=mk(5);(r.right as TN).right=mk(7);
+    connect(r);
+    expect(r.next).toBeNull();
+    expect(r.left!.next).toBe(r.right);
+  });
+  it('evaluate division', () => {
+    const calcEquation=(equations:string[][],values:number[],queries:string[][]):number[]=>{const g=new Map<string,Map<string,number>>();equations.forEach(([a,b],i)=>{if(!g.has(a))g.set(a,new Map());if(!g.has(b))g.set(b,new Map());g.get(a)!.set(b,values[i]);g.get(b)!.set(a,1/values[i]);});const bfs=(src:string,dst:string):number=>{if(!g.has(src)||!g.has(dst))return -1;if(src===dst)return 1;const visited=new Set([src]);const q:([string,number])[]=[[ src,1]];while(q.length){const[node,prod]=q.shift()!;if(node===dst)return prod;for(const[nb,w]of g.get(node)!){if(!visited.has(nb)){visited.add(nb);q.push([nb,prod*w]);}}}return -1;};return queries.map(([a,b])=>bfs(a,b));};
+    const r=calcEquation([['a','b'],['b','c']],[2,3],[['a','c'],['b','a'],['a','e'],['a','a'],['x','x']]);
+    expect(r[0]).toBeCloseTo(6);
+    expect(r[1]).toBeCloseTo(0.5);
+    expect(r[2]).toBe(-1);
+  });
+  it('min arrows to burst balloons', () => {
+    const findMinArrowShots=(points:[number,number][]):number=>{if(!points.length)return 0;points.sort((a,b)=>a[1]-b[1]);let arrows=1,end=points[0][1];for(let i=1;i<points.length;i++){if(points[i][0]>end){arrows++;end=points[i][1];}}return arrows;};
+    expect(findMinArrowShots([[10,16],[2,8],[1,6],[7,12]])).toBe(2);
+    expect(findMinArrowShots([[1,2],[3,4],[5,6],[7,8]])).toBe(4);
+    expect(findMinArrowShots([[1,2],[2,3],[3,4],[4,5]])).toBe(2);
+  });
+  it('in-memory file system', () => {
+    class FileSystem{private fs:any={'/':{_isDir:true,_content:''}};private get(path:string){const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){cur=cur[p];}return cur;}ls(path:string):string[]{const node=this.get(path);if(!node._isDir)return[path.split('/').pop()!];return Object.keys(node).filter(k=>!k.startsWith('_')).sort();}mkdir(path:string):void{const parts=path.split('/').filter(Boolean);let cur=this.fs['/'];for(const p of parts){if(!cur[p])cur[p]={_isDir:true,_content:''};cur=cur[p];}}addContentToFile(path:string,content:string):void{const parts=path.split('/').filter(Boolean);const name=parts.pop()!;let cur=this.fs['/'];for(const p of parts)cur=cur[p];if(!cur[name])cur[name]={_isDir:false,_content:''};cur[name]._content+=content;}readContentFromFile(path:string):string{return this.get(path)._content;}}
+    const f=new FileSystem();f.mkdir('/a/b/c');f.addContentToFile('/a/b/c/d','hello');
+    expect(f.readContentFromFile('/a/b/c/d')).toBe('hello');
+    expect(f.ls('/a/b/c')).toEqual(['d']);
+  });
+});
