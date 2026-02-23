@@ -40,26 +40,50 @@
 
 ## UAT Test Plans (docs/uat/)
 
-16 User Acceptance Test plans covering all major modules (25 BDD test cases each, 400 total):
+40 User Acceptance Test plans — full coverage of all 40 functional API services (25 BDD test cases each, 1,000 total):
 
 | Document | Module | Standard | Port |
 |----------|--------|----------|------|
-| [UAT_HEALTH_SAFETY.md](./uat/UAT_HEALTH_SAFETY.md) | Health & Safety | ISO 45001:2018 | 4001 |
-| [UAT_ENVIRONMENT.md](./uat/UAT_ENVIRONMENT.md) | Environment | ISO 14001:2015 | 4002 |
-| [UAT_QUALITY.md](./uat/UAT_QUALITY.md) | Quality Management | ISO 9001:2015 | 4003 |
-| [UAT_FINANCE.md](./uat/UAT_FINANCE.md) | Finance | — | 4013 |
-| [UAT_INFOSEC.md](./uat/UAT_INFOSEC.md) | Information Security | ISO 27001:2022 | 4015 |
-| [UAT_ESG.md](./uat/UAT_ESG.md) | ESG Reporting | GRI/SASB/TCFD | 4016 |
-| [UAT_RISK.md](./uat/UAT_RISK.md) | Enterprise Risk | — | 4027 |
-| [UAT_HR.md](./uat/UAT_HR.md) | Human Resources | — | 4006 |
-| [UAT_FOOD_SAFETY.md](./uat/UAT_FOOD_SAFETY.md) | Food Safety | ISO 22000/HACCP | 4019 |
-| [UAT_ENERGY.md](./uat/UAT_ENERGY.md) | Energy Management | ISO 50001:2018 | 4020 |
-| [UAT_FIELD_SERVICE.md](./uat/UAT_FIELD_SERVICE.md) | Field Service | — | 4022 |
-| [UAT_INCIDENTS.md](./uat/UAT_INCIDENTS.md) | Incident Management | — | 4036 |
+| [UAT_AI_ANALYSIS.md](./uat/UAT_AI_ANALYSIS.md) | AI Analysis | — | 4004 |
+| [UAT_ANALYTICS.md](./uat/UAT_ANALYTICS.md) | Analytics | — | 4021 |
+| [UAT_AEROSPACE.md](./uat/UAT_AEROSPACE.md) | Aerospace | AS9100D | 4012 |
+| [UAT_ASSETS.md](./uat/UAT_ASSETS.md) | Asset Management | — | 4030 |
 | [UAT_AUDITS.md](./uat/UAT_AUDITS.md) | Audit Management | — | 4037 |
 | [UAT_AUTOMOTIVE.md](./uat/UAT_AUTOMOTIVE.md) | Automotive | IATF 16949 | 4010 |
+| [UAT_CHEMICALS.md](./uat/UAT_CHEMICALS.md) | Chemicals (COSHH) | REACH/COSHH | 4040 |
+| [UAT_CMMS.md](./uat/UAT_CMMS.md) | CMMS | — | 4017 |
+| [UAT_COMPLAINTS.md](./uat/UAT_COMPLAINTS.md) | Complaints | — | 4032 |
+| [UAT_CONTRACTS.md](./uat/UAT_CONTRACTS.md) | Contracts | — | 4033 |
+| [UAT_CRM.md](./uat/UAT_CRM.md) | CRM | — | 4014 |
+| [UAT_DOCUMENTS.md](./uat/UAT_DOCUMENTS.md) | Document Control | — | 4031 |
+| [UAT_EMERGENCY.md](./uat/UAT_EMERGENCY.md) | Emergency Management | — | 4041 |
+| [UAT_ENERGY.md](./uat/UAT_ENERGY.md) | Energy Management | ISO 50001:2018 | 4020 |
+| [UAT_ENVIRONMENT.md](./uat/UAT_ENVIRONMENT.md) | Environment | ISO 14001:2015 | 4002 |
+| [UAT_ESG.md](./uat/UAT_ESG.md) | ESG Reporting | GRI/SASB/TCFD | 4016 |
+| [UAT_FIELD_SERVICE.md](./uat/UAT_FIELD_SERVICE.md) | Field Service | — | 4022 |
+| [UAT_FINANCE.md](./uat/UAT_FINANCE.md) | Finance | — | 4013 |
+| [UAT_FOOD_SAFETY.md](./uat/UAT_FOOD_SAFETY.md) | Food Safety | ISO 22000/HACCP | 4019 |
+| [UAT_HEALTH_SAFETY.md](./uat/UAT_HEALTH_SAFETY.md) | Health & Safety | ISO 45001:2018 | 4001 |
+| [UAT_HR.md](./uat/UAT_HR.md) | Human Resources | — | 4006 |
+| [UAT_INCIDENTS.md](./uat/UAT_INCIDENTS.md) | Incident Management | — | 4036 |
+| [UAT_INFOSEC.md](./uat/UAT_INFOSEC.md) | Information Security | ISO 27001:2022 | 4015 |
+| [UAT_INVENTORY.md](./uat/UAT_INVENTORY.md) | Inventory | — | 4005 |
+| [UAT_ISO37001.md](./uat/UAT_ISO37001.md) | Anti-Bribery | ISO 37001:2016 | 4024 |
+| [UAT_ISO42001.md](./uat/UAT_ISO42001.md) | AI Management | ISO 42001:2023 | 4023 |
+| [UAT_MARKETING.md](./uat/UAT_MARKETING.md) | Marketing | — | 4025 |
 | [UAT_MEDICAL.md](./uat/UAT_MEDICAL.md) | Medical Devices | ISO 13485 | 4011 |
-| [UAT_AEROSPACE.md](./uat/UAT_AEROSPACE.md) | Aerospace | AS9100D | 4012 |
+| [UAT_MGMT_REVIEW.md](./uat/UAT_MGMT_REVIEW.md) | Management Review | ISO 9001 §9.3 | 4038 |
+| [UAT_PARTNERS.md](./uat/UAT_PARTNERS.md) | Partners Portal | — | 4026 |
+| [UAT_PAYROLL.md](./uat/UAT_PAYROLL.md) | Payroll | — | 4007 |
+| [UAT_PORTAL.md](./uat/UAT_PORTAL.md) | Customer Portal | — | 4018 |
+| [UAT_PROJECT_MANAGEMENT.md](./uat/UAT_PROJECT_MANAGEMENT.md) | Project Management | — | 4009 |
+| [UAT_PTW.md](./uat/UAT_PTW.md) | Permit to Work | — | 4034 |
+| [UAT_QUALITY.md](./uat/UAT_QUALITY.md) | Quality Management | ISO 9001:2015 | 4003 |
+| [UAT_REG_MONITOR.md](./uat/UAT_REG_MONITOR.md) | Regulatory Monitor | — | 4035 |
+| [UAT_RISK.md](./uat/UAT_RISK.md) | Enterprise Risk | — | 4027 |
+| [UAT_SUPPLIERS.md](./uat/UAT_SUPPLIERS.md) | Suppliers | — | 4029 |
+| [UAT_TRAINING.md](./uat/UAT_TRAINING.md) | Training | — | 4028 |
+| [UAT_WORKFLOWS.md](./uat/UAT_WORKFLOWS.md) | Workflows | — | 4008 |
 
 ---
 
