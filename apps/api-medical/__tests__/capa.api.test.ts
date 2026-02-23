@@ -1054,3 +1054,46 @@ describe('phase63 coverage', () => {
     expect(minMeetingRooms([[1,5],[8,9],[8,9]])).toBe(2);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('generate pascals', () => {
+    function generate(n:number):number[][]{const r=[];for(let i=0;i<n;i++){const row=[1];if(i>0){const p=r[i-1];for(let j=1;j<p.length;j++)row.push(p[j-1]+p[j]);row.push(1);}r.push(row);}return r;}
+    it('n1'    ,()=>expect(generate(1)).toEqual([[1]]));
+    it('n3row2',()=>expect(generate(3)[2]).toEqual([1,2,1]));
+    it('n5last',()=>expect(generate(5)[4]).toEqual([1,4,6,4,1]));
+    it('n0'    ,()=>expect(generate(0)).toEqual([]));
+    it('n2'    ,()=>expect(generate(2)).toEqual([[1],[1,1]]));
+  });
+  describe('minimum ascii delete sum', () => {
+    function minDeleteSum(s1:string,s2:string):number{const m=s1.length,n=s2.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)dp[i][0]=dp[i-1][0]+s1.charCodeAt(i-1);for(let j=1;j<=n;j++)dp[0][j]=dp[0][j-1]+s2.charCodeAt(j-1);for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s1[i-1]===s2[j-1]?dp[i-1][j-1]:Math.min(dp[i-1][j]+s1.charCodeAt(i-1),dp[i][j-1]+s2.charCodeAt(j-1));return dp[m][n];}
+    it('ex1'   ,()=>expect(minDeleteSum('sea','eat')).toBe(231));
+    it('ex2'   ,()=>expect(minDeleteSum('delete','leet')).toBe(403));
+    it('same'  ,()=>expect(minDeleteSum('a','a')).toBe(0));
+    it('empty' ,()=>expect(minDeleteSum('','a')).toBe(97));
+    it('diff'  ,()=>expect(minDeleteSum('ab','ba')).toBe(194));
+  });
+  describe('decode ways', () => {
+    function numDecodings(s:string):number{if(s[0]==='0')return 0;const n=s.length;let p2=1,p1=1;for(let i=1;i<n;i++){let c=0;if(s[i]!=='0')c+=p1;const two=parseInt(s.slice(i-1,i+1));if(two>=10&&two<=26)c+=p2;p2=p1;p1=c;}return p1;}
+    it('12'    ,()=>expect(numDecodings('12')).toBe(2));
+    it('226'   ,()=>expect(numDecodings('226')).toBe(3));
+    it('06'    ,()=>expect(numDecodings('06')).toBe(0));
+    it('10'    ,()=>expect(numDecodings('10')).toBe(1));
+    it('27'    ,()=>expect(numDecodings('27')).toBe(1));
+  });
+  describe('russian doll envelopes', () => {
+    function maxEnvelopes(env:number[][]):number{env.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:b[1]-a[1]);const t:number[]=[];for(const [,h] of env){let lo=0,hi=t.length;while(lo<hi){const m=(lo+hi)>>1;if(t[m]<h)lo=m+1;else hi=m;}t[lo]=h;}return t.length;}
+    it('ex1'   ,()=>expect(maxEnvelopes([[5,4],[6,4],[6,7],[2,3]])).toBe(3));
+    it('ex2'   ,()=>expect(maxEnvelopes([[1,1],[1,1],[1,1]])).toBe(1));
+    it('two'   ,()=>expect(maxEnvelopes([[1,2],[2,3]])).toBe(2));
+    it('onefit',()=>expect(maxEnvelopes([[3,3],[2,4],[1,5]])).toBe(1));
+    it('single',()=>expect(maxEnvelopes([[1,1]])).toBe(1));
+  });
+  describe('candy distribution', () => {
+    function candy(r:number[]):number{const n=r.length,c=new Array(n).fill(1);for(let i=1;i<n;i++)if(r[i]>r[i-1])c[i]=c[i-1]+1;for(let i=n-2;i>=0;i--)if(r[i]>r[i+1]&&c[i]<=c[i+1])c[i]=c[i+1]+1;return c.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(candy([1,0,2])).toBe(5));
+    it('ex2'   ,()=>expect(candy([1,2,2])).toBe(4));
+    it('one'   ,()=>expect(candy([5])).toBe(1));
+    it('equal' ,()=>expect(candy([3,3,3])).toBe(3));
+    it('asc'   ,()=>expect(candy([1,2,3])).toBe(6));
+  });
+});

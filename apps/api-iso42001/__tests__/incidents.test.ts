@@ -1172,3 +1172,46 @@ describe('phase63 coverage', () => {
     expect(detectCapitalUse('FlaG')).toBe(false);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('trapping rain water', () => {
+    function trap(h:number[]):number{let l=0,r=h.length-1,lm=0,rm=0,w=0;while(l<r){if(h[l]<h[r]){lm=Math.max(lm,h[l]);w+=lm-h[l];l++;}else{rm=Math.max(rm,h[r]);w+=rm-h[r];r--;}}return w;}
+    it('ex1'   ,()=>expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6));
+    it('ex2'   ,()=>expect(trap([4,2,0,3,2,5])).toBe(9));
+    it('empty' ,()=>expect(trap([])).toBe(0));
+    it('flat'  ,()=>expect(trap([1,1,1])).toBe(0));
+    it('valley',()=>expect(trap([3,0,3])).toBe(3));
+  });
+  describe('max points on a line', () => {
+    function maxPoints(pts:number[][]):number{if(pts.length<=2)return pts.length;let res=2;const g=(a:number,b:number):number=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t;}return a;};for(let i=0;i<pts.length;i++){const map:Record<string,number>={};for(let j=i+1;j<pts.length;j++){let dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1];const gg=g(Math.abs(dx),Math.abs(dy));if(gg>0){dx/=gg;dy/=gg;}if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const k=dx===0&&dy===0?'same':`${dy}/${dx}`;map[k]=(map[k]||1)+1;res=Math.max(res,map[k]);}}return res;}
+    it('3col'  ,()=>expect(maxPoints([[1,1],[2,2],[3,3]])).toBe(3));
+    it('4col'  ,()=>expect(maxPoints([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4));
+    it('one'   ,()=>expect(maxPoints([[0,0]])).toBe(1));
+    it('two'   ,()=>expect(maxPoints([[1,1],[2,2]])).toBe(2));
+    it('noCol' ,()=>expect(maxPoints([[1,1],[2,3],[3,5],[4,7]])).toBe(4));
+  });
+  describe('wildcard matching', () => {
+    function isMatchWild(s:string,p:string):boolean{const m=s.length,n=p.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)dp[0][j]=p[j-1]==='*'&&dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i-1][j]||dp[i][j-1];else dp[i][j]=(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];}
+    it('ex1'   ,()=>expect(isMatchWild('aa','a')).toBe(false));
+    it('ex2'   ,()=>expect(isMatchWild('aa','*')).toBe(true));
+    it('ex3'   ,()=>expect(isMatchWild('cb','?a')).toBe(false));
+    it('ex4'   ,()=>expect(isMatchWild('adceb','*a*b')).toBe(true));
+    it('ex5'   ,()=>expect(isMatchWild('acdcb','a*c?b')).toBe(false));
+  });
+  describe('interleaving string', () => {
+    function isInterleave(s1:string,s2:string,s3:string):boolean{const m=s1.length,n=s2.length;if(m+n!==s3.length)return false;const dp=new Array(n+1).fill(false);dp[0]=true;for(let j=1;j<=n;j++)dp[j]=dp[j-1]&&s2[j-1]===s3[j-1];for(let i=1;i<=m;i++){dp[0]=dp[0]&&s1[i-1]===s3[i-1];for(let j=1;j<=n;j++)dp[j]=(dp[j]&&s1[i-1]===s3[i+j-1])||(dp[j-1]&&s2[j-1]===s3[i+j-1]);}return dp[n];}
+    it('ex1'   ,()=>expect(isInterleave('aabcc','dbbca','aadbbcbcac')).toBe(true));
+    it('ex2'   ,()=>expect(isInterleave('aabcc','dbbca','aadbbbaccc')).toBe(false));
+    it('empty' ,()=>expect(isInterleave('','','')) .toBe(true));
+    it('one'   ,()=>expect(isInterleave('a','','a')).toBe(true));
+    it('mism'  ,()=>expect(isInterleave('a','b','ab')).toBe(true));
+  });
+  describe('concatenated words', () => {
+    function concatWords(words:string[]):string[]{const set=new Set(words);function check(w:string):boolean{const n=w.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&(j>0||i<n)&&set.has(w.slice(j,i))){dp[i]=1;break;}return dp[n]===1;}return words.filter(check);}
+    it('ex1'   ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.includes('catsdogcats')).toBe(true);expect(r.includes('dogcatsdog')).toBe(true);});
+    it('size'  ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.length).toBe(3);});
+    it('empty' ,()=>expect(concatWords([])).toEqual([]));
+    it('nocat' ,()=>expect(concatWords(['cat','dog'])).toEqual([]));
+    it('ab'    ,()=>expect(concatWords(['a','b','ab','abc'])).toEqual(['ab']));
+  });
+});

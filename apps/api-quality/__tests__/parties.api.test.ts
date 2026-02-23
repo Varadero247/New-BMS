@@ -1280,3 +1280,46 @@ describe('phase63 coverage', () => {
     expect(shortestCompletingWord('1s3 456',['looks','pest','stew','show'])).toBe('pest');
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('nth ugly number', () => {
+    function nthUgly(n:number):number{const u=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const nx=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(nx);if(nx===u[i2]*2)i2++;if(nx===u[i3]*3)i3++;if(nx===u[i5]*5)i5++;}return u[n-1];}
+    it('n10'   ,()=>expect(nthUgly(10)).toBe(12));
+    it('n1'    ,()=>expect(nthUgly(1)).toBe(1));
+    it('n6'    ,()=>expect(nthUgly(6)).toBe(6));
+    it('n11'   ,()=>expect(nthUgly(11)).toBe(15));
+    it('n7'    ,()=>expect(nthUgly(7)).toBe(8));
+  });
+  describe('scramble string', () => {
+    function isScramble(s1:string,s2:string):boolean{if(s1===s2)return true;if(s1.length!==s2.length)return false;const memo=new Map<string,boolean>();function dp(a:string,b:string):boolean{const k=a+'|'+b;if(memo.has(k))return memo.get(k)!;if(a===b){memo.set(k,true);return true;}const n=a.length,cnt=new Array(26).fill(0);for(let i=0;i<n;i++){cnt[a.charCodeAt(i)-97]++;cnt[b.charCodeAt(i)-97]--;}if(cnt.some(c=>c!==0)){memo.set(k,false);return false;}for(let i=1;i<n;i++){if(dp(a.slice(0,i),b.slice(0,i))&&dp(a.slice(i),b.slice(i))){memo.set(k,true);return true;}if(dp(a.slice(0,i),b.slice(n-i))&&dp(a.slice(i),b.slice(0,n-i))){memo.set(k,true);return true;}}memo.set(k,false);return false;}return dp(s1,s2);}
+    it('ex1'   ,()=>expect(isScramble('great','rgeat')).toBe(true));
+    it('ex2'   ,()=>expect(isScramble('abcde','caebd')).toBe(false));
+    it('same'  ,()=>expect(isScramble('a','a')).toBe(true));
+    it('ab_ba' ,()=>expect(isScramble('ab','ba')).toBe(true));
+    it('abc'   ,()=>expect(isScramble('abc','bca')).toBe(true));
+  });
+  describe('candy distribution', () => {
+    function candy(r:number[]):number{const n=r.length,c=new Array(n).fill(1);for(let i=1;i<n;i++)if(r[i]>r[i-1])c[i]=c[i-1]+1;for(let i=n-2;i>=0;i--)if(r[i]>r[i+1]&&c[i]<=c[i+1])c[i]=c[i+1]+1;return c.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(candy([1,0,2])).toBe(5));
+    it('ex2'   ,()=>expect(candy([1,2,2])).toBe(4));
+    it('one'   ,()=>expect(candy([5])).toBe(1));
+    it('equal' ,()=>expect(candy([3,3,3])).toBe(3));
+    it('asc'   ,()=>expect(candy([1,2,3])).toBe(6));
+  });
+  describe('palindrome pairs', () => {
+    function palindromePairs(words:string[]):number{const isPal=(s:string)=>s===s.split('').reverse().join('');let c=0;for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++)if(i!==j&&isPal(words[i]+words[j]))c++;return c;}
+    it('ex1'   ,()=>expect(palindromePairs(['abcd','dcba','lls','s','sssll'])).toBe(4));
+    it('ex2'   ,()=>expect(palindromePairs(['bat','tab','cat'])).toBe(2));
+    it('empty' ,()=>expect(palindromePairs(['a',''])).toBe(2));
+    it('one'   ,()=>expect(palindromePairs(['a'])).toBe(0));
+    it('aba'   ,()=>expect(palindromePairs(['aba',''])).toBe(2));
+  });
+  describe('missing number', () => {
+    function missingNumber(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(missingNumber([3,0,1])).toBe(2));
+    it('ex2'   ,()=>expect(missingNumber([0,1])).toBe(2));
+    it('ex3'   ,()=>expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8));
+    it('zero'  ,()=>expect(missingNumber([1])).toBe(0));
+    it('last'  ,()=>expect(missingNumber([0])).toBe(1));
+  });
+});

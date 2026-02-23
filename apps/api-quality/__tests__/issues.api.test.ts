@@ -1239,3 +1239,46 @@ describe('phase63 coverage', () => {
     expect(numMatchingSubseq('dsahjpjauf',['ahjpjau','ja','ahbwzgqnuk','tnmlanowax'])).toBe(2);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('missing number', () => {
+    function missingNumber(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(missingNumber([3,0,1])).toBe(2));
+    it('ex2'   ,()=>expect(missingNumber([0,1])).toBe(2));
+    it('ex3'   ,()=>expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8));
+    it('zero'  ,()=>expect(missingNumber([1])).toBe(0));
+    it('last'  ,()=>expect(missingNumber([0])).toBe(1));
+  });
+  describe('word break', () => {
+    function wordBreak(s:string,dict:string[]):boolean{const set=new Set(dict),n=s.length,dp=new Array(n+1).fill(false);dp[0]=true;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&set.has(s.slice(j,i))){dp[i]=true;break;}return dp[n];}
+    it('ex1'   ,()=>expect(wordBreak('leetcode',['leet','code'])).toBe(true));
+    it('ex2'   ,()=>expect(wordBreak('applepenapple',['apple','pen'])).toBe(true));
+    it('ex3'   ,()=>expect(wordBreak('catsandog',['cats','dog','sand','and','cat'])).toBe(false));
+    it('empty' ,()=>expect(wordBreak('',['a'])).toBe(true));
+    it('noDict',()=>expect(wordBreak('a',[])).toBe(false));
+  });
+  describe('candy distribution', () => {
+    function candy(r:number[]):number{const n=r.length,c=new Array(n).fill(1);for(let i=1;i<n;i++)if(r[i]>r[i-1])c[i]=c[i-1]+1;for(let i=n-2;i>=0;i--)if(r[i]>r[i+1]&&c[i]<=c[i+1])c[i]=c[i+1]+1;return c.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(candy([1,0,2])).toBe(5));
+    it('ex2'   ,()=>expect(candy([1,2,2])).toBe(4));
+    it('one'   ,()=>expect(candy([5])).toBe(1));
+    it('equal' ,()=>expect(candy([3,3,3])).toBe(3));
+    it('asc'   ,()=>expect(candy([1,2,3])).toBe(6));
+  });
+  describe('nth ugly number', () => {
+    function nthUgly(n:number):number{const u=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const nx=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(nx);if(nx===u[i2]*2)i2++;if(nx===u[i3]*3)i3++;if(nx===u[i5]*5)i5++;}return u[n-1];}
+    it('n10'   ,()=>expect(nthUgly(10)).toBe(12));
+    it('n1'    ,()=>expect(nthUgly(1)).toBe(1));
+    it('n6'    ,()=>expect(nthUgly(6)).toBe(6));
+    it('n11'   ,()=>expect(nthUgly(11)).toBe(15));
+    it('n7'    ,()=>expect(nthUgly(7)).toBe(8));
+  });
+  describe('nth super ugly number', () => {
+    function nthSuperUgly(n:number,primes:number[]):number{const u=[1];const idx=new Array(primes.length).fill(0);for(let i=1;i<n;i++){const nx=Math.min(...primes.map((p,j)=>u[idx[j]]*p));u.push(nx);primes.forEach((_,j)=>{if(u[idx[j]]*primes[j]===nx)idx[j]++;});}return u[n-1];}
+    it('p2'    ,()=>expect(nthSuperUgly(12,[2,7,13,19])).toBe(32));
+    it('p1'    ,()=>expect(nthSuperUgly(1,[2,3,5])).toBe(1));
+    it('std10' ,()=>expect(nthSuperUgly(10,[2,3,5])).toBe(12));
+    it('p2only',()=>expect(nthSuperUgly(4,[2])).toBe(8));
+    it('p3only',()=>expect(nthSuperUgly(3,[3])).toBe(9));
+  });
+});

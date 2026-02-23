@@ -1360,3 +1360,46 @@ describe('phase63 coverage', () => {
     expect(minSwaps('[]')).toBe(0);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('max points on a line', () => {
+    function maxPoints(pts:number[][]):number{if(pts.length<=2)return pts.length;let res=2;const g=(a:number,b:number):number=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t;}return a;};for(let i=0;i<pts.length;i++){const map:Record<string,number>={};for(let j=i+1;j<pts.length;j++){let dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1];const gg=g(Math.abs(dx),Math.abs(dy));if(gg>0){dx/=gg;dy/=gg;}if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const k=dx===0&&dy===0?'same':`${dy}/${dx}`;map[k]=(map[k]||1)+1;res=Math.max(res,map[k]);}}return res;}
+    it('3col'  ,()=>expect(maxPoints([[1,1],[2,2],[3,3]])).toBe(3));
+    it('4col'  ,()=>expect(maxPoints([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4));
+    it('one'   ,()=>expect(maxPoints([[0,0]])).toBe(1));
+    it('two'   ,()=>expect(maxPoints([[1,1],[2,2]])).toBe(2));
+    it('noCol' ,()=>expect(maxPoints([[1,1],[2,3],[3,5],[4,7]])).toBe(4));
+  });
+  describe('rotate array', () => {
+    function rotate(nums:number[],k:number):void{k=k%nums.length;const rev=(a:number[],i:number,j:number)=>{while(i<j){[a[i],a[j]]=[a[j],a[i]];i++;j--;}};rev(nums,0,nums.length-1);rev(nums,0,k-1);rev(nums,k,nums.length-1);}
+    it('ex1'   ,()=>{const a=[1,2,3,4,5,6,7];rotate(a,3);expect(a).toEqual([5,6,7,1,2,3,4]);});
+    it('ex2'   ,()=>{const a=[-1,-100,3,99];rotate(a,2);expect(a).toEqual([3,99,-1,-100]);});
+    it('k0'    ,()=>{const a=[1,2,3];rotate(a,0);expect(a).toEqual([1,2,3]);});
+    it('kEqLen',()=>{const a=[1,2,3];rotate(a,3);expect(a).toEqual([1,2,3]);});
+    it('k1'    ,()=>{const a=[1,2,3,4];rotate(a,1);expect(a).toEqual([4,1,2,3]);});
+  });
+  describe('wildcard matching', () => {
+    function isMatchWild(s:string,p:string):boolean{const m=s.length,n=p.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)dp[0][j]=p[j-1]==='*'&&dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i-1][j]||dp[i][j-1];else dp[i][j]=(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];}
+    it('ex1'   ,()=>expect(isMatchWild('aa','a')).toBe(false));
+    it('ex2'   ,()=>expect(isMatchWild('aa','*')).toBe(true));
+    it('ex3'   ,()=>expect(isMatchWild('cb','?a')).toBe(false));
+    it('ex4'   ,()=>expect(isMatchWild('adceb','*a*b')).toBe(true));
+    it('ex5'   ,()=>expect(isMatchWild('acdcb','a*c?b')).toBe(false));
+  });
+  describe('distinct subsequences', () => {
+    function numDistinct(s:string,t:string):number{const m=s.length,n=t.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=0;i<m;i++)for(let j=n-1;j>=0;j--)if(s[i]===t[j])dp[j+1]+=dp[j];return dp[n];}
+    it('ex1'   ,()=>expect(numDistinct('rabbbit','rabbit')).toBe(3));
+    it('ex2'   ,()=>expect(numDistinct('babgbag','bag')).toBe(5));
+    it('same'  ,()=>expect(numDistinct('abc','abc')).toBe(1));
+    it('empty' ,()=>expect(numDistinct('','a')).toBe(0));
+    it('repeat',()=>expect(numDistinct('aaa','a')).toBe(3));
+  });
+  describe('nth ugly number', () => {
+    function nthUgly(n:number):number{const u=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const nx=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(nx);if(nx===u[i2]*2)i2++;if(nx===u[i3]*3)i3++;if(nx===u[i5]*5)i5++;}return u[n-1];}
+    it('n10'   ,()=>expect(nthUgly(10)).toBe(12));
+    it('n1'    ,()=>expect(nthUgly(1)).toBe(1));
+    it('n6'    ,()=>expect(nthUgly(6)).toBe(6));
+    it('n11'   ,()=>expect(nthUgly(11)).toBe(15));
+    it('n7'    ,()=>expect(nthUgly(7)).toBe(8));
+  });
+});

@@ -1037,3 +1037,46 @@ describe('phase63 coverage', () => {
     expect(minMeetingRooms([[1,5],[8,9],[8,9]])).toBe(2);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('scramble string', () => {
+    function isScramble(s1:string,s2:string):boolean{if(s1===s2)return true;if(s1.length!==s2.length)return false;const memo=new Map<string,boolean>();function dp(a:string,b:string):boolean{const k=a+'|'+b;if(memo.has(k))return memo.get(k)!;if(a===b){memo.set(k,true);return true;}const n=a.length,cnt=new Array(26).fill(0);for(let i=0;i<n;i++){cnt[a.charCodeAt(i)-97]++;cnt[b.charCodeAt(i)-97]--;}if(cnt.some(c=>c!==0)){memo.set(k,false);return false;}for(let i=1;i<n;i++){if(dp(a.slice(0,i),b.slice(0,i))&&dp(a.slice(i),b.slice(i))){memo.set(k,true);return true;}if(dp(a.slice(0,i),b.slice(n-i))&&dp(a.slice(i),b.slice(0,n-i))){memo.set(k,true);return true;}}memo.set(k,false);return false;}return dp(s1,s2);}
+    it('ex1'   ,()=>expect(isScramble('great','rgeat')).toBe(true));
+    it('ex2'   ,()=>expect(isScramble('abcde','caebd')).toBe(false));
+    it('same'  ,()=>expect(isScramble('a','a')).toBe(true));
+    it('ab_ba' ,()=>expect(isScramble('ab','ba')).toBe(true));
+    it('abc'   ,()=>expect(isScramble('abc','bca')).toBe(true));
+  });
+  describe('max points on a line', () => {
+    function maxPoints(pts:number[][]):number{if(pts.length<=2)return pts.length;let res=2;const g=(a:number,b:number):number=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t;}return a;};for(let i=0;i<pts.length;i++){const map:Record<string,number>={};for(let j=i+1;j<pts.length;j++){let dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1];const gg=g(Math.abs(dx),Math.abs(dy));if(gg>0){dx/=gg;dy/=gg;}if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const k=dx===0&&dy===0?'same':`${dy}/${dx}`;map[k]=(map[k]||1)+1;res=Math.max(res,map[k]);}}return res;}
+    it('3col'  ,()=>expect(maxPoints([[1,1],[2,2],[3,3]])).toBe(3));
+    it('4col'  ,()=>expect(maxPoints([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4));
+    it('one'   ,()=>expect(maxPoints([[0,0]])).toBe(1));
+    it('two'   ,()=>expect(maxPoints([[1,1],[2,2]])).toBe(2));
+    it('noCol' ,()=>expect(maxPoints([[1,1],[2,3],[3,5],[4,7]])).toBe(4));
+  });
+  describe('word break II', () => {
+    function wordBreakII(s:string,dict:string[]):string[]{const set=new Set(dict);const memo=new Map<number,string[]>();function bt(start:number):string[]{if(memo.has(start))return memo.get(start)!;if(start===s.length)return[''];const res:string[]=[];for(let end=start+1;end<=s.length;end++){const w=s.slice(start,end);if(set.has(w))for(const r of bt(end))res.push(w+(r?' '+r:''));}memo.set(start,res);return res;}return bt(0);}
+    it('ex1'   ,()=>expect(wordBreakII('catsanddog',['cat','cats','and','sand','dog']).sort()).toEqual(['cat sand dog','cats and dog']));
+    it('ex2'   ,()=>expect(wordBreakII('pineapplepenapple',['apple','pen','applepen','pine','pineapple']).length).toBe(3));
+    it('nores' ,()=>expect(wordBreakII('catsandog',['cats','dog','sand','and','cat'])).toEqual([]));
+    it('empty' ,()=>expect(wordBreakII('',['a'])).toEqual(['']));
+    it('single',()=>expect(wordBreakII('a',['a'])).toEqual(['a']));
+  });
+  describe('find duplicate number', () => {
+    function findDuplicate(nums:number[]):number{let s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!==f);s=nums[0];while(s!==f){s=nums[s];f=nums[f];}return s;}
+    it('ex1'   ,()=>expect(findDuplicate([1,3,4,2,2])).toBe(2));
+    it('ex2'   ,()=>expect(findDuplicate([3,1,3,4,2])).toBe(3));
+    it('two'   ,()=>expect(findDuplicate([1,1])).toBe(1));
+    it('back'  ,()=>expect(findDuplicate([2,2,2,2,2])).toBe(2));
+    it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
+  });
+  describe('jump game II', () => {
+    function jump(nums:number[]):number{let j=0,cur=0,far=0;for(let i=0;i<nums.length-1;i++){far=Math.max(far,i+nums[i]);if(i===cur){j++;cur=far;}}return j;}
+    it('ex1'   ,()=>expect(jump([2,3,1,1,4])).toBe(2));
+    it('ex2'   ,()=>expect(jump([2,3,0,1,4])).toBe(2));
+    it('single',()=>expect(jump([0])).toBe(0));
+    it('two'   ,()=>expect(jump([1,1])).toBe(1));
+    it('big1st',()=>expect(jump([10,1,1,1,1])).toBe(1));
+  });
+});

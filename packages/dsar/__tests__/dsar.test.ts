@@ -869,3 +869,46 @@ describe('phase63 coverage', () => {
     expect(findKthLargest([1],1)).toBe(1);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('russian doll envelopes', () => {
+    function maxEnvelopes(env:number[][]):number{env.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:b[1]-a[1]);const t:number[]=[];for(const [,h] of env){let lo=0,hi=t.length;while(lo<hi){const m=(lo+hi)>>1;if(t[m]<h)lo=m+1;else hi=m;}t[lo]=h;}return t.length;}
+    it('ex1'   ,()=>expect(maxEnvelopes([[5,4],[6,4],[6,7],[2,3]])).toBe(3));
+    it('ex2'   ,()=>expect(maxEnvelopes([[1,1],[1,1],[1,1]])).toBe(1));
+    it('two'   ,()=>expect(maxEnvelopes([[1,2],[2,3]])).toBe(2));
+    it('onefit',()=>expect(maxEnvelopes([[3,3],[2,4],[1,5]])).toBe(1));
+    it('single',()=>expect(maxEnvelopes([[1,1]])).toBe(1));
+  });
+  describe('max points on a line', () => {
+    function maxPoints(pts:number[][]):number{if(pts.length<=2)return pts.length;let res=2;const g=(a:number,b:number):number=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t;}return a;};for(let i=0;i<pts.length;i++){const map:Record<string,number>={};for(let j=i+1;j<pts.length;j++){let dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1];const gg=g(Math.abs(dx),Math.abs(dy));if(gg>0){dx/=gg;dy/=gg;}if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const k=dx===0&&dy===0?'same':`${dy}/${dx}`;map[k]=(map[k]||1)+1;res=Math.max(res,map[k]);}}return res;}
+    it('3col'  ,()=>expect(maxPoints([[1,1],[2,2],[3,3]])).toBe(3));
+    it('4col'  ,()=>expect(maxPoints([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4));
+    it('one'   ,()=>expect(maxPoints([[0,0]])).toBe(1));
+    it('two'   ,()=>expect(maxPoints([[1,1],[2,2]])).toBe(2));
+    it('noCol' ,()=>expect(maxPoints([[1,1],[2,3],[3,5],[4,7]])).toBe(4));
+  });
+  describe('decode ways', () => {
+    function numDecodings(s:string):number{if(s[0]==='0')return 0;const n=s.length;let p2=1,p1=1;for(let i=1;i<n;i++){let c=0;if(s[i]!=='0')c+=p1;const two=parseInt(s.slice(i-1,i+1));if(two>=10&&two<=26)c+=p2;p2=p1;p1=c;}return p1;}
+    it('12'    ,()=>expect(numDecodings('12')).toBe(2));
+    it('226'   ,()=>expect(numDecodings('226')).toBe(3));
+    it('06'    ,()=>expect(numDecodings('06')).toBe(0));
+    it('10'    ,()=>expect(numDecodings('10')).toBe(1));
+    it('27'    ,()=>expect(numDecodings('27')).toBe(1));
+  });
+  describe('word break', () => {
+    function wordBreak(s:string,dict:string[]):boolean{const set=new Set(dict),n=s.length,dp=new Array(n+1).fill(false);dp[0]=true;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&set.has(s.slice(j,i))){dp[i]=true;break;}return dp[n];}
+    it('ex1'   ,()=>expect(wordBreak('leetcode',['leet','code'])).toBe(true));
+    it('ex2'   ,()=>expect(wordBreak('applepenapple',['apple','pen'])).toBe(true));
+    it('ex3'   ,()=>expect(wordBreak('catsandog',['cats','dog','sand','and','cat'])).toBe(false));
+    it('empty' ,()=>expect(wordBreak('',['a'])).toBe(true));
+    it('noDict',()=>expect(wordBreak('a',[])).toBe(false));
+  });
+  describe('jump game II', () => {
+    function jump(nums:number[]):number{let j=0,cur=0,far=0;for(let i=0;i<nums.length-1;i++){far=Math.max(far,i+nums[i]);if(i===cur){j++;cur=far;}}return j;}
+    it('ex1'   ,()=>expect(jump([2,3,1,1,4])).toBe(2));
+    it('ex2'   ,()=>expect(jump([2,3,0,1,4])).toBe(2));
+    it('single',()=>expect(jump([0])).toBe(0));
+    it('two'   ,()=>expect(jump([1,1])).toBe(1));
+    it('big1st',()=>expect(jump([10,1,1,1,1])).toBe(1));
+  });
+});

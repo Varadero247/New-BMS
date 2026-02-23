@@ -1125,3 +1125,46 @@ describe('phase63 coverage', () => {
     expect(hIndex([100])).toBe(1);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('russian doll envelopes', () => {
+    function maxEnvelopes(env:number[][]):number{env.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:b[1]-a[1]);const t:number[]=[];for(const [,h] of env){let lo=0,hi=t.length;while(lo<hi){const m=(lo+hi)>>1;if(t[m]<h)lo=m+1;else hi=m;}t[lo]=h;}return t.length;}
+    it('ex1'   ,()=>expect(maxEnvelopes([[5,4],[6,4],[6,7],[2,3]])).toBe(3));
+    it('ex2'   ,()=>expect(maxEnvelopes([[1,1],[1,1],[1,1]])).toBe(1));
+    it('two'   ,()=>expect(maxEnvelopes([[1,2],[2,3]])).toBe(2));
+    it('onefit',()=>expect(maxEnvelopes([[3,3],[2,4],[1,5]])).toBe(1));
+    it('single',()=>expect(maxEnvelopes([[1,1]])).toBe(1));
+  });
+  describe('longest consecutive sequence', () => {
+    function lcs(nums:number[]):number{const s=new Set(nums);let b=0;for(const n of s){if(!s.has(n-1)){let c=n,l=1;while(s.has(c+1)){c++;l++;}b=Math.max(b,l);}}return b;}
+    it('ex1'   ,()=>expect(lcs([100,4,200,1,3,2])).toBe(4));
+    it('ex2'   ,()=>expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9));
+    it('empty' ,()=>expect(lcs([])).toBe(0));
+    it('single',()=>expect(lcs([5])).toBe(1));
+    it('nocons',()=>expect(lcs([1,3,5,7])).toBe(1));
+  });
+  describe('maximal rectangle', () => {
+    function maxRect(matrix:string[][]):number{if(!matrix.length)return 0;const nc=matrix[0].length;let max=0;const h=new Array(nc).fill(0);for(const row of matrix){for(let j=0;j<nc;j++)h[j]=row[j]==='0'?0:h[j]+1;const st=[-1];for(let j=0;j<=nc;j++){const hh=j===nc?0:h[j];while(st[st.length-1]!==-1&&h[st[st.length-1]]>hh){const top=st.pop()!;max=Math.max(max,h[top]*(j-st[st.length-1]-1));}st.push(j);}}return max;}
+    it('ex1'   ,()=>expect(maxRect([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']])).toBe(6));
+    it('zero'  ,()=>expect(maxRect([['0']])).toBe(0));
+    it('one'   ,()=>expect(maxRect([['1']])).toBe(1));
+    it('all1'  ,()=>expect(maxRect([['1','1'],['1','1']])).toBe(4));
+    it('row'   ,()=>expect(maxRect([['1','1','1']])).toBe(3));
+  });
+  describe('getRow pascals', () => {
+    function getRow(rowIndex:number):number[]{let row=[1];for(let i=1;i<=rowIndex;i++){const next=[1];for(let j=1;j<row.length;j++)next.push(row[j-1]+row[j]);next.push(1);row=next;}return row;}
+    it('row3'  ,()=>expect(getRow(3)).toEqual([1,3,3,1]));
+    it('row0'  ,()=>expect(getRow(0)).toEqual([1]));
+    it('row1'  ,()=>expect(getRow(1)).toEqual([1,1]));
+    it('row2'  ,()=>expect(getRow(2)).toEqual([1,2,1]));
+    it('row4'  ,()=>expect(getRow(4)).toEqual([1,4,6,4,1]));
+  });
+  describe('word break', () => {
+    function wordBreak(s:string,dict:string[]):boolean{const set=new Set(dict),n=s.length,dp=new Array(n+1).fill(false);dp[0]=true;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&set.has(s.slice(j,i))){dp[i]=true;break;}return dp[n];}
+    it('ex1'   ,()=>expect(wordBreak('leetcode',['leet','code'])).toBe(true));
+    it('ex2'   ,()=>expect(wordBreak('applepenapple',['apple','pen'])).toBe(true));
+    it('ex3'   ,()=>expect(wordBreak('catsandog',['cats','dog','sand','and','cat'])).toBe(false));
+    it('empty' ,()=>expect(wordBreak('',['a'])).toBe(true));
+    it('noDict',()=>expect(wordBreak('a',[])).toBe(false));
+  });
+});

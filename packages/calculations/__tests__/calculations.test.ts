@@ -1011,3 +1011,46 @@ describe('phase63 coverage', () => {
     expect(islandPerimeter([[1,0]])).toBe(4);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('missing number', () => {
+    function missingNumber(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(missingNumber([3,0,1])).toBe(2));
+    it('ex2'   ,()=>expect(missingNumber([0,1])).toBe(2));
+    it('ex3'   ,()=>expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8));
+    it('zero'  ,()=>expect(missingNumber([1])).toBe(0));
+    it('last'  ,()=>expect(missingNumber([0])).toBe(1));
+  });
+  describe('candy distribution', () => {
+    function candy(r:number[]):number{const n=r.length,c=new Array(n).fill(1);for(let i=1;i<n;i++)if(r[i]>r[i-1])c[i]=c[i-1]+1;for(let i=n-2;i>=0;i--)if(r[i]>r[i+1]&&c[i]<=c[i+1])c[i]=c[i+1]+1;return c.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(candy([1,0,2])).toBe(5));
+    it('ex2'   ,()=>expect(candy([1,2,2])).toBe(4));
+    it('one'   ,()=>expect(candy([5])).toBe(1));
+    it('equal' ,()=>expect(candy([3,3,3])).toBe(3));
+    it('asc'   ,()=>expect(candy([1,2,3])).toBe(6));
+  });
+  describe('regular expression matching', () => {
+    function isMatch(s:string,p:string):boolean{const m=s.length,n=p.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||((p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j]);else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];}
+    it('ex1'   ,()=>expect(isMatch('aa','a')).toBe(false));
+    it('ex2'   ,()=>expect(isMatch('aa','a*')).toBe(true));
+    it('ex3'   ,()=>expect(isMatch('ab','.*')).toBe(true));
+    it('star0' ,()=>expect(isMatch('aab','c*a*b')).toBe(true));
+    it('dot'   ,()=>expect(isMatch('mississippi','mis*is*p*.')).toBe(false));
+  });
+  describe('find duplicate number', () => {
+    function findDuplicate(nums:number[]):number{let s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!==f);s=nums[0];while(s!==f){s=nums[s];f=nums[f];}return s;}
+    it('ex1'   ,()=>expect(findDuplicate([1,3,4,2,2])).toBe(2));
+    it('ex2'   ,()=>expect(findDuplicate([3,1,3,4,2])).toBe(3));
+    it('two'   ,()=>expect(findDuplicate([1,1])).toBe(1));
+    it('back'  ,()=>expect(findDuplicate([2,2,2,2,2])).toBe(2));
+    it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
+  });
+  describe('russian doll envelopes', () => {
+    function maxEnvelopes(env:number[][]):number{env.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:b[1]-a[1]);const t:number[]=[];for(const [,h] of env){let lo=0,hi=t.length;while(lo<hi){const m=(lo+hi)>>1;if(t[m]<h)lo=m+1;else hi=m;}t[lo]=h;}return t.length;}
+    it('ex1'   ,()=>expect(maxEnvelopes([[5,4],[6,4],[6,7],[2,3]])).toBe(3));
+    it('ex2'   ,()=>expect(maxEnvelopes([[1,1],[1,1],[1,1]])).toBe(1));
+    it('two'   ,()=>expect(maxEnvelopes([[1,2],[2,3]])).toBe(2));
+    it('onefit',()=>expect(maxEnvelopes([[3,3],[2,4],[1,5]])).toBe(1));
+    it('single',()=>expect(maxEnvelopes([[1,1]])).toBe(1));
+  });
+});

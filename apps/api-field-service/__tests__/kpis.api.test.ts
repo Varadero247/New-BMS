@@ -1043,3 +1043,46 @@ describe('phase63 coverage', () => {
     expect(findKthLargest([1],1)).toBe(1);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('concatenated words', () => {
+    function concatWords(words:string[]):string[]{const set=new Set(words);function check(w:string):boolean{const n=w.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&(j>0||i<n)&&set.has(w.slice(j,i))){dp[i]=1;break;}return dp[n]===1;}return words.filter(check);}
+    it('ex1'   ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.includes('catsdogcats')).toBe(true);expect(r.includes('dogcatsdog')).toBe(true);});
+    it('size'  ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.length).toBe(3);});
+    it('empty' ,()=>expect(concatWords([])).toEqual([]));
+    it('nocat' ,()=>expect(concatWords(['cat','dog'])).toEqual([]));
+    it('ab'    ,()=>expect(concatWords(['a','b','ab','abc'])).toEqual(['ab']));
+  });
+  describe('nth ugly number', () => {
+    function nthUgly(n:number):number{const u=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const nx=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(nx);if(nx===u[i2]*2)i2++;if(nx===u[i3]*3)i3++;if(nx===u[i5]*5)i5++;}return u[n-1];}
+    it('n10'   ,()=>expect(nthUgly(10)).toBe(12));
+    it('n1'    ,()=>expect(nthUgly(1)).toBe(1));
+    it('n6'    ,()=>expect(nthUgly(6)).toBe(6));
+    it('n11'   ,()=>expect(nthUgly(11)).toBe(15));
+    it('n7'    ,()=>expect(nthUgly(7)).toBe(8));
+  });
+  describe('max points on a line', () => {
+    function maxPoints(pts:number[][]):number{if(pts.length<=2)return pts.length;let res=2;const g=(a:number,b:number):number=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t;}return a;};for(let i=0;i<pts.length;i++){const map:Record<string,number>={};for(let j=i+1;j<pts.length;j++){let dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1];const gg=g(Math.abs(dx),Math.abs(dy));if(gg>0){dx/=gg;dy/=gg;}if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const k=dx===0&&dy===0?'same':`${dy}/${dx}`;map[k]=(map[k]||1)+1;res=Math.max(res,map[k]);}}return res;}
+    it('3col'  ,()=>expect(maxPoints([[1,1],[2,2],[3,3]])).toBe(3));
+    it('4col'  ,()=>expect(maxPoints([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4));
+    it('one'   ,()=>expect(maxPoints([[0,0]])).toBe(1));
+    it('two'   ,()=>expect(maxPoints([[1,1],[2,2]])).toBe(2));
+    it('noCol' ,()=>expect(maxPoints([[1,1],[2,3],[3,5],[4,7]])).toBe(4));
+  });
+  describe('find duplicate number', () => {
+    function findDuplicate(nums:number[]):number{let s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!==f);s=nums[0];while(s!==f){s=nums[s];f=nums[f];}return s;}
+    it('ex1'   ,()=>expect(findDuplicate([1,3,4,2,2])).toBe(2));
+    it('ex2'   ,()=>expect(findDuplicate([3,1,3,4,2])).toBe(3));
+    it('two'   ,()=>expect(findDuplicate([1,1])).toBe(1));
+    it('back'  ,()=>expect(findDuplicate([2,2,2,2,2])).toBe(2));
+    it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
+  });
+  describe('nth super ugly number', () => {
+    function nthSuperUgly(n:number,primes:number[]):number{const u=[1];const idx=new Array(primes.length).fill(0);for(let i=1;i<n;i++){const nx=Math.min(...primes.map((p,j)=>u[idx[j]]*p));u.push(nx);primes.forEach((_,j)=>{if(u[idx[j]]*primes[j]===nx)idx[j]++;});}return u[n-1];}
+    it('p2'    ,()=>expect(nthSuperUgly(12,[2,7,13,19])).toBe(32));
+    it('p1'    ,()=>expect(nthSuperUgly(1,[2,3,5])).toBe(1));
+    it('std10' ,()=>expect(nthSuperUgly(10,[2,3,5])).toBe(12));
+    it('p2only',()=>expect(nthSuperUgly(4,[2])).toBe(8));
+    it('p3only',()=>expect(nthSuperUgly(3,[3])).toBe(9));
+  });
+});

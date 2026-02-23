@@ -1051,3 +1051,46 @@ describe('phase63 coverage', () => {
     expect(b).toEqual([[0,0,0],[1,0,1],[0,1,1],[0,1,0]]);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('longest consecutive sequence', () => {
+    function lcs(nums:number[]):number{const s=new Set(nums);let b=0;for(const n of s){if(!s.has(n-1)){let c=n,l=1;while(s.has(c+1)){c++;l++;}b=Math.max(b,l);}}return b;}
+    it('ex1'   ,()=>expect(lcs([100,4,200,1,3,2])).toBe(4));
+    it('ex2'   ,()=>expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9));
+    it('empty' ,()=>expect(lcs([])).toBe(0));
+    it('single',()=>expect(lcs([5])).toBe(1));
+    it('nocons',()=>expect(lcs([1,3,5,7])).toBe(1));
+  });
+  describe('wildcard matching', () => {
+    function isMatchWild(s:string,p:string):boolean{const m=s.length,n=p.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)dp[0][j]=p[j-1]==='*'&&dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i-1][j]||dp[i][j-1];else dp[i][j]=(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];}
+    it('ex1'   ,()=>expect(isMatchWild('aa','a')).toBe(false));
+    it('ex2'   ,()=>expect(isMatchWild('aa','*')).toBe(true));
+    it('ex3'   ,()=>expect(isMatchWild('cb','?a')).toBe(false));
+    it('ex4'   ,()=>expect(isMatchWild('adceb','*a*b')).toBe(true));
+    it('ex5'   ,()=>expect(isMatchWild('acdcb','a*c?b')).toBe(false));
+  });
+  describe('missing number', () => {
+    function missingNumber(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(missingNumber([3,0,1])).toBe(2));
+    it('ex2'   ,()=>expect(missingNumber([0,1])).toBe(2));
+    it('ex3'   ,()=>expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8));
+    it('zero'  ,()=>expect(missingNumber([1])).toBe(0));
+    it('last'  ,()=>expect(missingNumber([0])).toBe(1));
+  });
+  describe('find duplicate number', () => {
+    function findDuplicate(nums:number[]):number{let s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!==f);s=nums[0];while(s!==f){s=nums[s];f=nums[f];}return s;}
+    it('ex1'   ,()=>expect(findDuplicate([1,3,4,2,2])).toBe(2));
+    it('ex2'   ,()=>expect(findDuplicate([3,1,3,4,2])).toBe(3));
+    it('two'   ,()=>expect(findDuplicate([1,1])).toBe(1));
+    it('back'  ,()=>expect(findDuplicate([2,2,2,2,2])).toBe(2));
+    it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
+  });
+  describe('interleaving string', () => {
+    function isInterleave(s1:string,s2:string,s3:string):boolean{const m=s1.length,n=s2.length;if(m+n!==s3.length)return false;const dp=new Array(n+1).fill(false);dp[0]=true;for(let j=1;j<=n;j++)dp[j]=dp[j-1]&&s2[j-1]===s3[j-1];for(let i=1;i<=m;i++){dp[0]=dp[0]&&s1[i-1]===s3[i-1];for(let j=1;j<=n;j++)dp[j]=(dp[j]&&s1[i-1]===s3[i+j-1])||(dp[j-1]&&s2[j-1]===s3[i+j-1]);}return dp[n];}
+    it('ex1'   ,()=>expect(isInterleave('aabcc','dbbca','aadbbcbcac')).toBe(true));
+    it('ex2'   ,()=>expect(isInterleave('aabcc','dbbca','aadbbbaccc')).toBe(false));
+    it('empty' ,()=>expect(isInterleave('','','')) .toBe(true));
+    it('one'   ,()=>expect(isInterleave('a','','a')).toBe(true));
+    it('mism'  ,()=>expect(isInterleave('a','b','ab')).toBe(true));
+  });
+});

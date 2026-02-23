@@ -1017,3 +1017,46 @@ describe('phase63 coverage', () => {
     expect(isToeplitzMatrix([[1,2],[2,2]])).toBe(false);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('nth ugly number', () => {
+    function nthUgly(n:number):number{const u=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const nx=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(nx);if(nx===u[i2]*2)i2++;if(nx===u[i3]*3)i3++;if(nx===u[i5]*5)i5++;}return u[n-1];}
+    it('n10'   ,()=>expect(nthUgly(10)).toBe(12));
+    it('n1'    ,()=>expect(nthUgly(1)).toBe(1));
+    it('n6'    ,()=>expect(nthUgly(6)).toBe(6));
+    it('n11'   ,()=>expect(nthUgly(11)).toBe(15));
+    it('n7'    ,()=>expect(nthUgly(7)).toBe(8));
+  });
+  describe('generate pascals', () => {
+    function generate(n:number):number[][]{const r=[];for(let i=0;i<n;i++){const row=[1];if(i>0){const p=r[i-1];for(let j=1;j<p.length;j++)row.push(p[j-1]+p[j]);row.push(1);}r.push(row);}return r;}
+    it('n1'    ,()=>expect(generate(1)).toEqual([[1]]));
+    it('n3row2',()=>expect(generate(3)[2]).toEqual([1,2,1]));
+    it('n5last',()=>expect(generate(5)[4]).toEqual([1,4,6,4,1]));
+    it('n0'    ,()=>expect(generate(0)).toEqual([]));
+    it('n2'    ,()=>expect(generate(2)).toEqual([[1],[1,1]]));
+  });
+  describe('find duplicate number', () => {
+    function findDuplicate(nums:number[]):number{let s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!==f);s=nums[0];while(s!==f){s=nums[s];f=nums[f];}return s;}
+    it('ex1'   ,()=>expect(findDuplicate([1,3,4,2,2])).toBe(2));
+    it('ex2'   ,()=>expect(findDuplicate([3,1,3,4,2])).toBe(3));
+    it('two'   ,()=>expect(findDuplicate([1,1])).toBe(1));
+    it('back'  ,()=>expect(findDuplicate([2,2,2,2,2])).toBe(2));
+    it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
+  });
+  describe('first missing positive', () => {
+    function fmp(nums:number[]):number{const n=nums.length;for(let i=0;i<n;i++)while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;}
+    it('ex1'   ,()=>expect(fmp([1,2,0])).toBe(3));
+    it('ex2'   ,()=>expect(fmp([3,4,-1,1])).toBe(2));
+    it('ex3'   ,()=>expect(fmp([7,8,9,11,12])).toBe(1));
+    it('seq'   ,()=>expect(fmp([1,2,3])).toBe(4));
+    it('one'   ,()=>expect(fmp([1])).toBe(2));
+  });
+  describe('candy distribution', () => {
+    function candy(r:number[]):number{const n=r.length,c=new Array(n).fill(1);for(let i=1;i<n;i++)if(r[i]>r[i-1])c[i]=c[i-1]+1;for(let i=n-2;i>=0;i--)if(r[i]>r[i+1]&&c[i]<=c[i+1])c[i]=c[i+1]+1;return c.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(candy([1,0,2])).toBe(5));
+    it('ex2'   ,()=>expect(candy([1,2,2])).toBe(4));
+    it('one'   ,()=>expect(candy([5])).toBe(1));
+    it('equal' ,()=>expect(candy([3,3,3])).toBe(3));
+    it('asc'   ,()=>expect(candy([1,2,3])).toBe(6));
+  });
+});

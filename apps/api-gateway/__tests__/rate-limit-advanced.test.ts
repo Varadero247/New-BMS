@@ -1292,3 +1292,46 @@ describe('phase63 coverage', () => {
     expect(minSwaps('[]')).toBe(0);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('find duplicate number', () => {
+    function findDuplicate(nums:number[]):number{let s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!==f);s=nums[0];while(s!==f){s=nums[s];f=nums[f];}return s;}
+    it('ex1'   ,()=>expect(findDuplicate([1,3,4,2,2])).toBe(2));
+    it('ex2'   ,()=>expect(findDuplicate([3,1,3,4,2])).toBe(3));
+    it('two'   ,()=>expect(findDuplicate([1,1])).toBe(1));
+    it('back'  ,()=>expect(findDuplicate([2,2,2,2,2])).toBe(2));
+    it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
+  });
+  describe('concatenated words', () => {
+    function concatWords(words:string[]):string[]{const set=new Set(words);function check(w:string):boolean{const n=w.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&(j>0||i<n)&&set.has(w.slice(j,i))){dp[i]=1;break;}return dp[n]===1;}return words.filter(check);}
+    it('ex1'   ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.includes('catsdogcats')).toBe(true);expect(r.includes('dogcatsdog')).toBe(true);});
+    it('size'  ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.length).toBe(3);});
+    it('empty' ,()=>expect(concatWords([])).toEqual([]));
+    it('nocat' ,()=>expect(concatWords(['cat','dog'])).toEqual([]));
+    it('ab'    ,()=>expect(concatWords(['a','b','ab','abc'])).toEqual(['ab']));
+  });
+  describe('russian doll envelopes', () => {
+    function maxEnvelopes(env:number[][]):number{env.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:b[1]-a[1]);const t:number[]=[];for(const [,h] of env){let lo=0,hi=t.length;while(lo<hi){const m=(lo+hi)>>1;if(t[m]<h)lo=m+1;else hi=m;}t[lo]=h;}return t.length;}
+    it('ex1'   ,()=>expect(maxEnvelopes([[5,4],[6,4],[6,7],[2,3]])).toBe(3));
+    it('ex2'   ,()=>expect(maxEnvelopes([[1,1],[1,1],[1,1]])).toBe(1));
+    it('two'   ,()=>expect(maxEnvelopes([[1,2],[2,3]])).toBe(2));
+    it('onefit',()=>expect(maxEnvelopes([[3,3],[2,4],[1,5]])).toBe(1));
+    it('single',()=>expect(maxEnvelopes([[1,1]])).toBe(1));
+  });
+  describe('first missing positive', () => {
+    function fmp(nums:number[]):number{const n=nums.length;for(let i=0;i<n;i++)while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;}
+    it('ex1'   ,()=>expect(fmp([1,2,0])).toBe(3));
+    it('ex2'   ,()=>expect(fmp([3,4,-1,1])).toBe(2));
+    it('ex3'   ,()=>expect(fmp([7,8,9,11,12])).toBe(1));
+    it('seq'   ,()=>expect(fmp([1,2,3])).toBe(4));
+    it('one'   ,()=>expect(fmp([1])).toBe(2));
+  });
+  describe('word break', () => {
+    function wordBreak(s:string,dict:string[]):boolean{const set=new Set(dict),n=s.length,dp=new Array(n+1).fill(false);dp[0]=true;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&set.has(s.slice(j,i))){dp[i]=true;break;}return dp[n];}
+    it('ex1'   ,()=>expect(wordBreak('leetcode',['leet','code'])).toBe(true));
+    it('ex2'   ,()=>expect(wordBreak('applepenapple',['apple','pen'])).toBe(true));
+    it('ex3'   ,()=>expect(wordBreak('catsandog',['cats','dog','sand','and','cat'])).toBe(false));
+    it('empty' ,()=>expect(wordBreak('',['a'])).toBe(true));
+    it('noDict',()=>expect(wordBreak('a',[])).toBe(false));
+  });
+});

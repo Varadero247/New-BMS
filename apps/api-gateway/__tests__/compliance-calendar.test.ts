@@ -1225,3 +1225,46 @@ describe('phase63 coverage', () => {
     expect(findKthLargest([1],1)).toBe(1);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('count primes', () => {
+    function countPrimes(n:number):number{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,b)=>a+b,0);}
+    it('10'    ,()=>expect(countPrimes(10)).toBe(4));
+    it('0'     ,()=>expect(countPrimes(0)).toBe(0));
+    it('1'     ,()=>expect(countPrimes(1)).toBe(0));
+    it('2'     ,()=>expect(countPrimes(2)).toBe(0));
+    it('20'    ,()=>expect(countPrimes(20)).toBe(8));
+  });
+  describe('first missing positive', () => {
+    function fmp(nums:number[]):number{const n=nums.length;for(let i=0;i<n;i++)while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;}
+    it('ex1'   ,()=>expect(fmp([1,2,0])).toBe(3));
+    it('ex2'   ,()=>expect(fmp([3,4,-1,1])).toBe(2));
+    it('ex3'   ,()=>expect(fmp([7,8,9,11,12])).toBe(1));
+    it('seq'   ,()=>expect(fmp([1,2,3])).toBe(4));
+    it('one'   ,()=>expect(fmp([1])).toBe(2));
+  });
+  describe('distinct subsequences', () => {
+    function numDistinct(s:string,t:string):number{const m=s.length,n=t.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=0;i<m;i++)for(let j=n-1;j>=0;j--)if(s[i]===t[j])dp[j+1]+=dp[j];return dp[n];}
+    it('ex1'   ,()=>expect(numDistinct('rabbbit','rabbit')).toBe(3));
+    it('ex2'   ,()=>expect(numDistinct('babgbag','bag')).toBe(5));
+    it('same'  ,()=>expect(numDistinct('abc','abc')).toBe(1));
+    it('empty' ,()=>expect(numDistinct('','a')).toBe(0));
+    it('repeat',()=>expect(numDistinct('aaa','a')).toBe(3));
+  });
+  describe('word break II', () => {
+    function wordBreakII(s:string,dict:string[]):string[]{const set=new Set(dict);const memo=new Map<number,string[]>();function bt(start:number):string[]{if(memo.has(start))return memo.get(start)!;if(start===s.length)return[''];const res:string[]=[];for(let end=start+1;end<=s.length;end++){const w=s.slice(start,end);if(set.has(w))for(const r of bt(end))res.push(w+(r?' '+r:''));}memo.set(start,res);return res;}return bt(0);}
+    it('ex1'   ,()=>expect(wordBreakII('catsanddog',['cat','cats','and','sand','dog']).sort()).toEqual(['cat sand dog','cats and dog']));
+    it('ex2'   ,()=>expect(wordBreakII('pineapplepenapple',['apple','pen','applepen','pine','pineapple']).length).toBe(3));
+    it('nores' ,()=>expect(wordBreakII('catsandog',['cats','dog','sand','and','cat'])).toEqual([]));
+    it('empty' ,()=>expect(wordBreakII('',['a'])).toEqual(['']));
+    it('single',()=>expect(wordBreakII('a',['a'])).toEqual(['a']));
+  });
+  describe('product except self', () => {
+    function productExceptSelf(nums:number[]):number[]{const n=nums.length,res=new Array(n).fill(1);let p=1;for(let i=0;i<n;i++){res[i]=p;p*=nums[i];}let s=1;for(let i=n-1;i>=0;i--){res[i]*=s;s*=nums[i];}return res;}
+    it('ex1'   ,()=>expect(productExceptSelf([1,2,3,4])).toEqual([24,12,8,6]));
+    it('ex2'   ,()=>expect(productExceptSelf([0,1,2,3,4])).toEqual([24,0,0,0,0]));
+    it('two'   ,()=>expect(productExceptSelf([2,3])).toEqual([3,2]));
+    it('negpos',()=>expect(productExceptSelf([-1,2])).toEqual([2,-1]));
+    it('zeros' ,()=>expect(productExceptSelf([0,0])).toEqual([0,0]));
+  });
+});

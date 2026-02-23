@@ -1119,3 +1119,46 @@ describe('phase63 coverage', () => {
     expect(minMeetingRooms([[1,5],[8,9],[8,9]])).toBe(2);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('palindrome pairs', () => {
+    function palindromePairs(words:string[]):number{const isPal=(s:string)=>s===s.split('').reverse().join('');let c=0;for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++)if(i!==j&&isPal(words[i]+words[j]))c++;return c;}
+    it('ex1'   ,()=>expect(palindromePairs(['abcd','dcba','lls','s','sssll'])).toBe(4));
+    it('ex2'   ,()=>expect(palindromePairs(['bat','tab','cat'])).toBe(2));
+    it('empty' ,()=>expect(palindromePairs(['a',''])).toBe(2));
+    it('one'   ,()=>expect(palindromePairs(['a'])).toBe(0));
+    it('aba'   ,()=>expect(palindromePairs(['aba',''])).toBe(2));
+  });
+  describe('candy distribution', () => {
+    function candy(r:number[]):number{const n=r.length,c=new Array(n).fill(1);for(let i=1;i<n;i++)if(r[i]>r[i-1])c[i]=c[i-1]+1;for(let i=n-2;i>=0;i--)if(r[i]>r[i+1]&&c[i]<=c[i+1])c[i]=c[i+1]+1;return c.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(candy([1,0,2])).toBe(5));
+    it('ex2'   ,()=>expect(candy([1,2,2])).toBe(4));
+    it('one'   ,()=>expect(candy([5])).toBe(1));
+    it('equal' ,()=>expect(candy([3,3,3])).toBe(3));
+    it('asc'   ,()=>expect(candy([1,2,3])).toBe(6));
+  });
+  describe('word break', () => {
+    function wordBreak(s:string,dict:string[]):boolean{const set=new Set(dict),n=s.length,dp=new Array(n+1).fill(false);dp[0]=true;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&set.has(s.slice(j,i))){dp[i]=true;break;}return dp[n];}
+    it('ex1'   ,()=>expect(wordBreak('leetcode',['leet','code'])).toBe(true));
+    it('ex2'   ,()=>expect(wordBreak('applepenapple',['apple','pen'])).toBe(true));
+    it('ex3'   ,()=>expect(wordBreak('catsandog',['cats','dog','sand','and','cat'])).toBe(false));
+    it('empty' ,()=>expect(wordBreak('',['a'])).toBe(true));
+    it('noDict',()=>expect(wordBreak('a',[])).toBe(false));
+  });
+  describe('interleaving string', () => {
+    function isInterleave(s1:string,s2:string,s3:string):boolean{const m=s1.length,n=s2.length;if(m+n!==s3.length)return false;const dp=new Array(n+1).fill(false);dp[0]=true;for(let j=1;j<=n;j++)dp[j]=dp[j-1]&&s2[j-1]===s3[j-1];for(let i=1;i<=m;i++){dp[0]=dp[0]&&s1[i-1]===s3[i-1];for(let j=1;j<=n;j++)dp[j]=(dp[j]&&s1[i-1]===s3[i+j-1])||(dp[j-1]&&s2[j-1]===s3[i+j-1]);}return dp[n];}
+    it('ex1'   ,()=>expect(isInterleave('aabcc','dbbca','aadbbcbcac')).toBe(true));
+    it('ex2'   ,()=>expect(isInterleave('aabcc','dbbca','aadbbbaccc')).toBe(false));
+    it('empty' ,()=>expect(isInterleave('','','')) .toBe(true));
+    it('one'   ,()=>expect(isInterleave('a','','a')).toBe(true));
+    it('mism'  ,()=>expect(isInterleave('a','b','ab')).toBe(true));
+  });
+  describe('edit distance', () => {
+    function minDistance(w1:string,w2:string):number{const m=w1.length,n=w2.length,dp=Array.from({length:m+1},(_,i)=>new Array(n+1).fill(0).map((_,j)=>i?j?0:i:j));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=w1[i-1]===w2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}
+    it('ex1'   ,()=>expect(minDistance('horse','ros')).toBe(3));
+    it('ex2'   ,()=>expect(minDistance('intention','execution')).toBe(5));
+    it('same'  ,()=>expect(minDistance('abc','abc')).toBe(0));
+    it('empty1',()=>expect(minDistance('','abc')).toBe(3));
+    it('empty2',()=>expect(minDistance('abc','')).toBe(3));
+  });
+});

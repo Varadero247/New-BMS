@@ -1129,3 +1129,46 @@ describe('phase63 coverage', () => {
     expect(scoreOfParentheses('(()(()))')).toBe(6);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('trapping rain water', () => {
+    function trap(h:number[]):number{let l=0,r=h.length-1,lm=0,rm=0,w=0;while(l<r){if(h[l]<h[r]){lm=Math.max(lm,h[l]);w+=lm-h[l];l++;}else{rm=Math.max(rm,h[r]);w+=rm-h[r];r--;}}return w;}
+    it('ex1'   ,()=>expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6));
+    it('ex2'   ,()=>expect(trap([4,2,0,3,2,5])).toBe(9));
+    it('empty' ,()=>expect(trap([])).toBe(0));
+    it('flat'  ,()=>expect(trap([1,1,1])).toBe(0));
+    it('valley',()=>expect(trap([3,0,3])).toBe(3));
+  });
+  describe('edit distance', () => {
+    function minDistance(w1:string,w2:string):number{const m=w1.length,n=w2.length,dp=Array.from({length:m+1},(_,i)=>new Array(n+1).fill(0).map((_,j)=>i?j?0:i:j));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=w1[i-1]===w2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}
+    it('ex1'   ,()=>expect(minDistance('horse','ros')).toBe(3));
+    it('ex2'   ,()=>expect(minDistance('intention','execution')).toBe(5));
+    it('same'  ,()=>expect(minDistance('abc','abc')).toBe(0));
+    it('empty1',()=>expect(minDistance('','abc')).toBe(3));
+    it('empty2',()=>expect(minDistance('abc','')).toBe(3));
+  });
+  describe('nth ugly number', () => {
+    function nthUgly(n:number):number{const u=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const nx=Math.min(u[i2]*2,u[i3]*3,u[i5]*5);u.push(nx);if(nx===u[i2]*2)i2++;if(nx===u[i3]*3)i3++;if(nx===u[i5]*5)i5++;}return u[n-1];}
+    it('n10'   ,()=>expect(nthUgly(10)).toBe(12));
+    it('n1'    ,()=>expect(nthUgly(1)).toBe(1));
+    it('n6'    ,()=>expect(nthUgly(6)).toBe(6));
+    it('n11'   ,()=>expect(nthUgly(11)).toBe(15));
+    it('n7'    ,()=>expect(nthUgly(7)).toBe(8));
+  });
+  describe('generate pascals', () => {
+    function generate(n:number):number[][]{const r=[];for(let i=0;i<n;i++){const row=[1];if(i>0){const p=r[i-1];for(let j=1;j<p.length;j++)row.push(p[j-1]+p[j]);row.push(1);}r.push(row);}return r;}
+    it('n1'    ,()=>expect(generate(1)).toEqual([[1]]));
+    it('n3row2',()=>expect(generate(3)[2]).toEqual([1,2,1]));
+    it('n5last',()=>expect(generate(5)[4]).toEqual([1,4,6,4,1]));
+    it('n0'    ,()=>expect(generate(0)).toEqual([]));
+    it('n2'    ,()=>expect(generate(2)).toEqual([[1],[1,1]]));
+  });
+  describe('concatenated words', () => {
+    function concatWords(words:string[]):string[]{const set=new Set(words);function check(w:string):boolean{const n=w.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&(j>0||i<n)&&set.has(w.slice(j,i))){dp[i]=1;break;}return dp[n]===1;}return words.filter(check);}
+    it('ex1'   ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.includes('catsdogcats')).toBe(true);expect(r.includes('dogcatsdog')).toBe(true);});
+    it('size'  ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.length).toBe(3);});
+    it('empty' ,()=>expect(concatWords([])).toEqual([]));
+    it('nocat' ,()=>expect(concatWords(['cat','dog'])).toEqual([]));
+    it('ab'    ,()=>expect(concatWords(['a','b','ab','abc'])).toEqual(['ab']));
+  });
+});

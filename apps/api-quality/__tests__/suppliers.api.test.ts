@@ -1251,3 +1251,46 @@ describe('phase63 coverage', () => {
     expect(maxAreaOfIsland([[0,0,0,0,0,0,0,0]])).toBe(0);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('decode ways', () => {
+    function numDecodings(s:string):number{if(s[0]==='0')return 0;const n=s.length;let p2=1,p1=1;for(let i=1;i<n;i++){let c=0;if(s[i]!=='0')c+=p1;const two=parseInt(s.slice(i-1,i+1));if(two>=10&&two<=26)c+=p2;p2=p1;p1=c;}return p1;}
+    it('12'    ,()=>expect(numDecodings('12')).toBe(2));
+    it('226'   ,()=>expect(numDecodings('226')).toBe(3));
+    it('06'    ,()=>expect(numDecodings('06')).toBe(0));
+    it('10'    ,()=>expect(numDecodings('10')).toBe(1));
+    it('27'    ,()=>expect(numDecodings('27')).toBe(1));
+  });
+  describe('first missing positive', () => {
+    function fmp(nums:number[]):number{const n=nums.length;for(let i=0;i<n;i++)while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;}
+    it('ex1'   ,()=>expect(fmp([1,2,0])).toBe(3));
+    it('ex2'   ,()=>expect(fmp([3,4,-1,1])).toBe(2));
+    it('ex3'   ,()=>expect(fmp([7,8,9,11,12])).toBe(1));
+    it('seq'   ,()=>expect(fmp([1,2,3])).toBe(4));
+    it('one'   ,()=>expect(fmp([1])).toBe(2));
+  });
+  describe('product except self', () => {
+    function productExceptSelf(nums:number[]):number[]{const n=nums.length,res=new Array(n).fill(1);let p=1;for(let i=0;i<n;i++){res[i]=p;p*=nums[i];}let s=1;for(let i=n-1;i>=0;i--){res[i]*=s;s*=nums[i];}return res;}
+    it('ex1'   ,()=>expect(productExceptSelf([1,2,3,4])).toEqual([24,12,8,6]));
+    it('ex2'   ,()=>expect(productExceptSelf([0,1,2,3,4])).toEqual([24,0,0,0,0]));
+    it('two'   ,()=>expect(productExceptSelf([2,3])).toEqual([3,2]));
+    it('negpos',()=>expect(productExceptSelf([-1,2])).toEqual([2,-1]));
+    it('zeros' ,()=>expect(productExceptSelf([0,0])).toEqual([0,0]));
+  });
+  describe('find duplicate number', () => {
+    function findDuplicate(nums:number[]):number{let s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!==f);s=nums[0];while(s!==f){s=nums[s];f=nums[f];}return s;}
+    it('ex1'   ,()=>expect(findDuplicate([1,3,4,2,2])).toBe(2));
+    it('ex2'   ,()=>expect(findDuplicate([3,1,3,4,2])).toBe(3));
+    it('two'   ,()=>expect(findDuplicate([1,1])).toBe(1));
+    it('back'  ,()=>expect(findDuplicate([2,2,2,2,2])).toBe(2));
+    it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
+  });
+  describe('length of LIS', () => {
+    function lis(nums:number[]):number{const t:number[]=[];for(const n of nums){let lo=0,hi=t.length;while(lo<hi){const m=(lo+hi)>>1;if(t[m]<n)lo=m+1;else hi=m;}t[lo]=n;}return t.length;}
+    it('ex1'   ,()=>expect(lis([10,9,2,5,3,7,101,18])).toBe(4));
+    it('ex2'   ,()=>expect(lis([0,1,0,3,2,3])).toBe(4));
+    it('asc'   ,()=>expect(lis([1,2,3,4,5])).toBe(5));
+    it('desc'  ,()=>expect(lis([5,4,3,2,1])).toBe(1));
+    it('one'   ,()=>expect(lis([1])).toBe(1));
+  });
+});

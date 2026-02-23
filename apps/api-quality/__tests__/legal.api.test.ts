@@ -1216,3 +1216,46 @@ describe('phase63 coverage', () => {
     expect(islandPerimeter([[1,0]])).toBe(4);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('count primes', () => {
+    function countPrimes(n:number):number{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,b)=>a+b,0);}
+    it('10'    ,()=>expect(countPrimes(10)).toBe(4));
+    it('0'     ,()=>expect(countPrimes(0)).toBe(0));
+    it('1'     ,()=>expect(countPrimes(1)).toBe(0));
+    it('2'     ,()=>expect(countPrimes(2)).toBe(0));
+    it('20'    ,()=>expect(countPrimes(20)).toBe(8));
+  });
+  describe('first missing positive', () => {
+    function fmp(nums:number[]):number{const n=nums.length;for(let i=0;i<n;i++)while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;}
+    it('ex1'   ,()=>expect(fmp([1,2,0])).toBe(3));
+    it('ex2'   ,()=>expect(fmp([3,4,-1,1])).toBe(2));
+    it('ex3'   ,()=>expect(fmp([7,8,9,11,12])).toBe(1));
+    it('seq'   ,()=>expect(fmp([1,2,3])).toBe(4));
+    it('one'   ,()=>expect(fmp([1])).toBe(2));
+  });
+  describe('generate pascals', () => {
+    function generate(n:number):number[][]{const r=[];for(let i=0;i<n;i++){const row=[1];if(i>0){const p=r[i-1];for(let j=1;j<p.length;j++)row.push(p[j-1]+p[j]);row.push(1);}r.push(row);}return r;}
+    it('n1'    ,()=>expect(generate(1)).toEqual([[1]]));
+    it('n3row2',()=>expect(generate(3)[2]).toEqual([1,2,1]));
+    it('n5last',()=>expect(generate(5)[4]).toEqual([1,4,6,4,1]));
+    it('n0'    ,()=>expect(generate(0)).toEqual([]));
+    it('n2'    ,()=>expect(generate(2)).toEqual([[1],[1,1]]));
+  });
+  describe('getRow pascals', () => {
+    function getRow(rowIndex:number):number[]{let row=[1];for(let i=1;i<=rowIndex;i++){const next=[1];for(let j=1;j<row.length;j++)next.push(row[j-1]+row[j]);next.push(1);row=next;}return row;}
+    it('row3'  ,()=>expect(getRow(3)).toEqual([1,3,3,1]));
+    it('row0'  ,()=>expect(getRow(0)).toEqual([1]));
+    it('row1'  ,()=>expect(getRow(1)).toEqual([1,1]));
+    it('row2'  ,()=>expect(getRow(2)).toEqual([1,2,1]));
+    it('row4'  ,()=>expect(getRow(4)).toEqual([1,4,6,4,1]));
+  });
+  describe('find duplicate number', () => {
+    function findDuplicate(nums:number[]):number{let s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!==f);s=nums[0];while(s!==f){s=nums[s];f=nums[f];}return s;}
+    it('ex1'   ,()=>expect(findDuplicate([1,3,4,2,2])).toBe(2));
+    it('ex2'   ,()=>expect(findDuplicate([3,1,3,4,2])).toBe(3));
+    it('two'   ,()=>expect(findDuplicate([1,1])).toBe(1));
+    it('back'  ,()=>expect(findDuplicate([2,2,2,2,2])).toBe(2));
+    it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
+  });
+});

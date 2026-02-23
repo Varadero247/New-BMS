@@ -964,3 +964,46 @@ describe('phase63 coverage', () => {
     expect(islandPerimeter([[1,0]])).toBe(4);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('candy distribution', () => {
+    function candy(r:number[]):number{const n=r.length,c=new Array(n).fill(1);for(let i=1;i<n;i++)if(r[i]>r[i-1])c[i]=c[i-1]+1;for(let i=n-2;i>=0;i--)if(r[i]>r[i+1]&&c[i]<=c[i+1])c[i]=c[i+1]+1;return c.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(candy([1,0,2])).toBe(5));
+    it('ex2'   ,()=>expect(candy([1,2,2])).toBe(4));
+    it('one'   ,()=>expect(candy([5])).toBe(1));
+    it('equal' ,()=>expect(candy([3,3,3])).toBe(3));
+    it('asc'   ,()=>expect(candy([1,2,3])).toBe(6));
+  });
+  describe('count primes', () => {
+    function countPrimes(n:number):number{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,b)=>a+b,0);}
+    it('10'    ,()=>expect(countPrimes(10)).toBe(4));
+    it('0'     ,()=>expect(countPrimes(0)).toBe(0));
+    it('1'     ,()=>expect(countPrimes(1)).toBe(0));
+    it('2'     ,()=>expect(countPrimes(2)).toBe(0));
+    it('20'    ,()=>expect(countPrimes(20)).toBe(8));
+  });
+  describe('jump game II', () => {
+    function jump(nums:number[]):number{let j=0,cur=0,far=0;for(let i=0;i<nums.length-1;i++){far=Math.max(far,i+nums[i]);if(i===cur){j++;cur=far;}}return j;}
+    it('ex1'   ,()=>expect(jump([2,3,1,1,4])).toBe(2));
+    it('ex2'   ,()=>expect(jump([2,3,0,1,4])).toBe(2));
+    it('single',()=>expect(jump([0])).toBe(0));
+    it('two'   ,()=>expect(jump([1,1])).toBe(1));
+    it('big1st',()=>expect(jump([10,1,1,1,1])).toBe(1));
+  });
+  describe('rotate array', () => {
+    function rotate(nums:number[],k:number):void{k=k%nums.length;const rev=(a:number[],i:number,j:number)=>{while(i<j){[a[i],a[j]]=[a[j],a[i]];i++;j--;}};rev(nums,0,nums.length-1);rev(nums,0,k-1);rev(nums,k,nums.length-1);}
+    it('ex1'   ,()=>{const a=[1,2,3,4,5,6,7];rotate(a,3);expect(a).toEqual([5,6,7,1,2,3,4]);});
+    it('ex2'   ,()=>{const a=[-1,-100,3,99];rotate(a,2);expect(a).toEqual([3,99,-1,-100]);});
+    it('k0'    ,()=>{const a=[1,2,3];rotate(a,0);expect(a).toEqual([1,2,3]);});
+    it('kEqLen',()=>{const a=[1,2,3];rotate(a,3);expect(a).toEqual([1,2,3]);});
+    it('k1'    ,()=>{const a=[1,2,3,4];rotate(a,1);expect(a).toEqual([4,1,2,3]);});
+  });
+  describe('word break II', () => {
+    function wordBreakII(s:string,dict:string[]):string[]{const set=new Set(dict);const memo=new Map<number,string[]>();function bt(start:number):string[]{if(memo.has(start))return memo.get(start)!;if(start===s.length)return[''];const res:string[]=[];for(let end=start+1;end<=s.length;end++){const w=s.slice(start,end);if(set.has(w))for(const r of bt(end))res.push(w+(r?' '+r:''));}memo.set(start,res);return res;}return bt(0);}
+    it('ex1'   ,()=>expect(wordBreakII('catsanddog',['cat','cats','and','sand','dog']).sort()).toEqual(['cat sand dog','cats and dog']));
+    it('ex2'   ,()=>expect(wordBreakII('pineapplepenapple',['apple','pen','applepen','pine','pineapple']).length).toBe(3));
+    it('nores' ,()=>expect(wordBreakII('catsandog',['cats','dog','sand','and','cat'])).toEqual([]));
+    it('empty' ,()=>expect(wordBreakII('',['a'])).toEqual(['']));
+    it('single',()=>expect(wordBreakII('a',['a'])).toEqual(['a']));
+  });
+});

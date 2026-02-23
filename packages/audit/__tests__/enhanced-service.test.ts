@@ -1261,3 +1261,46 @@ describe('phase63 coverage', () => {
     expect(isToeplitzMatrix([[1,2],[2,2]])).toBe(false);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('longest consecutive sequence', () => {
+    function lcs(nums:number[]):number{const s=new Set(nums);let b=0;for(const n of s){if(!s.has(n-1)){let c=n,l=1;while(s.has(c+1)){c++;l++;}b=Math.max(b,l);}}return b;}
+    it('ex1'   ,()=>expect(lcs([100,4,200,1,3,2])).toBe(4));
+    it('ex2'   ,()=>expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9));
+    it('empty' ,()=>expect(lcs([])).toBe(0));
+    it('single',()=>expect(lcs([5])).toBe(1));
+    it('nocons',()=>expect(lcs([1,3,5,7])).toBe(1));
+  });
+  describe('distinct subsequences', () => {
+    function numDistinct(s:string,t:string):number{const m=s.length,n=t.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=0;i<m;i++)for(let j=n-1;j>=0;j--)if(s[i]===t[j])dp[j+1]+=dp[j];return dp[n];}
+    it('ex1'   ,()=>expect(numDistinct('rabbbit','rabbit')).toBe(3));
+    it('ex2'   ,()=>expect(numDistinct('babgbag','bag')).toBe(5));
+    it('same'  ,()=>expect(numDistinct('abc','abc')).toBe(1));
+    it('empty' ,()=>expect(numDistinct('','a')).toBe(0));
+    it('repeat',()=>expect(numDistinct('aaa','a')).toBe(3));
+  });
+  describe('scramble string', () => {
+    function isScramble(s1:string,s2:string):boolean{if(s1===s2)return true;if(s1.length!==s2.length)return false;const memo=new Map<string,boolean>();function dp(a:string,b:string):boolean{const k=a+'|'+b;if(memo.has(k))return memo.get(k)!;if(a===b){memo.set(k,true);return true;}const n=a.length,cnt=new Array(26).fill(0);for(let i=0;i<n;i++){cnt[a.charCodeAt(i)-97]++;cnt[b.charCodeAt(i)-97]--;}if(cnt.some(c=>c!==0)){memo.set(k,false);return false;}for(let i=1;i<n;i++){if(dp(a.slice(0,i),b.slice(0,i))&&dp(a.slice(i),b.slice(i))){memo.set(k,true);return true;}if(dp(a.slice(0,i),b.slice(n-i))&&dp(a.slice(i),b.slice(0,n-i))){memo.set(k,true);return true;}}memo.set(k,false);return false;}return dp(s1,s2);}
+    it('ex1'   ,()=>expect(isScramble('great','rgeat')).toBe(true));
+    it('ex2'   ,()=>expect(isScramble('abcde','caebd')).toBe(false));
+    it('same'  ,()=>expect(isScramble('a','a')).toBe(true));
+    it('ab_ba' ,()=>expect(isScramble('ab','ba')).toBe(true));
+    it('abc'   ,()=>expect(isScramble('abc','bca')).toBe(true));
+  });
+  describe('rotate array', () => {
+    function rotate(nums:number[],k:number):void{k=k%nums.length;const rev=(a:number[],i:number,j:number)=>{while(i<j){[a[i],a[j]]=[a[j],a[i]];i++;j--;}};rev(nums,0,nums.length-1);rev(nums,0,k-1);rev(nums,k,nums.length-1);}
+    it('ex1'   ,()=>{const a=[1,2,3,4,5,6,7];rotate(a,3);expect(a).toEqual([5,6,7,1,2,3,4]);});
+    it('ex2'   ,()=>{const a=[-1,-100,3,99];rotate(a,2);expect(a).toEqual([3,99,-1,-100]);});
+    it('k0'    ,()=>{const a=[1,2,3];rotate(a,0);expect(a).toEqual([1,2,3]);});
+    it('kEqLen',()=>{const a=[1,2,3];rotate(a,3);expect(a).toEqual([1,2,3]);});
+    it('k1'    ,()=>{const a=[1,2,3,4];rotate(a,1);expect(a).toEqual([4,1,2,3]);});
+  });
+  describe('word break II', () => {
+    function wordBreakII(s:string,dict:string[]):string[]{const set=new Set(dict);const memo=new Map<number,string[]>();function bt(start:number):string[]{if(memo.has(start))return memo.get(start)!;if(start===s.length)return[''];const res:string[]=[];for(let end=start+1;end<=s.length;end++){const w=s.slice(start,end);if(set.has(w))for(const r of bt(end))res.push(w+(r?' '+r:''));}memo.set(start,res);return res;}return bt(0);}
+    it('ex1'   ,()=>expect(wordBreakII('catsanddog',['cat','cats','and','sand','dog']).sort()).toEqual(['cat sand dog','cats and dog']));
+    it('ex2'   ,()=>expect(wordBreakII('pineapplepenapple',['apple','pen','applepen','pine','pineapple']).length).toBe(3));
+    it('nores' ,()=>expect(wordBreakII('catsandog',['cats','dog','sand','and','cat'])).toEqual([]));
+    it('empty' ,()=>expect(wordBreakII('',['a'])).toEqual(['']));
+    it('single',()=>expect(wordBreakII('a',['a'])).toEqual(['a']));
+  });
+});

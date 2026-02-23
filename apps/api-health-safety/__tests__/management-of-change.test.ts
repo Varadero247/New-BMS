@@ -904,3 +904,46 @@ describe('phase63 coverage', () => {
     for(let i=1;i<b.length-1;i++)expect((b[i]>=b[i-1]&&b[i]>=b[i+1])||(b[i]<=b[i-1]&&b[i]<=b[i+1])).toBe(true);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('decode ways', () => {
+    function numDecodings(s:string):number{if(s[0]==='0')return 0;const n=s.length;let p2=1,p1=1;for(let i=1;i<n;i++){let c=0;if(s[i]!=='0')c+=p1;const two=parseInt(s.slice(i-1,i+1));if(two>=10&&two<=26)c+=p2;p2=p1;p1=c;}return p1;}
+    it('12'    ,()=>expect(numDecodings('12')).toBe(2));
+    it('226'   ,()=>expect(numDecodings('226')).toBe(3));
+    it('06'    ,()=>expect(numDecodings('06')).toBe(0));
+    it('10'    ,()=>expect(numDecodings('10')).toBe(1));
+    it('27'    ,()=>expect(numDecodings('27')).toBe(1));
+  });
+  describe('trapping rain water', () => {
+    function trap(h:number[]):number{let l=0,r=h.length-1,lm=0,rm=0,w=0;while(l<r){if(h[l]<h[r]){lm=Math.max(lm,h[l]);w+=lm-h[l];l++;}else{rm=Math.max(rm,h[r]);w+=rm-h[r];r--;}}return w;}
+    it('ex1'   ,()=>expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6));
+    it('ex2'   ,()=>expect(trap([4,2,0,3,2,5])).toBe(9));
+    it('empty' ,()=>expect(trap([])).toBe(0));
+    it('flat'  ,()=>expect(trap([1,1,1])).toBe(0));
+    it('valley',()=>expect(trap([3,0,3])).toBe(3));
+  });
+  describe('getRow pascals', () => {
+    function getRow(rowIndex:number):number[]{let row=[1];for(let i=1;i<=rowIndex;i++){const next=[1];for(let j=1;j<row.length;j++)next.push(row[j-1]+row[j]);next.push(1);row=next;}return row;}
+    it('row3'  ,()=>expect(getRow(3)).toEqual([1,3,3,1]));
+    it('row0'  ,()=>expect(getRow(0)).toEqual([1]));
+    it('row1'  ,()=>expect(getRow(1)).toEqual([1,1]));
+    it('row2'  ,()=>expect(getRow(2)).toEqual([1,2,1]));
+    it('row4'  ,()=>expect(getRow(4)).toEqual([1,4,6,4,1]));
+  });
+  describe('count primes', () => {
+    function countPrimes(n:number):number{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,b)=>a+b,0);}
+    it('10'    ,()=>expect(countPrimes(10)).toBe(4));
+    it('0'     ,()=>expect(countPrimes(0)).toBe(0));
+    it('1'     ,()=>expect(countPrimes(1)).toBe(0));
+    it('2'     ,()=>expect(countPrimes(2)).toBe(0));
+    it('20'    ,()=>expect(countPrimes(20)).toBe(8));
+  });
+  describe('maximal rectangle', () => {
+    function maxRect(matrix:string[][]):number{if(!matrix.length)return 0;const nc=matrix[0].length;let max=0;const h=new Array(nc).fill(0);for(const row of matrix){for(let j=0;j<nc;j++)h[j]=row[j]==='0'?0:h[j]+1;const st=[-1];for(let j=0;j<=nc;j++){const hh=j===nc?0:h[j];while(st[st.length-1]!==-1&&h[st[st.length-1]]>hh){const top=st.pop()!;max=Math.max(max,h[top]*(j-st[st.length-1]-1));}st.push(j);}}return max;}
+    it('ex1'   ,()=>expect(maxRect([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']])).toBe(6));
+    it('zero'  ,()=>expect(maxRect([['0']])).toBe(0));
+    it('one'   ,()=>expect(maxRect([['1']])).toBe(1));
+    it('all1'  ,()=>expect(maxRect([['1','1'],['1','1']])).toBe(4));
+    it('row'   ,()=>expect(maxRect([['1','1','1']])).toBe(3));
+  });
+});

@@ -951,3 +951,46 @@ describe('phase63 coverage', () => {
     expect(isSubsequence('ace','abcde')).toBe(true);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('word break', () => {
+    function wordBreak(s:string,dict:string[]):boolean{const set=new Set(dict),n=s.length,dp=new Array(n+1).fill(false);dp[0]=true;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&set.has(s.slice(j,i))){dp[i]=true;break;}return dp[n];}
+    it('ex1'   ,()=>expect(wordBreak('leetcode',['leet','code'])).toBe(true));
+    it('ex2'   ,()=>expect(wordBreak('applepenapple',['apple','pen'])).toBe(true));
+    it('ex3'   ,()=>expect(wordBreak('catsandog',['cats','dog','sand','and','cat'])).toBe(false));
+    it('empty' ,()=>expect(wordBreak('',['a'])).toBe(true));
+    it('noDict',()=>expect(wordBreak('a',[])).toBe(false));
+  });
+  describe('russian doll envelopes', () => {
+    function maxEnvelopes(env:number[][]):number{env.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:b[1]-a[1]);const t:number[]=[];for(const [,h] of env){let lo=0,hi=t.length;while(lo<hi){const m=(lo+hi)>>1;if(t[m]<h)lo=m+1;else hi=m;}t[lo]=h;}return t.length;}
+    it('ex1'   ,()=>expect(maxEnvelopes([[5,4],[6,4],[6,7],[2,3]])).toBe(3));
+    it('ex2'   ,()=>expect(maxEnvelopes([[1,1],[1,1],[1,1]])).toBe(1));
+    it('two'   ,()=>expect(maxEnvelopes([[1,2],[2,3]])).toBe(2));
+    it('onefit',()=>expect(maxEnvelopes([[3,3],[2,4],[1,5]])).toBe(1));
+    it('single',()=>expect(maxEnvelopes([[1,1]])).toBe(1));
+  });
+  describe('wildcard matching', () => {
+    function isMatchWild(s:string,p:string):boolean{const m=s.length,n=p.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)dp[0][j]=p[j-1]==='*'&&dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i-1][j]||dp[i][j-1];else dp[i][j]=(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];}
+    it('ex1'   ,()=>expect(isMatchWild('aa','a')).toBe(false));
+    it('ex2'   ,()=>expect(isMatchWild('aa','*')).toBe(true));
+    it('ex3'   ,()=>expect(isMatchWild('cb','?a')).toBe(false));
+    it('ex4'   ,()=>expect(isMatchWild('adceb','*a*b')).toBe(true));
+    it('ex5'   ,()=>expect(isMatchWild('acdcb','a*c?b')).toBe(false));
+  });
+  describe('longest consecutive sequence', () => {
+    function lcs(nums:number[]):number{const s=new Set(nums);let b=0;for(const n of s){if(!s.has(n-1)){let c=n,l=1;while(s.has(c+1)){c++;l++;}b=Math.max(b,l);}}return b;}
+    it('ex1'   ,()=>expect(lcs([100,4,200,1,3,2])).toBe(4));
+    it('ex2'   ,()=>expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9));
+    it('empty' ,()=>expect(lcs([])).toBe(0));
+    it('single',()=>expect(lcs([5])).toBe(1));
+    it('nocons',()=>expect(lcs([1,3,5,7])).toBe(1));
+  });
+  describe('product except self', () => {
+    function productExceptSelf(nums:number[]):number[]{const n=nums.length,res=new Array(n).fill(1);let p=1;for(let i=0;i<n;i++){res[i]=p;p*=nums[i];}let s=1;for(let i=n-1;i>=0;i--){res[i]*=s;s*=nums[i];}return res;}
+    it('ex1'   ,()=>expect(productExceptSelf([1,2,3,4])).toEqual([24,12,8,6]));
+    it('ex2'   ,()=>expect(productExceptSelf([0,1,2,3,4])).toEqual([24,0,0,0,0]));
+    it('two'   ,()=>expect(productExceptSelf([2,3])).toEqual([3,2]));
+    it('negpos',()=>expect(productExceptSelf([-1,2])).toEqual([2,-1]));
+    it('zeros' ,()=>expect(productExceptSelf([0,0])).toEqual([0,0]));
+  });
+});

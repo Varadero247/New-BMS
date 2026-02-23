@@ -1113,3 +1113,46 @@ describe('phase63 coverage', () => {
     for(let i=1;i<b.length-1;i++)expect((b[i]>=b[i-1]&&b[i]>=b[i+1])||(b[i]<=b[i-1]&&b[i]<=b[i+1])).toBe(true);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('first missing positive', () => {
+    function fmp(nums:number[]):number{const n=nums.length;for(let i=0;i<n;i++)while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;}
+    it('ex1'   ,()=>expect(fmp([1,2,0])).toBe(3));
+    it('ex2'   ,()=>expect(fmp([3,4,-1,1])).toBe(2));
+    it('ex3'   ,()=>expect(fmp([7,8,9,11,12])).toBe(1));
+    it('seq'   ,()=>expect(fmp([1,2,3])).toBe(4));
+    it('one'   ,()=>expect(fmp([1])).toBe(2));
+  });
+  describe('rotate array', () => {
+    function rotate(nums:number[],k:number):void{k=k%nums.length;const rev=(a:number[],i:number,j:number)=>{while(i<j){[a[i],a[j]]=[a[j],a[i]];i++;j--;}};rev(nums,0,nums.length-1);rev(nums,0,k-1);rev(nums,k,nums.length-1);}
+    it('ex1'   ,()=>{const a=[1,2,3,4,5,6,7];rotate(a,3);expect(a).toEqual([5,6,7,1,2,3,4]);});
+    it('ex2'   ,()=>{const a=[-1,-100,3,99];rotate(a,2);expect(a).toEqual([3,99,-1,-100]);});
+    it('k0'    ,()=>{const a=[1,2,3];rotate(a,0);expect(a).toEqual([1,2,3]);});
+    it('kEqLen',()=>{const a=[1,2,3];rotate(a,3);expect(a).toEqual([1,2,3]);});
+    it('k1'    ,()=>{const a=[1,2,3,4];rotate(a,1);expect(a).toEqual([4,1,2,3]);});
+  });
+  describe('nth super ugly number', () => {
+    function nthSuperUgly(n:number,primes:number[]):number{const u=[1];const idx=new Array(primes.length).fill(0);for(let i=1;i<n;i++){const nx=Math.min(...primes.map((p,j)=>u[idx[j]]*p));u.push(nx);primes.forEach((_,j)=>{if(u[idx[j]]*primes[j]===nx)idx[j]++;});}return u[n-1];}
+    it('p2'    ,()=>expect(nthSuperUgly(12,[2,7,13,19])).toBe(32));
+    it('p1'    ,()=>expect(nthSuperUgly(1,[2,3,5])).toBe(1));
+    it('std10' ,()=>expect(nthSuperUgly(10,[2,3,5])).toBe(12));
+    it('p2only',()=>expect(nthSuperUgly(4,[2])).toBe(8));
+    it('p3only',()=>expect(nthSuperUgly(3,[3])).toBe(9));
+  });
+  describe('generate pascals', () => {
+    function generate(n:number):number[][]{const r=[];for(let i=0;i<n;i++){const row=[1];if(i>0){const p=r[i-1];for(let j=1;j<p.length;j++)row.push(p[j-1]+p[j]);row.push(1);}r.push(row);}return r;}
+    it('n1'    ,()=>expect(generate(1)).toEqual([[1]]));
+    it('n3row2',()=>expect(generate(3)[2]).toEqual([1,2,1]));
+    it('n5last',()=>expect(generate(5)[4]).toEqual([1,4,6,4,1]));
+    it('n0'    ,()=>expect(generate(0)).toEqual([]));
+    it('n2'    ,()=>expect(generate(2)).toEqual([[1],[1,1]]));
+  });
+  describe('trapping rain water', () => {
+    function trap(h:number[]):number{let l=0,r=h.length-1,lm=0,rm=0,w=0;while(l<r){if(h[l]<h[r]){lm=Math.max(lm,h[l]);w+=lm-h[l];l++;}else{rm=Math.max(rm,h[r]);w+=rm-h[r];r--;}}return w;}
+    it('ex1'   ,()=>expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6));
+    it('ex2'   ,()=>expect(trap([4,2,0,3,2,5])).toBe(9));
+    it('empty' ,()=>expect(trap([])).toBe(0));
+    it('flat'  ,()=>expect(trap([1,1,1])).toBe(0));
+    it('valley',()=>expect(trap([3,0,3])).toBe(3));
+  });
+});

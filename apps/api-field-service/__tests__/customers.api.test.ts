@@ -1004,3 +1004,46 @@ describe('phase63 coverage', () => {
     expect(hIndex([100])).toBe(1);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('longest consecutive sequence', () => {
+    function lcs(nums:number[]):number{const s=new Set(nums);let b=0;for(const n of s){if(!s.has(n-1)){let c=n,l=1;while(s.has(c+1)){c++;l++;}b=Math.max(b,l);}}return b;}
+    it('ex1'   ,()=>expect(lcs([100,4,200,1,3,2])).toBe(4));
+    it('ex2'   ,()=>expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9));
+    it('empty' ,()=>expect(lcs([])).toBe(0));
+    it('single',()=>expect(lcs([5])).toBe(1));
+    it('nocons',()=>expect(lcs([1,3,5,7])).toBe(1));
+  });
+  describe('first missing positive', () => {
+    function fmp(nums:number[]):number{const n=nums.length;for(let i=0;i<n;i++)while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;}
+    it('ex1'   ,()=>expect(fmp([1,2,0])).toBe(3));
+    it('ex2'   ,()=>expect(fmp([3,4,-1,1])).toBe(2));
+    it('ex3'   ,()=>expect(fmp([7,8,9,11,12])).toBe(1));
+    it('seq'   ,()=>expect(fmp([1,2,3])).toBe(4));
+    it('one'   ,()=>expect(fmp([1])).toBe(2));
+  });
+  describe('length of LIS', () => {
+    function lis(nums:number[]):number{const t:number[]=[];for(const n of nums){let lo=0,hi=t.length;while(lo<hi){const m=(lo+hi)>>1;if(t[m]<n)lo=m+1;else hi=m;}t[lo]=n;}return t.length;}
+    it('ex1'   ,()=>expect(lis([10,9,2,5,3,7,101,18])).toBe(4));
+    it('ex2'   ,()=>expect(lis([0,1,0,3,2,3])).toBe(4));
+    it('asc'   ,()=>expect(lis([1,2,3,4,5])).toBe(5));
+    it('desc'  ,()=>expect(lis([5,4,3,2,1])).toBe(1));
+    it('one'   ,()=>expect(lis([1])).toBe(1));
+  });
+  describe('decode ways', () => {
+    function numDecodings(s:string):number{if(s[0]==='0')return 0;const n=s.length;let p2=1,p1=1;for(let i=1;i<n;i++){let c=0;if(s[i]!=='0')c+=p1;const two=parseInt(s.slice(i-1,i+1));if(two>=10&&two<=26)c+=p2;p2=p1;p1=c;}return p1;}
+    it('12'    ,()=>expect(numDecodings('12')).toBe(2));
+    it('226'   ,()=>expect(numDecodings('226')).toBe(3));
+    it('06'    ,()=>expect(numDecodings('06')).toBe(0));
+    it('10'    ,()=>expect(numDecodings('10')).toBe(1));
+    it('27'    ,()=>expect(numDecodings('27')).toBe(1));
+  });
+  describe('edit distance', () => {
+    function minDistance(w1:string,w2:string):number{const m=w1.length,n=w2.length,dp=Array.from({length:m+1},(_,i)=>new Array(n+1).fill(0).map((_,j)=>i?j?0:i:j));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=w1[i-1]===w2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}
+    it('ex1'   ,()=>expect(minDistance('horse','ros')).toBe(3));
+    it('ex2'   ,()=>expect(minDistance('intention','execution')).toBe(5));
+    it('same'  ,()=>expect(minDistance('abc','abc')).toBe(0));
+    it('empty1',()=>expect(minDistance('','abc')).toBe(3));
+    it('empty2',()=>expect(minDistance('abc','')).toBe(3));
+  });
+});

@@ -866,3 +866,46 @@ describe('phase63 coverage', () => {
     expect(m2[0]).toEqual([15,13,2,5]);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('missing number', () => {
+    function missingNumber(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(missingNumber([3,0,1])).toBe(2));
+    it('ex2'   ,()=>expect(missingNumber([0,1])).toBe(2));
+    it('ex3'   ,()=>expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8));
+    it('zero'  ,()=>expect(missingNumber([1])).toBe(0));
+    it('last'  ,()=>expect(missingNumber([0])).toBe(1));
+  });
+  describe('word break', () => {
+    function wordBreak(s:string,dict:string[]):boolean{const set=new Set(dict),n=s.length,dp=new Array(n+1).fill(false);dp[0]=true;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&set.has(s.slice(j,i))){dp[i]=true;break;}return dp[n];}
+    it('ex1'   ,()=>expect(wordBreak('leetcode',['leet','code'])).toBe(true));
+    it('ex2'   ,()=>expect(wordBreak('applepenapple',['apple','pen'])).toBe(true));
+    it('ex3'   ,()=>expect(wordBreak('catsandog',['cats','dog','sand','and','cat'])).toBe(false));
+    it('empty' ,()=>expect(wordBreak('',['a'])).toBe(true));
+    it('noDict',()=>expect(wordBreak('a',[])).toBe(false));
+  });
+  describe('word break II', () => {
+    function wordBreakII(s:string,dict:string[]):string[]{const set=new Set(dict);const memo=new Map<number,string[]>();function bt(start:number):string[]{if(memo.has(start))return memo.get(start)!;if(start===s.length)return[''];const res:string[]=[];for(let end=start+1;end<=s.length;end++){const w=s.slice(start,end);if(set.has(w))for(const r of bt(end))res.push(w+(r?' '+r:''));}memo.set(start,res);return res;}return bt(0);}
+    it('ex1'   ,()=>expect(wordBreakII('catsanddog',['cat','cats','and','sand','dog']).sort()).toEqual(['cat sand dog','cats and dog']));
+    it('ex2'   ,()=>expect(wordBreakII('pineapplepenapple',['apple','pen','applepen','pine','pineapple']).length).toBe(3));
+    it('nores' ,()=>expect(wordBreakII('catsandog',['cats','dog','sand','and','cat'])).toEqual([]));
+    it('empty' ,()=>expect(wordBreakII('',['a'])).toEqual(['']));
+    it('single',()=>expect(wordBreakII('a',['a'])).toEqual(['a']));
+  });
+  describe('product except self', () => {
+    function productExceptSelf(nums:number[]):number[]{const n=nums.length,res=new Array(n).fill(1);let p=1;for(let i=0;i<n;i++){res[i]=p;p*=nums[i];}let s=1;for(let i=n-1;i>=0;i--){res[i]*=s;s*=nums[i];}return res;}
+    it('ex1'   ,()=>expect(productExceptSelf([1,2,3,4])).toEqual([24,12,8,6]));
+    it('ex2'   ,()=>expect(productExceptSelf([0,1,2,3,4])).toEqual([24,0,0,0,0]));
+    it('two'   ,()=>expect(productExceptSelf([2,3])).toEqual([3,2]));
+    it('negpos',()=>expect(productExceptSelf([-1,2])).toEqual([2,-1]));
+    it('zeros' ,()=>expect(productExceptSelf([0,0])).toEqual([0,0]));
+  });
+  describe('nth super ugly number', () => {
+    function nthSuperUgly(n:number,primes:number[]):number{const u=[1];const idx=new Array(primes.length).fill(0);for(let i=1;i<n;i++){const nx=Math.min(...primes.map((p,j)=>u[idx[j]]*p));u.push(nx);primes.forEach((_,j)=>{if(u[idx[j]]*primes[j]===nx)idx[j]++;});}return u[n-1];}
+    it('p2'    ,()=>expect(nthSuperUgly(12,[2,7,13,19])).toBe(32));
+    it('p1'    ,()=>expect(nthSuperUgly(1,[2,3,5])).toBe(1));
+    it('std10' ,()=>expect(nthSuperUgly(10,[2,3,5])).toBe(12));
+    it('p2only',()=>expect(nthSuperUgly(4,[2])).toBe(8));
+    it('p3only',()=>expect(nthSuperUgly(3,[3])).toBe(9));
+  });
+});

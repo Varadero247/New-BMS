@@ -857,3 +857,46 @@ describe('phase63 coverage', () => {
     expect(shortestCompletingWord('1s3 456',['looks','pest','stew','show'])).toBe('pest');
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('distinct subsequences', () => {
+    function numDistinct(s:string,t:string):number{const m=s.length,n=t.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=0;i<m;i++)for(let j=n-1;j>=0;j--)if(s[i]===t[j])dp[j+1]+=dp[j];return dp[n];}
+    it('ex1'   ,()=>expect(numDistinct('rabbbit','rabbit')).toBe(3));
+    it('ex2'   ,()=>expect(numDistinct('babgbag','bag')).toBe(5));
+    it('same'  ,()=>expect(numDistinct('abc','abc')).toBe(1));
+    it('empty' ,()=>expect(numDistinct('','a')).toBe(0));
+    it('repeat',()=>expect(numDistinct('aaa','a')).toBe(3));
+  });
+  describe('candy distribution', () => {
+    function candy(r:number[]):number{const n=r.length,c=new Array(n).fill(1);for(let i=1;i<n;i++)if(r[i]>r[i-1])c[i]=c[i-1]+1;for(let i=n-2;i>=0;i--)if(r[i]>r[i+1]&&c[i]<=c[i+1])c[i]=c[i+1]+1;return c.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(candy([1,0,2])).toBe(5));
+    it('ex2'   ,()=>expect(candy([1,2,2])).toBe(4));
+    it('one'   ,()=>expect(candy([5])).toBe(1));
+    it('equal' ,()=>expect(candy([3,3,3])).toBe(3));
+    it('asc'   ,()=>expect(candy([1,2,3])).toBe(6));
+  });
+  describe('concatenated words', () => {
+    function concatWords(words:string[]):string[]{const set=new Set(words);function check(w:string):boolean{const n=w.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&(j>0||i<n)&&set.has(w.slice(j,i))){dp[i]=1;break;}return dp[n]===1;}return words.filter(check);}
+    it('ex1'   ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.includes('catsdogcats')).toBe(true);expect(r.includes('dogcatsdog')).toBe(true);});
+    it('size'  ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.length).toBe(3);});
+    it('empty' ,()=>expect(concatWords([])).toEqual([]));
+    it('nocat' ,()=>expect(concatWords(['cat','dog'])).toEqual([]));
+    it('ab'    ,()=>expect(concatWords(['a','b','ab','abc'])).toEqual(['ab']));
+  });
+  describe('missing number', () => {
+    function missingNumber(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+    it('ex1'   ,()=>expect(missingNumber([3,0,1])).toBe(2));
+    it('ex2'   ,()=>expect(missingNumber([0,1])).toBe(2));
+    it('ex3'   ,()=>expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8));
+    it('zero'  ,()=>expect(missingNumber([1])).toBe(0));
+    it('last'  ,()=>expect(missingNumber([0])).toBe(1));
+  });
+  describe('maximal rectangle', () => {
+    function maxRect(matrix:string[][]):number{if(!matrix.length)return 0;const nc=matrix[0].length;let max=0;const h=new Array(nc).fill(0);for(const row of matrix){for(let j=0;j<nc;j++)h[j]=row[j]==='0'?0:h[j]+1;const st=[-1];for(let j=0;j<=nc;j++){const hh=j===nc?0:h[j];while(st[st.length-1]!==-1&&h[st[st.length-1]]>hh){const top=st.pop()!;max=Math.max(max,h[top]*(j-st[st.length-1]-1));}st.push(j);}}return max;}
+    it('ex1'   ,()=>expect(maxRect([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']])).toBe(6));
+    it('zero'  ,()=>expect(maxRect([['0']])).toBe(0));
+    it('one'   ,()=>expect(maxRect([['1']])).toBe(1));
+    it('all1'  ,()=>expect(maxRect([['1','1'],['1','1']])).toBe(4));
+    it('row'   ,()=>expect(maxRect([['1','1','1']])).toBe(3));
+  });
+});

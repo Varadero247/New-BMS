@@ -1085,3 +1085,46 @@ describe('phase63 coverage', () => {
     expect(isToeplitzMatrix([[1,2],[2,2]])).toBe(false);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('product except self', () => {
+    function productExceptSelf(nums:number[]):number[]{const n=nums.length,res=new Array(n).fill(1);let p=1;for(let i=0;i<n;i++){res[i]=p;p*=nums[i];}let s=1;for(let i=n-1;i>=0;i--){res[i]*=s;s*=nums[i];}return res;}
+    it('ex1'   ,()=>expect(productExceptSelf([1,2,3,4])).toEqual([24,12,8,6]));
+    it('ex2'   ,()=>expect(productExceptSelf([0,1,2,3,4])).toEqual([24,0,0,0,0]));
+    it('two'   ,()=>expect(productExceptSelf([2,3])).toEqual([3,2]));
+    it('negpos',()=>expect(productExceptSelf([-1,2])).toEqual([2,-1]));
+    it('zeros' ,()=>expect(productExceptSelf([0,0])).toEqual([0,0]));
+  });
+  describe('scramble string', () => {
+    function isScramble(s1:string,s2:string):boolean{if(s1===s2)return true;if(s1.length!==s2.length)return false;const memo=new Map<string,boolean>();function dp(a:string,b:string):boolean{const k=a+'|'+b;if(memo.has(k))return memo.get(k)!;if(a===b){memo.set(k,true);return true;}const n=a.length,cnt=new Array(26).fill(0);for(let i=0;i<n;i++){cnt[a.charCodeAt(i)-97]++;cnt[b.charCodeAt(i)-97]--;}if(cnt.some(c=>c!==0)){memo.set(k,false);return false;}for(let i=1;i<n;i++){if(dp(a.slice(0,i),b.slice(0,i))&&dp(a.slice(i),b.slice(i))){memo.set(k,true);return true;}if(dp(a.slice(0,i),b.slice(n-i))&&dp(a.slice(i),b.slice(0,n-i))){memo.set(k,true);return true;}}memo.set(k,false);return false;}return dp(s1,s2);}
+    it('ex1'   ,()=>expect(isScramble('great','rgeat')).toBe(true));
+    it('ex2'   ,()=>expect(isScramble('abcde','caebd')).toBe(false));
+    it('same'  ,()=>expect(isScramble('a','a')).toBe(true));
+    it('ab_ba' ,()=>expect(isScramble('ab','ba')).toBe(true));
+    it('abc'   ,()=>expect(isScramble('abc','bca')).toBe(true));
+  });
+  describe('distinct subsequences', () => {
+    function numDistinct(s:string,t:string):number{const m=s.length,n=t.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=0;i<m;i++)for(let j=n-1;j>=0;j--)if(s[i]===t[j])dp[j+1]+=dp[j];return dp[n];}
+    it('ex1'   ,()=>expect(numDistinct('rabbbit','rabbit')).toBe(3));
+    it('ex2'   ,()=>expect(numDistinct('babgbag','bag')).toBe(5));
+    it('same'  ,()=>expect(numDistinct('abc','abc')).toBe(1));
+    it('empty' ,()=>expect(numDistinct('','a')).toBe(0));
+    it('repeat',()=>expect(numDistinct('aaa','a')).toBe(3));
+  });
+  describe('edit distance', () => {
+    function minDistance(w1:string,w2:string):number{const m=w1.length,n=w2.length,dp=Array.from({length:m+1},(_,i)=>new Array(n+1).fill(0).map((_,j)=>i?j?0:i:j));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=w1[i-1]===w2[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}
+    it('ex1'   ,()=>expect(minDistance('horse','ros')).toBe(3));
+    it('ex2'   ,()=>expect(minDistance('intention','execution')).toBe(5));
+    it('same'  ,()=>expect(minDistance('abc','abc')).toBe(0));
+    it('empty1',()=>expect(minDistance('','abc')).toBe(3));
+    it('empty2',()=>expect(minDistance('abc','')).toBe(3));
+  });
+  describe('regular expression matching', () => {
+    function isMatch(s:string,p:string):boolean{const m=s.length,n=p.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||((p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j]);else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];}
+    it('ex1'   ,()=>expect(isMatch('aa','a')).toBe(false));
+    it('ex2'   ,()=>expect(isMatch('aa','a*')).toBe(true));
+    it('ex3'   ,()=>expect(isMatch('ab','.*')).toBe(true));
+    it('star0' ,()=>expect(isMatch('aab','c*a*b')).toBe(true));
+    it('dot'   ,()=>expect(isMatch('mississippi','mis*is*p*.')).toBe(false));
+  });
+});

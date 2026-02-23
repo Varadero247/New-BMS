@@ -769,3 +769,46 @@ describe('phase63 coverage', () => {
     expect(detectCapitalUse('FlaG')).toBe(false);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('concatenated words', () => {
+    function concatWords(words:string[]):string[]{const set=new Set(words);function check(w:string):boolean{const n=w.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&(j>0||i<n)&&set.has(w.slice(j,i))){dp[i]=1;break;}return dp[n]===1;}return words.filter(check);}
+    it('ex1'   ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.includes('catsdogcats')).toBe(true);expect(r.includes('dogcatsdog')).toBe(true);});
+    it('size'  ,()=>{const r=concatWords(['cat','cats','catsdogcats','dog','dogcatsdog','hippopotamuses','rat','ratcatdogcat']);expect(r.length).toBe(3);});
+    it('empty' ,()=>expect(concatWords([])).toEqual([]));
+    it('nocat' ,()=>expect(concatWords(['cat','dog'])).toEqual([]));
+    it('ab'    ,()=>expect(concatWords(['a','b','ab','abc'])).toEqual(['ab']));
+  });
+  describe('nth super ugly number', () => {
+    function nthSuperUgly(n:number,primes:number[]):number{const u=[1];const idx=new Array(primes.length).fill(0);for(let i=1;i<n;i++){const nx=Math.min(...primes.map((p,j)=>u[idx[j]]*p));u.push(nx);primes.forEach((_,j)=>{if(u[idx[j]]*primes[j]===nx)idx[j]++;});}return u[n-1];}
+    it('p2'    ,()=>expect(nthSuperUgly(12,[2,7,13,19])).toBe(32));
+    it('p1'    ,()=>expect(nthSuperUgly(1,[2,3,5])).toBe(1));
+    it('std10' ,()=>expect(nthSuperUgly(10,[2,3,5])).toBe(12));
+    it('p2only',()=>expect(nthSuperUgly(4,[2])).toBe(8));
+    it('p3only',()=>expect(nthSuperUgly(3,[3])).toBe(9));
+  });
+  describe('minimum ascii delete sum', () => {
+    function minDeleteSum(s1:string,s2:string):number{const m=s1.length,n=s2.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)dp[i][0]=dp[i-1][0]+s1.charCodeAt(i-1);for(let j=1;j<=n;j++)dp[0][j]=dp[0][j-1]+s2.charCodeAt(j-1);for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s1[i-1]===s2[j-1]?dp[i-1][j-1]:Math.min(dp[i-1][j]+s1.charCodeAt(i-1),dp[i][j-1]+s2.charCodeAt(j-1));return dp[m][n];}
+    it('ex1'   ,()=>expect(minDeleteSum('sea','eat')).toBe(231));
+    it('ex2'   ,()=>expect(minDeleteSum('delete','leet')).toBe(403));
+    it('same'  ,()=>expect(minDeleteSum('a','a')).toBe(0));
+    it('empty' ,()=>expect(minDeleteSum('','a')).toBe(97));
+    it('diff'  ,()=>expect(minDeleteSum('ab','ba')).toBe(194));
+  });
+  describe('product except self', () => {
+    function productExceptSelf(nums:number[]):number[]{const n=nums.length,res=new Array(n).fill(1);let p=1;for(let i=0;i<n;i++){res[i]=p;p*=nums[i];}let s=1;for(let i=n-1;i>=0;i--){res[i]*=s;s*=nums[i];}return res;}
+    it('ex1'   ,()=>expect(productExceptSelf([1,2,3,4])).toEqual([24,12,8,6]));
+    it('ex2'   ,()=>expect(productExceptSelf([0,1,2,3,4])).toEqual([24,0,0,0,0]));
+    it('two'   ,()=>expect(productExceptSelf([2,3])).toEqual([3,2]));
+    it('negpos',()=>expect(productExceptSelf([-1,2])).toEqual([2,-1]));
+    it('zeros' ,()=>expect(productExceptSelf([0,0])).toEqual([0,0]));
+  });
+  describe('word break II', () => {
+    function wordBreakII(s:string,dict:string[]):string[]{const set=new Set(dict);const memo=new Map<number,string[]>();function bt(start:number):string[]{if(memo.has(start))return memo.get(start)!;if(start===s.length)return[''];const res:string[]=[];for(let end=start+1;end<=s.length;end++){const w=s.slice(start,end);if(set.has(w))for(const r of bt(end))res.push(w+(r?' '+r:''));}memo.set(start,res);return res;}return bt(0);}
+    it('ex1'   ,()=>expect(wordBreakII('catsanddog',['cat','cats','and','sand','dog']).sort()).toEqual(['cat sand dog','cats and dog']));
+    it('ex2'   ,()=>expect(wordBreakII('pineapplepenapple',['apple','pen','applepen','pine','pineapple']).length).toBe(3));
+    it('nores' ,()=>expect(wordBreakII('catsandog',['cats','dog','sand','and','cat'])).toEqual([]));
+    it('empty' ,()=>expect(wordBreakII('',['a'])).toEqual(['']));
+    it('single',()=>expect(wordBreakII('a',['a'])).toEqual(['a']));
+  });
+});

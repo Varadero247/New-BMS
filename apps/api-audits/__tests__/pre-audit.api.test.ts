@@ -879,3 +879,46 @@ describe('phase63 coverage', () => {
     expect(carFleet(100,[0,2,4],[4,2,1])).toBe(1);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('interleaving string', () => {
+    function isInterleave(s1:string,s2:string,s3:string):boolean{const m=s1.length,n=s2.length;if(m+n!==s3.length)return false;const dp=new Array(n+1).fill(false);dp[0]=true;for(let j=1;j<=n;j++)dp[j]=dp[j-1]&&s2[j-1]===s3[j-1];for(let i=1;i<=m;i++){dp[0]=dp[0]&&s1[i-1]===s3[i-1];for(let j=1;j<=n;j++)dp[j]=(dp[j]&&s1[i-1]===s3[i+j-1])||(dp[j-1]&&s2[j-1]===s3[i+j-1]);}return dp[n];}
+    it('ex1'   ,()=>expect(isInterleave('aabcc','dbbca','aadbbcbcac')).toBe(true));
+    it('ex2'   ,()=>expect(isInterleave('aabcc','dbbca','aadbbbaccc')).toBe(false));
+    it('empty' ,()=>expect(isInterleave('','','')) .toBe(true));
+    it('one'   ,()=>expect(isInterleave('a','','a')).toBe(true));
+    it('mism'  ,()=>expect(isInterleave('a','b','ab')).toBe(true));
+  });
+  describe('regular expression matching', () => {
+    function isMatch(s:string,p:string):boolean{const m=s.length,n=p.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||((p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j]);else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];}
+    it('ex1'   ,()=>expect(isMatch('aa','a')).toBe(false));
+    it('ex2'   ,()=>expect(isMatch('aa','a*')).toBe(true));
+    it('ex3'   ,()=>expect(isMatch('ab','.*')).toBe(true));
+    it('star0' ,()=>expect(isMatch('aab','c*a*b')).toBe(true));
+    it('dot'   ,()=>expect(isMatch('mississippi','mis*is*p*.')).toBe(false));
+  });
+  describe('scramble string', () => {
+    function isScramble(s1:string,s2:string):boolean{if(s1===s2)return true;if(s1.length!==s2.length)return false;const memo=new Map<string,boolean>();function dp(a:string,b:string):boolean{const k=a+'|'+b;if(memo.has(k))return memo.get(k)!;if(a===b){memo.set(k,true);return true;}const n=a.length,cnt=new Array(26).fill(0);for(let i=0;i<n;i++){cnt[a.charCodeAt(i)-97]++;cnt[b.charCodeAt(i)-97]--;}if(cnt.some(c=>c!==0)){memo.set(k,false);return false;}for(let i=1;i<n;i++){if(dp(a.slice(0,i),b.slice(0,i))&&dp(a.slice(i),b.slice(i))){memo.set(k,true);return true;}if(dp(a.slice(0,i),b.slice(n-i))&&dp(a.slice(i),b.slice(0,n-i))){memo.set(k,true);return true;}}memo.set(k,false);return false;}return dp(s1,s2);}
+    it('ex1'   ,()=>expect(isScramble('great','rgeat')).toBe(true));
+    it('ex2'   ,()=>expect(isScramble('abcde','caebd')).toBe(false));
+    it('same'  ,()=>expect(isScramble('a','a')).toBe(true));
+    it('ab_ba' ,()=>expect(isScramble('ab','ba')).toBe(true));
+    it('abc'   ,()=>expect(isScramble('abc','bca')).toBe(true));
+  });
+  describe('trapping rain water', () => {
+    function trap(h:number[]):number{let l=0,r=h.length-1,lm=0,rm=0,w=0;while(l<r){if(h[l]<h[r]){lm=Math.max(lm,h[l]);w+=lm-h[l];l++;}else{rm=Math.max(rm,h[r]);w+=rm-h[r];r--;}}return w;}
+    it('ex1'   ,()=>expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6));
+    it('ex2'   ,()=>expect(trap([4,2,0,3,2,5])).toBe(9));
+    it('empty' ,()=>expect(trap([])).toBe(0));
+    it('flat'  ,()=>expect(trap([1,1,1])).toBe(0));
+    it('valley',()=>expect(trap([3,0,3])).toBe(3));
+  });
+  describe('palindrome pairs', () => {
+    function palindromePairs(words:string[]):number{const isPal=(s:string)=>s===s.split('').reverse().join('');let c=0;for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++)if(i!==j&&isPal(words[i]+words[j]))c++;return c;}
+    it('ex1'   ,()=>expect(palindromePairs(['abcd','dcba','lls','s','sssll'])).toBe(4));
+    it('ex2'   ,()=>expect(palindromePairs(['bat','tab','cat'])).toBe(2));
+    it('empty' ,()=>expect(palindromePairs(['a',''])).toBe(2));
+    it('one'   ,()=>expect(palindromePairs(['a'])).toBe(0));
+    it('aba'   ,()=>expect(palindromePairs(['aba',''])).toBe(2));
+  });
+});

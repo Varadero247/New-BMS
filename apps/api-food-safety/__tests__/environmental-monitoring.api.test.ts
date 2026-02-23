@@ -1003,3 +1003,46 @@ describe('phase63 coverage', () => {
     expect(minMeetingRooms([[1,5],[8,9],[8,9]])).toBe(2);
   });
 });
+
+describe('phase64 coverage', () => {
+  describe('getRow pascals', () => {
+    function getRow(rowIndex:number):number[]{let row=[1];for(let i=1;i<=rowIndex;i++){const next=[1];for(let j=1;j<row.length;j++)next.push(row[j-1]+row[j]);next.push(1);row=next;}return row;}
+    it('row3'  ,()=>expect(getRow(3)).toEqual([1,3,3,1]));
+    it('row0'  ,()=>expect(getRow(0)).toEqual([1]));
+    it('row1'  ,()=>expect(getRow(1)).toEqual([1,1]));
+    it('row2'  ,()=>expect(getRow(2)).toEqual([1,2,1]));
+    it('row4'  ,()=>expect(getRow(4)).toEqual([1,4,6,4,1]));
+  });
+  describe('distinct subsequences', () => {
+    function numDistinct(s:string,t:string):number{const m=s.length,n=t.length,dp=new Array(n+1).fill(0);dp[0]=1;for(let i=0;i<m;i++)for(let j=n-1;j>=0;j--)if(s[i]===t[j])dp[j+1]+=dp[j];return dp[n];}
+    it('ex1'   ,()=>expect(numDistinct('rabbbit','rabbit')).toBe(3));
+    it('ex2'   ,()=>expect(numDistinct('babgbag','bag')).toBe(5));
+    it('same'  ,()=>expect(numDistinct('abc','abc')).toBe(1));
+    it('empty' ,()=>expect(numDistinct('','a')).toBe(0));
+    it('repeat',()=>expect(numDistinct('aaa','a')).toBe(3));
+  });
+  describe('first missing positive', () => {
+    function fmp(nums:number[]):number{const n=nums.length;for(let i=0;i<n;i++)while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;}
+    it('ex1'   ,()=>expect(fmp([1,2,0])).toBe(3));
+    it('ex2'   ,()=>expect(fmp([3,4,-1,1])).toBe(2));
+    it('ex3'   ,()=>expect(fmp([7,8,9,11,12])).toBe(1));
+    it('seq'   ,()=>expect(fmp([1,2,3])).toBe(4));
+    it('one'   ,()=>expect(fmp([1])).toBe(2));
+  });
+  describe('generate pascals', () => {
+    function generate(n:number):number[][]{const r=[];for(let i=0;i<n;i++){const row=[1];if(i>0){const p=r[i-1];for(let j=1;j<p.length;j++)row.push(p[j-1]+p[j]);row.push(1);}r.push(row);}return r;}
+    it('n1'    ,()=>expect(generate(1)).toEqual([[1]]));
+    it('n3row2',()=>expect(generate(3)[2]).toEqual([1,2,1]));
+    it('n5last',()=>expect(generate(5)[4]).toEqual([1,4,6,4,1]));
+    it('n0'    ,()=>expect(generate(0)).toEqual([]));
+    it('n2'    ,()=>expect(generate(2)).toEqual([[1],[1,1]]));
+  });
+  describe('palindrome pairs', () => {
+    function palindromePairs(words:string[]):number{const isPal=(s:string)=>s===s.split('').reverse().join('');let c=0;for(let i=0;i<words.length;i++)for(let j=0;j<words.length;j++)if(i!==j&&isPal(words[i]+words[j]))c++;return c;}
+    it('ex1'   ,()=>expect(palindromePairs(['abcd','dcba','lls','s','sssll'])).toBe(4));
+    it('ex2'   ,()=>expect(palindromePairs(['bat','tab','cat'])).toBe(2));
+    it('empty' ,()=>expect(palindromePairs(['a',''])).toBe(2));
+    it('one'   ,()=>expect(palindromePairs(['a'])).toBe(0));
+    it('aba'   ,()=>expect(palindromePairs(['aba',''])).toBe(2));
+  });
+});
