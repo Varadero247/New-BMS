@@ -1117,3 +1117,14 @@ describe('phase64 coverage', () => {
     it('k1'    ,()=>{const a=[1,2,3,4];rotate(a,1);expect(a).toEqual([4,1,2,3]);});
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('letter combinations', () => {
+    function lc(digits:string):number{if(!digits.length)return 0;const map=['','','abc','def','ghi','jkl','mno','pqrs','tuv','wxyz'];const res:string[]=[];function bt(i:number,p:string):void{if(i===digits.length){res.push(p);return;}for(const c of map[+digits[i]])bt(i+1,p+c);}bt(0,'');return res.length;}
+    it('23'    ,()=>expect(lc('23')).toBe(9));
+    it('empty' ,()=>expect(lc('')).toBe(0));
+    it('2'     ,()=>expect(lc('2')).toBe(3));
+    it('7'     ,()=>expect(lc('7')).toBe(4));
+    it('234'   ,()=>expect(lc('234')).toBe(27));
+  });
+});

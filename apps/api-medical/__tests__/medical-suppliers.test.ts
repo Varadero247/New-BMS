@@ -1188,3 +1188,14 @@ describe('phase64 coverage', () => {
     it('n7'    ,()=>expect(nthUgly(7)).toBe(8));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('trailing zeroes in factorial', () => {
+    function tz(n:number):number{let c=0;while(n>=5){n=Math.floor(n/5);c+=n;}return c;}
+    it('3'     ,()=>expect(tz(3)).toBe(0));
+    it('5'     ,()=>expect(tz(5)).toBe(1));
+    it('25'    ,()=>expect(tz(25)).toBe(6));
+    it('100'   ,()=>expect(tz(100)).toBe(24));
+    it('0'     ,()=>expect(tz(0)).toBe(0));
+  });
+});

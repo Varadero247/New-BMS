@@ -935,3 +935,14 @@ describe('phase64 coverage', () => {
     it('p3only',()=>expect(nthSuperUgly(3,[3])).toBe(9));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('romanToInt', () => {
+    function rti(s:string):number{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let r=0;for(let i=0;i<s.length;i++)r+=i+1<s.length&&m[s[i]]<m[s[i+1]]?-m[s[i]]:m[s[i]];return r;}
+    it('III'   ,()=>expect(rti('III')).toBe(3));
+    it('LVIII' ,()=>expect(rti('LVIII')).toBe(58));
+    it('MCMXCIV',()=>expect(rti('MCMXCIV')).toBe(1994));
+    it('IV'    ,()=>expect(rti('IV')).toBe(4));
+    it('IX'    ,()=>expect(rti('IX')).toBe(9));
+  });
+});

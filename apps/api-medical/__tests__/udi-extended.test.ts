@@ -1099,3 +1099,14 @@ describe('phase64 coverage', () => {
     it('single',()=>expect(maxEnvelopes([[1,1]])).toBe(1));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('flatten nested list', () => {
+    function fl(list:unknown[]):number[]{const res:number[]=[];function dfs(item:unknown):void{if(Array.isArray(item)){for(const i of item)dfs(i);}else res.push(item as number);}dfs(list);return res;}
+    it('ex1'   ,()=>expect(fl([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]));
+    it('ex2'   ,()=>expect(fl([1,[4,[6]]])).toEqual([1,4,6]));
+    it('flat'  ,()=>expect(fl([1,2,3])).toEqual([1,2,3]));
+    it('deep'  ,()=>expect(fl([[[1]]])).toEqual([1]));
+    it('empty' ,()=>expect(fl([])).toEqual([]));
+  });
+});

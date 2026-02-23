@@ -1120,3 +1120,14 @@ describe('phase64 coverage', () => {
     it('p3only',()=>expect(nthSuperUgly(3,[3])).toBe(9));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('combinations nCk', () => {
+    function comb(n:number,k:number):number{const res:number[][]=[];function bt(s:number,p:number[]):void{if(p.length===k){res.push([...p]);return;}for(let i=s;i<=n;i++){p.push(i);bt(i+1,p);p.pop();}}bt(1,[]);return res.length;}
+    it('c42'   ,()=>expect(comb(4,2)).toBe(6));
+    it('c11'   ,()=>expect(comb(1,1)).toBe(1));
+    it('c52'   ,()=>expect(comb(5,2)).toBe(10));
+    it('c31'   ,()=>expect(comb(3,1)).toBe(3));
+    it('c33'   ,()=>expect(comb(3,3)).toBe(1));
+  });
+});

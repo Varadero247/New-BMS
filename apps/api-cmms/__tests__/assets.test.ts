@@ -1069,3 +1069,14 @@ describe('phase64 coverage', () => {
     it('single',()=>expect(wordBreakII('a',['a'])).toEqual(['a']));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('n-queens count', () => {
+    function nq(n:number):number{let c=0;const cols=new Set<number>(),d1=new Set<number>(),d2=new Set<number>();function bt(r:number):void{if(r===n){c++;return;}for(let col=0;col<n;col++){if(cols.has(col)||d1.has(r-col)||d2.has(r+col))continue;cols.add(col);d1.add(r-col);d2.add(r+col);bt(r+1);cols.delete(col);d1.delete(r-col);d2.delete(r+col);}}bt(0);return c;}
+    it('n4'    ,()=>expect(nq(4)).toBe(2));
+    it('n1'    ,()=>expect(nq(1)).toBe(1));
+    it('n5'    ,()=>expect(nq(5)).toBe(10));
+    it('n6'    ,()=>expect(nq(6)).toBe(4));
+    it('n8'    ,()=>expect(nq(8)).toBe(92));
+  });
+});

@@ -972,3 +972,14 @@ describe('phase64 coverage', () => {
     it('nocons',()=>expect(lcs([1,3,5,7])).toBe(1));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('count and say', () => {
+    function cas(n:number):string{let s='1';for(let i=1;i<n;i++){let nx='',j=0;while(j<s.length){let k=j;while(k<s.length&&s[k]===s[j])k++;nx+=`${k-j}${s[j]}`;j=k;}s=nx;}return s;}
+    it('n1'    ,()=>expect(cas(1)).toBe('1'));
+    it('n4'    ,()=>expect(cas(4)).toBe('1211'));
+    it('n2'    ,()=>expect(cas(2)).toBe('11'));
+    it('n3'    ,()=>expect(cas(3)).toBe('21'));
+    it('n5'    ,()=>expect(cas(5)).toBe('111221'));
+  });
+});

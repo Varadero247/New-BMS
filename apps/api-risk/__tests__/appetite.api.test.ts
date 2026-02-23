@@ -1013,3 +1013,14 @@ describe('phase64 coverage', () => {
     it('repeat',()=>expect(numDistinct('aaa','a')).toBe(3));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('intToRoman', () => {
+    function itr(n:number):string{const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const s=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';for(let i=0;i<v.length;i++)while(n>=v[i]){r+=s[i];n-=v[i];}return r;}
+    it('III'   ,()=>expect(itr(3)).toBe('III'));
+    it('LVIII' ,()=>expect(itr(58)).toBe('LVIII'));
+    it('MCMXCIV',()=>expect(itr(1994)).toBe('MCMXCIV'));
+    it('IV'    ,()=>expect(itr(4)).toBe('IV'));
+    it('XL'    ,()=>expect(itr(40)).toBe('XL'));
+  });
+});

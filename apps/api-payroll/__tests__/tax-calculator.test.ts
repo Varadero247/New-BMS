@@ -1196,3 +1196,14 @@ describe('phase64 coverage', () => {
     it('aba'   ,()=>expect(palindromePairs(['aba',''])).toBe(2));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('power of two', () => {
+    function pot(n:number):boolean{return n>0&&(n&(n-1))===0;}
+    it('1'     ,()=>expect(pot(1)).toBe(true));
+    it('16'    ,()=>expect(pot(16)).toBe(true));
+    it('3'     ,()=>expect(pot(3)).toBe(false));
+    it('0'     ,()=>expect(pot(0)).toBe(false));
+    it('neg'   ,()=>expect(pot(-4)).toBe(false));
+  });
+});

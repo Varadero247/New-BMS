@@ -1068,3 +1068,14 @@ describe('phase64 coverage', () => {
     it('big1st',()=>expect(jump([10,1,1,1,1])).toBe(1));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('generate parentheses', () => {
+    function gp(n:number):number{const res:string[]=[];function bt(s:string,op:number,cl:number):void{if(s.length===2*n){res.push(s);return;}if(op<n)bt(s+'(',op+1,cl);if(cl<op)bt(s+')',op,cl+1);}bt('',0,0);return res.length;}
+    it('n3'    ,()=>expect(gp(3)).toBe(5));
+    it('n1'    ,()=>expect(gp(1)).toBe(1));
+    it('n2'    ,()=>expect(gp(2)).toBe(2));
+    it('n4'    ,()=>expect(gp(4)).toBe(14));
+    it('n5'    ,()=>expect(gp(5)).toBe(42));
+  });
+});

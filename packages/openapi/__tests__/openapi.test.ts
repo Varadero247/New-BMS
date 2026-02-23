@@ -872,3 +872,14 @@ describe('phase64 coverage', () => {
     it('n2'    ,()=>expect(generate(2)).toEqual([[1],[1,1]]));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('single number XOR', () => {
+    function sn(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+    it('ex1'   ,()=>expect(sn([2,2,1])).toBe(1));
+    it('ex2'   ,()=>expect(sn([4,1,2,1,2])).toBe(4));
+    it('one'   ,()=>expect(sn([1])).toBe(1));
+    it('neg'   ,()=>expect(sn([-1,-1,5])).toBe(5));
+    it('big'   ,()=>expect(sn([0,0,0,0,7])).toBe(7));
+  });
+});

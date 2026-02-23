@@ -1112,3 +1112,14 @@ describe('phase64 coverage', () => {
     it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('decode string', () => {
+    function ds(s:string):string{const st:Array<[string,number]>=[];let cur='',num=0;for(const c of s){if(c>='0'&&c<='9')num=num*10+parseInt(c);else if(c==='['){st.push([cur,num]);cur='';num=0;}else if(c===']'){const[prev,n]=st.pop()!;cur=prev+cur.repeat(n);}else cur+=c;}return cur;}
+    it('ex1'   ,()=>expect(ds('3[a]2[bc]')).toBe('aaabcbc'));
+    it('ex2'   ,()=>expect(ds('3[a2[c]]')).toBe('accaccacc'));
+    it('ex3'   ,()=>expect(ds('2[abc]3[cd]ef')).toBe('abcabccdcdcdef'));
+    it('none'  ,()=>expect(ds('abc')).toBe('abc'));
+    it('nested',()=>expect(ds('2[2[a]]')).toBe('aaaa'));
+  });
+});

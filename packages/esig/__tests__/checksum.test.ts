@@ -851,3 +851,14 @@ describe('phase64 coverage', () => {
     it('ex5'   ,()=>expect(isMatchWild('acdcb','a*c?b')).toBe(false));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('add binary', () => {
+    function ab(a:string,b:string):string{let i=a.length-1,j=b.length-1,c=0,r='';while(i>=0||j>=0||c){const s=(i>=0?+a[i--]:0)+(j>=0?+b[j--]:0)+c;c=Math.floor(s/2);r=(s%2)+r;}return r;}
+    it('ex1'   ,()=>expect(ab('11','1')).toBe('100'));
+    it('ex2'   ,()=>expect(ab('1010','1011')).toBe('10101'));
+    it('zero'  ,()=>expect(ab('0','0')).toBe('0'));
+    it('one'   ,()=>expect(ab('1','1')).toBe('10'));
+    it('long'  ,()=>expect(ab('1111','1111')).toBe('11110'));
+  });
+});

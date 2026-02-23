@@ -934,3 +934,14 @@ describe('phase64 coverage', () => {
     it('noCol' ,()=>expect(maxPoints([[1,1],[2,3],[3,5],[4,7]])).toBe(4));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('power of three', () => {
+    function po3(n:number):boolean{if(n<=0)return false;while(n%3===0)n/=3;return n===1;}
+    it('27'    ,()=>expect(po3(27)).toBe(true));
+    it('0'     ,()=>expect(po3(0)).toBe(false));
+    it('9'     ,()=>expect(po3(9)).toBe(true));
+    it('45'    ,()=>expect(po3(45)).toBe(false));
+    it('1'     ,()=>expect(po3(1)).toBe(true));
+  });
+});

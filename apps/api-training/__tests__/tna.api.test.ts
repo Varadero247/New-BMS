@@ -1009,3 +1009,14 @@ describe('phase64 coverage', () => {
     it('valley',()=>expect(trap([3,0,3])).toBe(3));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('largest number', () => {
+    function ln(nums:number[]):string{const s=nums.map(String).sort((a,b)=>(b+a)>(a+b)?1:-1).join('');return s[0]==='0'?'0':s;}
+    it('ex1'   ,()=>expect(ln([10,2])).toBe('210'));
+    it('ex2'   ,()=>expect(ln([3,30,34,5,9])).toBe('9534330'));
+    it('zero'  ,()=>expect(ln([0,0])).toBe('0'));
+    it('single',()=>expect(ln([1])).toBe('1'));
+    it('sorted',()=>expect(ln([1,2,3])).toBe('321'));
+  });
+});

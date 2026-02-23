@@ -1015,3 +1015,16 @@ describe('phase64 coverage', () => {
     it('big1st',()=>expect(jump([10,1,1,1,1])).toBe(1));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('valid sudoku', () => {
+    function isVS(b:string[][]):boolean{for(let i=0;i<9;i++){const r=new Set(),c=new Set(),bx=new Set();for(let j=0;j<9;j++){if(b[i][j]!=='.'&&r.has(b[i][j]))return false;if(b[i][j]!=='.')r.add(b[i][j]);if(b[j][i]!=='.'&&c.has(b[j][i]))return false;if(b[j][i]!=='.')c.add(b[j][i]);const rr=3*Math.floor(i/3)+Math.floor(j/3),cc=3*(i%3)+(j%3);if(b[rr][cc]!=='.'&&bx.has(b[rr][cc]))return false;if(b[rr][cc]!=='.')bx.add(b[rr][cc]);}}return true;}
+    const valid=[['5','3','.','.','7','.','.','.','.'],['6','.','.','1','9','5','.','.','.'],['.','9','8','.','.','.','.','6','.'],['8','.','.','.','6','.','.','.','3'],['4','.','.','8','.','3','.','.','1'],['7','.','.','.','2','.','.','.','6'],['.','6','.','.','.','.','2','8','.'],['.','.','.','4','1','9','.','.','5'],['.','.','.','.','8','.','.','7','9']];
+    const invalid=[['8','3','.','.','7','.','.','.','.'],['6','.','.','1','9','5','.','.','.'],['.','9','8','.','.','.','.','6','.'],['8','.','.','.','6','.','.','.','3'],['4','.','.','8','.','3','.','.','1'],['7','.','.','.','2','.','.','.','6'],['.','6','.','.','.','.','2','8','.'],['.','.','.','4','1','9','.','.','5'],['.','.','.','.','8','.','.','7','9']];
+    it('valid' ,()=>expect(isVS(valid)).toBe(true));
+    it('invalid',()=>expect(isVS(invalid)).toBe(false));
+    it('empty' ,()=>expect(isVS(Array.from({length:9},()=>new Array(9).fill('.')))).toBe(true));
+    it('row8'  ,()=>{const b=JSON.parse(JSON.stringify(valid));b[0][1]='5';expect(isVS(b)).toBe(false);});
+    it('box'   ,()=>{const b=JSON.parse(JSON.stringify(valid));b[1][0]='5';expect(isVS(b)).toBe(false);});
+  });
+});

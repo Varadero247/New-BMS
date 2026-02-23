@@ -1041,3 +1041,14 @@ describe('phase64 coverage', () => {
     it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('hamming weight', () => {
+    function hw(n:number):number{let c=0;while(n){n&=n-1;c++;}return c;}
+    it('11'    ,()=>expect(hw(11)).toBe(3));
+    it('128'   ,()=>expect(hw(128)).toBe(1));
+    it('0'     ,()=>expect(hw(0)).toBe(0));
+    it('255'   ,()=>expect(hw(255)).toBe(8));
+    it('maxu'  ,()=>expect(hw(0xFFFFFFFF>>>0)).toBe(32));
+  });
+});

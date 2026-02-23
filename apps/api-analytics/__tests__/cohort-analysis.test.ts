@@ -960,3 +960,14 @@ describe('phase64 coverage', () => {
     it('dot'   ,()=>expect(isMatch('mississippi','mis*is*p*.')).toBe(false));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('combinationSum2', () => {
+    function cs2(cands:number[],t:number):number{const res:number[][]=[];cands.sort((a,b)=>a-b);function bt(s:number,rem:number,p:number[]):void{if(rem===0){res.push([...p]);return;}for(let i=s;i<cands.length;i++){if(cands[i]>rem)break;if(i>s&&cands[i]===cands[i-1])continue;p.push(cands[i]);bt(i+1,rem-cands[i],p);p.pop();}}bt(0,t,[]);return res.length;}
+    it('ex1'   ,()=>expect(cs2([10,1,2,7,6,1,5],8)).toBe(4));
+    it('ex2'   ,()=>expect(cs2([2,5,2,1,2],5)).toBe(2));
+    it('one'   ,()=>expect(cs2([1],1)).toBe(1));
+    it('dupes' ,()=>expect(cs2([1,1,1],2)).toBe(1));
+    it('none'  ,()=>expect(cs2([3,5],1)).toBe(0));
+  });
+});

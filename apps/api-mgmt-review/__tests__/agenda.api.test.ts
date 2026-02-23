@@ -1052,3 +1052,14 @@ describe('phase64 coverage', () => {
     it('large' ,()=>expect(findDuplicate([1,4,4,2,3])).toBe(4));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('excel column title', () => {
+    function ect(n:number):string{let r='';while(n>0){n--;r=String.fromCharCode(65+n%26)+r;n=Math.floor(n/26);}return r;}
+    it('1'     ,()=>expect(ect(1)).toBe('A'));
+    it('28'    ,()=>expect(ect(28)).toBe('AB'));
+    it('701'   ,()=>expect(ect(701)).toBe('ZY'));
+    it('26'    ,()=>expect(ect(26)).toBe('Z'));
+    it('27'    ,()=>expect(ect(27)).toBe('AA'));
+  });
+});

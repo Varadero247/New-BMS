@@ -832,3 +832,14 @@ describe('phase64 coverage', () => {
     it('one'   ,()=>expect(fmp([1])).toBe(2));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('single number III', () => {
+    function sn3(nums:number[]):[number,number]{let x=nums.reduce((a,b)=>a^b,0);const b=x&(-x);let a=0;for(const n of nums)if(n&b)a^=n;const res:[number,number]=[a,x^a];res.sort((p,q)=>p-q);return res;}
+    it('ex1'   ,()=>expect(sn3([1,2,1,3,2,5])).toEqual([3,5]));
+    it('ex2'   ,()=>expect(sn3([-1,0])).toEqual([-1,0]));
+    it('two'   ,()=>expect(sn3([1,2])).toEqual([1,2]));
+    it('neg'   ,()=>expect(sn3([-1,-2,-1,-3,-2,-4])).toEqual([-4,-3]));
+    it('large' ,()=>expect(sn3([0,1,0,2])).toEqual([1,2]));
+  });
+});

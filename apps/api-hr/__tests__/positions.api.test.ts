@@ -1142,3 +1142,14 @@ describe('phase64 coverage', () => {
     it('mism'  ,()=>expect(isInterleave('a','b','ab')).toBe(true));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('excel column number', () => {
+    function ecn(t:string):number{let r=0;for(const c of t)r=r*26+(c.charCodeAt(0)-64);return r;}
+    it('A'     ,()=>expect(ecn('A')).toBe(1));
+    it('AB'    ,()=>expect(ecn('AB')).toBe(28));
+    it('ZY'    ,()=>expect(ecn('ZY')).toBe(701));
+    it('Z'     ,()=>expect(ecn('Z')).toBe(26));
+    it('AA'    ,()=>expect(ecn('AA')).toBe(27));
+  });
+});

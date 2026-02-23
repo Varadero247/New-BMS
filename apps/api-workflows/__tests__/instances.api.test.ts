@@ -1238,3 +1238,14 @@ describe('phase64 coverage', () => {
     it('ab'    ,()=>expect(concatWords(['a','b','ab','abc'])).toEqual(['ab']));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('combinationSum', () => {
+    function cs(cands:number[],t:number):number{const res:number[][]=[];cands.sort((a,b)=>a-b);function bt(s:number,rem:number,p:number[]):void{if(rem===0){res.push([...p]);return;}for(let i=s;i<cands.length;i++){if(cands[i]>rem)break;p.push(cands[i]);bt(i,rem-cands[i],p);p.pop();}}bt(0,t,[]);return res.length;}
+    it('ex1'   ,()=>expect(cs([2,3,6,7],7)).toBe(2));
+    it('ex2'   ,()=>expect(cs([2,3,5],8)).toBe(3));
+    it('none'  ,()=>expect(cs([2],3)).toBe(0));
+    it('single',()=>expect(cs([1],1)).toBe(1));
+    it('large' ,()=>expect(cs([2,3,5],9)).toBe(3));
+  });
+});

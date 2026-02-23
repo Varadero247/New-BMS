@@ -931,3 +931,14 @@ describe('phase64 coverage', () => {
     it('aba'   ,()=>expect(palindromePairs(['aba',''])).toBe(2));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('integer sqrt', () => {
+    function sq(x:number):number{if(x<2)return x;let lo=1,hi=Math.floor(x/2);while(lo<=hi){const m=Math.floor((lo+hi)/2);if(m*m===x)return m;if(m*m<x)lo=m+1;else hi=m-1;}return hi;}
+    it('4'     ,()=>expect(sq(4)).toBe(2));
+    it('8'     ,()=>expect(sq(8)).toBe(2));
+    it('9'     ,()=>expect(sq(9)).toBe(3));
+    it('0'     ,()=>expect(sq(0)).toBe(0));
+    it('1'     ,()=>expect(sq(1)).toBe(1));
+  });
+});

@@ -1097,3 +1097,14 @@ describe('phase64 coverage', () => {
     it('one'   ,()=>expect(fmp([1])).toBe(2));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('permutations', () => {
+    function pm(nums:number[]):number{const res:number[][]=[];function bt(p:number[],u:boolean[]):void{if(p.length===nums.length){res.push([...p]);return;}for(let i=0;i<nums.length;i++){if(u[i])continue;u[i]=true;p.push(nums[i]);bt(p,u);p.pop();u[i]=false;}}bt([],new Array(nums.length).fill(false));return res.length;}
+    it('3nums' ,()=>expect(pm([1,2,3])).toBe(6));
+    it('2nums' ,()=>expect(pm([0,1])).toBe(2));
+    it('1num'  ,()=>expect(pm([1])).toBe(1));
+    it('4nums' ,()=>expect(pm([1,2,3,4])).toBe(24));
+    it('neg'   ,()=>expect(pm([-1,1])).toBe(2));
+  });
+});

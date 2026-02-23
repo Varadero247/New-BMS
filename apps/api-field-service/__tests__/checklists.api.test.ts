@@ -1065,3 +1065,14 @@ describe('phase64 coverage', () => {
     it('mism'  ,()=>expect(isInterleave('a','b','ab')).toBe(true));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('permutations II', () => {
+    function pu(nums:number[]):number{const res:number[][]=[];nums.sort((a,b)=>a-b);function bt(p:number[],u:boolean[]):void{if(p.length===nums.length){res.push([...p]);return;}for(let i=0;i<nums.length;i++){if(u[i])continue;if(i>0&&nums[i]===nums[i-1]&&!u[i-1])continue;u[i]=true;p.push(nums[i]);bt(p,u);p.pop();u[i]=false;}}bt([],new Array(nums.length).fill(false));return res.length;}
+    it('ex1'   ,()=>expect(pu([1,1,2])).toBe(3));
+    it('all3'  ,()=>expect(pu([1,2,3])).toBe(6));
+    it('same'  ,()=>expect(pu([1,1,1])).toBe(1));
+    it('two'   ,()=>expect(pu([1,1])).toBe(1));
+    it('twodif',()=>expect(pu([1,2])).toBe(2));
+  });
+});

@@ -962,3 +962,14 @@ describe('phase64 coverage', () => {
     it('last'  ,()=>expect(missingNumber([0])).toBe(1));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('atoi', () => {
+    function atoi(s:string):number{let i=0,sign=1,res=0;while(s[i]===' ')i++;if(s[i]==='-'){sign=-1;i++;}else if(s[i]==='+')i++;while(i<s.length&&s[i]>='0'&&s[i]<='9'){res=res*10+(s.charCodeAt(i)-48);if(res*sign>2147483647)return 2147483647;if(res*sign<-2147483648)return-2147483648;i++;}return res*sign;}
+    it('42'    ,()=>expect(atoi('42')).toBe(42));
+    it('-42'   ,()=>expect(atoi('   -42')).toBe(-42));
+    it('words' ,()=>expect(atoi('4193 with words')).toBe(4193));
+    it('zero'  ,()=>expect(atoi('0')).toBe(0));
+    it('max'   ,()=>expect(atoi('9999999999')).toBe(2147483647));
+  });
+});

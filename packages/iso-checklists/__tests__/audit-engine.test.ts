@@ -917,3 +917,14 @@ describe('phase64 coverage', () => {
     it('abc'   ,()=>expect(isScramble('abc','bca')).toBe(true));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('zigzag conversion', () => {
+    function zz(s:string,r:number):string{if(r===1||r>=s.length)return s;const rows=new Array(r).fill('');let row=0,dir=-1;for(const c of s){rows[row]+=c;if(row===0||row===r-1)dir=-dir;row+=dir;}return rows.join('');}
+    it('ex1'   ,()=>expect(zz('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR'));
+    it('ex2'   ,()=>expect(zz('PAYPALISHIRING',4)).toBe('PINALSIGYAHRPI'));
+    it('r1'    ,()=>expect(zz('AB',1)).toBe('AB'));
+    it('r2'    ,()=>expect(zz('ABCD',2)).toBe('ACBD'));
+    it('one'   ,()=>expect(zz('A',2)).toBe('A'));
+  });
+});

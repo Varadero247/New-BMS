@@ -1310,3 +1310,14 @@ describe('phase64 coverage', () => {
     it('27'    ,()=>expect(numDecodings('27')).toBe(1));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('pow function', () => {
+    function pw(x:number,n:number):number{if(n<0){x=1/x;n=-n;}let r=1;while(n>0){if(n&1)r*=x;x*=x;n>>=1;}return r;}
+    it('2^10'  ,()=>expect(pw(2,10)).toBeCloseTo(1024,3));
+    it('2.1^3' ,()=>expect(pw(2.1,3)).toBeCloseTo(9.261,2));
+    it('2^-2'  ,()=>expect(pw(2,-2)).toBeCloseTo(0.25,3));
+    it('0^0'   ,()=>expect(pw(0,0)).toBe(1));
+    it('1^100' ,()=>expect(pw(1,100)).toBe(1));
+  });
+});

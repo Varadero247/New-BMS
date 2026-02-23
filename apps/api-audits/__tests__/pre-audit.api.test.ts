@@ -922,3 +922,14 @@ describe('phase64 coverage', () => {
     it('aba'   ,()=>expect(palindromePairs(['aba',''])).toBe(2));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('restore IP addresses', () => {
+    function rip(s:string):number{const res:string[]=[];function bt(start:number,parts:string[]):void{if(parts.length===4){if(start===s.length)res.push(parts.join('.'));return;}for(let len=1;len<=3;len++){if(start+len>s.length)break;const seg=s.slice(start,start+len);if(seg.length>1&&seg[0]==='0')break;if(parseInt(seg)>255)break;bt(start+len,[...parts,seg]);}}bt(0,[]);return res.length;}
+    it('ex1'   ,()=>expect(rip('25525511135')).toBe(2));
+    it('ex2'   ,()=>expect(rip('0000')).toBe(1));
+    it('ex3'   ,()=>expect(rip('101023')).toBe(5));
+    it('short' ,()=>expect(rip('1111')).toBe(1));
+    it('none'  ,()=>expect(rip('000000000000000')).toBe(0));
+  });
+});

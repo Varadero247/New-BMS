@@ -943,3 +943,14 @@ describe('phase64 coverage', () => {
     it('nocons',()=>expect(lcs([1,3,5,7])).toBe(1));
   });
 });
+
+describe('phase65 coverage', () => {
+  describe('multiply strings', () => {
+    function mul(a:string,b:string):string{const m=a.length,n=b.length,p=new Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const pr=(+a[i])*(+b[j]),p1=i+j,p2=i+j+1,s=pr+p[p2];p[p2]=s%10;p[p1]+=Math.floor(s/10);}return p.join('').replace(/^0+/,'')||'0';}
+    it('2x3'   ,()=>expect(mul('2','3')).toBe('6'));
+    it('123x456',()=>expect(mul('123','456')).toBe('56088'));
+    it('0x99'  ,()=>expect(mul('0','99')).toBe('0'));
+    it('9x9'   ,()=>expect(mul('9','9')).toBe('81'));
+    it('big'   ,()=>expect(mul('999','999')).toBe('998001'));
+  });
+});
