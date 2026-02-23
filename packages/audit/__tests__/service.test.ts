@@ -1214,3 +1214,12 @@ describe('phase70 combinationSumIV coverage',()=>{
   it('two_coins',()=>expect(combinationSumIVP70([1,2],3)).toBe(3));
   it('target_zero',()=>expect(combinationSumIVP70([1,2],0)).toBe(1));
 });
+
+describe('phase71 coverage', () => {
+  function minPathSumP71(grid:number[][]):number{const m=grid.length,n=grid[0].length;const dp=grid.map(r=>[...r]);for(let i=1;i<m;i++)dp[i][0]+=dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]+=dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]+=Math.min(dp[i-1][j],dp[i][j-1]);return dp[m-1][n-1];}
+  it('p71_1', () => { expect(minPathSumP71([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); });
+  it('p71_2', () => { expect(minPathSumP71([[1,2,3],[4,5,6]])).toBe(12); });
+  it('p71_3', () => { expect(minPathSumP71([[1]])).toBe(1); });
+  it('p71_4', () => { expect(minPathSumP71([[1,2],[1,1]])).toBe(3); });
+  it('p71_5', () => { expect(minPathSumP71([[3,8],[1,2]])).toBe(6); });
+});

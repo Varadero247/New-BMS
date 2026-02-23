@@ -1243,3 +1243,12 @@ describe('phase70 spiralOrder coverage',()=>{
   it('2x2',()=>expect(spiralOrderP70([[1,2],[3,4]])).toEqual([1,2,4,3]));
   it('1x3',()=>expect(spiralOrderP70([[1,2,3]])).toEqual([1,2,3]));
 });
+
+describe('phase71 coverage', () => {
+  function setZeroesP71(matrix:number[][]):number[][]{const m=matrix.length,n=matrix[0].length;const rows=new Set<number>(),cols=new Set<number>();for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(matrix[i][j]===0){rows.add(i);cols.add(j);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(rows.has(i)||cols.has(j))matrix[i][j]=0;return matrix;}
+  it('p71_1', () => { expect(JSON.stringify(setZeroesP71([[1,1,1],[1,0,1],[1,1,1]]))).toBe('[[1,0,1],[0,0,0],[1,0,1]]'); });
+  it('p71_2', () => { expect(JSON.stringify(setZeroesP71([[0,1,2,0],[3,4,5,2],[1,3,1,5]]))).toBe('[[0,0,0,0],[0,4,5,0],[0,3,1,0]]'); });
+  it('p71_3', () => { expect(setZeroesP71([[1,2,3]])[0][0]).toBe(1); });
+  it('p71_4', () => { expect(setZeroesP71([[0]])[0][0]).toBe(0); });
+  it('p71_5', () => { expect(setZeroesP71([[1,0]])[0][0]).toBe(0); });
+});

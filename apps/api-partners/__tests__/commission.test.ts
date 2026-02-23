@@ -1056,3 +1056,12 @@ describe('phase70 cuttingRibbons coverage',()=>{
   it('zero',()=>expect(cuttingRibbonsP70([1,2,3],10)).toBe(0));
   it('single',()=>expect(cuttingRibbonsP70([100],1)).toBe(100));
 });
+
+describe('phase71 coverage', () => {
+  function longestPalindromeByDelP71(s:string):number{const n=s.length;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=1;for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?(len===2?2:dp[i+1][j-1]+2):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}
+  it('p71_1', () => { expect(longestPalindromeByDelP71('agbdba')).toBe(5); });
+  it('p71_2', () => { expect(longestPalindromeByDelP71('abcda')).toBe(3); });
+  it('p71_3', () => { expect(longestPalindromeByDelP71('a')).toBe(1); });
+  it('p71_4', () => { expect(longestPalindromeByDelP71('aa')).toBe(2); });
+  it('p71_5', () => { expect(longestPalindromeByDelP71('abcba')).toBe(5); });
+});

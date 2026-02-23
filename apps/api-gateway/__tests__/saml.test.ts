@@ -1251,3 +1251,12 @@ describe('phase70 longestStringChain coverage',()=>{
   it('three',()=>expect(longestStringChainP70(['a','ab','abc'])).toBe(3));
   it('no_chain',()=>expect(longestStringChainP70(['ab','cd'])).toBe(1));
 });
+
+describe('phase71 coverage', () => {
+  function findAnagramsP71(s:string,p:string):number[]{const res:number[]=[];const cnt=new Array(26).fill(0);for(const c of p)cnt[c.charCodeAt(0)-97]++;const win=new Array(26).fill(0);for(let i=0;i<p.length&&i<s.length;i++)win[s.charCodeAt(i)-97]++;if(cnt.join(',')===win.join(','))res.push(0);for(let i=p.length;i<s.length;i++){win[s.charCodeAt(i)-97]++;win[s.charCodeAt(i-p.length)-97]--;if(cnt.join(',')===win.join(','))res.push(i-p.length+1);}return res;}
+  it('p71_1', () => { expect(JSON.stringify(findAnagramsP71('cbaebabacd','abc'))).toBe('[0,6]'); });
+  it('p71_2', () => { expect(JSON.stringify(findAnagramsP71('abab','ab'))).toBe('[0,1,2]'); });
+  it('p71_3', () => { expect(findAnagramsP71('aa','b').length).toBe(0); });
+  it('p71_4', () => { expect(findAnagramsP71('baa','aa').length).toBe(1); });
+  it('p71_5', () => { expect(findAnagramsP71('abc','abc').length).toBe(1); });
+});

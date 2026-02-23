@@ -1873,3 +1873,12 @@ describe('phase70 longestArithSeq coverage',()=>{
   it('two',()=>expect(longestArithSeqP70([1,2])).toBe(2));
   it('single',()=>expect(longestArithSeqP70([1])).toBe(1));
 });
+
+describe('phase71 coverage', () => {
+  function canPartitionKP71(nums:number[],k:number):boolean{const sum=nums.reduce((a,b)=>a+b,0);if(sum%k!==0)return false;const target=sum/k;nums.sort((a,b)=>b-a);if(nums[0]>target)return false;const buckets=new Array(k).fill(0);function bt(idx:number):boolean{if(idx===nums.length)return buckets.every(b=>b===target);const seen=new Set<number>();for(let i=0;i<k;i++){if(seen.has(buckets[i]))continue;if(buckets[i]+nums[idx]<=target){seen.add(buckets[i]);buckets[i]+=nums[idx];if(bt(idx+1))return true;buckets[i]-=nums[idx];}}return false;}return bt(0);}
+  it('p71_1', () => { expect(canPartitionKP71([4,3,2,3,5,2,1],4)).toBe(true); });
+  it('p71_2', () => { expect(canPartitionKP71([1,2,3,4],3)).toBe(false); });
+  it('p71_3', () => { expect(canPartitionKP71([1,1,1,1,2,2,2,2],4)).toBe(true); });
+  it('p71_4', () => { expect(canPartitionKP71([2,2,2,2,3,4,5],4)).toBe(false); });
+  it('p71_5', () => { expect(canPartitionKP71([1,2,3],2)).toBe(true); });
+});

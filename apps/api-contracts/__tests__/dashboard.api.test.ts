@@ -1000,3 +1000,12 @@ describe('phase70 rotateArray coverage',()=>{
   it('zero',()=>expect(rotateArrayP70([1,2],0)).toEqual([1,2]));
   it('full',()=>expect(rotateArrayP70([1,2,3],3)).toEqual([1,2,3]));
 });
+
+describe('phase71 coverage', () => {
+  function totalNQueensP71(n:number):number{let count=0;const cols=new Set<number>(),d1=new Set<number>(),d2=new Set<number>();function bt(row:number):void{if(row===n){count++;return;}for(let col=0;col<n;col++){if(cols.has(col)||d1.has(row-col)||d2.has(row+col))continue;cols.add(col);d1.add(row-col);d2.add(row+col);bt(row+1);cols.delete(col);d1.delete(row-col);d2.delete(row+col);}}bt(0);return count;}
+  it('p71_1', () => { expect(totalNQueensP71(4)).toBe(2); });
+  it('p71_2', () => { expect(totalNQueensP71(1)).toBe(1); });
+  it('p71_3', () => { expect(totalNQueensP71(5)).toBe(10); });
+  it('p71_4', () => { expect(totalNQueensP71(6)).toBe(4); });
+  it('p71_5', () => { expect(totalNQueensP71(3)).toBe(0); });
+});

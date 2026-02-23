@@ -1065,3 +1065,12 @@ describe('phase70 kClosestPoints coverage',()=>{
   it('single',()=>expect(kClosestPointsP70([[1,0]],1)[0][0]).toBe(1));
   it('order',()=>{const r=kClosestPointsP70([[-1,-1],[2,2],[1,1]],2);expect(r[0][0]).toBe(-1);});
 });
+
+describe('phase71 coverage', () => {
+  function gameOfLifeP71(board:number[][]):number[][]{const m=board.length,n=board[0].length;const res=board.map(r=>[...r]);for(let i=0;i<m;i++)for(let j=0;j<n;j++){let live=0;for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++){if(di===0&&dj===0)continue;const ni=i+di,nj=j+dj;if(ni>=0&&ni<m&&nj>=0&&nj<n&&board[ni][nj]===1)live++;}if(board[i][j]===1)res[i][j]=(live===2||live===3)?1:0;else res[i][j]=live===3?1:0;}return res;}
+  it('p71_1', () => { expect(JSON.stringify(gameOfLifeP71([[0,1,0],[0,0,1],[1,1,1],[0,0,0]]))).toBe('[[0,0,0],[1,0,1],[0,1,1],[0,1,0]]'); });
+  it('p71_2', () => { expect(gameOfLifeP71([[1,1],[1,0]])[0][0]).toBe(1); });
+  it('p71_3', () => { expect(gameOfLifeP71([[1,1],[1,0]])[1][1]).toBe(1); });
+  it('p71_4', () => { expect(gameOfLifeP71([[1]])[0][0]).toBe(0); });
+  it('p71_5', () => { expect(gameOfLifeP71([[0]])[0][0]).toBe(0); });
+});

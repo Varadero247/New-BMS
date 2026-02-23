@@ -1757,3 +1757,12 @@ describe('phase70 topKFrequent coverage',()=>{
   it('top_present',()=>expect(topKFrequentP70([4,4,4,3,3,1],2)).toContain(4));
   it('count',()=>expect(topKFrequentP70([1,1,2,2,3],2).length).toBe(2));
 });
+
+describe('phase71 coverage', () => {
+  function charReplacementP71(s:string,k:number):number{const count=new Array(26).fill(0);let left=0,maxCount=0,res=0;for(let right=0;right<s.length;right++){count[s.charCodeAt(right)-65]++;maxCount=Math.max(maxCount,count[s.charCodeAt(right)-65]);while(right-left+1-maxCount>k)count[s.charCodeAt(left++)-65]--;res=Math.max(res,right-left+1);}return res;}
+  it('p71_1', () => { expect(charReplacementP71('ABAB',2)).toBe(4); });
+  it('p71_2', () => { expect(charReplacementP71('AABABBA',1)).toBe(4); });
+  it('p71_3', () => { expect(charReplacementP71('AAAA',0)).toBe(4); });
+  it('p71_4', () => { expect(charReplacementP71('ABCDE',1)).toBe(2); });
+  it('p71_5', () => { expect(charReplacementP71('AAABBC',2)).toBe(5); });
+});

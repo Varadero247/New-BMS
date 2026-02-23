@@ -1119,3 +1119,12 @@ describe('phase70 topKFrequent coverage',()=>{
   it('top_present',()=>expect(topKFrequentP70([4,4,4,3,3,1],2)).toContain(4));
   it('count',()=>expect(topKFrequentP70([1,1,2,2,3],2).length).toBe(2));
 });
+
+describe('phase71 coverage', () => {
+  function maximalRectangleP71(matrix:string[][]):number{if(!matrix.length)return 0;const n=matrix[0].length;const h=new Array(n).fill(0);let res=0;for(const row of matrix){for(let j=0;j<n;j++)h[j]=row[j]==='1'?h[j]+1:0;const stk:number[]=[];for(let i=0;i<=n;i++){const cur=i===n?0:h[i];while(stk.length&&h[stk[stk.length-1]]>cur){const ht=h[stk.pop()!];const w=stk.length?i-stk[stk.length-1]-1:i;res=Math.max(res,ht*w);}stk.push(i);}}return res;}
+  it('p71_1', () => { expect(maximalRectangleP71([["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]])).toBe(6); });
+  it('p71_2', () => { expect(maximalRectangleP71([["0"]])).toBe(0); });
+  it('p71_3', () => { expect(maximalRectangleP71([["1"]])).toBe(1); });
+  it('p71_4', () => { expect(maximalRectangleP71([["0","1"]])).toBe(1); });
+  it('p71_5', () => { expect(maximalRectangleP71([["1","1"],["1","1"]])).toBe(4); });
+});

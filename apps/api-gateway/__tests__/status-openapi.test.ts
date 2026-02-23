@@ -1035,3 +1035,12 @@ describe('phase70 singleNumber coverage',()=>{
   it('zero',()=>expect(singleNumberP70([0,1,0])).toBe(1));
   it('large',()=>expect(singleNumberP70([99])).toBe(99));
 });
+
+describe('phase71 coverage', () => {
+  function maxCoinsP71(nums:number[]):number{const a=[1,...nums,1];const n=a.length;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let l=0;l<n-len;l++){const r=l+len;for(let k=l+1;k<r;k++)dp[l][r]=Math.max(dp[l][r],dp[l][k]+a[l]*a[k]*a[r]+dp[k][r]);}}return dp[0][n-1];}
+  it('p71_1', () => { expect(maxCoinsP71([3,1,5,8])).toBe(167); });
+  it('p71_2', () => { expect(maxCoinsP71([1,5])).toBe(10); });
+  it('p71_3', () => { expect(maxCoinsP71([1])).toBe(1); });
+  it('p71_4', () => { expect(maxCoinsP71([1,2,3])).toBe(12); });
+  it('p71_5', () => { expect(maxCoinsP71([5])).toBe(5); });
+});

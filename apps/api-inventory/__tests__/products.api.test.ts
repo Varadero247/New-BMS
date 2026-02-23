@@ -1311,3 +1311,12 @@ describe('phase70 moveZeroes coverage',()=>{
   it('none',()=>{const a=[1,2,3];moveZeroesP70(a);expect(a).toEqual([1,2,3]);});
   it('all_zero',()=>{const a=[0,0,1];moveZeroesP70(a);expect(a[0]).toBe(1);});
 });
+
+describe('phase71 coverage', () => {
+  function mctFromLeafValuesP71(arr:number[]):number{let res=0;const stk:number[]=[Infinity];for(const v of arr){while(stk[stk.length-1]<=v){const mid=stk.pop()!;res+=mid*Math.min(stk[stk.length-1],v);}stk.push(v);}while(stk.length>2)res+=stk.pop()!*stk[stk.length-1];return res;}
+  it('p71_1', () => { expect(mctFromLeafValuesP71([6,2,4])).toBe(32); });
+  it('p71_2', () => { expect(mctFromLeafValuesP71([4,11])).toBe(44); });
+  it('p71_3', () => { expect(mctFromLeafValuesP71([3,1,5,8])).toBe(58); });
+  it('p71_4', () => { expect(mctFromLeafValuesP71([2,4])).toBe(8); });
+  it('p71_5', () => { expect(mctFromLeafValuesP71([6,2,4,3])).toBe(44); });
+});

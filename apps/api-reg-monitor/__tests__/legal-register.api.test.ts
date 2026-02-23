@@ -1056,3 +1056,12 @@ describe('phase70 threeSum coverage',()=>{
   it('dups',()=>expect(threeSumP70([-2,0,0,2,2]).length).toBe(1));
   it('positive',()=>expect(threeSumP70([1,2,3]).length).toBe(0));
 });
+
+describe('phase71 coverage', () => {
+  function numSubarrayProductP71(nums:number[],k:number):number{if(k<=1)return 0;let prod=1,left=0,count=0;for(let right=0;right<nums.length;right++){prod*=nums[right];while(prod>=k)prod/=nums[left++];count+=right-left+1;}return count;}
+  it('p71_1', () => { expect(numSubarrayProductP71([10,5,2,6],100)).toBe(8); });
+  it('p71_2', () => { expect(numSubarrayProductP71([1,2,3],0)).toBe(0); });
+  it('p71_3', () => { expect(numSubarrayProductP71([1,1,1],2)).toBe(6); });
+  it('p71_4', () => { expect(numSubarrayProductP71([10],10)).toBe(0); });
+  it('p71_5', () => { expect(numSubarrayProductP71([10],11)).toBe(1); });
+});

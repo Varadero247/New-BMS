@@ -904,3 +904,12 @@ describe('phase70 twoSumII coverage',()=>{
   it('end',()=>expect(twoSumIIP70([1,2,3,4,5],9)).toEqual([4,5]));
   it('two',()=>expect(twoSumIIP70([1,3],4)).toEqual([1,2]));
 });
+
+describe('phase71 coverage', () => {
+  function longestIncreasingPathP71(matrix:number[][]):number{const m=matrix.length,n=matrix[0].length;const memo:number[][]=Array.from({length:m},()=>new Array(n).fill(0));const dirs=[[0,1],[0,-1],[1,0],[-1,0]];function dfs(i:number,j:number):number{if(memo[i][j])return memo[i][j];let best=1;for(const[di,dj]of dirs){const ni=i+di,nj=j+dj;if(ni>=0&&ni<m&&nj>=0&&nj<n&&matrix[ni][nj]>matrix[i][j])best=Math.max(best,1+dfs(ni,nj));}return memo[i][j]=best;}let res=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++)res=Math.max(res,dfs(i,j));return res;}
+  it('p71_1', () => { expect(longestIncreasingPathP71([[9,9,4],[6,6,8],[2,1,1]])).toBe(4); });
+  it('p71_2', () => { expect(longestIncreasingPathP71([[3,4,5],[3,2,6],[2,2,1]])).toBe(4); });
+  it('p71_3', () => { expect(longestIncreasingPathP71([[1]])).toBe(1); });
+  it('p71_4', () => { expect(longestIncreasingPathP71([[1,2],[3,4]])).toBe(3); });
+  it('p71_5', () => { expect(longestIncreasingPathP71([[7,7,7]])).toBe(1); });
+});

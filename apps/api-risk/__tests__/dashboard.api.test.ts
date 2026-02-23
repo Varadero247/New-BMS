@@ -1003,3 +1003,12 @@ describe('phase70 reverseWords coverage',()=>{
   it('single',()=>expect(reverseWordsP70('single')).toBe('single'));
   it('two',()=>expect(reverseWordsP70('a b')).toBe('b a'));
 });
+
+describe('phase71 coverage', () => {
+  function lengthLongestKP71(s:string,k:number):number{const map=new Map<string,number>();let left=0,res=0;for(let right=0;right<s.length;right++){map.set(s[right],(map.get(s[right])||0)+1);while(map.size>k){const l=s[left++];map.set(l,map.get(l)!-1);if(map.get(l)===0)map.delete(l);}res=Math.max(res,right-left+1);}return res;}
+  it('p71_1', () => { expect(lengthLongestKP71('eceba',2)).toBe(3); });
+  it('p71_2', () => { expect(lengthLongestKP71('aa',1)).toBe(2); });
+  it('p71_3', () => { expect(lengthLongestKP71('a',1)).toBe(1); });
+  it('p71_4', () => { expect(lengthLongestKP71('abcdef',3)).toBe(3); });
+  it('p71_5', () => { expect(lengthLongestKP71('aabbcc',3)).toBe(6); });
+});

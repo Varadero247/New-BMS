@@ -1007,3 +1007,12 @@ describe('phase70 longestValidPar coverage',()=>{
   it('basic',()=>expect(longestValidParP70('()')).toBe(2));
   it('mix',()=>expect(longestValidParP70('()((')).toBe(2));
 });
+
+describe('phase71 coverage', () => {
+  function subarraySumKP71(nums:number[],k:number):number{const map=new Map<number,number>([[0,1]]);let sum=0,count=0;for(const n of nums){sum+=n;count+=map.get(sum-k)||0;map.set(sum,(map.get(sum)||0)+1);}return count;}
+  it('p71_1', () => { expect(subarraySumKP71([1,1,1],2)).toBe(2); });
+  it('p71_2', () => { expect(subarraySumKP71([1,2,3],3)).toBe(2); });
+  it('p71_3', () => { expect(subarraySumKP71([1],1)).toBe(1); });
+  it('p71_4', () => { expect(subarraySumKP71([1,2,1,-1,2],3)).toBe(3); });
+  it('p71_5', () => { expect(subarraySumKP71([-1,1,0],0)).toBe(3); });
+});

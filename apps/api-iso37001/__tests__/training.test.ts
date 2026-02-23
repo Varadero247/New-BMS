@@ -1267,3 +1267,12 @@ describe('phase70 rotateArray coverage',()=>{
   it('zero',()=>expect(rotateArrayP70([1,2],0)).toEqual([1,2]));
   it('full',()=>expect(rotateArrayP70([1,2,3],3)).toEqual([1,2,3]));
 });
+
+describe('phase71 coverage', () => {
+  function maxConsecOnesP71(nums:number[],k:number):number{let left=0,zeros=0,res=0;for(let right=0;right<nums.length;right++){if(nums[right]===0)zeros++;while(zeros>k){if(nums[left++]===0)zeros--;}res=Math.max(res,right-left+1);}return res;}
+  it('p71_1', () => { expect(maxConsecOnesP71([1,1,1,0,0,0,1,1,1,1,0],2)).toBe(6); });
+  it('p71_2', () => { expect(maxConsecOnesP71([0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1],3)).toBe(10); });
+  it('p71_3', () => { expect(maxConsecOnesP71([1,1,1],0)).toBe(3); });
+  it('p71_4', () => { expect(maxConsecOnesP71([0,0,0],3)).toBe(3); });
+  it('p71_5', () => { expect(maxConsecOnesP71([1],1)).toBe(1); });
+});

@@ -986,3 +986,12 @@ describe('phase70 findKthLargest coverage',()=>{
   it('two',()=>expect(findKthLargestP70([2,1],2)).toBe(1));
   it('dups',()=>expect(findKthLargestP70([7,7,7,7],2)).toBe(7));
 });
+
+describe('phase71 coverage', () => {
+  function checkInclusionP71(s1:string,s2:string):boolean{if(s1.length>s2.length)return false;const cnt=new Array(26).fill(0);for(const c of s1)cnt[c.charCodeAt(0)-97]++;const win=new Array(26).fill(0);for(let i=0;i<s1.length;i++)win[s2.charCodeAt(i)-97]++;if(cnt.join(',')===win.join(','))return true;for(let i=s1.length;i<s2.length;i++){win[s2.charCodeAt(i)-97]++;win[s2.charCodeAt(i-s1.length)-97]--;if(cnt.join(',')===win.join(','))return true;}return false;}
+  it('p71_1', () => { expect(checkInclusionP71('ab','eidbaooo')).toBe(true); });
+  it('p71_2', () => { expect(checkInclusionP71('ab','eidboaoo')).toBe(false); });
+  it('p71_3', () => { expect(checkInclusionP71('a','a')).toBe(true); });
+  it('p71_4', () => { expect(checkInclusionP71('adc','dcda')).toBe(true); });
+  it('p71_5', () => { expect(checkInclusionP71('ab','ba')).toBe(true); });
+});

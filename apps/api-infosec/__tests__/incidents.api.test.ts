@@ -1188,3 +1188,12 @@ describe('phase70 longestTurb coverage',()=>{
   it('valley',()=>expect(longestTurbP70([1,2,1])).toBe(3));
   it('equal',()=>expect(longestTurbP70([9,9])).toBe(1));
 });
+
+describe('phase71 coverage', () => {
+  function subarraysWithKDistinctP71(nums:number[],k:number):number{function atMost(k:number):number{const map=new Map<number,number>();let left=0,res=0;for(let right=0;right<nums.length;right++){map.set(nums[right],(map.get(nums[right])||0)+1);while(map.size>k){const l=nums[left++];map.set(l,map.get(l)!-1);if(map.get(l)===0)map.delete(l);}res+=right-left+1;}return res;}return atMost(k)-atMost(k-1);}
+  it('p71_1', () => { expect(subarraysWithKDistinctP71([1,2,1,2,3],2)).toBe(7); });
+  it('p71_2', () => { expect(subarraysWithKDistinctP71([1,2,1,3,4],3)).toBe(3); });
+  it('p71_3', () => { expect(subarraysWithKDistinctP71([1,1,1,1],1)).toBe(10); });
+  it('p71_4', () => { expect(subarraysWithKDistinctP71([1,2,3],1)).toBe(3); });
+  it('p71_5', () => { expect(subarraysWithKDistinctP71([1,2,3],2)).toBe(2); });
+});

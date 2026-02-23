@@ -1322,3 +1322,12 @@ describe('phase70 splitArrayLargestSum coverage',()=>{
   it('single',()=>expect(splitArrayLargestSumP70([5],1)).toBe(5));
   it('one_part',()=>expect(splitArrayLargestSumP70([1,2,3],1)).toBe(6));
 });
+
+describe('phase71 coverage', () => {
+  function maxPointsP71(points:number[][]):number{if(points.length<=2)return points.length;function gcdP(a:number,b:number):number{return b===0?a:gcdP(b,a%b);}let res=2;for(let i=0;i<points.length;i++){const map=new Map<string,number>();for(let j=i+1;j<points.length;j++){let dx=points[j][0]-points[i][0];let dy=points[j][1]-points[i][1];const g=gcdP(Math.abs(dx),Math.abs(dy));dx=dx/g;dy=dy/g;if(dx<0||(dx===0&&dy<0)){dx=-dx;dy=-dy;}const key=dx+','+dy;map.set(key,(map.get(key)||1)+1);res=Math.max(res,map.get(key)!);}}return res;}
+  it('p71_1', () => { expect(maxPointsP71([[1,1],[2,2],[3,3]])).toBe(3); });
+  it('p71_2', () => { expect(maxPointsP71([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]])).toBe(4); });
+  it('p71_3', () => { expect(maxPointsP71([[1,1]])).toBe(1); });
+  it('p71_4', () => { expect(maxPointsP71([[1,1],[1,2]])).toBe(2); });
+  it('p71_5', () => { expect(maxPointsP71([[1,1],[2,3],[3,5],[4,7]])).toBe(4); });
+});

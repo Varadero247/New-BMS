@@ -1081,3 +1081,12 @@ describe('phase70 rotateArray coverage',()=>{
   it('zero',()=>expect(rotateArrayP70([1,2],0)).toEqual([1,2]));
   it('full',()=>expect(rotateArrayP70([1,2,3],3)).toEqual([1,2,3]));
 });
+
+describe('phase71 coverage', () => {
+  function stoneGameP71(piles:number[]):boolean{const n=piles.length;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=piles[i];for(let len=2;len<=n;len++){for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Math.max(piles[i]-dp[i+1][j],piles[j]-dp[i][j-1]);}}return dp[0][n-1]>0;}
+  it('p71_1', () => { expect(stoneGameP71([5,3,4,5])).toBe(true); });
+  it('p71_2', () => { expect(stoneGameP71([3,7,2,3])).toBe(true); });
+  it('p71_3', () => { expect(stoneGameP71([1,2,3,4])).toBe(true); });
+  it('p71_4', () => { expect(stoneGameP71([2,4,3,1])).toBe(false); });
+  it('p71_5', () => { expect(stoneGameP71([6,1,2,5])).toBe(true); });
+});

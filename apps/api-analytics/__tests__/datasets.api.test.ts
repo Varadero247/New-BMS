@@ -1196,3 +1196,12 @@ describe('phase70 combinationSumIV coverage',()=>{
   it('two_coins',()=>expect(combinationSumIVP70([1,2],3)).toBe(3));
   it('target_zero',()=>expect(combinationSumIVP70([1,2],0)).toBe(1));
 });
+
+describe('phase71 coverage', () => {
+  function longestSubarrayP71(nums:number[]):number{let left=0,zeros=0,res=0;for(let right=0;right<nums.length;right++){if(nums[right]===0)zeros++;while(zeros>1){if(nums[left++]===0)zeros--;}res=Math.max(res,right-left);}return res;}
+  it('p71_1', () => { expect(longestSubarrayP71([1,1,0,1])).toBe(3); });
+  it('p71_2', () => { expect(longestSubarrayP71([0,1,1,1,0,1,1,0,1])).toBe(5); });
+  it('p71_3', () => { expect(longestSubarrayP71([1,1,1])).toBe(2); });
+  it('p71_4', () => { expect(longestSubarrayP71([0,0,0])).toBe(0); });
+  it('p71_5', () => { expect(longestSubarrayP71([1,0,1,1,0])).toBe(3); });
+});

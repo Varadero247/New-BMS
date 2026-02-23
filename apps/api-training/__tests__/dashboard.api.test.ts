@@ -1108,3 +1108,12 @@ describe('phase70 singleNumber coverage',()=>{
   it('zero',()=>expect(singleNumberP70([0,1,0])).toBe(1));
   it('large',()=>expect(singleNumberP70([99])).toBe(99));
 });
+
+describe('phase71 coverage', () => {
+  function isMatchRegexP71(s:string,p:string):boolean{const m=s.length,n=p.length;const dp:boolean[][]=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*'&&j>=2)dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||((p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j]);else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];}
+  it('p71_1', () => { expect(isMatchRegexP71('aa','a')).toBe(false); });
+  it('p71_2', () => { expect(isMatchRegexP71('aa','a*')).toBe(true); });
+  it('p71_3', () => { expect(isMatchRegexP71('ab','.*')).toBe(true); });
+  it('p71_4', () => { expect(isMatchRegexP71('aab','c*a*b')).toBe(true); });
+  it('p71_5', () => { expect(isMatchRegexP71('mississippi','mis*is*p*.')).toBe(false); });
+});

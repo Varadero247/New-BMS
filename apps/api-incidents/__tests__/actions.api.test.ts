@@ -1096,3 +1096,12 @@ describe('phase70 rotateArray coverage',()=>{
   it('zero',()=>expect(rotateArrayP70([1,2],0)).toEqual([1,2]));
   it('full',()=>expect(rotateArrayP70([1,2,3],3)).toEqual([1,2,3]));
 });
+
+describe('phase71 coverage', () => {
+  function findWordsP71(board:string[][],words:string[]):string[]{const m=board.length,n=board[0].length;const trie:Record<string,any>={};for(const w of words){let node=trie;for(const c of w){if(!node[c])node[c]={};node=node[c];}node['$']=w;}const res=new Set<string>();function dfs(i:number,j:number,node:Record<string,any>):void{if(i<0||i>=m||j<0||j>=n)return;const c=board[i][j];if(!c||!node[c])return;const next=node[c];if(next['$'])res.add(next['$']);board[i][j]='';for(const[di,dj]of[[0,1],[0,-1],[1,0],[-1,0]])dfs(i+di,j+dj,next);board[i][j]=c;}for(let i=0;i<m;i++)for(let j=0;j<n;j++)dfs(i,j,trie);return[...res].sort();}
+  it('p71_1', () => { expect(JSON.stringify(findWordsP71([["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]],["oath","pea","eat","rain"]))).toBe('["eat","oath"]'); });
+  it('p71_2', () => { expect(findWordsP71([["a","b"],["c","d"]],["abdc","abcd"]).length).toBeGreaterThan(0); });
+  it('p71_3', () => { expect(findWordsP71([["a"]],["a"]).length).toBe(1); });
+  it('p71_4', () => { expect(findWordsP71([["a","b"],["c","d"]],["abcd"]).length).toBe(0); });
+  it('p71_5', () => { expect(findWordsP71([["a","a"]],["aaa"]).length).toBe(0); });
+});

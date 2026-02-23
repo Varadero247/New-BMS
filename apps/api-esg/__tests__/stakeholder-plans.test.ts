@@ -1058,3 +1058,12 @@ describe('phase70 spiralOrder coverage',()=>{
   it('2x2',()=>expect(spiralOrderP70([[1,2],[3,4]])).toEqual([1,2,4,3]));
   it('1x3',()=>expect(spiralOrderP70([[1,2,3]])).toEqual([1,2,3]));
 });
+
+describe('phase71 coverage', () => {
+  function minWindowP71(s:string,t:string):string{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let have=0,total=need.size,left=0,res='';const window=new Map<string,number>();for(let right=0;right<s.length;right++){const c=s[right];window.set(c,(window.get(c)||0)+1);if(need.has(c)&&window.get(c)===need.get(c))have++;while(have===total){const cur=s.slice(left,right+1);if(!res||cur.length<res.length)res=cur;const l=s[left++];window.set(l,window.get(l)!-1);if(need.has(l)&&window.get(l)!<need.get(l)!)have--;}}return res;}
+  it('p71_1', () => { expect(minWindowP71('ADOBECODEBANC','ABC')).toBe('BANC'); });
+  it('p71_2', () => { expect(minWindowP71('a','a')).toBe('a'); });
+  it('p71_3', () => { expect(minWindowP71('a','aa')).toBe(''); });
+  it('p71_4', () => { expect(minWindowP71('ab','b')).toBe('b'); });
+  it('p71_5', () => { expect(minWindowP71('bba','ab')).toBe('ba'); });
+});

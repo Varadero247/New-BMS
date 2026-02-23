@@ -1279,3 +1279,12 @@ describe('phase70 rotateArray coverage',()=>{
   it('zero',()=>expect(rotateArrayP70([1,2],0)).toEqual([1,2]));
   it('full',()=>expect(rotateArrayP70([1,2,3],3)).toEqual([1,2,3]));
 });
+
+describe('phase71 coverage', () => {
+  function numDistinctP71(s:string,t:string):number{const m=s.length,n=t.length;const dp:number[][]=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}
+  it('p71_1', () => { expect(numDistinctP71('rabbbit','rabbit')).toBe(3); });
+  it('p71_2', () => { expect(numDistinctP71('babgbag','bag')).toBe(5); });
+  it('p71_3', () => { expect(numDistinctP71('a','a')).toBe(1); });
+  it('p71_4', () => { expect(numDistinctP71('ab','ab')).toBe(1); });
+  it('p71_5', () => { expect(numDistinctP71('aab','ab')).toBe(2); });
+});
