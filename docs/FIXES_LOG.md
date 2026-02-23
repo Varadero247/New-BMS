@@ -1,5 +1,18 @@
 # IMS — Fixes Log
 
+## Phase 56 — Test Depth Expansion to ≥180 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 175 tests to ≥180 each.
+
+**Net new tests:** +3,540 (124,105 → 127,645), all 711 suites passing (0 failures).
+
+**30 new algorithm snippets added. 3 post-expansion fixes:**
+- `path sum II`: expected second path [5,8,4,1] but 5+8+4+1=18≠22 → single expected `[[5,4,11,2]]` (114 files).
+- `genetic mutation BFS`: queue `[[start,0]]` infers `(string|number)[][]`; destructured `cur` has `.slice` error → typed as `[string,number][]` (115 files).
+- `sort linked list`: `f` inferred as `N` (from narrowed `h.next`), then `f=f.next.next` assigns `N|null` to `N` → explicit `let f:N|null` (117 files).
+
+---
+
 ## Phase 55 — Test Depth Expansion to ≥175 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 170 tests to ≥175 each.
