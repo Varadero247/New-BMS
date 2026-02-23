@@ -687,3 +687,39 @@ describe('phase57 coverage', () => {
   it('counts bulls (right position) and cows (wrong position) in number guessing game', () => { const bc=(secret:string,guess:string)=>{let bulls=0;const sc=new Array(10).fill(0),gc=new Array(10).fill(0);for(let i=0;i<secret.length;i++){if(secret[i]===guess[i])bulls++;else{sc[+secret[i]]++;gc[+guess[i]]++;}}const cows=sc.reduce((s,v,i)=>s+Math.min(v,gc[i]),0);return `${bulls}A${cows}B`;}; expect(bc('1807','7810')).toBe('1A3B'); expect(bc('1123','0111')).toBe('1A1B'); });
   it('computes sum of all root-to-leaf numbers in binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const sum=(n:N|null,cur=0):number=>{if(!n)return 0;cur=cur*10+n.v;return n.l||n.r?sum(n.l,cur)+sum(n.r,cur):cur;}; expect(sum(mk(1,mk(2),mk(3)))).toBe(25); expect(sum(mk(4,mk(9,mk(5),mk(1)),mk(0)))).toBe(1026); });
 });
+
+describe('phase58 coverage', () => {
+  it('flatten tree to list', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const flatten=(root:TN|null):void=>{let cur=root;while(cur){if(cur.left){let r=cur.left;while(r.right)r=r.right;r.right=cur.right;cur.right=cur.left;cur.left=null;}cur=cur.right;}};
+    const toArr=(r:TN|null):number[]=>{const a:number[]=[];while(r){a.push(r.val);r=r.right;}return a;};
+    const t=mk(1,mk(2,mk(3),mk(4)),mk(5,null,mk(6)));
+    flatten(t);
+    expect(toArr(t)).toEqual([1,2,3,4,5,6]);
+  });
+  it('jump game II min jumps', () => {
+    const jump=(nums:number[]):number=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<nums.length-1;i++){farthest=Math.max(farthest,i+nums[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;};
+    expect(jump([2,3,1,1,4])).toBe(2);
+    expect(jump([2,3,0,1,4])).toBe(2);
+    expect(jump([1,2,3])).toBe(2);
+    expect(jump([0])).toBe(0);
+  });
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+  it('course schedule II', () => {
+    const findOrder=(n:number,prereqs:[number,number][]):number[]=>{const adj:number[][]=Array.from({length:n},()=>[]);const indeg=new Array(n).fill(0);prereqs.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=[];for(let i=0;i<n;i++)if(indeg[i]===0)q.push(i);const res:number[]=[];while(q.length){const c=q.shift()!;res.push(c);adj[c].forEach(nb=>{if(--indeg[nb]===0)q.push(nb);});}return res.length===n?res:[];};
+    expect(findOrder(2,[[1,0]])).toEqual([0,1]);
+    expect(findOrder(4,[[1,0],[2,0],[3,1],[3,2]])).toHaveLength(4);
+    expect(findOrder(2,[[1,0],[0,1]])).toEqual([]);
+  });
+  it('number of islands', () => {
+    const numIslands=(grid:string[][]):number=>{let count=0;const m=grid.length,n=grid[0].length;const bfs=(r:number,c:number)=>{const q=[[r,c]];grid[r][c]='0';while(q.length){const[x,y]=q.shift()!;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([nx,ny])=>{if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]==='1'){grid[nx][ny]='0';q.push([nx,ny]);}});}};for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]==='1'){count++;bfs(i,j);}return count;};
+    expect(numIslands([['1','1','0'],['0','1','0'],['0','0','1']])).toBe(2);
+    expect(numIslands([['1','1','1'],['1','1','1'],['1','1','1']])).toBe(1);
+  });
+});

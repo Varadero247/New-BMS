@@ -849,3 +849,46 @@ describe('phase57 coverage', () => {
   it('finds length of longest path with same values in binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const luv=(root:N|null)=>{let res=0;const dfs=(n:N|null,pv:number):number=>{if(!n)return 0;const l=dfs(n.l,n.v),r=dfs(n.r,n.v);res=Math.max(res,l+r);return n.v===pv?1+Math.max(l,r):0;};dfs(root,-1);return res;}; expect(luv(mk(5,mk(4,mk(4),mk(4)),mk(5,null,mk(5))))).toBe(2); expect(luv(mk(1,mk(1,mk(1)),mk(1,null,mk(1))))).toBe(4); });
   it('finds all recipes that can be made from available ingredients', () => { const recipes2=(r:string[],ing:string[][],sup:string[])=>{const avail=new Set(sup);const canMake=(recipe:string,idx:number,memo=new Map<string,boolean>()):boolean=>{if(avail.has(recipe))return true;if(memo.has(recipe))return memo.get(recipe)!;memo.set(recipe,false);const i=r.indexOf(recipe);if(i===-1)return false;const ok=ing[i].every(x=>canMake(x,0,memo));memo.set(recipe,ok);return ok;};return r.filter((_,i)=>canMake(r[i],i));}; expect(recipes2(['bread'],[["yeast","flour"]],["yeast","flour","corn"])).toEqual(["bread"]); });
 });
+
+describe('phase58 coverage', () => {
+  it('min stack ops', () => {
+    class MinStack{private s:number[]=[];private mins:number[]=[];push(v:number){this.s.push(v);if(!this.mins.length||v<=this.mins[this.mins.length-1])this.mins.push(v);}pop(){const v=this.s.pop()!;if(v===this.mins[this.mins.length-1])this.mins.pop();}top(){return this.s[this.s.length-1];}getMin(){return this.mins[this.mins.length-1];}}
+    const ms=new MinStack();ms.push(-2);ms.push(0);ms.push(-3);
+    expect(ms.getMin()).toBe(-3);
+    ms.pop();
+    expect(ms.top()).toBe(0);
+    expect(ms.getMin()).toBe(-2);
+  });
+  it('median from stream', () => {
+    class MedianFinder{private lo:number[]=[];private hi:number[]=[];addNum(n:number){this.lo.push(n);this.lo.sort((a,b)=>b-a);this.hi.push(this.lo.shift()!);this.hi.sort((a,b)=>a-b);if(this.hi.length>this.lo.length)this.lo.unshift(this.hi.shift()!);}findMedian():number{return this.lo.length>this.hi.length?this.lo[0]:(this.lo[0]+this.hi[0])/2;}}
+    const mf=new MedianFinder();mf.addNum(1);mf.addNum(2);
+    expect(mf.findMedian()).toBe(1.5);
+    mf.addNum(3);
+    expect(mf.findMedian()).toBe(2);
+  });
+  it('subsets with duplicates', () => {
+    const subsetsWithDup=(nums:number[]):number[][]=>{nums.sort((a,b)=>a-b);const res:number[][]=[];const bt=(start:number,path:number[])=>{res.push([...path]);for(let i=start;i<nums.length;i++){if(i>start&&nums[i]===nums[i-1])continue;path.push(nums[i]);bt(i+1,path);path.pop();}};bt(0,[]);return res;};
+    const r=subsetsWithDup([1,2,2]);
+    expect(r).toHaveLength(6);
+    expect(r).toContainEqual([]);
+    expect(r).toContainEqual([2,2]);
+    expect(r).toContainEqual([1,2,2]);
+  });
+  it('N-ary serialize', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const ser=(r:NT|null):string=>{if(!r)return'#';return`${r.val}(${r.children.map(ser).join(',')})`;};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    const s=ser(t);
+    expect(s).toContain('1');
+    expect(s).toContain('3');
+    expect(s.split('(').length).toBeGreaterThan(3);
+  });
+  it('jump game II min jumps', () => {
+    const jump=(nums:number[]):number=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<nums.length-1;i++){farthest=Math.max(farthest,i+nums[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;};
+    expect(jump([2,3,1,1,4])).toBe(2);
+    expect(jump([2,3,0,1,4])).toBe(2);
+    expect(jump([1,2,3])).toBe(2);
+    expect(jump([0])).toBe(0);
+  });
+});

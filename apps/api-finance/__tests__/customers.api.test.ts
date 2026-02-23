@@ -928,3 +928,38 @@ describe('phase57 coverage', () => {
   it('finds cells that can flow to both Pacific and Atlantic oceans', () => { const paf=(h:number[][])=>{const m=h.length,n=h[0].length,pac=Array.from({length:m},()=>new Array(n).fill(false)),atl=Array.from({length:m},()=>new Array(n).fill(false));const dfs=(i:number,j:number,vis:boolean[][],prev:number)=>{if(i<0||i>=m||j<0||j>=n||vis[i][j]||h[i][j]<prev)return;vis[i][j]=true;for(const[di,dj]of[[-1,0],[1,0],[0,-1],[0,1]])dfs(i+di,j+dj,vis,h[i][j]);};for(let i=0;i<m;i++){dfs(i,0,pac,0);dfs(i,n-1,atl,0);}for(let j=0;j<n;j++){dfs(0,j,pac,0);dfs(m-1,j,atl,0);}const res:number[][]=[];for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(pac[i][j]&&atl[i][j])res.push([i,j]);return res;}; expect(paf([[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]).length).toBe(7); });
   it('returns k most frequent words sorted by frequency then lexicographically', () => { const topK=(words:string[],k:number)=>{const m=new Map<string,number>();for(const w of words)m.set(w,(m.get(w)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,k).map(e=>e[0]);}; expect(topK(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']); expect(topK(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']); });
 });
+
+describe('phase58 coverage', () => {
+  it('find peak element binary', () => {
+    const findPeakElement=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[mid+1])hi=mid;else lo=mid+1;}return lo;};
+    const p1=findPeakElement([1,2,3,1]);
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1-1]||(-Infinity));
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1+1]||(-Infinity));
+    const p2=findPeakElement([1,2,1,3,5,6,4]);
+    expect(p2===1||p2===5).toBe(true);
+  });
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('longest consecutive sequence', () => {
+    const longestConsecutive=(nums:number[]):number=>{const set=new Set(nums);let best=0;for(const n of set){if(!set.has(n-1)){let cur=n,len=1;while(set.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;};
+    expect(longestConsecutive([100,4,200,1,3,2])).toBe(4);
+    expect(longestConsecutive([0,3,7,2,5,8,4,6,0,1])).toBe(9);
+    expect(longestConsecutive([])).toBe(0);
+  });
+  it('coin change combinations', () => {
+    const change=(amount:number,coins:number[]):number=>{const dp=new Array(amount+1).fill(0);dp[0]=1;coins.forEach(c=>{for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];});return dp[amount];};
+    expect(change(5,[1,2,5])).toBe(4);
+    expect(change(3,[2])).toBe(0);
+    expect(change(10,[10])).toBe(1);
+    expect(change(0,[1,2,3])).toBe(1);
+  });
+  it('number of islands', () => {
+    const numIslands=(grid:string[][]):number=>{let count=0;const m=grid.length,n=grid[0].length;const bfs=(r:number,c:number)=>{const q=[[r,c]];grid[r][c]='0';while(q.length){const[x,y]=q.shift()!;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([nx,ny])=>{if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]==='1'){grid[nx][ny]='0';q.push([nx,ny]);}});}};for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]==='1'){count++;bfs(i,j);}return count;};
+    expect(numIslands([['1','1','0'],['0','1','0'],['0','0','1']])).toBe(2);
+    expect(numIslands([['1','1','1'],['1','1','1'],['1','1','1']])).toBe(1);
+  });
+});

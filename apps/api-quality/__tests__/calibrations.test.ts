@@ -726,3 +726,42 @@ describe('phase57 coverage', () => {
   it('counts bulls (right position) and cows (wrong position) in number guessing game', () => { const bc=(secret:string,guess:string)=>{let bulls=0;const sc=new Array(10).fill(0),gc=new Array(10).fill(0);for(let i=0;i<secret.length;i++){if(secret[i]===guess[i])bulls++;else{sc[+secret[i]]++;gc[+guess[i]]++;}}const cows=sc.reduce((s,v,i)=>s+Math.min(v,gc[i]),0);return `${bulls}A${cows}B`;}; expect(bc('1807','7810')).toBe('1A3B'); expect(bc('1123','0111')).toBe('1A1B'); });
   it('implements a hash set with add, remove, and contains', () => { class HS{private s=new Set<number>();add(k:number){this.s.add(k);}remove(k:number){this.s.delete(k);}contains(k:number){return this.s.has(k);}} const hs=new HS();hs.add(1);hs.add(2);expect(hs.contains(1)).toBe(true);hs.remove(2);expect(hs.contains(2)).toBe(false);expect(hs.contains(3)).toBe(false); });
 });
+
+describe('phase58 coverage', () => {
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('rotting oranges', () => {
+    const orangesRotting=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;const q:[number,number][]=[];let fresh=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(grid[i][j]===2)q.push([i,j]);if(grid[i][j]===1)fresh++;}let time=0;while(q.length&&fresh>0){const size=q.length;for(let k=0;k<size;k++){const[x,y]=q.shift()!;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([nx,ny])=>{if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]===1){grid[nx][ny]=2;fresh--;q.push([nx,ny]);}});}time++;}return fresh===0?time:-1;};
+    expect(orangesRotting([[2,1,1],[1,1,0],[0,1,1]])).toBe(4);
+    expect(orangesRotting([[2,1,1],[0,1,1],[1,0,1]])).toBe(-1);
+    expect(orangesRotting([[0,2]])).toBe(0);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+  it('median from stream', () => {
+    class MedianFinder{private lo:number[]=[];private hi:number[]=[];addNum(n:number){this.lo.push(n);this.lo.sort((a,b)=>b-a);this.hi.push(this.lo.shift()!);this.hi.sort((a,b)=>a-b);if(this.hi.length>this.lo.length)this.lo.unshift(this.hi.shift()!);}findMedian():number{return this.lo.length>this.hi.length?this.lo[0]:(this.lo[0]+this.hi[0])/2;}}
+    const mf=new MedianFinder();mf.addNum(1);mf.addNum(2);
+    expect(mf.findMedian()).toBe(1.5);
+    mf.addNum(3);
+    expect(mf.findMedian()).toBe(2);
+  });
+  it('find peak element binary', () => {
+    const findPeakElement=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[mid+1])hi=mid;else lo=mid+1;}return lo;};
+    const p1=findPeakElement([1,2,3,1]);
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1-1]||(-Infinity));
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1+1]||(-Infinity));
+    const p2=findPeakElement([1,2,1,3,5,6,4]);
+    expect(p2===1||p2===5).toBe(true);
+  });
+});

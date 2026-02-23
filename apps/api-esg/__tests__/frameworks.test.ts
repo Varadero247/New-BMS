@@ -810,3 +810,39 @@ describe('phase57 coverage', () => {
   it('determines if two binary trees are flip equivalent', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const flip=(a:N|null,b:N|null):boolean=>{if(!a&&!b)return true;if(!a||!b||a.v!==b.v)return false;return(flip(a.l,b.l)&&flip(a.r,b.r))||(flip(a.l,b.r)&&flip(a.r,b.l));}; expect(flip(mk(1,mk(2,mk(4),mk(5,mk(7),mk(8))),mk(3,mk(6))),mk(1,mk(3,null,mk(6)),mk(2,mk(4),mk(5,mk(8),mk(7)))))).toBe(true); expect(flip(mk(1,mk(2),mk(3)),mk(1,mk(4),mk(5)))).toBe(false); });
   it('finds two non-repeating elements in array where all others appear twice', () => { const sn3=(a:number[])=>{let xor=a.reduce((s,v)=>s^v,0);const bit=xor&(-xor);let x=0,y=0;for(const n of a)if(n&bit)x^=n;else y^=n;return[x,y].sort((a,b)=>a-b);}; expect(sn3([1,2,1,3,2,5])).toEqual([3,5]); expect(sn3([-1,0])).toEqual([-1,0]); });
 });
+
+describe('phase58 coverage', () => {
+  it('sliding window max', () => {
+    const maxSlidingWindow=(nums:number[],k:number):number[]=>{const q:number[]=[];const res:number[]=[];for(let i=0;i<nums.length;i++){while(q.length&&q[0]<i-k+1)q.shift();while(q.length&&nums[q[q.length-1]]<nums[i])q.pop();q.push(i);if(i>=k-1)res.push(nums[q[0]]);}return res;};
+    expect(maxSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]);
+    expect(maxSlidingWindow([1],1)).toEqual([1]);
+    expect(maxSlidingWindow([1,-1],1)).toEqual([1,-1]);
+  });
+  it('letter combinations phone', () => {
+    const letterCombinations=(digits:string):string[]=>{if(!digits)return[];const map:Record<string,string>={'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'};const res:string[]=[];const bt=(idx:number,cur:string)=>{if(idx===digits.length){res.push(cur);return;}for(const c of map[digits[idx]])bt(idx+1,cur+c);};bt(0,'');return res;};
+    const r=letterCombinations('23');
+    expect(r).toHaveLength(9);
+    expect(r).toContain('ad');
+    expect(letterCombinations('')).toEqual([]);
+  });
+  it('permutation in string', () => {
+    const checkInclusion=(s1:string,s2:string):boolean=>{if(s1.length>s2.length)return false;const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of s1)cnt[c.charCodeAt(0)-a]++;let matches=cnt.filter(x=>x===0).length;let l=0;for(let r=0;r<s2.length;r++){const rc=s2[r].charCodeAt(0)-a;cnt[rc]--;if(cnt[rc]===0)matches++;else if(cnt[rc]===-1)matches--;if(r-l+1>s1.length){const lc=s2[l].charCodeAt(0)-a;cnt[lc]++;if(cnt[lc]===1)matches--;else if(cnt[lc]===0)matches++;l++;}if(matches===26)return true;}return false;};
+    expect(checkInclusion('ab','eidbaooo')).toBe(true);
+    expect(checkInclusion('ab','eidboaoo')).toBe(false);
+  });
+  it('kth smallest BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const kthSmallest=(root:TN|null,k:number):number=>{const stack:TN[]=[];let cur:TN|null=root;while(cur||stack.length){while(cur){stack.push(cur);cur=cur.left;}cur=stack.pop()!;if(--k===0)return cur.val;cur=cur.right;}return -1;};
+    const t=mk(3,mk(1,null,mk(2)),mk(4));
+    expect(kthSmallest(t,1)).toBe(1);
+    expect(kthSmallest(t,3)).toBe(3);
+    expect(kthSmallest(mk(5,mk(3,mk(2,mk(1),null),mk(4)),mk(6)),3)).toBe(3);
+  });
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+});

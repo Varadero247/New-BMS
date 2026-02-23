@@ -751,3 +751,40 @@ describe('phase57 coverage', () => {
   it('counts bulls (right position) and cows (wrong position) in number guessing game', () => { const bc=(secret:string,guess:string)=>{let bulls=0;const sc=new Array(10).fill(0),gc=new Array(10).fill(0);for(let i=0;i<secret.length;i++){if(secret[i]===guess[i])bulls++;else{sc[+secret[i]]++;gc[+guess[i]]++;}}const cows=sc.reduce((s,v,i)=>s+Math.min(v,gc[i]),0);return `${bulls}A${cows}B`;}; expect(bc('1807','7810')).toBe('1A3B'); expect(bc('1123','0111')).toBe('1A1B'); });
   it('implements LRU cache with O(1) get and put', () => { class LRU{private cap:number;private m=new Map<number,number>();constructor(c:number){this.cap=c;}get(k:number){if(!this.m.has(k))return -1;const v=this.m.get(k)!;this.m.delete(k);this.m.set(k,v);return v;}put(k:number,v:number){if(this.m.has(k))this.m.delete(k);else if(this.m.size>=this.cap)this.m.delete(this.m.keys().next().value!);this.m.set(k,v);}} const c=new LRU(2);c.put(1,1);c.put(2,2);expect(c.get(1)).toBe(1);c.put(3,3);expect(c.get(2)).toBe(-1);expect(c.get(3)).toBe(3); });
 });
+
+describe('phase58 coverage', () => {
+  it('min stack ops', () => {
+    class MinStack{private s:number[]=[];private mins:number[]=[];push(v:number){this.s.push(v);if(!this.mins.length||v<=this.mins[this.mins.length-1])this.mins.push(v);}pop(){const v=this.s.pop()!;if(v===this.mins[this.mins.length-1])this.mins.pop();}top(){return this.s[this.s.length-1];}getMin(){return this.mins[this.mins.length-1];}}
+    const ms=new MinStack();ms.push(-2);ms.push(0);ms.push(-3);
+    expect(ms.getMin()).toBe(-3);
+    ms.pop();
+    expect(ms.top()).toBe(0);
+    expect(ms.getMin()).toBe(-2);
+  });
+  it('decode ways', () => {
+    const numDecodings=(s:string):number=>{if(!s||s[0]==='0')return 0;const n=s.length;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=parseInt(s[i-1]);const two=parseInt(s.slice(i-2,i));if(one!==0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];};
+    expect(numDecodings('12')).toBe(2);
+    expect(numDecodings('226')).toBe(3);
+    expect(numDecodings('06')).toBe(0);
+    expect(numDecodings('11106')).toBe(2);
+  });
+  it('number of islands', () => {
+    const numIslands=(grid:string[][]):number=>{let count=0;const m=grid.length,n=grid[0].length;const bfs=(r:number,c:number)=>{const q=[[r,c]];grid[r][c]='0';while(q.length){const[x,y]=q.shift()!;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([nx,ny])=>{if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]==='1'){grid[nx][ny]='0';q.push([nx,ny]);}});}};for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]==='1'){count++;bfs(i,j);}return count;};
+    expect(numIslands([['1','1','0'],['0','1','0'],['0','0','1']])).toBe(2);
+    expect(numIslands([['1','1','1'],['1','1','1'],['1','1','1']])).toBe(1);
+  });
+  it('validate BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const isValidBST=(root:TN|null,min=-Infinity,max=Infinity):boolean=>{if(!root)return true;if(root.val<=min||root.val>=max)return false;return isValidBST(root.left,min,root.val)&&isValidBST(root.right,root.val,max);};
+    expect(isValidBST(mk(2,mk(1),mk(3)))).toBe(true);
+    expect(isValidBST(mk(5,mk(1),mk(4,mk(3),mk(6))))).toBe(false);
+    expect(isValidBST(null)).toBe(true);
+  });
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+});

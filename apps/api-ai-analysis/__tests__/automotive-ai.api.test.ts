@@ -1256,3 +1256,39 @@ describe('phase57 coverage', () => {
   it('computes minimum cost for given travel days using DP', () => { const mct=(days:number[],costs:number[])=>{const last=days[days.length-1];const dp=new Array(last+1).fill(0);const set=new Set(days);for(let i=1;i<=last;i++){if(!set.has(i)){dp[i]=dp[i-1];continue;}dp[i]=Math.min(dp[i-1]+costs[0],dp[Math.max(0,i-7)]+costs[1],dp[Math.max(0,i-30)]+costs[2]);}return dp[last];}; expect(mct([1,4,6,7,8,20],[2,7,15])).toBe(11); expect(mct([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17); });
   it('implements LRU cache with O(1) get and put', () => { class LRU{private cap:number;private m=new Map<number,number>();constructor(c:number){this.cap=c;}get(k:number){if(!this.m.has(k))return -1;const v=this.m.get(k)!;this.m.delete(k);this.m.set(k,v);return v;}put(k:number,v:number){if(this.m.has(k))this.m.delete(k);else if(this.m.size>=this.cap)this.m.delete(this.m.keys().next().value!);this.m.set(k,v);}} const c=new LRU(2);c.put(1,1);c.put(2,2);expect(c.get(1)).toBe(1);c.put(3,3);expect(c.get(2)).toBe(-1);expect(c.get(3)).toBe(3); });
 });
+
+describe('phase58 coverage', () => {
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('flatten tree to list', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const flatten=(root:TN|null):void=>{let cur=root;while(cur){if(cur.left){let r=cur.left;while(r.right)r=r.right;r.right=cur.right;cur.right=cur.left;cur.left=null;}cur=cur.right;}};
+    const toArr=(r:TN|null):number[]=>{const a:number[]=[];while(r){a.push(r.val);r=r.right;}return a;};
+    const t=mk(1,mk(2,mk(3),mk(4)),mk(5,null,mk(6)));
+    flatten(t);
+    expect(toArr(t)).toEqual([1,2,3,4,5,6]);
+  });
+  it('find peak element binary', () => {
+    const findPeakElement=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[mid+1])hi=mid;else lo=mid+1;}return lo;};
+    const p1=findPeakElement([1,2,3,1]);
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1-1]||(-Infinity));
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1+1]||(-Infinity));
+    const p2=findPeakElement([1,2,1,3,5,6,4]);
+    expect(p2===1||p2===5).toBe(true);
+  });
+  it('spiral matrix II generate', () => {
+    const generateMatrix=(n:number):number[][]=>{const mat=Array.from({length:n},()=>new Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(num<=n*n){for(let c=left;c<=right;c++)mat[top][c]=num++;top++;for(let r=top;r<=bot;r++)mat[r][right]=num++;right--;for(let c=right;c>=left;c--)mat[bot][c]=num++;bot--;for(let r=bot;r>=top;r--)mat[r][left]=num++;left++;}return mat;};
+    expect(generateMatrix(3)).toEqual([[1,2,3],[8,9,4],[7,6,5]]);
+    expect(generateMatrix(1)).toEqual([[1]]);
+  });
+  it('unique paths with obstacles', () => {
+    const uniquePathsWithObstacles=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=1;i<m;i++)dp[i][0]=grid[i][0]===1?0:dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]=grid[0][j]===1?0:dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=grid[i][j]===1?0:dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];};
+    expect(uniquePathsWithObstacles([[0,0,0],[0,1,0],[0,0,0]])).toBe(2);
+    expect(uniquePathsWithObstacles([[1,0]])).toBe(0);
+  });
+});

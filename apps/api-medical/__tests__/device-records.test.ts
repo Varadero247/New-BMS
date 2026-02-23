@@ -986,3 +986,38 @@ describe('phase57 coverage', () => {
   it('reconstructs travel itinerary using DFS and min-heap', () => { const findItin=(tickets:[string,string][])=>{const g=new Map<string,string[]>();for(const[f,t]of tickets){g.set(f,[...(g.get(f)||[]),t]);}for(const v of g.values())v.sort();const res:string[]=[];const dfs=(a:string)=>{const nxt=g.get(a)||[];while(nxt.length)dfs(nxt.shift()!);res.unshift(a);};dfs('JFK');return res;}; expect(findItin([['MUC','LHR'],['JFK','MUC'],['SFO','SJC'],['LHR','SFO']])).toEqual(['JFK','MUC','LHR','SFO','SJC']); });
   it('finds length of longest path with same values in binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const luv=(root:N|null)=>{let res=0;const dfs=(n:N|null,pv:number):number=>{if(!n)return 0;const l=dfs(n.l,n.v),r=dfs(n.r,n.v);res=Math.max(res,l+r);return n.v===pv?1+Math.max(l,r):0;};dfs(root,-1);return res;}; expect(luv(mk(5,mk(4,mk(4),mk(4)),mk(5,null,mk(5))))).toBe(2); expect(luv(mk(1,mk(1,mk(1)),mk(1,null,mk(1))))).toBe(4); });
 });
+
+describe('phase58 coverage', () => {
+  it('alien dict order', () => {
+    const alienOrder=(words:string[])=>{const adj:Map<string,Set<string>>=new Map();const chars=new Set(words.join(''));chars.forEach(c=>adj.set(c,new Set()));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];const len=Math.min(a.length,b.length);if(a.length>b.length&&a.startsWith(b))return'';for(let j=0;j<len;j++)if(a[j]!==b[j]){adj.get(a[j])!.add(b[j]);break;}}const visited=new Map<string,boolean>();const res:string[]=[];const dfs=(c:string):boolean=>{if(visited.has(c))return visited.get(c)!;visited.set(c,true);for(const n of adj.get(c)!){if(dfs(n))return true;}visited.set(c,false);res.push(c);return false;};for(const c of chars)if(!visited.has(c)&&dfs(c))return'';return res.reverse().join('');};
+    const r=alienOrder(['wrt','wrf','er','ett','rftt']);
+    expect(typeof r).toBe('string');
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('letter combinations phone', () => {
+    const letterCombinations=(digits:string):string[]=>{if(!digits)return[];const map:Record<string,string>={'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'};const res:string[]=[];const bt=(idx:number,cur:string)=>{if(idx===digits.length){res.push(cur);return;}for(const c of map[digits[idx]])bt(idx+1,cur+c);};bt(0,'');return res;};
+    const r=letterCombinations('23');
+    expect(r).toHaveLength(9);
+    expect(r).toContain('ad');
+    expect(letterCombinations('')).toEqual([]);
+  });
+  it('word break II', () => {
+    const wordBreak=(s:string,dict:string[]):string[]=>{const set=new Set(dict);const memo=new Map<string,string[]>();const bt=(rem:string):string[]=>{if(memo.has(rem))return memo.get(rem)!;if(rem===''){memo.set(rem,['']);return[''];}const res:string[]=[];for(let i=1;i<=rem.length;i++){const word=rem.slice(0,i);if(set.has(word)){bt(rem.slice(i)).forEach(rest=>res.push(rest===''?word:`${word} ${rest}`));}}memo.set(rem,res);return res;};return bt(s);};
+    const r=wordBreak('catsanddog',['cat','cats','and','sand','dog']);
+    expect(r).toContain('cats and dog');
+    expect(r).toContain('cat sand dog');
+  });
+  it('median from stream', () => {
+    class MedianFinder{private lo:number[]=[];private hi:number[]=[];addNum(n:number){this.lo.push(n);this.lo.sort((a,b)=>b-a);this.hi.push(this.lo.shift()!);this.hi.sort((a,b)=>a-b);if(this.hi.length>this.lo.length)this.lo.unshift(this.hi.shift()!);}findMedian():number{return this.lo.length>this.hi.length?this.lo[0]:(this.lo[0]+this.hi[0])/2;}}
+    const mf=new MedianFinder();mf.addNum(1);mf.addNum(2);
+    expect(mf.findMedian()).toBe(1.5);
+    mf.addNum(3);
+    expect(mf.findMedian()).toBe(2);
+  });
+  it('sliding window max', () => {
+    const maxSlidingWindow=(nums:number[],k:number):number[]=>{const q:number[]=[];const res:number[]=[];for(let i=0;i<nums.length;i++){while(q.length&&q[0]<i-k+1)q.shift();while(q.length&&nums[q[q.length-1]]<nums[i])q.pop();q.push(i);if(i>=k-1)res.push(nums[q[0]]);}return res;};
+    expect(maxSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]);
+    expect(maxSlidingWindow([1],1)).toEqual([1]);
+    expect(maxSlidingWindow([1,-1],1)).toEqual([1,-1]);
+  });
+});

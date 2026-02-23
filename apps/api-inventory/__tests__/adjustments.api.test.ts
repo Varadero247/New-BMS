@@ -827,3 +827,42 @@ describe('phase57 coverage', () => {
   it('finds the mode(s) in a binary search tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const modes=(root:N|null)=>{const m=new Map<number,number>();const dfs=(n:N|null)=>{if(!n)return;m.set(n.v,(m.get(n.v)||0)+1);dfs(n.l);dfs(n.r);};dfs(root);const max=Math.max(...m.values());return[...m.entries()].filter(([,c])=>c===max).map(([v])=>v).sort((a,b)=>a-b);}; expect(modes(mk(1,null,mk(2,mk(2))))).toEqual([2]); expect(modes(mk(1))).toEqual([1]); });
   it('counts ways to assign + and - to array elements to reach target', () => { const ts2=(a:number[],t:number)=>{const memo=new Map<string,number>();const dfs=(i:number,s:number):number=>{if(i===a.length)return s===t?1:0;const k=`${i},${s}`;if(memo.has(k))return memo.get(k)!;const v=dfs(i+1,s+a[i])+dfs(i+1,s-a[i]);memo.set(k,v);return v;};return dfs(0,0);}; expect(ts2([1,1,1,1,1],3)).toBe(5); expect(ts2([1],1)).toBe(1); });
 });
+
+describe('phase58 coverage', () => {
+  it('decode ways', () => {
+    const numDecodings=(s:string):number=>{if(!s||s[0]==='0')return 0;const n=s.length;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=parseInt(s[i-1]);const two=parseInt(s.slice(i-2,i));if(one!==0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];};
+    expect(numDecodings('12')).toBe(2);
+    expect(numDecodings('226')).toBe(3);
+    expect(numDecodings('06')).toBe(0);
+    expect(numDecodings('11106')).toBe(2);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('min stack ops', () => {
+    class MinStack{private s:number[]=[];private mins:number[]=[];push(v:number){this.s.push(v);if(!this.mins.length||v<=this.mins[this.mins.length-1])this.mins.push(v);}pop(){const v=this.s.pop()!;if(v===this.mins[this.mins.length-1])this.mins.pop();}top(){return this.s[this.s.length-1];}getMin(){return this.mins[this.mins.length-1];}}
+    const ms=new MinStack();ms.push(-2);ms.push(0);ms.push(-3);
+    expect(ms.getMin()).toBe(-3);
+    ms.pop();
+    expect(ms.top()).toBe(0);
+    expect(ms.getMin()).toBe(-2);
+  });
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+});

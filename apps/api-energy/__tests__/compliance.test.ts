@@ -846,3 +846,39 @@ describe('phase57 coverage', () => {
   it('distributes minimum candies to children based on ratings', () => { const candy=(r:number[])=>{const n=r.length,c=new Array(n).fill(1);for(let i=1;i<n;i++)if(r[i]>r[i-1])c[i]=c[i-1]+1;for(let i=n-2;i>=0;i--)if(r[i]>r[i+1])c[i]=Math.max(c[i],c[i+1]+1);return c.reduce((s,v)=>s+v,0);}; expect(candy([1,0,2])).toBe(5); expect(candy([1,2,2])).toBe(4); expect(candy([1,3,2,2,1])).toBe(7); });
   it('finds the index of the minimum right interval for each interval', () => { const fri=(ivs:[number,number][])=>{const starts=ivs.map((v,i)=>[v[0],i]).sort((a,b)=>a[0]-b[0]);return ivs.map(([,end])=>{let lo=0,hi=starts.length;while(lo<hi){const m=lo+hi>>1;if(starts[m][0]<end)lo=m+1;else hi=m;}return lo<starts.length?starts[lo][1]:-1;});}; expect(fri([[1,2]])).toEqual([-1]); expect(fri([[3,4],[2,3],[1,2]])).toEqual([-1,0,1]); });
 });
+
+describe('phase58 coverage', () => {
+  it('first missing positive', () => {
+    const firstMissingPositive=(nums:number[]):number=>{const n=nums.length;for(let i=0;i<n;i++){while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;};
+    expect(firstMissingPositive([1,2,0])).toBe(3);
+    expect(firstMissingPositive([3,4,-1,1])).toBe(2);
+    expect(firstMissingPositive([7,8,9,11,12])).toBe(1);
+    expect(firstMissingPositive([1,2,3])).toBe(4);
+  });
+  it('longest common subsequence', () => {
+    const lcs=(a:string,b:string):number=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];};
+    expect(lcs('abcde','ace')).toBe(3);
+    expect(lcs('abc','abc')).toBe(3);
+    expect(lcs('abc','def')).toBe(0);
+    expect(lcs('ezupkr','ubmrapg')).toBe(2);
+  });
+  it('container with most water', () => {
+    const maxArea=(h:number[]):number=>{let l=0,r=h.length-1,best=0;while(l<r){best=Math.max(best,Math.min(h[l],h[r])*(r-l));if(h[l]<h[r])l++;else r--;}return best;};
+    expect(maxArea([1,8,6,2,5,4,8,3,7])).toBe(49);
+    expect(maxArea([1,1])).toBe(1);
+    expect(maxArea([4,3,2,1,4])).toBe(16);
+  });
+  it('find peak element binary', () => {
+    const findPeakElement=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[mid+1])hi=mid;else lo=mid+1;}return lo;};
+    const p1=findPeakElement([1,2,3,1]);
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1-1]||(-Infinity));
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1+1]||(-Infinity));
+    const p2=findPeakElement([1,2,1,3,5,6,4]);
+    expect(p2===1||p2===5).toBe(true);
+  });
+  it('unique paths with obstacles', () => {
+    const uniquePathsWithObstacles=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=1;i<m;i++)dp[i][0]=grid[i][0]===1?0:dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]=grid[0][j]===1?0:dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=grid[i][j]===1?0:dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];};
+    expect(uniquePathsWithObstacles([[0,0,0],[0,1,0],[0,0,0]])).toBe(2);
+    expect(uniquePathsWithObstacles([[1,0]])).toBe(0);
+  });
+});

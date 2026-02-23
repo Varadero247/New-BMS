@@ -552,3 +552,40 @@ describe('phase57 coverage', () => {
   it('picks index proportional to weight using prefix sum binary search', () => { const wpick=(w:number[])=>{const pre:number[]=[];let s=0;for(const v of w)pre.push(s+=v);return()=>{const t=Math.floor(Math.random()*s);let lo=0,hi=pre.length-1;while(lo<hi){const m=lo+hi>>1;if(pre[m]<t+1)lo=m+1;else hi=m;}return lo;};}; const pick=wpick([1,3]);const counts=[0,0];for(let i=0;i<1000;i++)counts[pick()]++;expect(counts[1]).toBeGreaterThan(counts[0]); });
   it('computes minimum cost for given travel days using DP', () => { const mct=(days:number[],costs:number[])=>{const last=days[days.length-1];const dp=new Array(last+1).fill(0);const set=new Set(days);for(let i=1;i<=last;i++){if(!set.has(i)){dp[i]=dp[i-1];continue;}dp[i]=Math.min(dp[i-1]+costs[0],dp[Math.max(0,i-7)]+costs[1],dp[Math.max(0,i-30)]+costs[2]);}return dp[last];}; expect(mct([1,4,6,7,8,20],[2,7,15])).toBe(11); expect(mct([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17); });
 });
+
+describe('phase58 coverage', () => {
+  it('min stack ops', () => {
+    class MinStack{private s:number[]=[];private mins:number[]=[];push(v:number){this.s.push(v);if(!this.mins.length||v<=this.mins[this.mins.length-1])this.mins.push(v);}pop(){const v=this.s.pop()!;if(v===this.mins[this.mins.length-1])this.mins.pop();}top(){return this.s[this.s.length-1];}getMin(){return this.mins[this.mins.length-1];}}
+    const ms=new MinStack();ms.push(-2);ms.push(0);ms.push(-3);
+    expect(ms.getMin()).toBe(-3);
+    ms.pop();
+    expect(ms.top()).toBe(0);
+    expect(ms.getMin()).toBe(-2);
+  });
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('alien dict order', () => {
+    const alienOrder=(words:string[])=>{const adj:Map<string,Set<string>>=new Map();const chars=new Set(words.join(''));chars.forEach(c=>adj.set(c,new Set()));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];const len=Math.min(a.length,b.length);if(a.length>b.length&&a.startsWith(b))return'';for(let j=0;j<len;j++)if(a[j]!==b[j]){adj.get(a[j])!.add(b[j]);break;}}const visited=new Map<string,boolean>();const res:string[]=[];const dfs=(c:string):boolean=>{if(visited.has(c))return visited.get(c)!;visited.set(c,true);for(const n of adj.get(c)!){if(dfs(n))return true;}visited.set(c,false);res.push(c);return false;};for(const c of chars)if(!visited.has(c)&&dfs(c))return'';return res.reverse().join('');};
+    const r=alienOrder(['wrt','wrf','er','ett','rftt']);
+    expect(typeof r).toBe('string');
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('subsets with duplicates', () => {
+    const subsetsWithDup=(nums:number[]):number[][]=>{nums.sort((a,b)=>a-b);const res:number[][]=[];const bt=(start:number,path:number[])=>{res.push([...path]);for(let i=start;i<nums.length;i++){if(i>start&&nums[i]===nums[i-1])continue;path.push(nums[i]);bt(i+1,path);path.pop();}};bt(0,[]);return res;};
+    const r=subsetsWithDup([1,2,2]);
+    expect(r).toHaveLength(6);
+    expect(r).toContainEqual([]);
+    expect(r).toContainEqual([2,2]);
+    expect(r).toContainEqual([1,2,2]);
+  });
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+});

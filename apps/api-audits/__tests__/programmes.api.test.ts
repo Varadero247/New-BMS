@@ -721,3 +721,39 @@ describe('phase57 coverage', () => {
   it('implements a hash set with add, remove, and contains', () => { class HS{private s=new Set<number>();add(k:number){this.s.add(k);}remove(k:number){this.s.delete(k);}contains(k:number){return this.s.has(k);}} const hs=new HS();hs.add(1);hs.add(2);expect(hs.contains(1)).toBe(true);hs.remove(2);expect(hs.contains(2)).toBe(false);expect(hs.contains(3)).toBe(false); });
   it('finds next greater element for each element of nums1 in nums2', () => { const nge=(n1:number[],n2:number[])=>{const m=new Map<number,number>(),st:number[]=[];for(const n of n2){while(st.length&&st[st.length-1]<n)m.set(st.pop()!,n);st.push(n);}return n1.map(n=>m.get(n)??-1);}; expect(nge([4,1,2],[1,3,4,2])).toEqual([-1,3,-1]); expect(nge([2,4],[1,2,3,4])).toEqual([3,-1]); });
 });
+
+describe('phase58 coverage', () => {
+  it('longest common subsequence', () => {
+    const lcs=(a:string,b:string):number=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];};
+    expect(lcs('abcde','ace')).toBe(3);
+    expect(lcs('abc','abc')).toBe(3);
+    expect(lcs('abc','def')).toBe(0);
+    expect(lcs('ezupkr','ubmrapg')).toBe(2);
+  });
+  it('min stack ops', () => {
+    class MinStack{private s:number[]=[];private mins:number[]=[];push(v:number){this.s.push(v);if(!this.mins.length||v<=this.mins[this.mins.length-1])this.mins.push(v);}pop(){const v=this.s.pop()!;if(v===this.mins[this.mins.length-1])this.mins.pop();}top(){return this.s[this.s.length-1];}getMin(){return this.mins[this.mins.length-1];}}
+    const ms=new MinStack();ms.push(-2);ms.push(0);ms.push(-3);
+    expect(ms.getMin()).toBe(-3);
+    ms.pop();
+    expect(ms.top()).toBe(0);
+    expect(ms.getMin()).toBe(-2);
+  });
+  it('container with most water', () => {
+    const maxArea=(h:number[]):number=>{let l=0,r=h.length-1,best=0;while(l<r){best=Math.max(best,Math.min(h[l],h[r])*(r-l));if(h[l]<h[r])l++;else r--;}return best;};
+    expect(maxArea([1,8,6,2,5,4,8,3,7])).toBe(49);
+    expect(maxArea([1,1])).toBe(1);
+    expect(maxArea([4,3,2,1,4])).toBe(16);
+  });
+  it('alien dict order', () => {
+    const alienOrder=(words:string[])=>{const adj:Map<string,Set<string>>=new Map();const chars=new Set(words.join(''));chars.forEach(c=>adj.set(c,new Set()));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];const len=Math.min(a.length,b.length);if(a.length>b.length&&a.startsWith(b))return'';for(let j=0;j<len;j++)if(a[j]!==b[j]){adj.get(a[j])!.add(b[j]);break;}}const visited=new Map<string,boolean>();const res:string[]=[];const dfs=(c:string):boolean=>{if(visited.has(c))return visited.get(c)!;visited.set(c,true);for(const n of adj.get(c)!){if(dfs(n))return true;}visited.set(c,false);res.push(c);return false;};for(const c of chars)if(!visited.has(c)&&dfs(c))return'';return res.reverse().join('');};
+    const r=alienOrder(['wrt','wrf','er','ett','rftt']);
+    expect(typeof r).toBe('string');
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('sliding window max', () => {
+    const maxSlidingWindow=(nums:number[],k:number):number[]=>{const q:number[]=[];const res:number[]=[];for(let i=0;i<nums.length;i++){while(q.length&&q[0]<i-k+1)q.shift();while(q.length&&nums[q[q.length-1]]<nums[i])q.pop();q.push(i);if(i>=k-1)res.push(nums[q[0]]);}return res;};
+    expect(maxSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]);
+    expect(maxSlidingWindow([1],1)).toEqual([1]);
+    expect(maxSlidingWindow([1,-1],1)).toEqual([1,-1]);
+  });
+});

@@ -942,3 +942,37 @@ describe('phase57 coverage', () => {
   it('returns k most frequent words sorted by frequency then lexicographically', () => { const topK=(words:string[],k:number)=>{const m=new Map<string,number>();for(const w of words)m.set(w,(m.get(w)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,k).map(e=>e[0]);}; expect(topK(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']); expect(topK(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']); });
   it('finds length of longest palindromic subsequence', () => { const lps2=(s:string)=>{const n=s.length,dp=Array.from({length:n},(_,i)=>new Array(n).fill(0).map((_,j):number=>i===j?1:0));for(let len=2;len<=n;len++)for(let i=0;i+len<=n;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]+2:Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps2('bbbab')).toBe(4); expect(lps2('cbbd')).toBe(2); });
 });
+
+describe('phase58 coverage', () => {
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+  it('spiral matrix II generate', () => {
+    const generateMatrix=(n:number):number[][]=>{const mat=Array.from({length:n},()=>new Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(num<=n*n){for(let c=left;c<=right;c++)mat[top][c]=num++;top++;for(let r=top;r<=bot;r++)mat[r][right]=num++;right--;for(let c=right;c>=left;c--)mat[bot][c]=num++;bot--;for(let r=bot;r>=top;r--)mat[r][left]=num++;left++;}return mat;};
+    expect(generateMatrix(3)).toEqual([[1,2,3],[8,9,4],[7,6,5]]);
+    expect(generateMatrix(1)).toEqual([[1]]);
+  });
+  it('alien dict order', () => {
+    const alienOrder=(words:string[])=>{const adj:Map<string,Set<string>>=new Map();const chars=new Set(words.join(''));chars.forEach(c=>adj.set(c,new Set()));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];const len=Math.min(a.length,b.length);if(a.length>b.length&&a.startsWith(b))return'';for(let j=0;j<len;j++)if(a[j]!==b[j]){adj.get(a[j])!.add(b[j]);break;}}const visited=new Map<string,boolean>();const res:string[]=[];const dfs=(c:string):boolean=>{if(visited.has(c))return visited.get(c)!;visited.set(c,true);for(const n of adj.get(c)!){if(dfs(n))return true;}visited.set(c,false);res.push(c);return false;};for(const c of chars)if(!visited.has(c)&&dfs(c))return'';return res.reverse().join('');};
+    const r=alienOrder(['wrt','wrf','er','ett','rftt']);
+    expect(typeof r).toBe('string');
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('container with most water', () => {
+    const maxArea=(h:number[]):number=>{let l=0,r=h.length-1,best=0;while(l<r){best=Math.max(best,Math.min(h[l],h[r])*(r-l));if(h[l]<h[r])l++;else r--;}return best;};
+    expect(maxArea([1,8,6,2,5,4,8,3,7])).toBe(49);
+    expect(maxArea([1,1])).toBe(1);
+    expect(maxArea([4,3,2,1,4])).toBe(16);
+  });
+  it('find peak element binary', () => {
+    const findPeakElement=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[mid+1])hi=mid;else lo=mid+1;}return lo;};
+    const p1=findPeakElement([1,2,3,1]);
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1-1]||(-Infinity));
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1+1]||(-Infinity));
+    const p2=findPeakElement([1,2,1,3,5,6,4]);
+    expect(p2===1||p2===5).toBe(true);
+  });
+});

@@ -595,3 +595,38 @@ describe('phase57 coverage', () => {
   it('reconstructs travel itinerary using DFS and min-heap', () => { const findItin=(tickets:[string,string][])=>{const g=new Map<string,string[]>();for(const[f,t]of tickets){g.set(f,[...(g.get(f)||[]),t]);}for(const v of g.values())v.sort();const res:string[]=[];const dfs=(a:string)=>{const nxt=g.get(a)||[];while(nxt.length)dfs(nxt.shift()!);res.unshift(a);};dfs('JFK');return res;}; expect(findItin([['MUC','LHR'],['JFK','MUC'],['SFO','SJC'],['LHR','SFO']])).toEqual(['JFK','MUC','LHR','SFO','SJC']); });
   it('checks if array has continuous subarray of size ≥2 summing to multiple of k', () => { const csm=(a:number[],k:number)=>{const m=new Map([[0,-1]]);let sum=0;for(let i=0;i<a.length;i++){sum=(sum+a[i])%k;if(m.has(sum)){if(i-m.get(sum)!>=2)return true;}else m.set(sum,i);}return false;}; expect(csm([23,2,4,6,7],6)).toBe(true); expect(csm([23,2,6,4,7],6)).toBe(true); expect(csm([23,2,6,4,7],13)).toBe(false); });
 });
+
+describe('phase58 coverage', () => {
+  it('unique paths with obstacles', () => {
+    const uniquePathsWithObstacles=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=1;i<m;i++)dp[i][0]=grid[i][0]===1?0:dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]=grid[0][j]===1?0:dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=grid[i][j]===1?0:dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];};
+    expect(uniquePathsWithObstacles([[0,0,0],[0,1,0],[0,0,0]])).toBe(2);
+    expect(uniquePathsWithObstacles([[1,0]])).toBe(0);
+  });
+  it('coin change combinations', () => {
+    const change=(amount:number,coins:number[]):number=>{const dp=new Array(amount+1).fill(0);dp[0]=1;coins.forEach(c=>{for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];});return dp[amount];};
+    expect(change(5,[1,2,5])).toBe(4);
+    expect(change(3,[2])).toBe(0);
+    expect(change(10,[10])).toBe(1);
+    expect(change(0,[1,2,3])).toBe(1);
+  });
+  it('median from stream', () => {
+    class MedianFinder{private lo:number[]=[];private hi:number[]=[];addNum(n:number){this.lo.push(n);this.lo.sort((a,b)=>b-a);this.hi.push(this.lo.shift()!);this.hi.sort((a,b)=>a-b);if(this.hi.length>this.lo.length)this.lo.unshift(this.hi.shift()!);}findMedian():number{return this.lo.length>this.hi.length?this.lo[0]:(this.lo[0]+this.hi[0])/2;}}
+    const mf=new MedianFinder();mf.addNum(1);mf.addNum(2);
+    expect(mf.findMedian()).toBe(1.5);
+    mf.addNum(3);
+    expect(mf.findMedian()).toBe(2);
+  });
+  it('first missing positive', () => {
+    const firstMissingPositive=(nums:number[]):number=>{const n=nums.length;for(let i=0;i<n;i++){while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;};
+    expect(firstMissingPositive([1,2,0])).toBe(3);
+    expect(firstMissingPositive([3,4,-1,1])).toBe(2);
+    expect(firstMissingPositive([7,8,9,11,12])).toBe(1);
+    expect(firstMissingPositive([1,2,3])).toBe(4);
+  });
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+});

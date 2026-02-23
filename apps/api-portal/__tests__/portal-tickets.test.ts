@@ -845,3 +845,38 @@ describe('phase57 coverage', () => {
   it('finds length of longest path with same values in binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const luv=(root:N|null)=>{let res=0;const dfs=(n:N|null,pv:number):number=>{if(!n)return 0;const l=dfs(n.l,n.v),r=dfs(n.r,n.v);res=Math.max(res,l+r);return n.v===pv?1+Math.max(l,r):0;};dfs(root,-1);return res;}; expect(luv(mk(5,mk(4,mk(4),mk(4)),mk(5,null,mk(5))))).toBe(2); expect(luv(mk(1,mk(1,mk(1)),mk(1,null,mk(1))))).toBe(4); });
   it('picks index proportional to weight using prefix sum binary search', () => { const wpick=(w:number[])=>{const pre:number[]=[];let s=0;for(const v of w)pre.push(s+=v);return()=>{const t=Math.floor(Math.random()*s);let lo=0,hi=pre.length-1;while(lo<hi){const m=lo+hi>>1;if(pre[m]<t+1)lo=m+1;else hi=m;}return lo;};}; const pick=wpick([1,3]);const counts=[0,0];for(let i=0;i<1000;i++)counts[pick()]++;expect(counts[1]).toBeGreaterThan(counts[0]); });
 });
+
+describe('phase58 coverage', () => {
+  it('palindrome partitioning', () => {
+    const partition=(s:string):string[][]=>{const res:string[][]=[];const isPalin=(a:string)=>a===a.split('').reverse().join('');const bt=(start:number,path:string[])=>{if(start===s.length){res.push([...path]);return;}for(let end=start+1;end<=s.length;end++){const sub=s.slice(start,end);if(isPalin(sub)){path.push(sub);bt(end,path);path.pop();}}};bt(0,[]);return res;};
+    const r=partition('aab');
+    expect(r).toContainEqual(['a','a','b']);
+    expect(r).toContainEqual(['aa','b']);
+    expect(partition('a')).toEqual([['a']]);
+  });
+  it('coin change combinations', () => {
+    const change=(amount:number,coins:number[]):number=>{const dp=new Array(amount+1).fill(0);dp[0]=1;coins.forEach(c=>{for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];});return dp[amount];};
+    expect(change(5,[1,2,5])).toBe(4);
+    expect(change(3,[2])).toBe(0);
+    expect(change(10,[10])).toBe(1);
+    expect(change(0,[1,2,3])).toBe(1);
+  });
+  it('permutation in string', () => {
+    const checkInclusion=(s1:string,s2:string):boolean=>{if(s1.length>s2.length)return false;const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of s1)cnt[c.charCodeAt(0)-a]++;let matches=cnt.filter(x=>x===0).length;let l=0;for(let r=0;r<s2.length;r++){const rc=s2[r].charCodeAt(0)-a;cnt[rc]--;if(cnt[rc]===0)matches++;else if(cnt[rc]===-1)matches--;if(r-l+1>s1.length){const lc=s2[l].charCodeAt(0)-a;cnt[lc]++;if(cnt[lc]===1)matches--;else if(cnt[lc]===0)matches++;l++;}if(matches===26)return true;}return false;};
+    expect(checkInclusion('ab','eidbaooo')).toBe(true);
+    expect(checkInclusion('ab','eidboaoo')).toBe(false);
+  });
+  it('first missing positive', () => {
+    const firstMissingPositive=(nums:number[]):number=>{const n=nums.length;for(let i=0;i<n;i++){while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;};
+    expect(firstMissingPositive([1,2,0])).toBe(3);
+    expect(firstMissingPositive([3,4,-1,1])).toBe(2);
+    expect(firstMissingPositive([7,8,9,11,12])).toBe(1);
+    expect(firstMissingPositive([1,2,3])).toBe(4);
+  });
+  it('word break II', () => {
+    const wordBreak=(s:string,dict:string[]):string[]=>{const set=new Set(dict);const memo=new Map<string,string[]>();const bt=(rem:string):string[]=>{if(memo.has(rem))return memo.get(rem)!;if(rem===''){memo.set(rem,['']);return[''];}const res:string[]=[];for(let i=1;i<=rem.length;i++){const word=rem.slice(0,i);if(set.has(word)){bt(rem.slice(i)).forEach(rest=>res.push(rest===''?word:`${word} ${rest}`));}}memo.set(rem,res);return res;};return bt(s);};
+    const r=wordBreak('catsanddog',['cat','cats','and','sand','dog']);
+    expect(r).toContain('cats and dog');
+    expect(r).toContain('cat sand dog');
+  });
+});

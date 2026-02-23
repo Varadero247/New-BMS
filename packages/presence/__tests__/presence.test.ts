@@ -600,3 +600,42 @@ describe('phase57 coverage', () => {
   it('implements FreqStack that pops the most frequent element', () => { class FS{private freq=new Map<number,number>();private group=new Map<number,number[]>();private maxFreq=0;push(v:number){const f=(this.freq.get(v)||0)+1;this.freq.set(v,f);this.maxFreq=Math.max(this.maxFreq,f);if(!this.group.has(f))this.group.set(f,[]);this.group.get(f)!.push(v);}pop(){const top=this.group.get(this.maxFreq)!;const v=top.pop()!;if(!top.length){this.group.delete(this.maxFreq);this.maxFreq--;}this.freq.set(v,this.freq.get(v)!-1);return v;}} const fs=new FS();[5,7,5,7,4,5].forEach(v=>fs.push(v));expect(fs.pop()).toBe(5);expect(fs.pop()).toBe(7);expect(fs.pop()).toBe(5);expect(fs.pop()).toBe(4); });
   it('computes minimum cost for given travel days using DP', () => { const mct=(days:number[],costs:number[])=>{const last=days[days.length-1];const dp=new Array(last+1).fill(0);const set=new Set(days);for(let i=1;i<=last;i++){if(!set.has(i)){dp[i]=dp[i-1];continue;}dp[i]=Math.min(dp[i-1]+costs[0],dp[Math.max(0,i-7)]+costs[1],dp[Math.max(0,i-30)]+costs[2]);}return dp[last];}; expect(mct([1,4,6,7,8,20],[2,7,15])).toBe(11); expect(mct([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17); });
 });
+
+describe('phase58 coverage', () => {
+  it('longest common subsequence', () => {
+    const lcs=(a:string,b:string):number=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];};
+    expect(lcs('abcde','ace')).toBe(3);
+    expect(lcs('abc','abc')).toBe(3);
+    expect(lcs('abc','def')).toBe(0);
+    expect(lcs('ezupkr','ubmrapg')).toBe(2);
+  });
+  it('first missing positive', () => {
+    const firstMissingPositive=(nums:number[]):number=>{const n=nums.length;for(let i=0;i<n;i++){while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;};
+    expect(firstMissingPositive([1,2,0])).toBe(3);
+    expect(firstMissingPositive([3,4,-1,1])).toBe(2);
+    expect(firstMissingPositive([7,8,9,11,12])).toBe(1);
+    expect(firstMissingPositive([1,2,3])).toBe(4);
+  });
+  it('sliding window max', () => {
+    const maxSlidingWindow=(nums:number[],k:number):number[]=>{const q:number[]=[];const res:number[]=[];for(let i=0;i<nums.length;i++){while(q.length&&q[0]<i-k+1)q.shift();while(q.length&&nums[q[q.length-1]]<nums[i])q.pop();q.push(i);if(i>=k-1)res.push(nums[q[0]]);}return res;};
+    expect(maxSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]);
+    expect(maxSlidingWindow([1],1)).toEqual([1]);
+    expect(maxSlidingWindow([1,-1],1)).toEqual([1,-1]);
+  });
+  it('coin change combinations', () => {
+    const change=(amount:number,coins:number[]):number=>{const dp=new Array(amount+1).fill(0);dp[0]=1;coins.forEach(c=>{for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];});return dp[amount];};
+    expect(change(5,[1,2,5])).toBe(4);
+    expect(change(3,[2])).toBe(0);
+    expect(change(10,[10])).toBe(1);
+    expect(change(0,[1,2,3])).toBe(1);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+});

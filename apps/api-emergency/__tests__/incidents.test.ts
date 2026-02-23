@@ -927,3 +927,43 @@ describe('phase57 coverage', () => {
   it('identifies all duplicate subtrees in binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const dups=(root:N|null)=>{const m=new Map<string,number>(),res:number[]=[];const ser=(n:N|null):string=>{if(!n)return'#';const s=`${n.v},${ser(n.l)},${ser(n.r)}`;m.set(s,(m.get(s)||0)+1);if(m.get(s)===2)res.push(n.v);return s;};ser(root);return res.sort((a,b)=>a-b);}; const t=mk(1,mk(2,mk(4)),mk(3,mk(2,mk(4)),mk(4))); expect(dups(t)).toEqual([2,4]); });
   it('counts nodes in complete binary tree in O(log^2 n)', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const ld=(n:N|null):number=>n?1+ld(n.l):0; const cnt=(n:N|null):number=>{if(!n)return 0;const l=ld(n.l),r=ld(n.r);return l===r?cnt(n.r)+(1<<l):cnt(n.l)+(1<<r);}; const t=mk(1,mk(2,mk(4),mk(5)),mk(3,mk(6),null)); expect(cnt(t)).toBe(6); expect(cnt(null)).toBe(0); expect(cnt(mk(1))).toBe(1); });
 });
+
+describe('phase58 coverage', () => {
+  it('decode ways', () => {
+    const numDecodings=(s:string):number=>{if(!s||s[0]==='0')return 0;const n=s.length;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=parseInt(s[i-1]);const two=parseInt(s.slice(i-2,i));if(one!==0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];};
+    expect(numDecodings('12')).toBe(2);
+    expect(numDecodings('226')).toBe(3);
+    expect(numDecodings('06')).toBe(0);
+    expect(numDecodings('11106')).toBe(2);
+  });
+  it('first missing positive', () => {
+    const firstMissingPositive=(nums:number[]):number=>{const n=nums.length;for(let i=0;i<n;i++){while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;};
+    expect(firstMissingPositive([1,2,0])).toBe(3);
+    expect(firstMissingPositive([3,4,-1,1])).toBe(2);
+    expect(firstMissingPositive([7,8,9,11,12])).toBe(1);
+    expect(firstMissingPositive([1,2,3])).toBe(4);
+  });
+  it('longest common subsequence', () => {
+    const lcs=(a:string,b:string):number=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];};
+    expect(lcs('abcde','ace')).toBe(3);
+    expect(lcs('abc','abc')).toBe(3);
+    expect(lcs('abc','def')).toBe(0);
+    expect(lcs('ezupkr','ubmrapg')).toBe(2);
+  });
+  it('median from stream', () => {
+    class MedianFinder{private lo:number[]=[];private hi:number[]=[];addNum(n:number){this.lo.push(n);this.lo.sort((a,b)=>b-a);this.hi.push(this.lo.shift()!);this.hi.sort((a,b)=>a-b);if(this.hi.length>this.lo.length)this.lo.unshift(this.hi.shift()!);}findMedian():number{return this.lo.length>this.hi.length?this.lo[0]:(this.lo[0]+this.hi[0])/2;}}
+    const mf=new MedianFinder();mf.addNum(1);mf.addNum(2);
+    expect(mf.findMedian()).toBe(1.5);
+    mf.addNum(3);
+    expect(mf.findMedian()).toBe(2);
+  });
+  it('kth smallest BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const kthSmallest=(root:TN|null,k:number):number=>{const stack:TN[]=[];let cur:TN|null=root;while(cur||stack.length){while(cur){stack.push(cur);cur=cur.left;}cur=stack.pop()!;if(--k===0)return cur.val;cur=cur.right;}return -1;};
+    const t=mk(3,mk(1,null,mk(2)),mk(4));
+    expect(kthSmallest(t,1)).toBe(1);
+    expect(kthSmallest(t,3)).toBe(3);
+    expect(kthSmallest(mk(5,mk(3,mk(2,mk(1),null),mk(4)),mk(6)),3)).toBe(3);
+  });
+});

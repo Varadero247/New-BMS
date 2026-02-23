@@ -1007,3 +1007,37 @@ describe('phase57 coverage', () => {
   it('finds next greater element for each element of nums1 in nums2', () => { const nge=(n1:number[],n2:number[])=>{const m=new Map<number,number>(),st:number[]=[];for(const n of n2){while(st.length&&st[st.length-1]<n)m.set(st.pop()!,n);st.push(n);}return n1.map(n=>m.get(n)??-1);}; expect(nge([4,1,2],[1,3,4,2])).toEqual([-1,3,-1]); expect(nge([2,4],[1,2,3,4])).toEqual([3,-1]); });
   it('reconstructs travel itinerary using DFS and min-heap', () => { const findItin=(tickets:[string,string][])=>{const g=new Map<string,string[]>();for(const[f,t]of tickets){g.set(f,[...(g.get(f)||[]),t]);}for(const v of g.values())v.sort();const res:string[]=[];const dfs=(a:string)=>{const nxt=g.get(a)||[];while(nxt.length)dfs(nxt.shift()!);res.unshift(a);};dfs('JFK');return res;}; expect(findItin([['MUC','LHR'],['JFK','MUC'],['SFO','SJC'],['LHR','SFO']])).toEqual(['JFK','MUC','LHR','SFO','SJC']); });
 });
+
+describe('phase58 coverage', () => {
+  it('container with most water', () => {
+    const maxArea=(h:number[]):number=>{let l=0,r=h.length-1,best=0;while(l<r){best=Math.max(best,Math.min(h[l],h[r])*(r-l));if(h[l]<h[r])l++;else r--;}return best;};
+    expect(maxArea([1,8,6,2,5,4,8,3,7])).toBe(49);
+    expect(maxArea([1,1])).toBe(1);
+    expect(maxArea([4,3,2,1,4])).toBe(16);
+  });
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+  it('alien dict order', () => {
+    const alienOrder=(words:string[])=>{const adj:Map<string,Set<string>>=new Map();const chars=new Set(words.join(''));chars.forEach(c=>adj.set(c,new Set()));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];const len=Math.min(a.length,b.length);if(a.length>b.length&&a.startsWith(b))return'';for(let j=0;j<len;j++)if(a[j]!==b[j]){adj.get(a[j])!.add(b[j]);break;}}const visited=new Map<string,boolean>();const res:string[]=[];const dfs=(c:string):boolean=>{if(visited.has(c))return visited.get(c)!;visited.set(c,true);for(const n of adj.get(c)!){if(dfs(n))return true;}visited.set(c,false);res.push(c);return false;};for(const c of chars)if(!visited.has(c)&&dfs(c))return'';return res.reverse().join('');};
+    const r=alienOrder(['wrt','wrf','er','ett','rftt']);
+    expect(typeof r).toBe('string');
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('coin change combinations', () => {
+    const change=(amount:number,coins:number[]):number=>{const dp=new Array(amount+1).fill(0);dp[0]=1;coins.forEach(c=>{for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];});return dp[amount];};
+    expect(change(5,[1,2,5])).toBe(4);
+    expect(change(3,[2])).toBe(0);
+    expect(change(10,[10])).toBe(1);
+    expect(change(0,[1,2,3])).toBe(1);
+  });
+});

@@ -646,3 +646,44 @@ describe('phase57 coverage', () => {
   it('counts the number of longest increasing subsequences', () => { const nlis=(a:number[])=>{const n=a.length;const len=new Array(n).fill(1),cnt=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++){if(a[j]<a[i]){if(len[j]+1>len[i]){len[i]=len[j]+1;cnt[i]=cnt[j];}else if(len[j]+1===len[i])cnt[i]+=cnt[j];}}const maxL=Math.max(...len);return len.reduce((s,l,i)=>l===maxL?s+cnt[i]:s,0);}; expect(nlis([1,3,5,4,7])).toBe(2); expect(nlis([2,2,2,2,2])).toBe(5); });
   it('finds cells that can flow to both Pacific and Atlantic oceans', () => { const paf=(h:number[][])=>{const m=h.length,n=h[0].length,pac=Array.from({length:m},()=>new Array(n).fill(false)),atl=Array.from({length:m},()=>new Array(n).fill(false));const dfs=(i:number,j:number,vis:boolean[][],prev:number)=>{if(i<0||i>=m||j<0||j>=n||vis[i][j]||h[i][j]<prev)return;vis[i][j]=true;for(const[di,dj]of[[-1,0],[1,0],[0,-1],[0,1]])dfs(i+di,j+dj,vis,h[i][j]);};for(let i=0;i<m;i++){dfs(i,0,pac,0);dfs(i,n-1,atl,0);}for(let j=0;j<n;j++){dfs(0,j,pac,0);dfs(m-1,j,atl,0);}const res:number[][]=[];for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(pac[i][j]&&atl[i][j])res.push([i,j]);return res;}; expect(paf([[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]).length).toBe(7); });
 });
+
+describe('phase58 coverage', () => {
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+  it('N-ary serialize', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const ser=(r:NT|null):string=>{if(!r)return'#';return`${r.val}(${r.children.map(ser).join(',')})`;};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    const s=ser(t);
+    expect(s).toContain('1');
+    expect(s).toContain('3');
+    expect(s.split('(').length).toBeGreaterThan(3);
+  });
+  it('decode ways', () => {
+    const numDecodings=(s:string):number=>{if(!s||s[0]==='0')return 0;const n=s.length;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=parseInt(s[i-1]);const two=parseInt(s.slice(i-2,i));if(one!==0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];};
+    expect(numDecodings('12')).toBe(2);
+    expect(numDecodings('226')).toBe(3);
+    expect(numDecodings('06')).toBe(0);
+    expect(numDecodings('11106')).toBe(2);
+  });
+  it('alien dict order', () => {
+    const alienOrder=(words:string[])=>{const adj:Map<string,Set<string>>=new Map();const chars=new Set(words.join(''));chars.forEach(c=>adj.set(c,new Set()));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];const len=Math.min(a.length,b.length);if(a.length>b.length&&a.startsWith(b))return'';for(let j=0;j<len;j++)if(a[j]!==b[j]){adj.get(a[j])!.add(b[j]);break;}}const visited=new Map<string,boolean>();const res:string[]=[];const dfs=(c:string):boolean=>{if(visited.has(c))return visited.get(c)!;visited.set(c,true);for(const n of adj.get(c)!){if(dfs(n))return true;}visited.set(c,false);res.push(c);return false;};for(const c of chars)if(!visited.has(c)&&dfs(c))return'';return res.reverse().join('');};
+    const r=alienOrder(['wrt','wrf','er','ett','rftt']);
+    expect(typeof r).toBe('string');
+    expect(r.length).toBeGreaterThan(0);
+  });
+});

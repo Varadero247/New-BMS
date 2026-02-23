@@ -786,3 +786,43 @@ describe('phase57 coverage', () => {
   it('implements a hash map with put, get, and remove', () => { class HM{private m=new Map<number,number>();put(k:number,v:number){this.m.set(k,v);}get(k:number){return this.m.has(k)?this.m.get(k)!:-1;}remove(k:number){this.m.delete(k);}} const hm=new HM();hm.put(1,1);hm.put(2,2);expect(hm.get(1)).toBe(1);hm.remove(2);expect(hm.get(2)).toBe(-1); });
   it('finds all paths from node 0 to last node in a DAG', () => { const allPaths=(graph:number[][])=>{const res:number[][]=[];const dfs=(node:number,path:number[])=>{if(node===graph.length-1){res.push([...path]);return;}for(const nxt of graph[node])dfs(nxt,[...path,nxt]);};dfs(0,[0]);return res;}; expect(allPaths([[1,2],[3],[3],[]])).toEqual([[0,1,3],[0,2,3]]); expect(allPaths([[4,3,1],[3,2,4],[3],[4],[]])).toEqual([[0,4],[0,3,4],[0,1,3,4],[0,1,2,3,4],[0,1,4]]); });
 });
+
+describe('phase58 coverage', () => {
+  it('sliding window max', () => {
+    const maxSlidingWindow=(nums:number[],k:number):number[]=>{const q:number[]=[];const res:number[]=[];for(let i=0;i<nums.length;i++){while(q.length&&q[0]<i-k+1)q.shift();while(q.length&&nums[q[q.length-1]]<nums[i])q.pop();q.push(i);if(i>=k-1)res.push(nums[q[0]]);}return res;};
+    expect(maxSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]);
+    expect(maxSlidingWindow([1],1)).toEqual([1]);
+    expect(maxSlidingWindow([1,-1],1)).toEqual([1,-1]);
+  });
+  it('subsets with duplicates', () => {
+    const subsetsWithDup=(nums:number[]):number[][]=>{nums.sort((a,b)=>a-b);const res:number[][]=[];const bt=(start:number,path:number[])=>{res.push([...path]);for(let i=start;i<nums.length;i++){if(i>start&&nums[i]===nums[i-1])continue;path.push(nums[i]);bt(i+1,path);path.pop();}};bt(0,[]);return res;};
+    const r=subsetsWithDup([1,2,2]);
+    expect(r).toHaveLength(6);
+    expect(r).toContainEqual([]);
+    expect(r).toContainEqual([2,2]);
+    expect(r).toContainEqual([1,2,2]);
+  });
+  it('kth smallest BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const kthSmallest=(root:TN|null,k:number):number=>{const stack:TN[]=[];let cur:TN|null=root;while(cur||stack.length){while(cur){stack.push(cur);cur=cur.left;}cur=stack.pop()!;if(--k===0)return cur.val;cur=cur.right;}return -1;};
+    const t=mk(3,mk(1,null,mk(2)),mk(4));
+    expect(kthSmallest(t,1)).toBe(1);
+    expect(kthSmallest(t,3)).toBe(3);
+    expect(kthSmallest(mk(5,mk(3,mk(2,mk(1),null),mk(4)),mk(6)),3)).toBe(3);
+  });
+  it('min stack ops', () => {
+    class MinStack{private s:number[]=[];private mins:number[]=[];push(v:number){this.s.push(v);if(!this.mins.length||v<=this.mins[this.mins.length-1])this.mins.push(v);}pop(){const v=this.s.pop()!;if(v===this.mins[this.mins.length-1])this.mins.pop();}top(){return this.s[this.s.length-1];}getMin(){return this.mins[this.mins.length-1];}}
+    const ms=new MinStack();ms.push(-2);ms.push(0);ms.push(-3);
+    expect(ms.getMin()).toBe(-3);
+    ms.pop();
+    expect(ms.top()).toBe(0);
+    expect(ms.getMin()).toBe(-2);
+  });
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+});

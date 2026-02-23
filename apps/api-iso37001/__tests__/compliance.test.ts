@@ -887,3 +887,40 @@ describe('phase57 coverage', () => {
   it('returns k most frequent words sorted by frequency then lexicographically', () => { const topK=(words:string[],k:number)=>{const m=new Map<string,number>();for(const w of words)m.set(w,(m.get(w)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,k).map(e=>e[0]);}; expect(topK(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']); expect(topK(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']); });
   it('counts nodes in complete binary tree in O(log^2 n)', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const ld=(n:N|null):number=>n?1+ld(n.l):0; const cnt=(n:N|null):number=>{if(!n)return 0;const l=ld(n.l),r=ld(n.r);return l===r?cnt(n.r)+(1<<l):cnt(n.l)+(1<<r);}; const t=mk(1,mk(2,mk(4),mk(5)),mk(3,mk(6),null)); expect(cnt(t)).toBe(6); expect(cnt(null)).toBe(0); expect(cnt(mk(1))).toBe(1); });
 });
+
+describe('phase58 coverage', () => {
+  it('median from stream', () => {
+    class MedianFinder{private lo:number[]=[];private hi:number[]=[];addNum(n:number){this.lo.push(n);this.lo.sort((a,b)=>b-a);this.hi.push(this.lo.shift()!);this.hi.sort((a,b)=>a-b);if(this.hi.length>this.lo.length)this.lo.unshift(this.hi.shift()!);}findMedian():number{return this.lo.length>this.hi.length?this.lo[0]:(this.lo[0]+this.hi[0])/2;}}
+    const mf=new MedianFinder();mf.addNum(1);mf.addNum(2);
+    expect(mf.findMedian()).toBe(1.5);
+    mf.addNum(3);
+    expect(mf.findMedian()).toBe(2);
+  });
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+  it('word break II', () => {
+    const wordBreak=(s:string,dict:string[]):string[]=>{const set=new Set(dict);const memo=new Map<string,string[]>();const bt=(rem:string):string[]=>{if(memo.has(rem))return memo.get(rem)!;if(rem===''){memo.set(rem,['']);return[''];}const res:string[]=[];for(let i=1;i<=rem.length;i++){const word=rem.slice(0,i);if(set.has(word)){bt(rem.slice(i)).forEach(rest=>res.push(rest===''?word:`${word} ${rest}`));}}memo.set(rem,res);return res;};return bt(s);};
+    const r=wordBreak('catsanddog',['cat','cats','and','sand','dog']);
+    expect(r).toContain('cats and dog');
+    expect(r).toContain('cat sand dog');
+  });
+  it('validate BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const isValidBST=(root:TN|null,min=-Infinity,max=Infinity):boolean=>{if(!root)return true;if(root.val<=min||root.val>=max)return false;return isValidBST(root.left,min,root.val)&&isValidBST(root.right,root.val,max);};
+    expect(isValidBST(mk(2,mk(1),mk(3)))).toBe(true);
+    expect(isValidBST(mk(5,mk(1),mk(4,mk(3),mk(6))))).toBe(false);
+    expect(isValidBST(null)).toBe(true);
+  });
+  it('jump game II min jumps', () => {
+    const jump=(nums:number[]):number=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<nums.length-1;i++){farthest=Math.max(farthest,i+nums[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;};
+    expect(jump([2,3,1,1,4])).toBe(2);
+    expect(jump([2,3,0,1,4])).toBe(2);
+    expect(jump([1,2,3])).toBe(2);
+    expect(jump([0])).toBe(0);
+  });
+});

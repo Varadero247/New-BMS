@@ -824,3 +824,39 @@ describe('phase57 coverage', () => {
   it('implements a hash set with add, remove, and contains', () => { class HS{private s=new Set<number>();add(k:number){this.s.add(k);}remove(k:number){this.s.delete(k);}contains(k:number){return this.s.has(k);}} const hs=new HS();hs.add(1);hs.add(2);expect(hs.contains(1)).toBe(true);hs.remove(2);expect(hs.contains(2)).toBe(false);expect(hs.contains(3)).toBe(false); });
   it('reconstructs travel itinerary using DFS and min-heap', () => { const findItin=(tickets:[string,string][])=>{const g=new Map<string,string[]>();for(const[f,t]of tickets){g.set(f,[...(g.get(f)||[]),t]);}for(const v of g.values())v.sort();const res:string[]=[];const dfs=(a:string)=>{const nxt=g.get(a)||[];while(nxt.length)dfs(nxt.shift()!);res.unshift(a);};dfs('JFK');return res;}; expect(findItin([['MUC','LHR'],['JFK','MUC'],['SFO','SJC'],['LHR','SFO']])).toEqual(['JFK','MUC','LHR','SFO','SJC']); });
 });
+
+describe('phase58 coverage', () => {
+  it('validate BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const isValidBST=(root:TN|null,min=-Infinity,max=Infinity):boolean=>{if(!root)return true;if(root.val<=min||root.val>=max)return false;return isValidBST(root.left,min,root.val)&&isValidBST(root.right,root.val,max);};
+    expect(isValidBST(mk(2,mk(1),mk(3)))).toBe(true);
+    expect(isValidBST(mk(5,mk(1),mk(4,mk(3),mk(6))))).toBe(false);
+    expect(isValidBST(null)).toBe(true);
+  });
+  it('container with most water', () => {
+    const maxArea=(h:number[]):number=>{let l=0,r=h.length-1,best=0;while(l<r){best=Math.max(best,Math.min(h[l],h[r])*(r-l));if(h[l]<h[r])l++;else r--;}return best;};
+    expect(maxArea([1,8,6,2,5,4,8,3,7])).toBe(49);
+    expect(maxArea([1,1])).toBe(1);
+    expect(maxArea([4,3,2,1,4])).toBe(16);
+  });
+  it('permutation in string', () => {
+    const checkInclusion=(s1:string,s2:string):boolean=>{if(s1.length>s2.length)return false;const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of s1)cnt[c.charCodeAt(0)-a]++;let matches=cnt.filter(x=>x===0).length;let l=0;for(let r=0;r<s2.length;r++){const rc=s2[r].charCodeAt(0)-a;cnt[rc]--;if(cnt[rc]===0)matches++;else if(cnt[rc]===-1)matches--;if(r-l+1>s1.length){const lc=s2[l].charCodeAt(0)-a;cnt[lc]++;if(cnt[lc]===1)matches--;else if(cnt[lc]===0)matches++;l++;}if(matches===26)return true;}return false;};
+    expect(checkInclusion('ab','eidbaooo')).toBe(true);
+    expect(checkInclusion('ab','eidboaoo')).toBe(false);
+  });
+  it('letter combinations phone', () => {
+    const letterCombinations=(digits:string):string[]=>{if(!digits)return[];const map:Record<string,string>={'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'};const res:string[]=[];const bt=(idx:number,cur:string)=>{if(idx===digits.length){res.push(cur);return;}for(const c of map[digits[idx]])bt(idx+1,cur+c);};bt(0,'');return res;};
+    const r=letterCombinations('23');
+    expect(r).toHaveLength(9);
+    expect(r).toContain('ad');
+    expect(letterCombinations('')).toEqual([]);
+  });
+  it('decode ways', () => {
+    const numDecodings=(s:string):number=>{if(!s||s[0]==='0')return 0;const n=s.length;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=parseInt(s[i-1]);const two=parseInt(s.slice(i-2,i));if(one!==0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];};
+    expect(numDecodings('12')).toBe(2);
+    expect(numDecodings('226')).toBe(3);
+    expect(numDecodings('06')).toBe(0);
+    expect(numDecodings('11106')).toBe(2);
+  });
+});

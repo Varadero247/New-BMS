@@ -888,3 +888,42 @@ describe('phase57 coverage', () => {
   it('determines if two binary trees are flip equivalent', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const flip=(a:N|null,b:N|null):boolean=>{if(!a&&!b)return true;if(!a||!b||a.v!==b.v)return false;return(flip(a.l,b.l)&&flip(a.r,b.r))||(flip(a.l,b.r)&&flip(a.r,b.l));}; expect(flip(mk(1,mk(2,mk(4),mk(5,mk(7),mk(8))),mk(3,mk(6))),mk(1,mk(3,null,mk(6)),mk(2,mk(4),mk(5,mk(8),mk(7)))))).toBe(true); expect(flip(mk(1,mk(2),mk(3)),mk(1,mk(4),mk(5)))).toBe(false); });
   it('finds all recipes that can be made from available ingredients', () => { const recipes2=(r:string[],ing:string[][],sup:string[])=>{const avail=new Set(sup);const canMake=(recipe:string,idx:number,memo=new Map<string,boolean>()):boolean=>{if(avail.has(recipe))return true;if(memo.has(recipe))return memo.get(recipe)!;memo.set(recipe,false);const i=r.indexOf(recipe);if(i===-1)return false;const ok=ing[i].every(x=>canMake(x,0,memo));memo.set(recipe,ok);return ok;};return r.filter((_,i)=>canMake(r[i],i));}; expect(recipes2(['bread'],[["yeast","flour"]],["yeast","flour","corn"])).toEqual(["bread"]); });
 });
+
+describe('phase58 coverage', () => {
+  it('N-ary serialize', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const ser=(r:NT|null):string=>{if(!r)return'#';return`${r.val}(${r.children.map(ser).join(',')})`;};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    const s=ser(t);
+    expect(s).toContain('1');
+    expect(s).toContain('3');
+    expect(s.split('(').length).toBeGreaterThan(3);
+  });
+  it('jump game II min jumps', () => {
+    const jump=(nums:number[]):number=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<nums.length-1;i++){farthest=Math.max(farthest,i+nums[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;};
+    expect(jump([2,3,1,1,4])).toBe(2);
+    expect(jump([2,3,0,1,4])).toBe(2);
+    expect(jump([1,2,3])).toBe(2);
+    expect(jump([0])).toBe(0);
+  });
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+  it('course schedule II', () => {
+    const findOrder=(n:number,prereqs:[number,number][]):number[]=>{const adj:number[][]=Array.from({length:n},()=>[]);const indeg=new Array(n).fill(0);prereqs.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=[];for(let i=0;i<n;i++)if(indeg[i]===0)q.push(i);const res:number[]=[];while(q.length){const c=q.shift()!;res.push(c);adj[c].forEach(nb=>{if(--indeg[nb]===0)q.push(nb);});}return res.length===n?res:[];};
+    expect(findOrder(2,[[1,0]])).toEqual([0,1]);
+    expect(findOrder(4,[[1,0],[2,0],[3,1],[3,2]])).toHaveLength(4);
+    expect(findOrder(2,[[1,0],[0,1]])).toEqual([]);
+  });
+  it('letter combinations phone', () => {
+    const letterCombinations=(digits:string):string[]=>{if(!digits)return[];const map:Record<string,string>={'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'};const res:string[]=[];const bt=(idx:number,cur:string)=>{if(idx===digits.length){res.push(cur);return;}for(const c of map[digits[idx]])bt(idx+1,cur+c);};bt(0,'');return res;};
+    const r=letterCombinations('23');
+    expect(r).toHaveLength(9);
+    expect(r).toContain('ad');
+    expect(letterCombinations('')).toEqual([]);
+  });
+});

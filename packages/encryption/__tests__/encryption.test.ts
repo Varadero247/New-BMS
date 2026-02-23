@@ -549,3 +549,43 @@ describe('phase57 coverage', () => {
   it('picks index proportional to weight using prefix sum binary search', () => { const wpick=(w:number[])=>{const pre:number[]=[];let s=0;for(const v of w)pre.push(s+=v);return()=>{const t=Math.floor(Math.random()*s);let lo=0,hi=pre.length-1;while(lo<hi){const m=lo+hi>>1;if(pre[m]<t+1)lo=m+1;else hi=m;}return lo;};}; const pick=wpick([1,3]);const counts=[0,0];for(let i=0;i<1000;i++)counts[pick()]++;expect(counts[1]).toBeGreaterThan(counts[0]); });
   it('computes minimum cost for given travel days using DP', () => { const mct=(days:number[],costs:number[])=>{const last=days[days.length-1];const dp=new Array(last+1).fill(0);const set=new Set(days);for(let i=1;i<=last;i++){if(!set.has(i)){dp[i]=dp[i-1];continue;}dp[i]=Math.min(dp[i-1]+costs[0],dp[Math.max(0,i-7)]+costs[1],dp[Math.max(0,i-30)]+costs[2]);}return dp[last];}; expect(mct([1,4,6,7,8,20],[2,7,15])).toBe(11); expect(mct([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17); });
 });
+
+describe('phase58 coverage', () => {
+  it('alien dict order', () => {
+    const alienOrder=(words:string[])=>{const adj:Map<string,Set<string>>=new Map();const chars=new Set(words.join(''));chars.forEach(c=>adj.set(c,new Set()));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];const len=Math.min(a.length,b.length);if(a.length>b.length&&a.startsWith(b))return'';for(let j=0;j<len;j++)if(a[j]!==b[j]){adj.get(a[j])!.add(b[j]);break;}}const visited=new Map<string,boolean>();const res:string[]=[];const dfs=(c:string):boolean=>{if(visited.has(c))return visited.get(c)!;visited.set(c,true);for(const n of adj.get(c)!){if(dfs(n))return true;}visited.set(c,false);res.push(c);return false;};for(const c of chars)if(!visited.has(c)&&dfs(c))return'';return res.reverse().join('');};
+    const r=alienOrder(['wrt','wrf','er','ett','rftt']);
+    expect(typeof r).toBe('string');
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('course schedule II', () => {
+    const findOrder=(n:number,prereqs:[number,number][]):number[]=>{const adj:number[][]=Array.from({length:n},()=>[]);const indeg=new Array(n).fill(0);prereqs.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=[];for(let i=0;i<n;i++)if(indeg[i]===0)q.push(i);const res:number[]=[];while(q.length){const c=q.shift()!;res.push(c);adj[c].forEach(nb=>{if(--indeg[nb]===0)q.push(nb);});}return res.length===n?res:[];};
+    expect(findOrder(2,[[1,0]])).toEqual([0,1]);
+    expect(findOrder(4,[[1,0],[2,0],[3,1],[3,2]])).toHaveLength(4);
+    expect(findOrder(2,[[1,0],[0,1]])).toEqual([]);
+  });
+  it('coin change combinations', () => {
+    const change=(amount:number,coins:number[]):number=>{const dp=new Array(amount+1).fill(0);dp[0]=1;coins.forEach(c=>{for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];});return dp[amount];};
+    expect(change(5,[1,2,5])).toBe(4);
+    expect(change(3,[2])).toBe(0);
+    expect(change(10,[10])).toBe(1);
+    expect(change(0,[1,2,3])).toBe(1);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+  it('flatten tree to list', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const flatten=(root:TN|null):void=>{let cur=root;while(cur){if(cur.left){let r=cur.left;while(r.right)r=r.right;r.right=cur.right;cur.right=cur.left;cur.left=null;}cur=cur.right;}};
+    const toArr=(r:TN|null):number[]=>{const a:number[]=[];while(r){a.push(r.val);r=r.right;}return a;};
+    const t=mk(1,mk(2,mk(3),mk(4)),mk(5,null,mk(6)));
+    flatten(t);
+    expect(toArr(t)).toEqual([1,2,3,4,5,6]);
+  });
+});

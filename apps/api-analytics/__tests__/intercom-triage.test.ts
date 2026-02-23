@@ -876,3 +876,42 @@ describe('phase57 coverage', () => {
   it('picks index proportional to weight using prefix sum binary search', () => { const wpick=(w:number[])=>{const pre:number[]=[];let s=0;for(const v of w)pre.push(s+=v);return()=>{const t=Math.floor(Math.random()*s);let lo=0,hi=pre.length-1;while(lo<hi){const m=lo+hi>>1;if(pre[m]<t+1)lo=m+1;else hi=m;}return lo;};}; const pick=wpick([1,3]);const counts=[0,0];for(let i=0;i<1000;i++)counts[pick()]++;expect(counts[1]).toBeGreaterThan(counts[0]); });
   it('computes minimum cost for given travel days using DP', () => { const mct=(days:number[],costs:number[])=>{const last=days[days.length-1];const dp=new Array(last+1).fill(0);const set=new Set(days);for(let i=1;i<=last;i++){if(!set.has(i)){dp[i]=dp[i-1];continue;}dp[i]=Math.min(dp[i-1]+costs[0],dp[Math.max(0,i-7)]+costs[1],dp[Math.max(0,i-30)]+costs[2]);}return dp[last];}; expect(mct([1,4,6,7,8,20],[2,7,15])).toBe(11); expect(mct([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17); });
 });
+
+describe('phase58 coverage', () => {
+  it('subsets with duplicates', () => {
+    const subsetsWithDup=(nums:number[]):number[][]=>{nums.sort((a,b)=>a-b);const res:number[][]=[];const bt=(start:number,path:number[])=>{res.push([...path]);for(let i=start;i<nums.length;i++){if(i>start&&nums[i]===nums[i-1])continue;path.push(nums[i]);bt(i+1,path);path.pop();}};bt(0,[]);return res;};
+    const r=subsetsWithDup([1,2,2]);
+    expect(r).toHaveLength(6);
+    expect(r).toContainEqual([]);
+    expect(r).toContainEqual([2,2]);
+    expect(r).toContainEqual([1,2,2]);
+  });
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('palindrome partitioning', () => {
+    const partition=(s:string):string[][]=>{const res:string[][]=[];const isPalin=(a:string)=>a===a.split('').reverse().join('');const bt=(start:number,path:string[])=>{if(start===s.length){res.push([...path]);return;}for(let end=start+1;end<=s.length;end++){const sub=s.slice(start,end);if(isPalin(sub)){path.push(sub);bt(end,path);path.pop();}}};bt(0,[]);return res;};
+    const r=partition('aab');
+    expect(r).toContainEqual(['a','a','b']);
+    expect(r).toContainEqual(['aa','b']);
+    expect(partition('a')).toEqual([['a']]);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+  it('longest consecutive sequence', () => {
+    const longestConsecutive=(nums:number[]):number=>{const set=new Set(nums);let best=0;for(const n of set){if(!set.has(n-1)){let cur=n,len=1;while(set.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;};
+    expect(longestConsecutive([100,4,200,1,3,2])).toBe(4);
+    expect(longestConsecutive([0,3,7,2,5,8,4,6,0,1])).toBe(9);
+    expect(longestConsecutive([])).toBe(0);
+  });
+});

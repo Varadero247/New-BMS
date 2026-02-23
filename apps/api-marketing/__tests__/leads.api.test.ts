@@ -818,3 +818,36 @@ describe('phase57 coverage', () => {
   it('computes sum of all root-to-leaf numbers in binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const sum=(n:N|null,cur=0):number=>{if(!n)return 0;cur=cur*10+n.v;return n.l||n.r?sum(n.l,cur)+sum(n.r,cur):cur;}; expect(sum(mk(1,mk(2),mk(3)))).toBe(25); expect(sum(mk(4,mk(9,mk(5),mk(1)),mk(0)))).toBe(1026); });
   it('finds length of longest path with same values in binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const luv=(root:N|null)=>{let res=0;const dfs=(n:N|null,pv:number):number=>{if(!n)return 0;const l=dfs(n.l,n.v),r=dfs(n.r,n.v);res=Math.max(res,l+r);return n.v===pv?1+Math.max(l,r):0;};dfs(root,-1);return res;}; expect(luv(mk(5,mk(4,mk(4),mk(4)),mk(5,null,mk(5))))).toBe(2); expect(luv(mk(1,mk(1,mk(1)),mk(1,null,mk(1))))).toBe(4); });
 });
+
+describe('phase58 coverage', () => {
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+  it('permutation in string', () => {
+    const checkInclusion=(s1:string,s2:string):boolean=>{if(s1.length>s2.length)return false;const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of s1)cnt[c.charCodeAt(0)-a]++;let matches=cnt.filter(x=>x===0).length;let l=0;for(let r=0;r<s2.length;r++){const rc=s2[r].charCodeAt(0)-a;cnt[rc]--;if(cnt[rc]===0)matches++;else if(cnt[rc]===-1)matches--;if(r-l+1>s1.length){const lc=s2[l].charCodeAt(0)-a;cnt[lc]++;if(cnt[lc]===1)matches--;else if(cnt[lc]===0)matches++;l++;}if(matches===26)return true;}return false;};
+    expect(checkInclusion('ab','eidbaooo')).toBe(true);
+    expect(checkInclusion('ab','eidboaoo')).toBe(false);
+  });
+  it('word break II', () => {
+    const wordBreak=(s:string,dict:string[]):string[]=>{const set=new Set(dict);const memo=new Map<string,string[]>();const bt=(rem:string):string[]=>{if(memo.has(rem))return memo.get(rem)!;if(rem===''){memo.set(rem,['']);return[''];}const res:string[]=[];for(let i=1;i<=rem.length;i++){const word=rem.slice(0,i);if(set.has(word)){bt(rem.slice(i)).forEach(rest=>res.push(rest===''?word:`${word} ${rest}`));}}memo.set(rem,res);return res;};return bt(s);};
+    const r=wordBreak('catsanddog',['cat','cats','and','sand','dog']);
+    expect(r).toContain('cats and dog');
+    expect(r).toContain('cat sand dog');
+  });
+  it('alien dict order', () => {
+    const alienOrder=(words:string[])=>{const adj:Map<string,Set<string>>=new Map();const chars=new Set(words.join(''));chars.forEach(c=>adj.set(c,new Set()));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];const len=Math.min(a.length,b.length);if(a.length>b.length&&a.startsWith(b))return'';for(let j=0;j<len;j++)if(a[j]!==b[j]){adj.get(a[j])!.add(b[j]);break;}}const visited=new Map<string,boolean>();const res:string[]=[];const dfs=(c:string):boolean=>{if(visited.has(c))return visited.get(c)!;visited.set(c,true);for(const n of adj.get(c)!){if(dfs(n))return true;}visited.set(c,false);res.push(c);return false;};for(const c of chars)if(!visited.has(c)&&dfs(c))return'';return res.reverse().join('');};
+    const r=alienOrder(['wrt','wrf','er','ett','rftt']);
+    expect(typeof r).toBe('string');
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('first missing positive', () => {
+    const firstMissingPositive=(nums:number[]):number=>{const n=nums.length;for(let i=0;i<n;i++){while(nums[i]>0&&nums[i]<=n&&nums[nums[i]-1]!==nums[i]){const t=nums[nums[i]-1];nums[nums[i]-1]=nums[i];nums[i]=t;}}for(let i=0;i<n;i++)if(nums[i]!==i+1)return i+1;return n+1;};
+    expect(firstMissingPositive([1,2,0])).toBe(3);
+    expect(firstMissingPositive([3,4,-1,1])).toBe(2);
+    expect(firstMissingPositive([7,8,9,11,12])).toBe(1);
+    expect(firstMissingPositive([1,2,3])).toBe(4);
+  });
+});

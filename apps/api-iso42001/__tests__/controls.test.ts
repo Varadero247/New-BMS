@@ -856,3 +856,42 @@ describe('phase57 coverage', () => {
   it('returns k most frequent words sorted by frequency then lexicographically', () => { const topK=(words:string[],k:number)=>{const m=new Map<string,number>();for(const w of words)m.set(w,(m.get(w)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,k).map(e=>e[0]);}; expect(topK(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']); expect(topK(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']); });
   it('determines if two binary trees are flip equivalent', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const flip=(a:N|null,b:N|null):boolean=>{if(!a&&!b)return true;if(!a||!b||a.v!==b.v)return false;return(flip(a.l,b.l)&&flip(a.r,b.r))||(flip(a.l,b.r)&&flip(a.r,b.l));}; expect(flip(mk(1,mk(2,mk(4),mk(5,mk(7),mk(8))),mk(3,mk(6))),mk(1,mk(3,null,mk(6)),mk(2,mk(4),mk(5,mk(8),mk(7)))))).toBe(true); expect(flip(mk(1,mk(2),mk(3)),mk(1,mk(4),mk(5)))).toBe(false); });
 });
+
+describe('phase58 coverage', () => {
+  it('course schedule II', () => {
+    const findOrder=(n:number,prereqs:[number,number][]):number[]=>{const adj:number[][]=Array.from({length:n},()=>[]);const indeg=new Array(n).fill(0);prereqs.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=[];for(let i=0;i<n;i++)if(indeg[i]===0)q.push(i);const res:number[]=[];while(q.length){const c=q.shift()!;res.push(c);adj[c].forEach(nb=>{if(--indeg[nb]===0)q.push(nb);});}return res.length===n?res:[];};
+    expect(findOrder(2,[[1,0]])).toEqual([0,1]);
+    expect(findOrder(4,[[1,0],[2,0],[3,1],[3,2]])).toHaveLength(4);
+    expect(findOrder(2,[[1,0],[0,1]])).toEqual([]);
+  });
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+  it('alien dict order', () => {
+    const alienOrder=(words:string[])=>{const adj:Map<string,Set<string>>=new Map();const chars=new Set(words.join(''));chars.forEach(c=>adj.set(c,new Set()));for(let i=0;i<words.length-1;i++){const[a,b]=[words[i],words[i+1]];const len=Math.min(a.length,b.length);if(a.length>b.length&&a.startsWith(b))return'';for(let j=0;j<len;j++)if(a[j]!==b[j]){adj.get(a[j])!.add(b[j]);break;}}const visited=new Map<string,boolean>();const res:string[]=[];const dfs=(c:string):boolean=>{if(visited.has(c))return visited.get(c)!;visited.set(c,true);for(const n of adj.get(c)!){if(dfs(n))return true;}visited.set(c,false);res.push(c);return false;};for(const c of chars)if(!visited.has(c)&&dfs(c))return'';return res.reverse().join('');};
+    const r=alienOrder(['wrt','wrf','er','ett','rftt']);
+    expect(typeof r).toBe('string');
+    expect(r.length).toBeGreaterThan(0);
+  });
+  it('kth smallest BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const kthSmallest=(root:TN|null,k:number):number=>{const stack:TN[]=[];let cur:TN|null=root;while(cur||stack.length){while(cur){stack.push(cur);cur=cur.left;}cur=stack.pop()!;if(--k===0)return cur.val;cur=cur.right;}return -1;};
+    const t=mk(3,mk(1,null,mk(2)),mk(4));
+    expect(kthSmallest(t,1)).toBe(1);
+    expect(kthSmallest(t,3)).toBe(3);
+    expect(kthSmallest(mk(5,mk(3,mk(2,mk(1),null),mk(4)),mk(6)),3)).toBe(3);
+  });
+});

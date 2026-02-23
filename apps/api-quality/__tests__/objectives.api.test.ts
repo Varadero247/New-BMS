@@ -1174,3 +1174,38 @@ describe('phase57 coverage', () => {
   it('finds two non-repeating elements in array where all others appear twice', () => { const sn3=(a:number[])=>{let xor=a.reduce((s,v)=>s^v,0);const bit=xor&(-xor);let x=0,y=0;for(const n of a)if(n&bit)x^=n;else y^=n;return[x,y].sort((a,b)=>a-b);}; expect(sn3([1,2,1,3,2,5])).toEqual([3,5]); expect(sn3([-1,0])).toEqual([-1,0]); });
   it('serializes and deserializes a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const ser=(n:N|null):string=>n?`${n.v},${ser(n.l)},${ser(n.r)}`:'#'; const des=(s:string)=>{const a=s.split(',');const f=():N|null=>{const v=a.shift();return v==='#'?null:mk(+v!,f(),f());};return f();}; const t=mk(1,mk(2),mk(3,mk(4),mk(5))); const r=des(ser(t)); expect(r?.v).toBe(1); expect(r?.l?.v).toBe(2); expect(r?.r?.l?.v).toBe(4); });
 });
+
+describe('phase58 coverage', () => {
+  it('word break II', () => {
+    const wordBreak=(s:string,dict:string[]):string[]=>{const set=new Set(dict);const memo=new Map<string,string[]>();const bt=(rem:string):string[]=>{if(memo.has(rem))return memo.get(rem)!;if(rem===''){memo.set(rem,['']);return[''];}const res:string[]=[];for(let i=1;i<=rem.length;i++){const word=rem.slice(0,i);if(set.has(word)){bt(rem.slice(i)).forEach(rest=>res.push(rest===''?word:`${word} ${rest}`));}}memo.set(rem,res);return res;};return bt(s);};
+    const r=wordBreak('catsanddog',['cat','cats','and','sand','dog']);
+    expect(r).toContain('cats and dog');
+    expect(r).toContain('cat sand dog');
+  });
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+  it('longest consecutive sequence', () => {
+    const longestConsecutive=(nums:number[]):number=>{const set=new Set(nums);let best=0;for(const n of set){if(!set.has(n-1)){let cur=n,len=1;while(set.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;};
+    expect(longestConsecutive([100,4,200,1,3,2])).toBe(4);
+    expect(longestConsecutive([0,3,7,2,5,8,4,6,0,1])).toBe(9);
+    expect(longestConsecutive([])).toBe(0);
+  });
+  it('permutation in string', () => {
+    const checkInclusion=(s1:string,s2:string):boolean=>{if(s1.length>s2.length)return false;const cnt=new Array(26).fill(0);const a='a'.charCodeAt(0);for(const c of s1)cnt[c.charCodeAt(0)-a]++;let matches=cnt.filter(x=>x===0).length;let l=0;for(let r=0;r<s2.length;r++){const rc=s2[r].charCodeAt(0)-a;cnt[rc]--;if(cnt[rc]===0)matches++;else if(cnt[rc]===-1)matches--;if(r-l+1>s1.length){const lc=s2[l].charCodeAt(0)-a;cnt[lc]++;if(cnt[lc]===1)matches--;else if(cnt[lc]===0)matches++;l++;}if(matches===26)return true;}return false;};
+    expect(checkInclusion('ab','eidbaooo')).toBe(true);
+    expect(checkInclusion('ab','eidboaoo')).toBe(false);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+});

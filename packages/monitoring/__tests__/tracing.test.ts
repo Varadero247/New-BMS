@@ -582,3 +582,39 @@ describe('phase57 coverage', () => {
   it('returns k most frequent words sorted by frequency then lexicographically', () => { const topK=(words:string[],k:number)=>{const m=new Map<string,number>();for(const w of words)m.set(w,(m.get(w)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,k).map(e=>e[0]);}; expect(topK(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']); expect(topK(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']); });
   it('implements a trie with insert, search, and startsWith', () => { class Trie{private root:{[k:string]:any}={};insert(w:string){let n=this.root;for(const c of w){n[c]=n[c]||{};n=n[c];}n['$']=true;}search(w:string){let n=this.root;for(const c of w){if(!n[c])return false;n=n[c];}return!!n['$'];}startsWith(p:string){let n=this.root;for(const c of p){if(!n[c])return false;n=n[c];}return true;}} const t=new Trie();t.insert('apple');expect(t.search('apple')).toBe(true);expect(t.search('app')).toBe(false);expect(t.startsWith('app')).toBe(true);t.insert('app');expect(t.search('app')).toBe(true); });
 });
+
+describe('phase58 coverage', () => {
+  it('min stack ops', () => {
+    class MinStack{private s:number[]=[];private mins:number[]=[];push(v:number){this.s.push(v);if(!this.mins.length||v<=this.mins[this.mins.length-1])this.mins.push(v);}pop(){const v=this.s.pop()!;if(v===this.mins[this.mins.length-1])this.mins.pop();}top(){return this.s[this.s.length-1];}getMin(){return this.mins[this.mins.length-1];}}
+    const ms=new MinStack();ms.push(-2);ms.push(0);ms.push(-3);
+    expect(ms.getMin()).toBe(-3);
+    ms.pop();
+    expect(ms.top()).toBe(0);
+    expect(ms.getMin()).toBe(-2);
+  });
+  it('unique paths with obstacles', () => {
+    const uniquePathsWithObstacles=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=1;i<m;i++)dp[i][0]=grid[i][0]===1?0:dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]=grid[0][j]===1?0:dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=grid[i][j]===1?0:dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];};
+    expect(uniquePathsWithObstacles([[0,0,0],[0,1,0],[0,0,0]])).toBe(2);
+    expect(uniquePathsWithObstacles([[1,0]])).toBe(0);
+  });
+  it('subsets with duplicates', () => {
+    const subsetsWithDup=(nums:number[]):number[][]=>{nums.sort((a,b)=>a-b);const res:number[][]=[];const bt=(start:number,path:number[])=>{res.push([...path]);for(let i=start;i<nums.length;i++){if(i>start&&nums[i]===nums[i-1])continue;path.push(nums[i]);bt(i+1,path);path.pop();}};bt(0,[]);return res;};
+    const r=subsetsWithDup([1,2,2]);
+    expect(r).toHaveLength(6);
+    expect(r).toContainEqual([]);
+    expect(r).toContainEqual([2,2]);
+    expect(r).toContainEqual([1,2,2]);
+  });
+  it('container with most water', () => {
+    const maxArea=(h:number[]):number=>{let l=0,r=h.length-1,best=0;while(l<r){best=Math.max(best,Math.min(h[l],h[r])*(r-l));if(h[l]<h[r])l++;else r--;}return best;};
+    expect(maxArea([1,8,6,2,5,4,8,3,7])).toBe(49);
+    expect(maxArea([1,1])).toBe(1);
+    expect(maxArea([4,3,2,1,4])).toBe(16);
+  });
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+});

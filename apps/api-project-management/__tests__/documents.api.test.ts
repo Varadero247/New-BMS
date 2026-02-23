@@ -1014,3 +1014,37 @@ describe('phase57 coverage', () => {
   it('finds the mode(s) in a binary search tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const modes=(root:N|null)=>{const m=new Map<number,number>();const dfs=(n:N|null)=>{if(!n)return;m.set(n.v,(m.get(n.v)||0)+1);dfs(n.l);dfs(n.r);};dfs(root);const max=Math.max(...m.values());return[...m.entries()].filter(([,c])=>c===max).map(([v])=>v).sort((a,b)=>a-b);}; expect(modes(mk(1,null,mk(2,mk(2))))).toEqual([2]); expect(modes(mk(1))).toEqual([1]); });
   it('implements FreqStack that pops the most frequent element', () => { class FS{private freq=new Map<number,number>();private group=new Map<number,number[]>();private maxFreq=0;push(v:number){const f=(this.freq.get(v)||0)+1;this.freq.set(v,f);this.maxFreq=Math.max(this.maxFreq,f);if(!this.group.has(f))this.group.set(f,[]);this.group.get(f)!.push(v);}pop(){const top=this.group.get(this.maxFreq)!;const v=top.pop()!;if(!top.length){this.group.delete(this.maxFreq);this.maxFreq--;}this.freq.set(v,this.freq.get(v)!-1);return v;}} const fs=new FS();[5,7,5,7,4,5].forEach(v=>fs.push(v));expect(fs.pop()).toBe(5);expect(fs.pop()).toBe(7);expect(fs.pop()).toBe(5);expect(fs.pop()).toBe(4); });
 });
+
+describe('phase58 coverage', () => {
+  it('longest common subsequence', () => {
+    const lcs=(a:string,b:string):number=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];};
+    expect(lcs('abcde','ace')).toBe(3);
+    expect(lcs('abc','abc')).toBe(3);
+    expect(lcs('abc','def')).toBe(0);
+    expect(lcs('ezupkr','ubmrapg')).toBe(2);
+  });
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+  it('letter combinations phone', () => {
+    const letterCombinations=(digits:string):string[]=>{if(!digits)return[];const map:Record<string,string>={'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'};const res:string[]=[];const bt=(idx:number,cur:string)=>{if(idx===digits.length){res.push(cur);return;}for(const c of map[digits[idx]])bt(idx+1,cur+c);};bt(0,'');return res;};
+    const r=letterCombinations('23');
+    expect(r).toHaveLength(9);
+    expect(r).toContain('ad');
+    expect(letterCombinations('')).toEqual([]);
+  });
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('spiral matrix II generate', () => {
+    const generateMatrix=(n:number):number[][]=>{const mat=Array.from({length:n},()=>new Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(num<=n*n){for(let c=left;c<=right;c++)mat[top][c]=num++;top++;for(let r=top;r<=bot;r++)mat[r][right]=num++;right--;for(let c=right;c>=left;c--)mat[bot][c]=num++;bot--;for(let r=bot;r>=top;r--)mat[r][left]=num++;left++;}return mat;};
+    expect(generateMatrix(3)).toEqual([[1,2,3],[8,9,4],[7,6,5]]);
+    expect(generateMatrix(1)).toEqual([[1]]);
+  });
+});

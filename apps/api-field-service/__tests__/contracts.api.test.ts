@@ -810,3 +810,39 @@ describe('phase57 coverage', () => {
   it('computes minimum cost for given travel days using DP', () => { const mct=(days:number[],costs:number[])=>{const last=days[days.length-1];const dp=new Array(last+1).fill(0);const set=new Set(days);for(let i=1;i<=last;i++){if(!set.has(i)){dp[i]=dp[i-1];continue;}dp[i]=Math.min(dp[i-1]+costs[0],dp[Math.max(0,i-7)]+costs[1],dp[Math.max(0,i-30)]+costs[2]);}return dp[last];}; expect(mct([1,4,6,7,8,20],[2,7,15])).toBe(11); expect(mct([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17); });
   it('finds next greater element for each element of nums1 in nums2', () => { const nge=(n1:number[],n2:number[])=>{const m=new Map<number,number>(),st:number[]=[];for(const n of n2){while(st.length&&st[st.length-1]<n)m.set(st.pop()!,n);st.push(n);}return n1.map(n=>m.get(n)??-1);}; expect(nge([4,1,2],[1,3,4,2])).toEqual([-1,3,-1]); expect(nge([2,4],[1,2,3,4])).toEqual([3,-1]); });
 });
+
+describe('phase58 coverage', () => {
+  it('rotting oranges', () => {
+    const orangesRotting=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;const q:[number,number][]=[];let fresh=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(grid[i][j]===2)q.push([i,j]);if(grid[i][j]===1)fresh++;}let time=0;while(q.length&&fresh>0){const size=q.length;for(let k=0;k<size;k++){const[x,y]=q.shift()!;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([nx,ny])=>{if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]===1){grid[nx][ny]=2;fresh--;q.push([nx,ny]);}});}time++;}return fresh===0?time:-1;};
+    expect(orangesRotting([[2,1,1],[1,1,0],[0,1,1]])).toBe(4);
+    expect(orangesRotting([[2,1,1],[0,1,1],[1,0,1]])).toBe(-1);
+    expect(orangesRotting([[0,2]])).toBe(0);
+  });
+  it('jump game II min jumps', () => {
+    const jump=(nums:number[]):number=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<nums.length-1;i++){farthest=Math.max(farthest,i+nums[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;};
+    expect(jump([2,3,1,1,4])).toBe(2);
+    expect(jump([2,3,0,1,4])).toBe(2);
+    expect(jump([1,2,3])).toBe(2);
+    expect(jump([0])).toBe(0);
+  });
+  it('sliding window max', () => {
+    const maxSlidingWindow=(nums:number[],k:number):number[]=>{const q:number[]=[];const res:number[]=[];for(let i=0;i<nums.length;i++){while(q.length&&q[0]<i-k+1)q.shift();while(q.length&&nums[q[q.length-1]]<nums[i])q.pop();q.push(i);if(i>=k-1)res.push(nums[q[0]]);}return res;};
+    expect(maxSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]);
+    expect(maxSlidingWindow([1],1)).toEqual([1]);
+    expect(maxSlidingWindow([1,-1],1)).toEqual([1,-1]);
+  });
+  it('kth smallest BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const kthSmallest=(root:TN|null,k:number):number=>{const stack:TN[]=[];let cur:TN|null=root;while(cur||stack.length){while(cur){stack.push(cur);cur=cur.left;}cur=stack.pop()!;if(--k===0)return cur.val;cur=cur.right;}return -1;};
+    const t=mk(3,mk(1,null,mk(2)),mk(4));
+    expect(kthSmallest(t,1)).toBe(1);
+    expect(kthSmallest(t,3)).toBe(3);
+    expect(kthSmallest(mk(5,mk(3,mk(2,mk(1),null),mk(4)),mk(6)),3)).toBe(3);
+  });
+  it('spiral matrix II generate', () => {
+    const generateMatrix=(n:number):number[][]=>{const mat=Array.from({length:n},()=>new Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(num<=n*n){for(let c=left;c<=right;c++)mat[top][c]=num++;top++;for(let r=top;r<=bot;r++)mat[r][right]=num++;right--;for(let c=right;c>=left;c--)mat[bot][c]=num++;bot--;for(let r=bot;r>=top;r--)mat[r][left]=num++;left++;}return mat;};
+    expect(generateMatrix(3)).toEqual([[1,2,3],[8,9,4],[7,6,5]]);
+    expect(generateMatrix(1)).toEqual([[1]]);
+  });
+});

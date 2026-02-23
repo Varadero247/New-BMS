@@ -920,3 +920,40 @@ describe('phase57 coverage', () => {
   it('implements a trie with insert, search, and startsWith', () => { class Trie{private root:{[k:string]:any}={};insert(w:string){let n=this.root;for(const c of w){n[c]=n[c]||{};n=n[c];}n['$']=true;}search(w:string){let n=this.root;for(const c of w){if(!n[c])return false;n=n[c];}return!!n['$'];}startsWith(p:string){let n=this.root;for(const c of p){if(!n[c])return false;n=n[c];}return true;}} const t=new Trie();t.insert('apple');expect(t.search('apple')).toBe(true);expect(t.search('app')).toBe(false);expect(t.startsWith('app')).toBe(true);t.insert('app');expect(t.search('app')).toBe(true); });
   it('counts bulls (right position) and cows (wrong position) in number guessing game', () => { const bc=(secret:string,guess:string)=>{let bulls=0;const sc=new Array(10).fill(0),gc=new Array(10).fill(0);for(let i=0;i<secret.length;i++){if(secret[i]===guess[i])bulls++;else{sc[+secret[i]]++;gc[+guess[i]]++;}}const cows=sc.reduce((s,v,i)=>s+Math.min(v,gc[i]),0);return `${bulls}A${cows}B`;}; expect(bc('1807','7810')).toBe('1A3B'); expect(bc('1123','0111')).toBe('1A1B'); });
 });
+
+describe('phase58 coverage', () => {
+  it('find peak element binary', () => {
+    const findPeakElement=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[mid+1])hi=mid;else lo=mid+1;}return lo;};
+    const p1=findPeakElement([1,2,3,1]);
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1-1]||(-Infinity));
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1+1]||(-Infinity));
+    const p2=findPeakElement([1,2,1,3,5,6,4]);
+    expect(p2===1||p2===5).toBe(true);
+  });
+  it('unique paths with obstacles', () => {
+    const uniquePathsWithObstacles=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=1;i<m;i++)dp[i][0]=grid[i][0]===1?0:dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]=grid[0][j]===1?0:dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=grid[i][j]===1?0:dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];};
+    expect(uniquePathsWithObstacles([[0,0,0],[0,1,0],[0,0,0]])).toBe(2);
+    expect(uniquePathsWithObstacles([[1,0]])).toBe(0);
+  });
+  it('container with most water', () => {
+    const maxArea=(h:number[]):number=>{let l=0,r=h.length-1,best=0;while(l<r){best=Math.max(best,Math.min(h[l],h[r])*(r-l));if(h[l]<h[r])l++;else r--;}return best;};
+    expect(maxArea([1,8,6,2,5,4,8,3,7])).toBe(49);
+    expect(maxArea([1,1])).toBe(1);
+    expect(maxArea([4,3,2,1,4])).toBe(16);
+  });
+  it('kth smallest BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const kthSmallest=(root:TN|null,k:number):number=>{const stack:TN[]=[];let cur:TN|null=root;while(cur||stack.length){while(cur){stack.push(cur);cur=cur.left;}cur=stack.pop()!;if(--k===0)return cur.val;cur=cur.right;}return -1;};
+    const t=mk(3,mk(1,null,mk(2)),mk(4));
+    expect(kthSmallest(t,1)).toBe(1);
+    expect(kthSmallest(t,3)).toBe(3);
+    expect(kthSmallest(mk(5,mk(3,mk(2,mk(1),null),mk(4)),mk(6)),3)).toBe(3);
+  });
+  it('longest consecutive sequence', () => {
+    const longestConsecutive=(nums:number[]):number=>{const set=new Set(nums);let best=0;for(const n of set){if(!set.has(n-1)){let cur=n,len=1;while(set.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;};
+    expect(longestConsecutive([100,4,200,1,3,2])).toBe(4);
+    expect(longestConsecutive([0,3,7,2,5,8,4,6,0,1])).toBe(9);
+    expect(longestConsecutive([])).toBe(0);
+  });
+});

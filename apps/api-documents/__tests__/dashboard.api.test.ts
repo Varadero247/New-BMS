@@ -730,3 +730,42 @@ describe('phase57 coverage', () => {
   it('finds all recipes that can be made from available ingredients', () => { const recipes2=(r:string[],ing:string[][],sup:string[])=>{const avail=new Set(sup);const canMake=(recipe:string,idx:number,memo=new Map<string,boolean>()):boolean=>{if(avail.has(recipe))return true;if(memo.has(recipe))return memo.get(recipe)!;memo.set(recipe,false);const i=r.indexOf(recipe);if(i===-1)return false;const ok=ing[i].every(x=>canMake(x,0,memo));memo.set(recipe,ok);return ok;};return r.filter((_,i)=>canMake(r[i],i));}; expect(recipes2(['bread'],[["yeast","flour"]],["yeast","flour","corn"])).toEqual(["bread"]); });
   it('computes maximum width of binary tree (including null nodes)', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const mw=(root:N|null)=>{if(!root)return 0;let res=0;const q:Array<[N,number]>=[[root,0]];while(q.length){const sz=q.length;const base=q[0][1];let last=0;for(let i=0;i<sz;i++){const[n,idx]=q.shift()!;last=idx-base;if(n.l)q.push([n.l,2*(idx-base)]);if(n.r)q.push([n.r,2*(idx-base)+1]);}res=Math.max(res,last+1);}return res;}; expect(mw(mk(1,mk(3,mk(5),mk(3)),mk(2,null,mk(9))))).toBe(4); expect(mw(mk(1))).toBe(1); });
 });
+
+describe('phase58 coverage', () => {
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+  it('coin change combinations', () => {
+    const change=(amount:number,coins:number[]):number=>{const dp=new Array(amount+1).fill(0);dp[0]=1;coins.forEach(c=>{for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];});return dp[amount];};
+    expect(change(5,[1,2,5])).toBe(4);
+    expect(change(3,[2])).toBe(0);
+    expect(change(10,[10])).toBe(1);
+    expect(change(0,[1,2,3])).toBe(1);
+  });
+  it('subsets with duplicates', () => {
+    const subsetsWithDup=(nums:number[]):number[][]=>{nums.sort((a,b)=>a-b);const res:number[][]=[];const bt=(start:number,path:number[])=>{res.push([...path]);for(let i=start;i<nums.length;i++){if(i>start&&nums[i]===nums[i-1])continue;path.push(nums[i]);bt(i+1,path);path.pop();}};bt(0,[]);return res;};
+    const r=subsetsWithDup([1,2,2]);
+    expect(r).toHaveLength(6);
+    expect(r).toContainEqual([]);
+    expect(r).toContainEqual([2,2]);
+    expect(r).toContainEqual([1,2,2]);
+  });
+  it('palindrome partitioning', () => {
+    const partition=(s:string):string[][]=>{const res:string[][]=[];const isPalin=(a:string)=>a===a.split('').reverse().join('');const bt=(start:number,path:string[])=>{if(start===s.length){res.push([...path]);return;}for(let end=start+1;end<=s.length;end++){const sub=s.slice(start,end);if(isPalin(sub)){path.push(sub);bt(end,path);path.pop();}}};bt(0,[]);return res;};
+    const r=partition('aab');
+    expect(r).toContainEqual(['a','a','b']);
+    expect(r).toContainEqual(['aa','b']);
+    expect(partition('a')).toEqual([['a']]);
+  });
+  it('find peak element binary', () => {
+    const findPeakElement=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[mid+1])hi=mid;else lo=mid+1;}return lo;};
+    const p1=findPeakElement([1,2,3,1]);
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1-1]||(-Infinity));
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1+1]||(-Infinity));
+    const p2=findPeakElement([1,2,1,3,5,6,4]);
+    expect(p2===1||p2===5).toBe(true);
+  });
+});

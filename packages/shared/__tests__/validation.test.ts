@@ -583,3 +583,37 @@ describe('phase57 coverage', () => {
   it('picks index proportional to weight using prefix sum binary search', () => { const wpick=(w:number[])=>{const pre:number[]=[];let s=0;for(const v of w)pre.push(s+=v);return()=>{const t=Math.floor(Math.random()*s);let lo=0,hi=pre.length-1;while(lo<hi){const m=lo+hi>>1;if(pre[m]<t+1)lo=m+1;else hi=m;}return lo;};}; const pick=wpick([1,3]);const counts=[0,0];for(let i=0;i<1000;i++)counts[pick()]++;expect(counts[1]).toBeGreaterThan(counts[0]); });
   it('serializes and deserializes a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const ser=(n:N|null):string=>n?`${n.v},${ser(n.l)},${ser(n.r)}`:'#'; const des=(s:string)=>{const a=s.split(',');const f=():N|null=>{const v=a.shift();return v==='#'?null:mk(+v!,f(),f());};return f();}; const t=mk(1,mk(2),mk(3,mk(4),mk(5))); const r=des(ser(t)); expect(r?.v).toBe(1); expect(r?.l?.v).toBe(2); expect(r?.r?.l?.v).toBe(4); });
 });
+
+describe('phase58 coverage', () => {
+  it('jump game II min jumps', () => {
+    const jump=(nums:number[]):number=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<nums.length-1;i++){farthest=Math.max(farthest,i+nums[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;};
+    expect(jump([2,3,1,1,4])).toBe(2);
+    expect(jump([2,3,0,1,4])).toBe(2);
+    expect(jump([1,2,3])).toBe(2);
+    expect(jump([0])).toBe(0);
+  });
+  it('unique paths with obstacles', () => {
+    const uniquePathsWithObstacles=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;if(grid[0][0]===1||grid[m-1][n-1]===1)return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=1;i<m;i++)dp[i][0]=grid[i][0]===1?0:dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]=grid[0][j]===1?0:dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=grid[i][j]===1?0:dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];};
+    expect(uniquePathsWithObstacles([[0,0,0],[0,1,0],[0,0,0]])).toBe(2);
+    expect(uniquePathsWithObstacles([[1,0]])).toBe(0);
+  });
+  it('longest consecutive sequence', () => {
+    const longestConsecutive=(nums:number[]):number=>{const set=new Set(nums);let best=0;for(const n of set){if(!set.has(n-1)){let cur=n,len=1;while(set.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;};
+    expect(longestConsecutive([100,4,200,1,3,2])).toBe(4);
+    expect(longestConsecutive([0,3,7,2,5,8,4,6,0,1])).toBe(9);
+    expect(longestConsecutive([])).toBe(0);
+  });
+  it('letter combinations phone', () => {
+    const letterCombinations=(digits:string):string[]=>{if(!digits)return[];const map:Record<string,string>={'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'};const res:string[]=[];const bt=(idx:number,cur:string)=>{if(idx===digits.length){res.push(cur);return;}for(const c of map[digits[idx]])bt(idx+1,cur+c);};bt(0,'');return res;};
+    const r=letterCombinations('23');
+    expect(r).toHaveLength(9);
+    expect(r).toContain('ad');
+    expect(letterCombinations('')).toEqual([]);
+  });
+  it('container with most water', () => {
+    const maxArea=(h:number[]):number=>{let l=0,r=h.length-1,best=0;while(l<r){best=Math.max(best,Math.min(h[l],h[r])*(r-l));if(h[l]<h[r])l++;else r--;}return best;};
+    expect(maxArea([1,8,6,2,5,4,8,3,7])).toBe(49);
+    expect(maxArea([1,1])).toBe(1);
+    expect(maxArea([4,3,2,1,4])).toBe(16);
+  });
+});

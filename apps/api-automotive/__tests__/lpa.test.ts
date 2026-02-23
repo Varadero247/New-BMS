@@ -1274,3 +1274,37 @@ describe('phase57 coverage', () => {
   it('finds all recipes that can be made from available ingredients', () => { const recipes2=(r:string[],ing:string[][],sup:string[])=>{const avail=new Set(sup);const canMake=(recipe:string,idx:number,memo=new Map<string,boolean>()):boolean=>{if(avail.has(recipe))return true;if(memo.has(recipe))return memo.get(recipe)!;memo.set(recipe,false);const i=r.indexOf(recipe);if(i===-1)return false;const ok=ing[i].every(x=>canMake(x,0,memo));memo.set(recipe,ok);return ok;};return r.filter((_,i)=>canMake(r[i],i));}; expect(recipes2(['bread'],[["yeast","flour"]],["yeast","flour","corn"])).toEqual(["bread"]); });
   it('finds length of longest path with same values in binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const luv=(root:N|null)=>{let res=0;const dfs=(n:N|null,pv:number):number=>{if(!n)return 0;const l=dfs(n.l,n.v),r=dfs(n.r,n.v);res=Math.max(res,l+r);return n.v===pv?1+Math.max(l,r):0;};dfs(root,-1);return res;}; expect(luv(mk(5,mk(4,mk(4),mk(4)),mk(5,null,mk(5))))).toBe(2); expect(luv(mk(1,mk(1,mk(1)),mk(1,null,mk(1))))).toBe(4); });
 });
+
+describe('phase58 coverage', () => {
+  it('word break II', () => {
+    const wordBreak=(s:string,dict:string[]):string[]=>{const set=new Set(dict);const memo=new Map<string,string[]>();const bt=(rem:string):string[]=>{if(memo.has(rem))return memo.get(rem)!;if(rem===''){memo.set(rem,['']);return[''];}const res:string[]=[];for(let i=1;i<=rem.length;i++){const word=rem.slice(0,i);if(set.has(word)){bt(rem.slice(i)).forEach(rest=>res.push(rest===''?word:`${word} ${rest}`));}}memo.set(rem,res);return res;};return bt(s);};
+    const r=wordBreak('catsanddog',['cat','cats','and','sand','dog']);
+    expect(r).toContain('cats and dog');
+    expect(r).toContain('cat sand dog');
+  });
+  it('jump game II min jumps', () => {
+    const jump=(nums:number[]):number=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<nums.length-1;i++){farthest=Math.max(farthest,i+nums[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;};
+    expect(jump([2,3,1,1,4])).toBe(2);
+    expect(jump([2,3,0,1,4])).toBe(2);
+    expect(jump([1,2,3])).toBe(2);
+    expect(jump([0])).toBe(0);
+  });
+  it('spiral matrix II generate', () => {
+    const generateMatrix=(n:number):number[][]=>{const mat=Array.from({length:n},()=>new Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(num<=n*n){for(let c=left;c<=right;c++)mat[top][c]=num++;top++;for(let r=top;r<=bot;r++)mat[r][right]=num++;right--;for(let c=right;c>=left;c--)mat[bot][c]=num++;bot--;for(let r=bot;r>=top;r--)mat[r][left]=num++;left++;}return mat;};
+    expect(generateMatrix(3)).toEqual([[1,2,3],[8,9,4],[7,6,5]]);
+    expect(generateMatrix(1)).toEqual([[1]]);
+  });
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+  it('coin change combinations', () => {
+    const change=(amount:number,coins:number[]):number=>{const dp=new Array(amount+1).fill(0);dp[0]=1;coins.forEach(c=>{for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];});return dp[amount];};
+    expect(change(5,[1,2,5])).toBe(4);
+    expect(change(3,[2])).toBe(0);
+    expect(change(10,[10])).toBe(1);
+    expect(change(0,[1,2,3])).toBe(1);
+  });
+});

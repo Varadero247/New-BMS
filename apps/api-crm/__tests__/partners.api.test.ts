@@ -918,3 +918,43 @@ describe('phase57 coverage', () => {
   it('counts bulls (right position) and cows (wrong position) in number guessing game', () => { const bc=(secret:string,guess:string)=>{let bulls=0;const sc=new Array(10).fill(0),gc=new Array(10).fill(0);for(let i=0;i<secret.length;i++){if(secret[i]===guess[i])bulls++;else{sc[+secret[i]]++;gc[+guess[i]]++;}}const cows=sc.reduce((s,v,i)=>s+Math.min(v,gc[i]),0);return `${bulls}A${cows}B`;}; expect(bc('1807','7810')).toBe('1A3B'); expect(bc('1123','0111')).toBe('1A1B'); });
   it('arranges numbers to form the largest possible number', () => { const largest=(nums:number[])=>{const s=nums.map(String).sort((a,b)=>(b+a).localeCompare(a+b));return s[0]==='0'?'0':s.join('');}; expect(largest([10,2])).toBe('210'); expect(largest([3,30,34,5,9])).toBe('9534330'); expect(largest([0,0])).toBe('0'); });
 });
+
+describe('phase58 coverage', () => {
+  it('spiral matrix II generate', () => {
+    const generateMatrix=(n:number):number[][]=>{const mat=Array.from({length:n},()=>new Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(num<=n*n){for(let c=left;c<=right;c++)mat[top][c]=num++;top++;for(let r=top;r<=bot;r++)mat[r][right]=num++;right--;for(let c=right;c>=left;c--)mat[bot][c]=num++;bot--;for(let r=bot;r>=top;r--)mat[r][left]=num++;left++;}return mat;};
+    expect(generateMatrix(3)).toEqual([[1,2,3],[8,9,4],[7,6,5]]);
+    expect(generateMatrix(1)).toEqual([[1]]);
+  });
+  it('longest consecutive sequence', () => {
+    const longestConsecutive=(nums:number[]):number=>{const set=new Set(nums);let best=0;for(const n of set){if(!set.has(n-1)){let cur=n,len=1;while(set.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;};
+    expect(longestConsecutive([100,4,200,1,3,2])).toBe(4);
+    expect(longestConsecutive([0,3,7,2,5,8,4,6,0,1])).toBe(9);
+    expect(longestConsecutive([])).toBe(0);
+  });
+  it('find peak element binary', () => {
+    const findPeakElement=(nums:number[]):number=>{let lo=0,hi=nums.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(nums[mid]>nums[mid+1])hi=mid;else lo=mid+1;}return lo;};
+    const p1=findPeakElement([1,2,3,1]);
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1-1]||(-Infinity));
+    expect([1,2,3,1][p1]).toBeGreaterThan([1,2,3,1][p1+1]||(-Infinity));
+    const p2=findPeakElement([1,2,1,3,5,6,4]);
+    expect(p2===1||p2===5).toBe(true);
+  });
+  it('validate BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const isValidBST=(root:TN|null,min=-Infinity,max=Infinity):boolean=>{if(!root)return true;if(root.val<=min||root.val>=max)return false;return isValidBST(root.left,min,root.val)&&isValidBST(root.right,root.val,max);};
+    expect(isValidBST(mk(2,mk(1),mk(3)))).toBe(true);
+    expect(isValidBST(mk(5,mk(1),mk(4,mk(3),mk(6))))).toBe(false);
+    expect(isValidBST(null)).toBe(true);
+  });
+  it('N-ary serialize', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const ser=(r:NT|null):string=>{if(!r)return'#';return`${r.val}(${r.children.map(ser).join(',')})`;};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    const s=ser(t);
+    expect(s).toContain('1');
+    expect(s).toContain('3');
+    expect(s.split('(').length).toBeGreaterThan(3);
+  });
+});

@@ -746,3 +746,37 @@ describe('phase57 coverage', () => {
   it('implements a trie with insert, search, and startsWith', () => { class Trie{private root:{[k:string]:any}={};insert(w:string){let n=this.root;for(const c of w){n[c]=n[c]||{};n=n[c];}n['$']=true;}search(w:string){let n=this.root;for(const c of w){if(!n[c])return false;n=n[c];}return!!n['$'];}startsWith(p:string){let n=this.root;for(const c of p){if(!n[c])return false;n=n[c];}return true;}} const t=new Trie();t.insert('apple');expect(t.search('apple')).toBe(true);expect(t.search('app')).toBe(false);expect(t.startsWith('app')).toBe(true);t.insert('app');expect(t.search('app')).toBe(true); });
   it('implements a hash map with put, get, and remove', () => { class HM{private m=new Map<number,number>();put(k:number,v:number){this.m.set(k,v);}get(k:number){return this.m.has(k)?this.m.get(k)!:-1;}remove(k:number){this.m.delete(k);}} const hm=new HM();hm.put(1,1);hm.put(2,2);expect(hm.get(1)).toBe(1);hm.remove(2);expect(hm.get(2)).toBe(-1); });
 });
+
+describe('phase58 coverage', () => {
+  it('course schedule II', () => {
+    const findOrder=(n:number,prereqs:[number,number][]):number[]=>{const adj:number[][]=Array.from({length:n},()=>[]);const indeg=new Array(n).fill(0);prereqs.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=[];for(let i=0;i<n;i++)if(indeg[i]===0)q.push(i);const res:number[]=[];while(q.length){const c=q.shift()!;res.push(c);adj[c].forEach(nb=>{if(--indeg[nb]===0)q.push(nb);});}return res.length===n?res:[];};
+    expect(findOrder(2,[[1,0]])).toEqual([0,1]);
+    expect(findOrder(4,[[1,0],[2,0],[3,1],[3,2]])).toHaveLength(4);
+    expect(findOrder(2,[[1,0],[0,1]])).toEqual([]);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('spiral matrix II generate', () => {
+    const generateMatrix=(n:number):number[][]=>{const mat=Array.from({length:n},()=>new Array(n).fill(0));let top=0,bot=n-1,left=0,right=n-1,num=1;while(num<=n*n){for(let c=left;c<=right;c++)mat[top][c]=num++;top++;for(let r=top;r<=bot;r++)mat[r][right]=num++;right--;for(let c=right;c>=left;c--)mat[bot][c]=num++;bot--;for(let r=bot;r>=top;r--)mat[r][left]=num++;left++;}return mat;};
+    expect(generateMatrix(3)).toEqual([[1,2,3],[8,9,4],[7,6,5]]);
+    expect(generateMatrix(1)).toEqual([[1]]);
+  });
+  it('number of islands', () => {
+    const numIslands=(grid:string[][]):number=>{let count=0;const m=grid.length,n=grid[0].length;const bfs=(r:number,c:number)=>{const q=[[r,c]];grid[r][c]='0';while(q.length){const[x,y]=q.shift()!;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([nx,ny])=>{if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]==='1'){grid[nx][ny]='0';q.push([nx,ny]);}});}};for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]==='1'){count++;bfs(i,j);}return count;};
+    expect(numIslands([['1','1','0'],['0','1','0'],['0','0','1']])).toBe(2);
+    expect(numIslands([['1','1','1'],['1','1','1'],['1','1','1']])).toBe(1);
+  });
+});

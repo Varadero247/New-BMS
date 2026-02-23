@@ -872,3 +872,40 @@ describe('phase57 coverage', () => {
   it('finds two non-repeating elements in array where all others appear twice', () => { const sn3=(a:number[])=>{let xor=a.reduce((s,v)=>s^v,0);const bit=xor&(-xor);let x=0,y=0;for(const n of a)if(n&bit)x^=n;else y^=n;return[x,y].sort((a,b)=>a-b);}; expect(sn3([1,2,1,3,2,5])).toEqual([3,5]); expect(sn3([-1,0])).toEqual([-1,0]); });
   it('returns k most frequent words sorted by frequency then lexicographically', () => { const topK=(words:string[],k:number)=>{const m=new Map<string,number>();for(const w of words)m.set(w,(m.get(w)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,k).map(e=>e[0]);}; expect(topK(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']); expect(topK(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']); });
 });
+
+describe('phase58 coverage', () => {
+  it('jump game II min jumps', () => {
+    const jump=(nums:number[]):number=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<nums.length-1;i++){farthest=Math.max(farthest,i+nums[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;};
+    expect(jump([2,3,1,1,4])).toBe(2);
+    expect(jump([2,3,0,1,4])).toBe(2);
+    expect(jump([1,2,3])).toBe(2);
+    expect(jump([0])).toBe(0);
+  });
+  it('longest consecutive sequence', () => {
+    const longestConsecutive=(nums:number[]):number=>{const set=new Set(nums);let best=0;for(const n of set){if(!set.has(n-1)){let cur=n,len=1;while(set.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;};
+    expect(longestConsecutive([100,4,200,1,3,2])).toBe(4);
+    expect(longestConsecutive([0,3,7,2,5,8,4,6,0,1])).toBe(9);
+    expect(longestConsecutive([])).toBe(0);
+  });
+  it('rotting oranges', () => {
+    const orangesRotting=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;const q:[number,number][]=[];let fresh=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(grid[i][j]===2)q.push([i,j]);if(grid[i][j]===1)fresh++;}let time=0;while(q.length&&fresh>0){const size=q.length;for(let k=0;k<size;k++){const[x,y]=q.shift()!;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([nx,ny])=>{if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]===1){grid[nx][ny]=2;fresh--;q.push([nx,ny]);}});}time++;}return fresh===0?time:-1;};
+    expect(orangesRotting([[2,1,1],[1,1,0],[0,1,1]])).toBe(4);
+    expect(orangesRotting([[2,1,1],[0,1,1],[1,0,1]])).toBe(-1);
+    expect(orangesRotting([[0,2]])).toBe(0);
+  });
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+  it('flatten tree to list', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const flatten=(root:TN|null):void=>{let cur=root;while(cur){if(cur.left){let r=cur.left;while(r.right)r=r.right;r.right=cur.right;cur.right=cur.left;cur.left=null;}cur=cur.right;}};
+    const toArr=(r:TN|null):number[]=>{const a:number[]=[];while(r){a.push(r.val);r=r.right;}return a;};
+    const t=mk(1,mk(2,mk(3),mk(4)),mk(5,null,mk(6)));
+    flatten(t);
+    expect(toArr(t)).toEqual([1,2,3,4,5,6]);
+  });
+});

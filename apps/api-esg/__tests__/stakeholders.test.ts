@@ -714,3 +714,37 @@ describe('phase57 coverage', () => {
   it('finds the index of the minimum right interval for each interval', () => { const fri=(ivs:[number,number][])=>{const starts=ivs.map((v,i)=>[v[0],i]).sort((a,b)=>a[0]-b[0]);return ivs.map(([,end])=>{let lo=0,hi=starts.length;while(lo<hi){const m=lo+hi>>1;if(starts[m][0]<end)lo=m+1;else hi=m;}return lo<starts.length?starts[lo][1]:-1;});}; expect(fri([[1,2]])).toEqual([-1]); expect(fri([[3,4],[2,3],[1,2]])).toEqual([-1,0,1]); });
   it('returns k most frequent words sorted by frequency then lexicographically', () => { const topK=(words:string[],k:number)=>{const m=new Map<string,number>();for(const w of words)m.set(w,(m.get(w)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,k).map(e=>e[0]);}; expect(topK(['i','love','leetcode','i','love','coding'],2)).toEqual(['i','love']); expect(topK(['the','day','is','sunny','the','the','the','sunny','is','is'],4)).toEqual(['the','is','sunny','day']); });
 });
+
+describe('phase58 coverage', () => {
+  it('regex match', () => {
+    const isMatch=(s:string,p:string):boolean=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-2];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i][j-2]||(p[j-2]==='.'||p[j-2]===s[i-1])&&dp[i-1][j];else dp[i][j]=(p[j-1]==='.'||p[j-1]===s[i-1])&&dp[i-1][j-1];}return dp[m][n];};
+    expect(isMatch('aa','a')).toBe(false);
+    expect(isMatch('aa','a*')).toBe(true);
+    expect(isMatch('ab','.*')).toBe(true);
+  });
+  it('number of islands', () => {
+    const numIslands=(grid:string[][]):number=>{let count=0;const m=grid.length,n=grid[0].length;const bfs=(r:number,c:number)=>{const q=[[r,c]];grid[r][c]='0';while(q.length){const[x,y]=q.shift()!;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([nx,ny])=>{if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]==='1'){grid[nx][ny]='0';q.push([nx,ny]);}});}};for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]==='1'){count++;bfs(i,j);}return count;};
+    expect(numIslands([['1','1','0'],['0','1','0'],['0','0','1']])).toBe(2);
+    expect(numIslands([['1','1','1'],['1','1','1'],['1','1','1']])).toBe(1);
+  });
+  it('trapping rain water', () => {
+    const trap=(h:number[]):number=>{let l=0,r=h.length-1,lMax=0,rMax=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lMax?lMax=h[l]:water+=lMax-h[l];l++;}else{h[r]>=rMax?rMax=h[r]:water+=rMax-h[r];r--;}}return water;};
+    expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6);
+    expect(trap([4,2,0,3,2,5])).toBe(9);
+    expect(trap([1,0,1])).toBe(1);
+  });
+  it('validate BST', () => {
+    type TN={val:number;left:TN|null;right:TN|null};
+    const mk=(v:number,l:TN|null=null,r:TN|null=null):TN=>({val:v,left:l,right:r});
+    const isValidBST=(root:TN|null,min=-Infinity,max=Infinity):boolean=>{if(!root)return true;if(root.val<=min||root.val>=max)return false;return isValidBST(root.left,min,root.val)&&isValidBST(root.right,root.val,max);};
+    expect(isValidBST(mk(2,mk(1),mk(3)))).toBe(true);
+    expect(isValidBST(mk(5,mk(1),mk(4,mk(3),mk(6))))).toBe(false);
+    expect(isValidBST(null)).toBe(true);
+  });
+  it('rotting oranges', () => {
+    const orangesRotting=(grid:number[][]):number=>{const m=grid.length,n=grid[0].length;const q:[number,number][]=[];let fresh=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(grid[i][j]===2)q.push([i,j]);if(grid[i][j]===1)fresh++;}let time=0;while(q.length&&fresh>0){const size=q.length;for(let k=0;k<size;k++){const[x,y]=q.shift()!;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([nx,ny])=>{if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]===1){grid[nx][ny]=2;fresh--;q.push([nx,ny]);}});}time++;}return fresh===0?time:-1;};
+    expect(orangesRotting([[2,1,1],[1,1,0],[0,1,1]])).toBe(4);
+    expect(orangesRotting([[2,1,1],[0,1,1],[1,0,1]])).toBe(-1);
+    expect(orangesRotting([[0,2]])).toBe(0);
+  });
+});

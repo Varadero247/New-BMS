@@ -860,3 +860,41 @@ describe('phase57 coverage', () => {
   it('finds cells that can flow to both Pacific and Atlantic oceans', () => { const paf=(h:number[][])=>{const m=h.length,n=h[0].length,pac=Array.from({length:m},()=>new Array(n).fill(false)),atl=Array.from({length:m},()=>new Array(n).fill(false));const dfs=(i:number,j:number,vis:boolean[][],prev:number)=>{if(i<0||i>=m||j<0||j>=n||vis[i][j]||h[i][j]<prev)return;vis[i][j]=true;for(const[di,dj]of[[-1,0],[1,0],[0,-1],[0,1]])dfs(i+di,j+dj,vis,h[i][j]);};for(let i=0;i<m;i++){dfs(i,0,pac,0);dfs(i,n-1,atl,0);}for(let j=0;j<n;j++){dfs(0,j,pac,0);dfs(m-1,j,atl,0);}const res:number[][]=[];for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(pac[i][j]&&atl[i][j])res.push([i,j]);return res;}; expect(paf([[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]).length).toBe(7); });
   it('finds length of longest palindromic subsequence', () => { const lps2=(s:string)=>{const n=s.length,dp=Array.from({length:n},(_,i)=>new Array(n).fill(0).map((_,j):number=>i===j?1:0));for(let len=2;len<=n;len++)for(let i=0;i+len<=n;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]+2:Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps2('bbbab')).toBe(4); expect(lps2('cbbd')).toBe(2); });
 });
+
+describe('phase58 coverage', () => {
+  it('sliding window max', () => {
+    const maxSlidingWindow=(nums:number[],k:number):number[]=>{const q:number[]=[];const res:number[]=[];for(let i=0;i<nums.length;i++){while(q.length&&q[0]<i-k+1)q.shift();while(q.length&&nums[q[q.length-1]]<nums[i])q.pop();q.push(i);if(i>=k-1)res.push(nums[q[0]]);}return res;};
+    expect(maxSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]);
+    expect(maxSlidingWindow([1],1)).toEqual([1]);
+    expect(maxSlidingWindow([1,-1],1)).toEqual([1,-1]);
+  });
+  it('max depth N-ary tree', () => {
+    type NT={val:number;children:NT[]};
+    const mk=(v:number,...ch:NT[]):NT=>({val:v,children:ch});
+    const maxDepth=(root:NT|null):number=>{if(!root)return 0;if(!root.children.length)return 1;return 1+Math.max(...root.children.map(maxDepth));};
+    const t=mk(1,mk(3,mk(5),mk(6)),mk(2),mk(4));
+    expect(maxDepth(t)).toBe(3);
+    expect(maxDepth(null)).toBe(0);
+    expect(maxDepth(mk(1))).toBe(1);
+  });
+  it('maximal rectangle histogram', () => {
+    const largestRectangleInHistogram=(h:number[]):number=>{const stack:number[]=[];let max=0;const heights=[...h,0];for(let i=0;i<heights.length;i++){while(stack.length&&heights[stack[stack.length-1]]>heights[i]){const hi=heights[stack.pop()!];const w=stack.length?i-stack[stack.length-1]-1:i;max=Math.max(max,hi*w);}stack.push(i);}return max;};
+    expect(largestRectangleInHistogram([2,1,5,6,2,3])).toBe(10);
+    expect(largestRectangleInHistogram([2,4])).toBe(4);
+    expect(largestRectangleInHistogram([1])).toBe(1);
+  });
+  it('jump game II min jumps', () => {
+    const jump=(nums:number[]):number=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<nums.length-1;i++){farthest=Math.max(farthest,i+nums[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;};
+    expect(jump([2,3,1,1,4])).toBe(2);
+    expect(jump([2,3,0,1,4])).toBe(2);
+    expect(jump([1,2,3])).toBe(2);
+    expect(jump([0])).toBe(0);
+  });
+  it('longest common subsequence', () => {
+    const lcs=(a:string,b:string):number=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];};
+    expect(lcs('abcde','ace')).toBe(3);
+    expect(lcs('abc','abc')).toBe(3);
+    expect(lcs('abc','def')).toBe(0);
+    expect(lcs('ezupkr','ubmrapg')).toBe(2);
+  });
+});

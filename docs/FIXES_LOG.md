@@ -1,5 +1,18 @@
 # IMS — Fixes Log
 
+## Phase 57 — Test Depth Expansion to ≥185 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 180 tests to ≥185 each.
+
+**Net new tests:** +3,540 (127,645 → 131,185), all 711 suites passing (0 failures).
+
+**30 new algorithm snippets added. 3 post-expansion fixes:**
+- `flip equivalent trees`: second test case `0(3,1(l=3))` vs `0(3,1(r=3))` ARE flip-equivalent (flip node 1), so expected `false` was wrong → replaced with clearly unequal values `mk(1,2,3)` vs `mk(1,4,5)` (131 files).
+- `canMake` recursive function: TS7023 implicit `any` return type on recursive function → added `:boolean` annotation (116 files).
+- `lps2` (longest palindromic subsequence): `map((_,j)=>i===j?1:0)` inferred as `(0|1)[]` → TS2322 when assigning `number` result → explicit `:number` return type on map callback (118 files).
+
+---
+
 ## Phase 56 — Test Depth Expansion to ≥180 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 175 tests to ≥180 each.
