@@ -1,5 +1,20 @@
 # IMS — Fixes Log
 
+## Phase 50 — Test Depth Expansion to ≥150 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 145-149 tests to ≥150 each.
+
+**Net new tests:** +3,540 (102,865 → 106,405), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (5 issues):**
+- Max width binary tree: infinite loop — `r<a.length` → `l<a.length` in for-loop condition (70 files)
+- Equal 0s and 1s subarray: wrong expected 6 → 4 for `leq([0,1,0,1,1,1,0])` (44 files)
+- Min swaps to sort: wrong expected 3 → 2 for `ms([1,5,4,3,2])` (53 files)
+- Word ladder BFS: TS2339 — typed queue as `[string,number][]` (66 files)
+- Climb stairs base case + GCD IIFE TDZ (previous session fixes, 97 files)
+
+---
+
 ## Phase 49 — Test Depth Expansion to ≥145 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 140-144 tests to ≥145 each.
