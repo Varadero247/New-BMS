@@ -1,7 +1,7 @@
 # NEXARA IMS PLATFORM — DOCUMENTATION INDEX
 
-**Generated:** February 21, 2026
-**Total documentation:** ~215 KB across 3 primary reference documents + supporting docs
+**Updated:** February 23, 2026
+**Total documentation:** ~215 KB primary references + 50+ supporting docs + 16 UAT test plans
 
 ---
 
@@ -29,6 +29,37 @@
 | [SECURITY.md](./SECURITY.md) | Security implementation details |
 | [SYSTEM-ARCHITECTURE.md](./SYSTEM-ARCHITECTURE.md) | System architecture overview |
 | [TEMPLATES.md](./TEMPLATES.md) | 192 built-in template library guide |
+| [LOGGING_GUIDE.md](./LOGGING_GUIDE.md) | Structured logging patterns, correlation IDs, jq examples |
+| [MUTATION_TESTING.md](./MUTATION_TESTING.md) | Stryker mutation testing — how to run, interpret scores, add packages |
+| [TRACING.md](./TRACING.md) | OpenTelemetry distributed tracing — setup, custom spans, production |
+| [STRATEGIC_RECOMMENDATIONS_REPORT.md](./STRATEGIC_RECOMMENDATIONS_REPORT.md) | Implemented and deferred strategic recommendations |
+| [NON_CODEABLE_ITEMS.md](./NON_CODEABLE_ITEMS.md) | Items requiring human/ops intervention before production launch |
+| [MODULE_STATUS.md](./MODULE_STATUS.md) | Full module status matrix — all 42 services with endpoints and standards |
+
+---
+
+## UAT Test Plans (docs/uat/)
+
+16 User Acceptance Test plans covering all major modules (25 BDD test cases each, 400 total):
+
+| Document | Module | Standard | Port |
+|----------|--------|----------|------|
+| [UAT_HEALTH_SAFETY.md](./uat/UAT_HEALTH_SAFETY.md) | Health & Safety | ISO 45001:2018 | 4001 |
+| [UAT_ENVIRONMENT.md](./uat/UAT_ENVIRONMENT.md) | Environment | ISO 14001:2015 | 4002 |
+| [UAT_QUALITY.md](./uat/UAT_QUALITY.md) | Quality Management | ISO 9001:2015 | 4003 |
+| [UAT_FINANCE.md](./uat/UAT_FINANCE.md) | Finance | — | 4013 |
+| [UAT_INFOSEC.md](./uat/UAT_INFOSEC.md) | Information Security | ISO 27001:2022 | 4015 |
+| [UAT_ESG.md](./uat/UAT_ESG.md) | ESG Reporting | GRI/SASB/TCFD | 4016 |
+| [UAT_RISK.md](./uat/UAT_RISK.md) | Enterprise Risk | — | 4027 |
+| [UAT_HR.md](./uat/UAT_HR.md) | Human Resources | — | 4006 |
+| [UAT_FOOD_SAFETY.md](./uat/UAT_FOOD_SAFETY.md) | Food Safety | ISO 22000/HACCP | 4019 |
+| [UAT_ENERGY.md](./uat/UAT_ENERGY.md) | Energy Management | ISO 50001:2018 | 4020 |
+| [UAT_FIELD_SERVICE.md](./uat/UAT_FIELD_SERVICE.md) | Field Service | — | 4022 |
+| [UAT_INCIDENTS.md](./uat/UAT_INCIDENTS.md) | Incident Management | — | 4036 |
+| [UAT_AUDITS.md](./uat/UAT_AUDITS.md) | Audit Management | — | 4037 |
+| [UAT_AUTOMOTIVE.md](./uat/UAT_AUTOMOTIVE.md) | Automotive | IATF 16949 | 4010 |
+| [UAT_MEDICAL.md](./uat/UAT_MEDICAL.md) | Medical Devices | ISO 13485 | 4011 |
+| [UAT_AEROSPACE.md](./uat/UAT_AEROSPACE.md) | Aerospace | AS9100D | 4012 |
 
 ---
 
@@ -39,6 +70,8 @@
 | [SYSTEM_STATE.md](../SYSTEM_STATE.md) | Single source of truth for all services, packages, schemas |
 | [QUICK_REFERENCE.md](../QUICK_REFERENCE.md) | Quick reference card — ports, commands, patterns |
 | [CLAUDE.md](../CLAUDE.md) | Development guidelines and known issue fixes |
+| [renovate.json](../renovate.json) | Renovate bot config — auto-merge patches, grouped deps |
+| [stryker.*.config.mjs](../stryker.auth.config.mjs) | Stryker mutation testing configs (auth/security/rbac/finance/validation) |
 
 ---
 
