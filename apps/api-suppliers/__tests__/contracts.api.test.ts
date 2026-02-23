@@ -897,3 +897,17 @@ describe('phase65 coverage', () => {
     it('none'  ,()=>expect(rip('000000000000000')).toBe(0));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('LCA of BST', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function lcaBST(root:TN,p:{val:number},q:{val:number}):TN{if(p.val<root.val&&q.val<root.val)return lcaBST(root.left!,p,q);if(p.val>root.val&&q.val>root.val)return lcaBST(root.right!,p,q);return root;}
+    const bst=mk(6,mk(2,mk(0),mk(4,mk(3),mk(5))),mk(8,mk(7),mk(9)));
+    it('ex1'   ,()=>expect(lcaBST(bst,{val:2},{val:8}).val).toBe(6));
+    it('ex2'   ,()=>expect(lcaBST(bst,{val:2},{val:4}).val).toBe(2));
+    it('same'  ,()=>expect(lcaBST(bst,{val:6},{val:6}).val).toBe(6));
+    it('leaf'  ,()=>expect(lcaBST(bst,{val:0},{val:3}).val).toBe(2));
+    it('rightS',()=>expect(lcaBST(bst,{val:7},{val:9}).val).toBe(8));
+  });
+});

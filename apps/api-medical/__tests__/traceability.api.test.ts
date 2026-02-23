@@ -1194,3 +1194,16 @@ describe('phase65 coverage', () => {
     it('n5'    ,()=>expect(cas(5)).toBe('111221'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('find mode in BST', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function findMode(root:TN|null):number[]{let mx=0,cnt=0,prev:number|null=null;const r:number[]=[];function io(n:TN|null):void{if(!n)return;io(n.left);cnt=n.val===prev?cnt+1:1;prev=n.val;if(cnt>mx){mx=cnt;r.length=0;r.push(n.val);}else if(cnt===mx)r.push(n.val);io(n.right);}io(root);return r;}
+    it('ex1'   ,()=>expect(findMode(mk(1,null,mk(2,mk(2))))).toEqual([2]));
+    it('single',()=>expect(findMode(mk(0))).toEqual([0]));
+    it('all'   ,()=>expect(findMode(mk(1,mk(1),mk(1)))).toEqual([1]));
+    it('two'   ,()=>expect(findMode(mk(2,mk(1),mk(3))).sort((a,b)=>a-b)).toEqual([1,2,3]));
+    it('root'  ,()=>expect(findMode(mk(5,mk(3),mk(7)))).toContain(3));
+  });
+});

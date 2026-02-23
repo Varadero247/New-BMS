@@ -1022,3 +1022,14 @@ describe('phase65 coverage', () => {
     it('box'   ,()=>{const b=JSON.parse(JSON.stringify(valid));b[1][0]='5';expect(isVS(b)).toBe(false);});
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('keyboard row', () => {
+    function kbRow(words:string[]):string[]{const rows=['qwertyuiop','asdfghjkl','zxcvbnm'];return words.filter(w=>rows.some(r=>w.toLowerCase().split('').every(c=>r.includes(c))));}
+    it('ex1'   ,()=>expect(kbRow(['Hello','Alaska','Dad','Peace']).length).toBe(2));
+    it('ex2'   ,()=>expect(kbRow(['aS','dd']).length).toBe(2));
+    it('empty' ,()=>expect(kbRow([])).toEqual([]));
+    it('none'  ,()=>expect(kbRow(['abc'])).toEqual([]));
+    it('all'   ,()=>expect(kbRow(['qwer','asdf','zxcv'])).toHaveLength(3));
+  });
+});

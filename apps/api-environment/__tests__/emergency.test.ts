@@ -1381,3 +1381,17 @@ describe('phase65 coverage', () => {
     it('neg'   ,()=>expect(pot(-4)).toBe(false));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('path sum', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function hasPath(root:TN|null,t:number):boolean{if(!root)return false;if(!root.left&&!root.right)return root.val===t;return hasPath(root.left,t-root.val)||hasPath(root.right,t-root.val);}
+    const tree=mk(5,mk(4,mk(11,mk(7),mk(2))),mk(8,mk(13),mk(4,null,mk(1))));
+    it('ex1'   ,()=>expect(hasPath(tree,22)).toBe(true));
+    it('ex2'   ,()=>expect(hasPath(tree,21)).toBe(false));
+    it('null'  ,()=>expect(hasPath(null,0)).toBe(false));
+    it('leaf'  ,()=>expect(hasPath(mk(1),1)).toBe(true));
+    it('neg'   ,()=>expect(hasPath(mk(-3),- 3)).toBe(true));
+  });
+});

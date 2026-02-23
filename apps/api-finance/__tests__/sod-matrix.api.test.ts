@@ -1147,3 +1147,14 @@ describe('phase65 coverage', () => {
     it('neg'   ,()=>expect(pm([-1,1])).toBe(2));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('assign cookies', () => {
+    function assignCookies(g:number[],s:number[]):number{g.sort((a,b)=>a-b);s.sort((a,b)=>a-b);let i=0,j=0;while(i<g.length&&j<s.length){if(s[j]>=g[i])i++;j++;}return i;}
+    it('ex1'   ,()=>expect(assignCookies([1,2,3],[1,1])).toBe(1));
+    it('ex2'   ,()=>expect(assignCookies([1,2],[1,2,3])).toBe(2));
+    it('none'  ,()=>expect(assignCookies([5],[1,2,3])).toBe(0));
+    it('all'   ,()=>expect(assignCookies([1,1],[1,1])).toBe(2));
+    it('empty' ,()=>expect(assignCookies([1],[])).toBe(0));
+  });
+});

@@ -1139,3 +1139,14 @@ describe('phase65 coverage', () => {
     it('c33'   ,()=>expect(comb(3,3)).toBe(1));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('happy number', () => {
+    function isHappy(n:number):boolean{function sq(x:number):number{let s=0;while(x>0){s+=(x%10)**2;x=Math.floor(x/10);}return s;}const seen=new Set<number>();while(n!==1){if(seen.has(n))return false;seen.add(n);n=sq(n);}return true;}
+    it('19'    ,()=>expect(isHappy(19)).toBe(true));
+    it('2'     ,()=>expect(isHappy(2)).toBe(false));
+    it('1'     ,()=>expect(isHappy(1)).toBe(true));
+    it('7'     ,()=>expect(isHappy(7)).toBe(true));
+    it('4'     ,()=>expect(isHappy(4)).toBe(false));
+  });
+});

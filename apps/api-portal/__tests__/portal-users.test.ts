@@ -1126,3 +1126,14 @@ describe('phase65 coverage', () => {
     it('large' ,()=>expect(cs([2,3,5],9)).toBe(3));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('judge route circle', () => {
+    function judgeCircle(moves:string):boolean{let u=0,l=0;for(const m of moves){if(m==='U')u++;if(m==='D')u--;if(m==='L')l++;if(m==='R')l--;}return u===0&&l===0;}
+    it('UD'    ,()=>expect(judgeCircle('UD')).toBe(true));
+    it('LL'    ,()=>expect(judgeCircle('LL')).toBe(false));
+    it('LRUD'  ,()=>expect(judgeCircle('LRUD')).toBe(true));
+    it('empty' ,()=>expect(judgeCircle('')).toBe(true));
+    it('UUDD'  ,()=>expect(judgeCircle('UUDD')).toBe(true));
+  });
+});

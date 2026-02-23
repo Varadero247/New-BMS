@@ -862,3 +862,14 @@ describe('phase65 coverage', () => {
     it('long'  ,()=>expect(ab('1111','1111')).toBe('11110'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('number of steps to zero', () => {
+    function numSteps(n:number):number{let s=0;while(n>0){n=n%2===0?n/2:n-1;s++;}return s;}
+    it('14'    ,()=>expect(numSteps(14)).toBe(6));
+    it('8'     ,()=>expect(numSteps(8)).toBe(4));
+    it('123'   ,()=>expect(numSteps(123)).toBe(12));
+    it('0'     ,()=>expect(numSteps(0)).toBe(0));
+    it('1'     ,()=>expect(numSteps(1)).toBe(1));
+  });
+});

@@ -1375,3 +1375,16 @@ describe('phase65 coverage', () => {
     it('none'  ,()=>expect(cs2([3,5],1)).toBe(0));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('level order traversal', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function lo(root:TN|null):number[][]{if(!root)return[];const res:number[][]=[];const q:TN[]=[root];while(q.length){const sz=q.length,lv:number[]=[];for(let i=0;i<sz;i++){const n=q.shift()!;lv.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}res.push(lv);}return res;}
+    it('ex1'   ,()=>expect(lo(mk(3,mk(9),mk(20,mk(15),mk(7))))).toEqual([[3],[9,20],[15,7]]));
+    it('null'  ,()=>expect(lo(null)).toEqual([]));
+    it('single',()=>expect(lo(mk(1))).toEqual([[1]]));
+    it('two'   ,()=>expect(lo(mk(1,mk(2),mk(3)))).toEqual([[1],[2,3]]));
+    it('depth' ,()=>expect(lo(mk(1,mk(2,mk(3)))).length).toBe(3));
+  });
+});

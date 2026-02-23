@@ -1397,3 +1397,16 @@ describe('phase65 coverage', () => {
     it('sorted',()=>expect(ln([1,2,3])).toBe('321'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('symmetric tree', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function isSymm(root:TN|null):boolean{function chk(l:TN|null,r:TN|null):boolean{if(!l&&!r)return true;if(!l||!r)return false;return l.val===r.val&&chk(l.left,r.right)&&chk(l.right,r.left);}return chk(root?.left??null,root?.right??null);}
+    it('sym'   ,()=>expect(isSymm(mk(1,mk(2,mk(3),mk(4)),mk(2,mk(4),mk(3))))).toBe(true));
+    it('asym'  ,()=>expect(isSymm(mk(1,mk(2,null,mk(3)),mk(2,null,mk(3))))).toBe(false));
+    it('single',()=>expect(isSymm(mk(1))).toBe(true));
+    it('two'   ,()=>expect(isSymm(mk(1,mk(2),mk(2)))).toBe(true));
+    it('twodif',()=>expect(isSymm(mk(1,mk(2),mk(3)))).toBe(false));
+  });
+});

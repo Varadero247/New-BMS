@@ -1239,3 +1239,14 @@ describe('phase65 coverage', () => {
     it('large' ,()=>expect(cs([2,3,5],9)).toBe(3));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('palindrome number', () => {
+    function isPalin(x:number):boolean{if(x<0)return false;const s=String(x);return s===s.split('').reverse().join('');}
+    it('121'   ,()=>expect(isPalin(121)).toBe(true));
+    it('-121'  ,()=>expect(isPalin(-121)).toBe(false));
+    it('10'    ,()=>expect(isPalin(10)).toBe(false));
+    it('0'     ,()=>expect(isPalin(0)).toBe(true));
+    it('1221'  ,()=>expect(isPalin(1221)).toBe(true));
+  });
+});

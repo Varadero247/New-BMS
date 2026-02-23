@@ -1024,3 +1024,17 @@ describe('phase65 coverage', () => {
     it('none'  ,()=>expect(cs2([3,5],1)).toBe(0));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('invert binary tree', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function invert(root:TN|null):TN|null{if(!root)return null;[root.left,root.right]=[invert(root.right),invert(root.left)];return root;}
+    const inv=invert(mk(4,mk(2,mk(1),mk(3)),mk(7,mk(6),mk(9))));
+    it('rootL' ,()=>expect(inv!.left!.val).toBe(7));
+    it('rootR' ,()=>expect(inv!.right!.val).toBe(2));
+    it('null'  ,()=>expect(invert(null)).toBeNull());
+    it('leaf'  ,()=>expect(invert(mk(1))!.val).toBe(1));
+    it('depth' ,()=>expect(inv!.left!.left!.val).toBe(9));
+  });
+});

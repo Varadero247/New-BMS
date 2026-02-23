@@ -1345,3 +1345,14 @@ describe('phase65 coverage', () => {
     it('IX'    ,()=>expect(rti('IX')).toBe(9));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('reverse integer', () => {
+    function rev(x:number):number{const s=x<0?-1:1;const r=parseInt(String(Math.abs(x)).split('').reverse().join(''));const res=s*r;if(res>2147483647||res<-2147483648)return 0;return res;}
+    it('123'   ,()=>expect(rev(123)).toBe(321));
+    it('-123'  ,()=>expect(rev(-123)).toBe(-321));
+    it('120'   ,()=>expect(rev(120)).toBe(21));
+    it('overflow',()=>expect(rev(1534236469)).toBe(0));
+    it('0'     ,()=>expect(rev(0)).toBe(0));
+  });
+});

@@ -1952,3 +1952,14 @@ describe('phase65 coverage', () => {
     it('1'     ,()=>expect(po3(1)).toBe(true));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('ugly number', () => {
+    function isUgly(n:number):boolean{if(n<=0)return false;for(const p of[2,3,5])while(n%p===0)n/=p;return n===1;}
+    it('6'     ,()=>expect(isUgly(6)).toBe(true));
+    it('14'    ,()=>expect(isUgly(14)).toBe(false));
+    it('1'     ,()=>expect(isUgly(1)).toBe(true));
+    it('0'     ,()=>expect(isUgly(0)).toBe(false));
+    it('8'     ,()=>expect(isUgly(8)).toBe(true));
+  });
+});

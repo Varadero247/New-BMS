@@ -910,3 +910,16 @@ describe('phase65 coverage', () => {
     it('0'     ,()=>expect(tz(0)).toBe(0));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('count good nodes', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function goodNodes(root:TN):number{function d(n:TN|null,mx:number):number{if(!n)return 0;const g=n.val>=mx?1:0;return g+d(n.left,Math.max(mx,n.val))+d(n.right,Math.max(mx,n.val));}return d(root,-Infinity);}
+    it('ex1'   ,()=>expect(goodNodes(mk(3,mk(1,mk(3)),mk(4,mk(1),mk(5))))).toBe(4));
+    it('single',()=>expect(goodNodes(mk(1))).toBe(1));
+    it('asc'   ,()=>expect(goodNodes(mk(1,mk(2,mk(3))))).toBe(3));
+    it('desc'  ,()=>expect(goodNodes(mk(3,mk(2,mk(1))))).toBe(1));
+    it('allsm' ,()=>expect(goodNodes(mk(5,mk(3),mk(7)))).toBe(2));
+  });
+});

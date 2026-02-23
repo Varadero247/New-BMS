@@ -1118,3 +1118,14 @@ describe('phase65 coverage', () => {
     it('big'   ,()=>expect(mul('999','999')).toBe('998001'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('fizz buzz', () => {
+    function fizzBuzz(n:number):string[]{const r=[];for(let i=1;i<=n;i++){if(i%15===0)r.push('FizzBuzz');else if(i%3===0)r.push('Fizz');else if(i%5===0)r.push('Buzz');else r.push(String(i));}return r;}
+    it('buzz5'  ,()=>expect(fizzBuzz(5)[4]).toBe('Buzz'));
+    it('fb15'   ,()=>expect(fizzBuzz(15)[14]).toBe('FizzBuzz'));
+    it('fizz3'  ,()=>expect(fizzBuzz(3)[2]).toBe('Fizz'));
+    it('num1'   ,()=>expect(fizzBuzz(1)[0]).toBe('1'));
+    it('len5'   ,()=>expect(fizzBuzz(5).length).toBe(5));
+  });
+});

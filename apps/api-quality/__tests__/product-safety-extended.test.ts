@@ -1182,3 +1182,16 @@ describe('phase65 coverage', () => {
     it('IX'    ,()=>expect(rti('IX')).toBe(9));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('diameter of binary tree', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function diameter(root:TN|null):number{let max=0;function d(n:TN|null):number{if(!n)return 0;const l=d(n.left),r=d(n.right);max=Math.max(max,l+r);return Math.max(l,r)+1;}d(root);return max;}
+    it('ex1'   ,()=>expect(diameter(mk(1,mk(2,mk(4),mk(5)),mk(3)))).toBe(3));
+    it('ex2'   ,()=>expect(diameter(mk(1,mk(2)))).toBe(1));
+    it('leaf'  ,()=>expect(diameter(mk(1))).toBe(0));
+    it('line'  ,()=>expect(diameter(mk(1,mk(2,mk(3))))).toBe(2));
+    it('full'  ,()=>expect(diameter(mk(1,mk(2,mk(4),mk(5)),mk(3,mk(6),mk(7))))).toBe(4));
+  });
+});

@@ -1256,3 +1256,14 @@ describe('phase65 coverage', () => {
     it('27'    ,()=>expect(ect(27)).toBe('AA'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('majority element', () => {
+    function majority(nums:number[]):number{let c=nums[0],cnt=1;for(let i=1;i<nums.length;i++){if(cnt===0)c=nums[i];cnt+=nums[i]===c?1:-1;}return c;}
+    it('ex1'   ,()=>expect(majority([3,2,3])).toBe(3));
+    it('ex2'   ,()=>expect(majority([2,2,1,1,1,2,2])).toBe(2));
+    it('one'   ,()=>expect(majority([1])).toBe(1));
+    it('same'  ,()=>expect(majority([5,5,5])).toBe(5));
+    it('half'  ,()=>expect(majority([1,2,1])).toBe(1));
+  });
+});

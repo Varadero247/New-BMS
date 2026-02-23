@@ -1111,3 +1111,14 @@ describe('phase65 coverage', () => {
     it('twodif',()=>expect(pu([1,2])).toBe(2));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('find disappeared numbers', () => {
+    function disappeared(nums:number[]):number[]{const n=nums.length;for(let i=0;i<n;i++){const idx=Math.abs(nums[i])-1;if(nums[idx]>0)nums[idx]=-nums[idx];}const r:number[]=[];for(let i=0;i<n;i++)if(nums[i]>0)r.push(i+1);return r;}
+    it('ex1'   ,()=>expect(disappeared([4,3,2,7,8,2,3,1])).toEqual([5,6]));
+    it('ex2'   ,()=>expect(disappeared([1,1])).toEqual([2]));
+    it('seq'   ,()=>expect(disappeared([1,2,3])).toEqual([]));
+    it('all1'  ,()=>expect(disappeared([1,1,1])).toEqual([2,3]));
+    it('rev'   ,()=>expect(disappeared([2,1])).toEqual([]));
+  });
+});

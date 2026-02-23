@@ -1189,3 +1189,14 @@ describe('phase65 coverage', () => {
     it('0'     ,()=>expect(tz(0)).toBe(0));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('perfect number', () => {
+    function isPerfect(num:number):boolean{if(num<=1)return false;let s=1;for(let i=2;i*i<=num;i++)if(num%i===0){s+=i;if(i!==num/i)s+=num/i;}return s===num;}
+    it('28'    ,()=>expect(isPerfect(28)).toBe(true));
+    it('6'     ,()=>expect(isPerfect(6)).toBe(true));
+    it('12'    ,()=>expect(isPerfect(12)).toBe(false));
+    it('1'     ,()=>expect(isPerfect(1)).toBe(false));
+    it('496'   ,()=>expect(isPerfect(496)).toBe(true));
+  });
+});

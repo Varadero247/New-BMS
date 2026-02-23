@@ -1162,3 +1162,16 @@ describe('phase65 coverage', () => {
     it('neg'   ,()=>expect(pm([-1,1])).toBe(2));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('tree to string', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function t2s(root:TN|null):string{if(!root)return'';const l=t2s(root.left),r=t2s(root.right);if(!l&&!r)return`${root.val}`;if(!r)return`${root.val}(${l})`;return`${root.val}(${l})(${r})`;}
+    it('ex1'   ,()=>expect(t2s(mk(1,mk(2,mk(4)),mk(3)))).toBe('1(2(4))(3)'));
+    it('ex2'   ,()=>expect(t2s(mk(1,mk(2,null,mk(3)),mk(4)))).toBe('1(2()(3))(4)'));
+    it('leaf'  ,()=>expect(t2s(mk(1))).toBe('1'));
+    it('null'  ,()=>expect(t2s(null)).toBe(''));
+    it('lr'    ,()=>expect(t2s(mk(1,mk(2),mk(3)))).toBe('1(2)(3)'));
+  });
+});

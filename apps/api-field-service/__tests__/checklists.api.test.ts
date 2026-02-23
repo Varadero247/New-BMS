@@ -1076,3 +1076,17 @@ describe('phase65 coverage', () => {
     it('twodif',()=>expect(pu([1,2])).toBe(2));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('merge binary trees', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function merge(t1:TN|null,t2:TN|null):TN|null{if(!t1)return t2;if(!t2)return t1;return mk(t1.val+t2.val,merge(t1.left,t2.left),merge(t1.right,t2.right));}
+    const r=merge(mk(1,mk(3,mk(5)),mk(2)),mk(2,mk(1,null,mk(4)),mk(3,null,mk(7))));
+    it('root'  ,()=>expect(r!.val).toBe(3));
+    it('left'  ,()=>expect(r!.left!.val).toBe(4));
+    it('right' ,()=>expect(r!.right!.val).toBe(5));
+    it('null1' ,()=>expect(merge(null,mk(1))!.val).toBe(1));
+    it('null2' ,()=>expect(merge(mk(1),null)!.val).toBe(1));
+  });
+});

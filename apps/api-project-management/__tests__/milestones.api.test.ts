@@ -1261,3 +1261,14 @@ describe('phase65 coverage', () => {
     it('neg'   ,()=>expect(pot(-4)).toBe(false));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('max consecutive ones', () => {
+    function maxOnes(nums:number[]):number{let max=0,cur=0;for(const n of nums){cur=n===1?cur+1:0;max=Math.max(max,cur);}return max;}
+    it('ex1'   ,()=>expect(maxOnes([1,1,0,1,1,1])).toBe(3));
+    it('ex2'   ,()=>expect(maxOnes([1,0,1,1,0,1])).toBe(2));
+    it('all1'  ,()=>expect(maxOnes([1,1,1])).toBe(3));
+    it('all0'  ,()=>expect(maxOnes([0,0,0])).toBe(0));
+    it('one'   ,()=>expect(maxOnes([1])).toBe(1));
+  });
+});

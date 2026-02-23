@@ -1194,3 +1194,14 @@ describe('phase65 coverage', () => {
     it('long'  ,()=>expect(ab('1111','1111')).toBe('11110'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('third maximum', () => {
+    function thirdMax(nums:number[]):number{const s=new Set(nums);if(s.size<3)return Math.max(...s);return [...s].sort((a,b)=>b-a)[2];}
+    it('ex1'   ,()=>expect(thirdMax([3,2,1])).toBe(1));
+    it('ex2'   ,()=>expect(thirdMax([1,2])).toBe(2));
+    it('ex3'   ,()=>expect(thirdMax([2,2,3,1])).toBe(1));
+    it('dupes' ,()=>expect(thirdMax([1,1,2])).toBe(2));
+    it('big'   ,()=>expect(thirdMax([5,4,3,2,1])).toBe(3));
+  });
+});

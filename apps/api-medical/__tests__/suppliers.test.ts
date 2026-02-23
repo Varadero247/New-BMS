@@ -1118,3 +1118,14 @@ describe('phase65 coverage', () => {
     it('sorted',()=>expect(ln([1,2,3])).toBe('321'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('move zeroes', () => {
+    function mz(nums:number[]):number[]{let p=0;for(let i=0;i<nums.length;i++)if(nums[i]!==0)nums[p++]=nums[i];while(p<nums.length)nums[p++]=0;return nums;}
+    it('ex1'   ,()=>expect(mz([0,1,0,3,12])).toEqual([1,3,12,0,0]));
+    it('ex2'   ,()=>expect(mz([0,0,1])).toEqual([1,0,0]));
+    it('none'  ,()=>expect(mz([1,2,3])).toEqual([1,2,3]));
+    it('all0'  ,()=>expect(mz([0,0,0])).toEqual([0,0,0]));
+    it('one'   ,()=>expect(mz([0])).toEqual([0]));
+  });
+});

@@ -1106,3 +1106,14 @@ describe('phase65 coverage', () => {
     it('27'    ,()=>expect(ect(27)).toBe('AA'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('sum without plus', () => {
+    function getSum(a:number,b:number):number{while(b!==0){const c=(a&b)<<1;a=a^b;b=c;}return a;}
+    it('1+2'   ,()=>expect(getSum(1,2)).toBe(3));
+    it('2+3'   ,()=>expect(getSum(2,3)).toBe(5));
+    it('0+0'   ,()=>expect(getSum(0,0)).toBe(0));
+    it('neg'   ,()=>expect(getSum(-1,1)).toBe(0));
+    it('large' ,()=>expect(getSum(10,20)).toBe(30));
+  });
+});

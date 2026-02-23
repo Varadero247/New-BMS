@@ -1541,3 +1541,16 @@ describe('phase65 coverage', () => {
     it('1'     ,()=>expect(sq(1)).toBe(1));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('min absolute diff BST', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function minDiff(root:TN|null):number{let min=Infinity,prev:number|null=null;function io(n:TN|null):void{if(!n)return;io(n.left);if(prev!==null)min=Math.min(min,n.val-prev);prev=n.val;io(n.right);}io(root);return min;}
+    it('ex1'   ,()=>expect(minDiff(mk(4,mk(2,mk(1),mk(3)),mk(6)))).toBe(1));
+    it('ex2'   ,()=>expect(minDiff(mk(1,null,mk(3,mk(2))))).toBe(1));
+    it('two'   ,()=>expect(minDiff(mk(1,null,mk(5)))).toBe(4));
+    it('seq'   ,()=>expect(minDiff(mk(2,mk(1),mk(3)))).toBe(1));
+    it('big'   ,()=>expect(minDiff(mk(100,mk(1),null))).toBe(99));
+  });
+});

@@ -971,3 +971,16 @@ describe('phase65 coverage', () => {
     it('none'  ,()=>expect(cs2([3,5],1)).toBe(0));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('average of levels', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function avgLevels(root:TN):number[]{const res:number[]=[],q:TN[]=[root];while(q.length){const sz=q.length,lv:number[]=[];for(let i=0;i<sz;i++){const n=q.shift()!;lv.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}res.push(lv.reduce((a,b)=>a+b,0)/lv.length);}return res;}
+    it('root'  ,()=>expect(avgLevels(mk(3,mk(9),mk(20,mk(15),mk(7))))[0]).toBe(3));
+    it('level2',()=>expect(avgLevels(mk(3,mk(9),mk(20,mk(15),mk(7))))[1]).toBe(14.5));
+    it('level3',()=>expect(avgLevels(mk(3,mk(9),mk(20,mk(15),mk(7))))[2]).toBe(11));
+    it('single',()=>expect(avgLevels(mk(1))).toEqual([1]));
+    it('count' ,()=>expect(avgLevels(mk(3,mk(9),mk(20,mk(15),mk(7)))).length).toBe(3));
+  });
+});

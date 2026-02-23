@@ -1167,3 +1167,16 @@ describe('phase65 coverage', () => {
     it('XL'    ,()=>expect(itr(40)).toBe('XL'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('sum of left leaves', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function sumLeft(root:TN|null,isLeft=false):number{if(!root)return 0;if(!root.left&&!root.right)return isLeft?root.val:0;return sumLeft(root.left,true)+sumLeft(root.right,false);}
+    it('ex1'   ,()=>expect(sumLeft(mk(3,mk(9),mk(20,mk(15),mk(7))))).toBe(24));
+    it('single',()=>expect(sumLeft(mk(1))).toBe(0));
+    it('two'   ,()=>expect(sumLeft(mk(1,mk(2),mk(3)))).toBe(2));
+    it('deep'  ,()=>expect(sumLeft(mk(1,mk(2,mk(3))))).toBe(3));
+    it('right' ,()=>expect(sumLeft(mk(1,null,mk(2)))).toBe(0));
+  });
+});

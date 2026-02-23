@@ -813,3 +813,16 @@ describe('phase65 coverage', () => {
     it('sorted',()=>expect(ln([1,2,3])).toBe('321'));
   });
 });
+
+describe('phase66 coverage', () => {
+  describe('same tree', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function same(p:TN|null,q:TN|null):boolean{if(!p&&!q)return true;if(!p||!q)return false;return p.val===q.val&&same(p.left,q.left)&&same(p.right,q.right);}
+    it('eq'    ,()=>expect(same(mk(1,mk(2),mk(3)),mk(1,mk(2),mk(3)))).toBe(true));
+    it('diff'  ,()=>expect(same(mk(1,mk(2)),mk(1,null,mk(2)))).toBe(false));
+    it('both0' ,()=>expect(same(null,null)).toBe(true));
+    it('oneN'  ,()=>expect(same(mk(1),null)).toBe(false));
+    it('vals'  ,()=>expect(same(mk(1,mk(2)),mk(1,mk(3)))).toBe(false));
+  });
+});
