@@ -184,6 +184,12 @@ spec:
   policyTypes:
     - Ingress
   ingress:
+    # Allow in-namespace Prometheus (monitoring deployed in ims namespace)
+    - from:
+        - podSelector:
+            matchLabels:
+              app: prometheus
+    # Also allow Prometheus Operator in a separate monitoring namespace
     - from:
         - namespaceSelector:
             matchLabels:
