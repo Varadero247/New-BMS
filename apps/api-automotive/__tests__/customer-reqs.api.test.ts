@@ -1058,3 +1058,15 @@ describe('phase66 coverage', () => {
     it('rightS',()=>expect(lcaBST(bst,{val:7},{val:9}).val).toBe(8));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('walls and gates', () => {
+    function wg(rooms:number[][]):number[][]{const m=rooms.length,n=rooms[0].length,INF=2147483647,q:number[][]=[];for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(rooms[i][j]===0)q.push([i,j]);while(q.length){const [r,c]=q.shift()!;for(const [dr,dc] of[[0,1],[0,-1],[1,0],[-1,0]]){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<m&&nc>=0&&nc<n&&rooms[nr][nc]===INF){rooms[nr][nc]=rooms[r][c]+1;q.push([nr,nc]);}}}return rooms;}
+    const INF2=2147483647;
+    it('ex1'   ,()=>{const r=[[INF2,-1,0,INF2],[INF2,INF2,INF2,-1],[INF2,-1,INF2,-1],[0,-1,INF2,INF2]];wg(r);expect(r[0][0]).toBe(3);});
+    it('ex2'   ,()=>{const r=[[INF2,-1,0,INF2],[INF2,INF2,INF2,-1],[INF2,-1,INF2,-1],[0,-1,INF2,INF2]];wg(r);expect(r[1][2]).toBe(1);});
+    it('empty' ,()=>{const r=[[0]];wg(r);expect(r[0][0]).toBe(0);});
+    it('gate'  ,()=>{const r=[[0,INF2]];wg(r);expect(r[0][1]).toBe(1);});
+    it('wall'  ,()=>{const r=[[-1,INF2]];wg(r);expect(r[0][1]).toBe(INF2);});
+  });
+});

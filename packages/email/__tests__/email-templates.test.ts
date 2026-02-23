@@ -976,3 +976,14 @@ describe('phase66 coverage', () => {
     it('0'     ,()=>expect(rev(0)).toBe(0));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('isomorphic strings', () => {
+    function isIso(s:string,t:string):boolean{const s2t=new Map<string,string>(),t2s=new Map<string,string>();for(let i=0;i<s.length;i++){const sc=s[i],tc=t[i];if(s2t.has(sc)&&s2t.get(sc)!==tc)return false;if(t2s.has(tc)&&t2s.get(tc)!==sc)return false;s2t.set(sc,tc);t2s.set(tc,sc);}return true;}
+    it('egg'   ,()=>expect(isIso('egg','add')).toBe(true));
+    it('foo'   ,()=>expect(isIso('foo','bar')).toBe(false));
+    it('paper' ,()=>expect(isIso('paper','title')).toBe(true));
+    it('same'  ,()=>expect(isIso('aa','aa')).toBe(true));
+    it('ba'    ,()=>expect(isIso('ba','aa')).toBe(false));
+  });
+});

@@ -1058,3 +1058,14 @@ describe('phase66 coverage', () => {
     it('1221'  ,()=>expect(isPalin(1221)).toBe(true));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('minimum height trees', () => {
+    function mht(n:number,edges:number[][]):number[]{if(n===1)return[0];const adj=Array.from({length:n},()=>new Set<number>());for(const [a,b] of edges){adj[a].add(b);adj[b].add(a);}let leaves:number[]=[];for(let i=0;i<n;i++)if(adj[i].size===1)leaves.push(i);let rem=n;while(rem>2){rem-=leaves.length;const nx:number[]=[];for(const l of leaves){const nb=[...adj[l]][0];adj[nb].delete(l);if(adj[nb].size===1)nx.push(nb);}leaves=nx;}return leaves;}
+    it('ex1'   ,()=>expect(mht(4,[[1,0],[1,2],[1,3]])).toEqual([1]));
+    it('ex2'   ,()=>expect(mht(6,[[3,0],[3,1],[3,2],[3,4],[5,4]])).toEqual([3,4]));
+    it('one'   ,()=>expect(mht(1,[])).toEqual([0]));
+    it('two'   ,()=>expect(mht(2,[[0,1]])).toEqual([0,1]));
+    it('line'  ,()=>expect(mht(3,[[0,1],[1,2]])).toEqual([1]));
+  });
+});

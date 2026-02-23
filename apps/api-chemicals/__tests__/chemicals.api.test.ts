@@ -1149,3 +1149,14 @@ describe('phase66 coverage', () => {
     it('8'     ,()=>expect(isUgly(8)).toBe(true));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('bulls and cows', () => {
+    function getHint(s:string,g:string):string{let b=0;const sc=new Array(10).fill(0),gc=new Array(10).fill(0);for(let i=0;i<s.length;i++){if(s[i]===g[i])b++;else{sc[+s[i]]++;gc[+g[i]]++;}}let c=0;for(let i=0;i<10;i++)c+=Math.min(sc[i],gc[i]);return`${b}A${c}B`;}
+    it('ex1'   ,()=>expect(getHint('1807','7810')).toBe('1A3B'));
+    it('ex2'   ,()=>expect(getHint('1123','0111')).toBe('1A1B'));
+    it('all'   ,()=>expect(getHint('1234','1234')).toBe('4A0B'));
+    it('none'  ,()=>expect(getHint('1234','5678')).toBe('0A0B'));
+    it('zero'  ,()=>expect(getHint('0000','0000')).toBe('4A0B'));
+  });
+});

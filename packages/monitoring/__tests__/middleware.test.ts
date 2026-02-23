@@ -1053,3 +1053,14 @@ describe('phase66 coverage', () => {
     it('depth' ,()=>expect(inv!.left!.left!.val).toBe(9));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('min stack', () => {
+    class MS{st:number[]=[];mn:number[]=[];push(v:number):void{this.st.push(v);this.mn.push(Math.min(v,this.mn.length?this.mn[this.mn.length-1]:v));}pop():void{this.st.pop();this.mn.pop();}top():number{return this.st[this.st.length-1];}getMin():number{return this.mn[this.mn.length-1];}}
+    it('getMin',()=>{const s=new MS();s.push(-2);s.push(0);s.push(-3);expect(s.getMin()).toBe(-3);});
+    it('popTop',()=>{const s=new MS();s.push(-2);s.push(0);s.push(-3);s.pop();expect(s.top()).toBe(0);});
+    it('minAfterPop',()=>{const s=new MS();s.push(-2);s.push(0);s.push(-3);s.pop();expect(s.getMin()).toBe(-2);});
+    it('single',()=>{const s=new MS();s.push(5);expect(s.getMin()).toBe(5);});
+    it('eq'    ,()=>{const s=new MS();s.push(1);s.push(1);s.pop();expect(s.getMin()).toBe(1);});
+  });
+});

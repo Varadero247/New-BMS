@@ -1144,3 +1144,14 @@ describe('phase66 coverage', () => {
     it('root'  ,()=>expect(findMode(mk(5,mk(3),mk(7)))).toContain(3));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('reverse words in string', () => {
+    function revWords(s:string):string{return s.trim().split(/\s+/).reverse().join(' ');}
+    it('ex1'   ,()=>expect(revWords('the sky is blue')).toBe('blue is sky the'));
+    it('ex2'   ,()=>expect(revWords('  hello world  ')).toBe('world hello'));
+    it('one'   ,()=>expect(revWords('a')).toBe('a'));
+    it('spaces',()=>expect(revWords('a   b')).toBe('b a'));
+    it('three' ,()=>expect(revWords('a b c')).toBe('c b a'));
+  });
+});

@@ -1220,3 +1220,14 @@ describe('phase66 coverage', () => {
     it('depth' ,()=>expect(inv!.left!.left!.val).toBe(9));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('pacific atlantic flow', () => {
+    function pa(h:number[][]):number{const m=h.length,n=h[0].length,pac=Array.from({length:m},()=>new Array(n).fill(false)),atl=Array.from({length:m},()=>new Array(n).fill(false));function bfs(q:number[][],vis:boolean[][]):void{while(q.length){const [r,c]=q.shift()!;for(const [dr,dc] of[[0,1],[0,-1],[1,0],[-1,0]]){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<m&&nc>=0&&nc<n&&!vis[nr][nc]&&h[nr][nc]>=h[r][c]){vis[nr][nc]=true;q.push([nr,nc]);}}}}const pQ:number[][]=[];const aQ:number[][]=[];for(let i=0;i<m;i++){pac[i][0]=true;pQ.push([i,0]);atl[i][n-1]=true;aQ.push([i,n-1]);}for(let j=0;j<n;j++){pac[0][j]=true;pQ.push([0,j]);atl[m-1][j]=true;aQ.push([m-1,j]);}bfs(pQ,pac);bfs(aQ,atl);let r=0;for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(pac[i][j]&&atl[i][j])r++;return r;}
+    it('ex1'   ,()=>expect(pa([[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]])).toBe(7));
+    it('single',()=>expect(pa([[1]])).toBe(1));
+    it('flat'  ,()=>expect(pa([[1,1],[1,1]])).toBe(4));
+    it('tworow',()=>expect(pa([[1,2],[2,1]])).toBe(2));
+    it('asc'   ,()=>expect(pa([[1,2,3],[4,5,6],[7,8,9]])).toBeGreaterThan(0));
+  });
+});

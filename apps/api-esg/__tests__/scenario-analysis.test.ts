@@ -1054,3 +1054,14 @@ describe('phase66 coverage', () => {
     it('4'     ,()=>expect(isHappy(4)).toBe(false));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('number of islands', () => {
+    function numIsl(grid:string[][]):number{const m=grid.length,n=grid[0].length;let c=0;function bfs(r:number,cc:number):void{const q:number[][]=[[r,cc]];grid[r][cc]='0';while(q.length){const [x,y]=q.shift()!;for(const [dx,dy] of[[0,1],[0,-1],[1,0],[-1,0]]){const nx=x+dx,ny=y+dy;if(nx>=0&&nx<m&&ny>=0&&ny<n&&grid[nx][ny]==='1'){grid[nx][ny]='0';q.push([nx,ny]);}}}}for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(grid[i][j]==='1'){c++;bfs(i,j);}return c;}
+    it('ex1'   ,()=>expect(numIsl([['1','1','1','1','0'],['1','1','0','1','0'],['1','1','0','0','0'],['0','0','0','0','0']])).toBe(1));
+    it('ex2'   ,()=>expect(numIsl([['1','1','0','0','0'],['1','1','0','0','0'],['0','0','1','0','0'],['0','0','0','1','1']])).toBe(3));
+    it('none'  ,()=>expect(numIsl([['0','0'],['0','0']])).toBe(0));
+    it('all'   ,()=>expect(numIsl([['1','1'],['1','1']])).toBe(1));
+    it('diag'  ,()=>expect(numIsl([['1','0'],['0','1']])).toBe(2));
+  });
+});

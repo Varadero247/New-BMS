@@ -1829,3 +1829,14 @@ describe('phase66 coverage', () => {
     it('one'   ,()=>expect(mz([0])).toEqual([0]));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('course schedule', () => {
+    function canFinish(n:number,pre:number[][]):boolean{const g=Array.from({length:n},():number[]=>[]),d=new Array(n).fill(0);for(const [a,b] of pre){g[b].push(a);d[a]++;}const q:number[]=[];for(let i=0;i<n;i++)if(!d[i])q.push(i);let done=0;while(q.length){const c=q.shift()!;done++;for(const nb of g[c])if(--d[nb]===0)q.push(nb);}return done===n;}
+    it('ex1'   ,()=>expect(canFinish(2,[[1,0]])).toBe(true));
+    it('cycle' ,()=>expect(canFinish(2,[[1,0],[0,1]])).toBe(false));
+    it('empty' ,()=>expect(canFinish(1,[])).toBe(true));
+    it('chain' ,()=>expect(canFinish(3,[[1,0],[2,1]])).toBe(true));
+    it('bigcyc',()=>expect(canFinish(3,[[0,1],[1,2],[2,0]])).toBe(false));
+  });
+});

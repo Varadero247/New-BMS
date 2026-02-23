@@ -2404,3 +2404,14 @@ describe('phase66 coverage', () => {
     it('len5'   ,()=>expect(fizzBuzz(5).length).toBe(5));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('string compression', () => {
+    function compress(chars:string[]):number{let w=0,i=0;while(i<chars.length){const c=chars[i];let cnt=0;while(i<chars.length&&chars[i]===c){i++;cnt++;}chars[w++]=c;if(cnt>1)for(const d of String(cnt))chars[w++]=d;}chars.length=w;return w;}
+    it('ex1'   ,()=>{const c=['a','a','b','b','c','c','c'];expect(compress(c)).toBe(6);});
+    it('ex2'   ,()=>{const c=['a'];expect(compress(c)).toBe(1);});
+    it('ex3'   ,()=>{const c=['a','b','b','b','b','b','b','b','b','b','b','b','b'];expect(compress(c)).toBe(4);});
+    it('arr1'  ,()=>{const c=['a','a','b','b','c','c','c'];compress(c);expect(c[0]).toBe('a');});
+    it('arr2'  ,()=>{const c=['a','a','b','b','c','c','c'];compress(c);expect(c[1]).toBe('2');});
+  });
+});

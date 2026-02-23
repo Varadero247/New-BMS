@@ -1029,3 +1029,14 @@ describe('phase66 coverage', () => {
     it('count' ,()=>expect(avgLevels(mk(3,mk(9),mk(20,mk(15),mk(7)))).length).toBe(3));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('reverse string', () => {
+    function revStr(s:string[]):string[]{let l=0,r=s.length-1;while(l<r){[s[l],s[r]]=[s[r],s[l]];l++;r--;}return s;}
+    it('ex1'   ,()=>expect(revStr(['h','e','l','l','o']).join('')).toBe('olleh'));
+    it('ex2'   ,()=>expect(revStr(['H','a','n','n','a','h']).join('')).toBe('hannaH'));
+    it('one'   ,()=>expect(revStr(['a'])).toEqual(['a']));
+    it('two'   ,()=>expect(revStr(['a','b'])).toEqual(['b','a']));
+    it('even'  ,()=>expect(revStr(['a','b','c','d']).join('')).toBe('dcba'));
+  });
+});

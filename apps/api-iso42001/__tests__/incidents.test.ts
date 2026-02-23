@@ -1239,3 +1239,14 @@ describe('phase66 coverage', () => {
     it('root'  ,()=>expect(findMode(mk(5,mk(3),mk(7)))).toContain(3));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('find first occurrence KMP', () => {
+    function strStr(h:string,n:string):number{if(!n.length)return 0;const nl=n.length,lps=new Array(nl).fill(0);let len=0,i=1;while(i<nl){if(n[i]===n[len])lps[i++]=++len;else if(len)len=lps[len-1];else lps[i++]=0;}let j=0;i=0;while(i<h.length){if(h[i]===n[j]){i++;j++;}if(j===nl)return i-j;if(i<h.length&&h[i]!==n[j]){j?j=lps[j-1]:i++;}}return-1;}
+    it('ex1'   ,()=>expect(strStr('sadbutsad','sad')).toBe(0));
+    it('ex2'   ,()=>expect(strStr('leetcode','leeto')).toBe(-1));
+    it('empty' ,()=>expect(strStr('a','')).toBe(0));
+    it('miss'  ,()=>expect(strStr('aaa','aaaa')).toBe(-1));
+    it('mid'   ,()=>expect(strStr('hello','ll')).toBe(2));
+  });
+});

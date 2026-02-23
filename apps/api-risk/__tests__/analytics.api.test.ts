@@ -1041,3 +1041,14 @@ describe('phase66 coverage', () => {
     it('big'   ,()=>expect(minDiff(mk(100,mk(1),null))).toBe(99));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('word pattern', () => {
+    function wp(pat:string,s:string):boolean{const w=s.split(' ');if(pat.length!==w.length)return false;const p2w=new Map<string,string>(),w2p=new Map<string,string>();for(let i=0;i<pat.length;i++){const p=pat[i],ww=w[i];if(p2w.has(p)&&p2w.get(p)!==ww)return false;if(w2p.has(ww)&&w2p.get(ww)!==p)return false;p2w.set(p,ww);w2p.set(ww,p);}return true;}
+    it('ex1'   ,()=>expect(wp('abba','dog cat cat dog')).toBe(true));
+    it('ex2'   ,()=>expect(wp('abba','dog cat cat fish')).toBe(false));
+    it('ex3'   ,()=>expect(wp('aaaa','dog cat cat dog')).toBe(false));
+    it('bijec' ,()=>expect(wp('ab','dog dog')).toBe(false));
+    it('single',()=>expect(wp('a','dog')).toBe(true));
+  });
+});

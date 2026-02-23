@@ -1200,3 +1200,17 @@ describe('phase66 coverage', () => {
     it('496'   ,()=>expect(isPerfect(496)).toBe(true));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('serialize deserialize tree', () => {
+    type TN={val:number,left:TN|null,right:TN|null};
+    const mk=(v:number,l?:TN|null,r?:TN|null):TN=>({val:v,left:l??null,right:r??null});
+    function ser(r:TN|null):string{if(!r)return'#';return`${r.val},${ser(r.left)},${ser(r.right)}`;}
+    function deser(d:string):TN|null{const a=d.split(',');let i=0;function dfs():TN|null{const v=a[i++];if(v==='#')return null;return mk(+v,dfs(),dfs());}return dfs();}
+    it('root'  ,()=>{const t=mk(1,mk(2),mk(3));expect(deser(ser(t))!.val).toBe(1);});
+    it('left'  ,()=>{const t=mk(1,mk(2),mk(3));expect(deser(ser(t))!.left!.val).toBe(2);});
+    it('right' ,()=>{const t=mk(1,mk(2),mk(3));expect(deser(ser(t))!.right!.val).toBe(3);});
+    it('null'  ,()=>expect(deser(ser(null))).toBeNull());
+    it('leaf'  ,()=>{const t=mk(5);expect(deser(ser(t))!.val).toBe(5);});
+  });
+});

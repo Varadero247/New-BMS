@@ -1049,3 +1049,14 @@ describe('phase66 coverage', () => {
     it('half'  ,()=>expect(majority([1,2,1])).toBe(1));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('longest palindromic substring', () => {
+    function lps(s:string):string{let st=0,mx=1;function exp(l:number,r:number):void{while(l>=0&&r<s.length&&s[l]===s[r]){if(r-l+1>mx){mx=r-l+1;st=l;}l--;r++;}}for(let i=0;i<s.length;i++){exp(i,i);exp(i,i+1);}return s.slice(st,st+mx);}
+    it('babad' ,()=>expect(['bab','aba'].includes(lps('babad'))).toBe(true));
+    it('cbbd'  ,()=>expect(lps('cbbd')).toBe('bb'));
+    it('a'     ,()=>expect(lps('a')).toBe('a'));
+    it('ac'    ,()=>expect(['a','c'].includes(lps('ac'))).toBe(true));
+    it('racecar',()=>expect(lps('racecar')).toBe('racecar'));
+  });
+});

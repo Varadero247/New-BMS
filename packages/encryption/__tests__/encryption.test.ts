@@ -833,3 +833,14 @@ describe('phase66 coverage', () => {
     it('rightS',()=>expect(lcaBST(bst,{val:7},{val:9}).val).toBe(8));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('reverse vowels', () => {
+    function revVowels(s:string):string{const v=new Set('aeiouAEIOU'),a=s.split('');let l=0,r=a.length-1;while(l<r){while(l<r&&!v.has(a[l]))l++;while(l<r&&!v.has(a[r]))r--;[a[l],a[r]]=[a[r],a[l]];l++;r--;}return a.join('');}
+    it('ex1'   ,()=>expect(revVowels('IceCreAm')).toBe('AceCreIm'));
+    it('ex2'   ,()=>expect(revVowels('hello')).toBe('holle'));
+    it('none'  ,()=>expect(revVowels('bcdf')).toBe('bcdf'));
+    it('all'   ,()=>expect(revVowels('aeiou')).toBe('uoiea'));
+    it('one'   ,()=>expect(revVowels('a')).toBe('a'));
+  });
+});

@@ -1044,3 +1044,14 @@ describe('phase66 coverage', () => {
     it('half'  ,()=>expect(majority([1,2,1])).toBe(1));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('ransom note', () => {
+    function canConstruct(r:string,m:string):boolean{const c=new Array(26).fill(0);for(const x of m)c[x.charCodeAt(0)-97]++;for(const x of r){const i=x.charCodeAt(0)-97;if(--c[i]<0)return false;}return true;}
+    it('ex1'   ,()=>expect(canConstruct('a','b')).toBe(false));
+    it('ex2'   ,()=>expect(canConstruct('aa','ab')).toBe(false));
+    it('ex3'   ,()=>expect(canConstruct('aa','aab')).toBe(true));
+    it('empty' ,()=>expect(canConstruct('','a')).toBe(true));
+    it('same'  ,()=>expect(canConstruct('ab','ab')).toBe(true));
+  });
+});

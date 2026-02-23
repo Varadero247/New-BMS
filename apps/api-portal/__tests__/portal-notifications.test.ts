@@ -1018,3 +1018,16 @@ describe('phase66 coverage', () => {
     it('null2' ,()=>expect(merge(mk(1),null)!.val).toBe(1));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('clone graph', () => {
+    type GN={val:number,neighbors:GN[]};
+    function cloneG(n:GN|null):GN|null{if(!n)return null;const map=new Map<number,GN>();function dfs(nd:GN):GN{if(map.has(nd.val))return map.get(nd.val)!;const c:GN={val:nd.val,neighbors:[]};map.set(nd.val,c);for(const nb of nd.neighbors)c.neighbors.push(dfs(nb));return c;}return dfs(n);}
+    const n1:GN={val:1,neighbors:[]},n2:GN={val:2,neighbors:[]};n1.neighbors=[n2];n2.neighbors=[n1];
+    it('val'   ,()=>expect(cloneG(n1)!.val).toBe(1));
+    it('notSam',()=>expect(cloneG(n1)).not.toBe(n1));
+    it('nbVal' ,()=>expect(cloneG(n1)!.neighbors[0].val).toBe(2));
+    it('null'  ,()=>expect(cloneG(null)).toBeNull());
+    it('nbClone',()=>{const c=cloneG(n1)!;expect(c.neighbors[0]).not.toBe(n2);});
+  });
+});

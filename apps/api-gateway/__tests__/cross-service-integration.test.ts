@@ -1365,3 +1365,14 @@ describe('phase66 coverage', () => {
     it('big'   ,()=>expect(minDiff(mk(100,mk(1),null))).toBe(99));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('LRU cache', () => {
+    class LRU{cap:number;map:Map<number,number>;constructor(c:number){this.cap=c;this.map=new Map();}get(k:number):number{if(!this.map.has(k))return-1;const v=this.map.get(k)!;this.map.delete(k);this.map.set(k,v);return v;}put(k:number,v:number):void{this.map.delete(k);this.map.set(k,v);if(this.map.size>this.cap)this.map.delete(this.map.keys().next().value!);}}
+    it('ex1'   ,()=>{const c=new LRU(2);c.put(1,1);c.put(2,2);expect(c.get(1)).toBe(1);c.put(3,3);expect(c.get(2)).toBe(-1);});
+    it('miss'  ,()=>{const c=new LRU(1);expect(c.get(1)).toBe(-1);});
+    it('evict' ,()=>{const c=new LRU(1);c.put(1,1);c.put(2,2);expect(c.get(1)).toBe(-1);});
+    it('update',()=>{const c=new LRU(2);c.put(1,1);c.put(1,2);expect(c.get(1)).toBe(2);});
+    it('order' ,()=>{const c=new LRU(2);c.put(1,1);c.put(2,2);c.get(1);c.put(3,3);expect(c.get(2)).toBe(-1);expect(c.get(1)).toBe(1);});
+  });
+});

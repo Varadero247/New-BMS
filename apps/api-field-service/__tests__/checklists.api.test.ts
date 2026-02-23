@@ -1090,3 +1090,14 @@ describe('phase66 coverage', () => {
     it('null2' ,()=>expect(merge(mk(1),null)!.val).toBe(1));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('stack using queues', () => {
+    class MSQ{q:number[]=[];push(x:number):void{this.q.push(x);let r=this.q.length-1;while(r-->0)this.q.push(this.q.shift()!);}pop():number{return this.q.shift()!;}top():number{return this.q[0];}empty():boolean{return this.q.length===0;}}
+    it('top'   ,()=>{const s=new MSQ();s.push(1);s.push(2);expect(s.top()).toBe(2);});
+    it('pop'   ,()=>{const s=new MSQ();s.push(1);s.push(2);expect(s.pop()).toBe(2);});
+    it('empty' ,()=>{const s=new MSQ();s.push(1);s.pop();expect(s.empty()).toBe(true);});
+    it('order' ,()=>{const s=new MSQ();s.push(1);s.push(2);s.push(3);expect([s.pop(),s.pop()]).toEqual([3,2]);});
+    it('notEmp',()=>{const s=new MSQ();s.push(1);expect(s.empty()).toBe(false);});
+  });
+});

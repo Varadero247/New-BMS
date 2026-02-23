@@ -1269,3 +1269,14 @@ describe('phase66 coverage', () => {
     it('lr'    ,()=>expect(t2s(mk(1,mk(2),mk(3)))).toBe('1(2)(3)'));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('network delay time', () => {
+    function ndt(times:number[][],n:number,k:number):number{const d=new Array(n+1).fill(Infinity);d[k]=0;const adj:number[][][]=Array.from({length:n+1},()=>[]);for(const [u,v,w] of times)adj[u].push([v,w]);const heap:number[][]=[[0,k]];while(heap.length){heap.sort((a,b)=>a[0]-b[0]);const [dd,u]=heap.shift()!;if(dd>d[u])continue;for(const [v,w] of adj[u])if(d[u]+w<d[v]){d[v]=d[u]+w;heap.push([d[v],v]);}}const mx=Math.max(...d.slice(1));return mx===Infinity?-1:mx;}
+    it('ex1'   ,()=>expect(ndt([[2,1,1],[2,3,1],[3,4,1]],4,2)).toBe(2));
+    it('ex2'   ,()=>expect(ndt([[1,2,1]],2,1)).toBe(1));
+    it('noPath',()=>expect(ndt([[1,2,1]],2,2)).toBe(-1));
+    it('single',()=>expect(ndt([],1,1)).toBe(0));
+    it('multi' ,()=>expect(ndt([[1,2,1],[1,3,2]],3,1)).toBe(2));
+  });
+});

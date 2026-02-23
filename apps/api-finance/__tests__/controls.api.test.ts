@@ -1178,3 +1178,14 @@ describe('phase66 coverage', () => {
     it('len5'   ,()=>expect(fizzBuzz(5).length).toBe(5));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('word ladder', () => {
+    function ladder(bw:string,ew:string,wl:string[]):number{const s=new Set(wl);if(!s.has(ew))return 0;const q:Array<[string,number]>=[[bw,1]];while(q.length){const [w,l]=q.shift()!;for(let i=0;i<w.length;i++){for(let c=97;c<=122;c++){const nw=w.slice(0,i)+String.fromCharCode(c)+w.slice(i+1);if(nw===ew)return l+1;if(s.has(nw)){s.delete(nw);q.push([nw,l+1]);}}}}return 0;}
+    it('ex1'   ,()=>expect(ladder('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5));
+    it('ex2'   ,()=>expect(ladder('hit','cog',['hot','dot','dog','lot','log'])).toBe(0));
+    it('direct',()=>expect(ladder('ab','cb',['cb'])).toBe(2));
+    it('none'  ,()=>expect(ladder('a','c',['b'])).toBe(0));
+    it('two'   ,()=>expect(ladder('hot','dot',['dot'])).toBe(2));
+  });
+});

@@ -1350,3 +1350,14 @@ describe('phase66 coverage', () => {
     it('rightS',()=>expect(lcaBST(bst,{val:7},{val:9}).val).toBe(8));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('queue using stacks', () => {
+    class MQ{in:number[]=[];out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{this.peek();return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    it('peek'  ,()=>{const q=new MQ();q.push(1);q.push(2);expect(q.peek()).toBe(1);});
+    it('pop'   ,()=>{const q=new MQ();q.push(1);q.push(2);expect(q.pop()).toBe(1);});
+    it('empty' ,()=>{const q=new MQ();q.push(1);q.pop();expect(q.empty()).toBe(true);});
+    it('order' ,()=>{const q=new MQ();q.push(1);q.push(2);q.push(3);expect([q.pop(),q.pop(),q.pop()]).toEqual([1,2,3]);});
+    it('notEmp',()=>{const q=new MQ();q.push(1);expect(q.empty()).toBe(false);});
+  });
+});

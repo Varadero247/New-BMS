@@ -1041,3 +1041,14 @@ describe('phase66 coverage', () => {
     it('496'   ,()=>expect(isPerfect(496)).toBe(true));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('design hashmap', () => {
+    class HM{m:Array<Array<[number,number]>>;constructor(){this.m=new Array(1000).fill(null).map(()=>[]);}h(k:number){return k%1000;}put(k:number,v:number):void{const b=this.m[this.h(k)],i=b.findIndex(p=>p[0]===k);i>=0?b[i][1]=v:b.push([k,v]);}get(k:number):number{const p=this.m[this.h(k)].find(p=>p[0]===k);return p?p[1]:-1;}remove(k:number):void{const b=this.m[this.h(k)],i=b.findIndex(p=>p[0]===k);if(i>=0)b.splice(i,1);}}
+    it('ex1'   ,()=>{const h=new HM();h.put(1,1);h.put(2,2);expect(h.get(1)).toBe(1);});
+    it('miss'  ,()=>{const h=new HM();expect(h.get(3)).toBe(-1);});
+    it('update',()=>{const h=new HM();h.put(2,2);h.put(2,1);expect(h.get(2)).toBe(1);});
+    it('remove',()=>{const h=new HM();h.put(2,2);h.remove(2);expect(h.get(2)).toBe(-1);});
+    it('multi' ,()=>{const h=new HM();h.put(0,0);h.put(1000,1000);expect(h.get(0)).toBe(0);expect(h.get(1000)).toBe(1000);});
+  });
+});

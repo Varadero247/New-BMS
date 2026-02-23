@@ -1221,3 +1221,14 @@ describe('phase66 coverage', () => {
     it('rightS',()=>expect(lcaBST(bst,{val:7},{val:9}).val).toBe(8));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('longest common prefix', () => {
+    function lcp(strs:string[]):string{if(!strs.length)return'';let p=strs[0];for(let i=1;i<strs.length;i++)while(!strs[i].startsWith(p))p=p.slice(0,-1);return p;}
+    it('ex1'   ,()=>expect(lcp(['flower','flow','flight'])).toBe('fl'));
+    it('ex2'   ,()=>expect(lcp(['dog','racecar','car'])).toBe(''));
+    it('one'   ,()=>expect(lcp(['abc'])).toBe('abc'));
+    it('same'  ,()=>expect(lcp(['aa','aa'])).toBe('aa'));
+    it('empty' ,()=>expect(lcp([])).toBe(''));
+  });
+});

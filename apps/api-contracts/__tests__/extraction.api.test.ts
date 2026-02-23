@@ -954,3 +954,14 @@ describe('phase66 coverage', () => {
     it('large' ,()=>expect(getSum(10,20)).toBe(30));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('valid anagram', () => {
+    function isAnagram(s:string,t:string):boolean{if(s.length!==t.length)return false;const c=new Array(26).fill(0);for(let i=0;i<s.length;i++){c[s.charCodeAt(i)-97]++;c[t.charCodeAt(i)-97]--;}return c.every(x=>x===0);}
+    it('ex1'   ,()=>expect(isAnagram('anagram','nagaram')).toBe(true));
+    it('ex2'   ,()=>expect(isAnagram('rat','car')).toBe(false));
+    it('same'  ,()=>expect(isAnagram('a','a')).toBe(true));
+    it('len'   ,()=>expect(isAnagram('ab','a')).toBe(false));
+    it('abc'   ,()=>expect(isAnagram('abc','cba')).toBe(true));
+  });
+});

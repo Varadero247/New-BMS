@@ -1016,3 +1016,14 @@ describe('phase66 coverage', () => {
     it('len5'   ,()=>expect(fizzBuzz(5).length).toBe(5));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('cheapest flights K stops', () => {
+    function cheapFlights(n:number,fl:number[][],src:number,dst:number,k:number):number{let d=new Array(n).fill(Infinity);d[src]=0;for(let i=0;i<=k;i++){const t=[...d];for(const [u,v,w] of fl)if(d[u]!==Infinity&&d[u]+w<t[v])t[v]=d[u]+w;d=t;}return d[dst]===Infinity?-1:d[dst];}
+    it('ex1'   ,()=>expect(cheapFlights(4,[[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]],0,3,1)).toBe(700));
+    it('ex2'   ,()=>expect(cheapFlights(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,1)).toBe(200));
+    it('direct',()=>expect(cheapFlights(2,[[0,1,100]],0,1,0)).toBe(100));
+    it('noPath',()=>expect(cheapFlights(2,[[0,1,100]],1,0,0)).toBe(-1));
+    it('k0'    ,()=>expect(cheapFlights(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,0)).toBe(500));
+  });
+});

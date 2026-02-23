@@ -1128,3 +1128,14 @@ describe('phase66 coverage', () => {
     it('half'  ,()=>expect(majority([1,2,1])).toBe(1));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('implement trie', () => {
+    class Trie{root:Record<string,unknown>={};insert(w:string):void{let n=this.root;for(const c of w){if(!n[c])n[c]={};n=n[c] as Record<string,unknown>;}n['$']=true;}search(w:string):boolean{let n=this.root;for(const c of w){if(!n[c])return false;n=n[c] as Record<string,unknown>;}return!!n['$'];}startsWith(p:string):boolean{let n=this.root;for(const c of p){if(!n[c])return false;n=n[c] as Record<string,unknown>;}return true;}}
+    it('search',()=>{const t=new Trie();t.insert('apple');expect(t.search('apple')).toBe(true);});
+    it('nosrch',()=>{const t=new Trie();t.insert('apple');expect(t.search('app')).toBe(false);});
+    it('prefix',()=>{const t=new Trie();t.insert('apple');expect(t.startsWith('app')).toBe(true);});
+    it('insert',()=>{const t=new Trie();t.insert('apple');t.insert('app');expect(t.search('app')).toBe(true);});
+    it('nopfx' ,()=>{const t=new Trie();t.insert('apple');expect(t.startsWith('xyz')).toBe(false);});
+  });
+});

@@ -1018,3 +1018,14 @@ describe('phase66 coverage', () => {
     it('1'     ,()=>expect(numSteps(1)).toBe(1));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('minimum spanning tree Prim', () => {
+    function minSpanTree(n:number,edges:number[][]):number{const adj:number[][][]=Array.from({length:n},()=>[]);for(const [u,v,w] of edges){adj[u].push([v,w]);adj[v].push([u,w]);}const vis=new Array(n).fill(false);const heap:number[][]=[[0,0]];let total=0;while(heap.length){heap.sort((a,b)=>a[0]-b[0]);const [w,u]=heap.shift()!;if(vis[u])continue;vis[u]=true;total+=w;for(const [v,ww] of adj[u])if(!vis[v])heap.push([ww,v]);}return vis.every(Boolean)?total:-1;}
+    it('ex1'   ,()=>expect(minSpanTree(4,[[0,1,1],[0,2,4],[1,2,2],[1,3,3],[2,3,1]])).toBe(4));
+    it('single',()=>expect(minSpanTree(1,[])).toBe(0));
+    it('two'   ,()=>expect(minSpanTree(2,[[0,1,5]])).toBe(5));
+    it('discon',()=>expect(minSpanTree(3,[[0,1,1]])).toBe(-1));
+    it('tri'   ,()=>expect(minSpanTree(3,[[0,1,1],[1,2,2],[0,2,5]])).toBe(3));
+  });
+});

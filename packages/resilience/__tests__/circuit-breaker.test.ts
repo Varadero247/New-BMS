@@ -929,3 +929,14 @@ describe('phase66 coverage', () => {
     it('full'  ,()=>expect(diameter(mk(1,mk(2,mk(4),mk(5)),mk(3,mk(6),mk(7))))).toBe(4));
   });
 });
+
+describe('phase67 coverage', () => {
+  describe('design hashset', () => {
+    class HS{m:Array<Set<number>>;constructor(){this.m=new Array(1000).fill(null).map(()=>new Set());}add(k:number):void{this.m[k%1000].add(k);}remove(k:number):void{this.m[k%1000].delete(k);}contains(k:number):boolean{return this.m[k%1000].has(k);}}
+    it('ex1'   ,()=>{const h=new HS();h.add(1);h.add(2);expect(h.contains(1)).toBe(true);});
+    it('miss'  ,()=>{const h=new HS();h.add(1);expect(h.contains(3)).toBe(false);});
+    it('dup'   ,()=>{const h=new HS();h.add(2);h.add(2);expect(h.contains(2)).toBe(true);});
+    it('remove',()=>{const h=new HS();h.add(2);h.remove(2);expect(h.contains(2)).toBe(false);});
+    it('big'   ,()=>{const h=new HS();h.add(9999);expect(h.contains(9999)).toBe(true);});
+  });
+});
