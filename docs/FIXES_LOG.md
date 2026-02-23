@@ -1,5 +1,15 @@
 # IMS — Fixes Log
 
+## Phase 58 — Test Depth Expansion to ≥190 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 185 tests to ≥190 each.
+
+**Snippets added:** alien dictionary (topological sort), sliding window maximum, median from data stream, number of islands (BFS), decode ways (DP), longest common subsequence, jump game II (min jumps), regex matching (DP), unique paths II (obstacles), min stack, rotting oranges (BFS), course schedule II (topo), validate BST, kth smallest BST, flatten tree to linked list, N-ary tree max depth, N-ary serialize, word break II, palindrome partitioning, spiral matrix II generate, coin change II (combinations), subsets II (duplicates), letter combinations phone, container with most water, trapping rain water, maximal rectangle histogram, first missing positive, permutation in string, longest consecutive sequence, find peak element.
+
+**Results:** 134,725 tests, 711/711 suites, 0 failures
+
+---
+
 ## Phase 57 — Test Depth Expansion to ≥185 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 180 tests to ≥185 each.
