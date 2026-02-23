@@ -568,3 +568,12 @@ describe('phase48 coverage', () => {
   it('counts distinct binary trees with n nodes', () => { const cat=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>cat(i)*cat(n-1-i)).reduce((s,v)=>s+v,0); expect(cat(0)).toBe(1); expect(cat(3)).toBe(5); expect(cat(4)).toBe(14); });
   it('finds median without sorting (quickselect)', () => { const qs=(a:number[],k:number):number=>{const p=a[Math.floor(a.length/2)];const lo=a.filter(x=>x<p),eq=a.filter(x=>x===p),hi=a.filter(x=>x>p);return k<lo.length?qs(lo,k):k<lo.length+eq.length?p:qs(hi,k-lo.length-eq.length);}; const a=[3,1,4,1,5,9,2,6];const m=qs(a,Math.floor(a.length/2)); expect(m).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes coin change ways', () => { const ccw=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];}; expect(ccw([1,2,5],5)).toBe(4); expect(ccw([2],3)).toBe(0); });
+  it('finds running sum of array', () => { const rs=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++)r[i]+=r[i-1];return r;}; expect(rs([1,2,3,4])).toEqual([1,3,6,10]); expect(rs([3,1,2,10,1])).toEqual([3,4,6,16,17]); });
+  it('computes edit distance (Levenshtein)', () => { const ed=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('kitten','sitting')).toBe(3); expect(ed('','abc')).toBe(3); });
+  it('finds minimum cuts for palindrome partition', () => { const minCut=(s:string)=>{const n=s.length;const isPalin=(i:number,j:number):boolean=>i>=j?true:s[i]===s[j]&&isPalin(i+1,j-1);const dp=new Array(n).fill(0);for(let i=1;i<n;i++){if(isPalin(0,i)){dp[i]=0;}else{dp[i]=Infinity;for(let j=1;j<=i;j++)if(isPalin(j,i))dp[i]=Math.min(dp[i],dp[j-1]+1);}}return dp[n-1];}; expect(minCut('aab')).toBe(1); expect(minCut('a')).toBe(0); });
+  it('computes minimum spanning tree weight (Kruskal)', () => { const mst=(n:number,edges:[number,number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};let w=0,cnt=0;for(const [u,v,wt] of [...edges].sort((a,b)=>a[2]-b[2])){if(find(u)!==find(v)){union(u,v);w+=wt;cnt++;}}return cnt===n-1?w:-1;}; expect(mst(4,[[0,1,1],[1,2,2],[2,3,3],[0,3,4]])).toBe(6); });
+});

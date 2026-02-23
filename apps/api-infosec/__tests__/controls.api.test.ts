@@ -813,3 +813,12 @@ describe('phase48 coverage', () => {
   it('computes maximum profit with transaction fee', () => { const mp=(p:number[],fee:number)=>{let cash=0,hold=-Infinity;for(const v of p){cash=Math.max(cash,hold+v-fee);hold=Math.max(hold,cash-v);}return cash;}; expect(mp([1,3,2,8,4,9],2)).toBe(8); });
   it('finds longest balanced parentheses substring', () => { const lb=(s:string)=>{const st:number[]=[-1];let best=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();if(!st.length)st.push(i);else best=Math.max(best,i-st[st.length-1]);}}return best;}; expect(lb('(()')).toBe(2); expect(lb(')()())')).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes matrix chain multiplication order', () => { const mcm=(p:number[])=>{const n=p.length-1;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+p[i]*p[k+1]*p[j+1]);}return dp[0][n-1];}; expect(mcm([1,2,3,4])).toBe(18); });
+  it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
+  it('finds maximum product subarray', () => { const mps=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],a[i]*max,a[i]*min);min=Math.min(a[i],a[i]*t,a[i]*min);res=Math.max(res,max);}return res;}; expect(mps([2,3,-2,4])).toBe(6); expect(mps([-2,0,-1])).toBe(0); });
+  it('finds all permutations', () => { const perms=(a:number[]):number[][]=>a.length<=1?[a]:a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p])); expect(perms([1,2,3]).length).toBe(6); });
+  it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
+});

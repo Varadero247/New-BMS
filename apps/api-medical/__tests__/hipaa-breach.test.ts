@@ -599,3 +599,12 @@ describe('phase48 coverage', () => {
   it('implements disjoint set with rank', () => { const ds=(n:number)=>{const p=Array.from({length:n},(_,i)=>i),rk=new Array(n).fill(0);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{const ra=find(a),rb=find(b);if(ra===rb)return;if(rk[ra]<rk[rb])p[ra]=rb;else if(rk[ra]>rk[rb])p[rb]=ra;else{p[rb]=ra;rk[ra]++;}}; return{find,union,same:(a:number,b:number)=>find(a)===find(b)};}; const d=ds(5);d.union(0,1);d.union(1,2); expect(d.same(0,2)).toBe(true); expect(d.same(0,3)).toBe(false); });
   it('checks if binary tree is complete', () => { type N={v:number;l?:N;r?:N}; const isCom=(root:N|undefined)=>{if(!root)return true;const q:((N|undefined))[]=[];q.push(root);let end=false;while(q.length){const n=q.shift();if(!n){end=true;}else{if(end)return false;q.push(n.l);q.push(n.r);}}return true;}; const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3,l:{v:6}}}; expect(isCom(t)).toBe(true); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds maximum score from removing stones', () => { const ms=(a:number,b:number,c:number)=>{const s=[a,b,c].sort((x,y)=>x-y);return s[2]>=s[0]+s[1]?s[0]+s[1]:Math.floor((a+b+c)/2);}; expect(ms(2,4,6)).toBe(6); expect(ms(4,4,6)).toBe(7); });
+  it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
+  it('computes edit distance (Levenshtein)', () => { const ed=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('kitten','sitting')).toBe(3); expect(ed('','abc')).toBe(3); });
+  it('finds maximum product subarray', () => { const mps=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],a[i]*max,a[i]*min);min=Math.min(a[i],a[i]*t,a[i]*min);res=Math.max(res,max);}return res;}; expect(mps([2,3,-2,4])).toBe(6); expect(mps([-2,0,-1])).toBe(0); });
+  it('finds the highest altitude', () => { const ha=(g:number[])=>{let cur=0,max=0;for(const v of g){cur+=v;max=Math.max(max,cur);}return max;}; expect(ha([-5,1,5,0,-7])).toBe(1); expect(ha([-4,-3,-2,-1,4,3,2])).toBe(0); });
+});

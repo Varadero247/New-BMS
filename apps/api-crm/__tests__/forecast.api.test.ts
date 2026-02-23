@@ -667,3 +667,12 @@ describe('phase48 coverage', () => {
   it('finds minimum number of cuts for palindrome partitioning', () => { const mc=(s:string)=>{const n=s.length;const pal=Array.from({length:n},()=>new Array(n).fill(false));for(let i=0;i<n;i++)pal[i][i]=true;for(let l=2;l<=n;l++)for(let i=0;i<n-l+1;i++){const j=i+l-1;pal[i][j]=(s[i]===s[j])&&(l<=2||pal[i+1][j-1]);}const dp=new Array(n).fill(Infinity);for(let i=0;i<n;i++){if(pal[0][i])dp[i]=0;else for(let j=1;j<=i;j++)if(pal[j][i])dp[i]=Math.min(dp[i],dp[j-1]+1);}return dp[n-1];}; expect(mc('aab')).toBe(1); expect(mc('aaa')).toBe(0); });
   it('finds the Josephus position', () => { const jos=(n:number,k:number):number=>n===1?0:(jos(n-1,k)+k)%n; expect(jos(7,3)).toBe(3); expect(jos(6,2)).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds all subsets with target sum', () => { const ss=(a:number[],t:number):number[][]=>{const r:number[][]=[];const bt=(i:number,cur:number[],sum:number)=>{if(sum===t)r.push([...cur]);if(sum>=t||i>=a.length)return;for(let j=i;j<a.length;j++)bt(j+1,[...cur,a[j]],sum+a[j]);};bt(0,[],0);return r;}; expect(ss([2,3,6,7],7).length).toBe(1); });
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
+  it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
+  it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
+});

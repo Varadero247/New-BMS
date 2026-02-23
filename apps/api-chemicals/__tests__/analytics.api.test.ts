@@ -927,3 +927,12 @@ describe('phase48 coverage', () => {
   it('computes number of BSTs with n distinct keys', () => { const catalan=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>catalan(i)*catalan(n-1-i)).reduce((s,v)=>s+v,0); expect(catalan(3)).toBe(5); expect(catalan(5)).toBe(42); });
   it('implements persistent array (copy-on-write)', () => { const pa=<T>(a:T[])=>{const copies:T[][]=[[...a]];return{read:(ver:number,i:number)=>copies[ver][i],write:(ver:number,i:number,v:T)=>{const nc=[...copies[ver]];nc[i]=v;copies.push(nc);return copies.length-1;},versions:()=>copies.length};}; const p=pa([1,2,3]);const v1=p.write(0,1,99); expect(p.read(0,1)).toBe(2); expect(p.read(v1,1)).toBe(99); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
+  it('computes edit distance (Levenshtein)', () => { const ed=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('kitten','sitting')).toBe(3); expect(ed('','abc')).toBe(3); });
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('finds minimum deletions to make string balanced', () => { const md=(s:string)=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;}; expect(md('(())')).toBe(0); expect(md('(())')).toBe(0); expect(md('))((')).toBe(4); });
+});

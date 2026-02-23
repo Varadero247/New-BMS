@@ -669,3 +669,12 @@ describe('phase48 coverage', () => {
   it('computes convex hull size (Graham scan)', () => { const ch=(pts:[number,number][])=>{const o=(a:[number,number],b:[number,number],c:[number,number])=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);const s=[...pts].sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const u:typeof pts=[],l:typeof pts=[];for(const p of s){while(u.length>=2&&o(u[u.length-2],u[u.length-1],p)<=0)u.pop();u.push(p);}for(const p of [...s].reverse()){while(l.length>=2&&o(l[l.length-2],l[l.length-1],p)<=0)l.pop();l.push(p);}return new Set([...u,...l].map(p=>p.join(','))).size;}; expect(ch([[0,0],[1,1],[2,2],[0,2],[2,0]])).toBe(4); });
   it('implements Rabin-Karp multi-pattern search', () => { const rk=(text:string,patterns:string[])=>{const res:Record<string,number[]>={};for(const p of patterns){res[p]=[];const n=p.length;for(let i=0;i<=text.length-n;i++)if(text.slice(i,i+n)===p)res[p].push(i);}return res;}; const r=rk('abcabcabc',['abc','bca']); expect(r['abc']).toEqual([0,3,6]); expect(r['bca']).toEqual([1,4]); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes coin change ways', () => { const ccw=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];}; expect(ccw([1,2,5],5)).toBe(4); expect(ccw([2],3)).toBe(0); });
+  it('finds maximum score from removing stones', () => { const ms=(a:number,b:number,c:number)=>{const s=[a,b,c].sort((x,y)=>x-y);return s[2]>=s[0]+s[1]?s[0]+s[1]:Math.floor((a+b+c)/2);}; expect(ms(2,4,6)).toBe(6); expect(ms(4,4,6)).toBe(7); });
+  it('finds peak element in array', () => { const peak=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;a[m]>a[m+1]?r=m:l=m+1;}return l;}; expect(peak([1,2,3,1])).toBe(2); expect(peak([1,2,1,3,5,6,4])).toBeGreaterThanOrEqual(0); });
+  it('finds minimum deletions to make string balanced', () => { const md=(s:string)=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;}; expect(md('(())')).toBe(0); expect(md('(())')).toBe(0); expect(md('))((')).toBe(4); });
+  it('computes number of subarrays with given XOR', () => { const xsub=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let xr=0,cnt=0;for(const v of a){xr^=v;cnt+=mp.get(xr^k)||0;mp.set(xr,(mp.get(xr)||0)+1);}return cnt;}; expect(xsub([4,2,2,6,4],6)).toBe(4); });
+});

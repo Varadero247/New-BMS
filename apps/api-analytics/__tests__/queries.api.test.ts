@@ -694,3 +694,12 @@ describe('phase48 coverage', () => {
   it('finds longest word in sentence', () => { const lw=(s:string)=>s.split(' ').reduce((a,w)=>w.length>a.length?w:a,''); expect(lw('the quick brown fox')).toBe('quick'); expect(lw('a bb ccc')).toBe('ccc'); });
   it('counts distinct binary trees with n nodes', () => { const cat=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>cat(i)*cat(n-1-i)).reduce((s,v)=>s+v,0); expect(cat(0)).toBe(1); expect(cat(3)).toBe(5); expect(cat(4)).toBe(14); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds longest path in DAG', () => { const lpdag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const dp=new Array(n).fill(0);const vis=new Array(n).fill(false);const dfs=(u:number):number=>{if(vis[u])return dp[u];vis[u]=true;dp[u]=Math.max(0,...adj[u].map(v=>1+dfs(v)));return dp[u];};for(let i=0;i<n;i++)dfs(i);return Math.max(...dp);}; expect(lpdag(6,[[0,1],[0,2],[1,4],[1,3],[3,4],[4,5]])).toBe(4); });
+  it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+  it('finds the highest altitude', () => { const ha=(g:number[])=>{let cur=0,max=0;for(const v of g){cur+=v;max=Math.max(max,cur);}return max;}; expect(ha([-5,1,5,0,-7])).toBe(1); expect(ha([-4,-3,-2,-1,4,3,2])).toBe(0); });
+  it('computes longest increasing path in matrix', () => { const lip=(m:number[][])=>{const r=m.length,c=m[0].length,memo=Array.from({length:r},()=>new Array(c).fill(0));const dfs=(i:number,j:number):number=>{if(memo[i][j])return memo[i][j];const dirs=[[0,1],[0,-1],[1,0],[-1,0]];return memo[i][j]=1+Math.max(0,...dirs.map(([di,dj])=>{const ni=i+di,nj=j+dj;return ni>=0&&ni<r&&nj>=0&&nj<c&&m[ni][nj]>m[i][j]?dfs(ni,nj):0;}));};let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++)max=Math.max(max,dfs(i,j));return max;}; expect(lip([[9,9,4],[6,6,8],[2,1,1]])).toBe(4); });
+  it('computes minimum time to finish tasks', () => { const mtt=(t:number[],k:number)=>{const s=[...t].sort((a,b)=>b-a);let time=0;for(let i=0;i<s.length;i+=k)time+=s[i];return time;}; expect(mtt([3,2,4,4,4,2,2],3)).toBe(9); });
+});

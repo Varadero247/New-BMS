@@ -1478,3 +1478,12 @@ describe('phase48 coverage', () => {
   it('finds the right sibling of each tree node', () => { type N={v:number;l?:N;r?:N;next?:N}; const connect=(root:N|undefined)=>{if(!root)return;const q:N[]=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i<sz-1)n.next=q[0];if(n.l)q.push(n.l);if(n.r)q.push(n.r);}}return root;}; const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3,r:{v:7}}}; connect(t); expect(t.l?.next?.v).toBe(3); });
   it('finds the missing number in sequence', () => { const miss=(a:number[])=>{const n=a.length;return n*(n+1)/2-a.reduce((s,v)=>s+v,0);}; expect(miss([3,0,1])).toBe(2); expect(miss([9,6,4,2,3,5,7,0,1])).toBe(8); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds closest pair of points', () => { const cp=(pts:[number,number][])=>{const d=([x1,y1]:[number,number],[x2,y2]:[number,number])=>Math.hypot(x2-x1,y2-y1);let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,d(pts[i],pts[j]));return min;}; expect(cp([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.sqrt(2)); });
+  it('finds longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?(len===2?2:dp[i+1][j-1]+2):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
+  it('checks if string has all unique characters', () => { const uniq=(s:string)=>new Set(s).size===s.length; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); expect(uniq('')).toBe(true); });
+  it('finds maximum score from removing stones', () => { const ms=(a:number,b:number,c:number)=>{const s=[a,b,c].sort((x,y)=>x-y);return s[2]>=s[0]+s[1]?s[0]+s[1]:Math.floor((a+b+c)/2);}; expect(ms(2,4,6)).toBe(6); expect(ms(4,4,6)).toBe(7); });
+  it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
+});

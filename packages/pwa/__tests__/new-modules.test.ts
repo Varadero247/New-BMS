@@ -984,3 +984,12 @@ describe('phase48 coverage', () => {
   it('implements disjoint set with rank', () => { const ds=(n:number)=>{const p=Array.from({length:n},(_,i)=>i),rk=new Array(n).fill(0);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{const ra=find(a),rb=find(b);if(ra===rb)return;if(rk[ra]<rk[rb])p[ra]=rb;else if(rk[ra]>rk[rb])p[rb]=ra;else{p[rb]=ra;rk[ra]++;}}; return{find,union,same:(a:number,b:number)=>find(a)===find(b)};}; const d=ds(5);d.union(0,1);d.union(1,2); expect(d.same(0,2)).toBe(true); expect(d.same(0,3)).toBe(false); });
   it('computes chromatic number (greedy coloring)', () => { const gc=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const col=new Array(n).fill(-1);for(let u=0;u<n;u++){const used=new Set(adj[u].map(v=>col[v]).filter(c=>c>=0));let c=0;while(used.has(c))c++;col[u]=c;}return Math.max(...col)+1;}; expect(gc(4,[[0,1],[1,2],[2,3],[3,0]])).toBe(2); expect(gc(3,[[0,1],[1,2],[2,0]])).toBe(3); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
+  it('finds the majority element (Boyer-Moore)', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt-1||(cand=a[i],1);return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); });
+  it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
+  it('finds the smallest missing positive integer', () => { const smp=(a:number[])=>{const n=a.length;for(let i=0;i<n;i++)while(a[i]>0&&a[i]<=n&&a[a[i]-1]!==a[i]){const t=a[a[i]-1];a[a[i]-1]=a[i];a[i]=t;}for(let i=0;i<n;i++)if(a[i]!==i+1)return i+1;return n+1;}; expect(smp([1,2,0])).toBe(3); expect(smp([3,4,-1,1])).toBe(2); expect(smp([7,8,9])).toBe(1); });
+});

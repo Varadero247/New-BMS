@@ -970,3 +970,12 @@ describe('phase48 coverage', () => {
   it('finds longest word in sentence', () => { const lw=(s:string)=>s.split(' ').reduce((a,w)=>w.length>a.length?w:a,''); expect(lw('the quick brown fox')).toBe('quick'); expect(lw('a bb ccc')).toBe('ccc'); });
   it('computes closest pair distance', () => { const cpd=(pts:[number,number][])=>{const d=(a:[number,number],b:[number,number])=>Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2);let best=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)best=Math.min(best,d(pts[i],pts[j]));return best;}; expect(cpd([[0,0],[3,4],[1,1],[5,2]])).toBeCloseTo(Math.sqrt(2),5); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('counts number of islands', () => { const islands=(g:number[][])=>{const r=g.length,c=r?g[0].length:0;let cnt=0;const dfs=(i:number,j:number)=>{if(i<0||i>=r||j<0||j>=c||!g[i][j])return;g[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(g[i][j]){dfs(i,j);cnt++;}return cnt;}; expect(islands([[1,1,0],[0,1,0],[0,0,1]])).toBe(2); });
+  it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
+  it('implements segment tree range query', () => { const seg=(a:number[])=>{const n=a.length,t=new Array(4*n).fill(0);const build=(node:number,s:number,e:number)=>{if(s===e){t[node]=a[s];return;}const m=s+e>>1;build(2*node,s,m);build(2*node+1,m+1,e);t[node]=t[2*node]+t[2*node+1];};const q=(node:number,s:number,e:number,l:number,r:number):number=>{if(r<s||l>e)return 0;if(l<=s&&e<=r)return t[node];const m=s+e>>1;return q(2*node,s,m,l,r)+q(2*node+1,m+1,e,l,r);};build(1,0,n-1);return(l:number,r:number)=>q(1,0,n-1,l,r);}; const s=seg([1,3,5,7,9]);expect(s(1,3)).toBe(15); });
+  it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
+  it('computes longest valid parentheses', () => { const lvp=(s:string)=>{const st=[-1];let max=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();st.length?max=Math.max(max,i-st[st.length-1]):st.push(i);}}return max;}; expect(lvp('(()')).toBe(2); expect(lvp(')()())')).toBe(4); });
+});

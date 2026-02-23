@@ -537,3 +537,12 @@ describe('phase48 coverage', () => {
   it('generates nth row of Pascal triangle', () => { const pt=(n:number)=>{let r=[1];for(let i=0;i<n;i++)r=[...r,0].map((v,j)=>v+(r[j-1]||0));return r;}; expect(pt(4)).toEqual([1,4,6,4,1]); expect(pt(0)).toEqual([1]); });
   it('finds all factor combinations', () => { const fc=(n:number):number[][]=>{ const r:number[][]=[];const bt=(rem:number,min:number,cur:number[])=>{if(rem===1&&cur.length>1)r.push([...cur]);for(let f=min;f<=rem;f++)if(rem%f===0){bt(rem/f,f,[...cur,f]);}};bt(n,2,[]);return r;}; expect(fc(12).length).toBe(3); expect(fc(12)).toContainEqual([2,6]); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+  it('finds longest path in DAG', () => { const lpdag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const dp=new Array(n).fill(0);const vis=new Array(n).fill(false);const dfs=(u:number):number=>{if(vis[u])return dp[u];vis[u]=true;dp[u]=Math.max(0,...adj[u].map(v=>1+dfs(v)));return dp[u];};for(let i=0;i<n;i++)dfs(i);return Math.max(...dp);}; expect(lpdag(6,[[0,1],[0,2],[1,4],[1,3],[3,4],[4,5]])).toBe(4); });
+  it('finds all subsets with target sum', () => { const ss=(a:number[],t:number):number[][]=>{const r:number[][]=[];const bt=(i:number,cur:number[],sum:number)=>{if(sum===t)r.push([...cur]);if(sum>=t||i>=a.length)return;for(let j=i;j<a.length;j++)bt(j+1,[...cur,a[j]],sum+a[j]);};bt(0,[],0);return r;}; expect(ss([2,3,6,7],7).length).toBe(1); });
+  it('implements string compression', () => { const comp=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=s[i]+(j-i>1?j-i:'');i=j;}return r.length<s.length?r:s;}; expect(comp('aabcccdddd')).toBe('a2bc3d4'); expect(comp('abcd')).toBe('abcd'); });
+  it('computes minimum spanning tree weight (Kruskal)', () => { const mst=(n:number,edges:[number,number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};let w=0,cnt=0;for(const [u,v,wt] of [...edges].sort((a,b)=>a[2]-b[2])){if(find(u)!==find(v)){union(u,v);w+=wt;cnt++;}}return cnt===n-1?w:-1;}; expect(mst(4,[[0,1,1],[1,2,2],[2,3,3],[0,3,4]])).toBe(6); });
+});

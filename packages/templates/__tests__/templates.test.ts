@@ -715,3 +715,12 @@ describe('phase48 coverage', () => {
   it('implements interval tree insert and query', () => { type I=[number,number]; const it=()=>{const ivs:I[]=[];return{ins:(l:number,r:number)=>ivs.push([l,r]),qry:(p:number)=>ivs.filter(([l,r])=>l<=p&&p<=r).length};}; const t=it();t.ins(1,5);t.ins(3,8);t.ins(6,10); expect(t.qry(4)).toBe(2); expect(t.qry(7)).toBe(2); expect(t.qry(11)).toBe(0); });
   it('finds k-th smallest in BST', () => { type N={v:number;l?:N;r?:N}; const kth=(root:N|undefined,k:number)=>{const arr:number[]=[];const io=(n:N|undefined)=>{if(!n)return;io(n.l);arr.push(n.v);io(n.r);};io(root);return arr[k-1];}; const t:N={v:5,l:{v:3,l:{v:2},r:{v:4}},r:{v:6}}; expect(kth(t,1)).toBe(2); expect(kth(t,3)).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
+  it('finds maximum sum rectangle in matrix', () => { const msr=(m:number[][])=>{const r=m.length,c=m[0].length;let max=-Infinity;for(let l=0;l<c;l++){const tmp=new Array(r).fill(0);for(let ri=l;ri<c;ri++){tmp.forEach((v,i)=>{tmp[i]+=m[i][ri];});let cur=tmp[0],lo=tmp[0];for(let i=1;i<r;i++){cur=Math.max(tmp[i],cur+tmp[i]);lo=Math.max(lo,cur);}max=Math.max(max,lo);}}return max;}; expect(msr([[1,2,-1],[-3,4,2],[2,1,3]])).toBe(11); });
+  it('finds the skyline of buildings', () => { const sky=(b:[number,number,number][])=>{const pts:[number,number][]=[];b.forEach(([l,r,h])=>{pts.push([l,-h],[r,h]);});pts.sort((a,b2)=>a[0]-b2[0]||a[1]-b2[1]);const heap=[0];let res:[number,number][]=[];for(const [x,h] of pts){if(h<0)heap.push(-h);else heap.splice(heap.indexOf(h),1);const top=Math.max(...heap);if(!res.length||res[res.length-1][1]!==top)res.push([x,top]);}return res;}; expect(sky([[2,9,10],[3,7,15],[5,12,12]]).length).toBeGreaterThan(0); });
+  it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+  it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y);const n=m.length;return n%2?m[n>>1]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
+});

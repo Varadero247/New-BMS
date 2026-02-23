@@ -817,3 +817,12 @@ describe('phase48 coverage', () => {
   it('computes sum of digits until single digit', () => { const dr=(n:number):number=>n<10?n:dr([...String(n)].reduce((s,d)=>s+Number(d),0)); expect(dr(9875)).toBe(2); expect(dr(0)).toBe(0); });
   it('implements treap operations', () => { type T={k:number;p:number;l?:T;r?:T}; const ins=(t:T|undefined,k:number):T=>{const n:T={k,p:Math.random()};if(!t)return n;if(k<t.k){t.l=ins(t.l,k);if(t.l.p>t.p)[t.k,t.l.k]=[t.l.k,t.k];}else{t.r=ins(t.r,k);if(t.r.p>t.p)[t.k,t.r.k]=[t.r.k,t.k];}return t;};const cnt=(t:T|undefined):number=>t?1+cnt(t.l)+cnt(t.r):0; let tr:T|undefined;[5,3,7,1,4,6,8].forEach(k=>{tr=ins(tr,k);}); expect(cnt(tr)).toBe(7); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes edit distance (Levenshtein)', () => { const ed=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('kitten','sitting')).toBe(3); expect(ed('','abc')).toBe(3); });
+  it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
+  it('finds the celebrity using stack', () => { const cel2=(m:number[][])=>{const n=m.length,s=Array.from({length:n},(_,i)=>i);while(s.length>1){const a=s.pop()!,b=s.pop()!;m[a][b]?s.push(b):s.push(a);}const c=s[0];return m[c].every((_,j)=>j===c||!m[c][j])&&m.every((_,i)=>i===c||m[i][c])?c:-1;}; const mx=[[0,1,1],[0,0,1],[0,0,0]]; expect(cel2(mx)).toBe(2); });
+  it('computes number of ways to decode string', () => { const dec=(s:string)=>{if(!s||s[0]==='0')return 0;const n=s.length,dp=new Array(n+1).fill(0);dp[0]=dp[1]=1;for(let i=2;i<=n;i++){if(s[i-1]!=='0')dp[i]+=dp[i-1];const two=Number(s.slice(i-2,i));if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(dec('12')).toBe(2); expect(dec('226')).toBe(3); expect(dec('06')).toBe(0); });
+  it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
+});

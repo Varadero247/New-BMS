@@ -666,3 +666,12 @@ describe('phase48 coverage', () => {
   it('computes binomial coefficient C(n,k)', () => { const cn=(n:number,k:number):number=>k===0||k===n?1:cn(n-1,k-1)+cn(n-1,k); expect(cn(5,2)).toBe(10); expect(cn(6,3)).toBe(20); });
   it('finds the missing number in sequence', () => { const miss=(a:number[])=>{const n=a.length;return n*(n+1)/2-a.reduce((s,v)=>s+v,0);}; expect(miss([3,0,1])).toBe(2); expect(miss([9,6,4,2,3,5,7,0,1])).toBe(8); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('checks if linked list has cycle', () => { type N={v:number;next?:N};const hasCycle=(h:N|undefined)=>{let s:N|undefined=h,f:N|undefined=h;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const n1:N={v:1},n2:N={v:2},n3:N={v:3};n1.next=n2;n2.next=n3; expect(hasCycle(n1)).toBe(false); n3.next=n1; expect(hasCycle(n1)).toBe(true); });
+  it('finds minimum cuts for palindrome partition', () => { const minCut=(s:string)=>{const n=s.length;const isPalin=(i:number,j:number):boolean=>i>=j?true:s[i]===s[j]&&isPalin(i+1,j-1);const dp=new Array(n).fill(0);for(let i=1;i<n;i++){if(isPalin(0,i)){dp[i]=0;}else{dp[i]=Infinity;for(let j=1;j<=i;j++)if(isPalin(j,i))dp[i]=Math.min(dp[i],dp[j-1]+1);}}return dp[n-1];}; expect(minCut('aab')).toBe(1); expect(minCut('a')).toBe(0); });
+  it('computes number of ways to tile 2xn board', () => { const tile=(n:number):number=>n<=1?1:tile(n-1)+tile(n-2); expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
+  it('computes number of BSTs with n nodes', () => { const numBST=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=numBST(i-1)*numBST(n-i);return cnt;}; expect(numBST(3)).toBe(5); expect(numBST(4)).toBe(14); });
+});

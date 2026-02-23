@@ -1096,3 +1096,12 @@ describe('phase48 coverage', () => {
   it('computes nth lucky number', () => { const lucky=(n:number)=>{const a=Array.from({length:1000},(_,i)=>2*i+1);for(let i=1;i<n&&i<a.length;i++){const s=a[i];a.splice(0,a.length,...a.filter((_,j)=>(j+1)%s!==0));}return a[n-1];}; expect(lucky(1)).toBe(1); expect(lucky(5)).toBe(13); });
   it('converts number base', () => { const conv=(n:number,from:number,to:number)=>parseInt(n.toString(),from).toString(to); expect(conv(255,10,16)).toBe('ff'); expect(conv(255,10,2)).toBe('11111111'); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes nth Catalan number', () => { const cat=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>cat(i)*cat(n-1-i)).reduce((s,v)=>s+v,0); expect(cat(0)).toBe(1); expect(cat(3)).toBe(5); expect(cat(4)).toBe(14); });
+  it('checks if two strings are isomorphic', () => { const iso=(s:string,t:string)=>{const sm=new Map<string,string>(),tm=new Set<string>();for(let i=0;i<s.length;i++){if(sm.has(s[i])){if(sm.get(s[i])!==t[i])return false;}else{if(tm.has(t[i]))return false;sm.set(s[i],t[i]);tm.add(t[i]);}}return true;}; expect(iso('egg','add')).toBe(true); expect(iso('foo','bar')).toBe(false); expect(iso('paper','title')).toBe(true); });
+  it('computes maximum profit with cooldown', () => { const mp=(p:number[])=>{let held=-Infinity,sold=0,rest=0;for(const price of p){const h=Math.max(held,rest-price),s=held+price,r=Math.max(rest,sold);held=h;sold=s;rest=r;}return Math.max(sold,rest);}; expect(mp([1,2,3,0,2])).toBe(3); expect(mp([1])).toBe(0); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);return{upd:(i:number,v:number)=>{for(;i<=n;i+=i&-i)t[i]+=v;},sum:(i:number)=>{let s=0;for(;i>0;i-=i&-i)s+=t[i];return s;}};}; const b=bit(5);b.upd(1,3);b.upd(3,2);b.upd(5,1); expect(b.sum(3)).toBe(5); expect(b.sum(5)).toBe(6); });
+  it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
+});

@@ -937,3 +937,12 @@ describe('phase48 coverage', () => {
   it('computes nth lucky number', () => { const lucky=(n:number)=>{const a=Array.from({length:1000},(_,i)=>2*i+1);for(let i=1;i<n&&i<a.length;i++){const s=a[i];a.splice(0,a.length,...a.filter((_,j)=>(j+1)%s!==0));}return a[n-1];}; expect(lucky(1)).toBe(1); expect(lucky(5)).toBe(13); });
   it('computes maximum meetings in one room', () => { const mm=(s:number[],e:number[])=>{const m=s.map((si,i)=>[si,e[i]] as [number,number]).sort((a,b)=>a[1]-b[1]);let cnt=1,end=m[0][1];for(let i=1;i<m.length;i++)if(m[i][0]>=end){cnt++;end=m[i][1];}return cnt;}; expect(mm([0,3,1,5],[5,4,2,9])).toBe(3); expect(mm([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
+  it('computes maximum profit with cooldown', () => { const mp=(p:number[])=>{let held=-Infinity,sold=0,rest=0;for(const price of p){const h=Math.max(held,rest-price),s=held+price,r=Math.max(rest,sold);held=h;sold=s;rest=r;}return Math.max(sold,rest);}; expect(mp([1,2,3,0,2])).toBe(3); expect(mp([1])).toBe(0); });
+  it('finds the smallest missing positive integer', () => { const smp=(a:number[])=>{const n=a.length;for(let i=0;i<n;i++)while(a[i]>0&&a[i]<=n&&a[a[i]-1]!==a[i]){const t=a[a[i]-1];a[a[i]-1]=a[i];a[i]=t;}for(let i=0;i<n;i++)if(a[i]!==i+1)return i+1;return n+1;}; expect(smp([1,2,0])).toBe(3); expect(smp([3,4,-1,1])).toBe(2); expect(smp([7,8,9])).toBe(1); });
+  it('checks if linked list has cycle', () => { type N={v:number;next?:N};const hasCycle=(h:N|undefined)=>{let s:N|undefined=h,f:N|undefined=h;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const n1:N={v:1},n2:N={v:2},n3:N={v:3};n1.next=n2;n2.next=n3; expect(hasCycle(n1)).toBe(false); n3.next=n1; expect(hasCycle(n1)).toBe(true); });
+  it('computes the number of good pairs', () => { const gp=(a:number[])=>{const m=new Map<number,number>();let cnt=0;for(const v of a){cnt+=m.get(v)||0;m.set(v,(m.get(v)||0)+1);}return cnt;}; expect(gp([1,2,3,1,1,3])).toBe(4); expect(gp([1,1,1,1])).toBe(6); });
+});

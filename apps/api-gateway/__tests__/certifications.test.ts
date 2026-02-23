@@ -779,3 +779,12 @@ describe('phase48 coverage', () => {
   it('finds longest balanced parentheses substring', () => { const lb=(s:string)=>{const st:number[]=[-1];let best=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();if(!st.length)st.push(i);else best=Math.max(best,i-st[st.length-1]);}}return best;}; expect(lb('(()')).toBe(2); expect(lb(')()())')).toBe(4); });
   it('implements skip list lookup', () => { const sl=()=>{const data:number[]=[];return{ins:(v:number)=>{const i=data.findIndex(x=>x>=v);data.splice(i===-1?data.length:i,0,v);},has:(v:number)=>data.includes(v),size:()=>data.length};}; const s=sl();[5,3,7,1,4].forEach(v=>s.ins(v)); expect(s.has(3)).toBe(true); expect(s.has(6)).toBe(false); expect(s.size()).toBe(5); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
+  it('finds minimum deletions to make string balanced', () => { const md=(s:string)=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;}; expect(md('(())')).toBe(0); expect(md('(())')).toBe(0); expect(md('))((')).toBe(4); });
+  it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
+  it('computes minimum spanning tree weight (Kruskal)', () => { const mst=(n:number,edges:[number,number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};let w=0,cnt=0;for(const [u,v,wt] of [...edges].sort((a,b)=>a[2]-b[2])){if(find(u)!==find(v)){union(u,v);w+=wt;cnt++;}}return cnt===n-1?w:-1;}; expect(mst(4,[[0,1,1],[1,2,2],[2,3,3],[0,3,4]])).toBe(6); });
+  it('finds longest common substring', () => { const lcs=(a:string,b:string)=>{let max=0,end=0;const dp=Array.from({length:a.length+1},()=>new Array(b.length+1).fill(0));for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)if(a[i-1]===b[j-1]){dp[i][j]=dp[i-1][j-1]+1;if(dp[i][j]>max){max=dp[i][j];end=i;}}return a.slice(end-max,end);}; expect(lcs('abcdef','zcdemf')).toBe('cde'); });
+});

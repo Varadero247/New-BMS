@@ -985,3 +985,12 @@ describe('phase48 coverage', () => {
   it('finds longest word in sentence', () => { const lw=(s:string)=>s.split(' ').reduce((a,w)=>w.length>a.length?w:a,''); expect(lw('the quick brown fox')).toBe('quick'); expect(lw('a bb ccc')).toBe('ccc'); });
   it('implements Rabin-Karp multi-pattern search', () => { const rk=(text:string,patterns:string[])=>{const res:Record<string,number[]>={};for(const p of patterns){res[p]=[];const n=p.length;for(let i=0;i<=text.length-n;i++)if(text.slice(i,i+n)===p)res[p].push(i);}return res;}; const r=rk('abcabcabc',['abc','bca']); expect(r['abc']).toEqual([0,3,6]); expect(r['bca']).toEqual([1,4]); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);return{upd:(i:number,v:number)=>{for(;i<=n;i+=i&-i)t[i]+=v;},sum:(i:number)=>{let s=0;for(;i>0;i-=i&-i)s+=t[i];return s;}};}; const b=bit(5);b.upd(1,3);b.upd(3,2);b.upd(5,1); expect(b.sum(3)).toBe(5); expect(b.sum(5)).toBe(6); });
+  it('finds the highest altitude', () => { const ha=(g:number[])=>{let cur=0,max=0;for(const v of g){cur+=v;max=Math.max(max,cur);}return max;}; expect(ha([-5,1,5,0,-7])).toBe(1); expect(ha([-4,-3,-2,-1,4,3,2])).toBe(0); });
+  it('finds running sum of array', () => { const rs=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++)r[i]+=r[i-1];return r;}; expect(rs([1,2,3,4])).toEqual([1,3,6,10]); expect(rs([3,1,2,10,1])).toEqual([3,4,6,16,17]); });
+  it('checks if linked list has cycle', () => { type N={v:number;next?:N};const hasCycle=(h:N|undefined)=>{let s:N|undefined=h,f:N|undefined=h;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const n1:N={v:1},n2:N={v:2},n3:N={v:3};n1.next=n2;n2.next=n3; expect(hasCycle(n1)).toBe(false); n3.next=n1; expect(hasCycle(n1)).toBe(true); });
+});

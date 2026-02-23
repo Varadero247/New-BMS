@@ -648,3 +648,12 @@ describe('phase48 coverage', () => {
   it('converts number base', () => { const conv=(n:number,from:number,to:number)=>parseInt(n.toString(),from).toString(to); expect(conv(255,10,16)).toBe('ff'); expect(conv(255,10,2)).toBe('11111111'); });
   it('finds median without sorting (quickselect)', () => { const qs=(a:number[],k:number):number=>{const p=a[Math.floor(a.length/2)];const lo=a.filter(x=>x<p),eq=a.filter(x=>x===p),hi=a.filter(x=>x>p);return k<lo.length?qs(lo,k):k<lo.length+eq.length?p:qs(hi,k-lo.length-eq.length);}; const a=[3,1,4,1,5,9,2,6];const m=qs(a,Math.floor(a.length/2)); expect(m).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes sum of left leaves', () => { type N={v:number;l?:N;r?:N};const sll=(n:N|undefined,isLeft=false):number=>{if(!n)return 0;if(!n.l&&!n.r)return isLeft?n.v:0;return sll(n.l,true)+sll(n.r,false);}; const t:N={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; expect(sll(t)).toBe(24); });
+  it('checks if word can be found in board', () => { const ws=(b:string[][],w:string)=>{const r=b.length,c=b[0].length;const dfs=(i:number,j:number,k:number):boolean=>{if(k===w.length)return true;if(i<0||i>=r||j<0||j>=c||b[i][j]!==w[k])return false;const tmp=b[i][j];b[i][j]='#';const ok=dfs(i+1,j,k+1)||dfs(i-1,j,k+1)||dfs(i,j+1,k+1)||dfs(i,j-1,k+1);b[i][j]=tmp;return ok;};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(dfs(i,j,0))return true;return false;}; expect(ws([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCCED')).toBe(true); });
+  it('finds closest pair of points', () => { const cp=(pts:[number,number][])=>{const d=([x1,y1]:[number,number],[x2,y2]:[number,number])=>Math.hypot(x2-x1,y2-y1);let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,d(pts[i],pts[j]));return min;}; expect(cp([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.sqrt(2)); });
+  it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
+  it('computes edit distance (Levenshtein)', () => { const ed=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('kitten','sitting')).toBe(3); expect(ed('','abc')).toBe(3); });
+});

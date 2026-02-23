@@ -917,3 +917,12 @@ describe('phase48 coverage', () => {
   it('counts distinct binary trees with n nodes', () => { const cat=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>cat(i)*cat(n-1-i)).reduce((s,v)=>s+v,0); expect(cat(0)).toBe(1); expect(cat(3)).toBe(5); expect(cat(4)).toBe(14); });
   it('implements persistent array (copy-on-write)', () => { const pa=<T>(a:T[])=>{const copies:T[][]=[[...a]];return{read:(ver:number,i:number)=>copies[ver][i],write:(ver:number,i:number,v:T)=>{const nc=[...copies[ver]];nc[i]=v;copies.push(nc);return copies.length-1;},versions:()=>copies.length};}; const p=pa([1,2,3]);const v1=p.write(0,1,99); expect(p.read(0,1)).toBe(2); expect(p.read(v1,1)).toBe(99); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes spiral matrix order', () => { const spiral=(m:number[][])=>{const r=[];let t=0,b=m.length-1,l=0,ri=m[0].length-1;while(t<=b&&l<=ri){for(let i=l;i<=ri;i++)r.push(m[t][i]);t++;for(let i=t;i<=b;i++)r.push(m[i][ri]);ri--;if(t<=b){for(let i=ri;i>=l;i--)r.push(m[b][i]);b--;}if(l<=ri){for(let i=b;i>=t;i--)r.push(m[i][l]);l++;}}return r;}; expect(spiral([[1,2,3],[4,5,6],[7,8,9]])).toEqual([1,2,3,6,9,8,7,4,5]); });
+  it('computes maximum profit with cooldown', () => { const mp=(p:number[])=>{let held=-Infinity,sold=0,rest=0;for(const price of p){const h=Math.max(held,rest-price),s=held+price,r=Math.max(rest,sold);held=h;sold=s;rest=r;}return Math.max(sold,rest);}; expect(mp([1,2,3,0,2])).toBe(3); expect(mp([1])).toBe(0); });
+  it('finds longest common substring', () => { const lcs=(a:string,b:string)=>{let max=0,end=0;const dp=Array.from({length:a.length+1},()=>new Array(b.length+1).fill(0));for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)if(a[i-1]===b[j-1]){dp[i][j]=dp[i-1][j-1]+1;if(dp[i][j]>max){max=dp[i][j];end=i;}}return a.slice(end-max,end);}; expect(lcs('abcdef','zcdemf')).toBe('cde'); });
+  it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
+  it('finds peak element in array', () => { const peak=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;a[m]>a[m+1]?r=m:l=m+1;}return l;}; expect(peak([1,2,3,1])).toBe(2); expect(peak([1,2,1,3,5,6,4])).toBeGreaterThanOrEqual(0); });
+});

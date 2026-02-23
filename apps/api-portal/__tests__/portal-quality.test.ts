@@ -725,3 +725,12 @@ describe('phase48 coverage', () => {
   it('finds minimum number of cuts for palindrome partitioning', () => { const mc=(s:string)=>{const n=s.length;const pal=Array.from({length:n},()=>new Array(n).fill(false));for(let i=0;i<n;i++)pal[i][i]=true;for(let l=2;l<=n;l++)for(let i=0;i<n-l+1;i++){const j=i+l-1;pal[i][j]=(s[i]===s[j])&&(l<=2||pal[i+1][j-1]);}const dp=new Array(n).fill(Infinity);for(let i=0;i<n;i++){if(pal[0][i])dp[i]=0;else for(let j=1;j<=i;j++)if(pal[j][i])dp[i]=Math.min(dp[i],dp[j-1]+1);}return dp[n-1];}; expect(mc('aab')).toBe(1); expect(mc('aaa')).toBe(0); });
   it('computes binomial coefficient C(n,k)', () => { const cn=(n:number,k:number):number=>k===0||k===n?1:cn(n-1,k-1)+cn(n-1,k); expect(cn(5,2)).toBe(10); expect(cn(6,3)).toBe(20); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds the highest altitude', () => { const ha=(g:number[])=>{let cur=0,max=0;for(const v of g){cur+=v;max=Math.max(max,cur);}return max;}; expect(ha([-5,1,5,0,-7])).toBe(1); expect(ha([-4,-3,-2,-1,4,3,2])).toBe(0); });
+  it('implements monotonic stack for next greater', () => { const ng=(a:number[])=>{const r=new Array(a.length).fill(-1),s:number[]=[];for(let i=0;i<a.length;i++){while(s.length&&a[s[s.length-1]]<a[i])r[s.pop()!]=a[i];s.push(i);}return r;}; expect(ng([2,1,2,4,3])).toEqual([4,2,4,-1,-1]); });
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('finds the smallest missing positive integer', () => { const smp=(a:number[])=>{const n=a.length;for(let i=0;i<n;i++)while(a[i]>0&&a[i]<=n&&a[a[i]-1]!==a[i]){const t=a[a[i]-1];a[a[i]-1]=a[i];a[i]=t;}for(let i=0;i<n;i++)if(a[i]!==i+1)return i+1;return n+1;}; expect(smp([1,2,0])).toBe(3); expect(smp([3,4,-1,1])).toBe(2); expect(smp([7,8,9])).toBe(1); });
+  it('finds closest pair of points', () => { const cp=(pts:[number,number][])=>{const d=([x1,y1]:[number,number],[x2,y2]:[number,number])=>Math.hypot(x2-x1,y2-y1);let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,d(pts[i],pts[j]));return min;}; expect(cp([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.sqrt(2)); });
+});

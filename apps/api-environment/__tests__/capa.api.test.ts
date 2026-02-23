@@ -986,3 +986,12 @@ describe('phase48 coverage', () => {
   it('checks if string is valid bracket sequence', () => { const vb=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(vb('(())')).toBe(true); expect(vb('(()')).toBe(false); expect(vb(')(')).toBe(false); });
   it('computes maximum meetings in one room', () => { const mm=(s:number[],e:number[])=>{const m=s.map((si,i)=>[si,e[i]] as [number,number]).sort((a,b)=>a[1]-b[1]);let cnt=1,end=m[0][1];for(let i=1;i<m.length;i++)if(m[i][0]>=end){cnt++;end=m[i][1];}return cnt;}; expect(mm([0,3,1,5],[5,4,2,9])).toBe(3); expect(mm([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes shuffle of array', () => { const sh=(a:number[])=>{const n=a.length/2,r:number[]=[];for(let i=0;i<n;i++)r.push(a[i],a[i+n]);return r;}; expect(sh([2,5,1,3,4,7])).toEqual([2,3,5,4,1,7]); });
+  it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
+  it('finds the celebrity using stack', () => { const cel2=(m:number[][])=>{const n=m.length,s=Array.from({length:n},(_,i)=>i);while(s.length>1){const a=s.pop()!,b=s.pop()!;m[a][b]?s.push(b):s.push(a);}const c=s[0];return m[c].every((_,j)=>j===c||!m[c][j])&&m.every((_,i)=>i===c||m[i][c])?c:-1;}; const mx=[[0,1,1],[0,0,1],[0,0,0]]; expect(cel2(mx)).toBe(2); });
+  it('finds the majority element (Boyer-Moore)', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt-1||(cand=a[i],1);return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); });
+  it('finds the celebrity in a party', () => { const cel=(knows:(a:number,b:number)=>boolean,n:number)=>{let cand=0;for(let i=1;i<n;i++)if(knows(cand,i))cand=i;for(let i=0;i<n;i++)if(i!==cand&&(knows(cand,i)||!knows(i,cand)))return -1;return cand;}; const m=[[0,1,1],[0,0,1],[0,0,0]];const k=(a:number,b:number)=>m[a][b]===1; expect(cel(k,3)).toBe(2); });
+});

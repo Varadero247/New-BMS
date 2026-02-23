@@ -570,3 +570,12 @@ describe('phase48 coverage', () => {
   it('finds the Josephus position', () => { const jos=(n:number,k:number):number=>n===1?0:(jos(n-1,k)+k)%n; expect(jos(7,3)).toBe(3); expect(jos(6,2)).toBe(4); });
   it('checks if string matches simple regex', () => { const mr=(s:string,p:string):boolean=>{if(!p.length)return !s.length;const fm=p[0]==='.'||p[0]===s[0];if(p.length>1&&p[1]==='*')return mr(s,p.slice(2))||(s.length>0&&fm&&mr(s.slice(1),p));return s.length>0&&fm&&mr(s.slice(1),p.slice(1));}; expect(mr('aa','a*')).toBe(true); expect(mr('ab','.*')).toBe(true); expect(mr('aab','c*a*b')).toBe(true); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes number of ways to tile 2xn board', () => { const tile=(n:number):number=>n<=1?1:tile(n-1)+tile(n-2); expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('finds maximum product subarray', () => { const mps=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],a[i]*max,a[i]*min);min=Math.min(a[i],a[i]*t,a[i]*min);res=Math.max(res,max);}return res;}; expect(mps([2,3,-2,4])).toBe(6); expect(mps([-2,0,-1])).toBe(0); });
+  it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
+});

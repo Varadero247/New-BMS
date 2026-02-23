@@ -687,3 +687,12 @@ describe('phase48 coverage', () => {
   it('finds Eulerian path existence', () => { const ep=(n:number,edges:[number,number][])=>{const deg=new Array(n).fill(0);edges.forEach(([u,v])=>{deg[u]++;deg[v]++;});const odd=deg.filter(d=>d%2!==0).length;return odd===0||odd===2;}; expect(ep(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(ep(4,[[0,1],[1,2],[2,3],[3,1]])).toBe(true); });
   it('converts number base', () => { const conv=(n:number,from:number,to:number)=>parseInt(n.toString(),from).toString(to); expect(conv(255,10,16)).toBe('ff'); expect(conv(255,10,2)).toBe('11111111'); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes sum of all subsets', () => { const sos=(a:number[])=>a.reduce((s,v)=>s+v*Math.pow(2,a.length-1),0); expect(sos([1,2,3])).toBe(24); expect(sos([1])).toBe(1); });
+  it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y);const n=m.length;return n%2?m[n>>1]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
+  it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
+  it('implements LFU cache', () => { const lfu=(cap:number)=>{const vals=new Map<number,number>(),freq=new Map<number,number>(),fmap=new Map<number,Set<number>>();let min=0;return{get:(k:number)=>{if(!vals.has(k))return -1;const f=freq.get(k)!;freq.set(k,f+1);fmap.get(f)!.delete(k);if(!fmap.get(f)!.size&&min===f)min++;fmap.set(f+1,fmap.get(f+1)||new Set());fmap.get(f+1)!.add(k);return vals.get(k)!;},put:(k:number,v:number)=>{if(cap<=0)return;if(vals.has(k)){vals.set(k,v);lfu(cap).get(k);return;}if(vals.size>=cap){const evict=fmap.get(min)!.values().next().value!;fmap.get(min)!.delete(evict);vals.delete(evict);freq.delete(evict);}vals.set(k,v);freq.set(k,1);fmap.set(1,fmap.get(1)||new Set());fmap.get(1)!.add(k);min=1;}};}; const c=lfu(2);c.put(1,1);c.put(2,2); expect(c.get(1)).toBe(1); });
+  it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
+});

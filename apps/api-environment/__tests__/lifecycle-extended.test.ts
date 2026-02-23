@@ -789,3 +789,12 @@ describe('phase48 coverage', () => {
   it('generates all binary strings of length n', () => { const bs=(n:number):string[]=>n===0?['']:bs(n-1).flatMap(s=>['0'+s,'1'+s]); expect(bs(2)).toEqual(['00','10','01','11']); expect(bs(1)).toEqual(['0','1']); });
   it('computes maximum meetings in one room', () => { const mm=(s:number[],e:number[])=>{const m=s.map((si,i)=>[si,e[i]] as [number,number]).sort((a,b)=>a[1]-b[1]);let cnt=1,end=m[0][1];for(let i=1;i<m.length;i++)if(m[i][0]>=end){cnt++;end=m[i][1];}return cnt;}; expect(mm([0,3,1,5],[5,4,2,9])).toBe(3); expect(mm([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('computes the number of good pairs', () => { const gp=(a:number[])=>{const m=new Map<number,number>();let cnt=0;for(const v of a){cnt+=m.get(v)||0;m.set(v,(m.get(v)||0)+1);}return cnt;}; expect(gp([1,2,3,1,1,3])).toBe(4); expect(gp([1,1,1,1])).toBe(6); });
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('checks if string matches wildcard pattern', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)dp[0][j]=p[j-1]==='*'&&dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?dp[i-1][j]||dp[i][j-1]:dp[i-1][j-1]&&(p[j-1]==='?'||p[j-1]===s[i-1]);return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('computes longest valid parentheses', () => { const lvp=(s:string)=>{const st=[-1];let max=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();st.length?max=Math.max(max,i-st[st.length-1]):st.push(i);}}return max;}; expect(lvp('(()')).toBe(2); expect(lvp(')()())')).toBe(4); });
+});

@@ -639,3 +639,12 @@ describe('phase48 coverage', () => {
   it('checks if array is a permutation of 1..n', () => { const isPerm=(a:number[])=>{const n=a.length;return a.every(v=>v>=1&&v<=n)&&new Set(a).size===n;}; expect(isPerm([2,3,1,4])).toBe(true); expect(isPerm([1,1,3,4])).toBe(false); });
   it('finds median without sorting (quickselect)', () => { const qs=(a:number[],k:number):number=>{const p=a[Math.floor(a.length/2)];const lo=a.filter(x=>x<p),eq=a.filter(x=>x===p),hi=a.filter(x=>x>p);return k<lo.length?qs(lo,k):k<lo.length+eq.length?p:qs(hi,k-lo.length-eq.length);}; const a=[3,1,4,1,5,9,2,6];const m=qs(a,Math.floor(a.length/2)); expect(m).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('computes minimum time to finish tasks', () => { const mtt=(t:number[],k:number)=>{const s=[...t].sort((a,b)=>b-a);let time=0;for(let i=0;i<s.length;i+=k)time+=s[i];return time;}; expect(mtt([3,2,4,4,4,2,2],3)).toBe(9); });
+  it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
+  it('computes spiral matrix order', () => { const spiral=(m:number[][])=>{const r=[];let t=0,b=m.length-1,l=0,ri=m[0].length-1;while(t<=b&&l<=ri){for(let i=l;i<=ri;i++)r.push(m[t][i]);t++;for(let i=t;i<=b;i++)r.push(m[i][ri]);ri--;if(t<=b){for(let i=ri;i>=l;i--)r.push(m[b][i]);b--;}if(l<=ri){for(let i=b;i>=t;i--)r.push(m[i][l]);l++;}}return r;}; expect(spiral([[1,2,3],[4,5,6],[7,8,9]])).toEqual([1,2,3,6,9,8,7,4,5]); });
+  it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
+});

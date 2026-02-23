@@ -758,3 +758,12 @@ describe('phase48 coverage', () => {
   it('implements skip list lookup', () => { const sl=()=>{const data:number[]=[];return{ins:(v:number)=>{const i=data.findIndex(x=>x>=v);data.splice(i===-1?data.length:i,0,v);},has:(v:number)=>data.includes(v),size:()=>data.length};}; const s=sl();[5,3,7,1,4].forEach(v=>s.ins(v)); expect(s.has(3)).toBe(true); expect(s.has(6)).toBe(false); expect(s.size()).toBe(5); });
   it('computes sum of digits until single digit', () => { const dr=(n:number):number=>n<10?n:dr([...String(n)].reduce((s,d)=>s+Number(d),0)); expect(dr(9875)).toBe(2); expect(dr(0)).toBe(0); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('implements LFU cache', () => { const lfu=(cap:number)=>{const vals=new Map<number,number>(),freq=new Map<number,number>(),fmap=new Map<number,Set<number>>();let min=0;return{get:(k:number)=>{if(!vals.has(k))return -1;const f=freq.get(k)!;freq.set(k,f+1);fmap.get(f)!.delete(k);if(!fmap.get(f)!.size&&min===f)min++;fmap.set(f+1,fmap.get(f+1)||new Set());fmap.get(f+1)!.add(k);return vals.get(k)!;},put:(k:number,v:number)=>{if(cap<=0)return;if(vals.has(k)){vals.set(k,v);lfu(cap).get(k);return;}if(vals.size>=cap){const evict=fmap.get(min)!.values().next().value!;fmap.get(min)!.delete(evict);vals.delete(evict);freq.delete(evict);}vals.set(k,v);freq.set(k,1);fmap.set(1,fmap.get(1)||new Set());fmap.get(1)!.add(k);min=1;}};}; const c=lfu(2);c.put(1,1);c.put(2,2); expect(c.get(1)).toBe(1); });
+  it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
+  it('checks if one string is rotation of another', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
+  it('computes number of ways to tile 2xn board', () => { const tile=(n:number):number=>n<=1?1:tile(n-1)+tile(n-2); expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
+});

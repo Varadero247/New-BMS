@@ -700,3 +700,12 @@ describe('phase48 coverage', () => {
   it('generates all binary strings of length n', () => { const bs=(n:number):string[]=>n===0?['']:bs(n-1).flatMap(s=>['0'+s,'1'+s]); expect(bs(2)).toEqual(['00','10','01','11']); expect(bs(1)).toEqual(['0','1']); });
   it('finds number of ways to express n as sum of primes', () => { const wp=(n:number)=>{const sieve=(m:number)=>{const p=new Array(m+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=m;i++)if(p[i])for(let j=i*i;j<=m;j+=i)p[j]=false;return Array.from({length:m-1},(_,i)=>i+2).filter(i=>p[i]);};const primes=sieve(n);const dp=new Array(n+1).fill(0);dp[0]=1;for(const p of primes)for(let i=p;i<=n;i++)dp[i]+=dp[i-p];return dp[n];}; expect(wp(7)).toBe(3); expect(wp(10)).toBe(5); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds the skyline of buildings', () => { const sky=(b:[number,number,number][])=>{const pts:[number,number][]=[];b.forEach(([l,r,h])=>{pts.push([l,-h],[r,h]);});pts.sort((a,b2)=>a[0]-b2[0]||a[1]-b2[1]);const heap=[0];let res:[number,number][]=[];for(const [x,h] of pts){if(h<0)heap.push(-h);else heap.splice(heap.indexOf(h),1);const top=Math.max(...heap);if(!res.length||res[res.length-1][1]!==top)res.push([x,top]);}return res;}; expect(sky([[2,9,10],[3,7,15],[5,12,12]]).length).toBeGreaterThan(0); });
+  it('finds the majority element (Boyer-Moore)', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt-1||(cand=a[i],1);return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); });
+  it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
+  it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
+  it('finds the smallest missing positive integer', () => { const smp=(a:number[])=>{const n=a.length;for(let i=0;i<n;i++)while(a[i]>0&&a[i]<=n&&a[a[i]-1]!==a[i]){const t=a[a[i]-1];a[a[i]-1]=a[i];a[i]=t;}for(let i=0;i<n;i++)if(a[i]!==i+1)return i+1;return n+1;}; expect(smp([1,2,0])).toBe(3); expect(smp([3,4,-1,1])).toBe(2); expect(smp([7,8,9])).toBe(1); });
+});

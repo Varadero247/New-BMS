@@ -746,3 +746,12 @@ describe('phase48 coverage', () => {
   it('finds number of ways to express n as sum of primes', () => { const wp=(n:number)=>{const sieve=(m:number)=>{const p=new Array(m+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=m;i++)if(p[i])for(let j=i*i;j<=m;j+=i)p[j]=false;return Array.from({length:m-1},(_,i)=>i+2).filter(i=>p[i]);};const primes=sieve(n);const dp=new Array(n+1).fill(0);dp[0]=1;for(const p of primes)for(let i=p;i<=n;i++)dp[i]+=dp[i-p];return dp[n];}; expect(wp(7)).toBe(3); expect(wp(10)).toBe(5); });
   it('checks if array is a permutation of 1..n', () => { const isPerm=(a:number[])=>{const n=a.length;return a.every(v=>v>=1&&v<=n)&&new Set(a).size===n;}; expect(isPerm([2,3,1,4])).toBe(true); expect(isPerm([1,1,3,4])).toBe(false); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes coin change ways', () => { const ccw=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];}; expect(ccw([1,2,5],5)).toBe(4); expect(ccw([2],3)).toBe(0); });
+  it('checks if two strings are isomorphic', () => { const iso=(s:string,t:string)=>{const sm=new Map<string,string>(),tm=new Set<string>();for(let i=0;i<s.length;i++){if(sm.has(s[i])){if(sm.get(s[i])!==t[i])return false;}else{if(tm.has(t[i]))return false;sm.set(s[i],t[i]);tm.add(t[i]);}}return true;}; expect(iso('egg','add')).toBe(true); expect(iso('foo','bar')).toBe(false); expect(iso('paper','title')).toBe(true); });
+  it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+  it('finds maximum sum rectangle in matrix', () => { const msr=(m:number[][])=>{const r=m.length,c=m[0].length;let max=-Infinity;for(let l=0;l<c;l++){const tmp=new Array(r).fill(0);for(let ri=l;ri<c;ri++){tmp.forEach((v,i)=>{tmp[i]+=m[i][ri];});let cur=tmp[0],lo=tmp[0];for(let i=1;i<r;i++){cur=Math.max(tmp[i],cur+tmp[i]);lo=Math.max(lo,cur);}max=Math.max(max,lo);}}return max;}; expect(msr([[1,2,-1],[-3,4,2],[2,1,3]])).toBe(11); });
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+});

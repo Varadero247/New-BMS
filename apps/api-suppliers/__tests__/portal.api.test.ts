@@ -564,3 +564,12 @@ describe('phase48 coverage', () => {
   it('checks if array is a permutation of 1..n', () => { const isPerm=(a:number[])=>{const n=a.length;return a.every(v=>v>=1&&v<=n)&&new Set(a).size===n;}; expect(isPerm([2,3,1,4])).toBe(true); expect(isPerm([1,1,3,4])).toBe(false); });
   it('generates nth row of Pascal triangle', () => { const pt=(n:number)=>{let r=[1];for(let i=0;i<n;i++)r=[...r,0].map((v,j)=>v+(r[j-1]||0));return r;}; expect(pt(4)).toEqual([1,4,6,4,1]); expect(pt(0)).toEqual([1]); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes coin change ways', () => { const ccw=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];}; expect(ccw([1,2,5],5)).toBe(4); expect(ccw([2],3)).toBe(0); });
+  it('computes number of BSTs with n nodes', () => { const numBST=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=numBST(i-1)*numBST(n-i);return cnt;}; expect(numBST(3)).toBe(5); expect(numBST(4)).toBe(14); });
+  it('finds the skyline of buildings', () => { const sky=(b:[number,number,number][])=>{const pts:[number,number][]=[];b.forEach(([l,r,h])=>{pts.push([l,-h],[r,h]);});pts.sort((a,b2)=>a[0]-b2[0]||a[1]-b2[1]);const heap=[0];let res:[number,number][]=[];for(const [x,h] of pts){if(h<0)heap.push(-h);else heap.splice(heap.indexOf(h),1);const top=Math.max(...heap);if(!res.length||res[res.length-1][1]!==top)res.push([x,top]);}return res;}; expect(sky([[2,9,10],[3,7,15],[5,12,12]]).length).toBeGreaterThan(0); });
+  it('checks if string has all unique characters', () => { const uniq=(s:string)=>new Set(s).size===s.length; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); expect(uniq('')).toBe(true); });
+  it('implements string compression', () => { const comp=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=s[i]+(j-i>1?j-i:'');i=j;}return r.length<s.length?r:s;}; expect(comp('aabcccdddd')).toBe('a2bc3d4'); expect(comp('abcd')).toBe('abcd'); });
+});

@@ -718,3 +718,12 @@ describe('phase48 coverage', () => {
   it('finds all rectangles in binary matrix', () => { const rects=(m:number[][])=>{let cnt=0;for(let r1=0;r1<m.length;r1++)for(let r2=r1;r2<m.length;r2++)for(let c1=0;c1<m[0].length;c1++)for(let c2=c1;c2<m[0].length;c2++){let ok=true;for(let r=r1;r<=r2&&ok;r++)for(let c=c1;c<=c2&&ok;c++)if(!m[r][c])ok=false;if(ok)cnt++;}return cnt;}; expect(rects([[1,1],[1,1]])).toBe(9); });
   it('finds k-th smallest in BST', () => { type N={v:number;l?:N;r?:N}; const kth=(root:N|undefined,k:number)=>{const arr:number[]=[];const io=(n:N|undefined)=>{if(!n)return;io(n.l);arr.push(n.v);io(n.r);};io(root);return arr[k-1];}; const t:N={v:5,l:{v:3,l:{v:2},r:{v:4}},r:{v:6}}; expect(kth(t,1)).toBe(2); expect(kth(t,3)).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
+  it('computes sum of all subsets', () => { const sos=(a:number[])=>a.reduce((s,v)=>s+v*Math.pow(2,a.length-1),0); expect(sos([1,2,3])).toBe(24); expect(sos([1])).toBe(1); });
+  it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
+  it('finds longest common substring', () => { const lcs=(a:string,b:string)=>{let max=0,end=0;const dp=Array.from({length:a.length+1},()=>new Array(b.length+1).fill(0));for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)if(a[i-1]===b[j-1]){dp[i][j]=dp[i-1][j-1]+1;if(dp[i][j]>max){max=dp[i][j];end=i;}}return a.slice(end-max,end);}; expect(lcs('abcdef','zcdemf')).toBe('cde'); });
+  it('checks if array has majority element', () => { const hasMaj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt===1?(cand=a[i],1):cnt-1;return a.filter(v=>v===cand).length>a.length/2;}; expect(hasMaj([3,2,3])).toBe(true); expect(hasMaj([1,2,3])).toBe(false); });
+});

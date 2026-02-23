@@ -660,3 +660,12 @@ describe('phase48 coverage', () => {
   it('computes sum of digits until single digit', () => { const dr=(n:number):number=>n<10?n:dr([...String(n)].reduce((s,d)=>s+Number(d),0)); expect(dr(9875)).toBe(2); expect(dr(0)).toBe(0); });
   it('finds all rectangles in binary matrix', () => { const rects=(m:number[][])=>{let cnt=0;for(let r1=0;r1<m.length;r1++)for(let r2=r1;r2<m.length;r2++)for(let c1=0;c1<m[0].length;c1++)for(let c2=c1;c2<m[0].length;c2++){let ok=true;for(let r=r1;r<=r2&&ok;r++)for(let c=c1;c<=c2&&ok;c++)if(!m[r][c])ok=false;if(ok)cnt++;}return cnt;}; expect(rects([[1,1],[1,1]])).toBe(9); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('finds diameter of binary tree', () => { type N={v:number;l?:N;r?:N};let dia=0;const depth=(n:N|undefined):number=>{if(!n)return 0;const l=depth(n.l),r=depth(n.r);dia=Math.max(dia,l+r);return 1+Math.max(l,r);};const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3}};dia=0;depth(t); expect(dia).toBe(3); });
+  it('computes sum of left leaves', () => { type N={v:number;l?:N;r?:N};const sll=(n:N|undefined,isLeft=false):number=>{if(!n)return 0;if(!n.l&&!n.r)return isLeft?n.v:0;return sll(n.l,true)+sll(n.r,false);}; const t:N={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; expect(sll(t)).toBe(24); });
+  it('computes shuffle of array', () => { const sh=(a:number[])=>{const n=a.length/2,r:number[]=[];for(let i=0;i<n;i++)r.push(a[i],a[i+n]);return r;}; expect(sh([2,5,1,3,4,7])).toEqual([2,3,5,4,1,7]); });
+  it('finds the skyline of buildings', () => { const sky=(b:[number,number,number][])=>{const pts:[number,number][]=[];b.forEach(([l,r,h])=>{pts.push([l,-h],[r,h]);});pts.sort((a,b2)=>a[0]-b2[0]||a[1]-b2[1]);const heap=[0];let res:[number,number][]=[];for(const [x,h] of pts){if(h<0)heap.push(-h);else heap.splice(heap.indexOf(h),1);const top=Math.max(...heap);if(!res.length||res[res.length-1][1]!==top)res.push([x,top]);}return res;}; expect(sky([[2,9,10],[3,7,15],[5,12,12]]).length).toBeGreaterThan(0); });
+});

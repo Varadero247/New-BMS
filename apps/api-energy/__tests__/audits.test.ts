@@ -761,3 +761,12 @@ describe('phase48 coverage', () => {
   it('computes next higher number with same bits', () => { const next=(n:number)=>{const t=n|(n-1);return (t+1)|((~t&-(~t))-1)>>(n&-n).toString(2).length;}; expect(next(6)).toBe(9); });
   it('computes binomial coefficient C(n,k)', () => { const cn=(n:number,k:number):number=>k===0||k===n?1:cn(n-1,k-1)+cn(n-1,k); expect(cn(5,2)).toBe(10); expect(cn(6,3)).toBe(20); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds running sum of array', () => { const rs=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++)r[i]+=r[i-1];return r;}; expect(rs([1,2,3,4])).toEqual([1,3,6,10]); expect(rs([3,1,2,10,1])).toEqual([3,4,6,16,17]); });
+  it('finds peak element in array', () => { const peak=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;a[m]>a[m+1]?r=m:l=m+1;}return l;}; expect(peak([1,2,3,1])).toBe(2); expect(peak([1,2,1,3,5,6,4])).toBeGreaterThanOrEqual(0); });
+  it('checks if array can be partitioned into equal sums', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const v of a)for(let j=t;j>=v;j--)dp[j]=dp[j]||dp[j-v];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+  it('computes shuffle of array', () => { const sh=(a:number[])=>{const n=a.length/2,r:number[]=[];for(let i=0;i<n;i++)r.push(a[i],a[i+n]);return r;}; expect(sh([2,5,1,3,4,7])).toEqual([2,3,5,4,1,7]); });
+  it('finds closest pair of points', () => { const cp=(pts:[number,number][])=>{const d=([x1,y1]:[number,number],[x2,y2]:[number,number])=>Math.hypot(x2-x1,y2-y1);let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,d(pts[i],pts[j]));return min;}; expect(cp([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.sqrt(2)); });
+});

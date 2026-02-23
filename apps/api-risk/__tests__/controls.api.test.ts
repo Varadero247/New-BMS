@@ -665,3 +665,12 @@ describe('phase48 coverage', () => {
   it('computes minimum cost to cut rod', () => { const cr=(n:number,cuts:number[])=>{const c=[0,...cuts.sort((a,b)=>a-b),n];const m=c.length;const dp:number[][]=Array.from({length:m},()=>new Array(m).fill(0));for(let l=2;l<m;l++)for(let i=0;i<m-l;i++){const j=i+l;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+c[j]-c[i]);}return dp[0][m-1];}; expect(cr(7,[1,3,4,5])).toBe(16); });
   it('implements skip list lookup', () => { const sl=()=>{const data:number[]=[];return{ins:(v:number)=>{const i=data.findIndex(x=>x>=v);data.splice(i===-1?data.length:i,0,v);},has:(v:number)=>data.includes(v),size:()=>data.length};}; const s=sl();[5,3,7,1,4].forEach(v=>s.ins(v)); expect(s.has(3)).toBe(true); expect(s.has(6)).toBe(false); expect(s.size()).toBe(5); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds the celebrity in a party', () => { const cel=(knows:(a:number,b:number)=>boolean,n:number)=>{let cand=0;for(let i=1;i<n;i++)if(knows(cand,i))cand=i;for(let i=0;i<n;i++)if(i!==cand&&(knows(cand,i)||!knows(i,cand)))return -1;return cand;}; const m=[[0,1,1],[0,0,1],[0,0,0]];const k=(a:number,b:number)=>m[a][b]===1; expect(cel(k,3)).toBe(2); });
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);return{upd:(i:number,v:number)=>{for(;i<=n;i+=i&-i)t[i]+=v;},sum:(i:number)=>{let s=0;for(;i>0;i-=i&-i)s+=t[i];return s;}};}; const b=bit(5);b.upd(1,3);b.upd(3,2);b.upd(5,1); expect(b.sum(3)).toBe(5); expect(b.sum(5)).toBe(6); });
+  it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+  it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
+});

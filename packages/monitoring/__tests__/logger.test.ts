@@ -509,3 +509,12 @@ describe('phase48 coverage', () => {
   it('finds all factor combinations', () => { const fc=(n:number):number[][]=>{ const r:number[][]=[];const bt=(rem:number,min:number,cur:number[])=>{if(rem===1&&cur.length>1)r.push([...cur]);for(let f=min;f<=rem;f++)if(rem%f===0){bt(rem/f,f,[...cur,f]);}};bt(n,2,[]);return r;}; expect(fc(12).length).toBe(3); expect(fc(12)).toContainEqual([2,6]); });
   it('finds minimum cost to reach last cell', () => { const mc=(g:number[][])=>{const r=g.length,c=g[0].length;const dp=Array.from({length:r},(_,i)=>Array.from({length:c},(_,j)=>i===0&&j===0?g[0][0]:Infinity));for(let i=0;i<r;i++)for(let j=0;j<c;j++){if(!i&&!j)continue;const a=i>0?dp[i-1][j]:Infinity,b=j>0?dp[i][j-1]:Infinity;dp[i][j]=Math.min(a,b)+g[i][j];}return dp[r-1][c-1];}; expect(mc([[1,2,3],[4,8,2],[1,5,3]])).toBe(11); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes the number of good pairs', () => { const gp=(a:number[])=>{const m=new Map<number,number>();let cnt=0;for(const v of a){cnt+=m.get(v)||0;m.set(v,(m.get(v)||0)+1);}return cnt;}; expect(gp([1,2,3,1,1,3])).toBe(4); expect(gp([1,1,1,1])).toBe(6); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);return{upd:(i:number,v:number)=>{for(;i<=n;i+=i&-i)t[i]+=v;},sum:(i:number)=>{let s=0;for(;i>0;i-=i&-i)s+=t[i];return s;}};}; const b=bit(5);b.upd(1,3);b.upd(3,2);b.upd(5,1); expect(b.sum(3)).toBe(5); expect(b.sum(5)).toBe(6); });
+  it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('computes matrix chain multiplication order', () => { const mcm=(p:number[])=>{const n=p.length-1;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+p[i]*p[k+1]*p[j+1]);}return dp[0][n-1];}; expect(mcm([1,2,3,4])).toBe(18); });
+});

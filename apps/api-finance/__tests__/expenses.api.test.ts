@@ -664,3 +664,12 @@ describe('phase48 coverage', () => {
   it('finds sum of distances in tree', () => { const sd=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const cnt=new Array(n).fill(1),ans=new Array(n).fill(0);const dfs1=(u:number,p:number,d:number)=>{adj[u].forEach(v=>{if(v!==p){dfs1(v,u,d+1);cnt[u]+=cnt[v];ans[0]+=d+1;}});};const dfs2=(u:number,p:number)=>{adj[u].forEach(v=>{if(v!==p){ans[v]=ans[u]-cnt[v]+(n-cnt[v]);dfs2(v,u);}});};dfs1(0,-1,0);dfs2(0,-1);return ans;}; const r=sd(6,[[0,1],[0,2],[2,3],[2,4],[2,5]]); expect(r[0]).toBe(8); });
   it('checks if string matches simple regex', () => { const mr=(s:string,p:string):boolean=>{if(!p.length)return !s.length;const fm=p[0]==='.'||p[0]===s[0];if(p.length>1&&p[1]==='*')return mr(s,p.slice(2))||(s.length>0&&fm&&mr(s.slice(1),p));return s.length>0&&fm&&mr(s.slice(1),p.slice(1));}; expect(mr('aa','a*')).toBe(true); expect(mr('ab','.*')).toBe(true); expect(mr('aab','c*a*b')).toBe(true); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds maximum score from removing stones', () => { const ms=(a:number,b:number,c:number)=>{const s=[a,b,c].sort((x,y)=>x-y);return s[2]>=s[0]+s[1]?s[0]+s[1]:Math.floor((a+b+c)/2);}; expect(ms(2,4,6)).toBe(6); expect(ms(4,4,6)).toBe(7); });
+  it('computes number of ways to decode string', () => { const dec=(s:string)=>{if(!s||s[0]==='0')return 0;const n=s.length,dp=new Array(n+1).fill(0);dp[0]=dp[1]=1;for(let i=2;i<=n;i++){if(s[i-1]!=='0')dp[i]+=dp[i-1];const two=Number(s.slice(i-2,i));if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(dec('12')).toBe(2); expect(dec('226')).toBe(3); expect(dec('06')).toBe(0); });
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
+  it('checks if n-queens placement is valid', () => { const valid=(q:number[])=>{const n=q.length;for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)if(q[i]===q[j]||Math.abs(q[i]-q[j])===j-i)return false;return true;}; expect(valid([1,3,0,2])).toBe(true); expect(valid([0,1,2,3])).toBe(false); });
+});

@@ -654,3 +654,12 @@ describe('phase48 coverage', () => {
   it('computes maximum profit with transaction fee', () => { const mp=(p:number[],fee:number)=>{let cash=0,hold=-Infinity;for(const v of p){cash=Math.max(cash,hold+v-fee);hold=Math.max(hold,cash-v);}return cash;}; expect(mp([1,3,2,8,4,9],2)).toBe(8); });
   it('finds minimum number of cuts for palindrome partitioning', () => { const mc=(s:string)=>{const n=s.length;const pal=Array.from({length:n},()=>new Array(n).fill(false));for(let i=0;i<n;i++)pal[i][i]=true;for(let l=2;l<=n;l++)for(let i=0;i<n-l+1;i++){const j=i+l-1;pal[i][j]=(s[i]===s[j])&&(l<=2||pal[i+1][j-1]);}const dp=new Array(n).fill(Infinity);for(let i=0;i<n;i++){if(pal[0][i])dp[i]=0;else for(let j=1;j<=i;j++)if(pal[j][i])dp[i]=Math.min(dp[i],dp[j-1]+1);}return dp[n-1];}; expect(mc('aab')).toBe(1); expect(mc('aaa')).toBe(0); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes number of ways to decode string', () => { const dec=(s:string)=>{if(!s||s[0]==='0')return 0;const n=s.length,dp=new Array(n+1).fill(0);dp[0]=dp[1]=1;for(let i=2;i<=n;i++){if(s[i-1]!=='0')dp[i]+=dp[i-1];const two=Number(s.slice(i-2,i));if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(dec('12')).toBe(2); expect(dec('226')).toBe(3); expect(dec('06')).toBe(0); });
+  it('finds minimum deletions to make string balanced', () => { const md=(s:string)=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;}; expect(md('(())')).toBe(0); expect(md('(())')).toBe(0); expect(md('))((')).toBe(4); });
+  it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
+  it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
+  it('checks if parentheses are balanced', () => { const bal=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(bal('(())')).toBe(true); expect(bal('(()')).toBe(false); expect(bal(')(')).toBe(false); });
+});

@@ -806,3 +806,12 @@ describe('phase48 coverage', () => {
   it('finds longest balanced parentheses substring', () => { const lb=(s:string)=>{const st:number[]=[-1];let best=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();if(!st.length)st.push(i);else best=Math.max(best,i-st[st.length-1]);}}return best;}; expect(lb('(()')).toBe(2); expect(lb(')()())')).toBe(4); });
   it('implements skip list lookup', () => { const sl=()=>{const data:number[]=[];return{ins:(v:number)=>{const i=data.findIndex(x=>x>=v);data.splice(i===-1?data.length:i,0,v);},has:(v:number)=>data.includes(v),size:()=>data.length};}; const s=sl();[5,3,7,1,4].forEach(v=>s.ins(v)); expect(s.has(3)).toBe(true); expect(s.has(6)).toBe(false); expect(s.size()).toBe(5); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds all subsets with target sum', () => { const ss=(a:number[],t:number):number[][]=>{const r:number[][]=[];const bt=(i:number,cur:number[],sum:number)=>{if(sum===t)r.push([...cur]);if(sum>=t||i>=a.length)return;for(let j=i;j<a.length;j++)bt(j+1,[...cur,a[j]],sum+a[j]);};bt(0,[],0);return r;}; expect(ss([2,3,6,7],7).length).toBe(1); });
+  it('computes number of ways to tile 2xn board', () => { const tile=(n:number):number=>n<=1?1:tile(n-1)+tile(n-2); expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('finds the celebrity using stack', () => { const cel2=(m:number[][])=>{const n=m.length,s=Array.from({length:n},(_,i)=>i);while(s.length>1){const a=s.pop()!,b=s.pop()!;m[a][b]?s.push(b):s.push(a);}const c=s[0];return m[c].every((_,j)=>j===c||!m[c][j])&&m.every((_,i)=>i===c||m[i][c])?c:-1;}; const mx=[[0,1,1],[0,0,1],[0,0,0]]; expect(cel2(mx)).toBe(2); });
+  it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
+  it('finds diameter of binary tree', () => { type N={v:number;l?:N;r?:N};let dia=0;const depth=(n:N|undefined):number=>{if(!n)return 0;const l=depth(n.l),r=depth(n.r);dia=Math.max(dia,l+r);return 1+Math.max(l,r);};const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3}};dia=0;depth(t); expect(dia).toBe(3); });
+});

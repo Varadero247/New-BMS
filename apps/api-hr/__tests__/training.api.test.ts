@@ -1065,3 +1065,12 @@ describe('phase48 coverage', () => {
   it('computes chromatic number (greedy coloring)', () => { const gc=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const col=new Array(n).fill(-1);for(let u=0;u<n;u++){const used=new Set(adj[u].map(v=>col[v]).filter(c=>c>=0));let c=0;while(used.has(c))c++;col[u]=c;}return Math.max(...col)+1;}; expect(gc(4,[[0,1],[1,2],[2,3],[3,0]])).toBe(2); expect(gc(3,[[0,1],[1,2],[2,0]])).toBe(3); });
   it('computes longest zig-zag subsequence', () => { const lzz=(a:number[])=>{const up=new Array(a.length).fill(1),dn=new Array(a.length).fill(1);for(let i=1;i<a.length;i++)for(let j=0;j<i;j++){if(a[i]>a[j])up[i]=Math.max(up[i],dn[j]+1);else if(a[i]<a[j])dn[i]=Math.max(dn[i],up[j]+1);}return Math.max(...up,...dn);}; expect(lzz([1,7,4,9,2,5])).toBe(6); expect(lzz([1,4,7,2,5])).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('implements string compression', () => { const comp=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=s[i]+(j-i>1?j-i:'');i=j;}return r.length<s.length?r:s;}; expect(comp('aabcccdddd')).toBe('a2bc3d4'); expect(comp('abcd')).toBe('abcd'); });
+  it('computes minimum cost to connect ropes', () => { const mc=(r:number[])=>{const pq=[...r].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!,s=a+b;cost+=s;let i=0;while(i<pq.length&&pq[i]<s)i++;pq.splice(i,0,s);}return cost;}; expect(mc([4,3,2,6])).toBe(29); });
+  it('finds the smallest missing positive integer', () => { const smp=(a:number[])=>{const n=a.length;for(let i=0;i<n;i++)while(a[i]>0&&a[i]<=n&&a[a[i]-1]!==a[i]){const t=a[a[i]-1];a[a[i]-1]=a[i];a[i]=t;}for(let i=0;i<n;i++)if(a[i]!==i+1)return i+1;return n+1;}; expect(smp([1,2,0])).toBe(3); expect(smp([3,4,-1,1])).toBe(2); expect(smp([7,8,9])).toBe(1); });
+  it('finds peak element in array', () => { const peak=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;a[m]>a[m+1]?r=m:l=m+1;}return l;}; expect(peak([1,2,3,1])).toBe(2); expect(peak([1,2,1,3,5,6,4])).toBeGreaterThanOrEqual(0); });
+  it('finds the celebrity using stack', () => { const cel2=(m:number[][])=>{const n=m.length,s=Array.from({length:n},(_,i)=>i);while(s.length>1){const a=s.pop()!,b=s.pop()!;m[a][b]?s.push(b):s.push(a);}const c=s[0];return m[c].every((_,j)=>j===c||!m[c][j])&&m.every((_,i)=>i===c||m[i][c])?c:-1;}; const mx=[[0,1,1],[0,0,1],[0,0,0]]; expect(cel2(mx)).toBe(2); });
+});

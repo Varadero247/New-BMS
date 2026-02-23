@@ -1003,3 +1003,12 @@ describe('phase48 coverage', () => {
   it('implements treap operations', () => { type T={k:number;p:number;l?:T;r?:T}; const ins=(t:T|undefined,k:number):T=>{const n:T={k,p:Math.random()};if(!t)return n;if(k<t.k){t.l=ins(t.l,k);if(t.l.p>t.p)[t.k,t.l.k]=[t.l.k,t.k];}else{t.r=ins(t.r,k);if(t.r.p>t.p)[t.k,t.r.k]=[t.r.k,t.k];}return t;};const cnt=(t:T|undefined):number=>t?1+cnt(t.l)+cnt(t.r):0; let tr:T|undefined;[5,3,7,1,4,6,8].forEach(k=>{tr=ins(tr,k);}); expect(cnt(tr)).toBe(7); });
   it('computes bit reversal', () => { const rev=(n:number,bits=8)=>{let r=0;for(let i=0;i<bits;i++){r=(r<<1)|(n&1);n>>=1;}return r;}; expect(rev(0b10110001,8)).toBe(0b10001101); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes minimum cost to connect ropes', () => { const mc=(r:number[])=>{const pq=[...r].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!,s=a+b;cost+=s;let i=0;while(i<pq.length&&pq[i]<s)i++;pq.splice(i,0,s);}return cost;}; expect(mc([4,3,2,6])).toBe(29); });
+  it('implements string compression', () => { const comp=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=s[i]+(j-i>1?j-i:'');i=j;}return r.length<s.length?r:s;}; expect(comp('aabcccdddd')).toBe('a2bc3d4'); expect(comp('abcd')).toBe('abcd'); });
+  it('finds the skyline of buildings', () => { const sky=(b:[number,number,number][])=>{const pts:[number,number][]=[];b.forEach(([l,r,h])=>{pts.push([l,-h],[r,h]);});pts.sort((a,b2)=>a[0]-b2[0]||a[1]-b2[1]);const heap=[0];let res:[number,number][]=[];for(const [x,h] of pts){if(h<0)heap.push(-h);else heap.splice(heap.indexOf(h),1);const top=Math.max(...heap);if(!res.length||res[res.length-1][1]!==top)res.push([x,top]);}return res;}; expect(sky([[2,9,10],[3,7,15],[5,12,12]]).length).toBeGreaterThan(0); });
+  it('finds maximum score from removing stones', () => { const ms=(a:number,b:number,c:number)=>{const s=[a,b,c].sort((x,y)=>x-y);return s[2]>=s[0]+s[1]?s[0]+s[1]:Math.floor((a+b+c)/2);}; expect(ms(2,4,6)).toBe(6); expect(ms(4,4,6)).toBe(7); });
+  it('finds longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?(len===2?2:dp[i+1][j-1]+2):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
+});

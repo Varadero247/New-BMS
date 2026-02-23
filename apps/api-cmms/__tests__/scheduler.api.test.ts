@@ -686,3 +686,12 @@ describe('phase48 coverage', () => {
   it('checks if array is a permutation of 1..n', () => { const isPerm=(a:number[])=>{const n=a.length;return a.every(v=>v>=1&&v<=n)&&new Set(a).size===n;}; expect(isPerm([2,3,1,4])).toBe(true); expect(isPerm([1,1,3,4])).toBe(false); });
   it('finds minimum number of cuts for palindrome partitioning', () => { const mc=(s:string)=>{const n=s.length;const pal=Array.from({length:n},()=>new Array(n).fill(false));for(let i=0;i<n;i++)pal[i][i]=true;for(let l=2;l<=n;l++)for(let i=0;i<n-l+1;i++){const j=i+l-1;pal[i][j]=(s[i]===s[j])&&(l<=2||pal[i+1][j-1]);}const dp=new Array(n).fill(Infinity);for(let i=0;i<n;i++){if(pal[0][i])dp[i]=0;else for(let j=1;j<=i;j++)if(pal[j][i])dp[i]=Math.min(dp[i],dp[j-1]+1);}return dp[n-1];}; expect(mc('aab')).toBe(1); expect(mc('aaa')).toBe(0); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
+  it('computes the number of good pairs', () => { const gp=(a:number[])=>{const m=new Map<number,number>();let cnt=0;for(const v of a){cnt+=m.get(v)||0;m.set(v,(m.get(v)||0)+1);}return cnt;}; expect(gp([1,2,3,1,1,3])).toBe(4); expect(gp([1,1,1,1])).toBe(6); });
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
+});

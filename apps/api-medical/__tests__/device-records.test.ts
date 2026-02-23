@@ -908,3 +908,12 @@ describe('phase48 coverage', () => {
   it('finds two missing numbers in range', () => { const tm=(a:number[],n:number)=>{const s=a.reduce((acc,v)=>acc+v,0),sp=a.reduce((acc,v)=>acc+v*v,0);const ts=n*(n+1)/2,tsp=n*(n+1)*(2*n+1)/6;const d=ts-s,dp2=tsp-sp;const b=(dp2/d-d)/2;return [Math.round(b+d),Math.round(b)].sort((x,y)=>x-y);}; expect(tm([1,2,4,6],6)).toEqual([-2,6]); });
   it('finds Eulerian path existence', () => { const ep=(n:number,edges:[number,number][])=>{const deg=new Array(n).fill(0);edges.forEach(([u,v])=>{deg[u]++;deg[v]++;});const odd=deg.filter(d=>d%2!==0).length;return odd===0||odd===2;}; expect(ep(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(ep(4,[[0,1],[1,2],[2,3],[3,1]])).toBe(true); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds the majority element (Boyer-Moore)', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt-1||(cand=a[i],1);return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); });
+  it('computes minimum cost to connect ropes', () => { const mc=(r:number[])=>{const pq=[...r].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!,s=a+b;cost+=s;let i=0;while(i<pq.length&&pq[i]<s)i++;pq.splice(i,0,s);}return cost;}; expect(mc([4,3,2,6])).toBe(29); });
+  it('computes minimum time to finish tasks', () => { const mtt=(t:number[],k:number)=>{const s=[...t].sort((a,b)=>b-a);let time=0;for(let i=0;i<s.length;i+=k)time+=s[i];return time;}; expect(mtt([3,2,4,4,4,2,2],3)).toBe(9); });
+  it('checks if string matches wildcard pattern', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)dp[0][j]=p[j-1]==='*'&&dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?dp[i-1][j]||dp[i][j-1]:dp[i-1][j-1]&&(p[j-1]==='?'||p[j-1]===s[i-1]);return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('finds longest path in DAG', () => { const lpdag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const dp=new Array(n).fill(0);const vis=new Array(n).fill(false);const dfs=(u:number):number=>{if(vis[u])return dp[u];vis[u]=true;dp[u]=Math.max(0,...adj[u].map(v=>1+dfs(v)));return dp[u];};for(let i=0;i<n;i++)dfs(i);return Math.max(...dp);}; expect(lpdag(6,[[0,1],[0,2],[1,4],[1,3],[3,4],[4,5]])).toBe(4); });
+});

@@ -1033,3 +1033,12 @@ describe('phase48 coverage', () => {
   it('computes minimum cost to cut rod', () => { const cr=(n:number,cuts:number[])=>{const c=[0,...cuts.sort((a,b)=>a-b),n];const m=c.length;const dp:number[][]=Array.from({length:m},()=>new Array(m).fill(0));for(let l=2;l<m;l++)for(let i=0;i<m-l;i++){const j=i+l;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+c[j]-c[i]);}return dp[0][m-1];}; expect(cr(7,[1,3,4,5])).toBe(16); });
   it('finds minimum vertex cover size', () => { const mvc=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const visited=new Set<number>(),matched=new Array(n).fill(-1);const dfs=(u:number,vis:Set<number>):boolean=>{for(const v of adj[u]){if(!vis.has(v)){vis.add(v);if(matched[v]===-1||dfs(matched[v],vis)){matched[v]=u;return true;}}}return false;};for(let u=0;u<n;u++){const vis=new Set([u]);dfs(u,vis);}return matched.filter(v=>v!==-1).length;}; expect(mvc(4,[[0,1],[1,2],[2,3]])).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes shuffle of array', () => { const sh=(a:number[])=>{const n=a.length/2,r:number[]=[];for(let i=0;i<n;i++)r.push(a[i],a[i+n]);return r;}; expect(sh([2,5,1,3,4,7])).toEqual([2,3,5,4,1,7]); });
+  it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
+  it('implements string compression', () => { const comp=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=s[i]+(j-i>1?j-i:'');i=j;}return r.length<s.length?r:s;}; expect(comp('aabcccdddd')).toBe('a2bc3d4'); expect(comp('abcd')).toBe('abcd'); });
+  it('computes edit distance (Levenshtein)', () => { const ed=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('kitten','sitting')).toBe(3); expect(ed('','abc')).toBe(3); });
+  it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
+});

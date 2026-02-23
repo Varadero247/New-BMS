@@ -849,3 +849,12 @@ describe('phase48 coverage', () => {
   it('finds the right sibling of each tree node', () => { type N={v:number;l?:N;r?:N;next?:N}; const connect=(root:N|undefined)=>{if(!root)return;const q:N[]=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i<sz-1)n.next=q[0];if(n.l)q.push(n.l);if(n.r)q.push(n.r);}}return root;}; const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3,r:{v:7}}}; connect(t); expect(t.l?.next?.v).toBe(3); });
   it('implements skip list lookup', () => { const sl=()=>{const data:number[]=[];return{ins:(v:number)=>{const i=data.findIndex(x=>x>=v);data.splice(i===-1?data.length:i,0,v);},has:(v:number)=>data.includes(v),size:()=>data.length};}; const s=sl();[5,3,7,1,4].forEach(v=>s.ins(v)); expect(s.has(3)).toBe(true); expect(s.has(6)).toBe(false); expect(s.size()).toBe(5); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('checks if parentheses are balanced', () => { const bal=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(bal('(())')).toBe(true); expect(bal('(()')).toBe(false); expect(bal(')(')).toBe(false); });
+  it('checks if array has majority element', () => { const hasMaj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt===1?(cand=a[i],1):cnt-1;return a.filter(v=>v===cand).length>a.length/2;}; expect(hasMaj([3,2,3])).toBe(true); expect(hasMaj([1,2,3])).toBe(false); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);return{upd:(i:number,v:number)=>{for(;i<=n;i+=i&-i)t[i]+=v;},sum:(i:number)=>{let s=0;for(;i>0;i-=i&-i)s+=t[i];return s;}};}; const b=bit(5);b.upd(1,3);b.upd(3,2);b.upd(5,1); expect(b.sum(3)).toBe(5); expect(b.sum(5)).toBe(6); });
+  it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
+});

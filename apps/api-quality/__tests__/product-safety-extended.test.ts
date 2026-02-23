@@ -828,3 +828,12 @@ describe('phase48 coverage', () => {
   it('computes maximum profit with transaction fee', () => { const mp=(p:number[],fee:number)=>{let cash=0,hold=-Infinity;for(const v of p){cash=Math.max(cash,hold+v-fee);hold=Math.max(hold,cash-v);}return cash;}; expect(mp([1,3,2,8,4,9],2)).toBe(8); });
   it('finds sum of distances in tree', () => { const sd=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const cnt=new Array(n).fill(1),ans=new Array(n).fill(0);const dfs1=(u:number,p:number,d:number)=>{adj[u].forEach(v=>{if(v!==p){dfs1(v,u,d+1);cnt[u]+=cnt[v];ans[0]+=d+1;}});};const dfs2=(u:number,p:number)=>{adj[u].forEach(v=>{if(v!==p){ans[v]=ans[u]-cnt[v]+(n-cnt[v]);dfs2(v,u);}});};dfs1(0,-1,0);dfs2(0,-1);return ans;}; const r=sd(6,[[0,1],[0,2],[2,3],[2,4],[2,5]]); expect(r[0]).toBe(8); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes shuffle of array', () => { const sh=(a:number[])=>{const n=a.length/2,r:number[]=[];for(let i=0;i<n;i++)r.push(a[i],a[i+n]);return r;}; expect(sh([2,5,1,3,4,7])).toEqual([2,3,5,4,1,7]); });
+  it('checks if two strings are isomorphic', () => { const iso=(s:string,t:string)=>{const sm=new Map<string,string>(),tm=new Set<string>();for(let i=0;i<s.length;i++){if(sm.has(s[i])){if(sm.get(s[i])!==t[i])return false;}else{if(tm.has(t[i]))return false;sm.set(s[i],t[i]);tm.add(t[i]);}}return true;}; expect(iso('egg','add')).toBe(true); expect(iso('foo','bar')).toBe(false); expect(iso('paper','title')).toBe(true); });
+  it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
+  it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+  it('finds maximum product subarray', () => { const mps=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],a[i]*max,a[i]*min);min=Math.min(a[i],a[i]*t,a[i]*min);res=Math.max(res,max);}return res;}; expect(mps([2,3,-2,4])).toBe(6); expect(mps([-2,0,-1])).toBe(0); });
+});

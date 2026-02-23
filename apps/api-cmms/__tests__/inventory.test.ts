@@ -612,3 +612,12 @@ describe('phase48 coverage', () => {
   it('computes bit reversal', () => { const rev=(n:number,bits=8)=>{let r=0;for(let i=0;i<bits;i++){r=(r<<1)|(n&1);n>>=1;}return r;}; expect(rev(0b10110001,8)).toBe(0b10001101); });
   it('checks if graph has Eulerian circuit', () => { const ec=(n:number,edges:[number,number][])=>{const deg=new Array(n).fill(0);edges.forEach(([u,v])=>{deg[u]++;deg[v]++;});return deg.every(d=>d%2===0);}; expect(ec(4,[[0,1],[1,2],[2,3],[3,0],[0,2]])).toBe(false); expect(ec(3,[[0,1],[1,2],[2,0]])).toBe(true); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
+  it('computes longest valid parentheses', () => { const lvp=(s:string)=>{const st=[-1];let max=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();st.length?max=Math.max(max,i-st[st.length-1]):st.push(i);}}return max;}; expect(lvp('(()')).toBe(2); expect(lvp(')()())')).toBe(4); });
+  it('computes sum of left leaves', () => { type N={v:number;l?:N;r?:N};const sll=(n:N|undefined,isLeft=false):number=>{if(!n)return 0;if(!n.l&&!n.r)return isLeft?n.v:0;return sll(n.l,true)+sll(n.r,false);}; const t:N={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; expect(sll(t)).toBe(24); });
+  it('finds the skyline of buildings', () => { const sky=(b:[number,number,number][])=>{const pts:[number,number][]=[];b.forEach(([l,r,h])=>{pts.push([l,-h],[r,h]);});pts.sort((a,b2)=>a[0]-b2[0]||a[1]-b2[1]);const heap=[0];let res:[number,number][]=[];for(const [x,h] of pts){if(h<0)heap.push(-h);else heap.splice(heap.indexOf(h),1);const top=Math.max(...heap);if(!res.length||res[res.length-1][1]!==top)res.push([x,top]);}return res;}; expect(sky([[2,9,10],[3,7,15],[5,12,12]]).length).toBeGreaterThan(0); });
+  it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
+});

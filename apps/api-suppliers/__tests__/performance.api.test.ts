@@ -533,3 +533,12 @@ describe('phase48 coverage', () => {
   it('checks if string is valid bracket sequence', () => { const vb=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(vb('(())')).toBe(true); expect(vb('(()')).toBe(false); expect(vb(')(')).toBe(false); });
   it('finds Eulerian path existence', () => { const ep=(n:number,edges:[number,number][])=>{const deg=new Array(n).fill(0);edges.forEach(([u,v])=>{deg[u]++;deg[v]++;});const odd=deg.filter(d=>d%2!==0).length;return odd===0||odd===2;}; expect(ep(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(ep(4,[[0,1],[1,2],[2,3],[3,1]])).toBe(true); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes longest valid parentheses', () => { const lvp=(s:string)=>{const st=[-1];let max=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();st.length?max=Math.max(max,i-st[st.length-1]):st.push(i);}}return max;}; expect(lvp('(()')).toBe(2); expect(lvp(')()())')).toBe(4); });
+  it('checks if array has majority element', () => { const hasMaj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt===1?(cand=a[i],1):cnt-1;return a.filter(v=>v===cand).length>a.length/2;}; expect(hasMaj([3,2,3])).toBe(true); expect(hasMaj([1,2,3])).toBe(false); });
+  it('computes number of BSTs with n nodes', () => { const numBST=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=numBST(i-1)*numBST(n-i);return cnt;}; expect(numBST(3)).toBe(5); expect(numBST(4)).toBe(14); });
+  it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
+  it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+});

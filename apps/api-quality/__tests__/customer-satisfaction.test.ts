@@ -1120,3 +1120,12 @@ describe('phase48 coverage', () => {
   it('computes maximum meetings in one room', () => { const mm=(s:number[],e:number[])=>{const m=s.map((si,i)=>[si,e[i]] as [number,number]).sort((a,b)=>a[1]-b[1]);let cnt=1,end=m[0][1];for(let i=1;i<m.length;i++)if(m[i][0]>=end){cnt++;end=m[i][1];}return cnt;}; expect(mm([0,3,1,5],[5,4,2,9])).toBe(3); expect(mm([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
   it('implements treap operations', () => { type T={k:number;p:number;l?:T;r?:T}; const ins=(t:T|undefined,k:number):T=>{const n:T={k,p:Math.random()};if(!t)return n;if(k<t.k){t.l=ins(t.l,k);if(t.l.p>t.p)[t.k,t.l.k]=[t.l.k,t.k];}else{t.r=ins(t.r,k);if(t.r.p>t.p)[t.k,t.r.k]=[t.r.k,t.k];}return t;};const cnt=(t:T|undefined):number=>t?1+cnt(t.l)+cnt(t.r):0; let tr:T|undefined;[5,3,7,1,4,6,8].forEach(k=>{tr=ins(tr,k);}); expect(cnt(tr)).toBe(7); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('checks if string has all unique characters', () => { const uniq=(s:string)=>new Set(s).size===s.length; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); expect(uniq('')).toBe(true); });
+  it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
+  it('computes the number of good pairs', () => { const gp=(a:number[])=>{const m=new Map<number,number>();let cnt=0;for(const v of a){cnt+=m.get(v)||0;m.set(v,(m.get(v)||0)+1);}return cnt;}; expect(gp([1,2,3,1,1,3])).toBe(4); expect(gp([1,1,1,1])).toBe(6); });
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
+});

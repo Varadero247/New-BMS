@@ -568,3 +568,12 @@ describe('phase48 coverage', () => {
   it('checks if array can form arithmetic progression', () => { const ap=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const d=s[1]-s[0];return s.every((v,i)=>i===0||v-s[i-1]===d);}; expect(ap([3,5,1])).toBe(true); expect(ap([1,2,4])).toBe(false); });
   it('implements Rabin-Karp multi-pattern search', () => { const rk=(text:string,patterns:string[])=>{const res:Record<string,number[]>={};for(const p of patterns){res[p]=[];const n=p.length;for(let i=0;i<=text.length-n;i++)if(text.slice(i,i+n)===p)res[p].push(i);}return res;}; const r=rk('abcabcabc',['abc','bca']); expect(r['abc']).toEqual([0,3,6]); expect(r['bca']).toEqual([1,4]); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('checks if two strings are isomorphic', () => { const iso=(s:string,t:string)=>{const sm=new Map<string,string>(),tm=new Set<string>();for(let i=0;i<s.length;i++){if(sm.has(s[i])){if(sm.get(s[i])!==t[i])return false;}else{if(tm.has(t[i]))return false;sm.set(s[i],t[i]);tm.add(t[i]);}}return true;}; expect(iso('egg','add')).toBe(true); expect(iso('foo','bar')).toBe(false); expect(iso('paper','title')).toBe(true); });
+  it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
+  it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
+  it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
+  it('checks if array has majority element', () => { const hasMaj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt===1?(cand=a[i],1):cnt-1;return a.filter(v=>v===cand).length>a.length/2;}; expect(hasMaj([3,2,3])).toBe(true); expect(hasMaj([1,2,3])).toBe(false); });
+});

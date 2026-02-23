@@ -727,3 +727,12 @@ describe('phase48 coverage', () => {
   it('solves egg drop problem (2 eggs)', () => { const egg=(n:number)=>{let t=0,f=0;while(f<n){t++;f+=t;}return t;}; expect(egg(10)).toBe(4); expect(egg(14)).toBe(5); });
   it('implements disjoint set with rank', () => { const ds=(n:number)=>{const p=Array.from({length:n},(_,i)=>i),rk=new Array(n).fill(0);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{const ra=find(a),rb=find(b);if(ra===rb)return;if(rk[ra]<rk[rb])p[ra]=rb;else if(rk[ra]>rk[rb])p[rb]=ra;else{p[rb]=ra;rk[ra]++;}}; return{find,union,same:(a:number,b:number)=>find(a)===find(b)};}; const d=ds(5);d.union(0,1);d.union(1,2); expect(d.same(0,2)).toBe(true); expect(d.same(0,3)).toBe(false); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds peak element in array', () => { const peak=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;a[m]>a[m+1]?r=m:l=m+1;}return l;}; expect(peak([1,2,3,1])).toBe(2); expect(peak([1,2,1,3,5,6,4])).toBeGreaterThanOrEqual(0); });
+  it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
+  it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
+  it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
+  it('finds longest path in DAG', () => { const lpdag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const dp=new Array(n).fill(0);const vis=new Array(n).fill(false);const dfs=(u:number):number=>{if(vis[u])return dp[u];vis[u]=true;dp[u]=Math.max(0,...adj[u].map(v=>1+dfs(v)));return dp[u];};for(let i=0;i<n;i++)dfs(i);return Math.max(...dp);}; expect(lpdag(6,[[0,1],[0,2],[1,4],[1,3],[3,4],[4,5]])).toBe(4); });
+});

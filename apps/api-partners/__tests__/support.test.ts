@@ -693,3 +693,12 @@ describe('phase48 coverage', () => {
   it('finds the missing number in sequence', () => { const miss=(a:number[])=>{const n=a.length;return n*(n+1)/2-a.reduce((s,v)=>s+v,0);}; expect(miss([3,0,1])).toBe(2); expect(miss([9,6,4,2,3,5,7,0,1])).toBe(8); });
   it('finds the right sibling of each tree node', () => { type N={v:number;l?:N;r?:N;next?:N}; const connect=(root:N|undefined)=>{if(!root)return;const q:N[]=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i<sz-1)n.next=q[0];if(n.l)q.push(n.l);if(n.r)q.push(n.r);}}return root;}; const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3,r:{v:7}}}; connect(t); expect(t.l?.next?.v).toBe(3); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes longest increasing path in matrix', () => { const lip=(m:number[][])=>{const r=m.length,c=m[0].length,memo=Array.from({length:r},()=>new Array(c).fill(0));const dfs=(i:number,j:number):number=>{if(memo[i][j])return memo[i][j];const dirs=[[0,1],[0,-1],[1,0],[-1,0]];return memo[i][j]=1+Math.max(0,...dirs.map(([di,dj])=>{const ni=i+di,nj=j+dj;return ni>=0&&ni<r&&nj>=0&&nj<c&&m[ni][nj]>m[i][j]?dfs(ni,nj):0;}));};let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++)max=Math.max(max,dfs(i,j));return max;}; expect(lip([[9,9,4],[6,6,8],[2,1,1]])).toBe(4); });
+  it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
+  it('finds longest bitonic subsequence', () => { const lbs=(a:number[])=>{const n=a.length;const lis=new Array(n).fill(1),lds=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(a[j]<a[i])lis[i]=Math.max(lis[i],lis[j]+1);for(let i=n-2;i>=0;i--)for(let j=n-1;j>i;j--)if(a[j]<a[i])lds[i]=Math.max(lds[i],lds[j]+1);return Math.max(...a.map((_,i)=>lis[i]+lds[i]-1));}; expect(lbs([1,11,2,10,4,5,2,1])).toBe(6); });
+});

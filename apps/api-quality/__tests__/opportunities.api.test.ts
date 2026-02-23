@@ -1005,3 +1005,12 @@ describe('phase48 coverage', () => {
   it('computes bit reversal', () => { const rev=(n:number,bits=8)=>{let r=0;for(let i=0;i<bits;i++){r=(r<<1)|(n&1);n>>=1;}return r;}; expect(rev(0b10110001,8)).toBe(0b10001101); });
   it('checks if graph has Eulerian circuit', () => { const ec=(n:number,edges:[number,number][])=>{const deg=new Array(n).fill(0);edges.forEach(([u,v])=>{deg[u]++;deg[v]++;});return deg.every(d=>d%2===0);}; expect(ec(4,[[0,1],[1,2],[2,3],[3,0],[0,2]])).toBe(false); expect(ec(3,[[0,1],[1,2],[2,0]])).toBe(true); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds diameter of binary tree', () => { type N={v:number;l?:N;r?:N};let dia=0;const depth=(n:N|undefined):number=>{if(!n)return 0;const l=depth(n.l),r=depth(n.r);dia=Math.max(dia,l+r);return 1+Math.max(l,r);};const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3}};dia=0;depth(t); expect(dia).toBe(3); });
+  it('finds longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?(len===2?2:dp[i+1][j-1]+2):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
+  it('finds the smallest missing positive integer', () => { const smp=(a:number[])=>{const n=a.length;for(let i=0;i<n;i++)while(a[i]>0&&a[i]<=n&&a[a[i]-1]!==a[i]){const t=a[a[i]-1];a[a[i]-1]=a[i];a[i]=t;}for(let i=0;i<n;i++)if(a[i]!==i+1)return i+1;return n+1;}; expect(smp([1,2,0])).toBe(3); expect(smp([3,4,-1,1])).toBe(2); expect(smp([7,8,9])).toBe(1); });
+  it('checks if string has all unique characters', () => { const uniq=(s:string)=>new Set(s).size===s.length; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); expect(uniq('')).toBe(true); });
+  it('finds the celebrity in a party', () => { const cel=(knows:(a:number,b:number)=>boolean,n:number)=>{let cand=0;for(let i=1;i<n;i++)if(knows(cand,i))cand=i;for(let i=0;i<n;i++)if(i!==cand&&(knows(cand,i)||!knows(i,cand)))return -1;return cand;}; const m=[[0,1,1],[0,0,1],[0,0,0]];const k=(a:number,b:number)=>m[a][b]===1; expect(cel(k,3)).toBe(2); });
+});

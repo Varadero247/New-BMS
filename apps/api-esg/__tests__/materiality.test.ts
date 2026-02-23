@@ -695,3 +695,12 @@ describe('phase48 coverage', () => {
   it('implements persistent array (copy-on-write)', () => { const pa=<T>(a:T[])=>{const copies:T[][]=[[...a]];return{read:(ver:number,i:number)=>copies[ver][i],write:(ver:number,i:number,v:T)=>{const nc=[...copies[ver]];nc[i]=v;copies.push(nc);return copies.length-1;},versions:()=>copies.length};}; const p=pa([1,2,3]);const v1=p.write(0,1,99); expect(p.read(0,1)).toBe(2); expect(p.read(v1,1)).toBe(99); });
   it('computes number of BSTs with n distinct keys', () => { const catalan=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>catalan(i)*catalan(n-1-i)).reduce((s,v)=>s+v,0); expect(catalan(3)).toBe(5); expect(catalan(5)).toBe(42); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes edit distance (Levenshtein)', () => { const ed=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('kitten','sitting')).toBe(3); expect(ed('','abc')).toBe(3); });
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
+  it('computes number of subarrays with given XOR', () => { const xsub=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let xr=0,cnt=0;for(const v of a){xr^=v;cnt+=mp.get(xr^k)||0;mp.set(xr,(mp.get(xr)||0)+1);}return cnt;}; expect(xsub([4,2,2,6,4],6)).toBe(4); });
+  it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y);const n=m.length;return n%2?m[n>>1]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
+});

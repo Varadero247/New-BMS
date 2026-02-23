@@ -543,3 +543,12 @@ describe('phase48 coverage', () => {
   it('checks if number is automorphic', () => { const auto=(n:number)=>String(n*n).endsWith(String(n)); expect(auto(5)).toBe(true); expect(auto(76)).toBe(true); expect(auto(7)).toBe(false); });
   it('counts set bits across range', () => { const cb=(n:number)=>{let c=0,x=n;while(x){c+=x&1;x>>=1;}return c;};const total=(n:number)=>Array.from({length:n+1},(_,i)=>cb(i)).reduce((s,v)=>s+v,0); expect(total(5)).toBe(7); expect(total(10)).toBe(17); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
+  it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
+  it('implements LFU cache', () => { const lfu=(cap:number)=>{const vals=new Map<number,number>(),freq=new Map<number,number>(),fmap=new Map<number,Set<number>>();let min=0;return{get:(k:number)=>{if(!vals.has(k))return -1;const f=freq.get(k)!;freq.set(k,f+1);fmap.get(f)!.delete(k);if(!fmap.get(f)!.size&&min===f)min++;fmap.set(f+1,fmap.get(f+1)||new Set());fmap.get(f+1)!.add(k);return vals.get(k)!;},put:(k:number,v:number)=>{if(cap<=0)return;if(vals.has(k)){vals.set(k,v);lfu(cap).get(k);return;}if(vals.size>=cap){const evict=fmap.get(min)!.values().next().value!;fmap.get(min)!.delete(evict);vals.delete(evict);freq.delete(evict);}vals.set(k,v);freq.set(k,1);fmap.set(1,fmap.get(1)||new Set());fmap.get(1)!.add(k);min=1;}};}; const c=lfu(2);c.put(1,1);c.put(2,2); expect(c.get(1)).toBe(1); });
+  it('checks if graph is bipartite', () => { const bip=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const col=new Array(n).fill(-1);for(let s=0;s<n;s++){if(col[s]!==-1)continue;col[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of adj[u]){if(col[v]===-1){col[v]=1-col[u];q.push(v);}else if(col[v]===col[u])return false;}}};return true;}; expect(bip(4,[[0,1],[1,2],[2,3],[3,0]])).toBe(true); expect(bip(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+});

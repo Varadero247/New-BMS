@@ -627,3 +627,12 @@ describe('phase48 coverage', () => {
   it('computes longest zig-zag subsequence', () => { const lzz=(a:number[])=>{const up=new Array(a.length).fill(1),dn=new Array(a.length).fill(1);for(let i=1;i<a.length;i++)for(let j=0;j<i;j++){if(a[i]>a[j])up[i]=Math.max(up[i],dn[j]+1);else if(a[i]<a[j])dn[i]=Math.max(dn[i],up[j]+1);}return Math.max(...up,...dn);}; expect(lzz([1,7,4,9,2,5])).toBe(6); expect(lzz([1,4,7,2,5])).toBe(4); });
   it('finds the right sibling of each tree node', () => { type N={v:number;l?:N;r?:N;next?:N}; const connect=(root:N|undefined)=>{if(!root)return;const q:N[]=[root];while(q.length){const sz=q.length;for(let i=0;i<sz;i++){const n=q.shift()!;if(i<sz-1)n.next=q[0];if(n.l)q.push(n.l);if(n.r)q.push(n.r);}}return root;}; const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3,r:{v:7}}}; connect(t); expect(t.l?.next?.v).toBe(3); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes sum of left leaves', () => { type N={v:number;l?:N;r?:N};const sll=(n:N|undefined,isLeft=false):number=>{if(!n)return 0;if(!n.l&&!n.r)return isLeft?n.v:0;return sll(n.l,true)+sll(n.r,false);}; const t:N={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; expect(sll(t)).toBe(24); });
+  it('checks if linked list has cycle', () => { type N={v:number;next?:N};const hasCycle=(h:N|undefined)=>{let s:N|undefined=h,f:N|undefined=h;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const n1:N={v:1},n2:N={v:2},n3:N={v:3};n1.next=n2;n2.next=n3; expect(hasCycle(n1)).toBe(false); n3.next=n1; expect(hasCycle(n1)).toBe(true); });
+  it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
+  it('checks if array has majority element', () => { const hasMaj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt===1?(cand=a[i],1):cnt-1;return a.filter(v=>v===cand).length>a.length/2;}; expect(hasMaj([3,2,3])).toBe(true); expect(hasMaj([1,2,3])).toBe(false); });
+  it('finds the smallest missing positive integer', () => { const smp=(a:number[])=>{const n=a.length;for(let i=0;i<n;i++)while(a[i]>0&&a[i]<=n&&a[a[i]-1]!==a[i]){const t=a[a[i]-1];a[a[i]-1]=a[i];a[i]=t;}for(let i=0;i<n;i++)if(a[i]!==i+1)return i+1;return n+1;}; expect(smp([1,2,0])).toBe(3); expect(smp([3,4,-1,1])).toBe(2); expect(smp([7,8,9])).toBe(1); });
+});

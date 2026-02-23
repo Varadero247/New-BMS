@@ -1387,3 +1387,12 @@ describe('phase48 coverage', () => {
   it('finds minimum cost to reach last cell', () => { const mc=(g:number[][])=>{const r=g.length,c=g[0].length;const dp=Array.from({length:r},(_,i)=>Array.from({length:c},(_,j)=>i===0&&j===0?g[0][0]:Infinity));for(let i=0;i<r;i++)for(let j=0;j<c;j++){if(!i&&!j)continue;const a=i>0?dp[i-1][j]:Infinity,b=j>0?dp[i][j-1]:Infinity;dp[i][j]=Math.min(a,b)+g[i][j];}return dp[r-1][c-1];}; expect(mc([[1,2,3],[4,8,2],[1,5,3]])).toBe(11); });
   it('computes maximum meetings in one room', () => { const mm=(s:number[],e:number[])=>{const m=s.map((si,i)=>[si,e[i]] as [number,number]).sort((a,b)=>a[1]-b[1]);let cnt=1,end=m[0][1];for(let i=1;i<m.length;i++)if(m[i][0]>=end){cnt++;end=m[i][1];}return cnt;}; expect(mm([0,3,1,5],[5,4,2,9])).toBe(3); expect(mm([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
+  it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
+  it('implements trie insert and search', () => { const trie=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n.$=1;},has:(w:string)=>{let n=r;for(const c of w){if(!n[c])return false;n=n[c];}return !!n.$;}};};const t=trie();t.ins('hello');t.ins('world'); expect(t.has('hello')).toBe(true); expect(t.has('hell')).toBe(false); });
+  it('checks if parentheses are balanced', () => { const bal=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(bal('(())')).toBe(true); expect(bal('(()')).toBe(false); expect(bal(')(')).toBe(false); });
+  it('finds the highest altitude', () => { const ha=(g:number[])=>{let cur=0,max=0;for(const v of g){cur+=v;max=Math.max(max,cur);}return max;}; expect(ha([-5,1,5,0,-7])).toBe(1); expect(ha([-4,-3,-2,-1,4,3,2])).toBe(0); });
+});

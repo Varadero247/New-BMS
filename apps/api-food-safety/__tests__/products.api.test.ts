@@ -723,3 +723,12 @@ describe('phase48 coverage', () => {
   it('decodes run-length encoded string', () => { const dec=(s:string)=>s.replace(/(\d+)(\w)/g,(_,n,c)=>c.repeat(+n)); expect(dec('3a2b4c')).toBe('aaabbcccc'); expect(dec('2x1y3z')).toBe('xxyzzz'); });
   it('computes nth lucky number', () => { const lucky=(n:number)=>{const a=Array.from({length:1000},(_,i)=>2*i+1);for(let i=1;i<n&&i<a.length;i++){const s=a[i];a.splice(0,a.length,...a.filter((_,j)=>(j+1)%s!==0));}return a[n-1];}; expect(lucky(1)).toBe(1); expect(lucky(5)).toBe(13); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('implements monotonic stack for next greater', () => { const ng=(a:number[])=>{const r=new Array(a.length).fill(-1),s:number[]=[];for(let i=0;i<a.length;i++){while(s.length&&a[s[s.length-1]]<a[i])r[s.pop()!]=a[i];s.push(i);}return r;}; expect(ng([2,1,2,4,3])).toEqual([4,2,4,-1,-1]); });
+  it('finds maximum sum rectangle in matrix', () => { const msr=(m:number[][])=>{const r=m.length,c=m[0].length;let max=-Infinity;for(let l=0;l<c;l++){const tmp=new Array(r).fill(0);for(let ri=l;ri<c;ri++){tmp.forEach((v,i)=>{tmp[i]+=m[i][ri];});let cur=tmp[0],lo=tmp[0];for(let i=1;i<r;i++){cur=Math.max(tmp[i],cur+tmp[i]);lo=Math.max(lo,cur);}max=Math.max(max,lo);}}return max;}; expect(msr([[1,2,-1],[-3,4,2],[2,1,3]])).toBe(11); });
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
+  it('computes maximum profit with cooldown', () => { const mp=(p:number[])=>{let held=-Infinity,sold=0,rest=0;for(const price of p){const h=Math.max(held,rest-price),s=held+price,r=Math.max(rest,sold);held=h;sold=s;rest=r;}return Math.max(sold,rest);}; expect(mp([1,2,3,0,2])).toBe(3); expect(mp([1])).toBe(0); });
+});

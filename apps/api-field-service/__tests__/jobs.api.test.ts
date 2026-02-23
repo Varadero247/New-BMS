@@ -808,3 +808,12 @@ describe('phase48 coverage', () => {
   it('counts set bits across range', () => { const cb=(n:number)=>{let c=0,x=n;while(x){c+=x&1;x>>=1;}return c;};const total=(n:number)=>Array.from({length:n+1},(_,i)=>cb(i)).reduce((s,v)=>s+v,0); expect(total(5)).toBe(7); expect(total(10)).toBe(17); });
   it('checks if graph has Eulerian circuit', () => { const ec=(n:number,edges:[number,number][])=>{const deg=new Array(n).fill(0);edges.forEach(([u,v])=>{deg[u]++;deg[v]++;});return deg.every(d=>d%2===0);}; expect(ec(4,[[0,1],[1,2],[2,3],[3,0],[0,2]])).toBe(false); expect(ec(3,[[0,1],[1,2],[2,0]])).toBe(true); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('checks if n-queens placement is valid', () => { const valid=(q:number[])=>{const n=q.length;for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)if(q[i]===q[j]||Math.abs(q[i]-q[j])===j-i)return false;return true;}; expect(valid([1,3,0,2])).toBe(true); expect(valid([0,1,2,3])).toBe(false); });
+  it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
+  it('checks if array can be partitioned into equal sums', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const v of a)for(let j=t;j>=v;j--)dp[j]=dp[j]||dp[j-v];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+  it('finds all anagram positions in string', () => { const anag=(s:string,p:string)=>{const r:number[]=[],n=p.length,freq=new Array(26).fill(0);p.split('').forEach(c=>freq[c.charCodeAt(0)-97]++);const w=new Array(26).fill(0);for(let i=0;i<s.length;i++){w[s.charCodeAt(i)-97]++;if(i>=n)w[s.charCodeAt(i-n)-97]--;if(i>=n-1&&w.every((v,j)=>v===freq[j]))r.push(i-n+1);}return r;}; expect(anag('cbaebabacd','abc')).toEqual([0,6]); });
+  it('computes minimum time to finish tasks', () => { const mtt=(t:number[],k:number)=>{const s=[...t].sort((a,b)=>b-a);let time=0;for(let i=0;i<s.length;i+=k)time+=s[i];return time;}; expect(mtt([3,2,4,4,4,2,2],3)).toBe(9); });
+});

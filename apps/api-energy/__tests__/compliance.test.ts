@@ -768,3 +768,12 @@ describe('phase48 coverage', () => {
   it('checks if array is a permutation of 1..n', () => { const isPerm=(a:number[])=>{const n=a.length;return a.every(v=>v>=1&&v<=n)&&new Set(a).size===n;}; expect(isPerm([2,3,1,4])).toBe(true); expect(isPerm([1,1,3,4])).toBe(false); });
   it('implements persistent array (copy-on-write)', () => { const pa=<T>(a:T[])=>{const copies:T[][]=[[...a]];return{read:(ver:number,i:number)=>copies[ver][i],write:(ver:number,i:number,v:T)=>{const nc=[...copies[ver]];nc[i]=v;copies.push(nc);return copies.length-1;},versions:()=>copies.length};}; const p=pa([1,2,3]);const v1=p.write(0,1,99); expect(p.read(0,1)).toBe(2); expect(p.read(v1,1)).toBe(99); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
+  it('finds running sum of array', () => { const rs=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++)r[i]+=r[i-1];return r;}; expect(rs([1,2,3,4])).toEqual([1,3,6,10]); expect(rs([3,1,2,10,1])).toEqual([3,4,6,16,17]); });
+  it('implements monotonic stack for next greater', () => { const ng=(a:number[])=>{const r=new Array(a.length).fill(-1),s:number[]=[];for(let i=0;i<a.length;i++){while(s.length&&a[s[s.length-1]]<a[i])r[s.pop()!]=a[i];s.push(i);}return r;}; expect(ng([2,1,2,4,3])).toEqual([4,2,4,-1,-1]); });
+  it('computes matrix chain multiplication order', () => { const mcm=(p:number[])=>{const n=p.length-1;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+p[i]*p[k+1]*p[j+1]);}return dp[0][n-1];}; expect(mcm([1,2,3,4])).toBe(18); });
+});

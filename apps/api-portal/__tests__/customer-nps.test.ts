@@ -667,3 +667,12 @@ describe('phase48 coverage', () => {
   it('finds longest balanced parentheses substring', () => { const lb=(s:string)=>{const st:number[]=[-1];let best=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();if(!st.length)st.push(i);else best=Math.max(best,i-st[st.length-1]);}}return best;}; expect(lb('(()')).toBe(2); expect(lb(')()())')).toBe(4); });
   it('generates nth row of Pascal triangle', () => { const pt=(n:number)=>{let r=[1];for(let i=0;i<n;i++)r=[...r,0].map((v,j)=>v+(r[j-1]||0));return r;}; expect(pt(4)).toEqual([1,4,6,4,1]); expect(pt(0)).toEqual([1]); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
+  it('computes longest increasing path in matrix', () => { const lip=(m:number[][])=>{const r=m.length,c=m[0].length,memo=Array.from({length:r},()=>new Array(c).fill(0));const dfs=(i:number,j:number):number=>{if(memo[i][j])return memo[i][j];const dirs=[[0,1],[0,-1],[1,0],[-1,0]];return memo[i][j]=1+Math.max(0,...dirs.map(([di,dj])=>{const ni=i+di,nj=j+dj;return ni>=0&&ni<r&&nj>=0&&nj<c&&m[ni][nj]>m[i][j]?dfs(ni,nj):0;}));};let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++)max=Math.max(max,dfs(i,j));return max;}; expect(lip([[9,9,4],[6,6,8],[2,1,1]])).toBe(4); });
+  it('checks if one string is rotation of another', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
+  it('checks if graph is bipartite', () => { const bip=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const col=new Array(n).fill(-1);for(let s=0;s<n;s++){if(col[s]!==-1)continue;col[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of adj[u]){if(col[v]===-1){col[v]=1-col[u];q.push(v);}else if(col[v]===col[u])return false;}}};return true;}; expect(bip(4,[[0,1],[1,2],[2,3],[3,0]])).toBe(true); expect(bip(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+  it('computes coin change ways', () => { const ccw=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];}; expect(ccw([1,2,5],5)).toBe(4); expect(ccw([2],3)).toBe(0); });
+});

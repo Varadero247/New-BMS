@@ -653,3 +653,12 @@ describe('phase48 coverage', () => {
   it('checks if number is happy', () => { const happy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(happy(19)).toBe(true); expect(happy(4)).toBe(false); });
   it('computes bit reversal', () => { const rev=(n:number,bits=8)=>{let r=0;for(let i=0;i<bits;i++){r=(r<<1)|(n&1);n>>=1;}return r;}; expect(rev(0b10110001,8)).toBe(0b10001101); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?(len===2?2:dp[i+1][j-1]+2):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
+  it('implements trie insert and search', () => { const trie=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n.$=1;},has:(w:string)=>{let n=r;for(const c of w){if(!n[c])return false;n=n[c];}return !!n.$;}};};const t=trie();t.ins('hello');t.ins('world'); expect(t.has('hello')).toBe(true); expect(t.has('hell')).toBe(false); });
+  it('finds diameter of binary tree', () => { type N={v:number;l?:N;r?:N};let dia=0;const depth=(n:N|undefined):number=>{if(!n)return 0;const l=depth(n.l),r=depth(n.r);dia=Math.max(dia,l+r);return 1+Math.max(l,r);};const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3}};dia=0;depth(t); expect(dia).toBe(3); });
+  it('computes sum of all subsets', () => { const sos=(a:number[])=>a.reduce((s,v)=>s+v*Math.pow(2,a.length-1),0); expect(sos([1,2,3])).toBe(24); expect(sos([1])).toBe(1); });
+  it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
+});

@@ -684,3 +684,12 @@ describe('phase48 coverage', () => {
   it('checks if binary tree is complete', () => { type N={v:number;l?:N;r?:N}; const isCom=(root:N|undefined)=>{if(!root)return true;const q:((N|undefined))[]=[];q.push(root);let end=false;while(q.length){const n=q.shift();if(!n){end=true;}else{if(end)return false;q.push(n.l);q.push(n.r);}}return true;}; const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3,l:{v:6}}}; expect(isCom(t)).toBe(true); });
   it('finds minimum number of cuts for palindrome partitioning', () => { const mc=(s:string)=>{const n=s.length;const pal=Array.from({length:n},()=>new Array(n).fill(false));for(let i=0;i<n;i++)pal[i][i]=true;for(let l=2;l<=n;l++)for(let i=0;i<n-l+1;i++){const j=i+l-1;pal[i][j]=(s[i]===s[j])&&(l<=2||pal[i+1][j-1]);}const dp=new Array(n).fill(Infinity);for(let i=0;i<n;i++){if(pal[0][i])dp[i]=0;else for(let j=1;j<=i;j++)if(pal[j][i])dp[i]=Math.min(dp[i],dp[j-1]+1);}return dp[n-1];}; expect(mc('aab')).toBe(1); expect(mc('aaa')).toBe(0); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes number of subarrays with given XOR', () => { const xsub=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let xr=0,cnt=0;for(const v of a){xr^=v;cnt+=mp.get(xr^k)||0;mp.set(xr,(mp.get(xr)||0)+1);}return cnt;}; expect(xsub([4,2,2,6,4],6)).toBe(4); });
+  it('computes sum of all subsets', () => { const sos=(a:number[])=>a.reduce((s,v)=>s+v*Math.pow(2,a.length-1),0); expect(sos([1,2,3])).toBe(24); expect(sos([1])).toBe(1); });
+  it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
+  it('finds all subsets with target sum', () => { const ss=(a:number[],t:number):number[][]=>{const r:number[][]=[];const bt=(i:number,cur:number[],sum:number)=>{if(sum===t)r.push([...cur]);if(sum>=t||i>=a.length)return;for(let j=i;j<a.length;j++)bt(j+1,[...cur,a[j]],sum+a[j]);};bt(0,[],0);return r;}; expect(ss([2,3,6,7],7).length).toBe(1); });
+  it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
+});

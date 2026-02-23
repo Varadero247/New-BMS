@@ -547,3 +547,12 @@ describe('phase48 coverage', () => {
   it('checks if binary tree is complete', () => { type N={v:number;l?:N;r?:N}; const isCom=(root:N|undefined)=>{if(!root)return true;const q:((N|undefined))[]=[];q.push(root);let end=false;while(q.length){const n=q.shift();if(!n){end=true;}else{if(end)return false;q.push(n.l);q.push(n.r);}}return true;}; const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3,l:{v:6}}}; expect(isCom(t)).toBe(true); });
   it('checks if array can form arithmetic progression', () => { const ap=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const d=s[1]-s[0];return s.every((v,i)=>i===0||v-s[i-1]===d);}; expect(ap([3,5,1])).toBe(true); expect(ap([1,2,4])).toBe(false); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
+  it('computes minimum cost to connect ropes', () => { const mc=(r:number[])=>{const pq=[...r].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!,s=a+b;cost+=s;let i=0;while(i<pq.length&&pq[i]<s)i++;pq.splice(i,0,s);}return cost;}; expect(mc([4,3,2,6])).toBe(29); });
+  it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
+  it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
+});

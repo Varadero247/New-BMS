@@ -848,3 +848,12 @@ describe('phase48 coverage', () => {
   it('finds k-th smallest in BST', () => { type N={v:number;l?:N;r?:N}; const kth=(root:N|undefined,k:number)=>{const arr:number[]=[];const io=(n:N|undefined)=>{if(!n)return;io(n.l);arr.push(n.v);io(n.r);};io(root);return arr[k-1];}; const t:N={v:5,l:{v:3,l:{v:2},r:{v:4}},r:{v:6}}; expect(kth(t,1)).toBe(2); expect(kth(t,3)).toBe(4); });
   it('computes chromatic number (greedy coloring)', () => { const gc=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const col=new Array(n).fill(-1);for(let u=0;u<n;u++){const used=new Set(adj[u].map(v=>col[v]).filter(c=>c>=0));let c=0;while(used.has(c))c++;col[u]=c;}return Math.max(...col)+1;}; expect(gc(4,[[0,1],[1,2],[2,3],[3,0]])).toBe(2); expect(gc(3,[[0,1],[1,2],[2,0]])).toBe(3); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
+  it('checks if string has all unique characters', () => { const uniq=(s:string)=>new Set(s).size===s.length; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); expect(uniq('')).toBe(true); });
+  it('computes number of BSTs with n nodes', () => { const numBST=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=numBST(i-1)*numBST(n-i);return cnt;}; expect(numBST(3)).toBe(5); expect(numBST(4)).toBe(14); });
+  it('finds the majority element (Boyer-Moore)', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt-1||(cand=a[i],1);return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); });
+  it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
+});

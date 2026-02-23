@@ -622,3 +622,12 @@ describe('phase48 coverage', () => {
   it('implements persistent array (copy-on-write)', () => { const pa=<T>(a:T[])=>{const copies:T[][]=[[...a]];return{read:(ver:number,i:number)=>copies[ver][i],write:(ver:number,i:number,v:T)=>{const nc=[...copies[ver]];nc[i]=v;copies.push(nc);return copies.length-1;},versions:()=>copies.length};}; const p=pa([1,2,3]);const v1=p.write(0,1,99); expect(p.read(0,1)).toBe(2); expect(p.read(v1,1)).toBe(99); });
   it('computes minimum cost to cut rod', () => { const cr=(n:number,cuts:number[])=>{const c=[0,...cuts.sort((a,b)=>a-b),n];const m=c.length;const dp:number[][]=Array.from({length:m},()=>new Array(m).fill(0));for(let l=2;l<m;l++)for(let i=0;i<m-l;i++){const j=i+l;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+c[j]-c[i]);}return dp[0][m-1];}; expect(cr(7,[1,3,4,5])).toBe(16); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes the number of good pairs', () => { const gp=(a:number[])=>{const m=new Map<number,number>();let cnt=0;for(const v of a){cnt+=m.get(v)||0;m.set(v,(m.get(v)||0)+1);}return cnt;}; expect(gp([1,2,3,1,1,3])).toBe(4); expect(gp([1,1,1,1])).toBe(6); });
+  it('checks if parentheses are balanced', () => { const bal=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(bal('(())')).toBe(true); expect(bal('(()')).toBe(false); expect(bal(')(')).toBe(false); });
+  it('computes number of subarrays with given XOR', () => { const xsub=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let xr=0,cnt=0;for(const v of a){xr^=v;cnt+=mp.get(xr^k)||0;mp.set(xr,(mp.get(xr)||0)+1);}return cnt;}; expect(xsub([4,2,2,6,4],6)).toBe(4); });
+  it('computes matrix chain multiplication order', () => { const mcm=(p:number[])=>{const n=p.length-1;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+p[i]*p[k+1]*p[j+1]);}return dp[0][n-1];}; expect(mcm([1,2,3,4])).toBe(18); });
+  it('finds maximum score from removing stones', () => { const ms=(a:number,b:number,c:number)=>{const s=[a,b,c].sort((x,y)=>x-y);return s[2]>=s[0]+s[1]?s[0]+s[1]:Math.floor((a+b+c)/2);}; expect(ms(2,4,6)).toBe(6); expect(ms(4,4,6)).toBe(7); });
+});

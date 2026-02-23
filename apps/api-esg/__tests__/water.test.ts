@@ -655,3 +655,12 @@ describe('phase48 coverage', () => {
   it('finds all rectangles in binary matrix', () => { const rects=(m:number[][])=>{let cnt=0;for(let r1=0;r1<m.length;r1++)for(let r2=r1;r2<m.length;r2++)for(let c1=0;c1<m[0].length;c1++)for(let c2=c1;c2<m[0].length;c2++){let ok=true;for(let r=r1;r<=r2&&ok;r++)for(let c=c1;c<=c2&&ok;c++)if(!m[r][c])ok=false;if(ok)cnt++;}return cnt;}; expect(rects([[1,1],[1,1]])).toBe(9); });
   it('checks if string is valid bracket sequence', () => { const vb=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(vb('(())')).toBe(true); expect(vb('(()')).toBe(false); expect(vb(')(')).toBe(false); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds longest bitonic subsequence', () => { const lbs=(a:number[])=>{const n=a.length;const lis=new Array(n).fill(1),lds=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(a[j]<a[i])lis[i]=Math.max(lis[i],lis[j]+1);for(let i=n-2;i>=0;i--)for(let j=n-1;j>i;j--)if(a[j]<a[i])lds[i]=Math.max(lds[i],lds[j]+1);return Math.max(...a.map((_,i)=>lis[i]+lds[i]-1));}; expect(lbs([1,11,2,10,4,5,2,1])).toBe(6); });
+  it('checks if parentheses are balanced', () => { const bal=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(bal('(())')).toBe(true); expect(bal('(()')).toBe(false); expect(bal(')(')).toBe(false); });
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('finds minimum cuts for palindrome partition', () => { const minCut=(s:string)=>{const n=s.length;const isPalin=(i:number,j:number):boolean=>i>=j?true:s[i]===s[j]&&isPalin(i+1,j-1);const dp=new Array(n).fill(0);for(let i=1;i<n;i++){if(isPalin(0,i)){dp[i]=0;}else{dp[i]=Infinity;for(let j=1;j<=i;j++)if(isPalin(j,i))dp[i]=Math.min(dp[i],dp[j-1]+1);}}return dp[n-1];}; expect(minCut('aab')).toBe(1); expect(minCut('a')).toBe(0); });
+  it('finds shortest path with BFS', () => { const bfs=(g:number[][],s:number,t:number)=>{const d=new Array(g.length).fill(-1);d[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of g[u])if(d[v]===-1){d[v]=d[u]+1;if(v===t)return d[v];q.push(v);}}return d[t];}; expect(bfs([[1,2],[0,3],[0,3],[1,2]],0,3)).toBe(2); });
+});

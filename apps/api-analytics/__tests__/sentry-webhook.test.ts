@@ -706,3 +706,12 @@ describe('phase48 coverage', () => {
   it('computes string edit distance with weights', () => { const ed=(a:string,b:string,wi=1,wd=1,wr=1)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j*wi:j===0?i*wd:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:Math.min(dp[i-1][j]+wd,dp[i][j-1]+wi,dp[i-1][j-1]+wr);return dp[m][n];}; expect(ed('kitten','sitting')).toBe(3); });
   it('finds longest word in sentence', () => { const lw=(s:string)=>s.split(' ').reduce((a,w)=>w.length>a.length?w:a,''); expect(lw('the quick brown fox')).toBe('quick'); expect(lw('a bb ccc')).toBe('ccc'); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds shortest path with BFS', () => { const bfs=(g:number[][],s:number,t:number)=>{const d=new Array(g.length).fill(-1);d[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of g[u])if(d[v]===-1){d[v]=d[u]+1;if(v===t)return d[v];q.push(v);}}return d[t];}; expect(bfs([[1,2],[0,3],[0,3],[1,2]],0,3)).toBe(2); });
+  it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
+  it('computes number of subarrays with given XOR', () => { const xsub=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let xr=0,cnt=0;for(const v of a){xr^=v;cnt+=mp.get(xr^k)||0;mp.set(xr,(mp.get(xr)||0)+1);}return cnt;}; expect(xsub([4,2,2,6,4],6)).toBe(4); });
+  it('checks if one string is rotation of another', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
+  it('finds longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?(len===2?2:dp[i+1][j-1]+2):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
+});

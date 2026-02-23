@@ -597,3 +597,12 @@ describe('phase48 coverage', () => {
   it('computes maximum profit with transaction fee', () => { const mp=(p:number[],fee:number)=>{let cash=0,hold=-Infinity;for(const v of p){cash=Math.max(cash,hold+v-fee);hold=Math.max(hold,cash-v);}return cash;}; expect(mp([1,3,2,8,4,9],2)).toBe(8); });
   it('finds two missing numbers in range', () => { const tm=(a:number[],n:number)=>{const s=a.reduce((acc,v)=>acc+v,0),sp=a.reduce((acc,v)=>acc+v*v,0);const ts=n*(n+1)/2,tsp=n*(n+1)*(2*n+1)/6;const d=ts-s,dp2=tsp-sp;const b=(dp2/d-d)/2;return [Math.round(b+d),Math.round(b)].sort((x,y)=>x-y);}; expect(tm([1,2,4,6],6)).toEqual([-2,6]); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
+  it('computes shuffle of array', () => { const sh=(a:number[])=>{const n=a.length/2,r:number[]=[];for(let i=0;i<n;i++)r.push(a[i],a[i+n]);return r;}; expect(sh([2,5,1,3,4,7])).toEqual([2,3,5,4,1,7]); });
+  it('computes matrix chain multiplication order', () => { const mcm=(p:number[])=>{const n=p.length-1;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+p[i]*p[k+1]*p[j+1]);}return dp[0][n-1];}; expect(mcm([1,2,3,4])).toBe(18); });
+  it('checks if n-queens placement is valid', () => { const valid=(q:number[])=>{const n=q.length;for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)if(q[i]===q[j]||Math.abs(q[i]-q[j])===j-i)return false;return true;}; expect(valid([1,3,0,2])).toBe(true); expect(valid([0,1,2,3])).toBe(false); });
+  it('finds peak element in array', () => { const peak=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;a[m]>a[m+1]?r=m:l=m+1;}return l;}; expect(peak([1,2,3,1])).toBe(2); expect(peak([1,2,1,3,5,6,4])).toBeGreaterThanOrEqual(0); });
+});

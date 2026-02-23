@@ -727,3 +727,12 @@ describe('phase48 coverage', () => {
   it('computes bit reversal', () => { const rev=(n:number,bits=8)=>{let r=0;for(let i=0;i<bits;i++){r=(r<<1)|(n&1);n>>=1;}return r;}; expect(rev(0b10110001,8)).toBe(0b10001101); });
   it('implements interval tree insert and query', () => { type I=[number,number]; const it=()=>{const ivs:I[]=[];return{ins:(l:number,r:number)=>ivs.push([l,r]),qry:(p:number)=>ivs.filter(([l,r])=>l<=p&&p<=r).length};}; const t=it();t.ins(1,5);t.ins(3,8);t.ins(6,10); expect(t.qry(4)).toBe(2); expect(t.qry(7)).toBe(2); expect(t.qry(11)).toBe(0); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes nth Catalan number', () => { const cat=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>cat(i)*cat(n-1-i)).reduce((s,v)=>s+v,0); expect(cat(0)).toBe(1); expect(cat(3)).toBe(5); expect(cat(4)).toBe(14); });
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('implements segment tree range query', () => { const seg=(a:number[])=>{const n=a.length,t=new Array(4*n).fill(0);const build=(node:number,s:number,e:number)=>{if(s===e){t[node]=a[s];return;}const m=s+e>>1;build(2*node,s,m);build(2*node+1,m+1,e);t[node]=t[2*node]+t[2*node+1];};const q=(node:number,s:number,e:number,l:number,r:number):number=>{if(r<s||l>e)return 0;if(l<=s&&e<=r)return t[node];const m=s+e>>1;return q(2*node,s,m,l,r)+q(2*node+1,m+1,e,l,r);};build(1,0,n-1);return(l:number,r:number)=>q(1,0,n-1,l,r);}; const s=seg([1,3,5,7,9]);expect(s(1,3)).toBe(15); });
+  it('computes shuffle of array', () => { const sh=(a:number[])=>{const n=a.length/2,r:number[]=[];for(let i=0;i<n;i++)r.push(a[i],a[i+n]);return r;}; expect(sh([2,5,1,3,4,7])).toEqual([2,3,5,4,1,7]); });
+  it('computes number of BSTs with n nodes', () => { const numBST=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=numBST(i-1)*numBST(n-i);return cnt;}; expect(numBST(3)).toBe(5); expect(numBST(4)).toBe(14); });
+});

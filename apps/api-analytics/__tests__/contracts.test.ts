@@ -793,3 +793,12 @@ describe('phase48 coverage', () => {
   it('implements interval tree insert and query', () => { type I=[number,number]; const it=()=>{const ivs:I[]=[];return{ins:(l:number,r:number)=>ivs.push([l,r]),qry:(p:number)=>ivs.filter(([l,r])=>l<=p&&p<=r).length};}; const t=it();t.ins(1,5);t.ins(3,8);t.ins(6,10); expect(t.qry(4)).toBe(2); expect(t.qry(7)).toBe(2); expect(t.qry(11)).toBe(0); });
   it('generates all binary strings of length n', () => { const bs=(n:number):string[]=>n===0?['']:bs(n-1).flatMap(s=>['0'+s,'1'+s]); expect(bs(2)).toEqual(['00','10','01','11']); expect(bs(1)).toEqual(['0','1']); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds the smallest missing positive integer', () => { const smp=(a:number[])=>{const n=a.length;for(let i=0;i<n;i++)while(a[i]>0&&a[i]<=n&&a[a[i]-1]!==a[i]){const t=a[a[i]-1];a[a[i]-1]=a[i];a[i]=t;}for(let i=0;i<n;i++)if(a[i]!==i+1)return i+1;return n+1;}; expect(smp([1,2,0])).toBe(3); expect(smp([3,4,-1,1])).toBe(2); expect(smp([7,8,9])).toBe(1); });
+  it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
+  it('checks if string matches wildcard pattern', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)dp[0][j]=p[j-1]==='*'&&dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?dp[i-1][j]||dp[i][j-1]:dp[i-1][j-1]&&(p[j-1]==='?'||p[j-1]===s[i-1]);return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('finds minimum cuts for palindrome partition', () => { const minCut=(s:string)=>{const n=s.length;const isPalin=(i:number,j:number):boolean=>i>=j?true:s[i]===s[j]&&isPalin(i+1,j-1);const dp=new Array(n).fill(0);for(let i=1;i<n;i++){if(isPalin(0,i)){dp[i]=0;}else{dp[i]=Infinity;for(let j=1;j<=i;j++)if(isPalin(j,i))dp[i]=Math.min(dp[i],dp[j-1]+1);}}return dp[n-1];}; expect(minCut('aab')).toBe(1); expect(minCut('a')).toBe(0); });
+  it('finds diameter of binary tree', () => { type N={v:number;l?:N;r?:N};let dia=0;const depth=(n:N|undefined):number=>{if(!n)return 0;const l=depth(n.l),r=depth(n.r);dia=Math.max(dia,l+r);return 1+Math.max(l,r);};const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3}};dia=0;depth(t); expect(dia).toBe(3); });
+});

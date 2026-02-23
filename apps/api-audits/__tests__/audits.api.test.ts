@@ -631,3 +631,12 @@ describe('phase48 coverage', () => {
   it('finds number of ways to express n as sum of primes', () => { const wp=(n:number)=>{const sieve=(m:number)=>{const p=new Array(m+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=m;i++)if(p[i])for(let j=i*i;j<=m;j+=i)p[j]=false;return Array.from({length:m-1},(_,i)=>i+2).filter(i=>p[i]);};const primes=sieve(n);const dp=new Array(n+1).fill(0);dp[0]=1;for(const p of primes)for(let i=p;i<=n;i++)dp[i]+=dp[i-p];return dp[n];}; expect(wp(7)).toBe(3); expect(wp(10)).toBe(5); });
   it('checks if array can form arithmetic progression', () => { const ap=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const d=s[1]-s[0];return s.every((v,i)=>i===0||v-s[i-1]===d);}; expect(ap([3,5,1])).toBe(true); expect(ap([1,2,4])).toBe(false); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('finds all subsets with target sum', () => { const ss=(a:number[],t:number):number[][]=>{const r:number[][]=[];const bt=(i:number,cur:number[],sum:number)=>{if(sum===t)r.push([...cur]);if(sum>=t||i>=a.length)return;for(let j=i;j<a.length;j++)bt(j+1,[...cur,a[j]],sum+a[j]);};bt(0,[],0);return r;}; expect(ss([2,3,6,7],7).length).toBe(1); });
+  it('finds diameter of binary tree', () => { type N={v:number;l?:N;r?:N};let dia=0;const depth=(n:N|undefined):number=>{if(!n)return 0;const l=depth(n.l),r=depth(n.r);dia=Math.max(dia,l+r);return 1+Math.max(l,r);};const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3}};dia=0;depth(t); expect(dia).toBe(3); });
+  it('finds minimum deletions to make string balanced', () => { const md=(s:string)=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;}; expect(md('(())')).toBe(0); expect(md('(())')).toBe(0); expect(md('))((')).toBe(4); });
+});

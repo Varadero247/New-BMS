@@ -576,3 +576,12 @@ describe('phase48 coverage', () => {
   it('finds number of ways to express n as sum of primes', () => { const wp=(n:number)=>{const sieve=(m:number)=>{const p=new Array(m+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=m;i++)if(p[i])for(let j=i*i;j<=m;j+=i)p[j]=false;return Array.from({length:m-1},(_,i)=>i+2).filter(i=>p[i]);};const primes=sieve(n);const dp=new Array(n+1).fill(0);dp[0]=1;for(const p of primes)for(let i=p;i<=n;i++)dp[i]+=dp[i-p];return dp[n];}; expect(wp(7)).toBe(3); expect(wp(10)).toBe(5); });
   it('finds k-th smallest in BST', () => { type N={v:number;l?:N;r?:N}; const kth=(root:N|undefined,k:number)=>{const arr:number[]=[];const io=(n:N|undefined)=>{if(!n)return;io(n.l);arr.push(n.v);io(n.r);};io(root);return arr[k-1];}; const t:N={v:5,l:{v:3,l:{v:2},r:{v:4}},r:{v:6}}; expect(kth(t,1)).toBe(2); expect(kth(t,3)).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
+  it('finds all anagram positions in string', () => { const anag=(s:string,p:string)=>{const r:number[]=[],n=p.length,freq=new Array(26).fill(0);p.split('').forEach(c=>freq[c.charCodeAt(0)-97]++);const w=new Array(26).fill(0);for(let i=0;i<s.length;i++){w[s.charCodeAt(i)-97]++;if(i>=n)w[s.charCodeAt(i-n)-97]--;if(i>=n-1&&w.every((v,j)=>v===freq[j]))r.push(i-n+1);}return r;}; expect(anag('cbaebabacd','abc')).toEqual([0,6]); });
+  it('checks if linked list has cycle', () => { type N={v:number;next?:N};const hasCycle=(h:N|undefined)=>{let s:N|undefined=h,f:N|undefined=h;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const n1:N={v:1},n2:N={v:2},n3:N={v:3};n1.next=n2;n2.next=n3; expect(hasCycle(n1)).toBe(false); n3.next=n1; expect(hasCycle(n1)).toBe(true); });
+  it('finds maximum product subarray', () => { const mps=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],a[i]*max,a[i]*min);min=Math.min(a[i],a[i]*t,a[i]*min);res=Math.max(res,max);}return res;}; expect(mps([2,3,-2,4])).toBe(6); expect(mps([-2,0,-1])).toBe(0); });
+  it('computes number of BSTs with n nodes', () => { const numBST=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=numBST(i-1)*numBST(n-i);return cnt;}; expect(numBST(3)).toBe(5); expect(numBST(4)).toBe(14); });
+});

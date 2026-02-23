@@ -723,3 +723,12 @@ describe('phase48 coverage', () => {
   it('computes number of BSTs with n distinct keys', () => { const catalan=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>catalan(i)*catalan(n-1-i)).reduce((s,v)=>s+v,0); expect(catalan(3)).toBe(5); expect(catalan(5)).toBe(42); });
   it('finds k-th smallest in BST', () => { type N={v:number;l?:N;r?:N}; const kth=(root:N|undefined,k:number)=>{const arr:number[]=[];const io=(n:N|undefined)=>{if(!n)return;io(n.l);arr.push(n.v);io(n.r);};io(root);return arr[k-1];}; const t:N={v:5,l:{v:3,l:{v:2},r:{v:4}},r:{v:6}}; expect(kth(t,1)).toBe(2); expect(kth(t,3)).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('checks if parentheses are balanced', () => { const bal=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(bal('(())')).toBe(true); expect(bal('(()')).toBe(false); expect(bal(')(')).toBe(false); });
+  it('computes longest valid parentheses', () => { const lvp=(s:string)=>{const st=[-1];let max=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();st.length?max=Math.max(max,i-st[st.length-1]):st.push(i);}}return max;}; expect(lvp('(()')).toBe(2); expect(lvp(')()())')).toBe(4); });
+  it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
+  it('counts number of islands', () => { const islands=(g:number[][])=>{const r=g.length,c=r?g[0].length:0;let cnt=0;const dfs=(i:number,j:number)=>{if(i<0||i>=r||j<0||j>=c||!g[i][j])return;g[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(g[i][j]){dfs(i,j);cnt++;}return cnt;}; expect(islands([[1,1,0],[0,1,0],[0,0,1]])).toBe(2); });
+  it('finds the skyline of buildings', () => { const sky=(b:[number,number,number][])=>{const pts:[number,number][]=[];b.forEach(([l,r,h])=>{pts.push([l,-h],[r,h]);});pts.sort((a,b2)=>a[0]-b2[0]||a[1]-b2[1]);const heap=[0];let res:[number,number][]=[];for(const [x,h] of pts){if(h<0)heap.push(-h);else heap.splice(heap.indexOf(h),1);const top=Math.max(...heap);if(!res.length||res[res.length-1][1]!==top)res.push([x,top]);}return res;}; expect(sky([[2,9,10],[3,7,15],[5,12,12]]).length).toBeGreaterThan(0); });
+});

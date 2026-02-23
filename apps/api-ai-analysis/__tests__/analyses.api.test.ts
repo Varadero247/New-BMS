@@ -1020,3 +1020,12 @@ describe('phase48 coverage', () => {
   it('implements Gray code encode/decode', () => { const enc=(n:number)=>n^(n>>1); const dec=(g:number)=>{let n=0;for(;g;g>>=1)n^=g;return n;}; expect(enc(6)).toBe(5); expect(dec(5)).toBe(6); expect(dec(enc(10))).toBe(10); });
   it('checks if string is valid bracket sequence', () => { const vb=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(vb('(())')).toBe(true); expect(vb('(()')).toBe(false); expect(vb(')(')).toBe(false); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
+  it('finds minimum window with all characters', () => { const mw=(s:string,t:string)=>{const need=new Map<string,number>();t.split('').forEach(c=>need.set(c,(need.get(c)||0)+1));let have=0,req=need.size,l=0,min=Infinity,res='';const win=new Map<string,number>();for(let r=0;r<s.length;r++){const c=s[r];win.set(c,(win.get(c)||0)+1);if(need.has(c)&&win.get(c)===need.get(c))have++;while(have===req){if(r-l+1<min){min=r-l+1;res=s.slice(l,r+1);}const lc=s[l++];win.set(lc,win.get(lc)!-1);if(need.has(lc)&&win.get(lc)!<need.get(lc)!)have--;}}return res;}; expect(mw('ADOBECODEBANC','ABC')).toBe('BANC'); });
+  it('counts number of islands', () => { const islands=(g:number[][])=>{const r=g.length,c=r?g[0].length:0;let cnt=0;const dfs=(i:number,j:number)=>{if(i<0||i>=r||j<0||j>=c||!g[i][j])return;g[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(g[i][j]){dfs(i,j);cnt++;}return cnt;}; expect(islands([[1,1,0],[0,1,0],[0,0,1]])).toBe(2); });
+  it('finds longest common substring', () => { const lcs=(a:string,b:string)=>{let max=0,end=0;const dp=Array.from({length:a.length+1},()=>new Array(b.length+1).fill(0));for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)if(a[i-1]===b[j-1]){dp[i][j]=dp[i-1][j-1]+1;if(dp[i][j]>max){max=dp[i][j];end=i;}}return a.slice(end-max,end);}; expect(lcs('abcdef','zcdemf')).toBe('cde'); });
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+});

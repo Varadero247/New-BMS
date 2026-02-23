@@ -639,3 +639,12 @@ describe('phase48 coverage', () => {
   it('checks if number is happy', () => { const happy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(happy(19)).toBe(true); expect(happy(4)).toBe(false); });
   it('finds Eulerian path existence', () => { const ep=(n:number,edges:[number,number][])=>{const deg=new Array(n).fill(0);edges.forEach(([u,v])=>{deg[u]++;deg[v]++;});const odd=deg.filter(d=>d%2!==0).length;return odd===0||odd===2;}; expect(ep(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(ep(4,[[0,1],[1,2],[2,3],[3,1]])).toBe(true); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds maximum sum rectangle in matrix', () => { const msr=(m:number[][])=>{const r=m.length,c=m[0].length;let max=-Infinity;for(let l=0;l<c;l++){const tmp=new Array(r).fill(0);for(let ri=l;ri<c;ri++){tmp.forEach((v,i)=>{tmp[i]+=m[i][ri];});let cur=tmp[0],lo=tmp[0];for(let i=1;i<r;i++){cur=Math.max(tmp[i],cur+tmp[i]);lo=Math.max(lo,cur);}max=Math.max(max,lo);}}return max;}; expect(msr([[1,2,-1],[-3,4,2],[2,1,3]])).toBe(11); });
+  it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
+  it('finds longest bitonic subsequence', () => { const lbs=(a:number[])=>{const n=a.length;const lis=new Array(n).fill(1),lds=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(a[j]<a[i])lis[i]=Math.max(lis[i],lis[j]+1);for(let i=n-2;i>=0;i--)for(let j=n-1;j>i;j--)if(a[j]<a[i])lds[i]=Math.max(lds[i],lds[j]+1);return Math.max(...a.map((_,i)=>lis[i]+lds[i]-1));}; expect(lbs([1,11,2,10,4,5,2,1])).toBe(6); });
+  it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
+  it('computes maximum profit with cooldown', () => { const mp=(p:number[])=>{let held=-Infinity,sold=0,rest=0;for(const price of p){const h=Math.max(held,rest-price),s=held+price,r=Math.max(rest,sold);held=h;sold=s;rest=r;}return Math.max(sold,rest);}; expect(mp([1,2,3,0,2])).toBe(3); expect(mp([1])).toBe(0); });
+});

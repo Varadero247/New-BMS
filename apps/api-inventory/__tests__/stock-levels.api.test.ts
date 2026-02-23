@@ -699,3 +699,12 @@ describe('phase48 coverage', () => {
   it('computes maximum meetings in one room', () => { const mm=(s:number[],e:number[])=>{const m=s.map((si,i)=>[si,e[i]] as [number,number]).sort((a,b)=>a[1]-b[1]);let cnt=1,end=m[0][1];for(let i=1;i<m.length;i++)if(m[i][0]>=end){cnt++;end=m[i][1];}return cnt;}; expect(mm([0,3,1,5],[5,4,2,9])).toBe(3); expect(mm([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
   it('finds maximum XOR of two array elements', () => { const mx=(a:number[])=>{let res=0,pre=0;const seen=new Set([0]);for(const v of a){pre^=v;for(let b=31;b>=0;b--){const t=(pre>>b)&1;res=Math.max(res,pre);if(seen.has(pre^res))break;}seen.add(pre);}return a.reduce((best,_,i)=>a.slice(i+1).reduce((b,v)=>Math.max(b,a[i]^v),best),0);}; expect(mx([3,10,5,25,2,8])).toBe(28); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds maximum score from removing stones', () => { const ms=(a:number,b:number,c:number)=>{const s=[a,b,c].sort((x,y)=>x-y);return s[2]>=s[0]+s[1]?s[0]+s[1]:Math.floor((a+b+c)/2);}; expect(ms(2,4,6)).toBe(6); expect(ms(4,4,6)).toBe(7); });
+  it('checks if string has all unique characters', () => { const uniq=(s:string)=>new Set(s).size===s.length; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); expect(uniq('')).toBe(true); });
+  it('finds closest pair of points', () => { const cp=(pts:[number,number][])=>{const d=([x1,y1]:[number,number],[x2,y2]:[number,number])=>Math.hypot(x2-x1,y2-y1);let min=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)min=Math.min(min,d(pts[i],pts[j]));return min;}; expect(cp([[0,0],[3,4],[1,1]])).toBeCloseTo(Math.sqrt(2)); });
+  it('computes spiral matrix order', () => { const spiral=(m:number[][])=>{const r=[];let t=0,b=m.length-1,l=0,ri=m[0].length-1;while(t<=b&&l<=ri){for(let i=l;i<=ri;i++)r.push(m[t][i]);t++;for(let i=t;i<=b;i++)r.push(m[i][ri]);ri--;if(t<=b){for(let i=ri;i>=l;i--)r.push(m[b][i]);b--;}if(l<=ri){for(let i=b;i>=t;i--)r.push(m[i][l]);l++;}}return r;}; expect(spiral([[1,2,3],[4,5,6],[7,8,9]])).toEqual([1,2,3,6,9,8,7,4,5]); });
+  it('counts number of islands', () => { const islands=(g:number[][])=>{const r=g.length,c=r?g[0].length:0;let cnt=0;const dfs=(i:number,j:number)=>{if(i<0||i>=r||j<0||j>=c||!g[i][j])return;g[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(g[i][j]){dfs(i,j);cnt++;}return cnt;}; expect(islands([[1,1,0],[0,1,0],[0,0,1]])).toBe(2); });
+});

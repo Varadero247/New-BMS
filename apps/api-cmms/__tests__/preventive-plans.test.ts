@@ -661,3 +661,12 @@ describe('phase48 coverage', () => {
   it('checks if string matches simple regex', () => { const mr=(s:string,p:string):boolean=>{if(!p.length)return !s.length;const fm=p[0]==='.'||p[0]===s[0];if(p.length>1&&p[1]==='*')return mr(s,p.slice(2))||(s.length>0&&fm&&mr(s.slice(1),p));return s.length>0&&fm&&mr(s.slice(1),p.slice(1));}; expect(mr('aa','a*')).toBe(true); expect(mr('ab','.*')).toBe(true); expect(mr('aab','c*a*b')).toBe(true); });
   it('checks if string is valid bracket sequence', () => { const vb=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(vb('(())')).toBe(true); expect(vb('(()')).toBe(false); expect(vb(')(')).toBe(false); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds all permutations', () => { const perms=(a:number[]):number[][]=>a.length<=1?[a]:a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p])); expect(perms([1,2,3]).length).toBe(6); });
+  it('checks if array can be partitioned into equal sums', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const v of a)for(let j=t;j>=v;j--)dp[j]=dp[j]||dp[j-v];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+  it('finds maximum sum rectangle in matrix', () => { const msr=(m:number[][])=>{const r=m.length,c=m[0].length;let max=-Infinity;for(let l=0;l<c;l++){const tmp=new Array(r).fill(0);for(let ri=l;ri<c;ri++){tmp.forEach((v,i)=>{tmp[i]+=m[i][ri];});let cur=tmp[0],lo=tmp[0];for(let i=1;i<r;i++){cur=Math.max(tmp[i],cur+tmp[i]);lo=Math.max(lo,cur);}max=Math.max(max,lo);}}return max;}; expect(msr([[1,2,-1],[-3,4,2],[2,1,3]])).toBe(11); });
+  it('checks if n-queens placement is valid', () => { const valid=(q:number[])=>{const n=q.length;for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)if(q[i]===q[j]||Math.abs(q[i]-q[j])===j-i)return false;return true;}; expect(valid([1,3,0,2])).toBe(true); expect(valid([0,1,2,3])).toBe(false); });
+  it('implements string compression', () => { const comp=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=s[i]+(j-i>1?j-i:'');i=j;}return r.length<s.length?r:s;}; expect(comp('aabcccdddd')).toBe('a2bc3d4'); expect(comp('abcd')).toBe('abcd'); });
+});

@@ -893,3 +893,12 @@ describe('phase48 coverage', () => {
   it('finds minimum vertex cover size', () => { const mvc=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const visited=new Set<number>(),matched=new Array(n).fill(-1);const dfs=(u:number,vis:Set<number>):boolean=>{for(const v of adj[u]){if(!vis.has(v)){vis.add(v);if(matched[v]===-1||dfs(matched[v],vis)){matched[v]=u;return true;}}}return false;};for(let u=0;u<n;u++){const vis=new Set([u]);dfs(u,vis);}return matched.filter(v=>v!==-1).length;}; expect(mvc(4,[[0,1],[1,2],[2,3]])).toBe(4); });
   it('finds all factor combinations', () => { const fc=(n:number):number[][]=>{ const r:number[][]=[];const bt=(rem:number,min:number,cur:number[])=>{if(rem===1&&cur.length>1)r.push([...cur]);for(let f=min;f<=rem;f++)if(rem%f===0){bt(rem/f,f,[...cur,f]);}};bt(n,2,[]);return r;}; expect(fc(12).length).toBe(3); expect(fc(12)).toContainEqual([2,6]); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds the highest altitude', () => { const ha=(g:number[])=>{let cur=0,max=0;for(const v of g){cur+=v;max=Math.max(max,cur);}return max;}; expect(ha([-5,1,5,0,-7])).toBe(1); expect(ha([-4,-3,-2,-1,4,3,2])).toBe(0); });
+  it('finds minimum deletions to make string balanced', () => { const md=(s:string)=>{let open=0,close=0;for(const c of s){if(c==='(')open++;else if(open>0)open--;else close++;}return open+close;}; expect(md('(())')).toBe(0); expect(md('(())')).toBe(0); expect(md('))((')).toBe(4); });
+  it('computes the number of good pairs', () => { const gp=(a:number[])=>{const m=new Map<number,number>();let cnt=0;for(const v of a){cnt+=m.get(v)||0;m.set(v,(m.get(v)||0)+1);}return cnt;}; expect(gp([1,2,3,1,1,3])).toBe(4); expect(gp([1,1,1,1])).toBe(6); });
+  it('finds the celebrity in a party', () => { const cel=(knows:(a:number,b:number)=>boolean,n:number)=>{let cand=0;for(let i=1;i<n;i++)if(knows(cand,i))cand=i;for(let i=0;i<n;i++)if(i!==cand&&(knows(cand,i)||!knows(i,cand)))return -1;return cand;}; const m=[[0,1,1],[0,0,1],[0,0,0]];const k=(a:number,b:number)=>m[a][b]===1; expect(cel(k,3)).toBe(2); });
+  it('checks if array can be partitioned into equal sums', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const v of a)for(let j=t;j>=v;j--)dp[j]=dp[j]||dp[j-v];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+});

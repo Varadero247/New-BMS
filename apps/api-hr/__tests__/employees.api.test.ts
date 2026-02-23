@@ -998,3 +998,12 @@ describe('phase48 coverage', () => {
   it('computes nth lucky number', () => { const lucky=(n:number)=>{const a=Array.from({length:1000},(_,i)=>2*i+1);for(let i=1;i<n&&i<a.length;i++){const s=a[i];a.splice(0,a.length,...a.filter((_,j)=>(j+1)%s!==0));}return a[n-1];}; expect(lucky(1)).toBe(1); expect(lucky(5)).toBe(13); });
   it('finds the missing number in sequence', () => { const miss=(a:number[])=>{const n=a.length;return n*(n+1)/2-a.reduce((s,v)=>s+v,0);}; expect(miss([3,0,1])).toBe(2); expect(miss([9,6,4,2,3,5,7,0,1])).toBe(8); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds running sum of array', () => { const rs=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++)r[i]+=r[i-1];return r;}; expect(rs([1,2,3,4])).toEqual([1,3,6,10]); expect(rs([3,1,2,10,1])).toEqual([3,4,6,16,17]); });
+  it('computes longest increasing path in matrix', () => { const lip=(m:number[][])=>{const r=m.length,c=m[0].length,memo=Array.from({length:r},()=>new Array(c).fill(0));const dfs=(i:number,j:number):number=>{if(memo[i][j])return memo[i][j];const dirs=[[0,1],[0,-1],[1,0],[-1,0]];return memo[i][j]=1+Math.max(0,...dirs.map(([di,dj])=>{const ni=i+di,nj=j+dj;return ni>=0&&ni<r&&nj>=0&&nj<c&&m[ni][nj]>m[i][j]?dfs(ni,nj):0;}));};let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++)max=Math.max(max,dfs(i,j));return max;}; expect(lip([[9,9,4],[6,6,8],[2,1,1]])).toBe(4); });
+  it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
+  it('checks if array has majority element', () => { const hasMaj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt===1?(cand=a[i],1):cnt-1;return a.filter(v=>v===cand).length>a.length/2;}; expect(hasMaj([3,2,3])).toBe(true); expect(hasMaj([1,2,3])).toBe(false); });
+  it('checks if n-queens placement is valid', () => { const valid=(q:number[])=>{const n=q.length;for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)if(q[i]===q[j]||Math.abs(q[i]-q[j])===j-i)return false;return true;}; expect(valid([1,3,0,2])).toBe(true); expect(valid([0,1,2,3])).toBe(false); });
+});

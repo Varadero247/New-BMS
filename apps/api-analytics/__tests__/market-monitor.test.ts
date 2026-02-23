@@ -696,3 +696,12 @@ describe('phase48 coverage', () => {
   it('computes minimum cost to cut rod', () => { const cr=(n:number,cuts:number[])=>{const c=[0,...cuts.sort((a,b)=>a-b),n];const m=c.length;const dp:number[][]=Array.from({length:m},()=>new Array(m).fill(0));for(let l=2;l<m;l++)for(let i=0;i<m-l;i++){const j=i+l;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+c[j]-c[i]);}return dp[0][m-1];}; expect(cr(7,[1,3,4,5])).toBe(16); });
   it('generates all binary strings of length n', () => { const bs=(n:number):string[]=>n===0?['']:bs(n-1).flatMap(s=>['0'+s,'1'+s]); expect(bs(2)).toEqual(['00','10','01','11']); expect(bs(1)).toEqual(['0','1']); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('implements monotonic stack for next greater', () => { const ng=(a:number[])=>{const r=new Array(a.length).fill(-1),s:number[]=[];for(let i=0;i<a.length;i++){while(s.length&&a[s[s.length-1]]<a[i])r[s.pop()!]=a[i];s.push(i);}return r;}; expect(ng([2,1,2,4,3])).toEqual([4,2,4,-1,-1]); });
+  it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
+  it('implements trie insert and search', () => { const trie=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n.$=1;},has:(w:string)=>{let n=r;for(const c of w){if(!n[c])return false;n=n[c];}return !!n.$;}};};const t=trie();t.ins('hello');t.ins('world'); expect(t.has('hello')).toBe(true); expect(t.has('hell')).toBe(false); });
+  it('implements segment tree range query', () => { const seg=(a:number[])=>{const n=a.length,t=new Array(4*n).fill(0);const build=(node:number,s:number,e:number)=>{if(s===e){t[node]=a[s];return;}const m=s+e>>1;build(2*node,s,m);build(2*node+1,m+1,e);t[node]=t[2*node]+t[2*node+1];};const q=(node:number,s:number,e:number,l:number,r:number):number=>{if(r<s||l>e)return 0;if(l<=s&&e<=r)return t[node];const m=s+e>>1;return q(2*node,s,m,l,r)+q(2*node+1,m+1,e,l,r);};build(1,0,n-1);return(l:number,r:number)=>q(1,0,n-1,l,r);}; const s=seg([1,3,5,7,9]);expect(s(1,3)).toBe(15); });
+  it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
+});

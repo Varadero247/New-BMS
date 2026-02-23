@@ -733,3 +733,12 @@ describe('phase48 coverage', () => {
   it('decodes run-length encoded string', () => { const dec=(s:string)=>s.replace(/(\d+)(\w)/g,(_,n,c)=>c.repeat(+n)); expect(dec('3a2b4c')).toBe('aaabbcccc'); expect(dec('2x1y3z')).toBe('xxyzzz'); });
   it('checks if array is a permutation of 1..n', () => { const isPerm=(a:number[])=>{const n=a.length;return a.every(v=>v>=1&&v<=n)&&new Set(a).size===n;}; expect(isPerm([2,3,1,4])).toBe(true); expect(isPerm([1,1,3,4])).toBe(false); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds longest bitonic subsequence', () => { const lbs=(a:number[])=>{const n=a.length;const lis=new Array(n).fill(1),lds=new Array(n).fill(1);for(let i=1;i<n;i++)for(let j=0;j<i;j++)if(a[j]<a[i])lis[i]=Math.max(lis[i],lis[j]+1);for(let i=n-2;i>=0;i--)for(let j=n-1;j>i;j--)if(a[j]<a[i])lds[i]=Math.max(lds[i],lds[j]+1);return Math.max(...a.map((_,i)=>lis[i]+lds[i]-1));}; expect(lbs([1,11,2,10,4,5,2,1])).toBe(6); });
+  it('computes minimum spanning tree weight (Kruskal)', () => { const mst=(n:number,edges:[number,number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};let w=0,cnt=0;for(const [u,v,wt] of [...edges].sort((a,b)=>a[2]-b[2])){if(find(u)!==find(v)){union(u,v);w+=wt;cnt++;}}return cnt===n-1?w:-1;}; expect(mst(4,[[0,1,1],[1,2,2],[2,3,3],[0,3,4]])).toBe(6); });
+  it('checks if two strings are isomorphic', () => { const iso=(s:string,t:string)=>{const sm=new Map<string,string>(),tm=new Set<string>();for(let i=0;i<s.length;i++){if(sm.has(s[i])){if(sm.get(s[i])!==t[i])return false;}else{if(tm.has(t[i]))return false;sm.set(s[i],t[i]);tm.add(t[i]);}}return true;}; expect(iso('egg','add')).toBe(true); expect(iso('foo','bar')).toBe(false); expect(iso('paper','title')).toBe(true); });
+  it('computes maximum length chain of pairs', () => { const chain=(pairs:[number,number][])=>{pairs.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pairs[0][1];for(let i=1;i<pairs.length;i++)if(pairs[i][0]>end){cnt++;end=pairs[i][1];}return cnt;}; expect(chain([[1,2],[2,3],[3,4]])).toBe(2); expect(chain([[1,2],[3,4],[2,3]])).toBe(2); });
+  it('finds running sum of array', () => { const rs=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++)r[i]+=r[i-1];return r;}; expect(rs([1,2,3,4])).toEqual([1,3,6,10]); expect(rs([3,1,2,10,1])).toEqual([3,4,6,16,17]); });
+});

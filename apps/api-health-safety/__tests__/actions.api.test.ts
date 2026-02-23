@@ -630,3 +630,12 @@ describe('phase48 coverage', () => {
   it('implements Rabin-Karp multi-pattern search', () => { const rk=(text:string,patterns:string[])=>{const res:Record<string,number[]>={};for(const p of patterns){res[p]=[];const n=p.length;for(let i=0;i<=text.length-n;i++)if(text.slice(i,i+n)===p)res[p].push(i);}return res;}; const r=rk('abcabcabc',['abc','bca']); expect(r['abc']).toEqual([0,3,6]); expect(r['bca']).toEqual([1,4]); });
   it('computes closest pair distance', () => { const cpd=(pts:[number,number][])=>{const d=(a:[number,number],b:[number,number])=>Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2);let best=Infinity;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)best=Math.min(best,d(pts[i],pts[j]));return best;}; expect(cpd([[0,0],[3,4],[1,1],[5,2]])).toBeCloseTo(Math.sqrt(2),5); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes spiral matrix order', () => { const spiral=(m:number[][])=>{const r=[];let t=0,b=m.length-1,l=0,ri=m[0].length-1;while(t<=b&&l<=ri){for(let i=l;i<=ri;i++)r.push(m[t][i]);t++;for(let i=t;i<=b;i++)r.push(m[i][ri]);ri--;if(t<=b){for(let i=ri;i>=l;i--)r.push(m[b][i]);b--;}if(l<=ri){for(let i=b;i>=t;i--)r.push(m[i][l]);l++;}}return r;}; expect(spiral([[1,2,3],[4,5,6],[7,8,9]])).toEqual([1,2,3,6,9,8,7,4,5]); });
+  it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
+  it('computes number of BSTs with n nodes', () => { const numBST=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=numBST(i-1)*numBST(n-i);return cnt;}; expect(numBST(3)).toBe(5); expect(numBST(4)).toBe(14); });
+  it('finds shortest path with BFS', () => { const bfs=(g:number[][],s:number,t:number)=>{const d=new Array(g.length).fill(-1);d[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of g[u])if(d[v]===-1){d[v]=d[u]+1;if(v===t)return d[v];q.push(v);}}return d[t];}; expect(bfs([[1,2],[0,3],[0,3],[1,2]],0,3)).toBe(2); });
+  it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
+});

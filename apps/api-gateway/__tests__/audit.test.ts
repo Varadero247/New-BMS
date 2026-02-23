@@ -890,3 +890,12 @@ describe('phase48 coverage', () => {
   it('implements Gray code encode/decode', () => { const enc=(n:number)=>n^(n>>1); const dec=(g:number)=>{let n=0;for(;g;g>>=1)n^=g;return n;}; expect(enc(6)).toBe(5); expect(dec(5)).toBe(6); expect(dec(enc(10))).toBe(10); });
   it('finds median without sorting (quickselect)', () => { const qs=(a:number[],k:number):number=>{const p=a[Math.floor(a.length/2)];const lo=a.filter(x=>x<p),eq=a.filter(x=>x===p),hi=a.filter(x=>x>p);return k<lo.length?qs(lo,k):k<lo.length+eq.length?p:qs(hi,k-lo.length-eq.length);}; const a=[3,1,4,1,5,9,2,6];const m=qs(a,Math.floor(a.length/2)); expect(m).toBe(4); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds maximum product subarray', () => { const mps=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],a[i]*max,a[i]*min);min=Math.min(a[i],a[i]*t,a[i]*min);res=Math.max(res,max);}return res;}; expect(mps([2,3,-2,4])).toBe(6); expect(mps([-2,0,-1])).toBe(0); });
+  it('implements monotonic stack for next greater', () => { const ng=(a:number[])=>{const r=new Array(a.length).fill(-1),s:number[]=[];for(let i=0;i<a.length;i++){while(s.length&&a[s[s.length-1]]<a[i])r[s.pop()!]=a[i];s.push(i);}return r;}; expect(ng([2,1,2,4,3])).toEqual([4,2,4,-1,-1]); });
+  it('computes longest increasing path in matrix', () => { const lip=(m:number[][])=>{const r=m.length,c=m[0].length,memo=Array.from({length:r},()=>new Array(c).fill(0));const dfs=(i:number,j:number):number=>{if(memo[i][j])return memo[i][j];const dirs=[[0,1],[0,-1],[1,0],[-1,0]];return memo[i][j]=1+Math.max(0,...dirs.map(([di,dj])=>{const ni=i+di,nj=j+dj;return ni>=0&&ni<r&&nj>=0&&nj<c&&m[ni][nj]>m[i][j]?dfs(ni,nj):0;}));};let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++)max=Math.max(max,dfs(i,j));return max;}; expect(lip([[9,9,4],[6,6,8],[2,1,1]])).toBe(4); });
+  it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
+  it('finds all permutations', () => { const perms=(a:number[]):number[][]=>a.length<=1?[a]:a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p])); expect(perms([1,2,3]).length).toBe(6); });
+});

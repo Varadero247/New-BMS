@@ -843,3 +843,12 @@ describe('phase48 coverage', () => {
   it('checks if array can form arithmetic progression', () => { const ap=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const d=s[1]-s[0];return s.every((v,i)=>i===0||v-s[i-1]===d);}; expect(ap([3,5,1])).toBe(true); expect(ap([1,2,4])).toBe(false); });
   it('generates nth row of Pascal triangle', () => { const pt=(n:number)=>{let r=[1];for(let i=0;i<n;i++)r=[...r,0].map((v,j)=>v+(r[j-1]||0));return r;}; expect(pt(4)).toEqual([1,4,6,4,1]); expect(pt(0)).toEqual([1]); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
+  it('computes sum of left leaves', () => { type N={v:number;l?:N;r?:N};const sll=(n:N|undefined,isLeft=false):number=>{if(!n)return 0;if(!n.l&&!n.r)return isLeft?n.v:0;return sll(n.l,true)+sll(n.r,false);}; const t:N={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; expect(sll(t)).toBe(24); });
+  it('implements segment tree range query', () => { const seg=(a:number[])=>{const n=a.length,t=new Array(4*n).fill(0);const build=(node:number,s:number,e:number)=>{if(s===e){t[node]=a[s];return;}const m=s+e>>1;build(2*node,s,m);build(2*node+1,m+1,e);t[node]=t[2*node]+t[2*node+1];};const q=(node:number,s:number,e:number,l:number,r:number):number=>{if(r<s||l>e)return 0;if(l<=s&&e<=r)return t[node];const m=s+e>>1;return q(2*node,s,m,l,r)+q(2*node+1,m+1,e,l,r);};build(1,0,n-1);return(l:number,r:number)=>q(1,0,n-1,l,r);}; const s=seg([1,3,5,7,9]);expect(s(1,3)).toBe(15); });
+  it('checks if one string is rotation of another', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
+  it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
+});

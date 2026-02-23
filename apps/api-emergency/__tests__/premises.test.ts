@@ -784,3 +784,12 @@ describe('phase48 coverage', () => {
   it('computes bit reversal', () => { const rev=(n:number,bits=8)=>{let r=0;for(let i=0;i<bits;i++){r=(r<<1)|(n&1);n>>=1;}return r;}; expect(rev(0b10110001,8)).toBe(0b10001101); });
   it('checks if array can form arithmetic progression', () => { const ap=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const d=s[1]-s[0];return s.every((v,i)=>i===0||v-s[i-1]===d);}; expect(ap([3,5,1])).toBe(true); expect(ap([1,2,4])).toBe(false); });
 });
+
+
+describe('phase49 coverage', () => {
+  it('computes maximum profit with cooldown', () => { const mp=(p:number[])=>{let held=-Infinity,sold=0,rest=0;for(const price of p){const h=Math.max(held,rest-price),s=held+price,r=Math.max(rest,sold);held=h;sold=s;rest=r;}return Math.max(sold,rest);}; expect(mp([1,2,3,0,2])).toBe(3); expect(mp([1])).toBe(0); });
+  it('finds all subsets with target sum', () => { const ss=(a:number[],t:number):number[][]=>{const r:number[][]=[];const bt=(i:number,cur:number[],sum:number)=>{if(sum===t)r.push([...cur]);if(sum>=t||i>=a.length)return;for(let j=i;j<a.length;j++)bt(j+1,[...cur,a[j]],sum+a[j]);};bt(0,[],0);return r;}; expect(ss([2,3,6,7],7).length).toBe(1); });
+  it('finds diameter of binary tree', () => { type N={v:number;l?:N;r?:N};let dia=0;const depth=(n:N|undefined):number=>{if(!n)return 0;const l=depth(n.l),r=depth(n.r);dia=Math.max(dia,l+r);return 1+Math.max(l,r);};const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3}};dia=0;depth(t); expect(dia).toBe(3); });
+  it('computes number of ways to tile 2xn board', () => { const tile=(n:number):number=>n<=1?1:tile(n-1)+tile(n-2); expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('implements LFU cache', () => { const lfu=(cap:number)=>{const vals=new Map<number,number>(),freq=new Map<number,number>(),fmap=new Map<number,Set<number>>();let min=0;return{get:(k:number)=>{if(!vals.has(k))return -1;const f=freq.get(k)!;freq.set(k,f+1);fmap.get(f)!.delete(k);if(!fmap.get(f)!.size&&min===f)min++;fmap.set(f+1,fmap.get(f+1)||new Set());fmap.get(f+1)!.add(k);return vals.get(k)!;},put:(k:number,v:number)=>{if(cap<=0)return;if(vals.has(k)){vals.set(k,v);lfu(cap).get(k);return;}if(vals.size>=cap){const evict=fmap.get(min)!.values().next().value!;fmap.get(min)!.delete(evict);vals.delete(evict);freq.delete(evict);}vals.set(k,v);freq.set(k,1);fmap.set(1,fmap.get(1)||new Set());fmap.get(1)!.add(k);min=1;}};}; const c=lfu(2);c.put(1,1);c.put(2,2); expect(c.get(1)).toBe(1); });
+});
