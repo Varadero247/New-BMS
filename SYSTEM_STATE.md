@@ -12,7 +12,7 @@
 | Prisma Schemas           | 44                                     |
 | Database Tables (models) | ~590                                   |
 | Scripts                  | 28                                     |
-| Unit Tests               | 708,205 across 711 suites (all passing) |
+| Unit Tests               | 708,495 across 712 suites (all passing) |
 | Integration Test Scripts | 9 (+ 1 finance)                        |
 
 ---

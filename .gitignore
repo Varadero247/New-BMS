@@ -65,3 +65,4 @@ deploy/k8s/overlays/*/secrets*.yaml
 # Test reports
 playwright-report/
 .zap/
+.stryker-tmp/
