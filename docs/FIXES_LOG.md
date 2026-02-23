@@ -1,5 +1,16 @@
 # IMS — Fixes Log
 
+## Phase 51 — Test Depth Expansion to ≥155 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 150 tests to ≥155 each.
+
+**Net new tests:** +3,540 (106,405 → 109,945), all 711 suites passing (0 failures).
+
+**30 new algorithm snippets added (0 post-expansion fixes needed):**
+Trie, Dijkstra, Sieve, Union-Find, KMP, Matrix Chain Mult, Longest Palindromic Substring, Bellman-Ford, Topological Sort (Kahn), Number of Islands, Coin Change, House Robber II, Find Duplicates O(n), Next Permutation, Valid Parentheses, Spiral Matrix, Decode Ways, Largest Rectangle Histogram, Jump Game, Min Window Substring, Count Palindromic Substrings, Sliding Window Max, Group Anagrams, Median Two Arrays, Count Bits, Course Schedule, Merge Intervals, Power Set, Two Sum All Pairs, Count Good Nodes BST.
+
+---
+
 ## Phase 50 — Test Depth Expansion to ≥150 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 145-149 tests to ≥150 each.
