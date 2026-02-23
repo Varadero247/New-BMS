@@ -1,5 +1,22 @@
 # IMS — Fixes Log
 
+## Phase 54 — Test Depth Expansion to ≥170 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 165 tests to ≥170 each.
+
+**Net new tests:** +3,540 (117,025 → 120,565), all 711 suites passing (0 failures).
+
+**30 new algorithm snippets added. 6 post-expansion fixes:**
+- `acSpiral` pre-fixed: `b++` bug (should be `b--`) + wrong traversal sides → replaced with correct clockwise spiral (111 files).
+- `steps(14)` phase54 reduce-to-1: expected `6` → `5` (14→7→6→3→2→1 = 5 steps) (182 files).
+- `mps([[1,2],[5,6]])` min path sum: expected `8` → `9` (path 1+2+6=9) (132 files).
+- `dsw([1,2,1,3,2],3)` distinct sliding window: expected `[2,3,2]` → `[2,3,3]` (110 files).
+- `lonely([10,6,5,8])` expected `[10,8]` → `[8,10]` (ascending sort) (108 files).
+- `sr` (smallest range): didn't re-sort before computing min/max — fixed to sort at top of while loop (113 files).
+- `phase50 steps(14)` reduce-to-zero: expected `5` → `6` (14→7→6→3→2→1→0 = 6 steps) (59 files).
+
+---
+
 ## Phase 53 — Test Depth Expansion to ≥165 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 160 tests to ≥165 each.
