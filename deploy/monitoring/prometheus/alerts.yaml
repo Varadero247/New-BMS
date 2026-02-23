@@ -110,30 +110,117 @@ groups:
           runbook_url: "https://docs.nexara.io/runbooks/RateLimitBreached"
 
   - name: slo
+    # Multi-window burn rate alerts: fire when error budget burns at 14.4× (1h/5m)
+    # or 6× (6h/30m) the sustainable rate (99.9% SLO = 0.1% error budget).
+    # Based on Google SRE Workbook multi-burn-rate alert model.
+    # Target SLO: 99.9% availability (30-day error budget = 43.8 minutes)
     rules:
-      - alert: SLOErrorBudgetCritical
+      # ── Burn Rate: Critical Page (fast burn) ─────────────────────────────────
+      # 14.4× burn rate detected in short windows → page immediately
+      # At 14.4×, the 30-day error budget exhausts in ~2 hours
+      - alert: SloBurnRateCritical
         expr: |
-          (1 - (sum(rate(http_requests_total{status!~"5.."}[1h])) / sum(rate(http_requests_total[1h])))) > 0.001
+          (
+            cluster:http_requests_error_ratio:rate5m > (14.4 * 0.001)
+          ) and (
+            cluster:http_requests_error_ratio:rate1h > (14.4 * 0.001)
+          )
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+          window: "1h/5m"
+        annotations:
+          summary: "SLO error budget burning critically fast ({{ $value | humanizePercentage }} error rate)"
+          description: >
+            Current error ratio {{ $value | humanizePercentage }} exceeds 14.4× the error budget rate.
+            At this rate, the 30-day error budget will be exhausted in approximately 2 hours.
+            Immediate action required.
+          runbook_url: "https://docs.nexara.io/runbooks/SloBurnRateCritical"
+
+      # ── Burn Rate: High Page ─────────────────────────────────────────────────
+      # 6× burn rate detected in medium windows → page the on-call team
+      # At 6×, the 30-day error budget exhausts in ~5 hours
+      - alert: SloBurnRateHigh
+        expr: |
+          (
+            cluster:http_requests_error_ratio:rate5m > (6 * 0.001)
+          ) and (
+            cluster:http_requests_error_ratio:rate6h > (6 * 0.001)
+          )
         for: 5m
         labels:
           severity: critical
           team: platform
+          window: "6h/30m"
         annotations:
-          summary: "SLO error budget critically depleted"
-          description: "Error budget consumption rate indicates SLO breach within 24 hours"
-          runbook_url: "https://docs.nexara.io/runbooks/SLOErrorBudgetCritical"
+          summary: "SLO error budget burning fast ({{ $value | humanizePercentage }} error rate)"
+          description: >
+            Error ratio {{ $value | humanizePercentage }} exceeds 6× the sustainable error budget rate.
+            At this rate, the 30-day error budget will be exhausted in approximately 5 hours.
+          runbook_url: "https://docs.nexara.io/runbooks/SloBurnRateHigh"
 
-      - alert: SLOLatencyBudgetCritical
+      # ── Burn Rate: Warning Ticket ────────────────────────────────────────────
+      # 3× burn rate in 1-day window → create a ticket, investigate this sprint
+      # At 3×, the 30-day error budget exhausts in ~10 days
+      - alert: SloBurnRateWarning
         expr: |
-          histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1h])) by (le)) > 2.0
+          cluster:http_requests_error_ratio:rate1h > (3 * 0.001)
+        for: 1h
+        labels:
+          severity: warning
+          team: platform
+          window: "1d/1h"
+        annotations:
+          summary: "SLO error budget elevated ({{ $value | humanizePercentage }} error rate)"
+          description: >
+            Error ratio {{ $value | humanizePercentage }} exceeds 3× the sustainable error budget rate.
+            At this rate, the 30-day error budget will be exhausted in approximately 10 days.
+            Create a ticket to investigate.
+          runbook_url: "https://docs.nexara.io/runbooks/SloBurnRateWarning"
+
+      # ── Per-Service SLO Breach ───────────────────────────────────────────────
+      # Individual service degradation affecting that service's SLO
+      - alert: SloServiceErrorBudgetCritical
+        expr: |
+          job:http_requests_error_ratio:rate5m > 0.05
         for: 5m
         labels:
           severity: warning
           team: platform
         annotations:
-          summary: "P99 latency SLO breach"
-          description: "P99 latency exceeds 2 seconds, impacting SLO compliance"
-          runbook_url: "https://docs.nexara.io/runbooks/SLOLatencyBudgetCritical"
+          summary: "Service {{ $labels.job }} error rate {{ $value | humanizePercentage }}"
+          description: >
+            Service {{ $labels.job }} has an error rate of {{ $value | humanizePercentage }},
+            exceeding the 5% per-service SLO threshold.
+          runbook_url: "https://docs.nexara.io/runbooks/SloServiceErrorBudgetCritical"
+
+      # ── Latency SLO ──────────────────────────────────────────────────────────
+      # Uses recording rules for fast evaluation
+      - alert: SloLatencyBudgetCritical
+        expr: cluster:http_request_duration_seconds:p99 > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Cluster P99 latency SLO breach ({{ $value | humanizeDuration }})"
+          description: >
+            Cluster-wide P99 latency of {{ $value | humanizeDuration }} exceeds the 2-second SLO threshold.
+          runbook_url: "https://docs.nexara.io/runbooks/SloLatencyBudgetCritical"
+
+      # ── Service-Level Latency ────────────────────────────────────────────────
+      - alert: SloServiceLatencyHigh
+        expr: job:http_request_duration_seconds:p95 > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Service {{ $labels.job }} P95 latency {{ $value | humanizeDuration }}"
+          description: >
+            Service {{ $labels.job }} P95 latency of {{ $value | humanizeDuration }}
+            exceeds 500ms service SLO threshold.
+          runbook_url: "https://docs.nexara.io/runbooks/SloServiceLatencyHigh"
 
   - name: database
     rules:

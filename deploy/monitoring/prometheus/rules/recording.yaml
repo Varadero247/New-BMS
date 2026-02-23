@@ -1,0 +1,153 @@
+groups:
+  # ── Request Rate Recording Rules ────────────────────────────────────────────
+  # Pre-compute per-service request rates to make dashboards and alerts faster.
+  # These avoid re-evaluating expensive rate() calls on every dashboard refresh.
+
+  - name: ims:request_rates
+    interval: 30s
+    rules:
+      # Total request rate per service (5m window)
+      - record: job:http_requests:rate5m
+        expr: sum(rate(http_requests_total{job=~"ims-.*"}[5m])) by (job)
+
+      # Error request rate per service (5m window)
+      - record: job:http_requests_errors:rate5m
+        expr: sum(rate(http_requests_total{job=~"ims-.*", status_code=~"5.."}[5m])) by (job)
+
+      # Error ratio per service (5m window) — 0.0 to 1.0
+      - record: job:http_requests_error_ratio:rate5m
+        expr: |
+          job:http_requests_errors:rate5m
+          / on(job)
+          job:http_requests:rate5m
+
+      # Total request rate across ALL services
+      - record: cluster:http_requests:rate5m
+        expr: sum(rate(http_requests_total{job=~"ims-.*"}[5m]))
+
+      # Error request rate across ALL services
+      - record: cluster:http_requests_errors:rate5m
+        expr: sum(rate(http_requests_total{job=~"ims-.*", status_code=~"5.."}[5m]))
+
+      # Cluster-wide error ratio
+      - record: cluster:http_requests_error_ratio:rate5m
+        expr: cluster:http_requests_errors:rate5m / cluster:http_requests:rate5m
+
+  # ── Latency Recording Rules ──────────────────────────────────────────────────
+  - name: ims:latency
+    interval: 30s
+    rules:
+      # P50 latency per service
+      - record: job:http_request_duration_seconds:p50
+        expr: |
+          histogram_quantile(0.50,
+            sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le)
+          )
+
+      # P95 latency per service
+      - record: job:http_request_duration_seconds:p95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le)
+          )
+
+      # P99 latency per service
+      - record: job:http_request_duration_seconds:p99
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le)
+          )
+
+      # P95 latency across ALL services
+      - record: cluster:http_request_duration_seconds:p95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (le)
+          )
+
+      # P99 latency across ALL services
+      - record: cluster:http_request_duration_seconds:p99
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (le)
+          )
+
+  # ── SLO Recording Rules ──────────────────────────────────────────────────────
+  # Multi-window SLO tracking (5m, 30m, 1h, 6h, 1d) for error budget burn rate.
+  - name: ims:slo
+    interval: 60s
+    rules:
+      # Availability ratio (success / total) per service — 5m window
+      - record: job:availability:rate5m
+        expr: |
+          sum(rate(http_requests_total{job=~"ims-.*", status_code!~"5.."}[5m])) by (job)
+          / sum(rate(http_requests_total{job=~"ims-.*"}[5m])) by (job)
+
+      # Availability ratio per service — 30m window
+      - record: job:availability:rate30m
+        expr: |
+          sum(rate(http_requests_total{job=~"ims-.*", status_code!~"5.."}[30m])) by (job)
+          / sum(rate(http_requests_total{job=~"ims-.*"}[30m])) by (job)
+
+      # Availability ratio per service — 1h window
+      - record: job:availability:rate1h
+        expr: |
+          sum(rate(http_requests_total{job=~"ims-.*", status_code!~"5.."}[1h])) by (job)
+          / sum(rate(http_requests_total{job=~"ims-.*"}[1h])) by (job)
+
+      # Availability ratio per service — 6h window
+      - record: job:availability:rate6h
+        expr: |
+          sum(rate(http_requests_total{job=~"ims-.*", status_code!~"5.."}[6h])) by (job)
+          / sum(rate(http_requests_total{job=~"ims-.*"}[6h])) by (job)
+
+      # Availability ratio per service — 24h window
+      - record: job:availability:rate1d
+        expr: |
+          sum(rate(http_requests_total{job=~"ims-.*", status_code!~"5.."}[1d])) by (job)
+          / sum(rate(http_requests_total{job=~"ims-.*"}[1d])) by (job)
+
+      # Cluster-wide availability — 1h window
+      - record: cluster:availability:rate1h
+        expr: |
+          sum(rate(http_requests_total{job=~"ims-.*", status_code!~"5.."}[1h]))
+          / sum(rate(http_requests_total{job=~"ims-.*"}[1h]))
+
+  # ── Security Recording Rules ─────────────────────────────────────────────────
+  - name: ims:security
+    interval: 60s
+    rules:
+      # Auth failure rate per minute
+      - record: cluster:auth_failures:rate1m
+        expr: sum(rate(auth_failures_total{job=~"ims-.*"}[1m]))
+
+      # Auth failure rate per 5 minutes
+      - record: cluster:auth_failures:rate5m
+        expr: sum(rate(auth_failures_total{job=~"ims-.*"}[5m]))
+
+      # Rate limit hit rate per service
+      - record: job:rate_limit_exceeded:rate5m
+        expr: sum(rate(rate_limit_exceeded_total{job=~"ims-.*"}[5m])) by (job, limiter)
+
+      # Total rate limit hits across cluster
+      - record: cluster:rate_limit_exceeded:rate5m
+        expr: sum(rate(rate_limit_exceeded_total{job=~"ims-.*"}[5m]))
+
+  # ── Resource Recording Rules ─────────────────────────────────────────────────
+  - name: ims:resources
+    interval: 60s
+    rules:
+      # Memory usage in MiB per service
+      - record: job:process_memory_mib:current
+        expr: process_resident_memory_bytes{job=~"ims-.*"} / 1024 / 1024
+
+      # CPU usage percent per service (1m rate)
+      - record: job:process_cpu_percent:rate1m
+        expr: rate(process_cpu_seconds_total{job=~"ims-.*"}[1m]) * 100
+
+      # Node.js event loop lag (if exported by monitoring package)
+      - record: job:nodejs_event_loop_lag_ms:p99
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(nodejs_eventloop_lag_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le)
+          ) * 1000
