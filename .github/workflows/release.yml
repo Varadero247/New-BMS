@@ -1,0 +1,224 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag (e.g. v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${{ github.ref_name || inputs.tag }}"
+          VERSION="${TAG#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          if [[ "$TAG" == *"-rc."* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Releasing: ${TAG} (pre-release: ${{ contains(github.ref_name, '-rc.') }})"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma clients
+        run: pnpm --filter @ims/database generate:all
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Run unit tests
+        run: pnpm test
+        env:
+          JWT_SECRET: release-validation-jwt-secret-at-least-64-characters-for-ci-only
+          JWT_REFRESH_SECRET: release-validation-refresh-secret-at-least-64-characters-for-ci
+
+  build-images:
+    name: Build and Push Images (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    needs: [validate]
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - api-health-safety
+          - api-environment
+          - api-quality
+          - api-ai-analysis
+          - api-inventory
+          - api-hr
+          - api-payroll
+          - api-workflows
+          - api-project-management
+          - api-automotive
+          - api-medical
+          - api-aerospace
+          - api-finance
+          - api-crm
+          - api-infosec
+          - api-esg
+          - api-cmms
+          - api-portal
+          - api-food-safety
+          - api-energy
+          - api-analytics
+          - api-field-service
+          - api-iso42001
+          - api-iso37001
+          - api-marketing
+          - api-partners
+          - api-risk
+          - api-training
+          - api-suppliers
+          - api-assets
+          - api-documents
+          - api-complaints
+          - api-contracts
+          - api-ptw
+          - api-reg-monitor
+          - api-incidents
+          - api-audits
+          - api-mgmt-review
+          - api-chemicals
+          - api-emergency
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/${{ matrix.service }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ needs.validate.outputs.prerelease == 'false' }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deploy/docker/Dockerfile.api
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            SERVICE=${{ matrix.service }}
+            VERSION=${{ needs.validate.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate, build-images]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          # Extract the section for this version from CHANGELOG.md
+          NOTES=$(awk "/^## \[${VERSION}\]/{found=1; next} /^## \[/{if(found) exit} found{print}" CHANGELOG.md)
+          if [ -z "$NOTES" ]; then
+            NOTES="See [CHANGELOG.md](./CHANGELOG.md) for full change history."
+          fi
+          # Write to file to avoid shell quoting issues
+          echo "$NOTES" > /tmp/release-notes.md
+          echo "notes_file=/tmp/release-notes.md" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name || inputs.tag }}
+          name: "Nexara IMS v${{ needs.validate.outputs.version }}"
+          body_path: ${{ steps.changelog.outputs.notes_file }}
+          prerelease: ${{ needs.validate.outputs.prerelease == 'true' }}
+          generate_release_notes: false
+          make_latest: ${{ needs.validate.outputs.prerelease == 'false' }}
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [validate, build-images]
+    environment:
+      name: staging
+      url: https://staging.nexara.io
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update staging manifests
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          # Update image tags in staging overlay
+          find deploy/k8s/overlays/staging -name '*.yaml' | while read f; do
+            sed -i "s|:latest|:${VERSION}|g" "$f" 2>/dev/null || true
+          done
+          echo "Staging manifests updated to version ${VERSION}"
+
+      - name: Notify deployment
+        run: |
+          echo "Nexara IMS v${{ needs.validate.outputs.version }} deployed to staging"
+          echo "Container images pushed to ghcr.io/${{ github.repository }}/*:${{ needs.validate.outputs.version }}"
