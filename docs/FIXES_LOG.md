@@ -1,5 +1,21 @@
 # IMS — Fixes Log
 
+## Phase 47 — Test Depth Expansion to ≥135 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 130-134 tests to ≥135 each.
+
+**Net new tests:** +3,540 (92,245 → 95,785), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (6 issues):**
+- `rotL` formula was CW not CCW → use `m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c]))`
+- Floyd-Warshall `d[3][0]` expected 10 → correct is 5 (3→2→1→0 = 2+1+2)
+- OBST expected 2.75 → actual output is 1.5 (dp[i][i] not init'd to probability)
+- Palindromic substrings `'aaa'` expected 2 → correct is 3 (a, aa, aaa)
+- Max flow expected 4 → correct max flow is 5 (3+2 via two paths)
+- Board tiling Binet formula: `phi^(n+2)` → `phi^(n+1)` for fib(n+1)
+
+---
+
 ## Phase 46 — Test Depth Expansion to ≥130 (February 22, 2026)
 
 Targeted expansion of all 709 test files with 125-129 tests to ≥130 each.
