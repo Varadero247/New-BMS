@@ -99,6 +99,36 @@
 | [CLAUDE.md](../CLAUDE.md) | Development guidelines and known issue fixes |
 | [renovate.json](../renovate.json) | Renovate bot config — auto-merge patches, grouped deps |
 | [stryker.*.config.mjs](../stryker.auth.config.mjs) | Stryker mutation testing configs (auth/security/rbac/finance/validation) |
+| [CHANGELOG.md](../CHANGELOG.md) | Milestone history v0.5.0 → v0.9.0+ |
+| [CONTRIBUTING.md](../CONTRIBUTING.md) | How to add modules, code standards, PR process |
+
+---
+
+## Architecture Decision Records (docs/adr/)
+
+6 ADRs capturing key architectural decisions:
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-001](./adr/ADR-001-monorepo-structure.md) | Monorepo with pnpm workspaces + Turborepo | Accepted |
+| [ADR-002](./adr/ADR-002-api-gateway-pattern.md) | Centralised API gateway with http-proxy-middleware | Accepted |
+| [ADR-003](./adr/ADR-003-multi-schema-database.md) | One Prisma schema per domain (44 schemas) | Accepted |
+| [ADR-004](./adr/ADR-004-jwt-bearer-auth.md) | JWT Bearer token auth stored in localStorage | Accepted |
+| [ADR-005](./adr/ADR-005-next-app-per-module.md) | Separate Next.js app per functional module | Accepted |
+| [ADR-006](./adr/ADR-006-no-shared-db-connection.md) | connection_limit=1 per service | Accepted |
+
+---
+
+## Infrastructure (deploy/)
+
+| Path | Description |
+|------|-------------|
+| `deploy/k8s/base/` | Kubernetes base manifests — namespace, deployments, services, ingress, HPA (42 services), PDB (41 services), monitoring |
+| `deploy/k8s/overlays/` | Environment-specific overlays (dev, staging, prod) |
+| `deploy/monitoring/grafana/dashboards/` | Grafana dashboards — `ims-overview.json`, `api-performance.json`, `security-events.json` |
+| `deploy/monitoring/prometheus/` | Prometheus config + alert rules (13 rules with runbook_url) |
+| `deploy/monitoring/alertmanager/` | Alertmanager routing + contact points |
+| `deploy/monitoring/otel/` | OpenTelemetry Collector config (Jaeger + Tempo + Prometheus) |
 
 ---
 
