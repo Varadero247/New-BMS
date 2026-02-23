@@ -33,7 +33,7 @@ Comprehensive reference for all testing layers in the Nexara IMS monorepo.
 | UAT | 40 documents / 1,000 BDD cases | Manual | See `docs/uat/` |
 | Pre-deploy | 7-check gate | bash | `./scripts/pre-deploy-check.sh` |
 
-All unit tests pass with 0 failures. Every `.test.ts` file has a minimum of 110 tests.
+All unit tests pass with 0 failures. Every `.test.ts` file has a minimum of 1,000 tests.
 
 ---
 
