@@ -1,0 +1,96 @@
+# OpenTelemetry Collector configuration for Nexara IMS
+# Receives traces/metrics from all 42 API services and forwards to storage
+# Documentation: docs/TRACING.md
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - "http://localhost:*"
+            - "https://*.nexara.io"
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: ${env:OTEL_ENVIRONMENT}
+        action: upsert
+      - key: service.namespace
+        value: nexara-ims
+        action: insert
+
+  # Remove high-cardinality attributes that inflate metric storage
+  attributes/sanitize:
+    actions:
+      - key: http.url
+        action: delete
+      - key: db.statement
+        action: hash
+
+exporters:
+  # Jaeger for trace visualization (local dev / staging)
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  # Grafana Tempo (production)
+  otlp/tempo:
+    endpoint: ${env:TEMPO_ENDPOINT}
+    tls:
+      insecure: ${env:TEMPO_INSECURE}
+    sending_queue:
+      enabled: true
+      num_consumers: 4
+      queue_size: 100
+
+  # Prometheus metrics scrape endpoint
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: ims
+    send_timestamps: true
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  # Debug logging — disable in production
+  debug:
+    verbosity: basic
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: 0.0.0.0:1888
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+service:
+  extensions: [health_check, pprof, zpages]
+
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource, attributes/sanitize]
+      exporters: [otlp/jaeger, otlp/tempo]
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [prometheus]
