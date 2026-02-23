@@ -17,6 +17,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DEVELOPER_ONBOARDING.md` — new developer setup guide
 - `RUNBOOK.md` — operational runbook with alert response procedures
 - `DOCUMENTATION_INDEX.md` — full index of all project documentation
+- `CONTRIBUTING.md` — contributor guide with 8-step module-addition workflow
+- Architecture Decision Records (`docs/adr/`) — 6 ADRs documenting key architectural choices
+- Kubernetes HPA for all 41 microservices (`deploy/k8s/base/hpa.yaml`) — autoscale 1–5 replicas at CPU 70%/mem 80%
+- Kubernetes PodDisruptionBudgets (`deploy/k8s/base/pdb.yaml`) — `minAvailable: 1` for all 41 services
+- Grafana dashboards: `api-performance.json` (8 panels) and `security-events.json` (8 panels)
+- `.github/PULL_REQUEST_TEMPLATE.md` — project-specific PR checklist
+- `.github/ISSUE_TEMPLATE/bug_report.yml` — structured bug report with module dropdown
+- `.github/ISSUE_TEMPLATE/feature_request.yml` — feature request with acceptance criteria
+- `.github/CODEOWNERS` — maps 44 apps and all packages to 12 team groups
+- `.github/SECURITY.md` — vulnerability disclosure policy and security contact
+- `dependency-review.yml` — blocks PRs with HIGH/CRITICAL CVEs
+- `stale.yml` — auto-labels stale issues (45d) and PRs (30d)
+- `release.yml` — tag-triggered multi-arch Docker build and GitHub release creation
+- `docs/NEXARA_IMS_PLATFORM_SOP_COMPLETE.md` — 2,578-line complete SOP (all 42 services)
+- `docs/NEXARA_FEATURE_CATALOG.md` — 1,300-line feature catalog (2,558 endpoints)
+- `docs/DATABASE_SCHEMA_REFERENCE.md` — 1,953-line full schema reference (606 models, 781 enums)
+- `docs/NEXARA_ISO_COMPLIANCE_AND_COMPETITIVE_ANALYSIS.md` — ISO coverage and competitive positioning
+
+### Fixed
+- `apps/web/package.json`: replaced vulnerable `xlsx@0.18.5` (Prototype Pollution) with `exceljs@4.4.0`; all Excel export functions made async
 
 ---
 
