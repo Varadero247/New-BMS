@@ -156,7 +156,7 @@ Follow the pattern of existing services (e.g., `apps/api-risk/`, `apps/api-train
 
 ## 5. Testing Requirements
 
-- **Minimum test count**: every new `.test.ts` file must have **at least 110 tests**.
+- **Minimum test count**: every new `.test.ts` file must have **at least 1,000 tests**.
 - **Mock path**: always mock `../src/prisma`, never `@ims/database`:
   ```typescript
   // Correct
@@ -210,7 +210,7 @@ Follow the pattern of existing services (e.g., `apps/api-risk/`, `apps/api-train
    git checkout -b feat/my-feature
    ```
 2. Run the full test suite and typecheck (both must be clean).
-3. Include unit tests for all new code (≥110 tests per file).
+3. Include unit tests for all new code (≥1,000 tests per file).
 4. Update the `[Unreleased]` section of `CHANGELOG.md`.
 5. Reference any related issues in the PR description.
 6. PR titles should be short (under 70 characters); use the body for details.
