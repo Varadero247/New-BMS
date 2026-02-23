@@ -1,5 +1,16 @@
 # IMS — Fixes Log
 
+## Phase 66 — Test Depth Expansion to ≥250 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 245 tests to ≥250 each (1 snippet × 5 its = 5 tests per file).
+
+**Fixes applied:**
+- `goodNodes(mk(5,mk(3),mk(7)))`: wrong expected 3 → corrected to 2 (root=5 ✓, left=3 (3<5) ✗, right=7 ✓ → 2 good nodes) (19 files)
+
+**Results:** 177,205 tests, 711/711 suites, 0 failures
+
+---
+
 ## Phase 65 — Test Depth Expansion to ≥245 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 240 tests to ≥245 each (1 snippet × 5 its = 5 tests per file, using ceil formula).
