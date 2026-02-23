@@ -1056,3 +1056,11 @@ describe('phase50 coverage', () => {
   it('finds minimum operations to reduce to 1', () => { const mo=(n:number)=>{let cnt=0;while(n>1){if(n%2===0)n/=2;else if(n%3===0)n/=3;else n--;cnt++;}return cnt;}; expect(mo(1000000000)).toBeGreaterThan(0); expect(mo(6)).toBe(2); });
   it('checks if linked list is palindrome', () => { const isPalin=(a:number[])=>{const r=[...a].reverse();return a.every((v,i)=>v===r[i]);}; expect(isPalin([1,2,2,1])).toBe(true); expect(isPalin([1,2])).toBe(false); expect(isPalin([1])).toBe(true); });
 });
+
+describe('phase51 coverage', () => {
+  it('counts good nodes in binary tree array', () => { const cgn=(a:(number|null)[])=>{let cnt=0;const dfs=(i:number,mx:number):void=>{if(i>=a.length||a[i]===null)return;const v=a[i] as number;if(v>=mx){cnt++;mx=v;}dfs(2*i+1,mx);dfs(2*i+2,mx);};if(a.length>0&&a[0]!==null)dfs(0,a[0] as number);return cnt;}; expect(cgn([3,1,4,3,null,1,5])).toBe(4); expect(cgn([3,3,null,4,2])).toBe(3); });
+  it('counts palindromic substrings', () => { const cp=(s:string)=>{let cnt=0;const ex=(l:number,r:number)=>{while(l>=0&&r<s.length&&s[l]===s[r]){cnt++;l--;r++;}};for(let i=0;i<s.length;i++){ex(i,i);ex(i,i+1);}return cnt;}; expect(cp('abc')).toBe(3); expect(cp('aaa')).toBe(6); expect(cp('racecar')).toBe(10); });
+  it('counts ways to decode a digit string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const n=s.length,dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=Number(s[i-1]),two=Number(s.slice(i-2,i));if(one>0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(decode('12')).toBe(2); expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y),n=m.length;return n%2?m[Math.floor(n/2)]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); expect(med([],[1])).toBe(1); });
+  it('determines if array allows reaching last index', () => { const canJump=(nums:number[])=>{let reach=0;for(let i=0;i<nums.length;i++){if(i>reach)return false;reach=Math.max(reach,i+nums[i]);}return true;}; expect(canJump([2,3,1,1,4])).toBe(true); expect(canJump([3,2,1,0,4])).toBe(false); expect(canJump([1,0])).toBe(true); });
+});

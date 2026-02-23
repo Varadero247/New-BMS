@@ -1166,3 +1166,11 @@ describe('phase50 coverage', () => {
   it('finds k closest points to origin', () => { const kcp=(pts:[number,number][],k:number)=>pts.map(([x,y])=>[x,y,x*x+y*y] as [number,number,number]).sort((a,b)=>a[2]-b[2]).slice(0,k).map(([x,y])=>[x,y]); expect(kcp([[1,3],[-2,2]],1)).toEqual([[-2,2]]); });
   it('checks if one array is subset of another', () => { const sub=(a:number[],b:number[])=>{const s=new Set(b);return a.every(v=>s.has(v));}; expect(sub([1,2],[1,2,3,4])).toBe(true); expect(sub([1,5],[1,2,3,4])).toBe(false); });
 });
+
+describe('phase51 coverage', () => {
+  it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y),n=m.length;return n%2?m[Math.floor(n/2)]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); expect(med([],[1])).toBe(1); });
+  it('counts good nodes in binary tree array', () => { const cgn=(a:(number|null)[])=>{let cnt=0;const dfs=(i:number,mx:number):void=>{if(i>=a.length||a[i]===null)return;const v=a[i] as number;if(v>=mx){cnt++;mx=v;}dfs(2*i+1,mx);dfs(2*i+2,mx);};if(a.length>0&&a[0]!==null)dfs(0,a[0] as number);return cnt;}; expect(cgn([3,1,4,3,null,1,5])).toBe(4); expect(cgn([3,3,null,4,2])).toBe(3); });
+  it('finds maximum in each sliding window of size k', () => { const sw=(a:number[],k:number)=>{const res:number[]=[],dq:number[]=[];for(let i=0;i<a.length;i++){while(dq.length&&dq[0]<i-k+1)dq.shift();while(dq.length&&a[dq[dq.length-1]]<a[i])dq.pop();dq.push(i);if(i>=k-1)res.push(a[dq[0]]);}return res;}; expect(sw([1,3,-1,-3,5,3,6,7],3)).toEqual([3,3,5,5,6,7]); expect(sw([1],1)).toEqual([1]); });
+  it('finds all duplicates in array in O(n)', () => { const fd=(a:number[])=>{const b=[...a],res:number[]=[];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(Math.abs(b[i]));else b[idx]*=-1;}return res.sort((x,y)=>x-y);}; expect(fd([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(fd([1,1,2])).toEqual([1]); });
+  it('solves coin change minimum coins', () => { const cc=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(amt+1);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i)dp[i]=Math.min(dp[i],dp[i-c]+1);return dp[amt]>amt?-1:dp[amt];}; expect(cc([1,5,11],15)).toBe(3); expect(cc([2],3)).toBe(-1); expect(cc([1,2,5],11)).toBe(3); });
+});

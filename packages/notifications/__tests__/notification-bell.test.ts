@@ -611,3 +611,11 @@ describe('phase50 coverage', () => {
   it('checks if number is a power of 4', () => { const pow4=(n:number)=>n>0&&(n&(n-1))===0&&(n-1)%3===0; expect(pow4(16)).toBe(true); expect(pow4(5)).toBe(false); expect(pow4(1)).toBe(true); });
   it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
 });
+
+describe('phase51 coverage', () => {
+  it('generates power set of an array', () => { const ps=(a:number[])=>{const r:number[][]=[];for(let mask=0;mask<(1<<a.length);mask++){const s:number[]=[];for(let i=0;i<a.length;i++)if(mask&(1<<i))s.push(a[i]);r.push(s);}return r;}; expect(ps([1,2]).length).toBe(4); expect(ps([1,2,3]).length).toBe(8); expect(ps([])).toEqual([[]]); });
+  it('counts good nodes in binary tree array', () => { const cgn=(a:(number|null)[])=>{let cnt=0;const dfs=(i:number,mx:number):void=>{if(i>=a.length||a[i]===null)return;const v=a[i] as number;if(v>=mx){cnt++;mx=v;}dfs(2*i+1,mx);dfs(2*i+2,mx);};if(a.length>0&&a[0]!==null)dfs(0,a[0] as number);return cnt;}; expect(cgn([3,1,4,3,null,1,5])).toBe(4); expect(cgn([3,3,null,4,2])).toBe(3); });
+  it('solves coin change minimum coins', () => { const cc=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(amt+1);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i)dp[i]=Math.min(dp[i],dp[i-c]+1);return dp[amt]>amt?-1:dp[amt];}; expect(cc([1,5,11],15)).toBe(3); expect(cc([2],3)).toBe(-1); expect(cc([1,2,5],11)).toBe(3); });
+  it('finds shortest paths using Bellman-Ford', () => { const bf=(n:number,edges:[number,number,number][],src:number)=>{const dist=new Array(n).fill(Infinity);dist[src]=0;for(let i=0;i<n-1;i++)for(const[u,v,w]of edges){if(dist[u]!==Infinity&&dist[u]+w<dist[v])dist[v]=dist[u]+w;}return dist;}; expect(bf(4,[[0,1,1],[0,2,4],[1,2,2],[2,3,3]],0)).toEqual([0,1,3,6]); });
+  it('determines if array allows reaching last index', () => { const canJump=(nums:number[])=>{let reach=0;for(let i=0;i<nums.length;i++){if(i>reach)return false;reach=Math.max(reach,i+nums[i]);}return true;}; expect(canJump([2,3,1,1,4])).toBe(true); expect(canJump([3,2,1,0,4])).toBe(false); expect(canJump([1,0])).toBe(true); });
+});

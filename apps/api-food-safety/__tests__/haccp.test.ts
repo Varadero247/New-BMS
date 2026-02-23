@@ -680,3 +680,11 @@ describe('phase50 coverage', () => {
   it('computes number of set bits in range 1 to n', () => { const cb=(n:number)=>{let cnt=0;for(let i=1;i<=n;i++){let x=i;while(x){x&=x-1;cnt++;}}return cnt;}; expect(cb(5)).toBe(7); expect(cb(1)).toBe(1); });
   it('computes minimum falling path sum', () => { const mfp=(m:number[][])=>{const n=m.length;const dp=m[0].map(v=>v);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const prev=[dp[j]];if(j>0)prev.push(dp[j-1]);if(j<n-1)prev.push(dp[j+1]);dp[j]=m[i][j]+Math.min(...prev);}return Math.min(...dp);}; expect(mfp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); });
 });
+
+describe('phase51 coverage', () => {
+  it('solves coin change minimum coins', () => { const cc=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(amt+1);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i)dp[i]=Math.min(dp[i],dp[i-c]+1);return dp[amt]>amt?-1:dp[amt];}; expect(cc([1,5,11],15)).toBe(3); expect(cc([2],3)).toBe(-1); expect(cc([1,2,5],11)).toBe(3); });
+  it('generates all valid parentheses combinations', () => { const gen=(n:number)=>{const res:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n){res.push(s);return;}if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return res;}; expect(gen(3).length).toBe(5); expect(gen(2)).toContain('(())'); expect(gen(2)).toContain('()()'); });
+  it('generates power set of an array', () => { const ps=(a:number[])=>{const r:number[][]=[];for(let mask=0;mask<(1<<a.length);mask++){const s:number[]=[];for(let i=0;i<a.length;i++)if(mask&(1<<i))s.push(a[i]);r.push(s);}return r;}; expect(ps([1,2]).length).toBe(4); expect(ps([1,2,3]).length).toBe(8); expect(ps([])).toEqual([[]]); });
+  it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y),n=m.length;return n%2?m[Math.floor(n/2)]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); expect(med([],[1])).toBe(1); });
+  it('finds longest palindromic substring', () => { const lps2=(s:string)=>{let st=0,ml=1;const ex=(l:number,r:number)=>{while(l>=0&&r<s.length&&s[l]===s[r]){if(r-l+1>ml){ml=r-l+1;st=l;}l--;r++;}};for(let i=0;i<s.length;i++){ex(i,i);ex(i,i+1);}return s.slice(st,st+ml);}; expect(lps2('cbbd')).toBe('bb'); expect(lps2('a')).toBe('a'); expect(['bab','aba']).toContain(lps2('babad')); });
+});

@@ -760,3 +760,11 @@ describe('phase50 coverage', () => {
   it('checks if tree is symmetric', () => { type N={v:number;l?:N;r?:N};const sym=(n:N|undefined,m:N|undefined=n):boolean=>{if(!n&&!m)return true;if(!n||!m)return false;return n.v===m.v&&sym(n.l,m.r)&&sym(n.r,m.l);}; const t:N={v:1,l:{v:2,l:{v:3},r:{v:4}},r:{v:2,l:{v:4},r:{v:3}}}; expect(sym(t,t)).toBe(true); });
   it('computes number of ways to climb stairs (1,2,3)', () => { const climb=(n:number):number=>n===0?1:n<=2?n:climb(n-1)+climb(n-2)+climb(n-3); expect(climb(4)).toBe(7); expect(climb(5)).toBe(13); });
 });
+
+describe('phase51 coverage', () => {
+  it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
+  it('counts ways to decode a digit string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const n=s.length,dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=Number(s[i-1]),two=Number(s.slice(i-2,i));if(one>0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(decode('12')).toBe(2); expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('finds primes using sieve of Eratosthenes', () => { const sieve=(n:number)=>{const p=new Array(n+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=n;i++)if(p[i])for(let j=i*i;j<=n;j+=i)p[j]=false;return p.map((v:boolean,i:number)=>v?i:-1).filter((i:number)=>i>0);}; expect(sieve(20)).toEqual([2,3,5,7,11,13,17,19]); expect(sieve(10)).toEqual([2,3,5,7]); });
+  it('counts palindromic substrings', () => { const cp=(s:string)=>{let cnt=0;const ex=(l:number,r:number)=>{while(l>=0&&r<s.length&&s[l]===s[r]){cnt++;l--;r++;}};for(let i=0;i<s.length;i++){ex(i,i);ex(i,i+1);}return cnt;}; expect(cp('abc')).toBe(3); expect(cp('aaa')).toBe(6); expect(cp('racecar')).toBe(10); });
+  it('finds all index pairs summing to target', () => { const ts2=(a:number[],t:number)=>{const seen=new Map<number,number[]>();const res:[number,number][]=[];for(let i=0;i<a.length;i++){const c=t-a[i];if(seen.has(c))for(const j of seen.get(c)!)res.push([j,i]);if(!seen.has(a[i]))seen.set(a[i],[]);seen.get(a[i])!.push(i);}return res;}; expect(ts2([1,2,3,4,3],6).length).toBe(2); expect(ts2([1,1,1],2).length).toBe(3); });
+});

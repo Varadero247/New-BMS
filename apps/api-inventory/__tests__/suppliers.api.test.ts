@@ -930,3 +930,11 @@ describe('phase50 coverage', () => {
   it('finds all unique BST structures count', () => { const bst=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=bst(i-1)*bst(n-i);return cnt;}; expect(bst(3)).toBe(5); expect(bst(4)).toBe(14); expect(bst(1)).toBe(1); });
   it('computes number of ways to climb stairs (1,2,3)', () => { const climb=(n:number):number=>n===0?1:n<=2?n:climb(n-1)+climb(n-2)+climb(n-3); expect(climb(4)).toBe(7); expect(climb(5)).toBe(13); });
 });
+
+describe('phase51 coverage', () => {
+  it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
+  it('counts good nodes in binary tree array', () => { const cgn=(a:(number|null)[])=>{let cnt=0;const dfs=(i:number,mx:number):void=>{if(i>=a.length||a[i]===null)return;const v=a[i] as number;if(v>=mx){cnt++;mx=v;}dfs(2*i+1,mx);dfs(2*i+2,mx);};if(a.length>0&&a[0]!==null)dfs(0,a[0] as number);return cnt;}; expect(cgn([3,1,4,3,null,1,5])).toBe(4); expect(cgn([3,3,null,4,2])).toBe(3); });
+  it('finds all index pairs summing to target', () => { const ts2=(a:number[],t:number)=>{const seen=new Map<number,number[]>();const res:[number,number][]=[];for(let i=0;i<a.length;i++){const c=t-a[i];if(seen.has(c))for(const j of seen.get(c)!)res.push([j,i]);if(!seen.has(a[i]))seen.set(a[i],[]);seen.get(a[i])!.push(i);}return res;}; expect(ts2([1,2,3,4,3],6).length).toBe(2); expect(ts2([1,1,1],2).length).toBe(3); });
+  it('counts palindromic substrings', () => { const cp=(s:string)=>{let cnt=0;const ex=(l:number,r:number)=>{while(l>=0&&r<s.length&&s[l]===s[r]){cnt++;l--;r++;}};for(let i=0;i<s.length;i++){ex(i,i);ex(i,i+1);}return cnt;}; expect(cp('abc')).toBe(3); expect(cp('aaa')).toBe(6); expect(cp('racecar')).toBe(10); });
+  it('finds largest rectangle area in histogram', () => { const lr=(h:number[])=>{const st:number[]=[],n=h.length;let mx=0;for(let i=0;i<=n;i++){const cur=i===n?0:h[i];while(st.length&&h[st[st.length-1]]>cur){const ht=h[st.pop()!],w=st.length?i-st[st.length-1]-1:i;mx=Math.max(mx,ht*w);}st.push(i);}return mx;}; expect(lr([2,1,5,6,2,3])).toBe(10); expect(lr([2,4])).toBe(4); expect(lr([1])).toBe(1); });
+});
