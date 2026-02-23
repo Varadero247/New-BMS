@@ -125,10 +125,29 @@
 |------|-------------|
 | `deploy/k8s/base/` | Kubernetes base manifests — namespace, deployments, services, ingress, HPA (42 services), PDB (41 services), monitoring |
 | `deploy/k8s/overlays/` | Environment-specific overlays (dev, staging, prod) |
-| `deploy/monitoring/grafana/dashboards/` | Grafana dashboards — `ims-overview.json`, `api-performance.json`, `security-events.json` |
-| `deploy/monitoring/prometheus/` | Prometheus config + alert rules (13 rules with runbook_url) |
-| `deploy/monitoring/alertmanager/` | Alertmanager routing + contact points |
+| `deploy/monitoring/grafana/dashboards/` | Grafana dashboards — `ims-overview.json`, `api-performance.json`, `security-events.json`, `slo-overview.json` |
+| `deploy/monitoring/grafana/provisioning/` | Auto-provisioning — datasources (Prometheus, Alertmanager), dashboards, alerting (rules, contact-points, notification-policy) |
+| `deploy/monitoring/prometheus/` | Prometheus config + alert rules (19 rules with runbook_url + multi-window SLO burn rate) |
+| `deploy/monitoring/prometheus/rules/` | Recording rules — pre-computed request rates, latency P50/P95/P99, SLO availability (5m/30m/1h/6h/1d), security metrics |
+| `deploy/monitoring/alertmanager/` | Alertmanager routing + contact points (critical/warning/security receivers with Slack + email) |
 | `deploy/monitoring/otel/` | OpenTelemetry Collector config (Jaeger + Tempo + Prometheus) |
+
+## GitHub Repository (.github/)
+
+| Path | Description |
+|------|-------------|
+| `.github/SECURITY.md` | Vulnerability disclosure policy, severity classification (CVSS), scope, supported versions |
+| `.github/CODEOWNERS` | Maps all 44 apps + packages to 12 team groups (hse, security, quality, finance, hr, devops, ai, etc.) |
+| `.github/PULL_REQUEST_TEMPLATE.md` | PR checklist with testing requirements (≥110 tests/file) and project-specific code checks |
+| `.github/ISSUE_TEMPLATE/bug_report.yml` | Structured bug report with affected-module dropdown (all 40+ services) |
+| `.github/ISSUE_TEMPLATE/feature_request.yml` | Feature request with problem, solution, acceptance criteria fields |
+| `.github/workflows/ci.yml` | PR/push: lint, typecheck, unit tests (with Redis + Postgres services), build, E2E, accessibility |
+| `.github/workflows/cd.yml` | Main push: Docker build/push for 42 services, staging smoke test, post-deploy validation |
+| `.github/workflows/security.yml` | Weekly + PR: dependency audit, CodeQL, TruffleHog secrets, Trivy container scan, Semgrep SAST, ZAP DAST |
+| `.github/workflows/tests.yml` | Daily 6am: unit tests + lint + typecheck |
+| `.github/workflows/dependency-review.yml` | PR: blocks merges with HIGH/CRITICAL CVEs; enforces allowed license list |
+| `.github/workflows/stale.yml` | Daily: marks issues stale at 45d, PRs at 30d; exempt for pinned/in-progress/blocked |
+| `.github/workflows/release.yml` | Tag push (v*.*.*): validates, builds multi-arch Docker images, creates GitHub release, deploys staging |
 
 ---
 
@@ -171,8 +190,16 @@
 | Database Models | 606 |
 | Database Enums | 781 |
 | REST API Endpoints | 2,558 |
-| Unit Tests | 17,410 / 655 suites |
+| Unit Tests | 78,085 / 711 suites |
 | Code Score | 100/100 |
 | ISO Standards Supported | 16+ |
+| GitHub Workflows | 7 |
+| Grafana Dashboards | 4 |
+| Prometheus Alert Rules | 19 |
+| Prometheus Recording Rules | 23 |
+| K8s HPA Resources | 41 |
+| K8s PDB Resources | 41 |
+| UAT Test Plans | 40 (1,000 BDD test cases) |
+| ADRs | 6 |
 
-*Updated: February 21, 2026*
+*Updated: February 23, 2026*
