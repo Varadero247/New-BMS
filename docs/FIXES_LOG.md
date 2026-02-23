@@ -1,5 +1,19 @@
 # IMS — Fixes Log
 
+## Phase 59 — Test Depth Expansion to ≥195 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 190 tests to ≥195 each.
+
+**Fixes applied:**
+- `characterReplacement`: used `'a'` as char base but inputs are uppercase → changed to `'A'`
+- `pathSum III` second case: tree `mk(5,mk(4,mk(11,mk(7),mk(2)),null),mk(8,mk(13),mk(4,null,mk(1))))` only has 2 paths summing to 22 (not 3 like LeetCode's different tree) → `toBe(3)` → `toBe(2)`
+- `houseRobberIII`: `withRoot = root.val + ll + rl` (wrong, uses children's "include" values) → `root.val + lr + rr` (children's "exclude" values)
+- `reorderList` TS7022: `const na=a!.next` inferred as `any` due to recursive `N` type → `const na:N|null=a!.next`
+
+**Results:** 138,265 tests, 711/711 suites, 0 failures
+
+---
+
 ## Phase 58 — Test Depth Expansion to ≥190 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 185 tests to ≥190 each.
