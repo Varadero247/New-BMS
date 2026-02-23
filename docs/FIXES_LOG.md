@@ -1,5 +1,19 @@
 # IMS — Fixes Log
 
+## Phase 67 — Test Depth Expansion to ≥255 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 250 tests to ≥255 each (1 snippet × 5 its = 5 tests per file).
+
+**Fixes applied:**
+- Syntax error: `const pq:number[]=[],aq:number[][]` — `aq` had no initializer (TypeScript const requires initializer). Removed unused `pq`/`aq` vars; kept `pQ`/`aQ` (27 files)
+- `minSpanTree(4,[[0,1,1],[0,2,4],[1,2,2],[1,3,3],[2,3,1]])`: wrong expected 7 → corrected to 4 (MST: edges 0-1:1 + 1-2:2 + 2-3:1 = 4) (19 files)
+- `pacificAtlantic([[1,2],[2,1]])`: wrong expected 4 → corrected to 2 (27 files)
+- **Note**: `console.assert()` in Node.js does NOT throw — it only logs. Pre-verification with `console.assert` can pass even when assertions fail. Use explicit `if(!cond)throw` for reliable checks.
+
+**Results:** 180,745 tests, 711/711 suites, 0 failures
+
+---
+
 ## Phase 66 — Test Depth Expansion to ≥250 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 245 tests to ≥250 each (1 snippet × 5 its = 5 tests per file).
