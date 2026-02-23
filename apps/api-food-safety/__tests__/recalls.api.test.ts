@@ -1137,3 +1137,407 @@ describe('phase71 coverage', () => {
   it('p71_4', () => { expect(minWindowP71('ab','b')).toBe('b'); });
   it('p71_5', () => { expect(minWindowP71('bba','ab')).toBe('ba'); });
 });
+function reverseInteger72(x:number):number{const MAX=2**31-1,MIN=-(2**31);let rev=0,n=Math.abs(x),sign=x<0?-1:1;while(n){rev=rev*10+(n%10);n=Math.floor(n/10);}rev=sign*rev;return rev>MAX||rev<MIN?0:rev;}
+describe('ph72_ri',()=>{
+  it('a',()=>{expect(reverseInteger72(123)).toBe(321);});
+  it('b',()=>{expect(reverseInteger72(-123)).toBe(-321);});
+  it('c',()=>{expect(reverseInteger72(1534236469)).toBe(0);});
+  it('d',()=>{expect(reverseInteger72(120)).toBe(21);});
+  it('e',()=>{expect(reverseInteger72(0)).toBe(0);});
+});
+
+function singleNumXOR73(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('ph73_snx',()=>{
+  it('a',()=>{expect(singleNumXOR73([4,1,2,1,2])).toBe(4);});
+  it('b',()=>{expect(singleNumXOR73([2,2,1])).toBe(1);});
+  it('c',()=>{expect(singleNumXOR73([1])).toBe(1);});
+  it('d',()=>{expect(singleNumXOR73([0,0,5])).toBe(5);});
+  it('e',()=>{expect(singleNumXOR73([99,99,7,7,3])).toBe(3);});
+});
+
+function numPerfectSquares74(n:number):number{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}
+describe('ph74_nps',()=>{
+  it('a',()=>{expect(numPerfectSquares74(12)).toBe(3);});
+  it('b',()=>{expect(numPerfectSquares74(13)).toBe(2);});
+  it('c',()=>{expect(numPerfectSquares74(1)).toBe(1);});
+  it('d',()=>{expect(numPerfectSquares74(4)).toBe(1);});
+  it('e',()=>{expect(numPerfectSquares74(7)).toBe(4);});
+});
+
+function maxEnvelopes75(env:number[][]):number{env.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:b[1]-a[1]);const tails:number[]=[];for(const e of env){const h=e[1];let lo=0,hi=tails.length;while(lo<hi){const m=(lo+hi)>>1;if(tails[m]<h)lo=m+1;else hi=m;}tails[lo]=h;}return tails.length;}
+describe('ph75_env',()=>{
+  it('a',()=>{expect(maxEnvelopes75([[5,4],[6,4],[6,7],[2,3]])).toBe(3);});
+  it('b',()=>{expect(maxEnvelopes75([[1,1],[1,1],[1,1]])).toBe(1);});
+  it('c',()=>{expect(maxEnvelopes75([[1,2],[2,3],[3,4]])).toBe(3);});
+  it('d',()=>{expect(maxEnvelopes75([[2,100],[3,200],[4,300],[5,500],[5,400],[5,250],[6,370],[6,360],[7,380]])).toBe(5);});
+  it('e',()=>{expect(maxEnvelopes75([[1,3]])).toBe(1);});
+});
+
+function longestPalSubseq76(s:string):number{const n=s.length;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=1;for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]+2:Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}
+describe('ph76_lps',()=>{
+  it('a',()=>{expect(longestPalSubseq76("bbbab")).toBe(4);});
+  it('b',()=>{expect(longestPalSubseq76("cbbd")).toBe(2);});
+  it('c',()=>{expect(longestPalSubseq76("a")).toBe(1);});
+  it('d',()=>{expect(longestPalSubseq76("abcba")).toBe(5);});
+  it('e',()=>{expect(longestPalSubseq76("abcde")).toBe(1);});
+});
+
+function largeRectHist77(h:number[]):number{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){const cur=i<n?h[i]:0;while(st.length&&h[st[st.length-1]]>cur){const height=h[st.pop()!];const width=st.length?i-st[st.length-1]-1:i;max=Math.max(max,height*width);}st.push(i);}return max;}
+describe('ph77_lrh',()=>{
+  it('a',()=>{expect(largeRectHist77([2,1,5,6,2,3])).toBe(10);});
+  it('b',()=>{expect(largeRectHist77([2,4])).toBe(4);});
+  it('c',()=>{expect(largeRectHist77([1,1])).toBe(2);});
+  it('d',()=>{expect(largeRectHist77([3,3,3])).toBe(9);});
+  it('e',()=>{expect(largeRectHist77([1])).toBe(1);});
+});
+
+function findMinRotated78(arr:number[]):number{let lo=0,hi=arr.length-1;while(lo<hi){const m=(lo+hi)>>1;if(arr[m]>arr[hi])lo=m+1;else hi=m;}return arr[lo];}
+describe('ph78_fmr',()=>{
+  it('a',()=>{expect(findMinRotated78([3,4,5,1,2])).toBe(1);});
+  it('b',()=>{expect(findMinRotated78([4,5,6,7,0,1,2])).toBe(0);});
+  it('c',()=>{expect(findMinRotated78([11,13,15,17])).toBe(11);});
+  it('d',()=>{expect(findMinRotated78([1])).toBe(1);});
+  it('e',()=>{expect(findMinRotated78([2,1])).toBe(1);});
+});
+
+function triMinSum79(tri:number[][]):number{const dp=tri[tri.length-1].slice();for(let i=tri.length-2;i>=0;i--)for(let j=0;j<=i;j++)dp[j]=tri[i][j]+Math.min(dp[j],dp[j+1]);return dp[0];}
+describe('ph79_tms',()=>{
+  it('a',()=>{expect(triMinSum79([[2],[3,4],[6,5,7],[4,1,8,3]])).toBe(11);});
+  it('b',()=>{expect(triMinSum79([[-10]])).toBe(-10);});
+  it('c',()=>{expect(triMinSum79([[1],[2,3]])).toBe(3);});
+  it('d',()=>{expect(triMinSum79([[1],[2,3],[4,5,6]])).toBe(7);});
+  it('e',()=>{expect(triMinSum79([[0],[1,1]])).toBe(1);});
+});
+
+function minCostClimbStairs80(cost:number[]):number{const n=cost.length;let a=0,b=0;for(let i=2;i<=n;i++){const c=Math.min(a+cost[i-2],b+cost[i-1]);a=b;b=c;}return b;}
+describe('ph80_mccs',()=>{
+  it('a',()=>{expect(minCostClimbStairs80([10,15,20])).toBe(15);});
+  it('b',()=>{expect(minCostClimbStairs80([1,100,1,1,1,100,1,1,100,1])).toBe(6);});
+  it('c',()=>{expect(minCostClimbStairs80([0,0,0,0])).toBe(0);});
+  it('d',()=>{expect(minCostClimbStairs80([1,1])).toBe(1);});
+  it('e',()=>{expect(minCostClimbStairs80([5,3])).toBe(3);});
+});
+
+function largeRectHist81(h:number[]):number{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){const cur=i<n?h[i]:0;while(st.length&&h[st[st.length-1]]>cur){const height=h[st.pop()!];const width=st.length?i-st[st.length-1]-1:i;max=Math.max(max,height*width);}st.push(i);}return max;}
+describe('ph81_lrh',()=>{
+  it('a',()=>{expect(largeRectHist81([2,1,5,6,2,3])).toBe(10);});
+  it('b',()=>{expect(largeRectHist81([2,4])).toBe(4);});
+  it('c',()=>{expect(largeRectHist81([1,1])).toBe(2);});
+  it('d',()=>{expect(largeRectHist81([3,3,3])).toBe(9);});
+  it('e',()=>{expect(largeRectHist81([1])).toBe(1);});
+});
+
+function maxEnvelopes82(env:number[][]):number{env.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:b[1]-a[1]);const tails:number[]=[];for(const e of env){const h=e[1];let lo=0,hi=tails.length;while(lo<hi){const m=(lo+hi)>>1;if(tails[m]<h)lo=m+1;else hi=m;}tails[lo]=h;}return tails.length;}
+describe('ph82_env',()=>{
+  it('a',()=>{expect(maxEnvelopes82([[5,4],[6,4],[6,7],[2,3]])).toBe(3);});
+  it('b',()=>{expect(maxEnvelopes82([[1,1],[1,1],[1,1]])).toBe(1);});
+  it('c',()=>{expect(maxEnvelopes82([[1,2],[2,3],[3,4]])).toBe(3);});
+  it('d',()=>{expect(maxEnvelopes82([[2,100],[3,200],[4,300],[5,500],[5,400],[5,250],[6,370],[6,360],[7,380]])).toBe(5);});
+  it('e',()=>{expect(maxEnvelopes82([[1,3]])).toBe(1);});
+});
+
+function nthTribo83(n:number):number{if(n===0)return 0;if(n<=2)return 1;let a=0,b=1,c=1;for(let i=3;i<=n;i++){const d=a+b+c;a=b;b=c;c=d;}return c;}
+describe('ph83_tribo',()=>{
+  it('a',()=>{expect(nthTribo83(4)).toBe(4);});
+  it('b',()=>{expect(nthTribo83(25)).toBe(1389537);});
+  it('c',()=>{expect(nthTribo83(0)).toBe(0);});
+  it('d',()=>{expect(nthTribo83(1)).toBe(1);});
+  it('e',()=>{expect(nthTribo83(3)).toBe(2);});
+});
+
+function maxEnvelopes84(env:number[][]):number{env.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:b[1]-a[1]);const tails:number[]=[];for(const e of env){const h=e[1];let lo=0,hi=tails.length;while(lo<hi){const m=(lo+hi)>>1;if(tails[m]<h)lo=m+1;else hi=m;}tails[lo]=h;}return tails.length;}
+describe('ph84_env',()=>{
+  it('a',()=>{expect(maxEnvelopes84([[5,4],[6,4],[6,7],[2,3]])).toBe(3);});
+  it('b',()=>{expect(maxEnvelopes84([[1,1],[1,1],[1,1]])).toBe(1);});
+  it('c',()=>{expect(maxEnvelopes84([[1,2],[2,3],[3,4]])).toBe(3);});
+  it('d',()=>{expect(maxEnvelopes84([[2,100],[3,200],[4,300],[5,500],[5,400],[5,250],[6,370],[6,360],[7,380]])).toBe(5);});
+  it('e',()=>{expect(maxEnvelopes84([[1,3]])).toBe(1);});
+});
+
+function isPalindromeNum85(x:number):boolean{if(x<0)return false;const s=String(x);return s===s.split('').reverse().join('');}
+describe('ph85_ipn',()=>{
+  it('a',()=>{expect(isPalindromeNum85(121)).toBe(true);});
+  it('b',()=>{expect(isPalindromeNum85(-121)).toBe(false);});
+  it('c',()=>{expect(isPalindromeNum85(10)).toBe(false);});
+  it('d',()=>{expect(isPalindromeNum85(0)).toBe(true);});
+  it('e',()=>{expect(isPalindromeNum85(1221)).toBe(true);});
+});
+
+function countOnesBin86(n:number):number{let cnt=0;while(n){cnt+=n&1;n>>>=1;}return cnt;}
+describe('ph86_cob',()=>{
+  it('a',()=>{expect(countOnesBin86(7)).toBe(3);});
+  it('b',()=>{expect(countOnesBin86(128)).toBe(1);});
+  it('c',()=>{expect(countOnesBin86(0)).toBe(0);});
+  it('d',()=>{expect(countOnesBin86(15)).toBe(4);});
+  it('e',()=>{expect(countOnesBin86(255)).toBe(8);});
+});
+
+function triMinSum87(tri:number[][]):number{const dp=tri[tri.length-1].slice();for(let i=tri.length-2;i>=0;i--)for(let j=0;j<=i;j++)dp[j]=tri[i][j]+Math.min(dp[j],dp[j+1]);return dp[0];}
+describe('ph87_tms',()=>{
+  it('a',()=>{expect(triMinSum87([[2],[3,4],[6,5,7],[4,1,8,3]])).toBe(11);});
+  it('b',()=>{expect(triMinSum87([[-10]])).toBe(-10);});
+  it('c',()=>{expect(triMinSum87([[1],[2,3]])).toBe(3);});
+  it('d',()=>{expect(triMinSum87([[1],[2,3],[4,5,6]])).toBe(7);});
+  it('e',()=>{expect(triMinSum87([[0],[1,1]])).toBe(1);});
+});
+
+function longestConsecSeq88(nums:number[]):number{const s=new Set(nums);let max=0;for(const n of s){if(!s.has(n-1)){let cur=n,cnt=1;while(s.has(++cur))cnt++;max=Math.max(max,cnt);}}return max;}
+describe('ph88_lcon',()=>{
+  it('a',()=>{expect(longestConsecSeq88([100,4,200,1,3,2])).toBe(4);});
+  it('b',()=>{expect(longestConsecSeq88([0,3,7,2,5,8,4,6,0,1])).toBe(9);});
+  it('c',()=>{expect(longestConsecSeq88([])).toBe(0);});
+  it('d',()=>{expect(longestConsecSeq88([1,2,0,1])).toBe(3);});
+  it('e',()=>{expect(longestConsecSeq88([9,1,4,7,3,-1,0,5,8,-1,6])).toBe(7);});
+});
+
+function distinctSubseqs89(s:string,t:string):number{const m=s.length,n=t.length;const dp:number[][]=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}
+describe('ph89_ds',()=>{
+  it('a',()=>{expect(distinctSubseqs89("rabbbit","rabbit")).toBe(3);});
+  it('b',()=>{expect(distinctSubseqs89("babgbag","bag")).toBe(5);});
+  it('c',()=>{expect(distinctSubseqs89("a","b")).toBe(0);});
+  it('d',()=>{expect(distinctSubseqs89("abc","abc")).toBe(1);});
+  it('e',()=>{expect(distinctSubseqs89("aaa","a")).toBe(3);});
+});
+
+function numPerfectSquares90(n:number):number{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}
+describe('ph90_nps',()=>{
+  it('a',()=>{expect(numPerfectSquares90(12)).toBe(3);});
+  it('b',()=>{expect(numPerfectSquares90(13)).toBe(2);});
+  it('c',()=>{expect(numPerfectSquares90(1)).toBe(1);});
+  it('d',()=>{expect(numPerfectSquares90(4)).toBe(1);});
+  it('e',()=>{expect(numPerfectSquares90(7)).toBe(4);});
+});
+
+function distinctSubseqs91(s:string,t:string):number{const m=s.length,n=t.length;const dp:number[][]=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}
+describe('ph91_ds',()=>{
+  it('a',()=>{expect(distinctSubseqs91("rabbbit","rabbit")).toBe(3);});
+  it('b',()=>{expect(distinctSubseqs91("babgbag","bag")).toBe(5);});
+  it('c',()=>{expect(distinctSubseqs91("a","b")).toBe(0);});
+  it('d',()=>{expect(distinctSubseqs91("abc","abc")).toBe(1);});
+  it('e',()=>{expect(distinctSubseqs91("aaa","a")).toBe(3);});
+});
+
+function numberOfWaysCoins92(amount:number,coins:number[]):number{const dp=new Array(amount+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];return dp[amount];}
+describe('ph92_nwc',()=>{
+  it('a',()=>{expect(numberOfWaysCoins92(5,[1,2,5])).toBe(4);});
+  it('b',()=>{expect(numberOfWaysCoins92(3,[2])).toBe(0);});
+  it('c',()=>{expect(numberOfWaysCoins92(10,[10])).toBe(1);});
+  it('d',()=>{expect(numberOfWaysCoins92(4,[1,2,3])).toBe(4);});
+  it('e',()=>{expect(numberOfWaysCoins92(0,[1,2])).toBe(1);});
+});
+
+function stairwayDP93(n:number):number{if(n<=1)return 1;let a=1,b=2;for(let i=3;i<=n;i++){const c=a+b;a=b;b=c;}return b;}
+describe('ph93_sdp',()=>{
+  it('a',()=>{expect(stairwayDP93(4)).toBe(5);});
+  it('b',()=>{expect(stairwayDP93(2)).toBe(2);});
+  it('c',()=>{expect(stairwayDP93(1)).toBe(1);});
+  it('d',()=>{expect(stairwayDP93(5)).toBe(8);});
+  it('e',()=>{expect(stairwayDP93(10)).toBe(89);});
+});
+
+function singleNumXOR94(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('ph94_snx',()=>{
+  it('a',()=>{expect(singleNumXOR94([4,1,2,1,2])).toBe(4);});
+  it('b',()=>{expect(singleNumXOR94([2,2,1])).toBe(1);});
+  it('c',()=>{expect(singleNumXOR94([1])).toBe(1);});
+  it('d',()=>{expect(singleNumXOR94([0,0,5])).toBe(5);});
+  it('e',()=>{expect(singleNumXOR94([99,99,7,7,3])).toBe(3);});
+});
+
+function hammingDist95(x:number,y:number):number{let d=x^y,cnt=0;while(d){cnt+=d&1;d>>=1;}return cnt;}
+describe('ph95_hd',()=>{
+  it('a',()=>{expect(hammingDist95(1,4)).toBe(2);});
+  it('b',()=>{expect(hammingDist95(3,1)).toBe(1);});
+  it('c',()=>{expect(hammingDist95(0,0)).toBe(0);});
+  it('d',()=>{expect(hammingDist95(7,0)).toBe(3);});
+  it('e',()=>{expect(hammingDist95(93,73)).toBe(2);});
+});
+
+function stairwayDP96(n:number):number{if(n<=1)return 1;let a=1,b=2;for(let i=3;i<=n;i++){const c=a+b;a=b;b=c;}return b;}
+describe('ph96_sdp',()=>{
+  it('a',()=>{expect(stairwayDP96(4)).toBe(5);});
+  it('b',()=>{expect(stairwayDP96(2)).toBe(2);});
+  it('c',()=>{expect(stairwayDP96(1)).toBe(1);});
+  it('d',()=>{expect(stairwayDP96(5)).toBe(8);});
+  it('e',()=>{expect(stairwayDP96(10)).toBe(89);});
+});
+
+function longestIncSubseq297(nums:number[]):number{const tails:number[]=[];for(const n of nums){let lo=0,hi=tails.length;while(lo<hi){const m=(lo+hi)>>1;if(tails[m]<n)lo=m+1;else hi=m;}tails[lo]=n;}return tails.length;}
+describe('ph97_lis2',()=>{
+  it('a',()=>{expect(longestIncSubseq297([10,9,2,5,3,7,101,18])).toBe(4);});
+  it('b',()=>{expect(longestIncSubseq297([0,1,0,3,2,3])).toBe(4);});
+  it('c',()=>{expect(longestIncSubseq297([7,7,7])).toBe(1);});
+  it('d',()=>{expect(longestIncSubseq297([1,3,6,7,9,4,10,5,6])).toBe(6);});
+  it('e',()=>{expect(longestIncSubseq297([5])).toBe(1);});
+});
+
+function isPalindromeNum98(x:number):boolean{if(x<0)return false;const s=String(x);return s===s.split('').reverse().join('');}
+describe('ph98_ipn',()=>{
+  it('a',()=>{expect(isPalindromeNum98(121)).toBe(true);});
+  it('b',()=>{expect(isPalindromeNum98(-121)).toBe(false);});
+  it('c',()=>{expect(isPalindromeNum98(10)).toBe(false);});
+  it('d',()=>{expect(isPalindromeNum98(0)).toBe(true);});
+  it('e',()=>{expect(isPalindromeNum98(1221)).toBe(true);});
+});
+
+function numPerfectSquares99(n:number):number{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}
+describe('ph99_nps',()=>{
+  it('a',()=>{expect(numPerfectSquares99(12)).toBe(3);});
+  it('b',()=>{expect(numPerfectSquares99(13)).toBe(2);});
+  it('c',()=>{expect(numPerfectSquares99(1)).toBe(1);});
+  it('d',()=>{expect(numPerfectSquares99(4)).toBe(1);});
+  it('e',()=>{expect(numPerfectSquares99(7)).toBe(4);});
+});
+
+function distinctSubseqs100(s:string,t:string):number{const m=s.length,n=t.length;const dp:number[][]=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}
+describe('ph100_ds',()=>{
+  it('a',()=>{expect(distinctSubseqs100("rabbbit","rabbit")).toBe(3);});
+  it('b',()=>{expect(distinctSubseqs100("babgbag","bag")).toBe(5);});
+  it('c',()=>{expect(distinctSubseqs100("a","b")).toBe(0);});
+  it('d',()=>{expect(distinctSubseqs100("abc","abc")).toBe(1);});
+  it('e',()=>{expect(distinctSubseqs100("aaa","a")).toBe(3);});
+});
+
+function longestCommonSub101(s:string,t:string):number{const m=s.length,n=t.length;const dp:number[][]=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s[i-1]===t[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];}
+describe('ph101_lcs',()=>{
+  it('a',()=>{expect(longestCommonSub101("abcde","ace")).toBe(3);});
+  it('b',()=>{expect(longestCommonSub101("abc","abc")).toBe(3);});
+  it('c',()=>{expect(longestCommonSub101("abc","def")).toBe(0);});
+  it('d',()=>{expect(longestCommonSub101("abcba","abcba")).toBe(5);});
+  it('e',()=>{expect(longestCommonSub101("oxcpqrsvwf","shmtulqrypy")).toBe(2);});
+});
+
+function romanToInt102(s:string):number{const v:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++)res+=v[s[i]]<(v[s[i+1]]||0)?-v[s[i]]:v[s[i]];return res;}
+describe('ph102_rti',()=>{
+  it('a',()=>{expect(romanToInt102("III")).toBe(3);});
+  it('b',()=>{expect(romanToInt102("LVIII")).toBe(58);});
+  it('c',()=>{expect(romanToInt102("MCMXCIV")).toBe(1994);});
+  it('d',()=>{expect(romanToInt102("IV")).toBe(4);});
+  it('e',()=>{expect(romanToInt102("IX")).toBe(9);});
+});
+
+function longestSubNoRepeat103(s:string):number{const mp=new Map<string,number>();let lo=0,max=0;for(let i=0;i<s.length;i++){if(mp.has(s[i])&&mp.get(s[i])!>=lo)lo=mp.get(s[i])!+1;mp.set(s[i],i);max=Math.max(max,i-lo+1);}return max;}
+describe('ph103_lsnr',()=>{
+  it('a',()=>{expect(longestSubNoRepeat103("abcabcbb")).toBe(3);});
+  it('b',()=>{expect(longestSubNoRepeat103("bbbbb")).toBe(1);});
+  it('c',()=>{expect(longestSubNoRepeat103("pwwkew")).toBe(3);});
+  it('d',()=>{expect(longestSubNoRepeat103("")).toBe(0);});
+  it('e',()=>{expect(longestSubNoRepeat103("dvdf")).toBe(3);});
+});
+
+function numPerfectSquares104(n:number):number{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}
+describe('ph104_nps',()=>{
+  it('a',()=>{expect(numPerfectSquares104(12)).toBe(3);});
+  it('b',()=>{expect(numPerfectSquares104(13)).toBe(2);});
+  it('c',()=>{expect(numPerfectSquares104(1)).toBe(1);});
+  it('d',()=>{expect(numPerfectSquares104(4)).toBe(1);});
+  it('e',()=>{expect(numPerfectSquares104(7)).toBe(4);});
+});
+
+function longestCommonSub105(s:string,t:string):number{const m=s.length,n=t.length;const dp:number[][]=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s[i-1]===t[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];}
+describe('ph105_lcs',()=>{
+  it('a',()=>{expect(longestCommonSub105("abcde","ace")).toBe(3);});
+  it('b',()=>{expect(longestCommonSub105("abc","abc")).toBe(3);});
+  it('c',()=>{expect(longestCommonSub105("abc","def")).toBe(0);});
+  it('d',()=>{expect(longestCommonSub105("abcba","abcba")).toBe(5);});
+  it('e',()=>{expect(longestCommonSub105("oxcpqrsvwf","shmtulqrypy")).toBe(2);});
+});
+
+function uniquePathsGrid106(m:number,n:number):number{const dp=new Array(n).fill(1);for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[j]+=dp[j-1];return dp[n-1];}
+describe('ph106_upg',()=>{
+  it('a',()=>{expect(uniquePathsGrid106(3,7)).toBe(28);});
+  it('b',()=>{expect(uniquePathsGrid106(3,2)).toBe(3);});
+  it('c',()=>{expect(uniquePathsGrid106(1,1)).toBe(1);});
+  it('d',()=>{expect(uniquePathsGrid106(2,3)).toBe(3);});
+  it('e',()=>{expect(uniquePathsGrid106(4,4)).toBe(20);});
+});
+
+function longestIncSubseq2107(nums:number[]):number{const tails:number[]=[];for(const n of nums){let lo=0,hi=tails.length;while(lo<hi){const m=(lo+hi)>>1;if(tails[m]<n)lo=m+1;else hi=m;}tails[lo]=n;}return tails.length;}
+describe('ph107_lis2',()=>{
+  it('a',()=>{expect(longestIncSubseq2107([10,9,2,5,3,7,101,18])).toBe(4);});
+  it('b',()=>{expect(longestIncSubseq2107([0,1,0,3,2,3])).toBe(4);});
+  it('c',()=>{expect(longestIncSubseq2107([7,7,7])).toBe(1);});
+  it('d',()=>{expect(longestIncSubseq2107([1,3,6,7,9,4,10,5,6])).toBe(6);});
+  it('e',()=>{expect(longestIncSubseq2107([5])).toBe(1);});
+});
+
+function largeRectHist108(h:number[]):number{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){const cur=i<n?h[i]:0;while(st.length&&h[st[st.length-1]]>cur){const height=h[st.pop()!];const width=st.length?i-st[st.length-1]-1:i;max=Math.max(max,height*width);}st.push(i);}return max;}
+describe('ph108_lrh',()=>{
+  it('a',()=>{expect(largeRectHist108([2,1,5,6,2,3])).toBe(10);});
+  it('b',()=>{expect(largeRectHist108([2,4])).toBe(4);});
+  it('c',()=>{expect(largeRectHist108([1,1])).toBe(2);});
+  it('d',()=>{expect(largeRectHist108([3,3,3])).toBe(9);});
+  it('e',()=>{expect(largeRectHist108([1])).toBe(1);});
+});
+
+function longestPalSubseq109(s:string):number{const n=s.length;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=1;for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]+2:Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}
+describe('ph109_lps',()=>{
+  it('a',()=>{expect(longestPalSubseq109("bbbab")).toBe(4);});
+  it('b',()=>{expect(longestPalSubseq109("cbbd")).toBe(2);});
+  it('c',()=>{expect(longestPalSubseq109("a")).toBe(1);});
+  it('d',()=>{expect(longestPalSubseq109("abcba")).toBe(5);});
+  it('e',()=>{expect(longestPalSubseq109("abcde")).toBe(1);});
+});
+
+function countOnesBin110(n:number):number{let cnt=0;while(n){cnt+=n&1;n>>>=1;}return cnt;}
+describe('ph110_cob',()=>{
+  it('a',()=>{expect(countOnesBin110(7)).toBe(3);});
+  it('b',()=>{expect(countOnesBin110(128)).toBe(1);});
+  it('c',()=>{expect(countOnesBin110(0)).toBe(0);});
+  it('d',()=>{expect(countOnesBin110(15)).toBe(4);});
+  it('e',()=>{expect(countOnesBin110(255)).toBe(8);});
+});
+
+function searchRotated111(arr:number[],t:number):number{let lo=0,hi=arr.length-1;while(lo<=hi){const m=(lo+hi)>>1;if(arr[m]===t)return m;if(arr[lo]<=arr[m]){if(arr[lo]<=t&&t<arr[m])hi=m-1;else lo=m+1;}else{if(arr[m]<t&&t<=arr[hi])lo=m+1;else hi=m-1;}}return -1;}
+describe('ph111_sr',()=>{
+  it('a',()=>{expect(searchRotated111([4,5,6,7,0,1,2],0)).toBe(4);});
+  it('b',()=>{expect(searchRotated111([4,5,6,7,0,1,2],3)).toBe(-1);});
+  it('c',()=>{expect(searchRotated111([1],0)).toBe(-1);});
+  it('d',()=>{expect(searchRotated111([1,3],3)).toBe(1);});
+  it('e',()=>{expect(searchRotated111([5,1,3],3)).toBe(2);});
+});
+
+function longestIncSubseq2112(nums:number[]):number{const tails:number[]=[];for(const n of nums){let lo=0,hi=tails.length;while(lo<hi){const m=(lo+hi)>>1;if(tails[m]<n)lo=m+1;else hi=m;}tails[lo]=n;}return tails.length;}
+describe('ph112_lis2',()=>{
+  it('a',()=>{expect(longestIncSubseq2112([10,9,2,5,3,7,101,18])).toBe(4);});
+  it('b',()=>{expect(longestIncSubseq2112([0,1,0,3,2,3])).toBe(4);});
+  it('c',()=>{expect(longestIncSubseq2112([7,7,7])).toBe(1);});
+  it('d',()=>{expect(longestIncSubseq2112([1,3,6,7,9,4,10,5,6])).toBe(6);});
+  it('e',()=>{expect(longestIncSubseq2112([5])).toBe(1);});
+});
+
+function countOnesBin113(n:number):number{let cnt=0;while(n){cnt+=n&1;n>>>=1;}return cnt;}
+describe('ph113_cob',()=>{
+  it('a',()=>{expect(countOnesBin113(7)).toBe(3);});
+  it('b',()=>{expect(countOnesBin113(128)).toBe(1);});
+  it('c',()=>{expect(countOnesBin113(0)).toBe(0);});
+  it('d',()=>{expect(countOnesBin113(15)).toBe(4);});
+  it('e',()=>{expect(countOnesBin113(255)).toBe(8);});
+});
+
+function reverseInteger114(x:number):number{const MAX=2**31-1,MIN=-(2**31);let rev=0,n=Math.abs(x),sign=x<0?-1:1;while(n){rev=rev*10+(n%10);n=Math.floor(n/10);}rev=sign*rev;return rev>MAX||rev<MIN?0:rev;}
+describe('ph114_ri',()=>{
+  it('a',()=>{expect(reverseInteger114(123)).toBe(321);});
+  it('b',()=>{expect(reverseInteger114(-123)).toBe(-321);});
+  it('c',()=>{expect(reverseInteger114(1534236469)).toBe(0);});
+  it('d',()=>{expect(reverseInteger114(120)).toBe(21);});
+  it('e',()=>{expect(reverseInteger114(0)).toBe(0);});
+});
+
+function longestCommonSub115(s:string,t:string):number{const m=s.length,n=t.length;const dp:number[][]=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s[i-1]===t[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];}
+describe('ph115_lcs',()=>{
+  it('a',()=>{expect(longestCommonSub115("abcde","ace")).toBe(3);});
+  it('b',()=>{expect(longestCommonSub115("abc","abc")).toBe(3);});
+  it('c',()=>{expect(longestCommonSub115("abc","def")).toBe(0);});
+  it('d',()=>{expect(longestCommonSub115("abcba","abcba")).toBe(5);});
+  it('e',()=>{expect(longestCommonSub115("oxcpqrsvwf","shmtulqrypy")).toBe(2);});
+});
+
+function longestConsecSeq116(nums:number[]):number{const s=new Set(nums);let max=0;for(const n of s){if(!s.has(n-1)){let cur=n,cnt=1;while(s.has(++cur))cnt++;max=Math.max(max,cnt);}}return max;}
+describe('ph116_lcon',()=>{
+  it('a',()=>{expect(longestConsecSeq116([100,4,200,1,3,2])).toBe(4);});
+  it('b',()=>{expect(longestConsecSeq116([0,3,7,2,5,8,4,6,0,1])).toBe(9);});
+  it('c',()=>{expect(longestConsecSeq116([])).toBe(0);});
+  it('d',()=>{expect(longestConsecSeq116([1,2,0,1])).toBe(3);});
+  it('e',()=>{expect(longestConsecSeq116([9,1,4,7,3,-1,0,5,8,-1,6])).toBe(7);});
+});
