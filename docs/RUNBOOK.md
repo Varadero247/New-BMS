@@ -663,9 +663,10 @@ If smoke tests fail or a critical alert fires immediately after deploy:
 | DB backup | `./scripts/backup-db.sh` |
 | DB connect | `PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres -d ims` |
 | Clear rate limits | `DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli FLUSHALL` |
+| Rotate JWT secrets | `./scripts/rotate-secrets.sh --dry-run` then `./scripts/rotate-secrets.sh --apply` |
 | Jaeger traces | `http://localhost:16686` |
 | Prometheus | `http://localhost:9090` |
-| Grafana | `http://localhost:3000` (if configured) |
+| Grafana | `http://localhost:3000` (4 dashboards: overview, API perf, security, SLO) |
 | Alertmanager | `http://localhost:9093` |
 
 ---
