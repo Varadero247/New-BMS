@@ -1,0 +1,450 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-health-safety-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-health-safety
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-environment-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-environment
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-quality-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-quality
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-ai-analysis-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-ai-analysis
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-inventory-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-inventory
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-hr-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-hr
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-payroll-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-payroll
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-workflows-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-workflows
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-project-management-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-project-management
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-automotive-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-automotive
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-medical-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-medical
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-aerospace-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-aerospace
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-finance-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-finance
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-crm-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-crm
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-infosec-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-infosec
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-esg-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-esg
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-cmms-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-cmms
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-portal-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-portal
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-food-safety-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-food-safety
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-energy-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-energy
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-analytics-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-analytics
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-field-service-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-field-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-iso42001-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-iso42001
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-iso37001-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-iso37001
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-marketing-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-marketing
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-partners-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-partners
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-risk-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-risk
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-training-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-training
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-suppliers-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-suppliers
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-assets-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-assets
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-documents-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-documents
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-complaints-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-complaints
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-contracts-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-contracts
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-ptw-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-ptw
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-reg-monitor-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-reg-monitor
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-incidents-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-incidents
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-audits-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-audits
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-mgmt-review-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-mgmt-review
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-setup-wizard-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-setup-wizard
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-chemicals-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-chemicals
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-emergency-pdb
+  namespace: ims
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-emergency
