@@ -17,7 +17,7 @@
 
 - [ ] `pnpm test` passes (708,565+ unit tests, 0 failures)
 - [ ] `pnpm typecheck` passes (0 TypeScript errors)
-- [ ] New/changed code has ≥110 tests per `.test.ts` file
+- [ ] New/changed code has ≥1,000 tests per `.test.ts` file
 - [ ] Integration test added/updated in `scripts/test-<module>-modules.sh`
 - [ ] No `as any` introduced in production code
 
