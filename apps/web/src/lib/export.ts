@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { format } from 'date-fns';
 
@@ -21,12 +21,12 @@ export interface ExportOptions {
   dateRange?: { from: Date; to: Date };
 }
 
-// Standard colors
+// Standard colors (ARGB for ExcelJS, RGB for jsPDF)
 const standardColors = {
-  ISO_45001: { r: 239, g: 68, b: 68 }, // Red
-  ISO_14001: { r: 34, g: 197, b: 94 }, // Green
-  ISO_9001: { r: 59, g: 130, b: 246 }, // Blue
-  ALL: { r: 139, g: 92, b: 246 }, // Purple
+  ISO_45001: { r: 239, g: 68, b: 68, argb: 'FFEF4444' }, // Red
+  ISO_14001: { r: 34, g: 197, b: 94, argb: 'FF22C55E' }, // Green
+  ISO_9001: { r: 59, g: 130, b: 246, argb: 'FF3B82F6' }, // Blue
+  ALL: { r: 139, g: 92, b: 246, argb: 'FF8B5CF6' }, // Purple
 };
 
 // PDF Export
@@ -118,48 +118,73 @@ export function exportToPDF(options: ExportOptions): void {
   doc.save(`${filename}.pdf`);
 }
 
-// Excel Export
-export function exportToExcel(options: ExportOptions): void {
+// Excel Export (async — uses ExcelJS)
+export async function exportToExcel(options: ExportOptions): Promise<void> {
   const { title, filename, columns, data, standard = 'ALL', dateRange } = options;
+  const color = standardColors[standard];
 
-  // Create workbook
-  const wb = XLSX.utils.book_new();
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Nexara IMS';
+  workbook.created = new Date();
 
-  // Prepare data with headers
-  const wsData = [
-    [title],
-    [standard !== 'ALL' ? standard.replace('_', ' ') : 'All Standards'],
-    [
-      dateRange
-        ? `${format(dateRange.from, 'dd MMM yyyy')} - ${format(dateRange.to, 'dd MMM yyyy')}`
-        : `Generated: ${format(new Date(), 'dd MMM yyyy HH:mm')}`,
-    ],
-    [], // Empty row
-    columns.map((col) => col.header), // Headers
-    ...data.map((row) => columns.map((col) => formatCellValue(row[col.key]))),
-  ];
-
-  // Create worksheet
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  const worksheet = workbook.addWorksheet('Report');
 
   // Set column widths
-  ws['!cols'] = columns.map((col) => ({ wch: col.width || 15 }));
+  worksheet.columns = columns.map((col) => ({ width: col.width || 15 }));
 
-  // Merge title cell
-  ws['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: columns.length - 1 } },
-    { s: { r: 1, c: 0 }, e: { r: 1, c: columns.length - 1 } },
-    { s: { r: 2, c: 0 }, e: { r: 2, c: columns.length - 1 } },
-  ];
+  // Title row (merged)
+  worksheet.addRow([title]);
+  worksheet.mergeCells(1, 1, 1, columns.length);
+  const titleCell = worksheet.getCell('A1');
+  titleCell.font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
+  titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: color.argb } };
+  titleCell.alignment = { horizontal: 'left', vertical: 'middle' };
+  worksheet.getRow(1).height = 28;
 
-  // Add worksheet to workbook
-  XLSX.utils.book_append_sheet(wb, ws, 'Report');
+  // Standard row (merged)
+  const standardLabel = standard !== 'ALL' ? standard.replace('_', ' ') : 'All Standards';
+  worksheet.addRow([standardLabel]);
+  worksheet.mergeCells(2, 1, 2, columns.length);
+  const standardCell = worksheet.getCell('A2');
+  standardCell.font = { italic: true, color: { argb: 'FF6B7280' } };
 
-  // Generate buffer
-  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  // Date row (merged)
+  const dateText = dateRange
+    ? `${format(dateRange.from, 'dd MMM yyyy')} - ${format(dateRange.to, 'dd MMM yyyy')}`
+    : `Generated: ${format(new Date(), 'dd MMM yyyy HH:mm')}`;
+  worksheet.addRow([dateText]);
+  worksheet.mergeCells(3, 1, 3, columns.length);
+  worksheet.getCell('A3').font = { color: { argb: 'FF6B7280' }, size: 9 };
 
-  // Save
-  const blob = new Blob([excelBuffer], {
+  // Empty spacer row
+  worksheet.addRow([]);
+
+  // Header row
+  const headerRow = worksheet.addRow(columns.map((col) => col.header));
+  headerRow.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: color.argb } };
+    cell.alignment = { horizontal: 'center' };
+    cell.border = {
+      bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+    };
+  });
+  headerRow.height = 20;
+
+  // Data rows
+  data.forEach((row, rowIndex) => {
+    const values = columns.map((col) => formatCellValue(row[col.key]));
+    const dataRow = worksheet.addRow(values);
+    if (rowIndex % 2 === 1) {
+      dataRow.eachCell((cell) => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F5F5' } };
+      });
+    }
+  });
+
+  // Generate buffer and save
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
   saveAs(blob, `${filename}.xlsx`);
@@ -216,11 +241,11 @@ export function exportIncidents(
   exportToPDF({ title, filename, columns, data: incidents, standard });
 }
 
-export function exportIncidentsExcel(
+export async function exportIncidentsExcel(
   incidents: IncidentExportData[],
   standard: ExportOptions['standard'],
   title: string
-): void {
+): Promise<void> {
   const columns: ExportColumn[] = [
     { header: 'Reference', key: 'referenceNumber', width: 15 },
     { header: 'Title', key: 'title', width: 40 },
@@ -240,7 +265,7 @@ export function exportIncidentsExcel(
 
   const filename = `${standardNames[standard || 'ALL']}_${format(new Date(), 'yyyyMMdd')}`;
 
-  exportToExcel({ title, filename, columns, data: incidents, standard });
+  await exportToExcel({ title, filename, columns, data: incidents, standard });
 }
 
 // Actions Export
@@ -276,10 +301,10 @@ export function exportActions(
   exportToPDF({ title, filename, columns, data: actions });
 }
 
-export function exportActionsExcel(
+export async function exportActionsExcel(
   actions: ActionExportData[],
   title: string = 'CAPA Actions Report'
-): void {
+): Promise<void> {
   const columns: ExportColumn[] = [
     { header: 'Reference', key: 'referenceNumber', width: 18 },
     { header: 'Title', key: 'title', width: 45 },
@@ -293,7 +318,7 @@ export function exportActionsExcel(
 
   const filename = `CAPA_Actions_${format(new Date(), 'yyyyMMdd')}`;
 
-  exportToExcel({ title, filename, columns, data: actions });
+  await exportToExcel({ title, filename, columns, data: actions });
 }
 
 // Risks Export
@@ -338,11 +363,11 @@ export function exportRisks(
   exportToPDF({ title, filename, columns, data: risks, standard });
 }
 
-export function exportRisksExcel(
+export async function exportRisksExcel(
   risks: RiskExportData[],
   standard: ExportOptions['standard'],
   title: string
-): void {
+): Promise<void> {
   const columns: ExportColumn[] = [
     { header: 'Reference', key: 'referenceNumber', width: 18 },
     { header: 'Title', key: 'title', width: 40 },
@@ -364,7 +389,7 @@ export function exportRisksExcel(
 
   const filename = `${standardNames[standard || 'ALL']}_${format(new Date(), 'yyyyMMdd')}`;
 
-  exportToExcel({ title, filename, columns, data: risks, standard });
+  await exportToExcel({ title, filename, columns, data: risks, standard });
 }
 
 // Compliance Summary Export
@@ -399,7 +424,7 @@ export function exportComplianceSummary(data: ComplianceSummaryData[]): void {
   });
 }
 
-export function exportComplianceSummaryExcel(data: ComplianceSummaryData[]): void {
+export async function exportComplianceSummaryExcel(data: ComplianceSummaryData[]): Promise<void> {
   const columns: ExportColumn[] = [
     { header: 'Standard', key: 'standard', width: 18 },
     { header: 'Compliance %', key: 'compliance', width: 15 },
@@ -411,7 +436,7 @@ export function exportComplianceSummaryExcel(data: ComplianceSummaryData[]): voi
 
   const filename = `Compliance_Summary_${format(new Date(), 'yyyyMMdd')}`;
 
-  exportToExcel({
+  await exportToExcel({
     title: 'IMS Compliance Summary',
     subtitle: 'Integrated Management System',
     filename,
@@ -455,7 +480,7 @@ export function exportSafetyMetrics(data: SafetyMetricsData[]): void {
   });
 }
 
-export function exportSafetyMetricsExcel(data: SafetyMetricsData[]): void {
+export async function exportSafetyMetricsExcel(data: SafetyMetricsData[]): Promise<void> {
   const columns: ExportColumn[] = [
     { header: 'Period', key: 'period', width: 18 },
     { header: 'LTIFR', key: 'ltifr', width: 12 },
@@ -468,7 +493,7 @@ export function exportSafetyMetricsExcel(data: SafetyMetricsData[]): void {
 
   const filename = `Safety_Metrics_${format(new Date(), 'yyyyMMdd')}`;
 
-  exportToExcel({
+  await exportToExcel({
     title: 'Safety Performance Metrics',
     subtitle: 'ISO 45001 Health & Safety',
     filename,
@@ -513,7 +538,7 @@ export function exportQualityMetrics(data: QualityMetricsData[]): void {
   });
 }
 
-export function exportQualityMetricsExcel(data: QualityMetricsData[]): void {
+export async function exportQualityMetricsExcel(data: QualityMetricsData[]): Promise<void> {
   const columns: ExportColumn[] = [
     { header: 'Period', key: 'period', width: 15 },
     { header: 'DPMO', key: 'dpmo', width: 12 },
@@ -526,7 +551,7 @@ export function exportQualityMetricsExcel(data: QualityMetricsData[]): void {
 
   const filename = `Quality_Metrics_${format(new Date(), 'yyyyMMdd')}`;
 
-  exportToExcel({
+  await exportToExcel({
     title: 'Quality Performance Metrics',
     subtitle: 'ISO 9001 Quality Management',
     filename,

@@ -97,23 +97,9 @@
 
 ---
 
-### 5. Replace `xlsx` Package (LOW RISK)
+### ~~5. Replace `xlsx` Package~~ — DONE ✅
 
-**What:** The `xlsx` (SheetJS) package v0.18.5 has Prototype Pollution and ReDoS vulnerabilities with **no patched version available** (advisory says `<0.0.0`).
-
-**Why it can't be coded:** Replacing the library requires choosing an alternative (`exceljs`, `xlsx-populate`, or SheetJS community edition), then rewriting all Excel import/export code to use the new library's API.
-
-**Affected code locations:**
-
-- Any service importing from `xlsx` (search: `require('xlsx')` or `from 'xlsx'`)
-- Likely in analytics, finance, or reporting features
-
-**Steps:**
-
-1. Search for `xlsx` usage: `grep -r "from 'xlsx'" apps/ packages/`
-2. Evaluate alternatives (recommended: `exceljs` — actively maintained, MIT license)
-3. Rewrite Excel generation/parsing code
-4. Test all Excel export/import functionality
+**Resolution (2026-02-23):** `xlsx` replaced with `exceljs ^4.4.0` in `apps/web/package.json`. The single affected file (`apps/web/src/lib/export.ts`) has been rewritten — `exportToExcel` and all Excel helper functions are now async (return `Promise<void>`), using the ExcelJS workbook/worksheet API with styled headers, alternating row colours, and branded colour themes per ISO standard. Commit: see fix(deps) below.
 
 ---
 
@@ -281,11 +267,11 @@ If operating in the EU/UK, conduct a Data Protection Impact Assessment (DPIA) co
 | Priority  | Count  | Category                                               |
 | --------- | ------ | ------------------------------------------------------ |
 | CRITICAL  | 3      | Security credentials, K8s domains, production env vars |
-| HIGH      | 2      | Dependency upgrades, xlsx replacement                  |
+| HIGH      | 1      | Dependency upgrades (xlsx ✅ DONE)                      |
 | MEDIUM    | 6      | pnpm install, backups, monitoring, SSL, email, Stripe  |
 | LOW       | 5      | CDN, load testing, pen test, GDPR, custom email        |
-| **Total** | **16** |                                                        |
+| **Total** | **15** | (1 resolved)                                           |
 
 **Estimated effort for CRITICAL items:** 2-4 hours (mostly configuration, not coding)
-**Estimated effort for HIGH items:** 4-8 hours (dependency testing and library replacement)
+**Estimated effort for HIGH items:** 2-4 hours (dependency testing only — xlsx already replaced)
 **Estimated effort for MEDIUM items:** 1-2 days (infrastructure setup)
