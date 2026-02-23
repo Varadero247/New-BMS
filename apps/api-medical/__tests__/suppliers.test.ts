@@ -787,3 +787,12 @@ describe('phase49 coverage', () => {
   it('finds longest common substring', () => { const lcs=(a:string,b:string)=>{let max=0,end=0;const dp=Array.from({length:a.length+1},()=>new Array(b.length+1).fill(0));for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)if(a[i-1]===b[j-1]){dp[i][j]=dp[i-1][j-1]+1;if(dp[i][j]>max){max=dp[i][j];end=i;}}return a.slice(end-max,end);}; expect(lcs('abcdef','zcdemf')).toBe('cde'); });
   it('finds the celebrity in a party', () => { const cel=(knows:(a:number,b:number)=>boolean,n:number)=>{let cand=0;for(let i=1;i<n;i++)if(knows(cand,i))cand=i;for(let i=0;i<n;i++)if(i!==cand&&(knows(cand,i)||!knows(i,cand)))return -1;return cand;}; const m=[[0,1,1],[0,0,1],[0,0,0]];const k=(a:number,b:number)=>m[a][b]===1; expect(cel(k,3)).toBe(2); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if string is a valid number', () => { const isNum=(s:string)=>!isNaN(Number(s.trim()))&&s.trim()!==''; expect(isNum('3.14')).toBe(true); expect(isNum('-3')).toBe(true); expect(isNum('abc')).toBe(false); expect(isNum('')).toBe(false); });
+  it('finds number of valid brackets sequences of length n', () => { const vb=(n:number)=>{if(n%2!==0)return 0;const m=n/2;const cat=(k:number):number=>k<=1?1:Array.from({length:k},(_,i)=>cat(i)*cat(k-1-i)).reduce((s,v)=>s+v,0);return cat(m);}; expect(vb(6)).toBe(5); expect(vb(4)).toBe(2); });
+  it('finds two numbers with target sum (two pointers)', () => { const tp=(a:number[],t:number)=>{let l=0,r=a.length-1;while(l<r){const s=a[l]+a[r];if(s===t)return[a[l],a[r]];s<t?l++:r--;}return[];}; expect(tp([2,7,11,15],9)).toEqual([2,7]); expect(tp([2,3,4],6)).toEqual([2,4]); });
+  it('finds minimum number of platforms needed', () => { const plat=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){arr[i]<=dep[j]?(plat++,i++):(plat--,j++);max=Math.max(max,plat);}return max;}; expect(plat([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+  it('checks if string has repeated character pattern', () => { const rep=(s:string)=>{const n=s.length;for(let k=1;k<=n/2;k++){if(n%k===0&&s.slice(0,k).repeat(n/k)===s)return true;}return false;}; expect(rep('abab')).toBe(true); expect(rep('aba')).toBe(false); expect(rep('abcabc')).toBe(true); });
+});

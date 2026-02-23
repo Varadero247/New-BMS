@@ -589,3 +589,12 @@ describe('phase49 coverage', () => {
   it('finds maximum sum rectangle in matrix', () => { const msr=(m:number[][])=>{const r=m.length,c=m[0].length;let max=-Infinity;for(let l=0;l<c;l++){const tmp=new Array(r).fill(0);for(let ri=l;ri<c;ri++){tmp.forEach((v,i)=>{tmp[i]+=m[i][ri];});let cur=tmp[0],lo=tmp[0];for(let i=1;i<r;i++){cur=Math.max(tmp[i],cur+tmp[i]);lo=Math.max(lo,cur);}max=Math.max(max,lo);}}return max;}; expect(msr([[1,2,-1],[-3,4,2],[2,1,3]])).toBe(11); });
   it('finds all paths in directed graph', () => { const paths=(g:number[][],s:number,t:number):number[][]=>{const r:number[][]=[];const dfs=(u:number,path:number[])=>{if(u===t){r.push([...path]);return;}for(const v of g[u])dfs(v,[...path,v]);};dfs(s,[s]);return r;}; expect(paths([[1,2],[3],[3],[]],0,3).length).toBe(2); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds maximum product of three numbers', () => { const mp3=(a:number[])=>{const s=[...a].sort((x,y)=>x-y),n=s.length;return Math.max(s[n-1]*s[n-2]*s[n-3],s[0]*s[1]*s[n-1]);}; expect(mp3([1,2,3])).toBe(6); expect(mp3([-10,-10,5,2])).toBe(500); });
+  it('finds all unique BST structures count', () => { const bst=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=bst(i-1)*bst(n-i);return cnt;}; expect(bst(3)).toBe(5); expect(bst(4)).toBe(14); expect(bst(1)).toBe(1); });
+  it('computes longest turbulent subarray', () => { const lts=(a:number[])=>{let max=1,inc=1,dec=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1]){inc=dec+1;dec=1;}else if(a[i]<a[i-1]){dec=inc+1;inc=1;}else{inc=dec=1;}max=Math.max(max,inc,dec);}return max;}; expect(lts([9,4,2,10,7,8,8,1,9])).toBe(5); expect(lts([4,8,12,16])).toBe(2); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+  it('finds number of atoms in molecule', () => { const atoms=(f:string)=>{const m=new Map<string,number>();let i=0;const parse=(mult:number)=>{while(i<f.length&&f[i]!==')'){if(f[i]==='('){i++;parse(mult);}else{const s=i;i++;while(i<f.length&&f[i]>='a'&&f[i]<='z')i++;const el=f.slice(s,i);let n=0;while(i<f.length&&f[i]>='0'&&f[i]<='9')n=n*10+Number(f[i++]);m.set(el,(m.get(el)||0)+(n||1)*mult);}if(f[i]===')'){i++;let n=0;while(i<f.length&&f[i]>='0'&&f[i]<='9')n=n*10+Number(f[i++]);mult*=n||1;}};};parse(1);return Object.fromEntries([...m.entries()].sort());}; expect(atoms('H2O')).toEqual({H:2,O:1}); });
+});

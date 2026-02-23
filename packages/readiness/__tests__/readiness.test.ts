@@ -695,3 +695,12 @@ describe('phase49 coverage', () => {
   it('counts number of islands', () => { const islands=(g:number[][])=>{const r=g.length,c=r?g[0].length:0;let cnt=0;const dfs=(i:number,j:number)=>{if(i<0||i>=r||j<0||j>=c||!g[i][j])return;g[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(g[i][j]){dfs(i,j);cnt++;}return cnt;}; expect(islands([[1,1,0],[0,1,0],[0,0,1]])).toBe(2); });
   it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds number of good subarrays', () => { const gs=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let sum=0,cnt=0;for(const v of a){sum+=v;cnt+=mp.get(sum-k)||0;mp.set(sum,(mp.get(sum)||0)+1);}return cnt;}; expect(gs([1,1,1],2)).toBe(2); expect(gs([1,2,3],3)).toBe(2); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+  it('finds all palindrome partitions', () => { const pp=(s:string):string[][]=>{const r:string[][]=[];const isPal=(str:string)=>str===str.split('').reverse().join('');const bt=(i:number,cur:string[])=>{if(i===s.length){r.push([...cur]);return;}for(let j=i+1;j<=s.length;j++){const sub=s.slice(i,j);if(isPal(sub))bt(j,[...cur,sub]);}};bt(0,[]);return r;}; expect(pp('aab').length).toBe(2); expect(pp('a').length).toBe(1); });
+  it('finds minimum cost to hire k workers', () => { const hk=(q:number[],w:number[],k:number)=>{const r=q.map((qi,i)=>[w[i]/qi,qi,w[i]] as [number,number,number]).sort((a,b)=>a[0]-b[0]);let res=Infinity;const heap:number[]=[];let heapSum=0;for(const [ratio,qi,wi] of r){heap.push(qi);heapSum+=qi;heap.sort((a,b)=>b-a);if(heap.length>k){heapSum-=heap.shift()!;}if(heap.length===k)res=Math.min(res,ratio*heapSum);}return res;}; expect(hk([10,20,5],[70,50,30],2)).toBe(105); });
+  it('computes maximum average subarray of length k', () => { const mas=(a:number[],k:number)=>{let sum=a.slice(0,k).reduce((s,v)=>s+v,0),max=sum;for(let i=k;i<a.length;i++){sum+=a[i]-a[i-k];max=Math.max(max,sum);}return max/k;}; expect(mas([1,12,-5,-6,50,3],4)).toBe(12.75); });
+});

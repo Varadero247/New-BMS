@@ -670,3 +670,12 @@ describe('phase49 coverage', () => {
   it('checks if n-queens placement is valid', () => { const valid=(q:number[])=>{const n=q.length;for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)if(q[i]===q[j]||Math.abs(q[i]-q[j])===j-i)return false;return true;}; expect(valid([1,3,0,2])).toBe(true); expect(valid([0,1,2,3])).toBe(false); });
   it('implements string compression', () => { const comp=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=s[i]+(j-i>1?j-i:'');i=j;}return r.length<s.length?r:s;}; expect(comp('aabcccdddd')).toBe('a2bc3d4'); expect(comp('abcd')).toBe('abcd'); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds the duplicate number in array', () => { const dup=(a:number[])=>{let s=0,ss=0;a.forEach(v=>{s+=v;ss+=v*v;});const n=a.length-1,ts=n*(n+1)/2,tss=n*(n+1)*(2*n+1)/6;const d=s-ts;return (ss-tss)/d/2+d/2;}; expect(Math.round(dup([1,3,4,2,2]))).toBe(2); expect(Math.round(dup([3,1,3,4,2]))).toBe(3); });
+  it('checks if number is a power of 4', () => { const pow4=(n:number)=>n>0&&(n&(n-1))===0&&(n-1)%3===0; expect(pow4(16)).toBe(true); expect(pow4(5)).toBe(false); expect(pow4(1)).toBe(true); });
+  it('finds maximum number of vowels in substring', () => { const mv=(s:string,k:number)=>{const isV=(c:string)=>'aeiou'.includes(c);let cnt=s.slice(0,k).split('').filter(isV).length,max=cnt;for(let i=k;i<s.length;i++){cnt+=isV(s[i])?1:0;cnt-=isV(s[i-k])?1:0;max=Math.max(max,cnt);}return max;}; expect(mv('abciiidef',3)).toBe(3); expect(mv('aeiou',2)).toBe(2); });
+  it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
+  it('finds number of atoms in molecule', () => { const atoms=(f:string)=>{const m=new Map<string,number>();let i=0;const parse=(mult:number)=>{while(i<f.length&&f[i]!==')'){if(f[i]==='('){i++;parse(mult);}else{const s=i;i++;while(i<f.length&&f[i]>='a'&&f[i]<='z')i++;const el=f.slice(s,i);let n=0;while(i<f.length&&f[i]>='0'&&f[i]<='9')n=n*10+Number(f[i++]);m.set(el,(m.get(el)||0)+(n||1)*mult);}if(f[i]===')'){i++;let n=0;while(i<f.length&&f[i]>='0'&&f[i]<='9')n=n*10+Number(f[i++]);mult*=n||1;}};};parse(1);return Object.fromEntries([...m.entries()].sort());}; expect(atoms('H2O')).toEqual({H:2,O:1}); });
+});

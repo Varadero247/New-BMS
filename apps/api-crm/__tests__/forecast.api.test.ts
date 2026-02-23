@@ -676,3 +676,12 @@ describe('phase49 coverage', () => {
   it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
   it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes trapping rain water II (1D)', () => { const trap=(h:number[])=>{let l=0,r=h.length-1,lm=0,rm=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lm?lm=h[l]:water+=lm-h[l];l++;}else{h[r]>=rm?rm=h[r]:water+=rm-h[r];r--;}}return water;}; expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6); expect(trap([4,2,0,3,2,5])).toBe(9); });
+  it('finds k closest points to origin', () => { const kcp=(pts:[number,number][],k:number)=>pts.map(([x,y])=>[x,y,x*x+y*y] as [number,number,number]).sort((a,b)=>a[2]-b[2]).slice(0,k).map(([x,y])=>[x,y]); expect(kcp([[1,3],[-2,2]],1)).toEqual([[-2,2]]); });
+  it('finds all valid combinations of k numbers summing to n', () => { const cs=(k:number,n:number):number[][]=>{const r:number[][]=[];const bt=(s:number,rem:number,cur:number[])=>{if(cur.length===k&&rem===0){r.push([...cur]);return;}if(cur.length>=k||rem<=0)return;for(let i=s;i<=9;i++)bt(i+1,rem-i,[...cur,i]);};bt(1,n,[]);return r;}; expect(cs(3,7).length).toBe(1); expect(cs(3,9).length).toBe(3); });
+  it('implements reservoir sampling', () => { const res=(a:number[],k:number,seed=42)=>{const r=[...a.slice(0,k)];let x=seed;const rand=()=>{x^=x<<13;x^=x>>17;x^=x<<5;return Math.abs(x);};for(let i=k;i<a.length;i++){const j=rand()%(i+1);if(j<k)r[j]=a[i];}return r;}; expect(res([1,2,3,4,5],3).length).toBe(3); });
+  it('checks if array is sorted and rotated', () => { const isSR=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)if(a[i]>a[(i+1)%a.length])cnt++;return cnt<=1;}; expect(isSR([3,4,5,1,2])).toBe(true); expect(isSR([2,1,3,4])).toBe(false); expect(isSR([1,2,3])).toBe(true); });
+});

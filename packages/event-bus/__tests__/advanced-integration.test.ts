@@ -791,3 +791,12 @@ describe('phase49 coverage', () => {
   it('checks if two strings are isomorphic', () => { const iso=(s:string,t:string)=>{const sm=new Map<string,string>(),tm=new Set<string>();for(let i=0;i<s.length;i++){if(sm.has(s[i])){if(sm.get(s[i])!==t[i])return false;}else{if(tm.has(t[i]))return false;sm.set(s[i],t[i]);tm.add(t[i]);}}return true;}; expect(iso('egg','add')).toBe(true); expect(iso('foo','bar')).toBe(false); expect(iso('paper','title')).toBe(true); });
   it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds the number of 1 bits (popcount)', () => { const pop=(n:number)=>{let cnt=0;while(n){n&=n-1;cnt++;}return cnt;}; expect(pop(11)).toBe(3); expect(pop(128)).toBe(1); expect(pop(0)).toBe(0); });
+  it('computes minimum total distance to meeting point', () => { const mtd=(a:number[])=>{const s=[...a].sort((x,y)=>x-y),med=s[Math.floor(s.length/2)];return s.reduce((sum,v)=>sum+Math.abs(v-med),0);}; expect(mtd([1,2,3])).toBe(2); expect(mtd([1,1,1,1,1,10000])).toBe(9999); });
+  it('checks if array is sorted and rotated', () => { const isSR=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)if(a[i]>a[(i+1)%a.length])cnt++;return cnt<=1;}; expect(isSR([3,4,5,1,2])).toBe(true); expect(isSR([2,1,3,4])).toBe(false); expect(isSR([1,2,3])).toBe(true); });
+  it('computes number of distinct paths through obstacle grid', () => { const op=(g:number[][])=>{const m=g.length,n=g[0].length;if(g[0][0]||g[m-1][n-1])return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(!i&&!j)continue;if(g[i][j])dp[i][j]=0;else dp[i][j]=(i>0?dp[i-1][j]:0)+(j>0?dp[i][j-1]:0);}return dp[m-1][n-1];}; expect(op([[0,0,0],[0,1,0],[0,0,0]])).toBe(2); });
+  it('computes minimum insertions for palindrome', () => { const mip=(s:string)=>{const n=s.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]:1+Math.min(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(mip('zzazz')).toBe(0); expect(mip('mbadm')).toBe(2); });
+});

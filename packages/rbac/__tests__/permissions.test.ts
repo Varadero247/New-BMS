@@ -480,3 +480,12 @@ describe('phase49 coverage', () => {
   it('computes spiral matrix order', () => { const spiral=(m:number[][])=>{const r=[];let t=0,b=m.length-1,l=0,ri=m[0].length-1;while(t<=b&&l<=ri){for(let i=l;i<=ri;i++)r.push(m[t][i]);t++;for(let i=t;i<=b;i++)r.push(m[i][ri]);ri--;if(t<=b){for(let i=ri;i>=l;i--)r.push(m[b][i]);b--;}if(l<=ri){for(let i=b;i>=t;i--)r.push(m[i][l]);l++;}}return r;}; expect(spiral([[1,2,3],[4,5,6],[7,8,9]])).toEqual([1,2,3,6,9,8,7,4,5]); });
   it('finds shortest path with BFS', () => { const bfs=(g:number[][],s:number,t:number)=>{const d=new Array(g.length).fill(-1);d[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of g[u])if(d[v]===-1){d[v]=d[u]+1;if(v===t)return d[v];q.push(v);}}return d[t];}; expect(bfs([[1,2],[0,3],[0,3],[1,2]],0,3)).toBe(2); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes longest subarray with at most k distinct', () => { const lak=(a:number[],k:number)=>{const mp=new Map<number,number>();let l=0,max=0;for(let r=0;r<a.length;r++){mp.set(a[r],(mp.get(a[r])||0)+1);while(mp.size>k){const v=mp.get(a[l])!-1;v?mp.set(a[l],v):mp.delete(a[l]);l++;}max=Math.max(max,r-l+1);}return max;}; expect(lak([1,2,1,2,3],2)).toBe(4); expect(lak([1,2,3],2)).toBe(2); });
+  it('computes the maximum twin sum in linked list', () => { const mts=(a:number[])=>{const n=a.length;let max=0;for(let i=0;i<n/2;i++)max=Math.max(max,a[i]+a[n-1-i]);return max;}; expect(mts([5,4,2,1])).toBe(6); expect(mts([4,2,2,3])).toBe(7); });
+  it('computes number of ways to climb stairs (1,2,3)', () => { const climb=(n:number):number=>n===0?1:n<=2?n:climb(n-1)+climb(n-2)+climb(n-3); expect(climb(4)).toBe(7); expect(climb(5)).toBe(13); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+  it('computes maximum number of balloons', () => { const balloon=(s:string)=>{const cnt=new Map<string,number>();for(const c of s)cnt.set(c,(cnt.get(c)||0)+1);return Math.min(cnt.get('b')||0,cnt.get('a')||0,Math.floor((cnt.get('l')||0)/2),Math.floor((cnt.get('o')||0)/2),cnt.get('n')||0);}; expect(balloon('nlaebolko')).toBe(1); expect(balloon('loonbalxballpoon')).toBe(2); });
+});

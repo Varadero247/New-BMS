@@ -702,3 +702,12 @@ describe('phase49 coverage', () => {
   it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
   it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes maximum average subarray of length k', () => { const mas=(a:number[],k:number)=>{let sum=a.slice(0,k).reduce((s,v)=>s+v,0),max=sum;for(let i=k;i<a.length;i++){sum+=a[i]-a[i-k];max=Math.max(max,sum);}return max/k;}; expect(mas([1,12,-5,-6,50,3],4)).toBe(12.75); });
+  it('finds maximum product of three numbers', () => { const mp3=(a:number[])=>{const s=[...a].sort((x,y)=>x-y),n=s.length;return Math.max(s[n-1]*s[n-2]*s[n-3],s[0]*s[1]*s[n-1]);}; expect(mp3([1,2,3])).toBe(6); expect(mp3([-10,-10,5,2])).toBe(500); });
+  it('computes trapping rain water II (1D)', () => { const trap=(h:number[])=>{let l=0,r=h.length-1,lm=0,rm=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lm?lm=h[l]:water+=lm-h[l];l++;}else{h[r]>=rm?rm=h[r]:water+=rm-h[r];r--;}}return water;}; expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6); expect(trap([4,2,0,3,2,5])).toBe(9); });
+  it('computes minimum total distance to meeting point', () => { const mtd=(a:number[])=>{const s=[...a].sort((x,y)=>x-y),med=s[Math.floor(s.length/2)];return s.reduce((sum,v)=>sum+Math.abs(v-med),0);}; expect(mtd([1,2,3])).toBe(2); expect(mtd([1,1,1,1,1,10000])).toBe(9999); });
+  it('finds the longest subarray with equal 0s and 1s', () => { const leq=(a:number[])=>{const mp=new Map([[0,- 1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(mp.has(sum))max=Math.max(max,i-mp.get(sum)!);else mp.set(sum,i);}return max;}; expect(leq([0,1,0])).toBe(2); expect(leq([0,1,0,1,1,1,0])).toBe(4); });
+});

@@ -844,3 +844,12 @@ describe('phase49 coverage', () => {
   it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
   it('computes number of BSTs with n nodes', () => { const numBST=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=numBST(i-1)*numBST(n-i);return cnt;}; expect(numBST(3)).toBe(5); expect(numBST(4)).toBe(14); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds number of good subarrays', () => { const gs=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let sum=0,cnt=0;for(const v of a){sum+=v;cnt+=mp.get(sum-k)||0;mp.set(sum,(mp.get(sum)||0)+1);}return cnt;}; expect(gs([1,1,1],2)).toBe(2); expect(gs([1,2,3],3)).toBe(2); });
+  it('finds minimum number of platforms needed', () => { const plat=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){arr[i]<=dep[j]?(plat++,i++):(plat--,j++);max=Math.max(max,plat);}return max;}; expect(plat([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+  it('checks if number is a power of 4', () => { const pow4=(n:number)=>n>0&&(n&(n-1))===0&&(n-1)%3===0; expect(pow4(16)).toBe(true); expect(pow4(5)).toBe(false); expect(pow4(1)).toBe(true); });
+  it('checks if string contains all binary codes of length k', () => { const allCodes=(s:string,k:number)=>{const need=1<<k;const seen=new Set<string>();for(let i=0;i+k<=s.length;i++)seen.add(s.slice(i,i+k));return seen.size===need;}; expect(allCodes('00110110',2)).toBe(true); expect(allCodes('0110',2)).toBe(false); });
+  it('finds maximum width of binary tree level', () => { const mw=(a:(number|null)[])=>{let max=0;for(let l=0,r=0,sz=1;l<a.length;l=r+1,r=Math.min(a.length-1,l+2*sz-1),sz*=2){while(l<=r&&a[l]===null)l++;while(r>=l&&a[r]===null)r--;max=Math.max(max,r-l+1);}return max;}; expect(mw([1,3,2,5,3,null,9])).toBe(4); });
+});

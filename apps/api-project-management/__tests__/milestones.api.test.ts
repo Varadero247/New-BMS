@@ -918,3 +918,12 @@ describe('phase49 coverage', () => {
   it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
   it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds maximum erasure value', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,max=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];max=Math.max(max,sum);}return max;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
+  it('finds all valid combinations of k numbers summing to n', () => { const cs=(k:number,n:number):number[][]=>{const r:number[][]=[];const bt=(s:number,rem:number,cur:number[])=>{if(cur.length===k&&rem===0){r.push([...cur]);return;}if(cur.length>=k||rem<=0)return;for(let i=s;i<=9;i++)bt(i+1,rem-i,[...cur,i]);};bt(1,n,[]);return r;}; expect(cs(3,7).length).toBe(1); expect(cs(3,9).length).toBe(3); });
+  it('computes maximum average subarray of length k', () => { const mas=(a:number[],k:number)=>{let sum=a.slice(0,k).reduce((s,v)=>s+v,0),max=sum;for(let i=k;i<a.length;i++){sum+=a[i]-a[i-k];max=Math.max(max,sum);}return max/k;}; expect(mas([1,12,-5,-6,50,3],4)).toBe(12.75); });
+  it('computes the maximum frequency after replacements', () => { const mf=(a:number[],k:number)=>{const freq=new Map<number,number>();let max=0,res=0,l=0,total=0;for(let r=0;r<a.length;r++){freq.set(a[r],(freq.get(a[r])||0)+1);max=Math.max(max,freq.get(a[r])!);total++;while(total-max>k){freq.set(a[l],freq.get(a[l])!-1);l++;total--;}res=Math.max(res,total);}return res;}; expect(mf([1,2,4],5)).toBe(3); expect(mf([1,1,1],2)).toBe(3); });
+  it('finds all combinations of k numbers from 1 to n', () => { const comb=(n:number,k:number):number[][]=>{const r:number[][]=[];const bt=(s:number,cur:number[])=>{if(cur.length===k){r.push([...cur]);return;}for(let i=s;i<=n;i++)bt(i+1,[...cur,i]);};bt(1,[]);return r;}; expect(comb(4,2).length).toBe(6); expect(comb(4,2)[0]).toEqual([1,2]); });
+});

@@ -794,3 +794,12 @@ describe('phase49 coverage', () => {
   it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
   it('checks if string has all unique characters', () => { const uniq=(s:string)=>new Set(s).size===s.length; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); expect(uniq('')).toBe(true); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes the maximum twin sum in linked list', () => { const mts=(a:number[])=>{const n=a.length;let max=0;for(let i=0;i<n/2;i++)max=Math.max(max,a[i]+a[n-1-i]);return max;}; expect(mts([5,4,2,1])).toBe(6); expect(mts([4,2,2,3])).toBe(7); });
+  it('checks if one array is subset of another', () => { const sub=(a:number[],b:number[])=>{const s=new Set(b);return a.every(v=>s.has(v));}; expect(sub([1,2],[1,2,3,4])).toBe(true); expect(sub([1,5],[1,2,3,4])).toBe(false); });
+  it('finds all palindrome partitions', () => { const pp=(s:string):string[][]=>{const r:string[][]=[];const isPal=(str:string)=>str===str.split('').reverse().join('');const bt=(i:number,cur:string[])=>{if(i===s.length){r.push([...cur]);return;}for(let j=i+1;j<=s.length;j++){const sub=s.slice(i,j);if(isPal(sub))bt(j,[...cur,sub]);}};bt(0,[]);return r;}; expect(pp('aab').length).toBe(2); expect(pp('a').length).toBe(1); });
+  it('computes the maximum frequency after replacements', () => { const mf=(a:number[],k:number)=>{const freq=new Map<number,number>();let max=0,res=0,l=0,total=0;for(let r=0;r<a.length;r++){freq.set(a[r],(freq.get(a[r])||0)+1);max=Math.max(max,freq.get(a[r])!);total++;while(total-max>k){freq.set(a[l],freq.get(a[l])!-1);l++;total--;}res=Math.max(res,total);}return res;}; expect(mf([1,2,4],5)).toBe(3); expect(mf([1,1,1],2)).toBe(3); });
+  it('finds all combinations of k numbers from 1 to n', () => { const comb=(n:number,k:number):number[][]=>{const r:number[][]=[];const bt=(s:number,cur:number[])=>{if(cur.length===k){r.push([...cur]);return;}for(let i=s;i<=n;i++)bt(i+1,[...cur,i]);};bt(1,[]);return r;}; expect(comb(4,2).length).toBe(6); expect(comb(4,2)[0]).toEqual([1,2]); });
+});

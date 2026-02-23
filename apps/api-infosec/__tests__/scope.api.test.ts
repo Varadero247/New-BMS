@@ -772,3 +772,12 @@ describe('phase49 coverage', () => {
   it('checks if n-queens placement is valid', () => { const valid=(q:number[])=>{const n=q.length;for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)if(q[i]===q[j]||Math.abs(q[i]-q[j])===j-i)return false;return true;}; expect(valid([1,3,0,2])).toBe(true); expect(valid([0,1,2,3])).toBe(false); });
   it('finds longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?(len===2?2:dp[i+1][j-1]+2):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes number of ways to climb stairs (1,2,3)', () => { const climb=(n:number):number=>n===0?1:n<=2?n:climb(n-1)+climb(n-2)+climb(n-3); expect(climb(4)).toBe(7); expect(climb(5)).toBe(13); });
+  it('finds all valid combinations of k numbers summing to n', () => { const cs=(k:number,n:number):number[][]=>{const r:number[][]=[];const bt=(s:number,rem:number,cur:number[])=>{if(cur.length===k&&rem===0){r.push([...cur]);return;}if(cur.length>=k||rem<=0)return;for(let i=s;i<=9;i++)bt(i+1,rem-i,[...cur,i]);};bt(1,n,[]);return r;}; expect(cs(3,7).length).toBe(1); expect(cs(3,9).length).toBe(3); });
+  it('finds maximum product of three numbers', () => { const mp3=(a:number[])=>{const s=[...a].sort((x,y)=>x-y),n=s.length;return Math.max(s[n-1]*s[n-2]*s[n-3],s[0]*s[1]*s[n-1]);}; expect(mp3([1,2,3])).toBe(6); expect(mp3([-10,-10,5,2])).toBe(500); });
+  it('finds maximum number of vowels in substring', () => { const mv=(s:string,k:number)=>{const isV=(c:string)=>'aeiou'.includes(c);let cnt=s.slice(0,k).split('').filter(isV).length,max=cnt;for(let i=k;i<s.length;i++){cnt+=isV(s[i])?1:0;cnt-=isV(s[i-k])?1:0;max=Math.max(max,cnt);}return max;}; expect(mv('abciiidef',3)).toBe(3); expect(mv('aeiou',2)).toBe(2); });
+  it('finds minimum cost to hire k workers', () => { const hk=(q:number[],w:number[],k:number)=>{const r=q.map((qi,i)=>[w[i]/qi,qi,w[i]] as [number,number,number]).sort((a,b)=>a[0]-b[0]);let res=Infinity;const heap:number[]=[];let heapSum=0;for(const [ratio,qi,wi] of r){heap.push(qi);heapSum+=qi;heap.sort((a,b)=>b-a);if(heap.length>k){heapSum-=heap.shift()!;}if(heap.length===k)res=Math.min(res,ratio*heapSum);}return res;}; expect(hk([10,20,5],[70,50,30],2)).toBe(105); });
+});

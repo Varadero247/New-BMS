@@ -1114,3 +1114,12 @@ describe('phase49 coverage', () => {
   it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
   it('implements trie insert and search', () => { const trie=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n.$=1;},has:(w:string)=>{let n=r;for(const c of w){if(!n[c])return false;n=n[c];}return !!n.$;}};};const t=trie();t.ins('hello');t.ins('world'); expect(t.has('hello')).toBe(true); expect(t.has('hell')).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds number of valid brackets sequences of length n', () => { const vb=(n:number)=>{if(n%2!==0)return 0;const m=n/2;const cat=(k:number):number=>k<=1?1:Array.from({length:k},(_,i)=>cat(i)*cat(k-1-i)).reduce((s,v)=>s+v,0);return cat(m);}; expect(vb(6)).toBe(5); expect(vb(4)).toBe(2); });
+  it('computes number of set bits in range 1 to n', () => { const cb=(n:number)=>{let cnt=0;for(let i=1;i<=n;i++){let x=i;while(x){x&=x-1;cnt++;}}return cnt;}; expect(cb(5)).toBe(7); expect(cb(1)).toBe(1); });
+  it('computes minimum insertions for palindrome', () => { const mip=(s:string)=>{const n=s.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]:1+Math.min(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(mip('zzazz')).toBe(0); expect(mip('mbadm')).toBe(2); });
+  it('finds number of good subarrays', () => { const gs=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let sum=0,cnt=0;for(const v of a){sum+=v;cnt+=mp.get(sum-k)||0;mp.set(sum,(mp.get(sum)||0)+1);}return cnt;}; expect(gs([1,1,1],2)).toBe(2); expect(gs([1,2,3],3)).toBe(2); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+});

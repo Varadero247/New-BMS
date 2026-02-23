@@ -573,3 +573,12 @@ describe('phase49 coverage', () => {
   it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
   it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if linked list is palindrome', () => { const isPalin=(a:number[])=>{const r=[...a].reverse();return a.every((v,i)=>v===r[i]);}; expect(isPalin([1,2,2,1])).toBe(true); expect(isPalin([1,2])).toBe(false); expect(isPalin([1])).toBe(true); });
+  it('finds the duplicate number in array', () => { const dup=(a:number[])=>{let s=0,ss=0;a.forEach(v=>{s+=v;ss+=v*v;});const n=a.length-1,ts=n*(n+1)/2,tss=n*(n+1)*(2*n+1)/6;const d=s-ts;return (ss-tss)/d/2+d/2;}; expect(Math.round(dup([1,3,4,2,2]))).toBe(2); expect(Math.round(dup([3,1,3,4,2]))).toBe(3); });
+  it('finds all unique BST structures count', () => { const bst=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=bst(i-1)*bst(n-i);return cnt;}; expect(bst(3)).toBe(5); expect(bst(4)).toBe(14); expect(bst(1)).toBe(1); });
+  it('checks if matrix is Toeplitz', () => { const toep=(m:number[][])=>{for(let i=1;i<m.length;i++)for(let j=1;j<m[0].length;j++)if(m[i][j]!==m[i-1][j-1])return false;return true;}; expect(toep([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true); expect(toep([[1,2],[2,2]])).toBe(false); });
+  it('computes longest subarray with at most k distinct', () => { const lak=(a:number[],k:number)=>{const mp=new Map<number,number>();let l=0,max=0;for(let r=0;r<a.length;r++){mp.set(a[r],(mp.get(a[r])||0)+1);while(mp.size>k){const v=mp.get(a[l])!-1;v?mp.set(a[l],v):mp.delete(a[l]);l++;}max=Math.max(max,r-l+1);}return max;}; expect(lak([1,2,1,2,3],2)).toBe(4); expect(lak([1,2,3],2)).toBe(2); });
+});

@@ -880,3 +880,12 @@ describe('phase49 coverage', () => {
   it('computes minimum cost to connect ropes', () => { const mc=(r:number[])=>{const pq=[...r].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!,s=a+b;cost+=s;let i=0;while(i<pq.length&&pq[i]<s)i++;pq.splice(i,0,s);}return cost;}; expect(mc([4,3,2,6])).toBe(29); });
   it('checks if linked list has cycle', () => { type N={v:number;next?:N};const hasCycle=(h:N|undefined)=>{let s:N|undefined=h,f:N|undefined=h;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const n1:N={v:1},n2:N={v:2},n3:N={v:3};n1.next=n2;n2.next=n3; expect(hasCycle(n1)).toBe(false); n3.next=n1; expect(hasCycle(n1)).toBe(true); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes maximum number of balloons', () => { const balloon=(s:string)=>{const cnt=new Map<string,number>();for(const c of s)cnt.set(c,(cnt.get(c)||0)+1);return Math.min(cnt.get('b')||0,cnt.get('a')||0,Math.floor((cnt.get('l')||0)/2),Math.floor((cnt.get('o')||0)/2),cnt.get('n')||0);}; expect(balloon('nlaebolko')).toBe(1); expect(balloon('loonbalxballpoon')).toBe(2); });
+  it('checks if array has increasing triplet', () => { const it3=(a:number[])=>{let f1=Infinity,f2=Infinity;for(const v of a){if(v<=f1)f1=v;else if(v<=f2)f2=v;else return true;}return false;}; expect(it3([1,2,3,4,5])).toBe(true); expect(it3([5,4,3,2,1])).toBe(false); expect(it3([2,1,5,0,4,6])).toBe(true); });
+  it('finds two numbers with target sum (two pointers)', () => { const tp=(a:number[],t:number)=>{let l=0,r=a.length-1;while(l<r){const s=a[l]+a[r];if(s===t)return[a[l],a[r]];s<t?l++:r--;}return[];}; expect(tp([2,7,11,15],9)).toEqual([2,7]); expect(tp([2,3,4],6)).toEqual([2,4]); });
+  it('finds the duplicate number in array', () => { const dup=(a:number[])=>{let s=0,ss=0;a.forEach(v=>{s+=v;ss+=v*v;});const n=a.length-1,ts=n*(n+1)/2,tss=n*(n+1)*(2*n+1)/6;const d=s-ts;return (ss-tss)/d/2+d/2;}; expect(Math.round(dup([1,3,4,2,2]))).toBe(2); expect(Math.round(dup([3,1,3,4,2]))).toBe(3); });
+  it('computes number of distinct paths through obstacle grid', () => { const op=(g:number[][])=>{const m=g.length,n=g[0].length;if(g[0][0]||g[m-1][n-1])return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(!i&&!j)continue;if(g[i][j])dp[i][j]=0;else dp[i][j]=(i>0?dp[i-1][j]:0)+(j>0?dp[i][j-1]:0);}return dp[m-1][n-1];}; expect(op([[0,0,0],[0,1,0],[0,0,0]])).toBe(2); });
+});

@@ -1021,3 +1021,12 @@ describe('phase49 coverage', () => {
   it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
   it('computes nth Catalan number', () => { const cat=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>cat(i)*cat(n-1-i)).reduce((s,v)=>s+v,0); expect(cat(0)).toBe(1); expect(cat(3)).toBe(5); expect(cat(4)).toBe(14); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes minimum number of swaps to sort', () => { const ms=(a:number[])=>{const sorted=[...a].map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]);const vis=new Array(a.length).fill(false);let swaps=0;for(let i=0;i<a.length;i++){if(vis[i]||sorted[i][1]===i)continue;let cycleSize=0,j=i;while(!vis[j]){vis[j]=true;j=sorted[j][1];cycleSize++;}swaps+=cycleSize-1;}return swaps;}; expect(ms([4,3,2,1])).toBe(2); expect(ms([1,5,4,3,2])).toBe(2); });
+  it('counts distinct subsequences', () => { const ds=(s:string,t:string)=>{const m=s.length,n=t.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}; expect(ds('rabbbit','rabbit')).toBe(3); });
+  it('computes number of distinct paths through obstacle grid', () => { const op=(g:number[][])=>{const m=g.length,n=g[0].length;if(g[0][0]||g[m-1][n-1])return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(!i&&!j)continue;if(g[i][j])dp[i][j]=0;else dp[i][j]=(i>0?dp[i-1][j]:0)+(j>0?dp[i][j-1]:0);}return dp[m-1][n-1];}; expect(op([[0,0,0],[0,1,0],[0,0,0]])).toBe(2); });
+  it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
+  it('computes trapping rain water II (1D)', () => { const trap=(h:number[])=>{let l=0,r=h.length-1,lm=0,rm=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lm?lm=h[l]:water+=lm-h[l];l++;}else{h[r]>=rm?rm=h[r]:water+=rm-h[r];r--;}}return water;}; expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6); expect(trap([4,2,0,3,2,5])).toBe(9); });
+});

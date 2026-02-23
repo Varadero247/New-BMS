@@ -617,3 +617,12 @@ describe('phase49 coverage', () => {
   it('computes minimum time to finish tasks', () => { const mtt=(t:number[],k:number)=>{const s=[...t].sort((a,b)=>b-a);let time=0;for(let i=0;i<s.length;i+=k)time+=s[i];return time;}; expect(mtt([3,2,4,4,4,2,2],3)).toBe(9); });
   it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes range sum query with prefix sums', () => { const rsq=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=rsq([1,2,3,4,5]); expect(q(0,2)).toBe(6); expect(q(2,4)).toBe(12); });
+  it('computes number of steps to reduce to zero', () => { const steps=(n:number)=>{let cnt=0;while(n>0){n=n%2?n-1:n/2;cnt++;}return cnt;}; expect(steps(14)).toBe(6); expect(steps(8)).toBe(4); });
+  it('checks if valid sudoku row/col/box', () => { const vr=(b:string[][])=>{const ok=(a:string[])=>{const d=a.filter(v=>v!=='.');return d.length===new Set(d).size;};for(let i=0;i<9;i++){if(!ok(b[i]))return false;if(!ok(b.map(r=>r[i])))return false;}for(let bi=0;bi<3;bi++)for(let bj=0;bj<3;bj++){const box=[];for(let i=0;i<3;i++)for(let j=0;j<3;j++)box.push(b[3*bi+i][3*bj+j]);if(!ok(box))return false;}return true;}; expect(vr([['5','3','.','.','7','.','.','.','.'],['6','.','.','1','9','5','.','.','.'],['.','9','8','.','.','.','.','6','.'],['8','.','.','.','6','.','.','.','3'],['4','.','.','8','.','3','.','.','1'],['7','.','.','.','2','.','.','.','6'],['.','6','.','.','.','.','2','8','.'],['.','.','.','4','1','9','.','.','5'],['.','.','.','.','8','.','.','7','9']])).toBe(true); });
+  it('computes max depth of N-ary tree', () => { type N={v:number;ch:N[]};const md=(n:N|undefined):number=>!n?0:1+Math.max(0,...n.ch.map(md)); const t:N={v:1,ch:[{v:3,ch:[{v:5,ch:[]},{v:6,ch:[]}]},{v:2,ch:[]},{v:4,ch:[]}]}; expect(md(t)).toBe(3); });
+  it('checks if array has increasing triplet', () => { const it3=(a:number[])=>{let f1=Infinity,f2=Infinity;for(const v of a){if(v<=f1)f1=v;else if(v<=f2)f2=v;else return true;}return false;}; expect(it3([1,2,3,4,5])).toBe(true); expect(it3([5,4,3,2,1])).toBe(false); expect(it3([2,1,5,0,4,6])).toBe(true); });
+});

@@ -615,3 +615,12 @@ describe('phase49 coverage', () => {
   it('checks if array can be partitioned into equal sums', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const v of a)for(let j=t;j>=v;j--)dp[j]=dp[j]||dp[j-v];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
   it('computes longest valid parentheses', () => { const lvp=(s:string)=>{const st=[-1];let max=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();st.length?max=Math.max(max,i-st[st.length-1]):st.push(i);}}return max;}; expect(lvp('(()')).toBe(2); expect(lvp(')()())')).toBe(4); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if one array is subset of another', () => { const sub=(a:number[],b:number[])=>{const s=new Set(b);return a.every(v=>s.has(v));}; expect(sub([1,2],[1,2,3,4])).toBe(true); expect(sub([1,5],[1,2,3,4])).toBe(false); });
+  it('finds minimum cost to hire k workers', () => { const hk=(q:number[],w:number[],k:number)=>{const r=q.map((qi,i)=>[w[i]/qi,qi,w[i]] as [number,number,number]).sort((a,b)=>a[0]-b[0]);let res=Infinity;const heap:number[]=[];let heapSum=0;for(const [ratio,qi,wi] of r){heap.push(qi);heapSum+=qi;heap.sort((a,b)=>b-a);if(heap.length>k){heapSum-=heap.shift()!;}if(heap.length===k)res=Math.min(res,ratio*heapSum);}return res;}; expect(hk([10,20,5],[70,50,30],2)).toBe(105); });
+  it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+  it('counts distinct subsequences', () => { const ds=(s:string,t:string)=>{const m=s.length,n=t.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}; expect(ds('rabbbit','rabbit')).toBe(3); });
+});

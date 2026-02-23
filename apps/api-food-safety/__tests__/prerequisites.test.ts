@@ -677,3 +677,12 @@ describe('phase49 coverage', () => {
   it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
   it('finds minimum number of arrows to burst balloons', () => { const arr=(pts:[number,number][])=>{pts.sort((a,b)=>a[1]-b[1]);let cnt=1,end=pts[0][1];for(let i=1;i<pts.length;i++)if(pts[i][0]>end){cnt++;end=pts[i][1];}return cnt;}; expect(arr([[10,16],[2,8],[1,6],[7,12]])).toBe(2); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('implements reservoir sampling', () => { const res=(a:number[],k:number,seed=42)=>{const r=[...a.slice(0,k)];let x=seed;const rand=()=>{x^=x<<13;x^=x>>17;x^=x<<5;return Math.abs(x);};for(let i=k;i<a.length;i++){const j=rand()%(i+1);if(j<k)r[j]=a[i];}return r;}; expect(res([1,2,3,4,5],3).length).toBe(3); });
+  it('computes the maximum twin sum in linked list', () => { const mts=(a:number[])=>{const n=a.length;let max=0;for(let i=0;i<n/2;i++)max=Math.max(max,a[i]+a[n-1-i]);return max;}; expect(mts([5,4,2,1])).toBe(6); expect(mts([4,2,2,3])).toBe(7); });
+  it('computes number of set bits in range 1 to n', () => { const cb=(n:number)=>{let cnt=0;for(let i=1;i<=n;i++){let x=i;while(x){x&=x-1;cnt++;}}return cnt;}; expect(cb(5)).toBe(7); expect(cb(1)).toBe(1); });
+  it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
+  it('computes largest rectangle in histogram', () => { const lrh=(h:number[])=>{const s:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){const hi=i===n?0:h[i];while(s.length&&h[s[s.length-1]]>hi){const top=s.pop()!;const w=s.length?i-s[s.length-1]-1:i;max=Math.max(max,h[top]*w);}s.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
+});

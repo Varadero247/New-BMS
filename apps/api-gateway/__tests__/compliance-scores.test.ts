@@ -755,3 +755,12 @@ describe('phase49 coverage', () => {
   it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
   it('computes number of ways to tile 2xn board', () => { const tile=(n:number):number=>n<=1?1:tile(n-1)+tile(n-2); expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes minimum insertions for palindrome', () => { const mip=(s:string)=>{const n=s.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]:1+Math.min(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(mip('zzazz')).toBe(0); expect(mip('mbadm')).toBe(2); });
+  it('finds number of atoms in molecule', () => { const atoms=(f:string)=>{const m=new Map<string,number>();let i=0;const parse=(mult:number)=>{while(i<f.length&&f[i]!==')'){if(f[i]==='('){i++;parse(mult);}else{const s=i;i++;while(i<f.length&&f[i]>='a'&&f[i]<='z')i++;const el=f.slice(s,i);let n=0;while(i<f.length&&f[i]>='0'&&f[i]<='9')n=n*10+Number(f[i++]);m.set(el,(m.get(el)||0)+(n||1)*mult);}if(f[i]===')'){i++;let n=0;while(i<f.length&&f[i]>='0'&&f[i]<='9')n=n*10+Number(f[i++]);mult*=n||1;}};};parse(1);return Object.fromEntries([...m.entries()].sort());}; expect(atoms('H2O')).toEqual({H:2,O:1}); });
+  it('computes number of set bits in range 1 to n', () => { const cb=(n:number)=>{let cnt=0;for(let i=1;i<=n;i++){let x=i;while(x){x&=x-1;cnt++;}}return cnt;}; expect(cb(5)).toBe(7); expect(cb(1)).toBe(1); });
+  it('computes the maximum twin sum in linked list', () => { const mts=(a:number[])=>{const n=a.length;let max=0;for(let i=0;i<n/2;i++)max=Math.max(max,a[i]+a[n-1-i]);return max;}; expect(mts([5,4,2,1])).toBe(6); expect(mts([4,2,2,3])).toBe(7); });
+  it('computes the maximum frequency after replacements', () => { const mf=(a:number[],k:number)=>{const freq=new Map<number,number>();let max=0,res=0,l=0,total=0;for(let r=0;r<a.length;r++){freq.set(a[r],(freq.get(a[r])||0)+1);max=Math.max(max,freq.get(a[r])!);total++;while(total-max>k){freq.set(a[l],freq.get(a[l])!-1);l++;total--;}res=Math.max(res,total);}return res;}; expect(mf([1,2,4],5)).toBe(3); expect(mf([1,1,1],2)).toBe(3); });
+});

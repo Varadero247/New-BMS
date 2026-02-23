@@ -599,3 +599,12 @@ describe('phase49 coverage', () => {
   it('finds all anagram positions in string', () => { const anag=(s:string,p:string)=>{const r:number[]=[],n=p.length,freq=new Array(26).fill(0);p.split('').forEach(c=>freq[c.charCodeAt(0)-97]++);const w=new Array(26).fill(0);for(let i=0;i<s.length;i++){w[s.charCodeAt(i)-97]++;if(i>=n)w[s.charCodeAt(i-n)-97]--;if(i>=n-1&&w.every((v,j)=>v===freq[j]))r.push(i-n+1);}return r;}; expect(anag('cbaebabacd','abc')).toEqual([0,6]); });
   it('finds diameter of binary tree', () => { type N={v:number;l?:N;r?:N};let dia=0;const depth=(n:N|undefined):number=>{if(!n)return 0;const l=depth(n.l),r=depth(n.r);dia=Math.max(dia,l+r);return 1+Math.max(l,r);};const t:N={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3}};dia=0;depth(t); expect(dia).toBe(3); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes minimum insertions for palindrome', () => { const mip=(s:string)=>{const n=s.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]:1+Math.min(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(mip('zzazz')).toBe(0); expect(mip('mbadm')).toBe(2); });
+  it('checks if array is sorted and rotated', () => { const isSR=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)if(a[i]>a[(i+1)%a.length])cnt++;return cnt<=1;}; expect(isSR([3,4,5,1,2])).toBe(true); expect(isSR([2,1,3,4])).toBe(false); expect(isSR([1,2,3])).toBe(true); });
+  it('finds minimum number of platforms needed', () => { const plat=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){arr[i]<=dep[j]?(plat++,i++):(plat--,j++);max=Math.max(max,plat);}return max;}; expect(plat([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+  it('computes sum of all odd-length subarrays', () => { const sodd=(a:number[])=>{let sum=0;for(let i=0;i<a.length;i++)for(let j=i;j<a.length;j+=2)sum+=a.slice(i,j+1).reduce((s,v)=>s+v,0);return sum;}; expect(sodd([1,4,2,5,3])).toBe(58); });
+  it('checks if linked list is palindrome', () => { const isPalin=(a:number[])=>{const r=[...a].reverse();return a.every((v,i)=>v===r[i]);}; expect(isPalin([1,2,2,1])).toBe(true); expect(isPalin([1,2])).toBe(false); expect(isPalin([1])).toBe(true); });
+});

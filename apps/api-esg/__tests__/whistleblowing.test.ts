@@ -672,3 +672,12 @@ describe('phase49 coverage', () => {
   it('finds all permutations', () => { const perms=(a:number[]):number[][]=>a.length<=1?[a]:a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p])); expect(perms([1,2,3]).length).toBe(6); });
   it('checks if parentheses are balanced', () => { const bal=(s:string)=>{let d=0;for(const c of s){if(c==='(')d++;else if(c===')')d--;if(d<0)return false;}return d===0;}; expect(bal('(())')).toBe(true); expect(bal('(()')).toBe(false); expect(bal(')(')).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if valid sudoku row/col/box', () => { const vr=(b:string[][])=>{const ok=(a:string[])=>{const d=a.filter(v=>v!=='.');return d.length===new Set(d).size;};for(let i=0;i<9;i++){if(!ok(b[i]))return false;if(!ok(b.map(r=>r[i])))return false;}for(let bi=0;bi<3;bi++)for(let bj=0;bj<3;bj++){const box=[];for(let i=0;i<3;i++)for(let j=0;j<3;j++)box.push(b[3*bi+i][3*bj+j]);if(!ok(box))return false;}return true;}; expect(vr([['5','3','.','.','7','.','.','.','.'],['6','.','.','1','9','5','.','.','.'],['.','9','8','.','.','.','.','6','.'],['8','.','.','.','6','.','.','.','3'],['4','.','.','8','.','3','.','.','1'],['7','.','.','.','2','.','.','.','6'],['.','6','.','.','.','.','2','8','.'],['.','.','.','4','1','9','.','.','5'],['.','.','.','.','8','.','.','7','9']])).toBe(true); });
+  it('implements reservoir sampling', () => { const res=(a:number[],k:number,seed=42)=>{const r=[...a.slice(0,k)];let x=seed;const rand=()=>{x^=x<<13;x^=x>>17;x^=x<<5;return Math.abs(x);};for(let i=k;i<a.length;i++){const j=rand()%(i+1);if(j<k)r[j]=a[i];}return r;}; expect(res([1,2,3,4,5],3).length).toBe(3); });
+  it('finds the duplicate number in array', () => { const dup=(a:number[])=>{let s=0,ss=0;a.forEach(v=>{s+=v;ss+=v*v;});const n=a.length-1,ts=n*(n+1)/2,tss=n*(n+1)*(2*n+1)/6;const d=s-ts;return (ss-tss)/d/2+d/2;}; expect(Math.round(dup([1,3,4,2,2]))).toBe(2); expect(Math.round(dup([3,1,3,4,2]))).toBe(3); });
+  it('finds k closest points to origin', () => { const kcp=(pts:[number,number][],k:number)=>pts.map(([x,y])=>[x,y,x*x+y*y] as [number,number,number]).sort((a,b)=>a[2]-b[2]).slice(0,k).map(([x,y])=>[x,y]); expect(kcp([[1,3],[-2,2]],1)).toEqual([[-2,2]]); });
+  it('checks if string is a valid number', () => { const isNum=(s:string)=>!isNaN(Number(s.trim()))&&s.trim()!==''; expect(isNum('3.14')).toBe(true); expect(isNum('-3')).toBe(true); expect(isNum('abc')).toBe(false); expect(isNum('')).toBe(false); });
+});

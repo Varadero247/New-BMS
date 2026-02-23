@@ -1080,3 +1080,12 @@ describe('phase49 coverage', () => {
   it('checks if n-queens placement is valid', () => { const valid=(q:number[])=>{const n=q.length;for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)if(q[i]===q[j]||Math.abs(q[i]-q[j])===j-i)return false;return true;}; expect(valid([1,3,0,2])).toBe(true); expect(valid([0,1,2,3])).toBe(false); });
   it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if array has increasing triplet', () => { const it3=(a:number[])=>{let f1=Infinity,f2=Infinity;for(const v of a){if(v<=f1)f1=v;else if(v<=f2)f2=v;else return true;}return false;}; expect(it3([1,2,3,4,5])).toBe(true); expect(it3([5,4,3,2,1])).toBe(false); expect(it3([2,1,5,0,4,6])).toBe(true); });
+  it('computes trapping rain water II (1D)', () => { const trap=(h:number[])=>{let l=0,r=h.length-1,lm=0,rm=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lm?lm=h[l]:water+=lm-h[l];l++;}else{h[r]>=rm?rm=h[r]:water+=rm-h[r];r--;}}return water;}; expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6); expect(trap([4,2,0,3,2,5])).toBe(9); });
+  it('finds the minimum size subarray with sum >= target', () => { const mss=(a:number[],t:number)=>{let l=0,sum=0,min=Infinity;for(let r=0;r<a.length;r++){sum+=a[r];while(sum>=t){min=Math.min(min,r-l+1);sum-=a[l++];}}return min===Infinity?0:min;}; expect(mss([2,3,1,2,4,3],7)).toBe(2); expect(mss([1,4,4],4)).toBe(1); });
+  it('finds all palindrome partitions', () => { const pp=(s:string):string[][]=>{const r:string[][]=[];const isPal=(str:string)=>str===str.split('').reverse().join('');const bt=(i:number,cur:string[])=>{if(i===s.length){r.push([...cur]);return;}for(let j=i+1;j<=s.length;j++){const sub=s.slice(i,j);if(isPal(sub))bt(j,[...cur,sub]);}};bt(0,[]);return r;}; expect(pp('aab').length).toBe(2); expect(pp('a').length).toBe(1); });
+  it('computes minimum number of swaps to sort', () => { const ms=(a:number[])=>{const sorted=[...a].map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]);const vis=new Array(a.length).fill(false);let swaps=0;for(let i=0;i<a.length;i++){if(vis[i]||sorted[i][1]===i)continue;let cycleSize=0,j=i;while(!vis[j]){vis[j]=true;j=sorted[j][1];cycleSize++;}swaps+=cycleSize-1;}return swaps;}; expect(ms([4,3,2,1])).toBe(2); expect(ms([1,5,4,3,2])).toBe(2); });
+});

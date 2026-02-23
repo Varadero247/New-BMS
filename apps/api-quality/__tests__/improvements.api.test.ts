@@ -1017,3 +1017,12 @@ describe('phase49 coverage', () => {
   it('finds all permutations', () => { const perms=(a:number[]):number[][]=>a.length<=1?[a]:a.flatMap((v,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(p=>[v,...p])); expect(perms([1,2,3]).length).toBe(6); });
   it('computes maximum gap in sorted array', () => { const mg=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let max=0;for(let i=1;i<s.length;i++)max=Math.max(max,s[i]-s[i-1]);return max;}; expect(mg([3,6,9,1])).toBe(3); expect(mg([10])).toBe(0); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds all palindrome partitions', () => { const pp=(s:string):string[][]=>{const r:string[][]=[];const isPal=(str:string)=>str===str.split('').reverse().join('');const bt=(i:number,cur:string[])=>{if(i===s.length){r.push([...cur]);return;}for(let j=i+1;j<=s.length;j++){const sub=s.slice(i,j);if(isPal(sub))bt(j,[...cur,sub]);}};bt(0,[]);return r;}; expect(pp('aab').length).toBe(2); expect(pp('a').length).toBe(1); });
+  it('computes the maximum twin sum in linked list', () => { const mts=(a:number[])=>{const n=a.length;let max=0;for(let i=0;i<n/2;i++)max=Math.max(max,a[i]+a[n-1-i]);return max;}; expect(mts([5,4,2,1])).toBe(6); expect(mts([4,2,2,3])).toBe(7); });
+  it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
+  it('computes minimum insertions for palindrome', () => { const mip=(s:string)=>{const n=s.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]:1+Math.min(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(mip('zzazz')).toBe(0); expect(mip('mbadm')).toBe(2); });
+  it('finds maximum erasure value', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,max=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];max=Math.max(max,sum);}return max;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
+});

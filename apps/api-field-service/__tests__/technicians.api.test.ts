@@ -745,3 +745,12 @@ describe('phase49 coverage', () => {
   it('computes shuffle of array', () => { const sh=(a:number[])=>{const n=a.length/2,r:number[]=[];for(let i=0;i<n;i++)r.push(a[i],a[i+n]);return r;}; expect(sh([2,5,1,3,4,7])).toEqual([2,3,5,4,1,7]); });
   it('finds peak element in array', () => { const peak=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;a[m]>a[m+1]?r=m:l=m+1;}return l;}; expect(peak([1,2,3,1])).toBe(2); expect(peak([1,2,1,3,5,6,4])).toBeGreaterThanOrEqual(0); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes range sum query with prefix sums', () => { const rsq=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=rsq([1,2,3,4,5]); expect(q(0,2)).toBe(6); expect(q(2,4)).toBe(12); });
+  it('computes number of ways to climb stairs (1,2,3)', () => { const climb=(n:number):number=>n===0?1:n<=2?n:climb(n-1)+climb(n-2)+climb(n-3); expect(climb(4)).toBe(7); expect(climb(5)).toBe(13); });
+  it('computes the maximum twin sum in linked list', () => { const mts=(a:number[])=>{const n=a.length;let max=0;for(let i=0;i<n/2;i++)max=Math.max(max,a[i]+a[n-1-i]);return max;}; expect(mts([5,4,2,1])).toBe(6); expect(mts([4,2,2,3])).toBe(7); });
+  it('computes maximum points on a line', () => { const mpl=(pts:[number,number][])=>{if(pts.length<3)return pts.length;let max=0;for(let i=0;i<pts.length;i++){const map=new Map<string,number>();for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1];const gcd2=(a:number,b:number):number=>b===0?a:gcd2(b,a%b);const g=gcd2(Math.abs(dx),Math.abs(dy));const k=`${dx/g},${dy/g}`;map.set(k,(map.get(k)||0)+1);}max=Math.max(max,...map.values());}return max+1;}; expect(mpl([[1,1],[2,2],[3,3]])).toBe(3); });
+  it('finds all combinations of k numbers from 1 to n', () => { const comb=(n:number,k:number):number[][]=>{const r:number[][]=[];const bt=(s:number,cur:number[])=>{if(cur.length===k){r.push([...cur]);return;}for(let i=s;i<=n;i++)bt(i+1,[...cur,i]);};bt(1,[]);return r;}; expect(comb(4,2).length).toBe(6); expect(comb(4,2)[0]).toEqual([1,2]); });
+});

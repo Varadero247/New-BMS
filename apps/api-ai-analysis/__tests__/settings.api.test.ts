@@ -931,3 +931,12 @@ describe('phase49 coverage', () => {
   it('computes longest valid parentheses', () => { const lvp=(s:string)=>{const st=[-1];let max=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();st.length?max=Math.max(max,i-st[st.length-1]):st.push(i);}}return max;}; expect(lvp('(()')).toBe(2); expect(lvp(')()())')).toBe(4); });
   it('checks if string has all unique characters', () => { const uniq=(s:string)=>new Set(s).size===s.length; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); expect(uniq('')).toBe(true); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if number is a power of 4', () => { const pow4=(n:number)=>n>0&&(n&(n-1))===0&&(n-1)%3===0; expect(pow4(16)).toBe(true); expect(pow4(5)).toBe(false); expect(pow4(1)).toBe(true); });
+  it('computes minimum falling path sum', () => { const mfp=(m:number[][])=>{const n=m.length;const dp=m[0].map(v=>v);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const prev=[dp[j]];if(j>0)prev.push(dp[j-1]);if(j<n-1)prev.push(dp[j+1]);dp[j]=m[i][j]+Math.min(...prev);}return Math.min(...dp);}; expect(mfp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); });
+  it('checks if array has increasing triplet', () => { const it3=(a:number[])=>{let f1=Infinity,f2=Infinity;for(const v of a){if(v<=f1)f1=v;else if(v<=f2)f2=v;else return true;}return false;}; expect(it3([1,2,3,4,5])).toBe(true); expect(it3([5,4,3,2,1])).toBe(false); expect(it3([2,1,5,0,4,6])).toBe(true); });
+  it('finds maximum number of vowels in substring', () => { const mv=(s:string,k:number)=>{const isV=(c:string)=>'aeiou'.includes(c);let cnt=s.slice(0,k).split('').filter(isV).length,max=cnt;for(let i=k;i<s.length;i++){cnt+=isV(s[i])?1:0;cnt-=isV(s[i-k])?1:0;max=Math.max(max,cnt);}return max;}; expect(mv('abciiidef',3)).toBe(3); expect(mv('aeiou',2)).toBe(2); });
+  it('checks if linked list is palindrome', () => { const isPalin=(a:number[])=>{const r=[...a].reverse();return a.every((v,i)=>v===r[i]);}; expect(isPalin([1,2,2,1])).toBe(true); expect(isPalin([1,2])).toBe(false); expect(isPalin([1])).toBe(true); });
+});

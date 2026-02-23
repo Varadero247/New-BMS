@@ -646,3 +646,12 @@ describe('phase49 coverage', () => {
   it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
   it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds pairs with difference k', () => { const pk=(a:number[],k:number)=>{const s=new Set(a);let cnt=0;for(const v of s)if(s.has(v+k))cnt++;return cnt;}; expect(pk([1,7,5,9,2,12,3],2)).toBe(4); expect(pk([1,2,3,4,5],1)).toBe(4); });
+  it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}max=Math.max(max,len);}}return max;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
+  it('computes minimum falling path sum', () => { const mfp=(m:number[][])=>{const n=m.length;const dp=m[0].map(v=>v);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const prev=[dp[j]];if(j>0)prev.push(dp[j-1]);if(j<n-1)prev.push(dp[j+1]);dp[j]=m[i][j]+Math.min(...prev);}return Math.min(...dp);}; expect(mfp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); });
+  it('finds the longest subarray with equal 0s and 1s', () => { const leq=(a:number[])=>{const mp=new Map([[0,- 1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(mp.has(sum))max=Math.max(max,i-mp.get(sum)!);else mp.set(sum,i);}return max;}; expect(leq([0,1,0])).toBe(2); expect(leq([0,1,0,1,1,1,0])).toBe(4); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+});

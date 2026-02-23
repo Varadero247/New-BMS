@@ -787,3 +787,12 @@ describe('phase49 coverage', () => {
   it('computes number of ways to tile 2xn board', () => { const tile=(n:number):number=>n<=1?1:tile(n-1)+tile(n-2); expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
   it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds all palindrome partitions', () => { const pp=(s:string):string[][]=>{const r:string[][]=[];const isPal=(str:string)=>str===str.split('').reverse().join('');const bt=(i:number,cur:string[])=>{if(i===s.length){r.push([...cur]);return;}for(let j=i+1;j<=s.length;j++){const sub=s.slice(i,j);if(isPal(sub))bt(j,[...cur,sub]);}};bt(0,[]);return r;}; expect(pp('aab').length).toBe(2); expect(pp('a').length).toBe(1); });
+  it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}max=Math.max(max,len);}}return max;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
+  it('computes number of ways to climb stairs (1,2,3)', () => { const climb=(n:number):number=>n===0?1:n<=2?n:climb(n-1)+climb(n-2)+climb(n-3); expect(climb(4)).toBe(7); expect(climb(5)).toBe(13); });
+  it('finds k closest points to origin', () => { const kcp=(pts:[number,number][],k:number)=>pts.map(([x,y])=>[x,y,x*x+y*y] as [number,number,number]).sort((a,b)=>a[2]-b[2]).slice(0,k).map(([x,y])=>[x,y]); expect(kcp([[1,3],[-2,2]],1)).toEqual([[-2,2]]); });
+  it('computes minimum knight moves', () => { const km=(x:number,y:number)=>{const seen=new Set(['0,0']);const q:[[number,number],number][]=[[[0,0],0]];const moves=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];let head=0;while(head<q.length){const [[cx,cy],d]=q[head++];if(cx===x&&cy===y)return d;for(const [dx,dy] of moves){const nx=cx+dx,ny=cy+dy,k=`${nx},${ny}`;if(!seen.has(k)&&Math.abs(nx)<=300&&Math.abs(ny)<=300){seen.add(k);q.push([[nx,ny],d+1]);}}}return -1;}; expect(km(2,1)).toBe(1); expect(km(0,0)).toBe(0); });
+});

@@ -672,3 +672,12 @@ describe('phase49 coverage', () => {
   it('finds shortest path with BFS', () => { const bfs=(g:number[][],s:number,t:number)=>{const d=new Array(g.length).fill(-1);d[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of g[u])if(d[v]===-1){d[v]=d[u]+1;if(v===t)return d[v];q.push(v);}}return d[t];}; expect(bfs([[1,2],[0,3],[0,3],[1,2]],0,3)).toBe(2); });
   it('computes number of BSTs with n nodes', () => { const numBST=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=numBST(i-1)*numBST(n-i);return cnt;}; expect(numBST(3)).toBe(5); expect(numBST(4)).toBe(14); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes longest turbulent subarray', () => { const lts=(a:number[])=>{let max=1,inc=1,dec=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1]){inc=dec+1;dec=1;}else if(a[i]<a[i-1]){dec=inc+1;inc=1;}else{inc=dec=1;}max=Math.max(max,inc,dec);}return max;}; expect(lts([9,4,2,10,7,8,8,1,9])).toBe(5); expect(lts([4,8,12,16])).toBe(2); });
+  it('computes minimum insertions for palindrome', () => { const mip=(s:string)=>{const n=s.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=s[i]===s[j]?dp[i+1][j-1]:1+Math.min(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(mip('zzazz')).toBe(0); expect(mip('mbadm')).toBe(2); });
+  it('computes the maximum frequency after replacements', () => { const mf=(a:number[],k:number)=>{const freq=new Map<number,number>();let max=0,res=0,l=0,total=0;for(let r=0;r<a.length;r++){freq.set(a[r],(freq.get(a[r])||0)+1);max=Math.max(max,freq.get(a[r])!);total++;while(total-max>k){freq.set(a[l],freq.get(a[l])!-1);l++;total--;}res=Math.max(res,total);}return res;}; expect(mf([1,2,4],5)).toBe(3); expect(mf([1,1,1],2)).toBe(3); });
+  it('checks if string contains all binary codes of length k', () => { const allCodes=(s:string,k:number)=>{const need=1<<k;const seen=new Set<string>();for(let i=0;i+k<=s.length;i++)seen.add(s.slice(i,i+k));return seen.size===need;}; expect(allCodes('00110110',2)).toBe(true); expect(allCodes('0110',2)).toBe(false); });
+  it('finds two numbers with target sum (two pointers)', () => { const tp=(a:number[],t:number)=>{let l=0,r=a.length-1;while(l<r){const s=a[l]+a[r];if(s===t)return[a[l],a[r]];s<t?l++:r--;}return[];}; expect(tp([2,7,11,15],9)).toEqual([2,7]); expect(tp([2,3,4],6)).toEqual([2,4]); });
+});

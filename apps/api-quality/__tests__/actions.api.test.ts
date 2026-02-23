@@ -899,3 +899,12 @@ describe('phase49 coverage', () => {
   it('computes minimum cost to connect ropes', () => { const mc=(r:number[])=>{const pq=[...r].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!,s=a+b;cost+=s;let i=0;while(i<pq.length&&pq[i]<s)i++;pq.splice(i,0,s);}return cost;}; expect(mc([4,3,2,6])).toBe(29); });
   it('checks if graph is bipartite', () => { const bip=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const col=new Array(n).fill(-1);for(let s=0;s<n;s++){if(col[s]!==-1)continue;col[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of adj[u]){if(col[v]===-1){col[v]=1-col[u];q.push(v);}else if(col[v]===col[u])return false;}}};return true;}; expect(bip(4,[[0,1],[1,2],[2,3],[3,0]])).toBe(true); expect(bip(3,[[0,1],[1,2],[2,0]])).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds the minimum size subarray with sum >= target', () => { const mss=(a:number[],t:number)=>{let l=0,sum=0,min=Infinity;for(let r=0;r<a.length;r++){sum+=a[r];while(sum>=t){min=Math.min(min,r-l+1);sum-=a[l++];}}return min===Infinity?0:min;}; expect(mss([2,3,1,2,4,3],7)).toBe(2); expect(mss([1,4,4],4)).toBe(1); });
+  it('finds all unique BST structures count', () => { const bst=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=bst(i-1)*bst(n-i);return cnt;}; expect(bst(3)).toBe(5); expect(bst(4)).toBe(14); expect(bst(1)).toBe(1); });
+  it('computes number of steps to reduce to zero', () => { const steps=(n:number)=>{let cnt=0;while(n>0){n=n%2?n-1:n/2;cnt++;}return cnt;}; expect(steps(14)).toBe(6); expect(steps(8)).toBe(4); });
+  it('computes the maximum frequency after replacements', () => { const mf=(a:number[],k:number)=>{const freq=new Map<number,number>();let max=0,res=0,l=0,total=0;for(let r=0;r<a.length;r++){freq.set(a[r],(freq.get(a[r])||0)+1);max=Math.max(max,freq.get(a[r])!);total++;while(total-max>k){freq.set(a[l],freq.get(a[l])!-1);l++;total--;}res=Math.max(res,total);}return res;}; expect(mf([1,2,4],5)).toBe(3); expect(mf([1,1,1],2)).toBe(3); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+});

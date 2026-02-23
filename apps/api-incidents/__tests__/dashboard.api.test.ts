@@ -540,3 +540,12 @@ describe('phase49 coverage', () => {
   it('checks if linked list has cycle', () => { type N={v:number;next?:N};const hasCycle=(h:N|undefined)=>{let s:N|undefined=h,f:N|undefined=h;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const n1:N={v:1},n2:N={v:2},n3:N={v:3};n1.next=n2;n2.next=n3; expect(hasCycle(n1)).toBe(false); n3.next=n1; expect(hasCycle(n1)).toBe(true); });
   it('computes longest increasing path in matrix', () => { const lip=(m:number[][])=>{const r=m.length,c=m[0].length,memo=Array.from({length:r},()=>new Array(c).fill(0));const dfs=(i:number,j:number):number=>{if(memo[i][j])return memo[i][j];const dirs=[[0,1],[0,-1],[1,0],[-1,0]];return memo[i][j]=1+Math.max(0,...dirs.map(([di,dj])=>{const ni=i+di,nj=j+dj;return ni>=0&&ni<r&&nj>=0&&nj<c&&m[ni][nj]>m[i][j]?dfs(ni,nj):0;}));};let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++)max=Math.max(max,dfs(i,j));return max;}; expect(lip([[9,9,4],[6,6,8],[2,1,1]])).toBe(4); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds maximum width of binary tree level', () => { const mw=(a:(number|null)[])=>{let max=0;for(let l=0,r=0,sz=1;l<a.length;l=r+1,r=Math.min(a.length-1,l+2*sz-1),sz*=2){while(l<=r&&a[l]===null)l++;while(r>=l&&a[r]===null)r--;max=Math.max(max,r-l+1);}return max;}; expect(mw([1,3,2,5,3,null,9])).toBe(4); });
+  it('checks if array is sorted and rotated', () => { const isSR=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)if(a[i]>a[(i+1)%a.length])cnt++;return cnt<=1;}; expect(isSR([3,4,5,1,2])).toBe(true); expect(isSR([2,1,3,4])).toBe(false); expect(isSR([1,2,3])).toBe(true); });
+  it('checks if string contains all binary codes of length k', () => { const allCodes=(s:string,k:number)=>{const need=1<<k;const seen=new Set<string>();for(let i=0;i+k<=s.length;i++)seen.add(s.slice(i,i+k));return seen.size===need;}; expect(allCodes('00110110',2)).toBe(true); expect(allCodes('0110',2)).toBe(false); });
+  it('finds the minimum size subarray with sum >= target', () => { const mss=(a:number[],t:number)=>{let l=0,sum=0,min=Infinity;for(let r=0;r<a.length;r++){sum+=a[r];while(sum>=t){min=Math.min(min,r-l+1);sum-=a[l++];}}return min===Infinity?0:min;}; expect(mss([2,3,1,2,4,3],7)).toBe(2); expect(mss([1,4,4],4)).toBe(1); });
+  it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
+});

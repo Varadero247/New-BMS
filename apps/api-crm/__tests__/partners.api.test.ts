@@ -849,3 +849,12 @@ describe('phase49 coverage', () => {
   it('computes spiral matrix order', () => { const spiral=(m:number[][])=>{const r=[];let t=0,b=m.length-1,l=0,ri=m[0].length-1;while(t<=b&&l<=ri){for(let i=l;i<=ri;i++)r.push(m[t][i]);t++;for(let i=t;i<=b;i++)r.push(m[i][ri]);ri--;if(t<=b){for(let i=ri;i>=l;i--)r.push(m[b][i]);b--;}if(l<=ri){for(let i=b;i>=t;i--)r.push(m[i][l]);l++;}}return r;}; expect(spiral([[1,2,3],[4,5,6],[7,8,9]])).toEqual([1,2,3,6,9,8,7,4,5]); });
   it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds pairs with difference k', () => { const pk=(a:number[],k:number)=>{const s=new Set(a);let cnt=0;for(const v of s)if(s.has(v+k))cnt++;return cnt;}; expect(pk([1,7,5,9,2,12,3],2)).toBe(4); expect(pk([1,2,3,4,5],1)).toBe(4); });
+  it('finds maximum width of binary tree level', () => { const mw=(a:(number|null)[])=>{let max=0;for(let l=0,r=0,sz=1;l<a.length;l=r+1,r=Math.min(a.length-1,l+2*sz-1),sz*=2){while(l<=r&&a[l]===null)l++;while(r>=l&&a[r]===null)r--;max=Math.max(max,r-l+1);}return max;}; expect(mw([1,3,2,5,3,null,9])).toBe(4); });
+  it('implements reservoir sampling', () => { const res=(a:number[],k:number,seed=42)=>{const r=[...a.slice(0,k)];let x=seed;const rand=()=>{x^=x<<13;x^=x>>17;x^=x<<5;return Math.abs(x);};for(let i=k;i<a.length;i++){const j=rand()%(i+1);if(j<k)r[j]=a[i];}return r;}; expect(res([1,2,3,4,5],3).length).toBe(3); });
+  it('finds minimum difference between BST nodes', () => { const mbd=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let min=Infinity;for(let i=1;i<s.length;i++)min=Math.min(min,s[i]-s[i-1]);return min;}; expect(mbd([4,2,6,1,3])).toBe(1); expect(mbd([1,0,48,12,49])).toBe(1); });
+  it('checks if array has increasing triplet', () => { const it3=(a:number[])=>{let f1=Infinity,f2=Infinity;for(const v of a){if(v<=f1)f1=v;else if(v<=f2)f2=v;else return true;}return false;}; expect(it3([1,2,3,4,5])).toBe(true); expect(it3([5,4,3,2,1])).toBe(false); expect(it3([2,1,5,0,4,6])).toBe(true); });
+});

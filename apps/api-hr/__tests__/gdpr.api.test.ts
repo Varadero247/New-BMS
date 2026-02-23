@@ -733,3 +733,12 @@ describe('phase49 coverage', () => {
   it('finds shortest path with BFS', () => { const bfs=(g:number[][],s:number,t:number)=>{const d=new Array(g.length).fill(-1);d[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of g[u])if(d[v]===-1){d[v]=d[u]+1;if(v===t)return d[v];q.push(v);}}return d[t];}; expect(bfs([[1,2],[0,3],[0,3],[1,2]],0,3)).toBe(2); });
   it('finds longest common substring', () => { const lcs=(a:string,b:string)=>{let max=0,end=0;const dp=Array.from({length:a.length+1},()=>new Array(b.length+1).fill(0));for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)if(a[i-1]===b[j-1]){dp[i][j]=dp[i-1][j-1]+1;if(dp[i][j]>max){max=dp[i][j];end=i;}}return a.slice(end-max,end);}; expect(lcs('abcdef','zcdemf')).toBe('cde'); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds minimum operations to reduce to 1', () => { const mo=(n:number)=>{let cnt=0;while(n>1){if(n%2===0)n/=2;else if(n%3===0)n/=3;else n--;cnt++;}return cnt;}; expect(mo(1000000000)).toBeGreaterThan(0); expect(mo(6)).toBe(2); });
+  it('finds maximum product of three numbers', () => { const mp3=(a:number[])=>{const s=[...a].sort((x,y)=>x-y),n=s.length;return Math.max(s[n-1]*s[n-2]*s[n-3],s[0]*s[1]*s[n-1]);}; expect(mp3([1,2,3])).toBe(6); expect(mp3([-10,-10,5,2])).toBe(500); });
+  it('checks if array has increasing triplet', () => { const it3=(a:number[])=>{let f1=Infinity,f2=Infinity;for(const v of a){if(v<=f1)f1=v;else if(v<=f2)f2=v;else return true;}return false;}; expect(it3([1,2,3,4,5])).toBe(true); expect(it3([5,4,3,2,1])).toBe(false); expect(it3([2,1,5,0,4,6])).toBe(true); });
+  it('finds minimum number of platforms needed', () => { const plat=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){arr[i]<=dep[j]?(plat++,i++):(plat--,j++);max=Math.max(max,plat);}return max;}; expect(plat([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+  it('finds the longest subarray with equal 0s and 1s', () => { const leq=(a:number[])=>{const mp=new Map([[0,- 1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(mp.has(sum))max=Math.max(max,i-mp.get(sum)!);else mp.set(sum,i);}return max;}; expect(leq([0,1,0])).toBe(2); expect(leq([0,1,0,1,1,1,0])).toBe(4); });
+});

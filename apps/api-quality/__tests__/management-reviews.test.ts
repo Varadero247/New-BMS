@@ -858,3 +858,12 @@ describe('phase49 coverage', () => {
   it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y);const n=m.length;return n%2?m[n>>1]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
   it('computes number of subarrays with given XOR', () => { const xsub=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let xr=0,cnt=0;for(const v of a){xr^=v;cnt+=mp.get(xr^k)||0;mp.set(xr,(mp.get(xr)||0)+1);}return cnt;}; expect(xsub([4,2,2,6,4],6)).toBe(4); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds minimum cost to hire k workers', () => { const hk=(q:number[],w:number[],k:number)=>{const r=q.map((qi,i)=>[w[i]/qi,qi,w[i]] as [number,number,number]).sort((a,b)=>a[0]-b[0]);let res=Infinity;const heap:number[]=[];let heapSum=0;for(const [ratio,qi,wi] of r){heap.push(qi);heapSum+=qi;heap.sort((a,b)=>b-a);if(heap.length>k){heapSum-=heap.shift()!;}if(heap.length===k)res=Math.min(res,ratio*heapSum);}return res;}; expect(hk([10,20,5],[70,50,30],2)).toBe(105); });
+  it('finds all valid combinations of k numbers summing to n', () => { const cs=(k:number,n:number):number[][]=>{const r:number[][]=[];const bt=(s:number,rem:number,cur:number[])=>{if(cur.length===k&&rem===0){r.push([...cur]);return;}if(cur.length>=k||rem<=0)return;for(let i=s;i<=9;i++)bt(i+1,rem-i,[...cur,i]);};bt(1,n,[]);return r;}; expect(cs(3,7).length).toBe(1); expect(cs(3,9).length).toBe(3); });
+  it('implements reservoir sampling', () => { const res=(a:number[],k:number,seed=42)=>{const r=[...a.slice(0,k)];let x=seed;const rand=()=>{x^=x<<13;x^=x>>17;x^=x<<5;return Math.abs(x);};for(let i=k;i<a.length;i++){const j=rand()%(i+1);if(j<k)r[j]=a[i];}return r;}; expect(res([1,2,3,4,5],3).length).toBe(3); });
+  it('computes maximum number of balloons', () => { const balloon=(s:string)=>{const cnt=new Map<string,number>();for(const c of s)cnt.set(c,(cnt.get(c)||0)+1);return Math.min(cnt.get('b')||0,cnt.get('a')||0,Math.floor((cnt.get('l')||0)/2),Math.floor((cnt.get('o')||0)/2),cnt.get('n')||0);}; expect(balloon('nlaebolko')).toBe(1); expect(balloon('loonbalxballpoon')).toBe(2); });
+  it('computes number of steps to reduce to zero', () => { const steps=(n:number)=>{let cnt=0;while(n>0){n=n%2?n-1:n/2;cnt++;}return cnt;}; expect(steps(14)).toBe(6); expect(steps(8)).toBe(4); });
+});

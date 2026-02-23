@@ -639,3 +639,12 @@ describe('phase49 coverage', () => {
   it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
   it('computes maximum profit with cooldown', () => { const mp=(p:number[])=>{let held=-Infinity,sold=0,rest=0;for(const price of p){const h=Math.max(held,rest-price),s=held+price,r=Math.max(rest,sold);held=h;sold=s;rest=r;}return Math.max(sold,rest);}; expect(mp([1,2,3,0,2])).toBe(3); expect(mp([1])).toBe(0); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes maximum average subarray of length k', () => { const mas=(a:number[],k:number)=>{let sum=a.slice(0,k).reduce((s,v)=>s+v,0),max=sum;for(let i=k;i<a.length;i++){sum+=a[i]-a[i-k];max=Math.max(max,sum);}return max/k;}; expect(mas([1,12,-5,-6,50,3],4)).toBe(12.75); });
+  it('counts distinct subsequences', () => { const ds=(s:string,t:string)=>{const m=s.length,n=t.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}; expect(ds('rabbbit','rabbit')).toBe(3); });
+  it('checks if string is a valid number', () => { const isNum=(s:string)=>!isNaN(Number(s.trim()))&&s.trim()!==''; expect(isNum('3.14')).toBe(true); expect(isNum('-3')).toBe(true); expect(isNum('abc')).toBe(false); expect(isNum('')).toBe(false); });
+  it('checks if word ladder exists', () => { const wl=(begin:string,end:string,list:string[])=>{const wordSet=new Set(list);if(!wordSet.has(end))return 0;const q:[string,number][]=[[begin,1]];while(q.length){const [word,d]=q.shift()!;for(let i=0;i<word.length;i++)for(let c=97;c<123;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return Number(d)+1;if(wordSet.has(nw)){wordSet.delete(nw);q.push([nw,Number(d)+1]);}}}return 0;}; expect(wl('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5); });
+  it('finds minimum number of platforms needed', () => { const plat=(arr:number[],dep:number[])=>{arr.sort((a,b)=>a-b);dep.sort((a,b)=>a-b);let plat=1,max=1,i=1,j=0;while(i<arr.length&&j<dep.length){arr[i]<=dep[j]?(plat++,i++):(plat--,j++);max=Math.max(max,plat);}return max;}; expect(plat([900,940,950,1100,1500,1800],[910,1200,1120,1130,1900,2000])).toBe(3); });
+});

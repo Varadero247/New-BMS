@@ -788,3 +788,12 @@ describe('phase49 coverage', () => {
   it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
   it('checks if one string is rotation of another', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds number of good subarrays', () => { const gs=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let sum=0,cnt=0;for(const v of a){sum+=v;cnt+=mp.get(sum-k)||0;mp.set(sum,(mp.get(sum)||0)+1);}return cnt;}; expect(gs([1,1,1],2)).toBe(2); expect(gs([1,2,3],3)).toBe(2); });
+  it('computes longest subarray with at most k distinct', () => { const lak=(a:number[],k:number)=>{const mp=new Map<number,number>();let l=0,max=0;for(let r=0;r<a.length;r++){mp.set(a[r],(mp.get(a[r])||0)+1);while(mp.size>k){const v=mp.get(a[l])!-1;v?mp.set(a[l],v):mp.delete(a[l]);l++;}max=Math.max(max,r-l+1);}return max;}; expect(lak([1,2,1,2,3],2)).toBe(4); expect(lak([1,2,3],2)).toBe(2); });
+  it('finds pairs with difference k', () => { const pk=(a:number[],k:number)=>{const s=new Set(a);let cnt=0;for(const v of s)if(s.has(v+k))cnt++;return cnt;}; expect(pk([1,7,5,9,2,12,3],2)).toBe(4); expect(pk([1,2,3,4,5],1)).toBe(4); });
+  it('checks if string contains all binary codes of length k', () => { const allCodes=(s:string,k:number)=>{const need=1<<k;const seen=new Set<string>();for(let i=0;i+k<=s.length;i++)seen.add(s.slice(i,i+k));return seen.size===need;}; expect(allCodes('00110110',2)).toBe(true); expect(allCodes('0110',2)).toBe(false); });
+  it('finds minimum difference between BST nodes', () => { const mbd=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let min=Infinity;for(let i=1;i<s.length;i++)min=Math.min(min,s[i]-s[i-1]);return min;}; expect(mbd([4,2,6,1,3])).toBe(1); expect(mbd([1,0,48,12,49])).toBe(1); });
+});

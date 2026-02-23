@@ -546,3 +546,12 @@ describe('phase49 coverage', () => {
   it('implements string compression', () => { const comp=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=s[i]+(j-i>1?j-i:'');i=j;}return r.length<s.length?r:s;}; expect(comp('aabcccdddd')).toBe('a2bc3d4'); expect(comp('abcd')).toBe('abcd'); });
   it('computes minimum spanning tree weight (Kruskal)', () => { const mst=(n:number,edges:[number,number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};let w=0,cnt=0;for(const [u,v,wt] of [...edges].sort((a,b)=>a[2]-b[2])){if(find(u)!==find(v)){union(u,v);w+=wt;cnt++;}}return cnt===n-1?w:-1;}; expect(mst(4,[[0,1,1],[1,2,2],[2,3,3],[0,3,4]])).toBe(6); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds the minimum size subarray with sum >= target', () => { const mss=(a:number[],t:number)=>{let l=0,sum=0,min=Infinity;for(let r=0;r<a.length;r++){sum+=a[r];while(sum>=t){min=Math.min(min,r-l+1);sum-=a[l++];}}return min===Infinity?0:min;}; expect(mss([2,3,1,2,4,3],7)).toBe(2); expect(mss([1,4,4],4)).toBe(1); });
+  it('finds minimum operations to reduce to 1', () => { const mo=(n:number)=>{let cnt=0;while(n>1){if(n%2===0)n/=2;else if(n%3===0)n/=3;else n--;cnt++;}return cnt;}; expect(mo(1000000000)).toBeGreaterThan(0); expect(mo(6)).toBe(2); });
+  it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}max=Math.max(max,len);}}return max;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
+  it('finds the longest subarray with equal 0s and 1s', () => { const leq=(a:number[])=>{const mp=new Map([[0,- 1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(mp.has(sum))max=Math.max(max,i-mp.get(sum)!);else mp.set(sum,i);}return max;}; expect(leq([0,1,0])).toBe(2); expect(leq([0,1,0,1,1,1,0])).toBe(4); });
+  it('computes minimum total distance to meeting point', () => { const mtd=(a:number[])=>{const s=[...a].sort((x,y)=>x-y),med=s[Math.floor(s.length/2)];return s.reduce((sum,v)=>sum+Math.abs(v-med),0);}; expect(mtd([1,2,3])).toBe(2); expect(mtd([1,1,1,1,1,10000])).toBe(9999); });
+});

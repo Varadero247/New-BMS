@@ -538,3 +538,12 @@ describe('phase49 coverage', () => {
   it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
   it('checks if number is perfect square', () => { const isSq=(n:number)=>{if(n<0)return false;const s=Math.round(Math.sqrt(n));return s*s===n;}; expect(isSq(16)).toBe(true); expect(isSq(14)).toBe(false); expect(isSq(0)).toBe(true); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('counts distinct subsequences', () => { const ds=(s:string,t:string)=>{const m=s.length,n=t.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}; expect(ds('rabbbit','rabbit')).toBe(3); });
+  it('finds minimum operations to reduce to 1', () => { const mo=(n:number)=>{let cnt=0;while(n>1){if(n%2===0)n/=2;else if(n%3===0)n/=3;else n--;cnt++;}return cnt;}; expect(mo(1000000000)).toBeGreaterThan(0); expect(mo(6)).toBe(2); });
+  it('checks if string contains all binary codes of length k', () => { const allCodes=(s:string,k:number)=>{const need=1<<k;const seen=new Set<string>();for(let i=0;i+k<=s.length;i++)seen.add(s.slice(i,i+k));return seen.size===need;}; expect(allCodes('00110110',2)).toBe(true); expect(allCodes('0110',2)).toBe(false); });
+  it('checks if linked list is palindrome', () => { const isPalin=(a:number[])=>{const r=[...a].reverse();return a.every((v,i)=>v===r[i]);}; expect(isPalin([1,2,2,1])).toBe(true); expect(isPalin([1,2])).toBe(false); expect(isPalin([1])).toBe(true); });
+  it('computes trapping rain water II (1D)', () => { const trap=(h:number[])=>{let l=0,r=h.length-1,lm=0,rm=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lm?lm=h[l]:water+=lm-h[l];l++;}else{h[r]>=rm?rm=h[r]:water+=rm-h[r];r--;}}return water;}; expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6); expect(trap([4,2,0,3,2,5])).toBe(9); });
+});

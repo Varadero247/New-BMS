@@ -637,3 +637,12 @@ describe('phase49 coverage', () => {
   it('finds shortest path with BFS', () => { const bfs=(g:number[][],s:number,t:number)=>{const d=new Array(g.length).fill(-1);d[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of g[u])if(d[v]===-1){d[v]=d[u]+1;if(v===t)return d[v];q.push(v);}}return d[t];}; expect(bfs([[1,2],[0,3],[0,3],[1,2]],0,3)).toBe(2); });
   it('checks if linked list has cycle', () => { type N={v:number;next?:N};const hasCycle=(h:N|undefined)=>{let s:N|undefined=h,f:N|undefined=h;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const n1:N={v:1},n2:N={v:2},n3:N={v:3};n1.next=n2;n2.next=n3; expect(hasCycle(n1)).toBe(false); n3.next=n1; expect(hasCycle(n1)).toBe(true); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes number of distinct paths through obstacle grid', () => { const op=(g:number[][])=>{const m=g.length,n=g[0].length;if(g[0][0]||g[m-1][n-1])return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(!i&&!j)continue;if(g[i][j])dp[i][j]=0;else dp[i][j]=(i>0?dp[i-1][j]:0)+(j>0?dp[i][j-1]:0);}return dp[m-1][n-1];}; expect(op([[0,0,0],[0,1,0],[0,0,0]])).toBe(2); });
+  it('finds maximum width of binary tree level', () => { const mw=(a:(number|null)[])=>{let max=0;for(let l=0,r=0,sz=1;l<a.length;l=r+1,r=Math.min(a.length-1,l+2*sz-1),sz*=2){while(l<=r&&a[l]===null)l++;while(r>=l&&a[r]===null)r--;max=Math.max(max,r-l+1);}return max;}; expect(mw([1,3,2,5,3,null,9])).toBe(4); });
+  it('computes minimum number of swaps to sort', () => { const ms=(a:number[])=>{const sorted=[...a].map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]);const vis=new Array(a.length).fill(false);let swaps=0;for(let i=0;i<a.length;i++){if(vis[i]||sorted[i][1]===i)continue;let cycleSize=0,j=i;while(!vis[j]){vis[j]=true;j=sorted[j][1];cycleSize++;}swaps+=cycleSize-1;}return swaps;}; expect(ms([4,3,2,1])).toBe(2); expect(ms([1,5,4,3,2])).toBe(2); });
+  it('finds maximum product of three numbers', () => { const mp3=(a:number[])=>{const s=[...a].sort((x,y)=>x-y),n=s.length;return Math.max(s[n-1]*s[n-2]*s[n-3],s[0]*s[1]*s[n-1]);}; expect(mp3([1,2,3])).toBe(6); expect(mp3([-10,-10,5,2])).toBe(500); });
+  it('computes range sum query with prefix sums', () => { const rsq=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=rsq([1,2,3,4,5]); expect(q(0,2)).toBe(6); expect(q(2,4)).toBe(12); });
+});

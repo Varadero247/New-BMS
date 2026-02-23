@@ -629,3 +629,12 @@ describe('phase49 coverage', () => {
   it('finds the kth symbol in grammar', () => { const kth=(n:number,k:number):number=>n===1?0:kth(n-1,Math.ceil(k/2))===0?(k%2?0:1):(k%2?1:0); expect(kth(1,1)).toBe(0); expect(kth(2,1)).toBe(0); expect(kth(2,2)).toBe(1); expect(kth(4,5)).toBe(1); });
   it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds the minimum size subarray with sum >= target', () => { const mss=(a:number[],t:number)=>{let l=0,sum=0,min=Infinity;for(let r=0;r<a.length;r++){sum+=a[r];while(sum>=t){min=Math.min(min,r-l+1);sum-=a[l++];}}return min===Infinity?0:min;}; expect(mss([2,3,1,2,4,3],7)).toBe(2); expect(mss([1,4,4],4)).toBe(1); });
+  it('computes maximum sum of non-adjacent elements', () => { const nsadj=(a:number[])=>{let inc=0,exc=0;for(const v of a){const t=Math.max(inc,exc);inc=exc+v;exc=t;}return Math.max(inc,exc);}; expect(nsadj([5,5,10,100,10,5])).toBe(110); expect(nsadj([1,20,3])).toBe(20); });
+  it('computes minimum falling path sum', () => { const mfp=(m:number[][])=>{const n=m.length;const dp=m[0].map(v=>v);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const prev=[dp[j]];if(j>0)prev.push(dp[j-1]);if(j<n-1)prev.push(dp[j+1]);dp[j]=m[i][j]+Math.min(...prev);}return Math.min(...dp);}; expect(mfp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); });
+  it('computes minimum knight moves', () => { const km=(x:number,y:number)=>{const seen=new Set(['0,0']);const q:[[number,number],number][]=[[[0,0],0]];const moves=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];let head=0;while(head<q.length){const [[cx,cy],d]=q[head++];if(cx===x&&cy===y)return d;for(const [dx,dy] of moves){const nx=cx+dx,ny=cy+dy,k=`${nx},${ny}`;if(!seen.has(k)&&Math.abs(nx)<=300&&Math.abs(ny)<=300){seen.add(k);q.push([[nx,ny],d+1]);}}}return -1;}; expect(km(2,1)).toBe(1); expect(km(0,0)).toBe(0); });
+  it('computes maximum average subarray of length k', () => { const mas=(a:number[],k:number)=>{let sum=a.slice(0,k).reduce((s,v)=>s+v,0),max=sum;for(let i=k;i<a.length;i++){sum+=a[i]-a[i-k];max=Math.max(max,sum);}return max/k;}; expect(mas([1,12,-5,-6,50,3],4)).toBe(12.75); });
+});

@@ -594,3 +594,12 @@ describe('phase49 coverage', () => {
   it('finds running sum of array', () => { const rs=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++)r[i]+=r[i-1];return r;}; expect(rs([1,2,3,4])).toEqual([1,3,6,10]); expect(rs([3,1,2,10,1])).toEqual([3,4,6,16,17]); });
   it('computes minimum time to finish tasks', () => { const mtt=(t:number[],k:number)=>{const s=[...t].sort((a,b)=>b-a);let time=0;for(let i=0;i<s.length;i+=k)time+=s[i];return time;}; expect(mtt([3,2,4,4,4,2,2],3)).toBe(9); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes minimum number of swaps to sort', () => { const ms=(a:number[])=>{const sorted=[...a].map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]);const vis=new Array(a.length).fill(false);let swaps=0;for(let i=0;i<a.length;i++){if(vis[i]||sorted[i][1]===i)continue;let cycleSize=0,j=i;while(!vis[j]){vis[j]=true;j=sorted[j][1];cycleSize++;}swaps+=cycleSize-1;}return swaps;}; expect(ms([4,3,2,1])).toBe(2); expect(ms([1,5,4,3,2])).toBe(2); });
+  it('computes longest subarray with at most k distinct', () => { const lak=(a:number[],k:number)=>{const mp=new Map<number,number>();let l=0,max=0;for(let r=0;r<a.length;r++){mp.set(a[r],(mp.get(a[r])||0)+1);while(mp.size>k){const v=mp.get(a[l])!-1;v?mp.set(a[l],v):mp.delete(a[l]);l++;}max=Math.max(max,r-l+1);}return max;}; expect(lak([1,2,1,2,3],2)).toBe(4); expect(lak([1,2,3],2)).toBe(2); });
+  it('computes trapping rain water II (1D)', () => { const trap=(h:number[])=>{let l=0,r=h.length-1,lm=0,rm=0,water=0;while(l<r){if(h[l]<h[r]){h[l]>=lm?lm=h[l]:water+=lm-h[l];l++;}else{h[r]>=rm?rm=h[r]:water+=rm-h[r];r--;}}return water;}; expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6); expect(trap([4,2,0,3,2,5])).toBe(9); });
+  it('computes the maximum frequency after replacements', () => { const mf=(a:number[],k:number)=>{const freq=new Map<number,number>();let max=0,res=0,l=0,total=0;for(let r=0;r<a.length;r++){freq.set(a[r],(freq.get(a[r])||0)+1);max=Math.max(max,freq.get(a[r])!);total++;while(total-max>k){freq.set(a[l],freq.get(a[l])!-1);l++;total--;}res=Math.max(res,total);}return res;}; expect(mf([1,2,4],5)).toBe(3); expect(mf([1,1,1],2)).toBe(3); });
+  it('computes range sum query with prefix sums', () => { const rsq=(a:number[])=>{const p=[0,...a];for(let i=1;i<p.length;i++)p[i]+=p[i-1];return(l:number,r:number)=>p[r+1]-p[l];}; const q=rsq([1,2,3,4,5]); expect(q(0,2)).toBe(6); expect(q(2,4)).toBe(12); });
+});

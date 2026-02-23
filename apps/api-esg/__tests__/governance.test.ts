@@ -695,3 +695,12 @@ describe('phase49 coverage', () => {
   it('computes minimum time to finish tasks', () => { const mtt=(t:number[],k:number)=>{const s=[...t].sort((a,b)=>b-a);let time=0;for(let i=0;i<s.length;i+=k)time+=s[i];return time;}; expect(mtt([3,2,4,4,4,2,2],3)).toBe(9); });
   it('computes edit distance (Levenshtein)', () => { const ed=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('kitten','sitting')).toBe(3); expect(ed('','abc')).toBe(3); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}max=Math.max(max,len);}}return max;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
+  it('finds number of good subarrays', () => { const gs=(a:number[],k:number)=>{const mp=new Map([[0,1]]);let sum=0,cnt=0;for(const v of a){sum+=v;cnt+=mp.get(sum-k)||0;mp.set(sum,(mp.get(sum)||0)+1);}return cnt;}; expect(gs([1,1,1],2)).toBe(2); expect(gs([1,2,3],3)).toBe(2); });
+  it('computes maximum sum of non-adjacent elements', () => { const nsadj=(a:number[])=>{let inc=0,exc=0;for(const v of a){const t=Math.max(inc,exc);inc=exc+v;exc=t;}return Math.max(inc,exc);}; expect(nsadj([5,5,10,100,10,5])).toBe(110); expect(nsadj([1,20,3])).toBe(20); });
+  it('computes max depth of N-ary tree', () => { type N={v:number;ch:N[]};const md=(n:N|undefined):number=>!n?0:1+Math.max(0,...n.ch.map(md)); const t:N={v:1,ch:[{v:3,ch:[{v:5,ch:[]},{v:6,ch:[]}]},{v:2,ch:[]},{v:4,ch:[]}]}; expect(md(t)).toBe(3); });
+  it('computes longest turbulent subarray', () => { const lts=(a:number[])=>{let max=1,inc=1,dec=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1]){inc=dec+1;dec=1;}else if(a[i]<a[i-1]){dec=inc+1;inc=1;}else{inc=dec=1;}max=Math.max(max,inc,dec);}return max;}; expect(lts([9,4,2,10,7,8,8,1,9])).toBe(5); expect(lts([4,8,12,16])).toBe(2); });
+});

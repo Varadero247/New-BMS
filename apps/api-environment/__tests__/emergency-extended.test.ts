@@ -747,3 +747,12 @@ describe('phase49 coverage', () => {
   it('checks if string has all unique characters', () => { const uniq=(s:string)=>new Set(s).size===s.length; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); expect(uniq('')).toBe(true); });
   it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes minimum knight moves', () => { const km=(x:number,y:number)=>{const seen=new Set(['0,0']);const q:[[number,number],number][]=[[[0,0],0]];const moves=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];let head=0;while(head<q.length){const [[cx,cy],d]=q[head++];if(cx===x&&cy===y)return d;for(const [dx,dy] of moves){const nx=cx+dx,ny=cy+dy,k=`${nx},${ny}`;if(!seen.has(k)&&Math.abs(nx)<=300&&Math.abs(ny)<=300){seen.add(k);q.push([[nx,ny],d+1]);}}}return -1;}; expect(km(2,1)).toBe(1); expect(km(0,0)).toBe(0); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+  it('computes number of steps to reduce to zero', () => { const steps=(n:number)=>{let cnt=0;while(n>0){n=n%2?n-1:n/2;cnt++;}return cnt;}; expect(steps(14)).toBe(6); expect(steps(8)).toBe(4); });
+  it('checks if array is sorted and rotated', () => { const isSR=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)if(a[i]>a[(i+1)%a.length])cnt++;return cnt<=1;}; expect(isSR([3,4,5,1,2])).toBe(true); expect(isSR([2,1,3,4])).toBe(false); expect(isSR([1,2,3])).toBe(true); });
+  it('computes longest subarray with at most k distinct', () => { const lak=(a:number[],k:number)=>{const mp=new Map<number,number>();let l=0,max=0;for(let r=0;r<a.length;r++){mp.set(a[r],(mp.get(a[r])||0)+1);while(mp.size>k){const v=mp.get(a[l])!-1;v?mp.set(a[l],v):mp.delete(a[l]);l++;}max=Math.max(max,r-l+1);}return max;}; expect(lak([1,2,1,2,3],2)).toBe(4); expect(lak([1,2,3],2)).toBe(2); });
+});

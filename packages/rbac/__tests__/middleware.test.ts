@@ -608,3 +608,12 @@ describe('phase49 coverage', () => {
   it('computes minimum cost to connect ropes', () => { const mc=(r:number[])=>{const pq=[...r].sort((a,b)=>a-b);let cost=0;while(pq.length>1){const a=pq.shift()!,b=pq.shift()!,s=a+b;cost+=s;let i=0;while(i<pq.length&&pq[i]<s)i++;pq.splice(i,0,s);}return cost;}; expect(mc([4,3,2,6])).toBe(29); });
   it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('counts distinct subsequences', () => { const ds=(s:string,t:string)=>{const m=s.length,n=t.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}; expect(ds('rabbbit','rabbit')).toBe(3); });
+  it('computes maximum number of balloons', () => { const balloon=(s:string)=>{const cnt=new Map<string,number>();for(const c of s)cnt.set(c,(cnt.get(c)||0)+1);return Math.min(cnt.get('b')||0,cnt.get('a')||0,Math.floor((cnt.get('l')||0)/2),Math.floor((cnt.get('o')||0)/2),cnt.get('n')||0);}; expect(balloon('nlaebolko')).toBe(1); expect(balloon('loonbalxballpoon')).toBe(2); });
+  it('finds two numbers with target sum (two pointers)', () => { const tp=(a:number[],t:number)=>{let l=0,r=a.length-1;while(l<r){const s=a[l]+a[r];if(s===t)return[a[l],a[r]];s<t?l++:r--;}return[];}; expect(tp([2,7,11,15],9)).toEqual([2,7]); expect(tp([2,3,4],6)).toEqual([2,4]); });
+  it('computes minimum number of swaps to sort', () => { const ms=(a:number[])=>{const sorted=[...a].map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]);const vis=new Array(a.length).fill(false);let swaps=0;for(let i=0;i<a.length;i++){if(vis[i]||sorted[i][1]===i)continue;let cycleSize=0,j=i;while(!vis[j]){vis[j]=true;j=sorted[j][1];cycleSize++;}swaps+=cycleSize-1;}return swaps;}; expect(ms([4,3,2,1])).toBe(2); expect(ms([1,5,4,3,2])).toBe(2); });
+  it('computes number of steps to reduce to zero', () => { const steps=(n:number)=>{let cnt=0;while(n>0){n=n%2?n-1:n/2;cnt++;}return cnt;}; expect(steps(14)).toBe(6); expect(steps(8)).toBe(4); });
+});

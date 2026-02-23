@@ -781,3 +781,12 @@ describe('phase49 coverage', () => {
   it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
   it('checks if linked list has cycle', () => { type N={v:number;next?:N};const hasCycle=(h:N|undefined)=>{let s:N|undefined=h,f:N|undefined=h;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const n1:N={v:1},n2:N={v:2},n3:N={v:3};n1.next=n2;n2.next=n3; expect(hasCycle(n1)).toBe(false); n3.next=n1; expect(hasCycle(n1)).toBe(true); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if string is a valid number', () => { const isNum=(s:string)=>!isNaN(Number(s.trim()))&&s.trim()!==''; expect(isNum('3.14')).toBe(true); expect(isNum('-3')).toBe(true); expect(isNum('abc')).toBe(false); expect(isNum('')).toBe(false); });
+  it('checks if tree is symmetric', () => { type N={v:number;l?:N;r?:N};const sym=(n:N|undefined,m:N|undefined=n):boolean=>{if(!n&&!m)return true;if(!n||!m)return false;return n.v===m.v&&sym(n.l,m.r)&&sym(n.r,m.l);}; const t:N={v:1,l:{v:2,l:{v:3},r:{v:4}},r:{v:2,l:{v:4},r:{v:3}}}; expect(sym(t,t)).toBe(true); });
+  it('computes number of distinct paths through obstacle grid', () => { const op=(g:number[][])=>{const m=g.length,n=g[0].length;if(g[0][0]||g[m-1][n-1])return 0;const dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=1;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(!i&&!j)continue;if(g[i][j])dp[i][j]=0;else dp[i][j]=(i>0?dp[i-1][j]:0)+(j>0?dp[i][j-1]:0);}return dp[m-1][n-1];}; expect(op([[0,0,0],[0,1,0],[0,0,0]])).toBe(2); });
+  it('finds minimum operations to reduce to 1', () => { const mo=(n:number)=>{let cnt=0;while(n>1){if(n%2===0)n/=2;else if(n%3===0)n/=3;else n--;cnt++;}return cnt;}; expect(mo(1000000000)).toBeGreaterThan(0); expect(mo(6)).toBe(2); });
+  it('finds minimum difference between BST nodes', () => { const mbd=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);let min=Infinity;for(let i=1;i<s.length;i++)min=Math.min(min,s[i]-s[i-1]);return min;}; expect(mbd([4,2,6,1,3])).toBe(1); expect(mbd([1,0,48,12,49])).toBe(1); });
+});

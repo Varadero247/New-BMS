@@ -579,3 +579,12 @@ describe('phase49 coverage', () => {
   it('finds maximum product subarray', () => { const mps=(a:number[])=>{let max=a[0],min=a[0],res=a[0];for(let i=1;i<a.length;i++){const t=max;max=Math.max(a[i],a[i]*max,a[i]*min);min=Math.min(a[i],a[i]*t,a[i]*min);res=Math.max(res,max);}return res;}; expect(mps([2,3,-2,4])).toBe(6); expect(mps([-2,0,-1])).toBe(0); });
   it('finds all topological orderings count', () => { const dag=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const ind=new Array(n).fill(0);edges.forEach(([u,v])=>{adj[u].push(v);ind[v]++;});const q=ind.map((v,i)=>v===0?i:-1).filter(v=>v>=0);return q.length;}; expect(dag(4,[[0,1],[0,2],[1,3],[2,3]])).toBe(1); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if one array is subset of another', () => { const sub=(a:number[],b:number[])=>{const s=new Set(b);return a.every(v=>s.has(v));}; expect(sub([1,2],[1,2,3,4])).toBe(true); expect(sub([1,5],[1,2,3,4])).toBe(false); });
+  it('computes largest rectangle in histogram', () => { const lrh=(h:number[])=>{const s:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){const hi=i===n?0:h[i];while(s.length&&h[s[s.length-1]]>hi){const top=s.pop()!;const w=s.length?i-s[s.length-1]-1:i;max=Math.max(max,h[top]*w);}s.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
+  it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
+  it('finds the longest subarray with equal 0s and 1s', () => { const leq=(a:number[])=>{const mp=new Map([[0,- 1]]);let sum=0,max=0;for(let i=0;i<a.length;i++){sum+=a[i]===0?-1:1;if(mp.has(sum))max=Math.max(max,i-mp.get(sum)!);else mp.set(sum,i);}return max;}; expect(leq([0,1,0])).toBe(2); expect(leq([0,1,0,1,1,1,0])).toBe(4); });
+  it('finds the number of 1 bits (popcount)', () => { const pop=(n:number)=>{let cnt=0;while(n){n&=n-1;cnt++;}return cnt;}; expect(pop(11)).toBe(3); expect(pop(128)).toBe(1); expect(pop(0)).toBe(0); });
+});

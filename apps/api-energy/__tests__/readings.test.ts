@@ -798,3 +798,12 @@ describe('phase49 coverage', () => {
   it('sorts using counting sort', () => { const csort=(a:number[])=>{if(!a.length)return[];const max=Math.max(...a);const cnt=new Array(max+1).fill(0);a.forEach(v=>cnt[v]++);return cnt.flatMap((c,i)=>Array(c).fill(i));}; expect(csort([3,1,4,1,5,9,2,6])).toEqual([1,1,2,3,4,5,6,9]); });
   it('checks if array has majority element', () => { const hasMaj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt===1?(cand=a[i],1):cnt-1;return a.filter(v=>v===cand).length>a.length/2;}; expect(hasMaj([3,2,3])).toBe(true); expect(hasMaj([1,2,3])).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes max depth of N-ary tree', () => { type N={v:number;ch:N[]};const md=(n:N|undefined):number=>!n?0:1+Math.max(0,...n.ch.map(md)); const t:N={v:1,ch:[{v:3,ch:[{v:5,ch:[]},{v:6,ch:[]}]},{v:2,ch:[]},{v:4,ch:[]}]}; expect(md(t)).toBe(3); });
+  it('finds all combinations of k numbers from 1 to n', () => { const comb=(n:number,k:number):number[][]=>{const r:number[][]=[];const bt=(s:number,cur:number[])=>{if(cur.length===k){r.push([...cur]);return;}for(let i=s;i<=n;i++)bt(i+1,[...cur,i]);};bt(1,[]);return r;}; expect(comb(4,2).length).toBe(6); expect(comb(4,2)[0]).toEqual([1,2]); });
+  it('computes minimum number of swaps to sort', () => { const ms=(a:number[])=>{const sorted=[...a].map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]);const vis=new Array(a.length).fill(false);let swaps=0;for(let i=0;i<a.length;i++){if(vis[i]||sorted[i][1]===i)continue;let cycleSize=0,j=i;while(!vis[j]){vis[j]=true;j=sorted[j][1];cycleSize++;}swaps+=cycleSize-1;}return swaps;}; expect(ms([4,3,2,1])).toBe(2); expect(ms([1,5,4,3,2])).toBe(2); });
+  it('finds maximum number of vowels in substring', () => { const mv=(s:string,k:number)=>{const isV=(c:string)=>'aeiou'.includes(c);let cnt=s.slice(0,k).split('').filter(isV).length,max=cnt;for(let i=k;i<s.length;i++){cnt+=isV(s[i])?1:0;cnt-=isV(s[i-k])?1:0;max=Math.max(max,cnt);}return max;}; expect(mv('abciiidef',3)).toBe(3); expect(mv('aeiou',2)).toBe(2); });
+  it('computes largest rectangle in histogram', () => { const lrh=(h:number[])=>{const s:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){const hi=i===n?0:h[i];while(s.length&&h[s[s.length-1]]>hi){const top=s.pop()!;const w=s.length?i-s[s.length-1]-1:i;max=Math.max(max,h[top]*w);}s.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
+});

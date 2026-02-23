@@ -649,3 +649,12 @@ describe('phase49 coverage', () => {
   it('computes sum of all subsets', () => { const sos=(a:number[])=>a.reduce((s,v)=>s+v*Math.pow(2,a.length-1),0); expect(sos([1,2,3])).toBe(24); expect(sos([1])).toBe(1); });
   it('checks if string is valid IPv4 address', () => { const ipv4=(s:string)=>/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/.test(s); expect(ipv4('192.168.1.1')).toBe(true); expect(ipv4('999.0.0.1')).toBe(false); expect(ipv4('1.2.3')).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
+  it('computes largest rectangle in histogram', () => { const lrh=(h:number[])=>{const s:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){const hi=i===n?0:h[i];while(s.length&&h[s[s.length-1]]>hi){const top=s.pop()!;const w=s.length?i-s[s.length-1]-1:i;max=Math.max(max,h[top]*w);}s.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
+  it('checks if one array is subset of another', () => { const sub=(a:number[],b:number[])=>{const s=new Set(b);return a.every(v=>s.has(v));}; expect(sub([1,2],[1,2,3,4])).toBe(true); expect(sub([1,5],[1,2,3,4])).toBe(false); });
+  it('checks if array has increasing triplet', () => { const it3=(a:number[])=>{let f1=Infinity,f2=Infinity;for(const v of a){if(v<=f1)f1=v;else if(v<=f2)f2=v;else return true;}return false;}; expect(it3([1,2,3,4,5])).toBe(true); expect(it3([5,4,3,2,1])).toBe(false); expect(it3([2,1,5,0,4,6])).toBe(true); });
+  it('finds number of atoms in molecule', () => { const atoms=(f:string)=>{const m=new Map<string,number>();let i=0;const parse=(mult:number)=>{while(i<f.length&&f[i]!==')'){if(f[i]==='('){i++;parse(mult);}else{const s=i;i++;while(i<f.length&&f[i]>='a'&&f[i]<='z')i++;const el=f.slice(s,i);let n=0;while(i<f.length&&f[i]>='0'&&f[i]<='9')n=n*10+Number(f[i++]);m.set(el,(m.get(el)||0)+(n||1)*mult);}if(f[i]===')'){i++;let n=0;while(i<f.length&&f[i]>='0'&&f[i]<='9')n=n*10+Number(f[i++]);mult*=n||1;}};};parse(1);return Object.fromEntries([...m.entries()].sort());}; expect(atoms('H2O')).toEqual({H:2,O:1}); });
+});

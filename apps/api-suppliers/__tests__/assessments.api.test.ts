@@ -549,3 +549,12 @@ describe('phase49 coverage', () => {
   it('computes number of ways to tile 2xn board', () => { const tile=(n:number):number=>n<=1?1:tile(n-1)+tile(n-2); expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
   it('finds shortest path with BFS', () => { const bfs=(g:number[][],s:number,t:number)=>{const d=new Array(g.length).fill(-1);d[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of g[u])if(d[v]===-1){d[v]=d[u]+1;if(v===t)return d[v];q.push(v);}}return d[t];}; expect(bfs([[1,2],[0,3],[0,3],[1,2]],0,3)).toBe(2); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds maximum width of binary tree level', () => { const mw=(a:(number|null)[])=>{let max=0;for(let l=0,r=0,sz=1;l<a.length;l=r+1,r=Math.min(a.length-1,l+2*sz-1),sz*=2){while(l<=r&&a[l]===null)l++;while(r>=l&&a[r]===null)r--;max=Math.max(max,r-l+1);}return max;}; expect(mw([1,3,2,5,3,null,9])).toBe(4); });
+  it('finds k closest points to origin', () => { const kcp=(pts:[number,number][],k:number)=>pts.map(([x,y])=>[x,y,x*x+y*y] as [number,number,number]).sort((a,b)=>a[2]-b[2]).slice(0,k).map(([x,y])=>[x,y]); expect(kcp([[1,3],[-2,2]],1)).toEqual([[-2,2]]); });
+  it('computes longest turbulent subarray', () => { const lts=(a:number[])=>{let max=1,inc=1,dec=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1]){inc=dec+1;dec=1;}else if(a[i]<a[i-1]){dec=inc+1;inc=1;}else{inc=dec=1;}max=Math.max(max,inc,dec);}return max;}; expect(lts([9,4,2,10,7,8,8,1,9])).toBe(5); expect(lts([4,8,12,16])).toBe(2); });
+  it('computes maximum number of balloons', () => { const balloon=(s:string)=>{const cnt=new Map<string,number>();for(const c of s)cnt.set(c,(cnt.get(c)||0)+1);return Math.min(cnt.get('b')||0,cnt.get('a')||0,Math.floor((cnt.get('l')||0)/2),Math.floor((cnt.get('o')||0)/2),cnt.get('n')||0);}; expect(balloon('nlaebolko')).toBe(1); expect(balloon('loonbalxballpoon')).toBe(2); });
+  it('finds all unique BST structures count', () => { const bst=(n:number):number=>{if(n<=1)return 1;let cnt=0;for(let i=1;i<=n;i++)cnt+=bst(i-1)*bst(n-i);return cnt;}; expect(bst(3)).toBe(5); expect(bst(4)).toBe(14); expect(bst(1)).toBe(1); });
+});

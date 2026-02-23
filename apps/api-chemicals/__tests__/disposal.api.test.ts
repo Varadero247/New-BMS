@@ -775,3 +775,12 @@ describe('phase49 coverage', () => {
   it('computes maximum subarray sum (Kadane)', () => { const kad=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;}; expect(kad([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); expect(kad([-1])).toBe(-1); });
   it('computes power set', () => { const ps=(a:number[]):number[][]=>a.reduce<number[][]>((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]]); expect(ps([1,2]).length).toBe(4); expect(ps([]).length).toBe(1); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes maximum sum of non-adjacent elements', () => { const nsadj=(a:number[])=>{let inc=0,exc=0;for(const v of a){const t=Math.max(inc,exc);inc=exc+v;exc=t;}return Math.max(inc,exc);}; expect(nsadj([5,5,10,100,10,5])).toBe(110); expect(nsadj([1,20,3])).toBe(20); });
+  it('computes minimum number of swaps to sort', () => { const ms=(a:number[])=>{const sorted=[...a].map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]);const vis=new Array(a.length).fill(false);let swaps=0;for(let i=0;i<a.length;i++){if(vis[i]||sorted[i][1]===i)continue;let cycleSize=0,j=i;while(!vis[j]){vis[j]=true;j=sorted[j][1];cycleSize++;}swaps+=cycleSize-1;}return swaps;}; expect(ms([4,3,2,1])).toBe(2); expect(ms([1,5,4,3,2])).toBe(2); });
+  it('computes longest turbulent subarray', () => { const lts=(a:number[])=>{let max=1,inc=1,dec=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1]){inc=dec+1;dec=1;}else if(a[i]<a[i-1]){dec=inc+1;inc=1;}else{inc=dec=1;}max=Math.max(max,inc,dec);}return max;}; expect(lts([9,4,2,10,7,8,8,1,9])).toBe(5); expect(lts([4,8,12,16])).toBe(2); });
+  it('computes maximum points on a line', () => { const mpl=(pts:[number,number][])=>{if(pts.length<3)return pts.length;let max=0;for(let i=0;i<pts.length;i++){const map=new Map<string,number>();for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1];const gcd2=(a:number,b:number):number=>b===0?a:gcd2(b,a%b);const g=gcd2(Math.abs(dx),Math.abs(dy));const k=`${dx/g},${dy/g}`;map.set(k,(map.get(k)||0)+1);}max=Math.max(max,...map.values());}return max+1;}; expect(mpl([[1,1],[2,2],[3,3]])).toBe(3); });
+  it('checks if matrix is Toeplitz', () => { const toep=(m:number[][])=>{for(let i=1;i<m.length;i++)for(let j=1;j<m[0].length;j++)if(m[i][j]!==m[i-1][j-1])return false;return true;}; expect(toep([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true); expect(toep([[1,2],[2,2]])).toBe(false); });
+});

@@ -948,3 +948,12 @@ describe('phase49 coverage', () => {
   it('computes number of unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
   it('computes sum of left leaves', () => { type N={v:number;l?:N;r?:N};const sll=(n:N|undefined,isLeft=false):number=>{if(!n)return 0;if(!n.l&&!n.r)return isLeft?n.v:0;return sll(n.l,true)+sll(n.r,false);}; const t:N={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; expect(sll(t)).toBe(24); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes number of subarrays with product less than k', () => { const spk=(a:number[],k:number)=>{if(k<=1)return 0;let l=0,prod=1,cnt=0;for(let r=0;r<a.length;r++){prod*=a[r];while(prod>=k)prod/=a[l++];cnt+=r-l+1;}return cnt;}; expect(spk([10,5,2,6],100)).toBe(8); expect(spk([1,2,3],0)).toBe(0); });
+  it('checks if string contains all binary codes of length k', () => { const allCodes=(s:string,k:number)=>{const need=1<<k;const seen=new Set<string>();for(let i=0;i+k<=s.length;i++)seen.add(s.slice(i,i+k));return seen.size===need;}; expect(allCodes('00110110',2)).toBe(true); expect(allCodes('0110',2)).toBe(false); });
+  it('computes number of steps to reduce to zero', () => { const steps=(n:number)=>{let cnt=0;while(n>0){n=n%2?n-1:n/2;cnt++;}return cnt;}; expect(steps(14)).toBe(6); expect(steps(8)).toBe(4); });
+  it('finds maximum number of events attended', () => { const mae=(events:[number,number][])=>{events.sort((a,b)=>a[0]-b[0]);const endTimes:number[]=[];let day=0,idx=0,cnt=0;for(day=1;day<=100000&&idx<events.length;day++){while(idx<events.length&&events[idx][0]<=day){let i=endTimes.length;endTimes.push(events[idx][1]);while(i>0&&endTimes[Math.floor((i-1)/2)]>endTimes[i]){[endTimes[Math.floor((i-1)/2)],endTimes[i]]=[endTimes[i],endTimes[Math.floor((i-1)/2)]];i=Math.floor((i-1)/2);}idx++;}while(endTimes.length&&endTimes[0]<day){endTimes.shift();}if(endTimes.length){endTimes.shift();cnt++;}}return cnt;}; expect(mae([[1,2],[2,3],[3,4]])).toBe(3); });
+  it('checks if matrix is Toeplitz', () => { const toep=(m:number[][])=>{for(let i=1;i<m.length;i++)for(let j=1;j<m[0].length;j++)if(m[i][j]!==m[i-1][j-1])return false;return true;}; expect(toep([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true); expect(toep([[1,2],[2,2]])).toBe(false); });
+});

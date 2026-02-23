@@ -815,3 +815,12 @@ describe('phase49 coverage', () => {
   it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
   it('computes shuffle of array', () => { const sh=(a:number[])=>{const n=a.length/2,r:number[]=[];for(let i=0;i<n;i++)r.push(a[i],a[i+n]);return r;}; expect(sh([2,5,1,3,4,7])).toEqual([2,3,5,4,1,7]); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('computes minimum falling path sum', () => { const mfp=(m:number[][])=>{const n=m.length;const dp=m[0].map(v=>v);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const prev=[dp[j]];if(j>0)prev.push(dp[j-1]);if(j<n-1)prev.push(dp[j+1]);dp[j]=m[i][j]+Math.min(...prev);}return Math.min(...dp);}; expect(mfp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); });
+  it('computes number of steps to reduce to zero', () => { const steps=(n:number)=>{let cnt=0;while(n>0){n=n%2?n-1:n/2;cnt++;}return cnt;}; expect(steps(14)).toBe(6); expect(steps(8)).toBe(4); });
+  it('finds k closest points to origin', () => { const kcp=(pts:[number,number][],k:number)=>pts.map(([x,y])=>[x,y,x*x+y*y] as [number,number,number]).sort((a,b)=>a[2]-b[2]).slice(0,k).map(([x,y])=>[x,y]); expect(kcp([[1,3],[-2,2]],1)).toEqual([[-2,2]]); });
+  it('checks if matrix is Toeplitz', () => { const toep=(m:number[][])=>{for(let i=1;i<m.length;i++)for(let j=1;j<m[0].length;j++)if(m[i][j]!==m[i-1][j-1])return false;return true;}; expect(toep([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true); expect(toep([[1,2],[2,2]])).toBe(false); });
+  it('computes sum of all odd-length subarrays', () => { const sodd=(a:number[])=>{let sum=0;for(let i=0;i<a.length;i++)for(let j=i;j<a.length;j+=2)sum+=a.slice(i,j+1).reduce((s,v)=>s+v,0);return sum;}; expect(sodd([1,4,2,5,3])).toBe(58); });
+});

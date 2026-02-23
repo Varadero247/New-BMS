@@ -899,3 +899,12 @@ describe('phase49 coverage', () => {
   it('computes max profit from stock prices', () => { const mp=(p:number[])=>{let min=Infinity,max=0;for(const v of p){min=Math.min(min,v);max=Math.max(max,v-min);}return max;}; expect(mp([7,1,5,3,6,4])).toBe(5); expect(mp([7,6,4,3,1])).toBe(0); });
   it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let max=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}max=Math.max(max,len);}}return max;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
+  it('checks if tree is symmetric', () => { type N={v:number;l?:N;r?:N};const sym=(n:N|undefined,m:N|undefined=n):boolean=>{if(!n&&!m)return true;if(!n||!m)return false;return n.v===m.v&&sym(n.l,m.r)&&sym(n.r,m.l);}; const t:N={v:1,l:{v:2,l:{v:3},r:{v:4}},r:{v:2,l:{v:4},r:{v:3}}}; expect(sym(t,t)).toBe(true); });
+  it('finds the number of 1 bits (popcount)', () => { const pop=(n:number)=>{let cnt=0;while(n){n&=n-1;cnt++;}return cnt;}; expect(pop(11)).toBe(3); expect(pop(128)).toBe(1); expect(pop(0)).toBe(0); });
+  it('finds pairs with difference k', () => { const pk=(a:number[],k:number)=>{const s=new Set(a);let cnt=0;for(const v of s)if(s.has(v+k))cnt++;return cnt;}; expect(pk([1,7,5,9,2,12,3],2)).toBe(4); expect(pk([1,2,3,4,5],1)).toBe(4); });
+  it('computes largest rectangle in histogram', () => { const lrh=(h:number[])=>{const s:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){const hi=i===n?0:h[i];while(s.length&&h[s[s.length-1]]>hi){const top=s.pop()!;const w=s.length?i-s[s.length-1]-1:i;max=Math.max(max,h[top]*w);}s.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
+});

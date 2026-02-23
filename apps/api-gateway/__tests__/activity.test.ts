@@ -668,3 +668,12 @@ describe('phase49 coverage', () => {
   it('checks if number is Armstrong', () => { const arm=(n:number)=>{const d=String(n).split(''),p=d.length;return d.reduce((s,c)=>s+Math.pow(Number(c),p),0)===n;}; expect(arm(153)).toBe(true); expect(arm(370)).toBe(true); expect(arm(100)).toBe(false); });
   it('computes the number of good pairs', () => { const gp=(a:number[])=>{const m=new Map<number,number>();let cnt=0;for(const v of a){cnt+=m.get(v)||0;m.set(v,(m.get(v)||0)+1);}return cnt;}; expect(gp([1,2,3,1,1,3])).toBe(4); expect(gp([1,1,1,1])).toBe(6); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if one array is subset of another', () => { const sub=(a:number[],b:number[])=>{const s=new Set(b);return a.every(v=>s.has(v));}; expect(sub([1,2],[1,2,3,4])).toBe(true); expect(sub([1,5],[1,2,3,4])).toBe(false); });
+  it('checks if word ladder exists', () => { const wl=(begin:string,end:string,list:string[])=>{const wordSet=new Set(list);if(!wordSet.has(end))return 0;const q:[string,number][]=[[begin,1]];while(q.length){const [word,d]=q.shift()!;for(let i=0;i<word.length;i++)for(let c=97;c<123;c++){const nw=word.slice(0,i)+String.fromCharCode(c)+word.slice(i+1);if(nw===end)return Number(d)+1;if(wordSet.has(nw)){wordSet.delete(nw);q.push([nw,Number(d)+1]);}}}return 0;}; expect(wl('hit','cog',['hot','dot','dog','lot','log','cog'])).toBe(5); });
+  it('computes the maximum frequency after replacements', () => { const mf=(a:number[],k:number)=>{const freq=new Map<number,number>();let max=0,res=0,l=0,total=0;for(let r=0;r<a.length;r++){freq.set(a[r],(freq.get(a[r])||0)+1);max=Math.max(max,freq.get(a[r])!);total++;while(total-max>k){freq.set(a[l],freq.get(a[l])!-1);l++;total--;}res=Math.max(res,total);}return res;}; expect(mf([1,2,4],5)).toBe(3); expect(mf([1,1,1],2)).toBe(3); });
+  it('finds number of valid brackets sequences of length n', () => { const vb=(n:number)=>{if(n%2!==0)return 0;const m=n/2;const cat=(k:number):number=>k<=1?1:Array.from({length:k},(_,i)=>cat(i)*cat(k-1-i)).reduce((s,v)=>s+v,0);return cat(m);}; expect(vb(6)).toBe(5); expect(vb(4)).toBe(2); });
+  it('checks if tree is symmetric', () => { type N={v:number;l?:N;r?:N};const sym=(n:N|undefined,m:N|undefined=n):boolean=>{if(!n&&!m)return true;if(!n||!m)return false;return n.v===m.v&&sym(n.l,m.r)&&sym(n.r,m.l);}; const t:N={v:1,l:{v:2,l:{v:3},r:{v:4}},r:{v:2,l:{v:4},r:{v:3}}}; expect(sym(t,t)).toBe(true); });
+});

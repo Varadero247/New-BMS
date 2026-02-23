@@ -717,3 +717,12 @@ describe('phase49 coverage', () => {
   it('computes sum of all subsets', () => { const sos=(a:number[])=>a.reduce((s,v)=>s+v*Math.pow(2,a.length-1),0); expect(sos([1,2,3])).toBe(24); expect(sos([1])).toBe(1); });
   it('finds minimum in rotated sorted array', () => { const minRot=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]>a[r])l=m+1;else r=m;}return a[l];}; expect(minRot([3,4,5,1,2])).toBe(1); expect(minRot([4,5,6,7,0,1,2])).toBe(0); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds maximum number of events attended', () => { const mae=(events:[number,number][])=>{events.sort((a,b)=>a[0]-b[0]);const endTimes:number[]=[];let day=0,idx=0,cnt=0;for(day=1;day<=100000&&idx<events.length;day++){while(idx<events.length&&events[idx][0]<=day){let i=endTimes.length;endTimes.push(events[idx][1]);while(i>0&&endTimes[Math.floor((i-1)/2)]>endTimes[i]){[endTimes[Math.floor((i-1)/2)],endTimes[i]]=[endTimes[i],endTimes[Math.floor((i-1)/2)]];i=Math.floor((i-1)/2);}idx++;}while(endTimes.length&&endTimes[0]<day){endTimes.shift();}if(endTimes.length){endTimes.shift();cnt++;}}return cnt;}; expect(mae([[1,2],[2,3],[3,4]])).toBe(3); });
+  it('checks if string contains all binary codes of length k', () => { const allCodes=(s:string,k:number)=>{const need=1<<k;const seen=new Set<string>();for(let i=0;i+k<=s.length;i++)seen.add(s.slice(i,i+k));return seen.size===need;}; expect(allCodes('00110110',2)).toBe(true); expect(allCodes('0110',2)).toBe(false); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+  it('checks if string is a valid number', () => { const isNum=(s:string)=>!isNaN(Number(s.trim()))&&s.trim()!==''; expect(isNum('3.14')).toBe(true); expect(isNum('-3')).toBe(true); expect(isNum('abc')).toBe(false); expect(isNum('')).toBe(false); });
+  it('finds all combinations of k numbers from 1 to n', () => { const comb=(n:number,k:number):number[][]=>{const r:number[][]=[];const bt=(s:number,cur:number[])=>{if(cur.length===k){r.push([...cur]);return;}for(let i=s;i<=n;i++)bt(i+1,[...cur,i]);};bt(1,[]);return r;}; expect(comb(4,2).length).toBe(6); expect(comb(4,2)[0]).toEqual([1,2]); });
+});

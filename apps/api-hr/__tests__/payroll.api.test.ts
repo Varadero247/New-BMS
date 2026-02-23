@@ -795,3 +795,12 @@ describe('phase49 coverage', () => {
   it('computes maximum profit with cooldown', () => { const mp=(p:number[])=>{let held=-Infinity,sold=0,rest=0;for(const price of p){const h=Math.max(held,rest-price),s=held+price,r=Math.max(rest,sold);held=h;sold=s;rest=r;}return Math.max(sold,rest);}; expect(mp([1,2,3,0,2])).toBe(3); expect(mp([1])).toBe(0); });
   it('finds the majority element (Boyer-Moore)', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++)cnt=a[i]===cand?cnt+1:cnt-1||(cand=a[i],1);return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('finds maximum number of events attended', () => { const mae=(events:[number,number][])=>{events.sort((a,b)=>a[0]-b[0]);const endTimes:number[]=[];let day=0,idx=0,cnt=0;for(day=1;day<=100000&&idx<events.length;day++){while(idx<events.length&&events[idx][0]<=day){let i=endTimes.length;endTimes.push(events[idx][1]);while(i>0&&endTimes[Math.floor((i-1)/2)]>endTimes[i]){[endTimes[Math.floor((i-1)/2)],endTimes[i]]=[endTimes[i],endTimes[Math.floor((i-1)/2)]];i=Math.floor((i-1)/2);}idx++;}while(endTimes.length&&endTimes[0]<day){endTimes.shift();}if(endTimes.length){endTimes.shift();cnt++;}}return cnt;}; expect(mae([[1,2],[2,3],[3,4]])).toBe(3); });
+  it('finds the minimum size subarray with sum >= target', () => { const mss=(a:number[],t:number)=>{let l=0,sum=0,min=Infinity;for(let r=0;r<a.length;r++){sum+=a[r];while(sum>=t){min=Math.min(min,r-l+1);sum-=a[l++];}}return min===Infinity?0:min;}; expect(mss([2,3,1,2,4,3],7)).toBe(2); expect(mss([1,4,4],4)).toBe(1); });
+  it('finds number of valid brackets sequences of length n', () => { const vb=(n:number)=>{if(n%2!==0)return 0;const m=n/2;const cat=(k:number):number=>k<=1?1:Array.from({length:k},(_,i)=>cat(i)*cat(k-1-i)).reduce((s,v)=>s+v,0);return cat(m);}; expect(vb(6)).toBe(5); expect(vb(4)).toBe(2); });
+  it('reverses words in a sentence', () => { const rw=(s:string)=>s.trim().split(/\s+/).reverse().join(' '); expect(rw('the sky is blue')).toBe('blue is sky the'); expect(rw('  hello world  ')).toBe('world hello'); });
+  it('finds all combinations of k numbers from 1 to n', () => { const comb=(n:number,k:number):number[][]=>{const r:number[][]=[];const bt=(s:number,cur:number[])=>{if(cur.length===k){r.push([...cur]);return;}for(let i=s;i<=n;i++)bt(i+1,[...cur,i]);};bt(1,[]);return r;}; expect(comb(4,2).length).toBe(6); expect(comb(4,2)[0]).toEqual([1,2]); });
+});

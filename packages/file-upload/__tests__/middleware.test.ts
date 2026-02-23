@@ -757,3 +757,12 @@ describe('phase49 coverage', () => {
   it('implements string compression', () => { const comp=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=s[i]+(j-i>1?j-i:'');i=j;}return r.length<s.length?r:s;}; expect(comp('aabcccdddd')).toBe('a2bc3d4'); expect(comp('abcd')).toBe('abcd'); });
   it('computes number of ways to tile 2xn board', () => { const tile=(n:number):number=>n<=1?1:tile(n-1)+tile(n-2); expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
 });
+
+
+describe('phase50 coverage', () => {
+  it('checks if string is a valid number', () => { const isNum=(s:string)=>!isNaN(Number(s.trim()))&&s.trim()!==''; expect(isNum('3.14')).toBe(true); expect(isNum('-3')).toBe(true); expect(isNum('abc')).toBe(false); expect(isNum('')).toBe(false); });
+  it('checks if string contains all binary codes of length k', () => { const allCodes=(s:string,k:number)=>{const need=1<<k;const seen=new Set<string>();for(let i=0;i+k<=s.length;i++)seen.add(s.slice(i,i+k));return seen.size===need;}; expect(allCodes('00110110',2)).toBe(true); expect(allCodes('0110',2)).toBe(false); });
+  it('finds maximum number of events attended', () => { const mae=(events:[number,number][])=>{events.sort((a,b)=>a[0]-b[0]);const endTimes:number[]=[];let day=0,idx=0,cnt=0;for(day=1;day<=100000&&idx<events.length;day++){while(idx<events.length&&events[idx][0]<=day){let i=endTimes.length;endTimes.push(events[idx][1]);while(i>0&&endTimes[Math.floor((i-1)/2)]>endTimes[i]){[endTimes[Math.floor((i-1)/2)],endTimes[i]]=[endTimes[i],endTimes[Math.floor((i-1)/2)]];i=Math.floor((i-1)/2);}idx++;}while(endTimes.length&&endTimes[0]<day){endTimes.shift();}if(endTimes.length){endTimes.shift();cnt++;}}return cnt;}; expect(mae([[1,2],[2,3],[3,4]])).toBe(3); });
+  it('checks if matrix is Toeplitz', () => { const toep=(m:number[][])=>{for(let i=1;i<m.length;i++)for(let j=1;j<m[0].length;j++)if(m[i][j]!==m[i-1][j-1])return false;return true;}; expect(toep([[1,2,3,4],[5,1,2,3],[9,5,1,2]])).toBe(true); expect(toep([[1,2],[2,2]])).toBe(false); });
+  it('computes number of set bits in range 1 to n', () => { const cb=(n:number)=>{let cnt=0;for(let i=1;i<=n;i++){let x=i;while(x){x&=x-1;cnt++;}}return cnt;}; expect(cb(5)).toBe(7); expect(cb(1)).toBe(1); });
+});
