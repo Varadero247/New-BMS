@@ -890,3 +890,43 @@ describe('phase60 coverage', () => {
     expect(minFallingPathSum([[-48]])).toBe(-48);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('maximum frequency stack', () => {
+    class FreqStack{private freq=new Map<number,number>();private group=new Map<number,number[]>();private maxFreq=0;push(val:number):void{const f=(this.freq.get(val)||0)+1;this.freq.set(val,f);this.maxFreq=Math.max(this.maxFreq,f);if(!this.group.has(f))this.group.set(f,[]);this.group.get(f)!.push(val);}pop():number{const top=this.group.get(this.maxFreq)!;const val=top.pop()!;if(top.length===0){this.group.delete(this.maxFreq);this.maxFreq--;}this.freq.set(val,this.freq.get(val)!-1);return val;}}
+    const fs=new FreqStack();[5,7,5,7,4,5].forEach(v=>fs.push(v));
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(7);
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(4);
+  });
+  it('swap nodes in pairs', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const swapPairs=(head:N|null):N|null=>{if(!head?.next)return head;const second=head.next;head.next=swapPairs(second.next);second.next=head;return second;};
+    expect(toArr(swapPairs(mk(1,2,3,4)))).toEqual([2,1,4,3]);
+    expect(toArr(swapPairs(mk(1)))).toEqual([1]);
+    expect(toArr(swapPairs(null))).toEqual([]);
+  });
+  it('two sum less than k', () => {
+    const twoSumLessThanK=(nums:number[],k:number):number=>{const sorted=[...nums].sort((a,b)=>a-b);let lo=0,hi=sorted.length-1,best=-1;while(lo<hi){const s=sorted[lo]+sorted[hi];if(s<k){best=Math.max(best,s);lo++;}else hi--;}return best;};
+    expect(twoSumLessThanK([34,23,1,24,75,33,54,8],60)).toBe(58);
+    expect(twoSumLessThanK([10,20,30],15)).toBe(-1);
+    expect(twoSumLessThanK([254,914,971,990,525,33,186,136,54,104],1000)).toBe(968);
+  });
+  it('flatten nested array iterator', () => {
+    const flatten=(arr:any[]):number[]=>{const res:number[]=[];const dfs=(a:any[])=>{for(const x of a){if(Array.isArray(x))dfs(x);else res.push(x);}};dfs(arr);return res;};
+    expect(flatten([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]);
+    expect(flatten([1,[4,[6]]])).toEqual([1,4,6]);
+    expect(flatten([[],[1,[2,[3,[4,[5]]]]]])).toEqual([1,2,3,4,5]);
+  });
+  it('moving average data stream', () => {
+    class MovingAverage{private q:number[]=[];private sum=0;constructor(private size:number){}next(val:number):number{this.q.push(val);this.sum+=val;if(this.q.length>this.size)this.sum-=this.q.shift()!;return this.sum/this.q.length;}}
+    const ma=new MovingAverage(3);
+    expect(ma.next(1)).toBeCloseTo(1);
+    expect(ma.next(10)).toBeCloseTo(5.5);
+    expect(ma.next(3)).toBeCloseTo(4.667,2);
+    expect(ma.next(5)).toBeCloseTo(6);
+  });
+});

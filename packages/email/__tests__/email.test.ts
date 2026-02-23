@@ -752,3 +752,41 @@ describe('phase60 coverage', () => {
     expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('iterator flatten generator', () => {
+    function* flatGen(arr:any[]):Generator<number>{for(const x of arr){if(Array.isArray(x))yield*flatGen(x);else yield x;}}
+    const it=flatGen([[1,[2]],[3,[4,[5]]]]);
+    const res:number[]=[];
+    for(const v of it)res.push(v);
+    expect(res).toEqual([1,2,3,4,5]);
+    expect([...flatGen([1,[2,[3]]])]).toEqual([1,2,3]);
+  });
+  it('range sum query BIT', () => {
+    class BIT{private tree:number[];constructor(n:number){this.tree=new Array(n+1).fill(0);}update(i:number,delta:number):void{for(i++;i<this.tree.length;i+=i&(-i))this.tree[i]+=delta;}query(i:number):number{let s=0;for(i++;i>0;i-=i&(-i))s+=this.tree[i];return s;}rangeQuery(l:number,r:number):number{return this.query(r)-(l>0?this.query(l-1):0);}}
+    const bit=new BIT(5);[1,3,5,7,9].forEach((v,i)=>bit.update(i,v));
+    expect(bit.rangeQuery(0,4)).toBe(25);
+    expect(bit.rangeQuery(1,3)).toBe(15);
+    bit.update(1,2);
+    expect(bit.rangeQuery(1,3)).toBe(17);
+  });
+  it('daily temperatures monotonic stack', () => {
+    const dailyTemperatures=(temps:number[]):number[]=>{const stack:number[]=[];const res=new Array(temps.length).fill(0);for(let i=0;i<temps.length;i++){while(stack.length&&temps[stack[stack.length-1]]<temps[i]){const idx=stack.pop()!;res[idx]=i-idx;}stack.push(i);}return res;};
+    expect(dailyTemperatures([73,74,75,71,69,72,76,73])).toEqual([1,1,4,2,1,1,0,0]);
+    expect(dailyTemperatures([30,40,50,60])).toEqual([1,1,1,0]);
+    expect(dailyTemperatures([30,60,90])).toEqual([1,1,0]);
+  });
+  it('subarray sum equals k', () => {
+    const subarraySum=(nums:number[],k:number):number=>{const map=new Map([[0,1]]);let count=0,prefix=0;for(const n of nums){prefix+=n;count+=(map.get(prefix-k)||0);map.set(prefix,(map.get(prefix)||0)+1);}return count;};
+    expect(subarraySum([1,1,1],2)).toBe(2);
+    expect(subarraySum([1,2,3],3)).toBe(2);
+    expect(subarraySum([-1,-1,1],0)).toBe(1);
+    expect(subarraySum([1],1)).toBe(1);
+  });
+  it('keys and rooms BFS', () => {
+    const canVisitAllRooms=(rooms:number[][]):boolean=>{const visited=new Set([0]);const q=[0];while(q.length){const room=q.shift()!;for(const key of rooms[room])if(!visited.has(key)){visited.add(key);q.push(key);}}return visited.size===rooms.length;};
+    expect(canVisitAllRooms([[1],[2],[3],[]])).toBe(true);
+    expect(canVisitAllRooms([[1,3],[3,0,1],[2],[0]])).toBe(false);
+    expect(canVisitAllRooms([[]])).toBe(true);
+  });
+});

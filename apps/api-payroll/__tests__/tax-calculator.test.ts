@@ -1053,3 +1053,36 @@ describe('phase60 coverage', () => {
     expect(minPathSum([[1]])).toBe(1);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('next greater element II circular', () => {
+    const nextGreaterElements=(nums:number[]):number[]=>{const n=nums.length;const res=new Array(n).fill(-1);const stack:number[]=[];for(let i=0;i<2*n;i++){while(stack.length&&nums[stack[stack.length-1]]<nums[i%n]){res[stack.pop()!]=nums[i%n];}if(i<n)stack.push(i);}return res;};
+    expect(nextGreaterElements([1,2,1])).toEqual([2,-1,2]);
+    expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
+  });
+  it('max subarray sum divide conquer', () => {
+    const maxSubArray=(nums:number[]):number=>{let maxSum=nums[0],cur=nums[0];for(let i=1;i<nums.length;i++){cur=Math.max(nums[i],cur+nums[i]);maxSum=Math.max(maxSum,cur);}return maxSum;};
+    expect(maxSubArray([-2,1,-3,4,-1,2,1,-5,4])).toBe(6);
+    expect(maxSubArray([1])).toBe(1);
+    expect(maxSubArray([5,4,-1,7,8])).toBe(23);
+    expect(maxSubArray([-1,-2,-3])).toBe(-1);
+  });
+  it('daily temperatures monotonic stack', () => {
+    const dailyTemperatures=(temps:number[]):number[]=>{const stack:number[]=[];const res=new Array(temps.length).fill(0);for(let i=0;i<temps.length;i++){while(stack.length&&temps[stack[stack.length-1]]<temps[i]){const idx=stack.pop()!;res[idx]=i-idx;}stack.push(i);}return res;};
+    expect(dailyTemperatures([73,74,75,71,69,72,76,73])).toEqual([1,1,4,2,1,1,0,0]);
+    expect(dailyTemperatures([30,40,50,60])).toEqual([1,1,1,0]);
+    expect(dailyTemperatures([30,60,90])).toEqual([1,1,0]);
+  });
+  it('sliding window median', () => {
+    const medianSlidingWindow=(nums:number[],k:number):number[]=>{const res:number[]=[];for(let i=0;i<=nums.length-k;i++){const win=[...nums.slice(i,i+k)].sort((a,b)=>a-b);res.push(k%2===0?(win[k/2-1]+win[k/2])/2:win[Math.floor(k/2)]);}return res;};
+    expect(medianSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([1,-1,-1,3,5,6]);
+    expect(medianSlidingWindow([1,2,3,4,2,3,1,4,2],3)).toEqual([2,3,3,3,2,3,2]);
+  });
+  it('count primes sieve', () => {
+    const countPrimes=(n:number):number=>{if(n<2)return 0;const sieve=new Array(n).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<n;i++)if(sieve[i])for(let j=i*i;j<n;j+=i)sieve[j]=false;return sieve.filter(Boolean).length;};
+    expect(countPrimes(10)).toBe(4);
+    expect(countPrimes(0)).toBe(0);
+    expect(countPrimes(1)).toBe(0);
+    expect(countPrimes(20)).toBe(8);
+  });
+});

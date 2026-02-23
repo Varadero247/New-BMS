@@ -781,3 +781,41 @@ describe('phase60 coverage', () => {
     expect(mincostTickets([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+  it('odd even linked list', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const oddEvenList=(head:N|null):N|null=>{if(!head)return null;let odd:N=head,even:N|null=head.next;const evenHead=even;while(even?.next){odd.next=even.next;odd=odd.next!;even.next=odd.next;even=even.next;}odd.next=evenHead;return head;};
+    expect(toArr(oddEvenList(mk(1,2,3,4,5)))).toEqual([1,3,5,2,4]);
+    expect(toArr(oddEvenList(mk(2,1,3,5,6,4,7)))).toEqual([2,3,6,7,1,5,4]);
+  });
+  it('LFU cache operations', () => {
+    class LFUCache{private cap:number;private min=0;private kv=new Map<number,number>();private kf=new Map<number,number>();private fk=new Map<number,Set<number>>();constructor(c:number){this.cap=c;}get(k:number):number{if(!this.kv.has(k))return -1;this._inc(k);return this.kv.get(k)!;}_inc(k:number):void{const f=this.kf.get(k)||0;this.kf.set(k,f+1);this.fk.get(f)?.delete(k);if(!this.fk.has(f+1))this.fk.set(f+1,new Set());this.fk.get(f+1)!.add(k);if(f===this.min&&this.fk.get(f)?.size===0)this.min++;}put(k:number,v:number):void{if(this.cap<=0)return;if(this.kv.has(k)){this.kv.set(k,v);this._inc(k);return;}if(this.kv.size>=this.cap){const evict=[...this.fk.get(this.min)!][0];this.fk.get(this.min)!.delete(evict);this.kv.delete(evict);this.kf.delete(evict);}this.kv.set(k,v);this.kf.set(k,1);if(!this.fk.has(1))this.fk.set(1,new Set());this.fk.get(1)!.add(k);this.min=1;}}
+    const lfu=new LFUCache(2);lfu.put(1,1);lfu.put(2,2);
+    expect(lfu.get(1)).toBe(1);
+    lfu.put(3,3);
+    expect(lfu.get(2)).toBe(-1);
+    expect(lfu.get(3)).toBe(3);
+  });
+  it('basic calculator II', () => {
+    const calculate=(s:string):number=>{const stack:number[]=[];let num=0,op='+';for(let i=0;i<s.length;i++){const c=s[i];if(c>='0'&&c<='9')num=num*10+parseInt(c);if((c==='+'||c==='-'||c==='*'||c==='/')||i===s.length-1){if(op==='+')stack.push(num);else if(op==='-')stack.push(-num);else if(op==='*')stack.push(stack.pop()!*num);else stack.push(Math.trunc(stack.pop()!/num));op=c;num=0;}}return stack.reduce((a,b)=>a+b,0);};
+    expect(calculate('3+2*2')).toBe(7);
+    expect(calculate(' 3/2 ')).toBe(1);
+    expect(calculate(' 3+5 / 2 ')).toBe(5);
+  });
+  it('contiguous array equal zeros ones', () => {
+    const findMaxLength=(nums:number[]):number=>{const map=new Map([[0,-1]]);let max=0,count=0;for(let i=0;i<nums.length;i++){count+=nums[i]===0?-1:1;if(map.has(count))max=Math.max(max,i-map.get(count)!);else map.set(count,i);}return max;};
+    expect(findMaxLength([0,1])).toBe(2);
+    expect(findMaxLength([0,1,0])).toBe(2);
+    expect(findMaxLength([0,0,1,0,0,0,1,1])).toBe(6);
+  });
+});

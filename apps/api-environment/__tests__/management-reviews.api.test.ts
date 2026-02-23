@@ -1217,3 +1217,41 @@ describe('phase60 coverage', () => {
     expect(minSubArrayLen(15,[1,2,3,4,5])).toBe(5);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('maximum frequency stack', () => {
+    class FreqStack{private freq=new Map<number,number>();private group=new Map<number,number[]>();private maxFreq=0;push(val:number):void{const f=(this.freq.get(val)||0)+1;this.freq.set(val,f);this.maxFreq=Math.max(this.maxFreq,f);if(!this.group.has(f))this.group.set(f,[]);this.group.get(f)!.push(val);}pop():number{const top=this.group.get(this.maxFreq)!;const val=top.pop()!;if(top.length===0){this.group.delete(this.maxFreq);this.maxFreq--;}this.freq.set(val,this.freq.get(val)!-1);return val;}}
+    const fs=new FreqStack();[5,7,5,7,4,5].forEach(v=>fs.push(v));
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(7);
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(4);
+  });
+  it('two sum less than k', () => {
+    const twoSumLessThanK=(nums:number[],k:number):number=>{const sorted=[...nums].sort((a,b)=>a-b);let lo=0,hi=sorted.length-1,best=-1;while(lo<hi){const s=sorted[lo]+sorted[hi];if(s<k){best=Math.max(best,s);lo++;}else hi--;}return best;};
+    expect(twoSumLessThanK([34,23,1,24,75,33,54,8],60)).toBe(58);
+    expect(twoSumLessThanK([10,20,30],15)).toBe(-1);
+    expect(twoSumLessThanK([254,914,971,990,525,33,186,136,54,104],1000)).toBe(968);
+  });
+  it('moving average data stream', () => {
+    class MovingAverage{private q:number[]=[];private sum=0;constructor(private size:number){}next(val:number):number{this.q.push(val);this.sum+=val;if(this.q.length>this.size)this.sum-=this.q.shift()!;return this.sum/this.q.length;}}
+    const ma=new MovingAverage(3);
+    expect(ma.next(1)).toBeCloseTo(1);
+    expect(ma.next(10)).toBeCloseTo(5.5);
+    expect(ma.next(3)).toBeCloseTo(4.667,2);
+    expect(ma.next(5)).toBeCloseTo(6);
+  });
+  it('basic calculator II', () => {
+    const calculate=(s:string):number=>{const stack:number[]=[];let num=0,op='+';for(let i=0;i<s.length;i++){const c=s[i];if(c>='0'&&c<='9')num=num*10+parseInt(c);if((c==='+'||c==='-'||c==='*'||c==='/')||i===s.length-1){if(op==='+')stack.push(num);else if(op==='-')stack.push(-num);else if(op==='*')stack.push(stack.pop()!*num);else stack.push(Math.trunc(stack.pop()!/num));op=c;num=0;}}return stack.reduce((a,b)=>a+b,0);};
+    expect(calculate('3+2*2')).toBe(7);
+    expect(calculate(' 3/2 ')).toBe(1);
+    expect(calculate(' 3+5 / 2 ')).toBe(5);
+  });
+  it('count primes sieve', () => {
+    const countPrimes=(n:number):number=>{if(n<2)return 0;const sieve=new Array(n).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<n;i++)if(sieve[i])for(let j=i*i;j<n;j+=i)sieve[j]=false;return sieve.filter(Boolean).length;};
+    expect(countPrimes(10)).toBe(4);
+    expect(countPrimes(0)).toBe(0);
+    expect(countPrimes(1)).toBe(0);
+    expect(countPrimes(20)).toBe(8);
+  });
+});

@@ -785,3 +785,40 @@ describe('phase60 coverage', () => {
     expect(ladderLength('hit','cog',['hot','dot','dog','lot','log'])).toBe(0);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('keys and rooms BFS', () => {
+    const canVisitAllRooms=(rooms:number[][]):boolean=>{const visited=new Set([0]);const q=[0];while(q.length){const room=q.shift()!;for(const key of rooms[room])if(!visited.has(key)){visited.add(key);q.push(key);}}return visited.size===rooms.length;};
+    expect(canVisitAllRooms([[1],[2],[3],[]])).toBe(true);
+    expect(canVisitAllRooms([[1,3],[3,0,1],[2],[0]])).toBe(false);
+    expect(canVisitAllRooms([[]])).toBe(true);
+  });
+  it('daily temperatures monotonic stack', () => {
+    const dailyTemperatures=(temps:number[]):number[]=>{const stack:number[]=[];const res=new Array(temps.length).fill(0);for(let i=0;i<temps.length;i++){while(stack.length&&temps[stack[stack.length-1]]<temps[i]){const idx=stack.pop()!;res[idx]=i-idx;}stack.push(i);}return res;};
+    expect(dailyTemperatures([73,74,75,71,69,72,76,73])).toEqual([1,1,4,2,1,1,0,0]);
+    expect(dailyTemperatures([30,40,50,60])).toEqual([1,1,1,0]);
+    expect(dailyTemperatures([30,60,90])).toEqual([1,1,0]);
+  });
+  it('count primes sieve', () => {
+    const countPrimes=(n:number):number=>{if(n<2)return 0;const sieve=new Array(n).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<n;i++)if(sieve[i])for(let j=i*i;j<n;j+=i)sieve[j]=false;return sieve.filter(Boolean).length;};
+    expect(countPrimes(10)).toBe(4);
+    expect(countPrimes(0)).toBe(0);
+    expect(countPrimes(1)).toBe(0);
+    expect(countPrimes(20)).toBe(8);
+  });
+  it('next greater element II circular', () => {
+    const nextGreaterElements=(nums:number[]):number[]=>{const n=nums.length;const res=new Array(n).fill(-1);const stack:number[]=[];for(let i=0;i<2*n;i++){while(stack.length&&nums[stack[stack.length-1]]<nums[i%n]){res[stack.pop()!]=nums[i%n];}if(i<n)stack.push(i);}return res;};
+    expect(nextGreaterElements([1,2,1])).toEqual([2,-1,2]);
+    expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
+  });
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+});

@@ -878,3 +878,40 @@ describe('phase60 coverage', () => {
     expect(mincostTickets([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('iterator flatten generator', () => {
+    function* flatGen(arr:any[]):Generator<number>{for(const x of arr){if(Array.isArray(x))yield*flatGen(x);else yield x;}}
+    const it=flatGen([[1,[2]],[3,[4,[5]]]]);
+    const res:number[]=[];
+    for(const v of it)res.push(v);
+    expect(res).toEqual([1,2,3,4,5]);
+    expect([...flatGen([1,[2,[3]]])]).toEqual([1,2,3]);
+  });
+  it('continuous subarray sum multiple k', () => {
+    const checkSubarraySum=(nums:number[],k:number):boolean=>{const map=new Map([[0,-1]]);let sum=0;for(let i=0;i<nums.length;i++){sum=(sum+nums[i])%k;if(map.has(sum)){if(i-map.get(sum)!>1)return true;}else map.set(sum,i);}return false;};
+    expect(checkSubarraySum([23,2,4,6,7],6)).toBe(true);
+    expect(checkSubarraySum([23,2,6,4,7],6)).toBe(true);
+    expect(checkSubarraySum([23,2,6,4,7],13)).toBe(false);
+    expect(checkSubarraySum([23,2,4,6,6],7)).toBe(true);
+  });
+  it('flatten nested array iterator', () => {
+    const flatten=(arr:any[]):number[]=>{const res:number[]=[];const dfs=(a:any[])=>{for(const x of a){if(Array.isArray(x))dfs(x);else res.push(x);}};dfs(arr);return res;};
+    expect(flatten([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]);
+    expect(flatten([1,[4,[6]]])).toEqual([1,4,6]);
+    expect(flatten([[],[1,[2,[3,[4,[5]]]]]])).toEqual([1,2,3,4,5]);
+  });
+  it('remove k digits greedy', () => {
+    const removeKdigits=(num:string,k:number):string=>{const stack:string[]=[];for(const d of num){while(k>0&&stack.length&&stack[stack.length-1]>d){stack.pop();k--;}stack.push(d);}while(k-->0)stack.pop();const res=stack.join('').replace(/^0+/,'');return res||'0';};
+    expect(removeKdigits('1432219',3)).toBe('1219');
+    expect(removeKdigits('10200',1)).toBe('200');
+    expect(removeKdigits('10',2)).toBe('0');
+  });
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+});

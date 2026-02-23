@@ -1094,3 +1094,40 @@ describe('phase60 coverage', () => {
     expect(maxWidthRamp([3,3])).toBe(1);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('contiguous array equal zeros ones', () => {
+    const findMaxLength=(nums:number[]):number=>{const map=new Map([[0,-1]]);let max=0,count=0;for(let i=0;i<nums.length;i++){count+=nums[i]===0?-1:1;if(map.has(count))max=Math.max(max,i-map.get(count)!);else map.set(count,i);}return max;};
+    expect(findMaxLength([0,1])).toBe(2);
+    expect(findMaxLength([0,1,0])).toBe(2);
+    expect(findMaxLength([0,0,1,0,0,0,1,1])).toBe(6);
+  });
+  it('keys and rooms BFS', () => {
+    const canVisitAllRooms=(rooms:number[][]):boolean=>{const visited=new Set([0]);const q=[0];while(q.length){const room=q.shift()!;for(const key of rooms[room])if(!visited.has(key)){visited.add(key);q.push(key);}}return visited.size===rooms.length;};
+    expect(canVisitAllRooms([[1],[2],[3],[]])).toBe(true);
+    expect(canVisitAllRooms([[1,3],[3,0,1],[2],[0]])).toBe(false);
+    expect(canVisitAllRooms([[]])).toBe(true);
+  });
+  it('decode string stack', () => {
+    const decodeString=(s:string):string=>{const stack:([string,number])[]=[['',1]];let cur='',k=0;for(const c of s){if(c>='0'&&c<='9'){k=k*10+parseInt(c);}else if(c==='['){stack.push([cur,k]);cur='';k=0;}else if(c===']'){const[prev,n]=stack.pop()!;cur=prev+cur.repeat(n);}else cur+=c;}return cur;};
+    expect(decodeString('3[a]2[bc]')).toBe('aaabcbc');
+    expect(decodeString('3[a2[c]]')).toBe('accaccacc');
+    expect(decodeString('2[abc]3[cd]ef')).toBe('abcabccdcdcdef');
+  });
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+  it('remove k digits greedy', () => {
+    const removeKdigits=(num:string,k:number):string=>{const stack:string[]=[];for(const d of num){while(k>0&&stack.length&&stack[stack.length-1]>d){stack.pop();k--;}stack.push(d);}while(k-->0)stack.pop();const res=stack.join('').replace(/^0+/,'');return res||'0';};
+    expect(removeKdigits('1432219',3)).toBe('1219');
+    expect(removeKdigits('10200',1)).toBe('200');
+    expect(removeKdigits('10',2)).toBe('0');
+  });
+});

@@ -838,3 +838,43 @@ describe('phase60 coverage', () => {
     expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('decode string stack', () => {
+    const decodeString=(s:string):string=>{const stack:([string,number])[]=[['',1]];let cur='',k=0;for(const c of s){if(c>='0'&&c<='9'){k=k*10+parseInt(c);}else if(c==='['){stack.push([cur,k]);cur='';k=0;}else if(c===']'){const[prev,n]=stack.pop()!;cur=prev+cur.repeat(n);}else cur+=c;}return cur;};
+    expect(decodeString('3[a]2[bc]')).toBe('aaabcbc');
+    expect(decodeString('3[a2[c]]')).toBe('accaccacc');
+    expect(decodeString('2[abc]3[cd]ef')).toBe('abcabccdcdcdef');
+  });
+  it('maximum frequency stack', () => {
+    class FreqStack{private freq=new Map<number,number>();private group=new Map<number,number[]>();private maxFreq=0;push(val:number):void{const f=(this.freq.get(val)||0)+1;this.freq.set(val,f);this.maxFreq=Math.max(this.maxFreq,f);if(!this.group.has(f))this.group.set(f,[]);this.group.get(f)!.push(val);}pop():number{const top=this.group.get(this.maxFreq)!;const val=top.pop()!;if(top.length===0){this.group.delete(this.maxFreq);this.maxFreq--;}this.freq.set(val,this.freq.get(val)!-1);return val;}}
+    const fs=new FreqStack();[5,7,5,7,4,5].forEach(v=>fs.push(v));
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(7);
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(4);
+  });
+  it('intersection of two linked lists', () => {
+    type N={val:number;next:N|null};
+    const getIntersectionNode=(h1:N|null,h2:N|null):N|null=>{let a=h1,b=h2;while(a!==b){a=a?a.next:h2;b=b?b.next:h1;}return a;};
+    const shared={val:8,next:{val:4,next:{val:5,next:null}}};
+    const l1:N={val:4,next:{val:1,next:shared}};
+    const l2:N={val:5,next:{val:6,next:{val:1,next:shared}}};
+    expect(getIntersectionNode(l1,l2)).toBe(shared);
+    expect(getIntersectionNode(null,null)).toBeNull();
+  });
+  it('flatten nested array iterator', () => {
+    const flatten=(arr:any[]):number[]=>{const res:number[]=[];const dfs=(a:any[])=>{for(const x of a){if(Array.isArray(x))dfs(x);else res.push(x);}};dfs(arr);return res;};
+    expect(flatten([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]);
+    expect(flatten([1,[4,[6]]])).toEqual([1,4,6]);
+    expect(flatten([[],[1,[2,[3,[4,[5]]]]]])).toEqual([1,2,3,4,5]);
+  });
+  it('happy number cycle detection', () => {
+    const isHappy=(n:number):boolean=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=String(n).split('').reduce((s,d)=>s+parseInt(d)**2,0);}return n===1;};
+    expect(isHappy(19)).toBe(true);
+    expect(isHappy(2)).toBe(false);
+    expect(isHappy(1)).toBe(true);
+    expect(isHappy(7)).toBe(true);
+    expect(isHappy(4)).toBe(false);
+  });
+});

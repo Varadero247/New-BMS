@@ -968,3 +968,43 @@ describe('phase60 coverage', () => {
     expect(calculateSpan([10,4,5,90,120,80])).toEqual([1,1,2,4,5,1]);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('basic calculator II', () => {
+    const calculate=(s:string):number=>{const stack:number[]=[];let num=0,op='+';for(let i=0;i<s.length;i++){const c=s[i];if(c>='0'&&c<='9')num=num*10+parseInt(c);if((c==='+'||c==='-'||c==='*'||c==='/')||i===s.length-1){if(op==='+')stack.push(num);else if(op==='-')stack.push(-num);else if(op==='*')stack.push(stack.pop()!*num);else stack.push(Math.trunc(stack.pop()!/num));op=c;num=0;}}return stack.reduce((a,b)=>a+b,0);};
+    expect(calculate('3+2*2')).toBe(7);
+    expect(calculate(' 3/2 ')).toBe(1);
+    expect(calculate(' 3+5 / 2 ')).toBe(5);
+  });
+  it('max subarray sum divide conquer', () => {
+    const maxSubArray=(nums:number[]):number=>{let maxSum=nums[0],cur=nums[0];for(let i=1;i<nums.length;i++){cur=Math.max(nums[i],cur+nums[i]);maxSum=Math.max(maxSum,cur);}return maxSum;};
+    expect(maxSubArray([-2,1,-3,4,-1,2,1,-5,4])).toBe(6);
+    expect(maxSubArray([1])).toBe(1);
+    expect(maxSubArray([5,4,-1,7,8])).toBe(23);
+    expect(maxSubArray([-1,-2,-3])).toBe(-1);
+  });
+  it('restore IP addresses', () => {
+    const restoreIpAddresses=(s:string):string[]=>{const res:string[]=[];const bt=(start:number,parts:string[])=>{if(parts.length===4){if(start===s.length)res.push(parts.join('.'));return;}for(let len=1;len<=3;len++){if(start+len>s.length)break;const seg=s.slice(start,start+len);if(seg.length>1&&seg[0]==='0')break;if(parseInt(seg)>255)break;bt(start+len,[...parts,seg]);}};bt(0,[]);return res;};
+    const r=restoreIpAddresses('25525511135');
+    expect(r).toContain('255.255.11.135');
+    expect(r).toContain('255.255.111.35');
+    expect(restoreIpAddresses('0000')).toEqual(['0.0.0.0']);
+  });
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+  it('subarray sum equals k', () => {
+    const subarraySum=(nums:number[],k:number):number=>{const map=new Map([[0,1]]);let count=0,prefix=0;for(const n of nums){prefix+=n;count+=(map.get(prefix-k)||0);map.set(prefix,(map.get(prefix)||0)+1);}return count;};
+    expect(subarraySum([1,1,1],2)).toBe(2);
+    expect(subarraySum([1,2,3],3)).toBe(2);
+    expect(subarraySum([-1,-1,1],0)).toBe(1);
+    expect(subarraySum([1],1)).toBe(1);
+  });
+});

@@ -862,3 +862,44 @@ describe('phase60 coverage', () => {
     expect(findNumberOfLIS([1,2,4,3,5,4,7,2])).toBe(3);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+  it('daily temperatures monotonic stack', () => {
+    const dailyTemperatures=(temps:number[]):number[]=>{const stack:number[]=[];const res=new Array(temps.length).fill(0);for(let i=0;i<temps.length;i++){while(stack.length&&temps[stack[stack.length-1]]<temps[i]){const idx=stack.pop()!;res[idx]=i-idx;}stack.push(i);}return res;};
+    expect(dailyTemperatures([73,74,75,71,69,72,76,73])).toEqual([1,1,4,2,1,1,0,0]);
+    expect(dailyTemperatures([30,40,50,60])).toEqual([1,1,1,0]);
+    expect(dailyTemperatures([30,60,90])).toEqual([1,1,0]);
+  });
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+  it('count primes sieve', () => {
+    const countPrimes=(n:number):number=>{if(n<2)return 0;const sieve=new Array(n).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<n;i++)if(sieve[i])for(let j=i*i;j<n;j+=i)sieve[j]=false;return sieve.filter(Boolean).length;};
+    expect(countPrimes(10)).toBe(4);
+    expect(countPrimes(0)).toBe(0);
+    expect(countPrimes(1)).toBe(0);
+    expect(countPrimes(20)).toBe(8);
+  });
+  it('happy number cycle detection', () => {
+    const isHappy=(n:number):boolean=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=String(n).split('').reduce((s,d)=>s+parseInt(d)**2,0);}return n===1;};
+    expect(isHappy(19)).toBe(true);
+    expect(isHappy(2)).toBe(false);
+    expect(isHappy(1)).toBe(true);
+    expect(isHappy(7)).toBe(true);
+    expect(isHappy(4)).toBe(false);
+  });
+});

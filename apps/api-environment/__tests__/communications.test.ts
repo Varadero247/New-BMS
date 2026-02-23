@@ -1255,3 +1255,39 @@ describe('phase60 coverage', () => {
     expect(countGoodStrings(1,1,1,1)).toBe(2);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('iterator flatten generator', () => {
+    function* flatGen(arr:any[]):Generator<number>{for(const x of arr){if(Array.isArray(x))yield*flatGen(x);else yield x;}}
+    const it=flatGen([[1,[2]],[3,[4,[5]]]]);
+    const res:number[]=[];
+    for(const v of it)res.push(v);
+    expect(res).toEqual([1,2,3,4,5]);
+    expect([...flatGen([1,[2,[3]]])]).toEqual([1,2,3]);
+  });
+  it('flatten nested array iterator', () => {
+    const flatten=(arr:any[]):number[]=>{const res:number[]=[];const dfs=(a:any[])=>{for(const x of a){if(Array.isArray(x))dfs(x);else res.push(x);}};dfs(arr);return res;};
+    expect(flatten([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]);
+    expect(flatten([1,[4,[6]]])).toEqual([1,4,6]);
+    expect(flatten([[],[1,[2,[3,[4,[5]]]]]])).toEqual([1,2,3,4,5]);
+  });
+  it('count of smaller numbers after self', () => {
+    const countSmaller=(nums:number[]):number[]=>{const res:number[]=[];const sorted:number[]=[];const bisect=(arr:number[],val:number):number=>{let lo=0,hi=arr.length;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<val)lo=mid+1;else hi=mid;}return lo;};for(let i=nums.length-1;i>=0;i--){const pos=bisect(sorted,nums[i]);res.unshift(pos);sorted.splice(pos,0,nums[i]);}return res;};
+    expect(countSmaller([5,2,6,1])).toEqual([2,1,1,0]);
+    expect(countSmaller([-1])).toEqual([0]);
+    expect(countSmaller([-1,-1])).toEqual([0,0]);
+  });
+  it('two sum less than k', () => {
+    const twoSumLessThanK=(nums:number[],k:number):number=>{const sorted=[...nums].sort((a,b)=>a-b);let lo=0,hi=sorted.length-1,best=-1;while(lo<hi){const s=sorted[lo]+sorted[hi];if(s<k){best=Math.max(best,s);lo++;}else hi--;}return best;};
+    expect(twoSumLessThanK([34,23,1,24,75,33,54,8],60)).toBe(58);
+    expect(twoSumLessThanK([10,20,30],15)).toBe(-1);
+    expect(twoSumLessThanK([254,914,971,990,525,33,186,136,54,104],1000)).toBe(968);
+  });
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+});

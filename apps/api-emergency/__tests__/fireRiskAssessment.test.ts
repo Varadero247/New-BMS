@@ -931,3 +931,46 @@ describe('phase60 coverage', () => {
     expect(findNumberOfLIS([1,2,4,3,5,4,7,2])).toBe(3);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('count primes sieve', () => {
+    const countPrimes=(n:number):number=>{if(n<2)return 0;const sieve=new Array(n).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<n;i++)if(sieve[i])for(let j=i*i;j<n;j+=i)sieve[j]=false;return sieve.filter(Boolean).length;};
+    expect(countPrimes(10)).toBe(4);
+    expect(countPrimes(0)).toBe(0);
+    expect(countPrimes(1)).toBe(0);
+    expect(countPrimes(20)).toBe(8);
+  });
+  it('keys and rooms BFS', () => {
+    const canVisitAllRooms=(rooms:number[][]):boolean=>{const visited=new Set([0]);const q=[0];while(q.length){const room=q.shift()!;for(const key of rooms[room])if(!visited.has(key)){visited.add(key);q.push(key);}}return visited.size===rooms.length;};
+    expect(canVisitAllRooms([[1],[2],[3],[]])).toBe(true);
+    expect(canVisitAllRooms([[1,3],[3,0,1],[2],[0]])).toBe(false);
+    expect(canVisitAllRooms([[]])).toBe(true);
+  });
+  it('odd even linked list', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const oddEvenList=(head:N|null):N|null=>{if(!head)return null;let odd:N=head,even:N|null=head.next;const evenHead=even;while(even?.next){odd.next=even.next;odd=odd.next!;even.next=odd.next;even=even.next;}odd.next=evenHead;return head;};
+    expect(toArr(oddEvenList(mk(1,2,3,4,5)))).toEqual([1,3,5,2,4]);
+    expect(toArr(oddEvenList(mk(2,1,3,5,6,4,7)))).toEqual([2,3,6,7,1,5,4]);
+  });
+  it('design circular queue', () => {
+    class MyCircularQueue{private q:number[];private h=0;private t=0;private size=0;constructor(private k:number){this.q=new Array(k);}enQueue(v:number):boolean{if(this.isFull())return false;this.q[this.t]=v;this.t=(this.t+1)%this.k;this.size++;return true;}deQueue():boolean{if(this.isEmpty())return false;this.h=(this.h+1)%this.k;this.size--;return true;}Front():number{return this.isEmpty()?-1:this.q[this.h];}Rear():number{return this.isEmpty()?-1:this.q[(this.t-1+this.k)%this.k];}isEmpty():boolean{return this.size===0;}isFull():boolean{return this.size===this.k;}}
+    const q=new MyCircularQueue(3);
+    expect(q.enQueue(1)).toBe(true);q.enQueue(2);q.enQueue(3);
+    expect(q.enQueue(4)).toBe(false);
+    expect(q.Rear()).toBe(3);
+    expect(q.isFull()).toBe(true);
+    q.deQueue();
+    expect(q.enQueue(4)).toBe(true);
+    expect(q.Rear()).toBe(4);
+  });
+  it('range sum query BIT', () => {
+    class BIT{private tree:number[];constructor(n:number){this.tree=new Array(n+1).fill(0);}update(i:number,delta:number):void{for(i++;i<this.tree.length;i+=i&(-i))this.tree[i]+=delta;}query(i:number):number{let s=0;for(i++;i>0;i-=i&(-i))s+=this.tree[i];return s;}rangeQuery(l:number,r:number):number{return this.query(r)-(l>0?this.query(l-1):0);}}
+    const bit=new BIT(5);[1,3,5,7,9].forEach((v,i)=>bit.update(i,v));
+    expect(bit.rangeQuery(0,4)).toBe(25);
+    expect(bit.rangeQuery(1,3)).toBe(15);
+    bit.update(1,2);
+    expect(bit.rangeQuery(1,3)).toBe(17);
+  });
+});

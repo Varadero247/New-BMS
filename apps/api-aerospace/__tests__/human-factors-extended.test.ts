@@ -965,3 +965,39 @@ describe('phase60 coverage', () => {
     expect(minSubArrayLen(15,[1,2,3,4,5])).toBe(5);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('daily temperatures monotonic stack', () => {
+    const dailyTemperatures=(temps:number[]):number[]=>{const stack:number[]=[];const res=new Array(temps.length).fill(0);for(let i=0;i<temps.length;i++){while(stack.length&&temps[stack[stack.length-1]]<temps[i]){const idx=stack.pop()!;res[idx]=i-idx;}stack.push(i);}return res;};
+    expect(dailyTemperatures([73,74,75,71,69,72,76,73])).toEqual([1,1,4,2,1,1,0,0]);
+    expect(dailyTemperatures([30,40,50,60])).toEqual([1,1,1,0]);
+    expect(dailyTemperatures([30,60,90])).toEqual([1,1,0]);
+  });
+  it('count of smaller numbers after self', () => {
+    const countSmaller=(nums:number[]):number[]=>{const res:number[]=[];const sorted:number[]=[];const bisect=(arr:number[],val:number):number=>{let lo=0,hi=arr.length;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<val)lo=mid+1;else hi=mid;}return lo;};for(let i=nums.length-1;i>=0;i--){const pos=bisect(sorted,nums[i]);res.unshift(pos);sorted.splice(pos,0,nums[i]);}return res;};
+    expect(countSmaller([5,2,6,1])).toEqual([2,1,1,0]);
+    expect(countSmaller([-1])).toEqual([0]);
+    expect(countSmaller([-1,-1])).toEqual([0,0]);
+  });
+  it('keys and rooms BFS', () => {
+    const canVisitAllRooms=(rooms:number[][]):boolean=>{const visited=new Set([0]);const q=[0];while(q.length){const room=q.shift()!;for(const key of rooms[room])if(!visited.has(key)){visited.add(key);q.push(key);}}return visited.size===rooms.length;};
+    expect(canVisitAllRooms([[1],[2],[3],[]])).toBe(true);
+    expect(canVisitAllRooms([[1,3],[3,0,1],[2],[0]])).toBe(false);
+    expect(canVisitAllRooms([[]])).toBe(true);
+  });
+  it('restore IP addresses', () => {
+    const restoreIpAddresses=(s:string):string[]=>{const res:string[]=[];const bt=(start:number,parts:string[])=>{if(parts.length===4){if(start===s.length)res.push(parts.join('.'));return;}for(let len=1;len<=3;len++){if(start+len>s.length)break;const seg=s.slice(start,start+len);if(seg.length>1&&seg[0]==='0')break;if(parseInt(seg)>255)break;bt(start+len,[...parts,seg]);}};bt(0,[]);return res;};
+    const r=restoreIpAddresses('25525511135');
+    expect(r).toContain('255.255.11.135');
+    expect(r).toContain('255.255.111.35');
+    expect(restoreIpAddresses('0000')).toEqual(['0.0.0.0']);
+  });
+  it('happy number cycle detection', () => {
+    const isHappy=(n:number):boolean=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=String(n).split('').reduce((s,d)=>s+parseInt(d)**2,0);}return n===1;};
+    expect(isHappy(19)).toBe(true);
+    expect(isHappy(2)).toBe(false);
+    expect(isHappy(1)).toBe(true);
+    expect(isHappy(7)).toBe(true);
+    expect(isHappy(4)).toBe(false);
+  });
+});

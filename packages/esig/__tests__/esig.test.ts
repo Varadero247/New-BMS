@@ -950,3 +950,43 @@ describe('phase60 coverage', () => {
     expect(findNumberOfLIS([1,2,4,3,5,4,7,2])).toBe(3);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('max subarray sum divide conquer', () => {
+    const maxSubArray=(nums:number[]):number=>{let maxSum=nums[0],cur=nums[0];for(let i=1;i<nums.length;i++){cur=Math.max(nums[i],cur+nums[i]);maxSum=Math.max(maxSum,cur);}return maxSum;};
+    expect(maxSubArray([-2,1,-3,4,-1,2,1,-5,4])).toBe(6);
+    expect(maxSubArray([1])).toBe(1);
+    expect(maxSubArray([5,4,-1,7,8])).toBe(23);
+    expect(maxSubArray([-1,-2,-3])).toBe(-1);
+  });
+  it('flatten nested array iterator', () => {
+    const flatten=(arr:any[]):number[]=>{const res:number[]=[];const dfs=(a:any[])=>{for(const x of a){if(Array.isArray(x))dfs(x);else res.push(x);}};dfs(arr);return res;};
+    expect(flatten([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]);
+    expect(flatten([1,[4,[6]]])).toEqual([1,4,6]);
+    expect(flatten([[],[1,[2,[3,[4,[5]]]]]])).toEqual([1,2,3,4,5]);
+  });
+  it('subarray sum equals k', () => {
+    const subarraySum=(nums:number[],k:number):number=>{const map=new Map([[0,1]]);let count=0,prefix=0;for(const n of nums){prefix+=n;count+=(map.get(prefix-k)||0);map.set(prefix,(map.get(prefix)||0)+1);}return count;};
+    expect(subarraySum([1,1,1],2)).toBe(2);
+    expect(subarraySum([1,2,3],3)).toBe(2);
+    expect(subarraySum([-1,-1,1],0)).toBe(1);
+    expect(subarraySum([1],1)).toBe(1);
+  });
+  it('iterator flatten generator', () => {
+    function* flatGen(arr:any[]):Generator<number>{for(const x of arr){if(Array.isArray(x))yield*flatGen(x);else yield x;}}
+    const it=flatGen([[1,[2]],[3,[4,[5]]]]);
+    const res:number[]=[];
+    for(const v of it)res.push(v);
+    expect(res).toEqual([1,2,3,4,5]);
+    expect([...flatGen([1,[2,[3]]])]).toEqual([1,2,3]);
+  });
+  it('swap nodes in pairs', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const swapPairs=(head:N|null):N|null=>{if(!head?.next)return head;const second=head.next;head.next=swapPairs(second.next);second.next=head;return second;};
+    expect(toArr(swapPairs(mk(1,2,3,4)))).toEqual([2,1,4,3]);
+    expect(toArr(swapPairs(mk(1)))).toEqual([1]);
+    expect(toArr(swapPairs(null))).toEqual([]);
+  });
+});

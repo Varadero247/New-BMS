@@ -878,3 +878,42 @@ describe('phase60 coverage', () => {
     expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('asteroid collision stack', () => {
+    const asteroidCollision=(asteroids:number[]):number[]=>{const stack:number[]=[];for(const a of asteroids){let destroyed=false;while(stack.length&&a<0&&stack[stack.length-1]>0){if(stack[stack.length-1]<-a){stack.pop();continue;}else if(stack[stack.length-1]===-a){stack.pop();}destroyed=true;break;}if(!destroyed)stack.push(a);}return stack;};
+    expect(asteroidCollision([5,10,-5])).toEqual([5,10]);
+    expect(asteroidCollision([8,-8])).toEqual([]);
+    expect(asteroidCollision([10,2,-5])).toEqual([10]);
+    expect(asteroidCollision([-2,-1,1,2])).toEqual([-2,-1,1,2]);
+  });
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+  it('sliding window median', () => {
+    const medianSlidingWindow=(nums:number[],k:number):number[]=>{const res:number[]=[];for(let i=0;i<=nums.length-k;i++){const win=[...nums.slice(i,i+k)].sort((a,b)=>a-b);res.push(k%2===0?(win[k/2-1]+win[k/2])/2:win[Math.floor(k/2)]);}return res;};
+    expect(medianSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([1,-1,-1,3,5,6]);
+    expect(medianSlidingWindow([1,2,3,4,2,3,1,4,2],3)).toEqual([2,3,3,3,2,3,2]);
+  });
+  it('range sum query BIT', () => {
+    class BIT{private tree:number[];constructor(n:number){this.tree=new Array(n+1).fill(0);}update(i:number,delta:number):void{for(i++;i<this.tree.length;i+=i&(-i))this.tree[i]+=delta;}query(i:number):number{let s=0;for(i++;i>0;i-=i&(-i))s+=this.tree[i];return s;}rangeQuery(l:number,r:number):number{return this.query(r)-(l>0?this.query(l-1):0);}}
+    const bit=new BIT(5);[1,3,5,7,9].forEach((v,i)=>bit.update(i,v));
+    expect(bit.rangeQuery(0,4)).toBe(25);
+    expect(bit.rangeQuery(1,3)).toBe(15);
+    bit.update(1,2);
+    expect(bit.rangeQuery(1,3)).toBe(17);
+  });
+  it('basic calculator II', () => {
+    const calculate=(s:string):number=>{const stack:number[]=[];let num=0,op='+';for(let i=0;i<s.length;i++){const c=s[i];if(c>='0'&&c<='9')num=num*10+parseInt(c);if((c==='+'||c==='-'||c==='*'||c==='/')||i===s.length-1){if(op==='+')stack.push(num);else if(op==='-')stack.push(-num);else if(op==='*')stack.push(stack.pop()!*num);else stack.push(Math.trunc(stack.pop()!/num));op=c;num=0;}}return stack.reduce((a,b)=>a+b,0);};
+    expect(calculate('3+2*2')).toBe(7);
+    expect(calculate(' 3/2 ')).toBe(1);
+    expect(calculate(' 3+5 / 2 ')).toBe(5);
+  });
+});

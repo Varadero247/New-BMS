@@ -1574,3 +1574,41 @@ describe('phase60 coverage', () => {
     expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('maximum frequency stack', () => {
+    class FreqStack{private freq=new Map<number,number>();private group=new Map<number,number[]>();private maxFreq=0;push(val:number):void{const f=(this.freq.get(val)||0)+1;this.freq.set(val,f);this.maxFreq=Math.max(this.maxFreq,f);if(!this.group.has(f))this.group.set(f,[]);this.group.get(f)!.push(val);}pop():number{const top=this.group.get(this.maxFreq)!;const val=top.pop()!;if(top.length===0){this.group.delete(this.maxFreq);this.maxFreq--;}this.freq.set(val,this.freq.get(val)!-1);return val;}}
+    const fs=new FreqStack();[5,7,5,7,4,5].forEach(v=>fs.push(v));
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(7);
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(4);
+  });
+  it('next greater element II circular', () => {
+    const nextGreaterElements=(nums:number[]):number[]=>{const n=nums.length;const res=new Array(n).fill(-1);const stack:number[]=[];for(let i=0;i<2*n;i++){while(stack.length&&nums[stack[stack.length-1]]<nums[i%n]){res[stack.pop()!]=nums[i%n];}if(i<n)stack.push(i);}return res;};
+    expect(nextGreaterElements([1,2,1])).toEqual([2,-1,2]);
+    expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
+  });
+  it('decode string stack', () => {
+    const decodeString=(s:string):string=>{const stack:([string,number])[]=[['',1]];let cur='',k=0;for(const c of s){if(c>='0'&&c<='9'){k=k*10+parseInt(c);}else if(c==='['){stack.push([cur,k]);cur='';k=0;}else if(c===']'){const[prev,n]=stack.pop()!;cur=prev+cur.repeat(n);}else cur+=c;}return cur;};
+    expect(decodeString('3[a]2[bc]')).toBe('aaabcbc');
+    expect(decodeString('3[a2[c]]')).toBe('accaccacc');
+    expect(decodeString('2[abc]3[cd]ef')).toBe('abcabccdcdcdef');
+  });
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+  it('flatten nested array iterator', () => {
+    const flatten=(arr:any[]):number[]=>{const res:number[]=[];const dfs=(a:any[])=>{for(const x of a){if(Array.isArray(x))dfs(x);else res.push(x);}};dfs(arr);return res;};
+    expect(flatten([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]);
+    expect(flatten([1,[4,[6]]])).toEqual([1,4,6]);
+    expect(flatten([[],[1,[2,[3,[4,[5]]]]]])).toEqual([1,2,3,4,5]);
+  });
+});

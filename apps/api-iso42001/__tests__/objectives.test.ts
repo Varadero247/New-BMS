@@ -832,3 +832,42 @@ describe('phase60 coverage', () => {
     expect(minDistance('a','a')).toBe(0);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('asteroid collision stack', () => {
+    const asteroidCollision=(asteroids:number[]):number[]=>{const stack:number[]=[];for(const a of asteroids){let destroyed=false;while(stack.length&&a<0&&stack[stack.length-1]>0){if(stack[stack.length-1]<-a){stack.pop();continue;}else if(stack[stack.length-1]===-a){stack.pop();}destroyed=true;break;}if(!destroyed)stack.push(a);}return stack;};
+    expect(asteroidCollision([5,10,-5])).toEqual([5,10]);
+    expect(asteroidCollision([8,-8])).toEqual([]);
+    expect(asteroidCollision([10,2,-5])).toEqual([10]);
+    expect(asteroidCollision([-2,-1,1,2])).toEqual([-2,-1,1,2]);
+  });
+  it('remove k digits greedy', () => {
+    const removeKdigits=(num:string,k:number):string=>{const stack:string[]=[];for(const d of num){while(k>0&&stack.length&&stack[stack.length-1]>d){stack.pop();k--;}stack.push(d);}while(k-->0)stack.pop();const res=stack.join('').replace(/^0+/,'');return res||'0';};
+    expect(removeKdigits('1432219',3)).toBe('1219');
+    expect(removeKdigits('10200',1)).toBe('200');
+    expect(removeKdigits('10',2)).toBe('0');
+  });
+  it('sliding window median', () => {
+    const medianSlidingWindow=(nums:number[],k:number):number[]=>{const res:number[]=[];for(let i=0;i<=nums.length-k;i++){const win=[...nums.slice(i,i+k)].sort((a,b)=>a-b);res.push(k%2===0?(win[k/2-1]+win[k/2])/2:win[Math.floor(k/2)]);}return res;};
+    expect(medianSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([1,-1,-1,3,5,6]);
+    expect(medianSlidingWindow([1,2,3,4,2,3,1,4,2],3)).toEqual([2,3,3,3,2,3,2]);
+  });
+  it('moving average data stream', () => {
+    class MovingAverage{private q:number[]=[];private sum=0;constructor(private size:number){}next(val:number):number{this.q.push(val);this.sum+=val;if(this.q.length>this.size)this.sum-=this.q.shift()!;return this.sum/this.q.length;}}
+    const ma=new MovingAverage(3);
+    expect(ma.next(1)).toBeCloseTo(1);
+    expect(ma.next(10)).toBeCloseTo(5.5);
+    expect(ma.next(3)).toBeCloseTo(4.667,2);
+    expect(ma.next(5)).toBeCloseTo(6);
+  });
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+});

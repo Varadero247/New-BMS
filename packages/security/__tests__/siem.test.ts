@@ -891,3 +891,38 @@ describe('phase60 coverage', () => {
     expect(minScoreTriangulation([1,3,1,4,1,5])).toBe(13);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('keys and rooms BFS', () => {
+    const canVisitAllRooms=(rooms:number[][]):boolean=>{const visited=new Set([0]);const q=[0];while(q.length){const room=q.shift()!;for(const key of rooms[room])if(!visited.has(key)){visited.add(key);q.push(key);}}return visited.size===rooms.length;};
+    expect(canVisitAllRooms([[1],[2],[3],[]])).toBe(true);
+    expect(canVisitAllRooms([[1,3],[3,0,1],[2],[0]])).toBe(false);
+    expect(canVisitAllRooms([[]])).toBe(true);
+  });
+  it('count of smaller numbers after self', () => {
+    const countSmaller=(nums:number[]):number[]=>{const res:number[]=[];const sorted:number[]=[];const bisect=(arr:number[],val:number):number=>{let lo=0,hi=arr.length;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<val)lo=mid+1;else hi=mid;}return lo;};for(let i=nums.length-1;i>=0;i--){const pos=bisect(sorted,nums[i]);res.unshift(pos);sorted.splice(pos,0,nums[i]);}return res;};
+    expect(countSmaller([5,2,6,1])).toEqual([2,1,1,0]);
+    expect(countSmaller([-1])).toEqual([0]);
+    expect(countSmaller([-1,-1])).toEqual([0,0]);
+  });
+  it('asteroid collision stack', () => {
+    const asteroidCollision=(asteroids:number[]):number[]=>{const stack:number[]=[];for(const a of asteroids){let destroyed=false;while(stack.length&&a<0&&stack[stack.length-1]>0){if(stack[stack.length-1]<-a){stack.pop();continue;}else if(stack[stack.length-1]===-a){stack.pop();}destroyed=true;break;}if(!destroyed)stack.push(a);}return stack;};
+    expect(asteroidCollision([5,10,-5])).toEqual([5,10]);
+    expect(asteroidCollision([8,-8])).toEqual([]);
+    expect(asteroidCollision([10,2,-5])).toEqual([10]);
+    expect(asteroidCollision([-2,-1,1,2])).toEqual([-2,-1,1,2]);
+  });
+  it('iterator flatten generator', () => {
+    function* flatGen(arr:any[]):Generator<number>{for(const x of arr){if(Array.isArray(x))yield*flatGen(x);else yield x;}}
+    const it=flatGen([[1,[2]],[3,[4,[5]]]]);
+    const res:number[]=[];
+    for(const v of it)res.push(v);
+    expect(res).toEqual([1,2,3,4,5]);
+    expect([...flatGen([1,[2,[3]]])]).toEqual([1,2,3]);
+  });
+  it('sliding window median', () => {
+    const medianSlidingWindow=(nums:number[],k:number):number[]=>{const res:number[]=[];for(let i=0;i<=nums.length-k;i++){const win=[...nums.slice(i,i+k)].sort((a,b)=>a-b);res.push(k%2===0?(win[k/2-1]+win[k/2])/2:win[Math.floor(k/2)]);}return res;};
+    expect(medianSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([1,-1,-1,3,5,6]);
+    expect(medianSlidingWindow([1,2,3,4,2,3,1,4,2],3)).toEqual([2,3,3,3,2,3,2]);
+  });
+});

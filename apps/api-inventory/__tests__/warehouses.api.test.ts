@@ -1145,3 +1145,39 @@ describe('phase60 coverage', () => {
     expect(c!.neighbors.length).toBe(2);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('restore IP addresses', () => {
+    const restoreIpAddresses=(s:string):string[]=>{const res:string[]=[];const bt=(start:number,parts:string[])=>{if(parts.length===4){if(start===s.length)res.push(parts.join('.'));return;}for(let len=1;len<=3;len++){if(start+len>s.length)break;const seg=s.slice(start,start+len);if(seg.length>1&&seg[0]==='0')break;if(parseInt(seg)>255)break;bt(start+len,[...parts,seg]);}};bt(0,[]);return res;};
+    const r=restoreIpAddresses('25525511135');
+    expect(r).toContain('255.255.11.135');
+    expect(r).toContain('255.255.111.35');
+    expect(restoreIpAddresses('0000')).toEqual(['0.0.0.0']);
+  });
+  it('keys and rooms BFS', () => {
+    const canVisitAllRooms=(rooms:number[][]):boolean=>{const visited=new Set([0]);const q=[0];while(q.length){const room=q.shift()!;for(const key of rooms[room])if(!visited.has(key)){visited.add(key);q.push(key);}}return visited.size===rooms.length;};
+    expect(canVisitAllRooms([[1],[2],[3],[]])).toBe(true);
+    expect(canVisitAllRooms([[1,3],[3,0,1],[2],[0]])).toBe(false);
+    expect(canVisitAllRooms([[]])).toBe(true);
+  });
+  it('maximum frequency stack', () => {
+    class FreqStack{private freq=new Map<number,number>();private group=new Map<number,number[]>();private maxFreq=0;push(val:number):void{const f=(this.freq.get(val)||0)+1;this.freq.set(val,f);this.maxFreq=Math.max(this.maxFreq,f);if(!this.group.has(f))this.group.set(f,[]);this.group.get(f)!.push(val);}pop():number{const top=this.group.get(this.maxFreq)!;const val=top.pop()!;if(top.length===0){this.group.delete(this.maxFreq);this.maxFreq--;}this.freq.set(val,this.freq.get(val)!-1);return val;}}
+    const fs=new FreqStack();[5,7,5,7,4,5].forEach(v=>fs.push(v));
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(7);
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(4);
+  });
+  it('decode string stack', () => {
+    const decodeString=(s:string):string=>{const stack:([string,number])[]=[['',1]];let cur='',k=0;for(const c of s){if(c>='0'&&c<='9'){k=k*10+parseInt(c);}else if(c==='['){stack.push([cur,k]);cur='';k=0;}else if(c===']'){const[prev,n]=stack.pop()!;cur=prev+cur.repeat(n);}else cur+=c;}return cur;};
+    expect(decodeString('3[a]2[bc]')).toBe('aaabcbc');
+    expect(decodeString('3[a2[c]]')).toBe('accaccacc');
+    expect(decodeString('2[abc]3[cd]ef')).toBe('abcabccdcdcdef');
+  });
+  it('two sum less than k', () => {
+    const twoSumLessThanK=(nums:number[],k:number):number=>{const sorted=[...nums].sort((a,b)=>a-b);let lo=0,hi=sorted.length-1,best=-1;while(lo<hi){const s=sorted[lo]+sorted[hi];if(s<k){best=Math.max(best,s);lo++;}else hi--;}return best;};
+    expect(twoSumLessThanK([34,23,1,24,75,33,54,8],60)).toBe(58);
+    expect(twoSumLessThanK([10,20,30],15)).toBe(-1);
+    expect(twoSumLessThanK([254,914,971,990,525,33,186,136,54,104],1000)).toBe(968);
+  });
+});

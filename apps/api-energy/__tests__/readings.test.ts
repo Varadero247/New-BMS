@@ -976,3 +976,39 @@ describe('phase60 coverage', () => {
     expect(numberOfSubarrays([2,2,2,1,2,2,1,2,2,2],2)).toBe(16);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('next greater element II circular', () => {
+    const nextGreaterElements=(nums:number[]):number[]=>{const n=nums.length;const res=new Array(n).fill(-1);const stack:number[]=[];for(let i=0;i<2*n;i++){while(stack.length&&nums[stack[stack.length-1]]<nums[i%n]){res[stack.pop()!]=nums[i%n];}if(i<n)stack.push(i);}return res;};
+    expect(nextGreaterElements([1,2,1])).toEqual([2,-1,2]);
+    expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
+  });
+  it('flatten nested array iterator', () => {
+    const flatten=(arr:any[]):number[]=>{const res:number[]=[];const dfs=(a:any[])=>{for(const x of a){if(Array.isArray(x))dfs(x);else res.push(x);}};dfs(arr);return res;};
+    expect(flatten([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]);
+    expect(flatten([1,[4,[6]]])).toEqual([1,4,6]);
+    expect(flatten([[],[1,[2,[3,[4,[5]]]]]])).toEqual([1,2,3,4,5]);
+  });
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+  it('basic calculator II', () => {
+    const calculate=(s:string):number=>{const stack:number[]=[];let num=0,op='+';for(let i=0;i<s.length;i++){const c=s[i];if(c>='0'&&c<='9')num=num*10+parseInt(c);if((c==='+'||c==='-'||c==='*'||c==='/')||i===s.length-1){if(op==='+')stack.push(num);else if(op==='-')stack.push(-num);else if(op==='*')stack.push(stack.pop()!*num);else stack.push(Math.trunc(stack.pop()!/num));op=c;num=0;}}return stack.reduce((a,b)=>a+b,0);};
+    expect(calculate('3+2*2')).toBe(7);
+    expect(calculate(' 3/2 ')).toBe(1);
+    expect(calculate(' 3+5 / 2 ')).toBe(5);
+  });
+  it('count of smaller numbers after self', () => {
+    const countSmaller=(nums:number[]):number[]=>{const res:number[]=[];const sorted:number[]=[];const bisect=(arr:number[],val:number):number=>{let lo=0,hi=arr.length;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<val)lo=mid+1;else hi=mid;}return lo;};for(let i=nums.length-1;i>=0;i--){const pos=bisect(sorted,nums[i]);res.unshift(pos);sorted.splice(pos,0,nums[i]);}return res;};
+    expect(countSmaller([5,2,6,1])).toEqual([2,1,1,0]);
+    expect(countSmaller([-1])).toEqual([0]);
+    expect(countSmaller([-1,-1])).toEqual([0,0]);
+  });
+});

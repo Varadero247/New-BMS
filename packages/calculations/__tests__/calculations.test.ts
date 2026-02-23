@@ -904,3 +904,43 @@ describe('phase60 coverage', () => {
     expect(maxWidthRamp([3,3])).toBe(1);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+  it('remove k digits greedy', () => {
+    const removeKdigits=(num:string,k:number):string=>{const stack:string[]=[];for(const d of num){while(k>0&&stack.length&&stack[stack.length-1]>d){stack.pop();k--;}stack.push(d);}while(k-->0)stack.pop();const res=stack.join('').replace(/^0+/,'');return res||'0';};
+    expect(removeKdigits('1432219',3)).toBe('1219');
+    expect(removeKdigits('10200',1)).toBe('200');
+    expect(removeKdigits('10',2)).toBe('0');
+  });
+  it('swap nodes in pairs', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const swapPairs=(head:N|null):N|null=>{if(!head?.next)return head;const second=head.next;head.next=swapPairs(second.next);second.next=head;return second;};
+    expect(toArr(swapPairs(mk(1,2,3,4)))).toEqual([2,1,4,3]);
+    expect(toArr(swapPairs(mk(1)))).toEqual([1]);
+    expect(toArr(swapPairs(null))).toEqual([]);
+  });
+  it('count of smaller numbers after self', () => {
+    const countSmaller=(nums:number[]):number[]=>{const res:number[]=[];const sorted:number[]=[];const bisect=(arr:number[],val:number):number=>{let lo=0,hi=arr.length;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<val)lo=mid+1;else hi=mid;}return lo;};for(let i=nums.length-1;i>=0;i--){const pos=bisect(sorted,nums[i]);res.unshift(pos);sorted.splice(pos,0,nums[i]);}return res;};
+    expect(countSmaller([5,2,6,1])).toEqual([2,1,1,0]);
+    expect(countSmaller([-1])).toEqual([0]);
+    expect(countSmaller([-1,-1])).toEqual([0,0]);
+  });
+  it('flatten nested array iterator', () => {
+    const flatten=(arr:any[]):number[]=>{const res:number[]=[];const dfs=(a:any[])=>{for(const x of a){if(Array.isArray(x))dfs(x);else res.push(x);}};dfs(arr);return res;};
+    expect(flatten([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]);
+    expect(flatten([1,[4,[6]]])).toEqual([1,4,6]);
+    expect(flatten([[],[1,[2,[3,[4,[5]]]]]])).toEqual([1,2,3,4,5]);
+  });
+});

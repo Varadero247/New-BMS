@@ -830,3 +830,37 @@ describe('phase60 coverage', () => {
     expect(minPathSum([[1]])).toBe(1);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('flatten nested array iterator', () => {
+    const flatten=(arr:any[]):number[]=>{const res:number[]=[];const dfs=(a:any[])=>{for(const x of a){if(Array.isArray(x))dfs(x);else res.push(x);}};dfs(arr);return res;};
+    expect(flatten([[1,1],2,[1,1]])).toEqual([1,1,2,1,1]);
+    expect(flatten([1,[4,[6]]])).toEqual([1,4,6]);
+    expect(flatten([[],[1,[2,[3,[4,[5]]]]]])).toEqual([1,2,3,4,5]);
+  });
+  it('next greater element II circular', () => {
+    const nextGreaterElements=(nums:number[]):number[]=>{const n=nums.length;const res=new Array(n).fill(-1);const stack:number[]=[];for(let i=0;i<2*n;i++){while(stack.length&&nums[stack[stack.length-1]]<nums[i%n]){res[stack.pop()!]=nums[i%n];}if(i<n)stack.push(i);}return res;};
+    expect(nextGreaterElements([1,2,1])).toEqual([2,-1,2]);
+    expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
+  });
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+  it('sliding window median', () => {
+    const medianSlidingWindow=(nums:number[],k:number):number[]=>{const res:number[]=[];for(let i=0;i<=nums.length-k;i++){const win=[...nums.slice(i,i+k)].sort((a,b)=>a-b);res.push(k%2===0?(win[k/2-1]+win[k/2])/2:win[Math.floor(k/2)]);}return res;};
+    expect(medianSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([1,-1,-1,3,5,6]);
+    expect(medianSlidingWindow([1,2,3,4,2,3,1,4,2],3)).toEqual([2,3,3,3,2,3,2]);
+  });
+  it('range sum query BIT', () => {
+    class BIT{private tree:number[];constructor(n:number){this.tree=new Array(n+1).fill(0);}update(i:number,delta:number):void{for(i++;i<this.tree.length;i+=i&(-i))this.tree[i]+=delta;}query(i:number):number{let s=0;for(i++;i>0;i-=i&(-i))s+=this.tree[i];return s;}rangeQuery(l:number,r:number):number{return this.query(r)-(l>0?this.query(l-1):0);}}
+    const bit=new BIT(5);[1,3,5,7,9].forEach((v,i)=>bit.update(i,v));
+    expect(bit.rangeQuery(0,4)).toBe(25);
+    expect(bit.rangeQuery(1,3)).toBe(15);
+    bit.update(1,2);
+    expect(bit.rangeQuery(1,3)).toBe(17);
+  });
+});

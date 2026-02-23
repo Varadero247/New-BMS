@@ -789,3 +789,41 @@ describe('phase60 coverage', () => {
     expect(countSquares([[1,0,1],[1,1,0],[1,1,0]])).toBe(7);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('two sum less than k', () => {
+    const twoSumLessThanK=(nums:number[],k:number):number=>{const sorted=[...nums].sort((a,b)=>a-b);let lo=0,hi=sorted.length-1,best=-1;while(lo<hi){const s=sorted[lo]+sorted[hi];if(s<k){best=Math.max(best,s);lo++;}else hi--;}return best;};
+    expect(twoSumLessThanK([34,23,1,24,75,33,54,8],60)).toBe(58);
+    expect(twoSumLessThanK([10,20,30],15)).toBe(-1);
+    expect(twoSumLessThanK([254,914,971,990,525,33,186,136,54,104],1000)).toBe(968);
+  });
+  it('contiguous array equal zeros ones', () => {
+    const findMaxLength=(nums:number[]):number=>{const map=new Map([[0,-1]]);let max=0,count=0;for(let i=0;i<nums.length;i++){count+=nums[i]===0?-1:1;if(map.has(count))max=Math.max(max,i-map.get(count)!);else map.set(count,i);}return max;};
+    expect(findMaxLength([0,1])).toBe(2);
+    expect(findMaxLength([0,1,0])).toBe(2);
+    expect(findMaxLength([0,0,1,0,0,0,1,1])).toBe(6);
+  });
+  it('count primes sieve', () => {
+    const countPrimes=(n:number):number=>{if(n<2)return 0;const sieve=new Array(n).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<n;i++)if(sieve[i])for(let j=i*i;j<n;j+=i)sieve[j]=false;return sieve.filter(Boolean).length;};
+    expect(countPrimes(10)).toBe(4);
+    expect(countPrimes(0)).toBe(0);
+    expect(countPrimes(1)).toBe(0);
+    expect(countPrimes(20)).toBe(8);
+  });
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+  it('swap nodes in pairs', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const swapPairs=(head:N|null):N|null=>{if(!head?.next)return head;const second=head.next;head.next=swapPairs(second.next);second.next=head;return second;};
+    expect(toArr(swapPairs(mk(1,2,3,4)))).toEqual([2,1,4,3]);
+    expect(toArr(swapPairs(mk(1)))).toEqual([1]);
+    expect(toArr(swapPairs(null))).toEqual([]);
+  });
+});

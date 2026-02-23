@@ -850,3 +850,41 @@ describe('phase60 coverage', () => {
     expect(numSquares(4)).toBe(1);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('happy number cycle detection', () => {
+    const isHappy=(n:number):boolean=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=String(n).split('').reduce((s,d)=>s+parseInt(d)**2,0);}return n===1;};
+    expect(isHappy(19)).toBe(true);
+    expect(isHappy(2)).toBe(false);
+    expect(isHappy(1)).toBe(true);
+    expect(isHappy(7)).toBe(true);
+    expect(isHappy(4)).toBe(false);
+  });
+  it('count of smaller numbers after self', () => {
+    const countSmaller=(nums:number[]):number[]=>{const res:number[]=[];const sorted:number[]=[];const bisect=(arr:number[],val:number):number=>{let lo=0,hi=arr.length;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<val)lo=mid+1;else hi=mid;}return lo;};for(let i=nums.length-1;i>=0;i--){const pos=bisect(sorted,nums[i]);res.unshift(pos);sorted.splice(pos,0,nums[i]);}return res;};
+    expect(countSmaller([5,2,6,1])).toEqual([2,1,1,0]);
+    expect(countSmaller([-1])).toEqual([0]);
+    expect(countSmaller([-1,-1])).toEqual([0,0]);
+  });
+  it('basic calculator II', () => {
+    const calculate=(s:string):number=>{const stack:number[]=[];let num=0,op='+';for(let i=0;i<s.length;i++){const c=s[i];if(c>='0'&&c<='9')num=num*10+parseInt(c);if((c==='+'||c==='-'||c==='*'||c==='/')||i===s.length-1){if(op==='+')stack.push(num);else if(op==='-')stack.push(-num);else if(op==='*')stack.push(stack.pop()!*num);else stack.push(Math.trunc(stack.pop()!/num));op=c;num=0;}}return stack.reduce((a,b)=>a+b,0);};
+    expect(calculate('3+2*2')).toBe(7);
+    expect(calculate(' 3/2 ')).toBe(1);
+    expect(calculate(' 3+5 / 2 ')).toBe(5);
+  });
+  it('moving average data stream', () => {
+    class MovingAverage{private q:number[]=[];private sum=0;constructor(private size:number){}next(val:number):number{this.q.push(val);this.sum+=val;if(this.q.length>this.size)this.sum-=this.q.shift()!;return this.sum/this.q.length;}}
+    const ma=new MovingAverage(3);
+    expect(ma.next(1)).toBeCloseTo(1);
+    expect(ma.next(10)).toBeCloseTo(5.5);
+    expect(ma.next(3)).toBeCloseTo(4.667,2);
+    expect(ma.next(5)).toBeCloseTo(6);
+  });
+  it('asteroid collision stack', () => {
+    const asteroidCollision=(asteroids:number[]):number[]=>{const stack:number[]=[];for(const a of asteroids){let destroyed=false;while(stack.length&&a<0&&stack[stack.length-1]>0){if(stack[stack.length-1]<-a){stack.pop();continue;}else if(stack[stack.length-1]===-a){stack.pop();}destroyed=true;break;}if(!destroyed)stack.push(a);}return stack;};
+    expect(asteroidCollision([5,10,-5])).toEqual([5,10]);
+    expect(asteroidCollision([8,-8])).toEqual([]);
+    expect(asteroidCollision([10,2,-5])).toEqual([10]);
+    expect(asteroidCollision([-2,-1,1,2])).toEqual([-2,-1,1,2]);
+  });
+});

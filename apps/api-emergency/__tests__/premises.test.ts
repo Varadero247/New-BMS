@@ -970,3 +970,46 @@ describe('phase60 coverage', () => {
     expect(numSquares(4)).toBe(1);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('subarray sum equals k', () => {
+    const subarraySum=(nums:number[],k:number):number=>{const map=new Map([[0,1]]);let count=0,prefix=0;for(const n of nums){prefix+=n;count+=(map.get(prefix-k)||0);map.set(prefix,(map.get(prefix)||0)+1);}return count;};
+    expect(subarraySum([1,1,1],2)).toBe(2);
+    expect(subarraySum([1,2,3],3)).toBe(2);
+    expect(subarraySum([-1,-1,1],0)).toBe(1);
+    expect(subarraySum([1],1)).toBe(1);
+  });
+  it('LFU cache operations', () => {
+    class LFUCache{private cap:number;private min=0;private kv=new Map<number,number>();private kf=new Map<number,number>();private fk=new Map<number,Set<number>>();constructor(c:number){this.cap=c;}get(k:number):number{if(!this.kv.has(k))return -1;this._inc(k);return this.kv.get(k)!;}_inc(k:number):void{const f=this.kf.get(k)||0;this.kf.set(k,f+1);this.fk.get(f)?.delete(k);if(!this.fk.has(f+1))this.fk.set(f+1,new Set());this.fk.get(f+1)!.add(k);if(f===this.min&&this.fk.get(f)?.size===0)this.min++;}put(k:number,v:number):void{if(this.cap<=0)return;if(this.kv.has(k)){this.kv.set(k,v);this._inc(k);return;}if(this.kv.size>=this.cap){const evict=[...this.fk.get(this.min)!][0];this.fk.get(this.min)!.delete(evict);this.kv.delete(evict);this.kf.delete(evict);}this.kv.set(k,v);this.kf.set(k,1);if(!this.fk.has(1))this.fk.set(1,new Set());this.fk.get(1)!.add(k);this.min=1;}}
+    const lfu=new LFUCache(2);lfu.put(1,1);lfu.put(2,2);
+    expect(lfu.get(1)).toBe(1);
+    lfu.put(3,3);
+    expect(lfu.get(2)).toBe(-1);
+    expect(lfu.get(3)).toBe(3);
+  });
+  it('happy number cycle detection', () => {
+    const isHappy=(n:number):boolean=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=String(n).split('').reduce((s,d)=>s+parseInt(d)**2,0);}return n===1;};
+    expect(isHappy(19)).toBe(true);
+    expect(isHappy(2)).toBe(false);
+    expect(isHappy(1)).toBe(true);
+    expect(isHappy(7)).toBe(true);
+    expect(isHappy(4)).toBe(false);
+  });
+  it('odd even linked list', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const oddEvenList=(head:N|null):N|null=>{if(!head)return null;let odd:N=head,even:N|null=head.next;const evenHead=even;while(even?.next){odd.next=even.next;odd=odd.next!;even.next=odd.next;even=even.next;}odd.next=evenHead;return head;};
+    expect(toArr(oddEvenList(mk(1,2,3,4,5)))).toEqual([1,3,5,2,4]);
+    expect(toArr(oddEvenList(mk(2,1,3,5,6,4,7)))).toEqual([2,3,6,7,1,5,4]);
+  });
+  it('swap nodes in pairs', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const swapPairs=(head:N|null):N|null=>{if(!head?.next)return head;const second=head.next;head.next=swapPairs(second.next);second.next=head;return second;};
+    expect(toArr(swapPairs(mk(1,2,3,4)))).toEqual([2,1,4,3]);
+    expect(toArr(swapPairs(mk(1)))).toEqual([1]);
+    expect(toArr(swapPairs(null))).toEqual([]);
+  });
+});

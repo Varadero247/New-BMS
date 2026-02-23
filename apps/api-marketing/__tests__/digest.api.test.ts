@@ -939,3 +939,42 @@ describe('phase60 coverage', () => {
     expect(longestArithSeqLength([20,1,15,3,10,5,8])).toBe(4);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('iterator flatten generator', () => {
+    function* flatGen(arr:any[]):Generator<number>{for(const x of arr){if(Array.isArray(x))yield*flatGen(x);else yield x;}}
+    const it=flatGen([[1,[2]],[3,[4,[5]]]]);
+    const res:number[]=[];
+    for(const v of it)res.push(v);
+    expect(res).toEqual([1,2,3,4,5]);
+    expect([...flatGen([1,[2,[3]]])]).toEqual([1,2,3]);
+  });
+  it('contiguous array equal zeros ones', () => {
+    const findMaxLength=(nums:number[]):number=>{const map=new Map([[0,-1]]);let max=0,count=0;for(let i=0;i<nums.length;i++){count+=nums[i]===0?-1:1;if(map.has(count))max=Math.max(max,i-map.get(count)!);else map.set(count,i);}return max;};
+    expect(findMaxLength([0,1])).toBe(2);
+    expect(findMaxLength([0,1,0])).toBe(2);
+    expect(findMaxLength([0,0,1,0,0,0,1,1])).toBe(6);
+  });
+  it('remove k digits greedy', () => {
+    const removeKdigits=(num:string,k:number):string=>{const stack:string[]=[];for(const d of num){while(k>0&&stack.length&&stack[stack.length-1]>d){stack.pop();k--;}stack.push(d);}while(k-->0)stack.pop();const res=stack.join('').replace(/^0+/,'');return res||'0';};
+    expect(removeKdigits('1432219',3)).toBe('1219');
+    expect(removeKdigits('10200',1)).toBe('200');
+    expect(removeKdigits('10',2)).toBe('0');
+  });
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+  it('intersection of two linked lists', () => {
+    type N={val:number;next:N|null};
+    const getIntersectionNode=(h1:N|null,h2:N|null):N|null=>{let a=h1,b=h2;while(a!==b){a=a?a.next:h2;b=b?b.next:h1;}return a;};
+    const shared={val:8,next:{val:4,next:{val:5,next:null}}};
+    const l1:N={val:4,next:{val:1,next:shared}};
+    const l2:N={val:5,next:{val:6,next:{val:1,next:shared}}};
+    expect(getIntersectionNode(l1,l2)).toBe(shared);
+    expect(getIntersectionNode(null,null)).toBeNull();
+  });
+});

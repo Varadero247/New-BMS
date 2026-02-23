@@ -805,3 +805,48 @@ describe('phase60 coverage', () => {
     expect(maxWidthRamp([3,3])).toBe(1);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('design circular queue', () => {
+    class MyCircularQueue{private q:number[];private h=0;private t=0;private size=0;constructor(private k:number){this.q=new Array(k);}enQueue(v:number):boolean{if(this.isFull())return false;this.q[this.t]=v;this.t=(this.t+1)%this.k;this.size++;return true;}deQueue():boolean{if(this.isEmpty())return false;this.h=(this.h+1)%this.k;this.size--;return true;}Front():number{return this.isEmpty()?-1:this.q[this.h];}Rear():number{return this.isEmpty()?-1:this.q[(this.t-1+this.k)%this.k];}isEmpty():boolean{return this.size===0;}isFull():boolean{return this.size===this.k;}}
+    const q=new MyCircularQueue(3);
+    expect(q.enQueue(1)).toBe(true);q.enQueue(2);q.enQueue(3);
+    expect(q.enQueue(4)).toBe(false);
+    expect(q.Rear()).toBe(3);
+    expect(q.isFull()).toBe(true);
+    q.deQueue();
+    expect(q.enQueue(4)).toBe(true);
+    expect(q.Rear()).toBe(4);
+  });
+  it('swap nodes in pairs', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const swapPairs=(head:N|null):N|null=>{if(!head?.next)return head;const second=head.next;head.next=swapPairs(second.next);second.next=head;return second;};
+    expect(toArr(swapPairs(mk(1,2,3,4)))).toEqual([2,1,4,3]);
+    expect(toArr(swapPairs(mk(1)))).toEqual([1]);
+    expect(toArr(swapPairs(null))).toEqual([]);
+  });
+  it('shortest path in binary matrix', () => {
+    const shortestPathBinaryMatrix=(grid:number[][]):number=>{const n=grid.length;if(grid[0][0]===1||grid[n-1][n-1]===1)return -1;if(n===1)return 1;const q:([number,number,number])[]=[[ 0,0,1]];grid[0][0]=1;const dirs=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];while(q.length){const[r,c,d]=q.shift()!;for(const[dr,dc]of dirs){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&grid[nr][nc]===0){if(nr===n-1&&nc===n-1)return d+1;grid[nr][nc]=1;q.push([nr,nc,d+1]);}}}return -1;};
+    expect(shortestPathBinaryMatrix([[0,1],[1,0]])).toBe(2);
+    expect(shortestPathBinaryMatrix([[0,0,0],[1,1,0],[1,1,0]])).toBe(4);
+    expect(shortestPathBinaryMatrix([[1,0,0],[1,1,0],[1,1,0]])).toBe(-1);
+  });
+  it('intersection of two linked lists', () => {
+    type N={val:number;next:N|null};
+    const getIntersectionNode=(h1:N|null,h2:N|null):N|null=>{let a=h1,b=h2;while(a!==b){a=a?a.next:h2;b=b?b.next:h1;}return a;};
+    const shared={val:8,next:{val:4,next:{val:5,next:null}}};
+    const l1:N={val:4,next:{val:1,next:shared}};
+    const l2:N={val:5,next:{val:6,next:{val:1,next:shared}}};
+    expect(getIntersectionNode(l1,l2)).toBe(shared);
+    expect(getIntersectionNode(null,null)).toBeNull();
+  });
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+});

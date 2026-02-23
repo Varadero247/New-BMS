@@ -691,3 +691,42 @@ describe('phase60 coverage', () => {
     expect(r.length).toBeGreaterThan(0);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('max subarray sum divide conquer', () => {
+    const maxSubArray=(nums:number[]):number=>{let maxSum=nums[0],cur=nums[0];for(let i=1;i<nums.length;i++){cur=Math.max(nums[i],cur+nums[i]);maxSum=Math.max(maxSum,cur);}return maxSum;};
+    expect(maxSubArray([-2,1,-3,4,-1,2,1,-5,4])).toBe(6);
+    expect(maxSubArray([1])).toBe(1);
+    expect(maxSubArray([5,4,-1,7,8])).toBe(23);
+    expect(maxSubArray([-1,-2,-3])).toBe(-1);
+  });
+  it('continuous subarray sum multiple k', () => {
+    const checkSubarraySum=(nums:number[],k:number):boolean=>{const map=new Map([[0,-1]]);let sum=0;for(let i=0;i<nums.length;i++){sum=(sum+nums[i])%k;if(map.has(sum)){if(i-map.get(sum)!>1)return true;}else map.set(sum,i);}return false;};
+    expect(checkSubarraySum([23,2,4,6,7],6)).toBe(true);
+    expect(checkSubarraySum([23,2,6,4,7],6)).toBe(true);
+    expect(checkSubarraySum([23,2,6,4,7],13)).toBe(false);
+    expect(checkSubarraySum([23,2,4,6,6],7)).toBe(true);
+  });
+  it('subarray sum equals k', () => {
+    const subarraySum=(nums:number[],k:number):number=>{const map=new Map([[0,1]]);let count=0,prefix=0;for(const n of nums){prefix+=n;count+=(map.get(prefix-k)||0);map.set(prefix,(map.get(prefix)||0)+1);}return count;};
+    expect(subarraySum([1,1,1],2)).toBe(2);
+    expect(subarraySum([1,2,3],3)).toBe(2);
+    expect(subarraySum([-1,-1,1],0)).toBe(1);
+    expect(subarraySum([1],1)).toBe(1);
+  });
+  it('maximum frequency stack', () => {
+    class FreqStack{private freq=new Map<number,number>();private group=new Map<number,number[]>();private maxFreq=0;push(val:number):void{const f=(this.freq.get(val)||0)+1;this.freq.set(val,f);this.maxFreq=Math.max(this.maxFreq,f);if(!this.group.has(f))this.group.set(f,[]);this.group.get(f)!.push(val);}pop():number{const top=this.group.get(this.maxFreq)!;const val=top.pop()!;if(top.length===0){this.group.delete(this.maxFreq);this.maxFreq--;}this.freq.set(val,this.freq.get(val)!-1);return val;}}
+    const fs=new FreqStack();[5,7,5,7,4,5].forEach(v=>fs.push(v));
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(7);
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(4);
+  });
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+});

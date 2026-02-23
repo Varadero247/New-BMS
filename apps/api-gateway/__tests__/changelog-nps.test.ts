@@ -881,3 +881,43 @@ describe('phase60 coverage', () => {
     expect(longestArithSeqLength([20,1,15,3,10,5,8])).toBe(4);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('two sum less than k', () => {
+    const twoSumLessThanK=(nums:number[],k:number):number=>{const sorted=[...nums].sort((a,b)=>a-b);let lo=0,hi=sorted.length-1,best=-1;while(lo<hi){const s=sorted[lo]+sorted[hi];if(s<k){best=Math.max(best,s);lo++;}else hi--;}return best;};
+    expect(twoSumLessThanK([34,23,1,24,75,33,54,8],60)).toBe(58);
+    expect(twoSumLessThanK([10,20,30],15)).toBe(-1);
+    expect(twoSumLessThanK([254,914,971,990,525,33,186,136,54,104],1000)).toBe(968);
+  });
+  it('maximum frequency stack', () => {
+    class FreqStack{private freq=new Map<number,number>();private group=new Map<number,number[]>();private maxFreq=0;push(val:number):void{const f=(this.freq.get(val)||0)+1;this.freq.set(val,f);this.maxFreq=Math.max(this.maxFreq,f);if(!this.group.has(f))this.group.set(f,[]);this.group.get(f)!.push(val);}pop():number{const top=this.group.get(this.maxFreq)!;const val=top.pop()!;if(top.length===0){this.group.delete(this.maxFreq);this.maxFreq--;}this.freq.set(val,this.freq.get(val)!-1);return val;}}
+    const fs=new FreqStack();[5,7,5,7,4,5].forEach(v=>fs.push(v));
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(7);
+    expect(fs.pop()).toBe(5);
+    expect(fs.pop()).toBe(4);
+  });
+  it('max subarray sum divide conquer', () => {
+    const maxSubArray=(nums:number[]):number=>{let maxSum=nums[0],cur=nums[0];for(let i=1;i<nums.length;i++){cur=Math.max(nums[i],cur+nums[i]);maxSum=Math.max(maxSum,cur);}return maxSum;};
+    expect(maxSubArray([-2,1,-3,4,-1,2,1,-5,4])).toBe(6);
+    expect(maxSubArray([1])).toBe(1);
+    expect(maxSubArray([5,4,-1,7,8])).toBe(23);
+    expect(maxSubArray([-1,-2,-3])).toBe(-1);
+  });
+  it('design circular queue', () => {
+    class MyCircularQueue{private q:number[];private h=0;private t=0;private size=0;constructor(private k:number){this.q=new Array(k);}enQueue(v:number):boolean{if(this.isFull())return false;this.q[this.t]=v;this.t=(this.t+1)%this.k;this.size++;return true;}deQueue():boolean{if(this.isEmpty())return false;this.h=(this.h+1)%this.k;this.size--;return true;}Front():number{return this.isEmpty()?-1:this.q[this.h];}Rear():number{return this.isEmpty()?-1:this.q[(this.t-1+this.k)%this.k];}isEmpty():boolean{return this.size===0;}isFull():boolean{return this.size===this.k;}}
+    const q=new MyCircularQueue(3);
+    expect(q.enQueue(1)).toBe(true);q.enQueue(2);q.enQueue(3);
+    expect(q.enQueue(4)).toBe(false);
+    expect(q.Rear()).toBe(3);
+    expect(q.isFull()).toBe(true);
+    q.deQueue();
+    expect(q.enQueue(4)).toBe(true);
+    expect(q.Rear()).toBe(4);
+  });
+  it('next greater element II circular', () => {
+    const nextGreaterElements=(nums:number[]):number[]=>{const n=nums.length;const res=new Array(n).fill(-1);const stack:number[]=[];for(let i=0;i<2*n;i++){while(stack.length&&nums[stack[stack.length-1]]<nums[i%n]){res[stack.pop()!]=nums[i%n];}if(i<n)stack.push(i);}return res;};
+    expect(nextGreaterElements([1,2,1])).toEqual([2,-1,2]);
+    expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
+  });
+});

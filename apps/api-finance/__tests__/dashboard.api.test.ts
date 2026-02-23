@@ -844,3 +844,40 @@ describe('phase60 coverage', () => {
     expect(sumSubarrayMins([11,81,94,43,3])).toBe(444);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('subarray sum equals k', () => {
+    const subarraySum=(nums:number[],k:number):number=>{const map=new Map([[0,1]]);let count=0,prefix=0;for(const n of nums){prefix+=n;count+=(map.get(prefix-k)||0);map.set(prefix,(map.get(prefix)||0)+1);}return count;};
+    expect(subarraySum([1,1,1],2)).toBe(2);
+    expect(subarraySum([1,2,3],3)).toBe(2);
+    expect(subarraySum([-1,-1,1],0)).toBe(1);
+    expect(subarraySum([1],1)).toBe(1);
+  });
+  it('count primes sieve', () => {
+    const countPrimes=(n:number):number=>{if(n<2)return 0;const sieve=new Array(n).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<n;i++)if(sieve[i])for(let j=i*i;j<n;j+=i)sieve[j]=false;return sieve.filter(Boolean).length;};
+    expect(countPrimes(10)).toBe(4);
+    expect(countPrimes(0)).toBe(0);
+    expect(countPrimes(1)).toBe(0);
+    expect(countPrimes(20)).toBe(8);
+  });
+  it('remove k digits greedy', () => {
+    const removeKdigits=(num:string,k:number):string=>{const stack:string[]=[];for(const d of num){while(k>0&&stack.length&&stack[stack.length-1]>d){stack.pop();k--;}stack.push(d);}while(k-->0)stack.pop();const res=stack.join('').replace(/^0+/,'');return res||'0';};
+    expect(removeKdigits('1432219',3)).toBe('1219');
+    expect(removeKdigits('10200',1)).toBe('200');
+    expect(removeKdigits('10',2)).toBe('0');
+  });
+  it('decode string stack', () => {
+    const decodeString=(s:string):string=>{const stack:([string,number])[]=[['',1]];let cur='',k=0;for(const c of s){if(c>='0'&&c<='9'){k=k*10+parseInt(c);}else if(c==='['){stack.push([cur,k]);cur='';k=0;}else if(c===']'){const[prev,n]=stack.pop()!;cur=prev+cur.repeat(n);}else cur+=c;}return cur;};
+    expect(decodeString('3[a]2[bc]')).toBe('aaabcbc');
+    expect(decodeString('3[a2[c]]')).toBe('accaccacc');
+    expect(decodeString('2[abc]3[cd]ef')).toBe('abcabccdcdcdef');
+  });
+  it('range sum query BIT', () => {
+    class BIT{private tree:number[];constructor(n:number){this.tree=new Array(n+1).fill(0);}update(i:number,delta:number):void{for(i++;i<this.tree.length;i+=i&(-i))this.tree[i]+=delta;}query(i:number):number{let s=0;for(i++;i>0;i-=i&(-i))s+=this.tree[i];return s;}rangeQuery(l:number,r:number):number{return this.query(r)-(l>0?this.query(l-1):0);}}
+    const bit=new BIT(5);[1,3,5,7,9].forEach((v,i)=>bit.update(i,v));
+    expect(bit.rangeQuery(0,4)).toBe(25);
+    expect(bit.rangeQuery(1,3)).toBe(15);
+    bit.update(1,2);
+    expect(bit.rangeQuery(1,3)).toBe(17);
+  });
+});

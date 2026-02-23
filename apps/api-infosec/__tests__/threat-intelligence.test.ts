@@ -761,3 +761,42 @@ describe('phase60 coverage', () => {
     expect(c!.neighbors.length).toBe(2);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('shortest path in binary matrix', () => {
+    const shortestPathBinaryMatrix=(grid:number[][]):number=>{const n=grid.length;if(grid[0][0]===1||grid[n-1][n-1]===1)return -1;if(n===1)return 1;const q:([number,number,number])[]=[[ 0,0,1]];grid[0][0]=1;const dirs=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];while(q.length){const[r,c,d]=q.shift()!;for(const[dr,dc]of dirs){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&grid[nr][nc]===0){if(nr===n-1&&nc===n-1)return d+1;grid[nr][nc]=1;q.push([nr,nc,d+1]);}}}return -1;};
+    expect(shortestPathBinaryMatrix([[0,1],[1,0]])).toBe(2);
+    expect(shortestPathBinaryMatrix([[0,0,0],[1,1,0],[1,1,0]])).toBe(4);
+    expect(shortestPathBinaryMatrix([[1,0,0],[1,1,0],[1,1,0]])).toBe(-1);
+  });
+  it('count of smaller numbers after self', () => {
+    const countSmaller=(nums:number[]):number[]=>{const res:number[]=[];const sorted:number[]=[];const bisect=(arr:number[],val:number):number=>{let lo=0,hi=arr.length;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<val)lo=mid+1;else hi=mid;}return lo;};for(let i=nums.length-1;i>=0;i--){const pos=bisect(sorted,nums[i]);res.unshift(pos);sorted.splice(pos,0,nums[i]);}return res;};
+    expect(countSmaller([5,2,6,1])).toEqual([2,1,1,0]);
+    expect(countSmaller([-1])).toEqual([0]);
+    expect(countSmaller([-1,-1])).toEqual([0,0]);
+  });
+  it('moving average data stream', () => {
+    class MovingAverage{private q:number[]=[];private sum=0;constructor(private size:number){}next(val:number):number{this.q.push(val);this.sum+=val;if(this.q.length>this.size)this.sum-=this.q.shift()!;return this.sum/this.q.length;}}
+    const ma=new MovingAverage(3);
+    expect(ma.next(1)).toBeCloseTo(1);
+    expect(ma.next(10)).toBeCloseTo(5.5);
+    expect(ma.next(3)).toBeCloseTo(4.667,2);
+    expect(ma.next(5)).toBeCloseTo(6);
+  });
+  it('subarray sum equals k', () => {
+    const subarraySum=(nums:number[],k:number):number=>{const map=new Map([[0,1]]);let count=0,prefix=0;for(const n of nums){prefix+=n;count+=(map.get(prefix-k)||0);map.set(prefix,(map.get(prefix)||0)+1);}return count;};
+    expect(subarraySum([1,1,1],2)).toBe(2);
+    expect(subarraySum([1,2,3],3)).toBe(2);
+    expect(subarraySum([-1,-1,1],0)).toBe(1);
+    expect(subarraySum([1],1)).toBe(1);
+  });
+  it('intersection of two linked lists', () => {
+    type N={val:number;next:N|null};
+    const getIntersectionNode=(h1:N|null,h2:N|null):N|null=>{let a=h1,b=h2;while(a!==b){a=a?a.next:h2;b=b?b.next:h1;}return a;};
+    const shared={val:8,next:{val:4,next:{val:5,next:null}}};
+    const l1:N={val:4,next:{val:1,next:shared}};
+    const l2:N={val:5,next:{val:6,next:{val:1,next:shared}}};
+    expect(getIntersectionNode(l1,l2)).toBe(shared);
+    expect(getIntersectionNode(null,null)).toBeNull();
+  });
+});

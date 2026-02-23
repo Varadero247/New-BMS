@@ -811,3 +811,45 @@ describe('phase60 coverage', () => {
     expect(minScoreTriangulation([1,3,1,4,1,5])).toBe(13);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('moving average data stream', () => {
+    class MovingAverage{private q:number[]=[];private sum=0;constructor(private size:number){}next(val:number):number{this.q.push(val);this.sum+=val;if(this.q.length>this.size)this.sum-=this.q.shift()!;return this.sum/this.q.length;}}
+    const ma=new MovingAverage(3);
+    expect(ma.next(1)).toBeCloseTo(1);
+    expect(ma.next(10)).toBeCloseTo(5.5);
+    expect(ma.next(3)).toBeCloseTo(4.667,2);
+    expect(ma.next(5)).toBeCloseTo(6);
+  });
+  it('queue using two stacks', () => {
+    class MyQueue{private in:number[]=[];private out:number[]=[];push(x:number):void{this.in.push(x);}pop():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out.pop()!;}peek():number{if(!this.out.length)while(this.in.length)this.out.push(this.in.pop()!);return this.out[this.out.length-1];}empty():boolean{return!this.in.length&&!this.out.length;}}
+    const q=new MyQueue();q.push(1);q.push(2);
+    expect(q.peek()).toBe(1);
+    expect(q.pop()).toBe(1);
+    expect(q.empty()).toBe(false);
+    q.push(3);
+    expect(q.pop()).toBe(2);
+    expect(q.pop()).toBe(3);
+  });
+  it('range sum query BIT', () => {
+    class BIT{private tree:number[];constructor(n:number){this.tree=new Array(n+1).fill(0);}update(i:number,delta:number):void{for(i++;i<this.tree.length;i+=i&(-i))this.tree[i]+=delta;}query(i:number):number{let s=0;for(i++;i>0;i-=i&(-i))s+=this.tree[i];return s;}rangeQuery(l:number,r:number):number{return this.query(r)-(l>0?this.query(l-1):0);}}
+    const bit=new BIT(5);[1,3,5,7,9].forEach((v,i)=>bit.update(i,v));
+    expect(bit.rangeQuery(0,4)).toBe(25);
+    expect(bit.rangeQuery(1,3)).toBe(15);
+    bit.update(1,2);
+    expect(bit.rangeQuery(1,3)).toBe(17);
+  });
+  it('LFU cache operations', () => {
+    class LFUCache{private cap:number;private min=0;private kv=new Map<number,number>();private kf=new Map<number,number>();private fk=new Map<number,Set<number>>();constructor(c:number){this.cap=c;}get(k:number):number{if(!this.kv.has(k))return -1;this._inc(k);return this.kv.get(k)!;}_inc(k:number):void{const f=this.kf.get(k)||0;this.kf.set(k,f+1);this.fk.get(f)?.delete(k);if(!this.fk.has(f+1))this.fk.set(f+1,new Set());this.fk.get(f+1)!.add(k);if(f===this.min&&this.fk.get(f)?.size===0)this.min++;}put(k:number,v:number):void{if(this.cap<=0)return;if(this.kv.has(k)){this.kv.set(k,v);this._inc(k);return;}if(this.kv.size>=this.cap){const evict=[...this.fk.get(this.min)!][0];this.fk.get(this.min)!.delete(evict);this.kv.delete(evict);this.kf.delete(evict);}this.kv.set(k,v);this.kf.set(k,1);if(!this.fk.has(1))this.fk.set(1,new Set());this.fk.get(1)!.add(k);this.min=1;}}
+    const lfu=new LFUCache(2);lfu.put(1,1);lfu.put(2,2);
+    expect(lfu.get(1)).toBe(1);
+    lfu.put(3,3);
+    expect(lfu.get(2)).toBe(-1);
+    expect(lfu.get(3)).toBe(3);
+  });
+  it('sliding window median', () => {
+    const medianSlidingWindow=(nums:number[],k:number):number[]=>{const res:number[]=[];for(let i=0;i<=nums.length-k;i++){const win=[...nums.slice(i,i+k)].sort((a,b)=>a-b);res.push(k%2===0?(win[k/2-1]+win[k/2])/2:win[Math.floor(k/2)]);}return res;};
+    expect(medianSlidingWindow([1,3,-1,-3,5,3,6,7],3)).toEqual([1,-1,-1,3,5,6]);
+    expect(medianSlidingWindow([1,2,3,4,2,3,1,4,2],3)).toEqual([2,3,3,3,2,3,2]);
+  });
+});

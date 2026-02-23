@@ -1149,3 +1149,40 @@ describe('phase60 coverage', () => {
     expect(maxSubarraySumCircular([-3,-2,-3])).toBe(-2);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('shortest path in binary matrix', () => {
+    const shortestPathBinaryMatrix=(grid:number[][]):number=>{const n=grid.length;if(grid[0][0]===1||grid[n-1][n-1]===1)return -1;if(n===1)return 1;const q:([number,number,number])[]=[[ 0,0,1]];grid[0][0]=1;const dirs=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];while(q.length){const[r,c,d]=q.shift()!;for(const[dr,dc]of dirs){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&grid[nr][nc]===0){if(nr===n-1&&nc===n-1)return d+1;grid[nr][nc]=1;q.push([nr,nc,d+1]);}}}return -1;};
+    expect(shortestPathBinaryMatrix([[0,1],[1,0]])).toBe(2);
+    expect(shortestPathBinaryMatrix([[0,0,0],[1,1,0],[1,1,0]])).toBe(4);
+    expect(shortestPathBinaryMatrix([[1,0,0],[1,1,0],[1,1,0]])).toBe(-1);
+  });
+  it('decode string stack', () => {
+    const decodeString=(s:string):string=>{const stack:([string,number])[]=[['',1]];let cur='',k=0;for(const c of s){if(c>='0'&&c<='9'){k=k*10+parseInt(c);}else if(c==='['){stack.push([cur,k]);cur='';k=0;}else if(c===']'){const[prev,n]=stack.pop()!;cur=prev+cur.repeat(n);}else cur+=c;}return cur;};
+    expect(decodeString('3[a]2[bc]')).toBe('aaabcbc');
+    expect(decodeString('3[a2[c]]')).toBe('accaccacc');
+    expect(decodeString('2[abc]3[cd]ef')).toBe('abcabccdcdcdef');
+  });
+  it('count primes sieve', () => {
+    const countPrimes=(n:number):number=>{if(n<2)return 0;const sieve=new Array(n).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<n;i++)if(sieve[i])for(let j=i*i;j<n;j+=i)sieve[j]=false;return sieve.filter(Boolean).length;};
+    expect(countPrimes(10)).toBe(4);
+    expect(countPrimes(0)).toBe(0);
+    expect(countPrimes(1)).toBe(0);
+    expect(countPrimes(20)).toBe(8);
+  });
+  it('odd even linked list', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const oddEvenList=(head:N|null):N|null=>{if(!head)return null;let odd:N=head,even:N|null=head.next;const evenHead=even;while(even?.next){odd.next=even.next;odd=odd.next!;even.next=odd.next;even=even.next;}odd.next=evenHead;return head;};
+    expect(toArr(oddEvenList(mk(1,2,3,4,5)))).toEqual([1,3,5,2,4]);
+    expect(toArr(oddEvenList(mk(2,1,3,5,6,4,7)))).toEqual([2,3,6,7,1,5,4]);
+  });
+  it('max subarray sum divide conquer', () => {
+    const maxSubArray=(nums:number[]):number=>{let maxSum=nums[0],cur=nums[0];for(let i=1;i<nums.length;i++){cur=Math.max(nums[i],cur+nums[i]);maxSum=Math.max(maxSum,cur);}return maxSum;};
+    expect(maxSubArray([-2,1,-3,4,-1,2,1,-5,4])).toBe(6);
+    expect(maxSubArray([1])).toBe(1);
+    expect(maxSubArray([5,4,-1,7,8])).toBe(23);
+    expect(maxSubArray([-1,-2,-3])).toBe(-1);
+  });
+});

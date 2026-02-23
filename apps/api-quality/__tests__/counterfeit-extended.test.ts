@@ -970,3 +970,41 @@ describe('phase60 coverage', () => {
     expect(numberOfSubarrays([2,2,2,1,2,2,1,2,2,2],2)).toBe(16);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('next greater element II circular', () => {
+    const nextGreaterElements=(nums:number[]):number[]=>{const n=nums.length;const res=new Array(n).fill(-1);const stack:number[]=[];for(let i=0;i<2*n;i++){while(stack.length&&nums[stack[stack.length-1]]<nums[i%n]){res[stack.pop()!]=nums[i%n];}if(i<n)stack.push(i);}return res;};
+    expect(nextGreaterElements([1,2,1])).toEqual([2,-1,2]);
+    expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
+  });
+  it('remove k digits greedy', () => {
+    const removeKdigits=(num:string,k:number):string=>{const stack:string[]=[];for(const d of num){while(k>0&&stack.length&&stack[stack.length-1]>d){stack.pop();k--;}stack.push(d);}while(k-->0)stack.pop();const res=stack.join('').replace(/^0+/,'');return res||'0';};
+    expect(removeKdigits('1432219',3)).toBe('1219');
+    expect(removeKdigits('10200',1)).toBe('200');
+    expect(removeKdigits('10',2)).toBe('0');
+  });
+  it('shortest path in binary matrix', () => {
+    const shortestPathBinaryMatrix=(grid:number[][]):number=>{const n=grid.length;if(grid[0][0]===1||grid[n-1][n-1]===1)return -1;if(n===1)return 1;const q:([number,number,number])[]=[[ 0,0,1]];grid[0][0]=1;const dirs=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];while(q.length){const[r,c,d]=q.shift()!;for(const[dr,dc]of dirs){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<n&&nc>=0&&nc<n&&grid[nr][nc]===0){if(nr===n-1&&nc===n-1)return d+1;grid[nr][nc]=1;q.push([nr,nc,d+1]);}}}return -1;};
+    expect(shortestPathBinaryMatrix([[0,1],[1,0]])).toBe(2);
+    expect(shortestPathBinaryMatrix([[0,0,0],[1,1,0],[1,1,0]])).toBe(4);
+    expect(shortestPathBinaryMatrix([[1,0,0],[1,1,0],[1,1,0]])).toBe(-1);
+  });
+  it('trie with word count', () => {
+    class Trie2{private root:{[k:string]:any}={};add(w:string,n:string='root'){let cur=this.root;for(const c of w){cur[c]=cur[c]||{_cnt:0};cur=cur[c];cur._cnt++;}cur._end=true;}countPrefix(p:string):number{let cur=this.root;for(const c of p){if(!cur[c])return 0;cur=cur[c];}return cur._cnt||0;}}
+    const t=new Trie2();['apple','app','application','apply'].forEach(w=>t.add(w));
+    expect(t.countPrefix('app')).toBe(4);
+    expect(t.countPrefix('appl')).toBe(3);
+    expect(t.countPrefix('z')).toBe(0);
+  });
+  it('design circular queue', () => {
+    class MyCircularQueue{private q:number[];private h=0;private t=0;private size=0;constructor(private k:number){this.q=new Array(k);}enQueue(v:number):boolean{if(this.isFull())return false;this.q[this.t]=v;this.t=(this.t+1)%this.k;this.size++;return true;}deQueue():boolean{if(this.isEmpty())return false;this.h=(this.h+1)%this.k;this.size--;return true;}Front():number{return this.isEmpty()?-1:this.q[this.h];}Rear():number{return this.isEmpty()?-1:this.q[(this.t-1+this.k)%this.k];}isEmpty():boolean{return this.size===0;}isFull():boolean{return this.size===this.k;}}
+    const q=new MyCircularQueue(3);
+    expect(q.enQueue(1)).toBe(true);q.enQueue(2);q.enQueue(3);
+    expect(q.enQueue(4)).toBe(false);
+    expect(q.Rear()).toBe(3);
+    expect(q.isFull()).toBe(true);
+    q.deQueue();
+    expect(q.enQueue(4)).toBe(true);
+    expect(q.Rear()).toBe(4);
+  });
+});

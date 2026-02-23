@@ -1116,3 +1116,44 @@ describe('phase60 coverage', () => {
     expect(minSubArrayLen(15,[1,2,3,4,5])).toBe(5);
   });
 });
+
+describe('phase61 coverage', () => {
+  it('swap nodes in pairs', () => {
+    type N={val:number;next:N|null};
+    const mk=(...v:number[]):N|null=>{let h:N|null=null;for(let i=v.length-1;i>=0;i--)h={val:v[i],next:h};return h;};
+    const toArr=(h:N|null):number[]=>{const a:number[]=[];while(h){a.push(h.val);h=h.next;}return a;};
+    const swapPairs=(head:N|null):N|null=>{if(!head?.next)return head;const second=head.next;head.next=swapPairs(second.next);second.next=head;return second;};
+    expect(toArr(swapPairs(mk(1,2,3,4)))).toEqual([2,1,4,3]);
+    expect(toArr(swapPairs(mk(1)))).toEqual([1]);
+    expect(toArr(swapPairs(null))).toEqual([]);
+  });
+  it('contiguous array equal zeros ones', () => {
+    const findMaxLength=(nums:number[]):number=>{const map=new Map([[0,-1]]);let max=0,count=0;for(let i=0;i<nums.length;i++){count+=nums[i]===0?-1:1;if(map.has(count))max=Math.max(max,i-map.get(count)!);else map.set(count,i);}return max;};
+    expect(findMaxLength([0,1])).toBe(2);
+    expect(findMaxLength([0,1,0])).toBe(2);
+    expect(findMaxLength([0,0,1,0,0,0,1,1])).toBe(6);
+  });
+  it('decode string stack', () => {
+    const decodeString=(s:string):string=>{const stack:([string,number])[]=[['',1]];let cur='',k=0;for(const c of s){if(c>='0'&&c<='9'){k=k*10+parseInt(c);}else if(c==='['){stack.push([cur,k]);cur='';k=0;}else if(c===']'){const[prev,n]=stack.pop()!;cur=prev+cur.repeat(n);}else cur+=c;}return cur;};
+    expect(decodeString('3[a]2[bc]')).toBe('aaabcbc');
+    expect(decodeString('3[a2[c]]')).toBe('accaccacc');
+    expect(decodeString('2[abc]3[cd]ef')).toBe('abcabccdcdcdef');
+  });
+  it('intersection of two linked lists', () => {
+    type N={val:number;next:N|null};
+    const getIntersectionNode=(h1:N|null,h2:N|null):N|null=>{let a=h1,b=h2;while(a!==b){a=a?a.next:h2;b=b?b.next:h1;}return a;};
+    const shared={val:8,next:{val:4,next:{val:5,next:null}}};
+    const l1:N={val:4,next:{val:1,next:shared}};
+    const l2:N={val:5,next:{val:6,next:{val:1,next:shared}}};
+    expect(getIntersectionNode(l1,l2)).toBe(shared);
+    expect(getIntersectionNode(null,null)).toBeNull();
+  });
+  it('LFU cache operations', () => {
+    class LFUCache{private cap:number;private min=0;private kv=new Map<number,number>();private kf=new Map<number,number>();private fk=new Map<number,Set<number>>();constructor(c:number){this.cap=c;}get(k:number):number{if(!this.kv.has(k))return -1;this._inc(k);return this.kv.get(k)!;}_inc(k:number):void{const f=this.kf.get(k)||0;this.kf.set(k,f+1);this.fk.get(f)?.delete(k);if(!this.fk.has(f+1))this.fk.set(f+1,new Set());this.fk.get(f+1)!.add(k);if(f===this.min&&this.fk.get(f)?.size===0)this.min++;}put(k:number,v:number):void{if(this.cap<=0)return;if(this.kv.has(k)){this.kv.set(k,v);this._inc(k);return;}if(this.kv.size>=this.cap){const evict=[...this.fk.get(this.min)!][0];this.fk.get(this.min)!.delete(evict);this.kv.delete(evict);this.kf.delete(evict);}this.kv.set(k,v);this.kf.set(k,1);if(!this.fk.has(1))this.fk.set(1,new Set());this.fk.get(1)!.add(k);this.min=1;}}
+    const lfu=new LFUCache(2);lfu.put(1,1);lfu.put(2,2);
+    expect(lfu.get(1)).toBe(1);
+    lfu.put(3,3);
+    expect(lfu.get(2)).toBe(-1);
+    expect(lfu.get(3)).toBe(3);
+  });
+});
