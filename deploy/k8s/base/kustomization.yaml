@@ -16,6 +16,7 @@ resources:
   - monitoring.yaml
   - hpa.yaml
   - pdb.yaml
+  - service-monitors.yaml
 
 # Apply securityContext to all backend microservices
 patches:

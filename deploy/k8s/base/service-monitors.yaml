@@ -1,0 +1,788 @@
+# ServiceMonitor resources for Prometheus Operator
+# Defines how Prometheus scrapes metrics from each IMS microservice.
+# Requires: kube-prometheus-stack or prometheus-operator installed in cluster.
+#
+# To use: ensure the Prometheus CRD serviceMonitorSelector matches
+#         the label `app.kubernetes.io/part-of: ims`
+#
+# Apply:
+#   kubectl apply -f deploy/k8s/base/service-monitors.yaml
+
+---
+# ── API Gateway ──────────────────────────────────────────────────────────────
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-gateway
+  namespace: ims
+  labels:
+    app: api-gateway
+    app.kubernetes.io/part-of: ims
+    tier: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: api-gateway
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 10s
+      scrapeTimeout: 8s
+      honorLabels: true
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-health-safety
+  namespace: ims
+  labels:
+    app: api-health-safety
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-health-safety
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-environment
+  namespace: ims
+  labels:
+    app: api-environment
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-environment
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-quality
+  namespace: ims
+  labels:
+    app: api-quality
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-quality
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-ai-analysis
+  namespace: ims
+  labels:
+    app: api-ai-analysis
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-ai-analysis
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-inventory
+  namespace: ims
+  labels:
+    app: api-inventory
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-inventory
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-hr
+  namespace: ims
+  labels:
+    app: api-hr
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-hr
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-payroll
+  namespace: ims
+  labels:
+    app: api-payroll
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-payroll
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-workflows
+  namespace: ims
+  labels:
+    app: api-workflows
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-workflows
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-project-management
+  namespace: ims
+  labels:
+    app: api-project-management
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-project-management
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-automotive
+  namespace: ims
+  labels:
+    app: api-automotive
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-automotive
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-medical
+  namespace: ims
+  labels:
+    app: api-medical
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-medical
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-aerospace
+  namespace: ims
+  labels:
+    app: api-aerospace
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-aerospace
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-finance
+  namespace: ims
+  labels:
+    app: api-finance
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-finance
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-crm
+  namespace: ims
+  labels:
+    app: api-crm
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-crm
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-infosec
+  namespace: ims
+  labels:
+    app: api-infosec
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-infosec
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-esg
+  namespace: ims
+  labels:
+    app: api-esg
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-esg
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-cmms
+  namespace: ims
+  labels:
+    app: api-cmms
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-cmms
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-portal
+  namespace: ims
+  labels:
+    app: api-portal
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-portal
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-food-safety
+  namespace: ims
+  labels:
+    app: api-food-safety
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-food-safety
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-energy
+  namespace: ims
+  labels:
+    app: api-energy
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-energy
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-analytics
+  namespace: ims
+  labels:
+    app: api-analytics
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-analytics
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-field-service
+  namespace: ims
+  labels:
+    app: api-field-service
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-field-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-iso42001
+  namespace: ims
+  labels:
+    app: api-iso42001
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-iso42001
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-iso37001
+  namespace: ims
+  labels:
+    app: api-iso37001
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-iso37001
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-marketing
+  namespace: ims
+  labels:
+    app: api-marketing
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-marketing
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-partners
+  namespace: ims
+  labels:
+    app: api-partners
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-partners
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-risk
+  namespace: ims
+  labels:
+    app: api-risk
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-risk
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-training
+  namespace: ims
+  labels:
+    app: api-training
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-training
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-suppliers
+  namespace: ims
+  labels:
+    app: api-suppliers
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-suppliers
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-assets
+  namespace: ims
+  labels:
+    app: api-assets
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-assets
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-documents
+  namespace: ims
+  labels:
+    app: api-documents
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-documents
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-complaints
+  namespace: ims
+  labels:
+    app: api-complaints
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-complaints
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-contracts
+  namespace: ims
+  labels:
+    app: api-contracts
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-contracts
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-ptw
+  namespace: ims
+  labels:
+    app: api-ptw
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-ptw
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-reg-monitor
+  namespace: ims
+  labels:
+    app: api-reg-monitor
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-reg-monitor
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-incidents
+  namespace: ims
+  labels:
+    app: api-incidents
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-incidents
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-audits
+  namespace: ims
+  labels:
+    app: api-audits
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-audits
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-mgmt-review
+  namespace: ims
+  labels:
+    app: api-mgmt-review
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-mgmt-review
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-chemicals
+  namespace: ims
+  labels:
+    app: api-chemicals
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-chemicals
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-api-emergency
+  namespace: ims
+  labels:
+    app: api-emergency
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: api-emergency
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+# ── Monitoring Stack Self-Monitoring ────────────────────────────────────────
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-prometheus-self
+  namespace: ims
+  labels:
+    app: prometheus
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  endpoints:
+    - port: web
+      path: /metrics
+      interval: 30s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ims-alertmanager-self
+  namespace: ims
+  labels:
+    app: alertmanager
+    app.kubernetes.io/part-of: ims
+spec:
+  selector:
+    matchLabels:
+      app: alertmanager
+  endpoints:
+    - port: web
+      path: /metrics
+      interval: 30s
