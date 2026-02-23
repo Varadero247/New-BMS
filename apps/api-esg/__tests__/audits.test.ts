@@ -1062,3 +1062,14 @@ describe('phase69 maximalSq coverage',()=>{
   it('2x2',()=>expect(maximalSqP69([['1','1'],['1','1']])).toBe(4));
   it('chess',()=>expect(maximalSqP69([['0','1'],['1','0']])).toBe(1));
 });
+
+
+// singleNumberII (every appears 3× except one)
+function singleNumberIIP70(nums:number[]):number{let ones=0,twos=0;for(const n of nums){ones=(ones^n)&~twos;twos=(twos^n)&~ones;}return ones;}
+describe('phase70 singleNumberII coverage',()=>{
+  it('ex1',()=>expect(singleNumberIIP70([2,2,3,2])).toBe(3));
+  it('ex2',()=>expect(singleNumberIIP70([0,1,0,1,0,1,99])).toBe(99));
+  it('one',()=>expect(singleNumberIIP70([1])).toBe(1));
+  it('seven',()=>expect(singleNumberIIP70([3,3,3,7])).toBe(7));
+  it('zero_triple',()=>expect(singleNumberIIP70([0,0,0,5])).toBe(5));
+});

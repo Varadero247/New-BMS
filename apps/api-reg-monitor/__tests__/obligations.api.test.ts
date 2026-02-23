@@ -1049,3 +1049,14 @@ describe('phase69 floodFill coverage',()=>{
   it('isolated',()=>{const r=floodFillP69([[1,0],[0,1]],0,0,3);expect(r[0][0]).toBe(3);expect(r[1][1]).toBe(1);});
   it('corner',()=>{const r=floodFillP69([[1,1],[1,0]],0,0,5);expect(r[0][0]).toBe(5);expect(r[1][1]).toBe(0);});
 });
+
+
+// isAnagram
+function isAnagramP70(s:string,t:string):boolean{if(s.length!==t.length)return false;const cnt=new Array(26).fill(0);for(let i=0;i<s.length;i++){cnt[s.charCodeAt(i)-97]++;cnt[t.charCodeAt(i)-97]--;}return cnt.every(c=>c===0);}
+describe('phase70 isAnagram coverage',()=>{
+  it('ex1',()=>expect(isAnagramP70('anagram','nagaram')).toBe(true));
+  it('ex2',()=>expect(isAnagramP70('rat','car')).toBe(false));
+  it('single',()=>expect(isAnagramP70('a','a')).toBe(true));
+  it('two',()=>expect(isAnagramP70('ab','ba')).toBe(true));
+  it('diff_len',()=>expect(isAnagramP70('abc','abcd')).toBe(false));
+});

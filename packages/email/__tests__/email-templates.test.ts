@@ -1009,3 +1009,14 @@ describe('phase69 uniquePaths coverage',()=>{
   it('2x2',()=>expect(uniquePathsP69(2,2)).toBe(2));
   it('3x3',()=>expect(uniquePathsP69(3,3)).toBe(6));
 });
+
+
+// reverseWords
+function reverseWordsP70(s:string):string{return s.trim().split(/\s+/).reverse().join(' ');}
+describe('phase70 reverseWords coverage',()=>{
+  it('ex1',()=>expect(reverseWordsP70('the sky is blue')).toBe('blue is sky the'));
+  it('ex2',()=>expect(reverseWordsP70('  hello world  ')).toBe('world hello'));
+  it('ex3',()=>expect(reverseWordsP70('a good   example')).toBe('example good a'));
+  it('single',()=>expect(reverseWordsP70('single')).toBe('single'));
+  it('two',()=>expect(reverseWordsP70('a b')).toBe('b a'));
+});

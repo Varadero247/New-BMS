@@ -1115,3 +1115,14 @@ describe('phase69 isValidSudoku coverage',()=>{
   it('row_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[0][1]='1';expect(isValidSudokuP69(b)).toBe(false);});
   it('col_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[1][0]='1';expect(isValidSudokuP69(b)).toBe(false);});
 });
+
+
+// combinationSumIV (order matters)
+function combinationSumIVP70(nums:number[],target:number):number{const dp=new Array(target+1).fill(0);dp[0]=1;for(let i=1;i<=target;i++)for(const n of nums)if(i>=n)dp[i]+=dp[i-n];return dp[target];}
+describe('phase70 combinationSumIV coverage',()=>{
+  it('ex1',()=>expect(combinationSumIVP70([1,2,3],4)).toBe(7));
+  it('no_combo',()=>expect(combinationSumIVP70([9],3)).toBe(0));
+  it('single',()=>expect(combinationSumIVP70([1],1)).toBe(1));
+  it('two_coins',()=>expect(combinationSumIVP70([1,2],3)).toBe(3));
+  it('target_zero',()=>expect(combinationSumIVP70([1,2],0)).toBe(1));
+});

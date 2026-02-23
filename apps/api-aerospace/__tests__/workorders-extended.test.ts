@@ -1251,3 +1251,14 @@ describe('phase69 longestPalinSubstr coverage',()=>{
   it('racecar',()=>expect(longestPalinSubstrP69('racecar')).toBe('racecar'));
   it('abba',()=>expect(longestPalinSubstrP69('abba')).toBe('abba'));
 });
+
+
+// cuttingRibbons
+function cuttingRibbonsP70(ribbons:number[],k:number):number{let l=1,r=Math.max(...ribbons);while(l<r){const m=(l+r+1)>>1;const tot=ribbons.reduce((s,x)=>s+Math.floor(x/m),0);if(tot>=k)l=m;else r=m-1;}return ribbons.reduce((s,x)=>s+Math.floor(x/l),0)>=k?l:0;}
+describe('phase70 cuttingRibbons coverage',()=>{
+  it('ex1',()=>expect(cuttingRibbonsP70([9,7,5],3)).toBe(5));
+  it('ex2',()=>expect(cuttingRibbonsP70([7,5,9],4)).toBe(4));
+  it('six',()=>expect(cuttingRibbonsP70([5,5,5],6)).toBe(2));
+  it('zero',()=>expect(cuttingRibbonsP70([1,2,3],10)).toBe(0));
+  it('single',()=>expect(cuttingRibbonsP70([100],1)).toBe(100));
+});

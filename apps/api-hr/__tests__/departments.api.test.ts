@@ -1227,3 +1227,14 @@ describe('phase69 longestConsecutive coverage',()=>{
   it('single',()=>expect(longestConsecutiveP69([1])).toBe(1));
   it('seq',()=>expect(longestConsecutiveP69([1,2,3,4,5])).toBe(5));
 });
+
+
+// wordBreak
+function wordBreakP70(s:string,wordDict:string[]):boolean{const set=new Set(wordDict),n=s.length,dp=new Array(n+1).fill(false);dp[0]=true;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&set.has(s.slice(j,i))){dp[i]=true;break;}return dp[n];}
+describe('phase70 wordBreak coverage',()=>{
+  it('ex1',()=>expect(wordBreakP70('leetcode',['leet','code'])).toBe(true));
+  it('ex2',()=>expect(wordBreakP70('applepenapple',['apple','pen'])).toBe(true));
+  it('ex3',()=>expect(wordBreakP70('catsandog',['cats','dog','sand','and','cat'])).toBe(false));
+  it('single',()=>expect(wordBreakP70('a',['a'])).toBe(true));
+  it('two',()=>expect(wordBreakP70('ab',['a','b'])).toBe(true));
+});

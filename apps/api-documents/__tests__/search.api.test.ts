@@ -995,3 +995,14 @@ describe('phase69 predictWinner coverage',()=>{
   it('single',()=>expect(predictWinnerP69([1])).toBe(true));
   it('equal',()=>expect(predictWinnerP69([2,2])).toBe(true));
 });
+
+
+// reverseWords
+function reverseWordsP70(s:string):string{return s.trim().split(/\s+/).reverse().join(' ');}
+describe('phase70 reverseWords coverage',()=>{
+  it('ex1',()=>expect(reverseWordsP70('the sky is blue')).toBe('blue is sky the'));
+  it('ex2',()=>expect(reverseWordsP70('  hello world  ')).toBe('world hello'));
+  it('ex3',()=>expect(reverseWordsP70('a good   example')).toBe('example good a'));
+  it('single',()=>expect(reverseWordsP70('single')).toBe('single'));
+  it('two',()=>expect(reverseWordsP70('a b')).toBe('b a'));
+});

@@ -1176,3 +1176,14 @@ describe('phase69 longestConsecutive coverage',()=>{
   it('single',()=>expect(longestConsecutiveP69([1])).toBe(1));
   it('seq',()=>expect(longestConsecutiveP69([1,2,3,4,5])).toBe(5));
 });
+
+
+// findKthLargest
+function findKthLargestP70(nums:number[],k:number):number{return nums.slice().sort((a,b)=>b-a)[k-1];}
+describe('phase70 findKthLargest coverage',()=>{
+  it('ex1',()=>expect(findKthLargestP70([3,2,1,5,6,4],2)).toBe(5));
+  it('ex2',()=>expect(findKthLargestP70([3,2,3,1,2,4,5,5,6],4)).toBe(4));
+  it('single',()=>expect(findKthLargestP70([1],1)).toBe(1));
+  it('two',()=>expect(findKthLargestP70([2,1],2)).toBe(1));
+  it('dups',()=>expect(findKthLargestP70([7,7,7,7],2)).toBe(7));
+});

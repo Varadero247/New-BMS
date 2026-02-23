@@ -1214,3 +1214,14 @@ describe('phase69 distinctSubseq coverage',()=>{
   it('dup',()=>expect(distinctSubseqP69('aa','a')).toBe(2));
   it('exact',()=>expect(distinctSubseqP69('abc','abc')).toBe(1));
 });
+
+
+// longestArithmeticSubsequence
+function longestArithSeqP70(nums:number[]):number{const n=nums.length;if(n<=1)return n;const dp:Map<number,number>[]=Array.from({length:n},()=>new Map());let best=2;for(let i=1;i<n;i++)for(let j=0;j<i;j++){const d=nums[i]-nums[j];const len=(dp[j].get(d)||1)+1;dp[i].set(d,len);best=Math.max(best,len);}return best;}
+describe('phase70 longestArithSeq coverage',()=>{
+  it('ex1',()=>expect(longestArithSeqP70([3,6,9,12])).toBe(4));
+  it('ex2',()=>expect(longestArithSeqP70([9,4,7,2,10])).toBe(3));
+  it('ex3',()=>expect(longestArithSeqP70([20,1,15,3,10,5,8])).toBe(4));
+  it('two',()=>expect(longestArithSeqP70([1,2])).toBe(2));
+  it('single',()=>expect(longestArithSeqP70([1])).toBe(1));
+});

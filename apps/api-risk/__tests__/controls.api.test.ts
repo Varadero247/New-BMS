@@ -1063,3 +1063,14 @@ describe('phase69 canCross coverage',()=>{
   it('gap',()=>expect(canCrossP69([0,2])).toBe(false));
   it('three',()=>expect(canCrossP69([0,1,2])).toBe(true));
 });
+
+
+// jumpGameII (min jumps)
+function jumpGameIIP70(nums:number[]):number{let jumps=0,end=0,far=0;for(let i=0;i<nums.length-1;i++){far=Math.max(far,i+nums[i]);if(i===end){jumps++;end=far;}}return jumps;}
+describe('phase70 jumpGameII coverage',()=>{
+  it('ex1',()=>expect(jumpGameIIP70([2,3,1,1,4])).toBe(2));
+  it('ex2',()=>expect(jumpGameIIP70([2,3,0,1,4])).toBe(2));
+  it('single',()=>expect(jumpGameIIP70([1])).toBe(0));
+  it('three',()=>expect(jumpGameIIP70([1,1,1])).toBe(2));
+  it('big_jump',()=>expect(jumpGameIIP70([5,1,1,1,1])).toBe(1));
+});

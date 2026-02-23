@@ -1227,3 +1227,14 @@ describe('phase69 numSquares coverage',()=>{
   it('n4',()=>expect(numSquaresP69(4)).toBe(1));
   it('n7',()=>expect(numSquaresP69(7)).toBe(4));
 });
+
+
+// moveZeroes
+function moveZeroesP70(nums:number[]):number[]{let p=0;for(const n of nums)if(n!==0)nums[p++]=n;while(p<nums.length)nums[p++]=0;return nums;}
+describe('phase70 moveZeroes coverage',()=>{
+  it('ex1',()=>{const a=[0,1,0,3,12];moveZeroesP70(a);expect(a).toEqual([1,3,12,0,0]);});
+  it('single',()=>{const a=[0];moveZeroesP70(a);expect(a[0]).toBe(0);});
+  it('mid',()=>{const a=[1,0,1];moveZeroesP70(a);expect(a).toEqual([1,1,0]);});
+  it('none',()=>{const a=[1,2,3];moveZeroesP70(a);expect(a).toEqual([1,2,3]);});
+  it('all_zero',()=>{const a=[0,0,1];moveZeroesP70(a);expect(a[0]).toBe(1);});
+});

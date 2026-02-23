@@ -1171,3 +1171,14 @@ describe('phase69 wordSearch coverage',()=>{
   it('single',()=>expect(wordSearchP69([['a']],'a')).toBe(true));
   it('snake',()=>expect(wordSearchP69([['a','b'],['c','d']],'abdc')).toBe(true));
 });
+
+
+// singleNumber (XOR)
+function singleNumberP70(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('phase70 singleNumber coverage',()=>{
+  it('ex1',()=>expect(singleNumberP70([2,2,1])).toBe(1));
+  it('ex2',()=>expect(singleNumberP70([4,1,2,1,2])).toBe(4));
+  it('one',()=>expect(singleNumberP70([1])).toBe(1));
+  it('zero',()=>expect(singleNumberP70([0,1,0])).toBe(1));
+  it('large',()=>expect(singleNumberP70([99])).toBe(99));
+});

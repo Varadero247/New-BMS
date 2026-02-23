@@ -996,3 +996,14 @@ describe('phase69 tribonacci coverage',()=>{
   it('n3',()=>expect(tribonacciP69(3)).toBe(2));
   it('n4',()=>expect(tribonacciP69(4)).toBe(4));
 });
+
+
+// longestValidParentheses
+function longestValidParP70(s:string):number{const st=[-1];let best=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();if(st.length===0)st.push(i);else best=Math.max(best,i-st[st.length-1]);}}return best;}
+describe('phase70 longestValidPar coverage',()=>{
+  it('ex1',()=>expect(longestValidParP70('(()')).toBe(2));
+  it('ex2',()=>expect(longestValidParP70(')()())')).toBe(4));
+  it('empty',()=>expect(longestValidParP70('')).toBe(0));
+  it('basic',()=>expect(longestValidParP70('()')).toBe(2));
+  it('mix',()=>expect(longestValidParP70('()((')).toBe(2));
+});

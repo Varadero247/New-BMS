@@ -1496,3 +1496,14 @@ describe('phase69 maximalSq coverage',()=>{
   it('2x2',()=>expect(maximalSqP69([['1','1'],['1','1']])).toBe(4));
   it('chess',()=>expect(maximalSqP69([['0','1'],['1','0']])).toBe(1));
 });
+
+
+// maxProfit3 (at most 2 transactions)
+function maxProfit3P70(prices:number[]):number{let b1=-Infinity,s1=0,b2=-Infinity,s2=0;for(const p of prices){b1=Math.max(b1,-p);s1=Math.max(s1,b1+p);b2=Math.max(b2,s1-p);s2=Math.max(s2,b2+p);}return s2;}
+describe('phase70 maxProfit3 coverage',()=>{
+  it('ex1',()=>expect(maxProfit3P70([3,3,5,0,0,3,1,4])).toBe(6));
+  it('seq',()=>expect(maxProfit3P70([1,2,3,4,5])).toBe(4));
+  it('down',()=>expect(maxProfit3P70([7,6,4,3,1])).toBe(0));
+  it('two',()=>expect(maxProfit3P70([1,2])).toBe(1));
+  it('ex2',()=>expect(maxProfit3P70([3,2,6,5,0,3])).toBe(7));
+});

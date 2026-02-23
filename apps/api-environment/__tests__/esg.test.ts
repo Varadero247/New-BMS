@@ -1715,3 +1715,14 @@ describe('phase69 isValidSudoku coverage',()=>{
   it('row_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[0][1]='1';expect(isValidSudokuP69(b)).toBe(false);});
   it('col_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[1][0]='1';expect(isValidSudokuP69(b)).toBe(false);});
 });
+
+
+// wordBreak
+function wordBreakP70(s:string,wordDict:string[]):boolean{const set=new Set(wordDict),n=s.length,dp=new Array(n+1).fill(false);dp[0]=true;for(let i=1;i<=n;i++)for(let j=0;j<i;j++)if(dp[j]&&set.has(s.slice(j,i))){dp[i]=true;break;}return dp[n];}
+describe('phase70 wordBreak coverage',()=>{
+  it('ex1',()=>expect(wordBreakP70('leetcode',['leet','code'])).toBe(true));
+  it('ex2',()=>expect(wordBreakP70('applepenapple',['apple','pen'])).toBe(true));
+  it('ex3',()=>expect(wordBreakP70('catsandog',['cats','dog','sand','and','cat'])).toBe(false));
+  it('single',()=>expect(wordBreakP70('a',['a'])).toBe(true));
+  it('two',()=>expect(wordBreakP70('ab',['a','b'])).toBe(true));
+});

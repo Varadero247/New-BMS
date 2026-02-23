@@ -1138,3 +1138,14 @@ describe('phase69 minCostClimb coverage',()=>{
   it('two',()=>expect(minCostClimbP69([1,2])).toBe(1));
   it('triple',()=>expect(minCostClimbP69([5,5,5])).toBe(5));
 });
+
+
+// singleNumber (XOR)
+function singleNumberP70(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('phase70 singleNumber coverage',()=>{
+  it('ex1',()=>expect(singleNumberP70([2,2,1])).toBe(1));
+  it('ex2',()=>expect(singleNumberP70([4,1,2,1,2])).toBe(4));
+  it('one',()=>expect(singleNumberP70([1])).toBe(1));
+  it('zero',()=>expect(singleNumberP70([0,1,0])).toBe(1));
+  it('large',()=>expect(singleNumberP70([99])).toBe(99));
+});

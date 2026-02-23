@@ -1127,3 +1127,14 @@ describe('phase69 minCutPalin coverage',()=>{
   it('palindrome',()=>expect(minCutPalinP69('aba')).toBe(0));
   it('full_pal',()=>expect(minCutPalinP69('abacaba')).toBe(0));
 });
+
+
+// longestTurbulentSubarray
+function longestTurbP70(arr:number[]):number{let up=1,dn=1,best=1;for(let i=1;i<arr.length;i++){if(arr[i]>arr[i-1]){up=dn+1;dn=1;}else if(arr[i]<arr[i-1]){dn=up+1;up=1;}else{up=dn=1;}best=Math.max(best,up,dn);}return best;}
+describe('phase70 longestTurb coverage',()=>{
+  it('ex1',()=>expect(longestTurbP70([9,4,2,10,7,8,8,1,9])).toBe(5));
+  it('asc',()=>expect(longestTurbP70([4,8,12,16])).toBe(2));
+  it('single',()=>expect(longestTurbP70([100])).toBe(1));
+  it('valley',()=>expect(longestTurbP70([1,2,1])).toBe(3));
+  it('equal',()=>expect(longestTurbP70([9,9])).toBe(1));
+});

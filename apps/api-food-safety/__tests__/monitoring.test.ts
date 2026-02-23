@@ -1080,3 +1080,14 @@ describe('phase69 isValidSudoku coverage',()=>{
   it('row_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[0][1]='1';expect(isValidSudokuP69(b)).toBe(false);});
   it('col_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[1][0]='1';expect(isValidSudokuP69(b)).toBe(false);});
 });
+
+
+// singleNumber (XOR)
+function singleNumberP70(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('phase70 singleNumber coverage',()=>{
+  it('ex1',()=>expect(singleNumberP70([2,2,1])).toBe(1));
+  it('ex2',()=>expect(singleNumberP70([4,1,2,1,2])).toBe(4));
+  it('one',()=>expect(singleNumberP70([1])).toBe(1));
+  it('zero',()=>expect(singleNumberP70([0,1,0])).toBe(1));
+  it('large',()=>expect(singleNumberP70([99])).toBe(99));
+});

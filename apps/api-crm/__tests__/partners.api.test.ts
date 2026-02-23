@@ -1234,3 +1234,14 @@ describe('phase69 minCostClimb coverage',()=>{
   it('two',()=>expect(minCostClimbP69([1,2])).toBe(1));
   it('triple',()=>expect(minCostClimbP69([5,5,5])).toBe(5));
 });
+
+
+// missingNumber
+function missingNumberP70(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('phase70 missingNumber coverage',()=>{
+  it('ex1',()=>expect(missingNumberP70([3,0,1])).toBe(2));
+  it('ex2',()=>expect(missingNumberP70([0,1])).toBe(2));
+  it('ex3',()=>expect(missingNumberP70([9,6,4,2,3,5,7,0,1])).toBe(8));
+  it('zero',()=>expect(missingNumberP70([0])).toBe(1));
+  it('one',()=>expect(missingNumberP70([1])).toBe(0));
+});

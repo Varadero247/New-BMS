@@ -1296,3 +1296,14 @@ describe('phase69 longestPalinSubstr coverage',()=>{
   it('racecar',()=>expect(longestPalinSubstrP69('racecar')).toBe('racecar'));
   it('abba',()=>expect(longestPalinSubstrP69('abba')).toBe('abba'));
 });
+
+
+// longestValidParentheses
+function longestValidParP70(s:string):number{const st=[-1];let best=0;for(let i=0;i<s.length;i++){if(s[i]==='(')st.push(i);else{st.pop();if(st.length===0)st.push(i);else best=Math.max(best,i-st[st.length-1]);}}return best;}
+describe('phase70 longestValidPar coverage',()=>{
+  it('ex1',()=>expect(longestValidParP70('(()')).toBe(2));
+  it('ex2',()=>expect(longestValidParP70(')()())')).toBe(4));
+  it('empty',()=>expect(longestValidParP70('')).toBe(0));
+  it('basic',()=>expect(longestValidParP70('()')).toBe(2));
+  it('mix',()=>expect(longestValidParP70('()((')).toBe(2));
+});

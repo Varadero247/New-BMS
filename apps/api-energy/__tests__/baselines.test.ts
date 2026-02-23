@@ -1169,3 +1169,14 @@ describe('phase69 predictWinner coverage',()=>{
   it('single',()=>expect(predictWinnerP69([1])).toBe(true));
   it('equal',()=>expect(predictWinnerP69([2,2])).toBe(true));
 });
+
+
+// coinChangeWays (number of ways)
+function coinChangeWaysP70(coins:number[],amount:number):number{const dp=new Array(amount+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amount;i++)dp[i]+=dp[i-c];return dp[amount];}
+describe('phase70 coinChangeWays coverage',()=>{
+  it('ex1',()=>expect(coinChangeWaysP70([1,2,5],5)).toBe(4));
+  it('no_way',()=>expect(coinChangeWaysP70([2],3)).toBe(0));
+  it('one',()=>expect(coinChangeWaysP70([10],10)).toBe(1));
+  it('four',()=>expect(coinChangeWaysP70([1,2,3],4)).toBe(4));
+  it('zero',()=>expect(coinChangeWaysP70([1],0)).toBe(1));
+});

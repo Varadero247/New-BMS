@@ -1392,3 +1392,14 @@ describe('phase69 distinctSubseq coverage',()=>{
   it('dup',()=>expect(distinctSubseqP69('aa','a')).toBe(2));
   it('exact',()=>expect(distinctSubseqP69('abc','abc')).toBe(1));
 });
+
+
+// splitArrayLargestSum
+function splitArrayLargestSumP70(nums:number[],k:number):number{let l=Math.max(...nums),r=nums.reduce((a,b)=>a+b,0);while(l<r){const m=l+r>>1;let parts=1,cur=0;for(const n of nums){if(cur+n>m){parts++;cur=0;}cur+=n;}if(parts<=k)r=m;else l=m+1;}return l;}
+describe('phase70 splitArrayLargestSum coverage',()=>{
+  it('ex1',()=>expect(splitArrayLargestSumP70([7,2,5,10,8],2)).toBe(18));
+  it('ex2',()=>expect(splitArrayLargestSumP70([1,2,3,4,5],2)).toBe(9));
+  it('ex3',()=>expect(splitArrayLargestSumP70([1,4,4],3)).toBe(4));
+  it('single',()=>expect(splitArrayLargestSumP70([5],1)).toBe(5));
+  it('one_part',()=>expect(splitArrayLargestSumP70([1,2,3],1)).toBe(6));
+});

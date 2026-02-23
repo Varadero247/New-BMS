@@ -1046,3 +1046,14 @@ describe('phase69 longestConsecutive coverage',()=>{
   it('single',()=>expect(longestConsecutiveP69([1])).toBe(1));
   it('seq',()=>expect(longestConsecutiveP69([1,2,3,4,5])).toBe(5));
 });
+
+
+// deleteOperationsForStrings
+function deleteOpsP70(s1:string,s2:string):number{const m=s1.length,n=s2.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s1[i-1]===s2[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);const lcs=dp[m][n];return(m-lcs)+(n-lcs);}
+describe('phase70 deleteOps coverage',()=>{
+  it('ex1',()=>expect(deleteOpsP70('sea','eat')).toBe(2));
+  it('ex2',()=>expect(deleteOpsP70('leetcode','etco')).toBe(4));
+  it('same',()=>expect(deleteOpsP70('a','a')).toBe(0));
+  it('empty',()=>expect(deleteOpsP70('abc','')).toBe(3));
+  it('ex3',()=>expect(deleteOpsP70('park','spake')).toBe(3));
+});

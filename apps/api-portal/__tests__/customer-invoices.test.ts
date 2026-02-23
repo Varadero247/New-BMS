@@ -1172,3 +1172,14 @@ describe('phase69 maxDotProduct coverage',()=>{
   it('single',()=>expect(maxDotProductP69([1],[1])).toBe(1));
   it('both_pos',()=>expect(maxDotProductP69([2,3],[3,2])).toBe(12));
 });
+
+
+// maxSumCircularSubarray
+function maxSumCircularP70(nums:number[]):number{let maxS=nums[0],minS=nums[0],curMax=nums[0],curMin=nums[0],total=nums[0];for(let i=1;i<nums.length;i++){total+=nums[i];curMax=Math.max(nums[i],curMax+nums[i]);maxS=Math.max(maxS,curMax);curMin=Math.min(nums[i],curMin+nums[i]);minS=Math.min(minS,curMin);}return maxS>0?Math.max(maxS,total-minS):maxS;}
+describe('phase70 maxSumCircular coverage',()=>{
+  it('ex1',()=>expect(maxSumCircularP70([1,-2,3,-2])).toBe(3));
+  it('ex2',()=>expect(maxSumCircularP70([5,-3,5])).toBe(10));
+  it('all_neg',()=>expect(maxSumCircularP70([-3,-2,-3])).toBe(-2));
+  it('all_pos',()=>expect(maxSumCircularP70([3,1,2])).toBe(6));
+  it('single',()=>expect(maxSumCircularP70([1])).toBe(1));
+});

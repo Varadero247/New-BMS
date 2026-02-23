@@ -2083,3 +2083,14 @@ describe('phase69 isValidSudoku coverage',()=>{
   it('row_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[0][1]='1';expect(isValidSudokuP69(b)).toBe(false);});
   it('col_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[1][0]='1';expect(isValidSudokuP69(b)).toBe(false);});
 });
+
+
+// kClosestPoints
+function kClosestPointsP70(points:number[][],k:number):number[][]{return points.slice().sort((a,b)=>(a[0]**2+a[1]**2)-(b[0]**2+b[1]**2)).slice(0,k);}
+describe('phase70 kClosestPoints coverage',()=>{
+  it('ex1',()=>expect(kClosestPointsP70([[1,3],[-2,2]],1)).toEqual([[-2,2]]));
+  it('ex2',()=>expect(kClosestPointsP70([[3,3],[5,-1],[-2,4]],2).length).toBe(2));
+  it('origin',()=>expect(kClosestPointsP70([[0,0],[1,1]],1)[0][0]).toBe(0));
+  it('single',()=>expect(kClosestPointsP70([[1,0]],1)[0][0]).toBe(1));
+  it('order',()=>{const r=kClosestPointsP70([[-1,-1],[2,2],[1,1]],2);expect(r[0][0]).toBe(-1);});
+});

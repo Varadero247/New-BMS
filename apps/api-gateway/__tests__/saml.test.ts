@@ -1240,3 +1240,14 @@ describe('phase69 tribonacci coverage',()=>{
   it('n3',()=>expect(tribonacciP69(3)).toBe(2));
   it('n4',()=>expect(tribonacciP69(4)).toBe(4));
 });
+
+
+// longestStringChain
+function longestStringChainP70(words:string[]):number{words.sort((a,b)=>a.length-b.length);const dp:Record<string,number>={};let best=1;for(const w of words){dp[w]=1;for(let i=0;i<w.length;i++){const prev=w.slice(0,i)+w.slice(i+1);if(dp[prev])dp[w]=Math.max(dp[w],dp[prev]+1);}best=Math.max(best,dp[w]);}return best;}
+describe('phase70 longestStringChain coverage',()=>{
+  it('ex1',()=>expect(longestStringChainP70(['a','b','ba','bca','bda','bdca'])).toBe(4));
+  it('ex2',()=>expect(longestStringChainP70(['xbc','pcxbcf','xb','cxbc','pcxbc'])).toBe(5));
+  it('single',()=>expect(longestStringChainP70(['a'])).toBe(1));
+  it('three',()=>expect(longestStringChainP70(['a','ab','abc'])).toBe(3));
+  it('no_chain',()=>expect(longestStringChainP70(['ab','cd'])).toBe(1));
+});

@@ -1162,3 +1162,14 @@ describe('phase69 longestConsecutive coverage',()=>{
   it('single',()=>expect(longestConsecutiveP69([1])).toBe(1));
   it('seq',()=>expect(longestConsecutiveP69([1,2,3,4,5])).toBe(5));
 });
+
+
+// minCostForTickets
+function minCostForTicketsP70(days:number[],costs:number[]):number{const td=new Set(days);const N=days[days.length-1];const dp=new Array(N+1).fill(0);for(let i=1;i<=N;i++){if(!td.has(i)){dp[i]=dp[i-1];}else{dp[i]=Math.min(dp[i-1]+costs[0],dp[Math.max(0,i-7)]+costs[1],dp[Math.max(0,i-30)]+costs[2]);}}return dp[N];}
+describe('phase70 minCostForTickets coverage',()=>{
+  it('ex1',()=>expect(minCostForTicketsP70([1,4,6,7,8,20],[2,7,15])).toBe(11));
+  it('ex2',()=>expect(minCostForTicketsP70([1,2,3,4,5,6,7,8,9,10,30,31],[2,7,15])).toBe(17));
+  it('single',()=>expect(minCostForTicketsP70([1],[2,7,15])).toBe(2));
+  it('two_1day',()=>expect(minCostForTicketsP70([1,2],[2,7,15])).toBe(4));
+  it('week',()=>expect(minCostForTicketsP70([1,2,3,4,5,6,7],[2,7,15])).toBe(7));
+});

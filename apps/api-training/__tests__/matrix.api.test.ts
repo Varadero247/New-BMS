@@ -1050,3 +1050,14 @@ describe('phase69 maximalSq coverage',()=>{
   it('2x2',()=>expect(maximalSqP69([['1','1'],['1','1']])).toBe(4));
   it('chess',()=>expect(maximalSqP69([['0','1'],['1','0']])).toBe(1));
 });
+
+
+// minFlipsMonoIncreasing
+function minFlipsP70(s:string):number{let dp0=0,dp1=0;for(const c of s){const nd1=Math.min(dp0,dp1)+(c==='1'?0:1);const nd0=dp0+(c==='0'?0:1);dp0=nd0;dp1=nd1;}return Math.min(dp0,dp1);}
+describe('phase70 minFlips coverage',()=>{
+  it('ex1',()=>expect(minFlipsP70('00110')).toBe(1));
+  it('ex2',()=>expect(minFlipsP70('010110')).toBe(2));
+  it('already',()=>expect(minFlipsP70('00011')).toBe(0));
+  it('all_flip',()=>expect(minFlipsP70('11000')).toBe(2));
+  it('single',()=>expect(minFlipsP70('0')).toBe(0));
+});

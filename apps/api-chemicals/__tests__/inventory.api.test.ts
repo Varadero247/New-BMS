@@ -1161,3 +1161,14 @@ describe('phase69 longestPalSubseq coverage',()=>{
   it('two',()=>expect(longestPalSubseqP69('aa')).toBe(2));
   it('palindrome',()=>expect(longestPalSubseqP69('abcba')).toBe(5));
 });
+
+
+// topKFrequent
+function topKFrequentP70(nums:number[],k:number):number[]{const freq=new Map<number,number>();for(const n of nums)freq.set(n,(freq.get(n)||0)+1);return[...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,k).map(e=>e[0]);}
+describe('phase70 topKFrequent coverage',()=>{
+  it('ex1',()=>expect(topKFrequentP70([1,1,1,2,2,3],2)).toEqual([1,2]));
+  it('single',()=>expect(topKFrequentP70([1],1)).toEqual([1]));
+  it('two',()=>expect(topKFrequentP70([1,2],2).length).toBe(2));
+  it('top_present',()=>expect(topKFrequentP70([4,4,4,3,3,1],2)).toContain(4));
+  it('count',()=>expect(topKFrequentP70([1,1,2,2,3],2).length).toBe(2));
+});

@@ -1543,3 +1543,14 @@ describe('phase69 lisLength coverage',()=>{
   it('single',()=>expect(lisLengthP69([1])).toBe(1));
   it('desc',()=>expect(lisLengthP69([3,2,1])).toBe(1));
 });
+
+
+// twoSumII (1-indexed sorted array)
+function twoSumIIP70(numbers:number[],target:number):number[]{let l=0,r=numbers.length-1;while(l<r){const s=numbers[l]+numbers[r];if(s===target)return[l+1,r+1];if(s<target)l++;else r--;}return[-1,-1];}
+describe('phase70 twoSumII coverage',()=>{
+  it('ex1',()=>expect(twoSumIIP70([2,7,11,15],9)).toEqual([1,2]));
+  it('ex2',()=>expect(twoSumIIP70([2,3,4],6)).toEqual([1,3]));
+  it('neg',()=>expect(twoSumIIP70([-1,0],-1)).toEqual([1,2]));
+  it('end',()=>expect(twoSumIIP70([1,2,3,4,5],9)).toEqual([4,5]));
+  it('two',()=>expect(twoSumIIP70([1,3],4)).toEqual([1,2]));
+});

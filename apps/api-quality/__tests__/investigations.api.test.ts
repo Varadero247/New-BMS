@@ -1180,3 +1180,14 @@ describe('phase69 isValidSudoku coverage',()=>{
   it('row_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[0][1]='1';expect(isValidSudokuP69(b)).toBe(false);});
   it('col_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[1][0]='1';expect(isValidSudokuP69(b)).toBe(false);});
 });
+
+
+// reverseWords
+function reverseWordsP70(s:string):string{return s.trim().split(/\s+/).reverse().join(' ');}
+describe('phase70 reverseWords coverage',()=>{
+  it('ex1',()=>expect(reverseWordsP70('the sky is blue')).toBe('blue is sky the'));
+  it('ex2',()=>expect(reverseWordsP70('  hello world  ')).toBe('world hello'));
+  it('ex3',()=>expect(reverseWordsP70('a good   example')).toBe('example good a'));
+  it('single',()=>expect(reverseWordsP70('single')).toBe('single'));
+  it('two',()=>expect(reverseWordsP70('a b')).toBe('b a'));
+});

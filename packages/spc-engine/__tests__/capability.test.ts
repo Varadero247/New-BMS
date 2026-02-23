@@ -894,3 +894,14 @@ describe('phase69 floodFill coverage',()=>{
   it('isolated',()=>{const r=floodFillP69([[1,0],[0,1]],0,0,3);expect(r[0][0]).toBe(3);expect(r[1][1]).toBe(1);});
   it('corner',()=>{const r=floodFillP69([[1,1],[1,0]],0,0,5);expect(r[0][0]).toBe(5);expect(r[1][1]).toBe(0);});
 });
+
+
+// spiralOrder
+function spiralOrderP70(matrix:number[][]):number[]{const res:number[]=[];let top=0,bot=matrix.length-1,left=0,right=matrix[0].length-1;while(top<=bot&&left<=right){for(let i=left;i<=right;i++)res.push(matrix[top][i]);top++;for(let i=top;i<=bot;i++)res.push(matrix[i][right]);right--;if(top<=bot){for(let i=right;i>=left;i--)res.push(matrix[bot][i]);bot--;}if(left<=right){for(let i=bot;i>=top;i--)res.push(matrix[i][left]);left++;}}return res;}
+describe('phase70 spiralOrder coverage',()=>{
+  it('3x3',()=>expect(spiralOrderP70([[1,2,3],[4,5,6],[7,8,9]])).toEqual([1,2,3,6,9,8,7,4,5]));
+  it('3x4',()=>expect(spiralOrderP70([[1,2,3,4],[5,6,7,8],[9,10,11,12]])).toEqual([1,2,3,4,8,12,11,10,9,5,6,7]));
+  it('1x1',()=>expect(spiralOrderP70([[1]])).toEqual([1]));
+  it('2x2',()=>expect(spiralOrderP70([[1,2],[3,4]])).toEqual([1,2,4,3]));
+  it('1x3',()=>expect(spiralOrderP70([[1,2,3]])).toEqual([1,2,3]));
+});

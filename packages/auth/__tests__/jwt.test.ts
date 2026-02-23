@@ -957,3 +957,14 @@ describe('phase69 floodFill coverage',()=>{
   it('isolated',()=>{const r=floodFillP69([[1,0],[0,1]],0,0,3);expect(r[0][0]).toBe(3);expect(r[1][1]).toBe(1);});
   it('corner',()=>{const r=floodFillP69([[1,1],[1,0]],0,0,5);expect(r[0][0]).toBe(5);expect(r[1][1]).toBe(0);});
 });
+
+
+// reverseWords
+function reverseWordsP70(s:string):string{return s.trim().split(/\s+/).reverse().join(' ');}
+describe('phase70 reverseWords coverage',()=>{
+  it('ex1',()=>expect(reverseWordsP70('the sky is blue')).toBe('blue is sky the'));
+  it('ex2',()=>expect(reverseWordsP70('  hello world  ')).toBe('world hello'));
+  it('ex3',()=>expect(reverseWordsP70('a good   example')).toBe('example good a'));
+  it('single',()=>expect(reverseWordsP70('single')).toBe('single'));
+  it('two',()=>expect(reverseWordsP70('a b')).toBe('b a'));
+});

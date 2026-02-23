@@ -1256,3 +1256,14 @@ describe('phase69 wiggleSubseq coverage',()=>{
   it('single',()=>expect(wiggleSubseqP69([1])).toBe(1));
   it('flat',()=>expect(wiggleSubseqP69([3,3,3])).toBe(1));
 });
+
+
+// rotateArray
+function rotateArrayP70(nums:number[],k:number):number[]{const n=nums.length;k=k%n;const rev=(l:number,r:number)=>{while(l<r){[nums[l],nums[r]]=[nums[r],nums[l]];l++;r--;}};rev(0,n-1);rev(0,k-1);rev(k,n-1);return nums;}
+describe('phase70 rotateArray coverage',()=>{
+  it('ex1',()=>expect(rotateArrayP70([1,2,3,4,5,6,7],3)).toEqual([5,6,7,1,2,3,4]));
+  it('ex2',()=>expect(rotateArrayP70([-1,-100,3,99],2)).toEqual([3,99,-1,-100]));
+  it('single',()=>expect(rotateArrayP70([1],1)).toEqual([1]));
+  it('zero',()=>expect(rotateArrayP70([1,2],0)).toEqual([1,2]));
+  it('full',()=>expect(rotateArrayP70([1,2,3],3)).toEqual([1,2,3]));
+});

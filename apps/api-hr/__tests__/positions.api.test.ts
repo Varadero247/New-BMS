@@ -1199,3 +1199,14 @@ describe('phase69 isValidSudoku coverage',()=>{
   it('row_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[0][1]='1';expect(isValidSudokuP69(b)).toBe(false);});
   it('col_dup',()=>{const b=Array.from({length:9},()=>new Array(9).fill('.'));b[0][0]='1';b[1][0]='1';expect(isValidSudokuP69(b)).toBe(false);});
 });
+
+
+// numDecodings
+function numDecodingsP70(s:string):number{if(!s||s[0]==='0')return 0;const n=s.length;let a=1,b=1;for(let i=1;i<n;i++){const two=parseInt(s.slice(i-1,i+1));const cur=(s[i]!=='0'?b:0)+(two>=10&&two<=26?a:0);a=b;b=cur;}return b;}
+describe('phase70 numDecodings coverage',()=>{
+  it('ex1',()=>expect(numDecodingsP70('12')).toBe(2));
+  it('ex2',()=>expect(numDecodingsP70('226')).toBe(3));
+  it('zero',()=>expect(numDecodingsP70('0')).toBe(0));
+  it('leading_zero',()=>expect(numDecodingsP70('06')).toBe(0));
+  it('ex3',()=>expect(numDecodingsP70('11106')).toBe(2));
+});

@@ -1036,3 +1036,14 @@ describe('phase69 floodFill coverage',()=>{
   it('isolated',()=>{const r=floodFillP69([[1,0],[0,1]],0,0,3);expect(r[0][0]).toBe(3);expect(r[1][1]).toBe(1);});
   it('corner',()=>{const r=floodFillP69([[1,1],[1,0]],0,0,5);expect(r[0][0]).toBe(5);expect(r[1][1]).toBe(0);});
 });
+
+
+// sortColors (Dutch national flag)
+function sortColorsP70(nums:number[]):number[]{let l=0,m=0,r=nums.length-1;while(m<=r){if(nums[m]===0){[nums[l],nums[m]]=[nums[m],nums[l]];l++;m++;}else if(nums[m]===1){m++;}else{[nums[m],nums[r]]=[nums[r],nums[m]];r--;}}return nums;}
+describe('phase70 sortColors coverage',()=>{
+  it('ex1',()=>expect(sortColorsP70([2,0,2,1,1,0])).toEqual([0,0,1,1,2,2]));
+  it('ex2',()=>expect(sortColorsP70([2,0,1])).toEqual([0,1,2]));
+  it('single',()=>expect(sortColorsP70([0])).toEqual([0]));
+  it('ones',()=>expect(sortColorsP70([1,1])).toEqual([1,1]));
+  it('mixed',()=>expect(sortColorsP70([2,2,1,0,0])).toEqual([0,0,1,2,2]));
+});

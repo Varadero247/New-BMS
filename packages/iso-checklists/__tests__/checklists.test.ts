@@ -883,3 +883,14 @@ describe('phase69 canCross coverage',()=>{
   it('gap',()=>expect(canCrossP69([0,2])).toBe(false));
   it('three',()=>expect(canCrossP69([0,1,2])).toBe(true));
 });
+
+
+// threeSum (unique triplets)
+function threeSumP70(nums:number[]):number[][]{nums.sort((a,b)=>a-b);const res:number[][]=[];for(let i=0;i<nums.length-2;i++){if(i>0&&nums[i]===nums[i-1])continue;let l=i+1,r=nums.length-1;while(l<r){const s=nums[i]+nums[l]+nums[r];if(s===0){res.push([nums[i],nums[l],nums[r]]);while(l<r&&nums[l]===nums[l+1])l++;while(l<r&&nums[r]===nums[r-1])r--;l++;r--;}else if(s<0)l++;else r--;}}return res;}
+describe('phase70 threeSum coverage',()=>{
+  it('ex1',()=>expect(threeSumP70([-1,0,1,2,-1,-4])).toEqual([[-1,-1,2],[-1,0,1]]));
+  it('no_result',()=>expect(threeSumP70([0,1,1]).length).toBe(0));
+  it('zeros',()=>expect(threeSumP70([0,0,0])).toEqual([[0,0,0]]));
+  it('dups',()=>expect(threeSumP70([-2,0,0,2,2]).length).toBe(1));
+  it('positive',()=>expect(threeSumP70([1,2,3]).length).toBe(0));
+});

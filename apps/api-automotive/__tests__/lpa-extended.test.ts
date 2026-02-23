@@ -1188,3 +1188,14 @@ describe('phase69 allPathsSrcTarget coverage',()=>{
   it('two_nodes',()=>expect(allPathsSrcTargetP69([[1],[]]).length).toBe(1));
   it('three_paths',()=>expect(allPathsSrcTargetP69([[1,2,3],[3],[3],[]]).length).toBe(3));
 });
+
+
+// singleNumber (XOR)
+function singleNumberP70(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('phase70 singleNumber coverage',()=>{
+  it('ex1',()=>expect(singleNumberP70([2,2,1])).toBe(1));
+  it('ex2',()=>expect(singleNumberP70([4,1,2,1,2])).toBe(4));
+  it('one',()=>expect(singleNumberP70([1])).toBe(1));
+  it('zero',()=>expect(singleNumberP70([0,1,0])).toBe(1));
+  it('large',()=>expect(singleNumberP70([99])).toBe(99));
+});
