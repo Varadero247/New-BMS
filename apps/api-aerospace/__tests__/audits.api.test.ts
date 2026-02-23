@@ -1280,3 +1280,14 @@ describe('phase68 maxProfitFee coverage',()=>{
   it('down',()=>expect(maxProfitFeeP68([5,4,3],1)).toBe(0));
   it('flat',()=>expect(maxProfitFeeP68([3,3,3],1)).toBe(0));
 });
+
+
+// maxDotProduct
+function maxDotProductP69(nums1:number[],nums2:number[]):number{const m=nums1.length,n=nums2.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(-Infinity));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=Math.max(nums1[i-1]*nums2[j-1],dp[i-1][j-1]+nums1[i-1]*nums2[j-1],dp[i-1][j],dp[i][j-1]);return dp[m][n];}
+describe('phase69 maxDotProduct coverage',()=>{
+  it('ex1',()=>expect(maxDotProductP69([2,1,-2,5],[3,0,-6])).toBe(18));
+  it('ex2',()=>expect(maxDotProductP69([3,-2],[2,-6,7])).toBe(21));
+  it('neg',()=>expect(maxDotProductP69([-1,-1],[-1,-1])).toBe(2));
+  it('single',()=>expect(maxDotProductP69([1],[1])).toBe(1));
+  it('both_pos',()=>expect(maxDotProductP69([2,3],[3,2])).toBe(12));
+});

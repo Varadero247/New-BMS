@@ -1072,3 +1072,14 @@ describe('phase68 maxProfitFee coverage',()=>{
   it('down',()=>expect(maxProfitFeeP68([5,4,3],1)).toBe(0));
   it('flat',()=>expect(maxProfitFeeP68([3,3,3],1)).toBe(0));
 });
+
+
+// canCross (frog jump)
+function canCrossP69(stones:number[]):boolean{const ss=new Set(stones);const memo=new Map<string,boolean>();function jump(pos:number,k:number):boolean{const key=`${pos},${k}`;if(memo.has(key))return memo.get(key)!;if(pos===stones[stones.length-1])return true;for(const nk of[k-1,k,k+1]){if(nk>0&&ss.has(pos+nk)){if(jump(pos+nk,nk)){memo.set(key,true);return true;}}}memo.set(key,false);return false;}return jump(0,0);}
+describe('phase69 canCross coverage',()=>{
+  it('ex1',()=>expect(canCrossP69([0,1,3,5,6,8,12,17])).toBe(true));
+  it('ex2',()=>expect(canCrossP69([0,1,2,3,4,8,9,11])).toBe(false));
+  it('seq',()=>expect(canCrossP69([0,1,3,6,10,15,21])).toBe(true));
+  it('gap',()=>expect(canCrossP69([0,2])).toBe(false));
+  it('three',()=>expect(canCrossP69([0,1,2])).toBe(true));
+});

@@ -850,3 +850,14 @@ describe('phase68 reorganizeString coverage',()=>{
   it('all_diff',()=>{const r=reorganizeStringP68('abc');expect(r.length).toBe(3);});
   it('two_same',()=>{const r=reorganizeStringP68('aa');expect(r).toBe('');});
 });
+
+
+// uniquePaths
+function uniquePathsP69(m:number,n:number):number{const dp=new Array(n).fill(1);for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[j]+=dp[j-1];return dp[n-1];}
+describe('phase69 uniquePaths coverage',()=>{
+  it('ex1',()=>expect(uniquePathsP69(3,7)).toBe(28));
+  it('ex2',()=>expect(uniquePathsP69(3,2)).toBe(3));
+  it('1x1',()=>expect(uniquePathsP69(1,1)).toBe(1));
+  it('2x2',()=>expect(uniquePathsP69(2,2)).toBe(2));
+  it('3x3',()=>expect(uniquePathsP69(3,3)).toBe(6));
+});

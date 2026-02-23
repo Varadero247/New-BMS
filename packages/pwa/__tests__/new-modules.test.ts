@@ -1363,3 +1363,14 @@ describe('phase68 reconstructQueue coverage',()=>{
   it('same_h',()=>expect(reconstructQueueP68([[5,0],[5,1]])).toEqual([[5,0],[5,1]]));
   it('ex2',()=>expect(reconstructQueueP68([[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]])).toEqual([[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]));
 });
+
+
+// minCutPalindrome
+function minCutPalinP69(s:string):number{const n=s.length;const isPal=Array.from({length:n},()=>new Array(n).fill(false));for(let i=n-1;i>=0;i--)for(let j=i;j<n;j++)isPal[i][j]=s[i]===s[j]&&(j-i<=2||isPal[i+1][j-1]);const dp=Array.from({length:n+1},(_,i)=>i);for(let i=1;i<n;i++)for(let j=0;j<=i;j++)if(isPal[j][i])dp[i+1]=Math.min(dp[i+1],dp[j]+1);return dp[n]-1;}
+describe('phase69 minCutPalin coverage',()=>{
+  it('ex1',()=>expect(minCutPalinP69('aab')).toBe(1));
+  it('single',()=>expect(minCutPalinP69('a')).toBe(0));
+  it('ab',()=>expect(minCutPalinP69('ab')).toBe(1));
+  it('palindrome',()=>expect(minCutPalinP69('aba')).toBe(0));
+  it('full_pal',()=>expect(minCutPalinP69('abacaba')).toBe(0));
+});

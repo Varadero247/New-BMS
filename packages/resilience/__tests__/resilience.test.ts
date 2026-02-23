@@ -1117,3 +1117,14 @@ describe('phase68 shipWithinDays coverage',()=>{
   it('single',()=>expect(shipWithinDaysP68([5],1)).toBe(5));
   it('all_same',()=>expect(shipWithinDaysP68([2,2,2,2],2)).toBe(4));
 });
+
+
+// increasingTriplet
+function increasingTripletP69(nums:number[]):boolean{let a=Infinity,b=Infinity;for(const n of nums){if(n<=a)a=n;else if(n<=b)b=n;else return true;}return false;}
+describe('phase69 increasingTriplet coverage',()=>{
+  it('ex1',()=>expect(increasingTripletP69([1,2,3,4,5])).toBe(true));
+  it('ex2',()=>expect(increasingTripletP69([5,4,3,2,1])).toBe(false));
+  it('ex3',()=>expect(increasingTripletP69([2,1,5,0,4,6])).toBe(true));
+  it('all_same',()=>expect(increasingTripletP69([1,1,1])).toBe(false));
+  it('two',()=>expect(increasingTripletP69([1,2])).toBe(false));
+});

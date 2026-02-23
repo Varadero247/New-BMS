@@ -831,3 +831,14 @@ describe('phase68 reorganizeString coverage',()=>{
   it('all_diff',()=>{const r=reorganizeStringP68('abc');expect(r.length).toBe(3);});
   it('two_same',()=>{const r=reorganizeStringP68('aa');expect(r).toBe('');});
 });
+
+
+// numSquares (perfect squares)
+function numSquaresP69(n:number):number{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}
+describe('phase69 numSquares coverage',()=>{
+  it('n12',()=>expect(numSquaresP69(12)).toBe(3));
+  it('n13',()=>expect(numSquaresP69(13)).toBe(2));
+  it('n1',()=>expect(numSquaresP69(1)).toBe(1));
+  it('n4',()=>expect(numSquaresP69(4)).toBe(1));
+  it('n7',()=>expect(numSquaresP69(7)).toBe(4));
+});

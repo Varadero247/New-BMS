@@ -863,3 +863,14 @@ describe('phase68 reconstructQueue coverage',()=>{
   it('same_h',()=>expect(reconstructQueueP68([[5,0],[5,1]])).toEqual([[5,0],[5,1]]));
   it('ex2',()=>expect(reconstructQueueP68([[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]])).toEqual([[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]));
 });
+
+
+// longestConsecutiveSequence
+function longestConsecutiveP69(nums:number[]):number{const s=new Set(nums);let best=0;for(const n of s)if(!s.has(n-1)){let len=1,cur=n;while(s.has(++cur))len++;best=Math.max(best,len);}return best;}
+describe('phase69 longestConsecutive coverage',()=>{
+  it('ex1',()=>expect(longestConsecutiveP69([100,4,200,1,3,2])).toBe(4));
+  it('ex2',()=>expect(longestConsecutiveP69([0,3,7,2,5,8,4,6,0,1])).toBe(9));
+  it('empty',()=>expect(longestConsecutiveP69([])).toBe(0));
+  it('single',()=>expect(longestConsecutiveP69([1])).toBe(1));
+  it('seq',()=>expect(longestConsecutiveP69([1,2,3,4,5])).toBe(5));
+});

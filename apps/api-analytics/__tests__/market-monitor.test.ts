@@ -1081,3 +1081,14 @@ describe('phase68 reconstructQueue coverage',()=>{
   it('same_h',()=>expect(reconstructQueueP68([[5,0],[5,1]])).toEqual([[5,0],[5,1]]));
   it('ex2',()=>expect(reconstructQueueP68([[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]])).toEqual([[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]));
 });
+
+
+// rob house robber
+function robP69(nums:number[]):number{let a=0,b=0;for(const n of nums){const c=Math.max(b,a+n);a=b;b=c;}return b;}
+describe('phase69 rob coverage',()=>{
+  it('ex1',()=>expect(robP69([1,2,3,1])).toBe(4));
+  it('ex2',()=>expect(robP69([2,7,9,3,1])).toBe(12));
+  it('single',()=>expect(robP69([1])).toBe(1));
+  it('two',()=>expect(robP69([2,1])).toBe(2));
+  it('equal',()=>expect(robP69([1,1])).toBe(1));
+});

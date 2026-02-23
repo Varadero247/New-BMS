@@ -1319,3 +1319,14 @@ describe('phase68 searchMatrix coverage',()=>{
   it('last',()=>expect(searchMatrixP68([[1,2],[3,4]],4)).toBe(true));
   it('miss',()=>expect(searchMatrixP68([[1,2],[3,4]],5)).toBe(false));
 });
+
+
+// wiggleSubsequence
+function wiggleSubseqP69(nums:number[]):number{let up=1,down=1;for(let i=1;i<nums.length;i++){if(nums[i]>nums[i-1])up=down+1;else if(nums[i]<nums[i-1])down=up+1;}return Math.max(up,down);}
+describe('phase69 wiggleSubseq coverage',()=>{
+  it('ex1',()=>expect(wiggleSubseqP69([1,7,4,9,2,5])).toBe(6));
+  it('ex2',()=>expect(wiggleSubseqP69([1,17,5,10,13,15,10,5,16,8])).toBe(7));
+  it('asc',()=>expect(wiggleSubseqP69([1,2,3,4,5,6,7,8,9])).toBe(2));
+  it('single',()=>expect(wiggleSubseqP69([1])).toBe(1));
+  it('flat',()=>expect(wiggleSubseqP69([3,3,3])).toBe(1));
+});

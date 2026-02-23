@@ -1552,3 +1552,14 @@ describe('phase68 reconstructQueue coverage',()=>{
   it('same_h',()=>expect(reconstructQueueP68([[5,0],[5,1]])).toEqual([[5,0],[5,1]]));
   it('ex2',()=>expect(reconstructQueueP68([[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]])).toEqual([[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]));
 });
+
+
+// maximalSquare
+function maximalSqP69(matrix:string[][]):number{const m=matrix.length,n=matrix[0].length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));let best=0;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)if(matrix[i-1][j-1]==='1'){dp[i][j]=Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])+1;best=Math.max(best,dp[i][j]);}return best*best;}
+describe('phase69 maximalSq coverage',()=>{
+  it('ex1',()=>expect(maximalSqP69([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']])).toBe(4));
+  it('zero',()=>expect(maximalSqP69([['0']])).toBe(0));
+  it('one',()=>expect(maximalSqP69([['1']])).toBe(1));
+  it('2x2',()=>expect(maximalSqP69([['1','1'],['1','1']])).toBe(4));
+  it('chess',()=>expect(maximalSqP69([['0','1'],['1','0']])).toBe(1));
+});

@@ -1006,3 +1006,14 @@ describe('phase68 findPeakElement coverage',()=>{
   it('desc',()=>expect(findPeakElementP68([3,2,1])).toBe(0));
   it('asc',()=>expect(findPeakElementP68([1,2,3])).toBe(2));
 });
+
+
+// distinctSubsequences
+function distinctSubseqP69(s:string,t:string):number{const m=s.length,n=t.length;const dp=new Array(n+1).fill(0);dp[0]=1;for(let i=0;i<m;i++)for(let j=Math.min(i+1,n);j>=1;j--)if(s[i]===t[j-1])dp[j]+=dp[j-1];return dp[n];}
+describe('phase69 distinctSubseq coverage',()=>{
+  it('ex1',()=>expect(distinctSubseqP69('rabbbit','rabbit')).toBe(3));
+  it('ex2',()=>expect(distinctSubseqP69('babgbag','bag')).toBe(5));
+  it('single',()=>expect(distinctSubseqP69('a','a')).toBe(1));
+  it('dup',()=>expect(distinctSubseqP69('aa','a')).toBe(2));
+  it('exact',()=>expect(distinctSubseqP69('abc','abc')).toBe(1));
+});

@@ -1166,3 +1166,14 @@ describe('phase68 reconstructQueue coverage',()=>{
   it('same_h',()=>expect(reconstructQueueP68([[5,0],[5,1]])).toEqual([[5,0],[5,1]]));
   it('ex2',()=>expect(reconstructQueueP68([[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]])).toEqual([[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]));
 });
+
+
+// largestRectangleHistogram
+function largestRectHistP69(heights:number[]):number{const st:number[]=[],h=[...heights,0];let best=0;for(let i=0;i<h.length;i++){while(st.length&&h[st[st.length-1]]>=h[i]){const ht=h[st.pop()!];const w=st.length?i-st[st.length-1]-1:i;best=Math.max(best,ht*w);}st.push(i);}return best;}
+describe('phase69 largestRectHist coverage',()=>{
+  it('ex1',()=>expect(largestRectHistP69([2,1,5,6,2,3])).toBe(10));
+  it('ex2',()=>expect(largestRectHistP69([2,4])).toBe(4));
+  it('single',()=>expect(largestRectHistP69([1])).toBe(1));
+  it('equal',()=>expect(largestRectHistP69([3,3])).toBe(6));
+  it('zeros',()=>expect(largestRectHistP69([0,0])).toBe(0));
+});

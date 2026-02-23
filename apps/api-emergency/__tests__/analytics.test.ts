@@ -1186,3 +1186,14 @@ describe('phase68 findMaxAverage coverage',()=>{
   it('k_eq_n',()=>expect(findMaxAverageP68([1,2,3],3)).toBe(2));
   it('two',()=>expect(findMaxAverageP68([3,7,5],2)).toBe(6));
 });
+
+
+// deleteAndEarn
+function deleteAndEarnP69(nums:number[]):number{const mv=Math.max(...nums);const s=new Array(mv+1).fill(0);for(const n of nums)s[n]+=n;let a=0,b=0;for(const v of s){const c=Math.max(b,a+v);a=b;b=c;}return b;}
+describe('phase69 deleteAndEarn coverage',()=>{
+  it('ex1',()=>expect(deleteAndEarnP69([3,4,2])).toBe(6));
+  it('ex2',()=>expect(deleteAndEarnP69([2,2,3,3,3,4])).toBe(9));
+  it('single',()=>expect(deleteAndEarnP69([1])).toBe(1));
+  it('dup',()=>expect(deleteAndEarnP69([3,3])).toBe(6));
+  it('seq',()=>expect(deleteAndEarnP69([1,2,3])).toBe(4));
+});

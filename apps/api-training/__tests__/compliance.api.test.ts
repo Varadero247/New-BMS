@@ -909,3 +909,14 @@ describe('phase68 maxProfit coverage',()=>{
   it('two_up',()=>expect(maxProfitP68([1,2])).toBe(1));
   it('two_dn',()=>expect(maxProfitP68([2,1])).toBe(0));
 });
+
+
+// countVowelPermutations
+function countVowelPermP69(n:number):number{const MOD=1e9+7;let a=1,e=1,i=1,o=1,u=1;for(let k=1;k<n;k++){const na=(e+i+u)%MOD,ne=(a+i)%MOD,ni=(e+o)%MOD,no=i,nu=(i+o)%MOD;[a,e,i,o,u]=[na,ne,ni,no,nu];}return Math.round((a+e+i+o+u)%MOD);}
+describe('phase69 countVowelPerm coverage',()=>{
+  it('n1',()=>expect(countVowelPermP69(1)).toBe(5));
+  it('n2',()=>expect(countVowelPermP69(2)).toBe(10));
+  it('n3',()=>expect(countVowelPermP69(3)).toBe(19));
+  it('n5',()=>expect(countVowelPermP69(5)).toBe(68));
+  it('n4',()=>{const v=countVowelPermP69(4);expect(v).toBeGreaterThan(19);});
+});

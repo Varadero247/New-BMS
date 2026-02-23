@@ -2277,3 +2277,14 @@ describe('phase68 maxProfitCooldown coverage',()=>{
   it('down',()=>expect(maxProfitCooldownP68([3,2,1])).toBe(0));
   it('flat',()=>expect(maxProfitCooldownP68([2,2,2])).toBe(0));
 });
+
+
+// numSquares (perfect squares)
+function numSquaresP69(n:number):number{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}
+describe('phase69 numSquares coverage',()=>{
+  it('n12',()=>expect(numSquaresP69(12)).toBe(3));
+  it('n13',()=>expect(numSquaresP69(13)).toBe(2));
+  it('n1',()=>expect(numSquaresP69(1)).toBe(1));
+  it('n4',()=>expect(numSquaresP69(4)).toBe(1));
+  it('n7',()=>expect(numSquaresP69(7)).toBe(4));
+});

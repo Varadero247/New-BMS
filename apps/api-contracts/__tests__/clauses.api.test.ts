@@ -1040,3 +1040,14 @@ describe('phase68 lengthOfLongestSubstring coverage',()=>{
   it('empty',()=>expect(lengthOfLongestSubstringP68('')).toBe(0));
   it('unique',()=>expect(lengthOfLongestSubstringP68('abcd')).toBe(4));
 });
+
+
+// countPalindromicSubstrings
+function countPalinSubstrP69(s:string):number{let cnt=0;function expand(l:number,r:number){while(l>=0&&r<s.length&&s[l]===s[r]){cnt++;l--;r++;}}for(let i=0;i<s.length;i++){expand(i,i);expand(i,i+1);}return cnt;}
+describe('phase69 countPalinSubstr coverage',()=>{
+  it('abc',()=>expect(countPalinSubstrP69('abc')).toBe(3));
+  it('aaa',()=>expect(countPalinSubstrP69('aaa')).toBe(6));
+  it('single',()=>expect(countPalinSubstrP69('a')).toBe(1));
+  it('aa',()=>expect(countPalinSubstrP69('aa')).toBe(3));
+  it('aba',()=>expect(countPalinSubstrP69('aba')).toBe(4));
+});

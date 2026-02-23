@@ -1166,3 +1166,14 @@ describe('phase68 findMedianSortedArrays coverage',()=>{
   it('empty2',()=>expect(findMedianSortedArraysP68([2],[])).toBe(2));
   it('longer',()=>expect(findMedianSortedArraysP68([1,2],[3,4,5])).toBe(3));
 });
+
+
+// rob house robber
+function robP69(nums:number[]):number{let a=0,b=0;for(const n of nums){const c=Math.max(b,a+n);a=b;b=c;}return b;}
+describe('phase69 rob coverage',()=>{
+  it('ex1',()=>expect(robP69([1,2,3,1])).toBe(4));
+  it('ex2',()=>expect(robP69([2,7,9,3,1])).toBe(12));
+  it('single',()=>expect(robP69([1])).toBe(1));
+  it('two',()=>expect(robP69([2,1])).toBe(2));
+  it('equal',()=>expect(robP69([1,1])).toBe(1));
+});

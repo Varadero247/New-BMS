@@ -1051,3 +1051,14 @@ describe('phase68 maxProduct coverage',()=>{
   it('two_neg',()=>expect(maxProductP68([-2,-3])).toBe(6));
   it('single',()=>expect(maxProductP68([5])).toBe(5));
 });
+
+
+// longestPalindromicSubstring
+function longestPalinSubstrP69(s:string):string{let best='';function expand(l:number,r:number){while(l>=0&&r<s.length&&s[l]===s[r]){l--;r++;}if(r-l-1>best.length)best=s.slice(l+1,r);}for(let i=0;i<s.length;i++){expand(i,i);expand(i,i+1);}return best;}
+describe('phase69 longestPalinSubstr coverage',()=>{
+  it('babad',()=>expect(longestPalinSubstrP69('babad').length).toBe(3));
+  it('cbbd',()=>expect(longestPalinSubstrP69('cbbd')).toBe('bb'));
+  it('single',()=>expect(longestPalinSubstrP69('a')).toBe('a'));
+  it('racecar',()=>expect(longestPalinSubstrP69('racecar')).toBe('racecar'));
+  it('abba',()=>expect(longestPalinSubstrP69('abba')).toBe('abba'));
+});

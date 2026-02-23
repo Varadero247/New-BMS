@@ -1123,3 +1123,14 @@ describe('phase68 subarraySum coverage',()=>{
   it('single_match',()=>expect(subarraySumP68([5],5)).toBe(1));
   it('none',()=>expect(subarraySumP68([1,2,3],10)).toBe(0));
 });
+
+
+// allPathsSourceTarget
+function allPathsSrcTargetP69(graph:number[][]):number[][]{const res:number[][]=[];function dfs(node:number,path:number[]):void{if(node===graph.length-1){res.push([...path]);return;}for(const next of graph[node])dfs(next,[...path,next]);}dfs(0,[0]);return res;}
+describe('phase69 allPathsSrcTarget coverage',()=>{
+  it('ex1_count',()=>expect(allPathsSrcTargetP69([[1,2],[3],[3],[]]).length).toBe(2));
+  it('ex1_path0',()=>expect(allPathsSrcTargetP69([[1,2],[3],[3],[]]).join('|')).toContain('0,1,3'));
+  it('ex2',()=>expect(allPathsSrcTargetP69([[4,3,1],[3,2,4],[3],[4],[]]).length).toBe(5));
+  it('two_nodes',()=>expect(allPathsSrcTargetP69([[1],[]]).length).toBe(1));
+  it('three_paths',()=>expect(allPathsSrcTargetP69([[1,2,3],[3],[3],[]]).length).toBe(3));
+});

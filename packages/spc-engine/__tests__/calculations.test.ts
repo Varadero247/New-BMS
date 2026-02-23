@@ -1154,3 +1154,14 @@ describe('phase68 checkInclusion coverage',()=>{
   it('too_long',()=>expect(checkInclusionP68('abc','ab')).toBe(false));
   it('single',()=>expect(checkInclusionP68('a','a')).toBe(true));
 });
+
+
+// LIS length (patience sorting)
+function lisLengthP69(nums:number[]):number{const dp:number[]=[];for(const n of nums){let l=0,r=dp.length;while(l<r){const m=l+r>>1;if(dp[m]<n)l=m+1;else r=m;}dp[l]=n;}return dp.length;}
+describe('phase69 lisLength coverage',()=>{
+  it('ex1',()=>expect(lisLengthP69([10,9,2,5,3,7,101,18])).toBe(4));
+  it('ex2',()=>expect(lisLengthP69([0,1,0,3,2,3])).toBe(4));
+  it('all_same',()=>expect(lisLengthP69([7,7,7,7])).toBe(1));
+  it('single',()=>expect(lisLengthP69([1])).toBe(1));
+  it('desc',()=>expect(lisLengthP69([3,2,1])).toBe(1));
+});

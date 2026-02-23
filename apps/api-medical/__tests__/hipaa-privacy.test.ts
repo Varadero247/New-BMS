@@ -1025,3 +1025,14 @@ describe('phase68 checkInclusion coverage',()=>{
   it('too_long',()=>expect(checkInclusionP68('abc','ab')).toBe(false));
   it('single',()=>expect(checkInclusionP68('a','a')).toBe(true));
 });
+
+
+// floodFill
+function floodFillP69(image:number[][],sr:number,sc:number,color:number):number[][]{const orig=image[sr][sc];if(orig===color)return image;const m=image.length,n=image[0].length;const img=image.map(r=>[...r]);function dfs(i:number,j:number):void{if(i<0||i>=m||j<0||j>=n||img[i][j]!==orig)return;img[i][j]=color;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);}dfs(sr,sc);return img;}
+describe('phase69 floodFill coverage',()=>{
+  it('ex1',()=>{const r=floodFillP69([[1,1,1],[1,1,0],[1,0,1]],1,1,2);expect(r[0][0]).toBe(2);expect(r[1][2]).toBe(0);});
+  it('same_color',()=>{const r=floodFillP69([[0,0,0],[0,0,0]],0,0,0);expect(r[0][0]).toBe(0);});
+  it('single',()=>expect(floodFillP69([[1]],0,0,2)[0][0]).toBe(2));
+  it('isolated',()=>{const r=floodFillP69([[1,0],[0,1]],0,0,3);expect(r[0][0]).toBe(3);expect(r[1][1]).toBe(1);});
+  it('corner',()=>{const r=floodFillP69([[1,1],[1,0]],0,0,5);expect(r[0][0]).toBe(5);expect(r[1][1]).toBe(0);});
+});

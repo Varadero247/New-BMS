@@ -1258,3 +1258,15 @@ describe('phase68 minWindow coverage',()=>{
   it('longer_t',()=>expect(minWindowP68('abc','d')).toBe(''));
   it('exact',()=>expect(minWindowP68('ab','ab')).toBe('ab'));
 });
+
+
+// wordSearch
+function wordSearchP69(board:string[][],word:string):boolean{const m=board.length,n=board[0].length;function dfs(i:number,j:number,k:number):boolean{if(k===word.length)return true;if(i<0||i>=m||j<0||j>=n||board[i][j]!==word[k])return false;const tmp=board[i][j];board[i][j]='#';const f=dfs(i+1,j,k+1)||dfs(i-1,j,k+1)||dfs(i,j+1,k+1)||dfs(i,j-1,k+1);board[i][j]=tmp;return f;}for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(dfs(i,j,0))return true;return false;}
+describe('phase69 wordSearch coverage',()=>{
+  const b=[['A','B','C','E'],['S','F','C','S'],['A','D','E','E']];
+  it('ex1',()=>expect(wordSearchP69(b.map(r=>[...r]),'ABCCED')).toBe(true));
+  it('ex2',()=>expect(wordSearchP69(b.map(r=>[...r]),'SEE')).toBe(true));
+  it('ex3',()=>expect(wordSearchP69(b.map(r=>[...r]),'ABCB')).toBe(false));
+  it('single',()=>expect(wordSearchP69([['a']],'a')).toBe(true));
+  it('snake',()=>expect(wordSearchP69([['a','b'],['c','d']],'abdc')).toBe(true));
+});

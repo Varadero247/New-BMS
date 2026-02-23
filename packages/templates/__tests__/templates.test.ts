@@ -1096,3 +1096,14 @@ describe('phase68 canJump coverage',()=>{
   it('two_ok',()=>expect(canJumpP68([1,0])).toBe(true));
   it('two_no',()=>expect(canJumpP68([0,1])).toBe(false));
 });
+
+
+// shortestBridge
+function shortestBridgeP69(grid:number[][]):number{const n=grid.length;const g=grid.map(r=>[...r]);const q:number[][]=[];function dfs(i:number,j:number):void{if(i<0||i>=n||j<0||j>=n||g[i][j]!==1)return;g[i][j]=2;q.push([i,j]);dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);}let found=false;outer:for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(g[i][j]===1){dfs(i,j);found=true;break outer;}let steps=0;const dirs=[[1,0],[-1,0],[0,1],[0,-1]];while(q.length){const next:number[][]=[];for(const[ci,cj]of q)for(const[di,dj]of dirs){const ni=ci+di,nj=cj+dj;if(ni<0||ni>=n||nj<0||nj>=n||g[ni][nj]===2)continue;if(g[ni][nj]===1)return steps;g[ni][nj]=2;next.push([ni,nj]);}q.length=0;q.push(...next);steps++;}return steps;}
+describe('phase69 shortestBridge coverage',()=>{
+  it('ex1',()=>expect(shortestBridgeP69([[0,1],[1,0]])).toBe(1));
+  it('ex2',()=>expect(shortestBridgeP69([[0,1,0],[0,0,0],[0,1,0]])).toBe(1));
+  it('ex3',()=>expect(shortestBridgeP69([[0,1,0],[0,0,0],[0,0,1]])).toBe(2));
+  it('ex4',()=>expect(shortestBridgeP69([[1,1,0,0,0],[1,1,0,0,0],[0,0,0,1,1],[0,0,0,1,1]])).toBe(2));
+  it('corners',()=>expect(shortestBridgeP69([[1,0,1],[0,0,0],[1,0,1]])).toBe(1));
+});

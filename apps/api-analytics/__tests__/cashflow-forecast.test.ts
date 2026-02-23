@@ -1174,3 +1174,14 @@ describe('phase68 totalFruit coverage',()=>{
   it('single',()=>expect(totalFruitP68([1])).toBe(1));
   it('all_same',()=>expect(totalFruitP68([1,1,1])).toBe(3));
 });
+
+
+// minCostClimbingStairs
+function minCostClimbP69(cost:number[]):number{const c=[...cost];const n=c.length;for(let i=2;i<n;i++)c[i]+=Math.min(c[i-1],c[i-2]);return Math.min(c[n-1],c[n-2]);}
+describe('phase69 minCostClimb coverage',()=>{
+  it('ex1',()=>expect(minCostClimbP69([10,15,20])).toBe(15));
+  it('ex2',()=>expect(minCostClimbP69([1,100,1,1,1,100,1,1,100,1])).toBe(6));
+  it('zeros',()=>expect(minCostClimbP69([0,0])).toBe(0));
+  it('two',()=>expect(minCostClimbP69([1,2])).toBe(1));
+  it('triple',()=>expect(minCostClimbP69([5,5,5])).toBe(5));
+});

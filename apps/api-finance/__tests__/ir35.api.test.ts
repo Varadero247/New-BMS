@@ -1243,3 +1243,14 @@ describe('phase68 findMin coverage',()=>{
   it('single',()=>expect(findMinP68([1])).toBe(1));
   it('two',()=>expect(findMinP68([2,1])).toBe(1));
 });
+
+
+// allPathsSourceTarget
+function allPathsSrcTargetP69(graph:number[][]):number[][]{const res:number[][]=[];function dfs(node:number,path:number[]):void{if(node===graph.length-1){res.push([...path]);return;}for(const next of graph[node])dfs(next,[...path,next]);}dfs(0,[0]);return res;}
+describe('phase69 allPathsSrcTarget coverage',()=>{
+  it('ex1_count',()=>expect(allPathsSrcTargetP69([[1,2],[3],[3],[]]).length).toBe(2));
+  it('ex1_path0',()=>expect(allPathsSrcTargetP69([[1,2],[3],[3],[]]).join('|')).toContain('0,1,3'));
+  it('ex2',()=>expect(allPathsSrcTargetP69([[4,3,1],[3,2,4],[3],[4],[]]).length).toBe(5));
+  it('two_nodes',()=>expect(allPathsSrcTargetP69([[1],[]]).length).toBe(1));
+  it('three_paths',()=>expect(allPathsSrcTargetP69([[1,2,3],[3],[3],[]]).length).toBe(3));
+});

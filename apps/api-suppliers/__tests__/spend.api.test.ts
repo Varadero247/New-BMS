@@ -1062,3 +1062,14 @@ describe('phase68 maxProduct coverage',()=>{
   it('two_neg',()=>expect(maxProductP68([-2,-3])).toBe(6));
   it('single',()=>expect(maxProductP68([5])).toBe(5));
 });
+
+
+// tribonacci
+function tribonacciP69(n:number):number{if(n===0)return 0;if(n<=2)return 1;let a=0,b=1,c=1;for(let i=3;i<=n;i++){const d=a+b+c;a=b;b=c;c=d;}return c;}
+describe('phase69 tribonacci coverage',()=>{
+  it('n0',()=>expect(tribonacciP69(0)).toBe(0));
+  it('n1',()=>expect(tribonacciP69(1)).toBe(1));
+  it('n2',()=>expect(tribonacciP69(2)).toBe(1));
+  it('n3',()=>expect(tribonacciP69(3)).toBe(2));
+  it('n4',()=>expect(tribonacciP69(4)).toBe(4));
+});

@@ -1062,3 +1062,14 @@ describe('phase68 findMedianSortedArrays coverage',()=>{
   it('empty2',()=>expect(findMedianSortedArraysP68([2],[])).toBe(2));
   it('longer',()=>expect(findMedianSortedArraysP68([1,2],[3,4,5])).toBe(3));
 });
+
+
+// longestConsecutiveSequence
+function longestConsecutiveP69(nums:number[]):number{const s=new Set(nums);let best=0;for(const n of s)if(!s.has(n-1)){let len=1,cur=n;while(s.has(++cur))len++;best=Math.max(best,len);}return best;}
+describe('phase69 longestConsecutive coverage',()=>{
+  it('ex1',()=>expect(longestConsecutiveP69([100,4,200,1,3,2])).toBe(4));
+  it('ex2',()=>expect(longestConsecutiveP69([0,3,7,2,5,8,4,6,0,1])).toBe(9));
+  it('empty',()=>expect(longestConsecutiveP69([])).toBe(0));
+  it('single',()=>expect(longestConsecutiveP69([1])).toBe(1));
+  it('seq',()=>expect(longestConsecutiveP69([1,2,3,4,5])).toBe(5));
+});

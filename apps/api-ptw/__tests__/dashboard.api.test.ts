@@ -1011,3 +1011,14 @@ describe('phase68 lengthOfLongestSubstring coverage',()=>{
   it('empty',()=>expect(lengthOfLongestSubstringP68('')).toBe(0));
   it('unique',()=>expect(lengthOfLongestSubstringP68('abcd')).toBe(4));
 });
+
+
+// predictTheWinner
+function predictWinnerP69(nums:number[]):boolean{const n=nums.length;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=nums[i];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Math.max(nums[i]-dp[i+1][j],nums[j]-dp[i][j-1]);}return dp[0][n-1]>=0;}
+describe('phase69 predictWinner coverage',()=>{
+  it('ex1',()=>expect(predictWinnerP69([1,5,2])).toBe(false));
+  it('ex2',()=>expect(predictWinnerP69([1,5,233,7])).toBe(true));
+  it('two',()=>expect(predictWinnerP69([1,2])).toBe(true));
+  it('single',()=>expect(predictWinnerP69([1])).toBe(true));
+  it('equal',()=>expect(predictWinnerP69([2,2])).toBe(true));
+});

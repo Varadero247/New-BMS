@@ -1288,3 +1288,14 @@ describe('phase68 hIndex coverage',()=>{
   it('high',()=>expect(hIndexP68([10,10,10])).toBe(3));
   it('single',()=>expect(hIndexP68([5])).toBe(1));
 });
+
+
+// maxAreaOfIsland
+function maxIslandAreaP69(grid:number[][]):number{const g=grid.map(r=>[...r]);const m=g.length,n=g[0].length;let best=0;function dfs(i:number,j:number):number{if(i<0||i>=m||j<0||j>=n||g[i][j]!==1)return 0;g[i][j]=0;return 1+dfs(i+1,j)+dfs(i-1,j)+dfs(i,j+1)+dfs(i,j-1);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(g[i][j]===1)best=Math.max(best,dfs(i,j));return best;}
+describe('phase69 maxIslandArea coverage',()=>{
+  it('ex1',()=>expect(maxIslandAreaP69([[1,1,0,0],[1,1,0,0],[0,0,0,1]])).toBe(4));
+  it('zero',()=>expect(maxIslandAreaP69([[0]])).toBe(0));
+  it('one',()=>expect(maxIslandAreaP69([[1]])).toBe(1));
+  it('diag',()=>expect(maxIslandAreaP69([[1,0],[0,1]])).toBe(1));
+  it('full',()=>expect(maxIslandAreaP69([[1,1],[1,1]])).toBe(4));
+});

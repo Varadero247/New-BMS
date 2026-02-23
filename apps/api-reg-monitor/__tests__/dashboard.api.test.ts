@@ -1008,3 +1008,14 @@ describe('phase68 reconstructQueue coverage',()=>{
   it('same_h',()=>expect(reconstructQueueP68([[5,0],[5,1]])).toEqual([[5,0],[5,1]]));
   it('ex2',()=>expect(reconstructQueueP68([[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]])).toEqual([[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]));
 });
+
+
+// integerBreak
+function integerBreakP69(n:number):number{if(n<=3)return n-1;const dp=new Array(n+1).fill(0);dp[1]=1;dp[2]=2;dp[3]=3;for(let i=4;i<=n;i++)for(let j=1;j<i;j++)dp[i]=Math.max(dp[i],j*dp[i-j]);return dp[n];}
+describe('phase69 integerBreak coverage',()=>{
+  it('n2',()=>expect(integerBreakP69(2)).toBe(1));
+  it('n10',()=>expect(integerBreakP69(10)).toBe(36));
+  it('n3',()=>expect(integerBreakP69(3)).toBe(2));
+  it('n4',()=>expect(integerBreakP69(4)).toBe(4));
+  it('n6',()=>expect(integerBreakP69(6)).toBe(9));
+});

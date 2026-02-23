@@ -1294,3 +1294,14 @@ describe('phase68 findMin coverage',()=>{
   it('single',()=>expect(findMinP68([1])).toBe(1));
   it('two',()=>expect(findMinP68([2,1])).toBe(1));
 });
+
+
+// longestPalindromeSubsequence
+function longestPalSubseqP69(s:string):number{const n=s.length;const dp:number[][]=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=1;for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;if(s[i]===s[j])dp[i][j]=dp[i+1][j-1]+2;else dp[i][j]=Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}
+describe('phase69 longestPalSubseq coverage',()=>{
+  it('ex1',()=>expect(longestPalSubseqP69('bbbab')).toBe(4));
+  it('ex2',()=>expect(longestPalSubseqP69('cbbd')).toBe(2));
+  it('single',()=>expect(longestPalSubseqP69('a')).toBe(1));
+  it('two',()=>expect(longestPalSubseqP69('aa')).toBe(2));
+  it('palindrome',()=>expect(longestPalSubseqP69('abcba')).toBe(5));
+});

@@ -1066,3 +1066,14 @@ describe('phase68 maxProfitCooldown coverage',()=>{
   it('down',()=>expect(maxProfitCooldownP68([3,2,1])).toBe(0));
   it('flat',()=>expect(maxProfitCooldownP68([2,2,2])).toBe(0));
 });
+
+
+// uniquePathsWithObstacles
+function uniquePathsObstP69(grid:number[][]):number{const m=grid.length,n=grid[0].length;const dp=new Array(n).fill(0);dp[0]=1;for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(grid[i][j]===1){dp[j]=0;}else if(j>0){dp[j]+=dp[j-1];}}return dp[n-1];}
+describe('phase69 uniquePathsObst coverage',()=>{
+  it('ex1',()=>expect(uniquePathsObstP69([[0,0,0],[0,1,0],[0,0,0]])).toBe(2));
+  it('blocked',()=>expect(uniquePathsObstP69([[0,1]])).toBe(0));
+  it('1x1',()=>expect(uniquePathsObstP69([[0]])).toBe(1));
+  it('start_block',()=>expect(uniquePathsObstP69([[1,0]])).toBe(0));
+  it('no_obs',()=>expect(uniquePathsObstP69([[0,0],[0,0]])).toBe(2));
+});

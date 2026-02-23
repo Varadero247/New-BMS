@@ -1035,3 +1035,14 @@ describe('phase68 minEatingSpeed coverage',()=>{
   it('single',()=>expect(minEatingSpeedP68([10],2)).toBe(5));
   it('all_one',()=>expect(minEatingSpeedP68([1,1,1,1],4)).toBe(1));
 });
+
+
+// numIslands
+function numIslandsP69(grid:string[][]):number{const g=grid.map(r=>[...r]);const m=g.length,n=g[0].length;let cnt=0;function dfs(i:number,j:number):void{if(i<0||i>=m||j<0||j>=n||g[i][j]!=='1')return;g[i][j]='0';dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);}for(let i=0;i<m;i++)for(let j=0;j<n;j++)if(g[i][j]==='1'){cnt++;dfs(i,j);}return cnt;}
+describe('phase69 numIslands coverage',()=>{
+  it('conn',()=>expect(numIslandsP69([['1','1','1'],['0','1','0'],['1','1','1']])).toBe(1));
+  it('two',()=>expect(numIslandsP69([['1','1','0'],['1','1','0'],['0','0','1']])).toBe(2));
+  it('none',()=>expect(numIslandsP69([['0','0','0']])).toBe(0));
+  it('one',()=>expect(numIslandsP69([['1']])).toBe(1));
+  it('four',()=>expect(numIslandsP69([['1','0','1'],['0','0','0'],['1','0','1']])).toBe(4));
+});

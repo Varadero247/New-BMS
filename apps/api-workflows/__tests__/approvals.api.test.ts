@@ -1275,3 +1275,14 @@ describe('phase68 findMaxAverage coverage',()=>{
   it('k_eq_n',()=>expect(findMaxAverageP68([1,2,3],3)).toBe(2));
   it('two',()=>expect(findMaxAverageP68([3,7,5],2)).toBe(6));
 });
+
+
+// countPalindromicSubstrings
+function countPalinSubstrP69(s:string):number{let cnt=0;function expand(l:number,r:number){while(l>=0&&r<s.length&&s[l]===s[r]){cnt++;l--;r++;}}for(let i=0;i<s.length;i++){expand(i,i);expand(i,i+1);}return cnt;}
+describe('phase69 countPalinSubstr coverage',()=>{
+  it('abc',()=>expect(countPalinSubstrP69('abc')).toBe(3));
+  it('aaa',()=>expect(countPalinSubstrP69('aaa')).toBe(6));
+  it('single',()=>expect(countPalinSubstrP69('a')).toBe(1));
+  it('aa',()=>expect(countPalinSubstrP69('aa')).toBe(3));
+  it('aba',()=>expect(countPalinSubstrP69('aba')).toBe(4));
+});

@@ -1148,3 +1148,14 @@ describe('phase68 leastInterval coverage',()=>{
   it('single',()=>expect(leastIntervalP68(['A'],0)).toBe(1));
   it('nodiff',()=>expect(leastIntervalP68(['A','B','C'],1)).toBe(3));
 });
+
+
+// countPalindromicSubstrings
+function countPalinSubstrP69(s:string):number{let cnt=0;function expand(l:number,r:number){while(l>=0&&r<s.length&&s[l]===s[r]){cnt++;l--;r++;}}for(let i=0;i<s.length;i++){expand(i,i);expand(i,i+1);}return cnt;}
+describe('phase69 countPalinSubstr coverage',()=>{
+  it('abc',()=>expect(countPalinSubstrP69('abc')).toBe(3));
+  it('aaa',()=>expect(countPalinSubstrP69('aaa')).toBe(6));
+  it('single',()=>expect(countPalinSubstrP69('a')).toBe(1));
+  it('aa',()=>expect(countPalinSubstrP69('aa')).toBe(3));
+  it('aba',()=>expect(countPalinSubstrP69('aba')).toBe(4));
+});

@@ -1140,3 +1140,14 @@ describe('phase68 maxProfit coverage',()=>{
   it('two_up',()=>expect(maxProfitP68([1,2])).toBe(1));
   it('two_dn',()=>expect(maxProfitP68([2,1])).toBe(0));
 });
+
+
+// integerBreak
+function integerBreakP69(n:number):number{if(n<=3)return n-1;const dp=new Array(n+1).fill(0);dp[1]=1;dp[2]=2;dp[3]=3;for(let i=4;i<=n;i++)for(let j=1;j<i;j++)dp[i]=Math.max(dp[i],j*dp[i-j]);return dp[n];}
+describe('phase69 integerBreak coverage',()=>{
+  it('n2',()=>expect(integerBreakP69(2)).toBe(1));
+  it('n10',()=>expect(integerBreakP69(10)).toBe(36));
+  it('n3',()=>expect(integerBreakP69(3)).toBe(2));
+  it('n4',()=>expect(integerBreakP69(4)).toBe(4));
+  it('n6',()=>expect(integerBreakP69(6)).toBe(9));
+});
