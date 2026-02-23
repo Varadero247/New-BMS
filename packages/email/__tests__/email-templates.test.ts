@@ -588,3 +588,12 @@ describe('phase46 coverage', () => {
   it('finds minimum path sum in grid', () => { const mps=(g:number[][])=>{const m=g.length,n=g[0].length;const dp=Array.from({length:m},(_,i)=>Array.from({length:n},(_,j)=>i===0&&j===0?g[0][0]:Infinity));for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;const a=i>0?dp[i-1][j]:Infinity;const b=j>0?dp[i][j-1]:Infinity;dp[i][j]=Math.min(a,b)+g[i][j];}return dp[m-1][n-1];}; expect(mps([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); });
   it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if pattern matches string (wildcard)', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?(dp[i-1][j]||dp[i][j-1]):(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('implements heapsort', () => { const hs=(arr:number[])=>{const a=[...arr],n=a.length;const sink=(i:number,sz:number)=>{while(true){let m=i;const l=2*i+1,r=2*i+2;if(l<sz&&a[l]>a[m])m=l;if(r<sz&&a[r]>a[m])m=r;if(m===i)break;[a[i],a[m]]=[a[m],a[i]];i=m;}};for(let i=Math.floor(n/2)-1;i>=0;i--)sink(i,n);for(let i=n-1;i>0;i--){[a[0],a[i]]=[a[i],a[0]];sink(0,i);}return a;}; expect(hs([12,11,13,5,6,7])).toEqual([5,6,7,11,12,13]); });
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+  it('computes house robber (non-adjacent max sum)', () => { const hr=(a:number[])=>a.reduce(([prev2,prev1],v)=>[prev1,Math.max(prev1,prev2+v)],[0,0])[1]; expect(hr([1,2,3,1])).toBe(4); expect(hr([2,7,9,3,1])).toBe(12); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+});

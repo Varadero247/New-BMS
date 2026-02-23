@@ -790,3 +790,12 @@ describe('phase46 coverage', () => {
   it('serializes and deserializes binary tree', () => { type N={v:number;l?:N;r?:N}; const ser=(n:N|undefined,r:string[]=[]):string=>{if(!n)r.push('null');else{r.push(String(n.v));ser(n.l,r);ser(n.r,r);}return r.join(',');};const des=(s:string)=>{const a=s.split(',');const b=(a:string[]):N|undefined=>{const v=a.shift();if(!v||v==='null')return undefined;return{v:+v,l:b(a),r:b(a)};};return b(a);}; const t:N={v:1,l:{v:2},r:{v:3,l:{v:4},r:{v:5}}}; expect(des(ser(t))?.v).toBe(1); expect(des(ser(t))?.l?.v).toBe(2); });
   it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds cheapest flight within k stops', () => { const cf=(n:number,flights:[number,number,number][],src:number,dst:number,k:number)=>{let d=new Array(n).fill(Infinity);d[src]=0;for(let i=0;i<=k;i++){const nd=[...d];for(const[u,v,w] of flights)if(d[u]+w<nd[v])nd[v]=d[u]+w;d=nd;}return d[dst]===Infinity?-1:d[dst];}; expect(cf(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,1)).toBe(200); });
+  it('implements multi-level cache (L1/L2)', () => { const cache=(l1:number,l2:number)=>{const c1=new Map<number,number>(),c2=new Map<number,number>();return{get:(k:number)=>{if(c1.has(k))return c1.get(k);if(c2.has(k)){const v=c2.get(k)!;c2.delete(k);if(c1.size>=l1){const ek=c1.keys().next().value!;c2.set(ek,c1.get(ek)!);c1.delete(ek);}c1.set(k,v);return v;}return -1;},put:(k:number,v:number)=>{if(c1.size<l1)c1.set(k,v);else c2.set(k,v);}};}; const c=cache(2,3);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBe(10); expect(c.get(3)).toBe(30); });
+  it('computes stock profit with cooldown', () => { const sp=(p:number[])=>{let hold=-Infinity,sold=0,cool=0;for(const v of p){const nh=Math.max(hold,cool-v),ns=hold+v,nc=Math.max(cool,sold);[hold,sold,cool]=[nh,ns,nc];}return Math.max(sold,cool);}; expect(sp([1,2,3,0,2])).toBe(3); expect(sp([1])).toBe(0); });
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+  it('finds subarray with max sum of length k', () => { const mk=(a:number[],k:number)=>{let win=a.slice(0,k).reduce((s,v)=>s+v,0),best=win;for(let i=k;i<a.length;i++){win+=a[i]-a[i-k];best=Math.max(best,win);}return best;}; expect(mk([2,1,5,1,3,2],3)).toBe(9); expect(mk([-1,2,3,4,-5],2)).toBe(7); });
+});

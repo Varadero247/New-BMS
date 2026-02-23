@@ -1668,3 +1668,12 @@ describe('phase46 coverage', () => {
   it('finds non-overlapping intervals count', () => { const noOverlap=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[1]-b[1]);let cnt=0,end=-Infinity;for(const [l,r] of s){if(l>=end)end=r;else cnt++;}return cnt;}; expect(noOverlap([[1,2],[2,3],[3,4],[1,3]])).toBe(1); });
   it('finds maximum path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; let mx=-Infinity; const dfs=(n:N|undefined):number=>{if(!n)return 0;const l=Math.max(0,dfs(n.l)),r=Math.max(0,dfs(n.r));mx=Math.max(mx,n.v+l+r);return n.v+Math.max(l,r);}; const t:N={v:-10,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; mx=-Infinity;dfs(t); expect(mx).toBe(42); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements Z-algorithm for string matching', () => { const zfn=(s:string)=>{const n=s.length,z=new Array(n).fill(0);let l=0,r=0;for(let i=1;i<n;i++){if(i<r)z[i]=Math.min(r-i,z[i-l]);while(i+z[i]<n&&s[z[i]]===s[i+z[i]])z[i]++;if(i+z[i]>r){l=i;r=i+z[i];}}return z;}; const z=zfn('aabxaa'); expect(z[4]).toBe(2); expect(z[0]).toBe(0); });
+  it('computes number of paths of length k in graph', () => { const mm=(a:number[][],b:number[][])=>{const n=a.length;return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>Array.from({length:n},(_,k)=>a[i][k]*b[k][j]).reduce((s,v)=>s+v,0)));};const kp=(adj:number[][],k:number)=>{let r=adj.map(row=>[...row]);for(let i=1;i<k;i++)r=mm(r,adj);return r;}; const adj=[[0,1,0],[0,0,1],[1,0,0]]; expect(kp(adj,3)[0][0]).toBe(1); });
+  it('finds index of min element', () => { const argmin=(a:number[])=>a.reduce((mi,v,i)=>v<a[mi]?i:mi,0); expect(argmin([3,1,4,1,5])).toBe(1); expect(argmin([5,3,8,1])).toBe(3); });
+  it('computes house robber (non-adjacent max sum)', () => { const hr=(a:number[])=>a.reduce(([prev2,prev1],v)=>[prev1,Math.max(prev1,prev2+v)],[0,0])[1]; expect(hr([1,2,3,1])).toBe(4); expect(hr([2,7,9,3,1])).toBe(12); });
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+});

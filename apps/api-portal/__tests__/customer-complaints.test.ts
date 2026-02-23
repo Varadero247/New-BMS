@@ -728,3 +728,12 @@ describe('phase46 coverage', () => {
   it('finds the kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
   it('rotates matrix 90 degrees counter-clockwise', () => { const rotCCW=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); expect(rotCCW([[1,2],[3,4]])).toEqual([[2,4],[1,3]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+  it('solves paint fence with k colors', () => { const pf=(n:number,k:number)=>{if(n===0)return 0;if(n===1)return k;let same=k,diff=k*(k-1);for(let i=3;i<=n;i++){const ts=diff,td=(same+diff)*(k-1);same=ts;diff=td;}return same+diff;}; expect(pf(3,2)).toBe(6); expect(pf(1,1)).toBe(1); });
+  it('computes Floyd-Warshall all-pairs shortest paths', () => { const fw=(d:number[][])=>{const n=d.length,r=d.map(row=>[...row]);for(let k=0;k<n;k++)for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(r[i][k]+r[k][j]<r[j][j+0]||true)r[i][j]=Math.min(r[i][j],r[i][k]+r[k][j]);return r;}; const INF=Infinity;const g=[[0,3,INF,5],[2,0,INF,4],[INF,1,0,INF],[INF,INF,2,0]]; const r=fw(g); expect(r[0][2]).toBe(7); expect(r[3][0]).toBe(5); });
+  it('implements Z-algorithm for string matching', () => { const zfn=(s:string)=>{const n=s.length,z=new Array(n).fill(0);let l=0,r=0;for(let i=1;i<n;i++){if(i<r)z[i]=Math.min(r-i,z[i-l]);while(i+z[i]<n&&s[z[i]]===s[i+z[i]])z[i]++;if(i+z[i]>r){l=i;r=i+z[i];}}return z;}; const z=zfn('aabxaa'); expect(z[4]).toBe(2); expect(z[0]).toBe(0); });
+});

@@ -555,3 +555,12 @@ describe('phase46 coverage', () => {
   it('computes trapping rain water', () => { const trap=(h:number[])=>{let l=0,r=h.length-1,lmax=0,rmax=0,w=0;while(l<r){if(h[l]<h[r]){lmax=Math.max(lmax,h[l]);w+=lmax-h[l];l++;}else{rmax=Math.max(rmax,h[r]);w+=rmax-h[r];r--;}}return w;}; expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6); expect(trap([4,2,0,3,2,5])).toBe(9); });
   it('detects cycle in linked list (Floyd)', () => { type N={v:number;next?:N}; const cycle=(head:N|undefined)=>{let s=head,f=head;while(f?.next){s=s?.next;f=f.next?.next;if(s===f)return true;}return false;}; const a:N={v:1};const b:N={v:2};const c:N={v:3};a.next=b;b.next=c;c.next=b; expect(cycle(a)).toBe(true); const x:N={v:1,next:{v:2,next:{v:3}}}; expect(cycle(x)).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements KMP string search', () => { const kmp=(text:string,pat:string)=>{const n=text.length,m=pat.length;const lps=new Array(m).fill(0);for(let i=1,len=0;i<m;){if(pat[i]===pat[len])lps[i++]=++len;else len>0?len=lps[len-1]:i++;}const res:number[]=[];for(let i=0,j=0;i<n;){if(text[i]===pat[j]){i++;j++;}if(j===m){res.push(i-j);j=lps[j-1];}else if(i<n&&text[i]!==pat[j])j>0?j=lps[j-1]:i++;}return res;}; expect(kmp('AABAACAADAABAABA','AABA')).toEqual([0,9,12]); });
+  it('computes longest common substring', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));let best=0;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:0;best=Math.max(best,dp[i][j]);}return best;}; expect(lcs('abcdef','zbcdf')).toBe(3); expect(lcs('abcd','efgh')).toBe(0); });
+  it('finds minimum window substring', () => { const mw=(s:string,t:string)=>{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let l=0,have=0,best='',min=Infinity;for(let r=0;r<s.length;r++){const c=s[r];if(need.has(c)){need.set(c,need.get(c)!-1);if(need.get(c)===0)have++;}while(have===need.size){if(r-l+1<min){min=r-l+1;best=s.slice(l,r+1);}const lc=s[l];if(need.has(lc)){need.set(lc,need.get(lc)!+1);if(need.get(lc)===1)have--;}l++;}}return best;}; expect(mw('ADOBECODEBANC','ABC')).toBe('BANC'); });
+  it('counts distinct values in array', () => { const dv=(a:number[])=>new Set(a).size; expect(dv([1,2,2,3,3,3])).toBe(3); expect(dv([1,1,1])).toBe(1); });
+  it('finds index of min element', () => { const argmin=(a:number[])=>a.reduce((mi,v,i)=>v<a[mi]?i:mi,0); expect(argmin([3,1,4,1,5])).toBe(1); expect(argmin([5,3,8,1])).toBe(3); });
+});

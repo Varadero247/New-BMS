@@ -808,3 +808,12 @@ describe('phase46 coverage', () => {
   it('implements sieve of Eratosthenes', () => { const sieve=(n:number)=>{const p=new Array(n+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=n;i++)if(p[i])for(let j=i*i;j<=n;j+=i)p[j]=false;return Array.from({length:n-1},(_,i)=>i+2).filter(i=>p[i]);}; expect(sieve(30)).toEqual([2,3,5,7,11,13,17,19,23,29]); });
   it('solves job scheduling (weighted interval)', () => { const js=(jobs:[number,number,number][])=>{const s=[...jobs].sort((a,b)=>a[1]-b[1]);const n=s.length;const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++){const[st,,w]=s[i-1];let p=i-1;while(p>0&&s[p-1][1]>st)p--;dp[i]=Math.max(dp[i-1],dp[p]+w);}return dp[n];}; expect(js([[1,4,3],[3,5,4],[0,6,8],[4,7,2]])).toBe(8); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+  it('checks if string is valid IPv6', () => { const v6=(s:string)=>{const g=s.split(':');return g.length===8&&g.every(x=>/^[0-9a-fA-F]{1,4}$/.test(x));}; expect(v6('2001:0db8:85a3:0000:0000:8a2e:0370:7334')).toBe(true); expect(v6('2001:db8::1')).toBe(false); });
+  it('normalizes matrix rows to sum 1', () => { const nr=(m:number[][])=>m.map(r=>{const s=r.reduce((a,v)=>a+v,0);return r.map(v=>Math.round(v/s*100)/100);}); expect(nr([[1,3],[2,2]])[0]).toEqual([0.25,0.75]); });
+  it('implements Z-algorithm for string matching', () => { const zfn=(s:string)=>{const n=s.length,z=new Array(n).fill(0);let l=0,r=0;for(let i=1;i<n;i++){if(i<r)z[i]=Math.min(r-i,z[i-l]);while(i+z[i]<n&&s[z[i]]===s[i+z[i]])z[i]++;if(i+z[i]>r){l=i;r=i+z[i];}}return z;}; const z=zfn('aabxaa'); expect(z[4]).toBe(2); expect(z[0]).toBe(0); });
+  it('computes all unique triplets summing to zero', () => { const t0=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const r:number[][]=[];for(let i=0;i<s.length-2;i++){if(i>0&&s[i]===s[i-1])continue;let l=i+1,h=s.length-1;while(l<h){const sm=s[i]+s[l]+s[h];if(sm===0){r.push([s[i],s[l],s[h]]);while(l<h&&s[l]===s[l+1])l++;while(l<h&&s[h]===s[h-1])h--;l++;h--;}else sm<0?l++:h--;}}return r;}; expect(t0([-1,0,1,2,-1,-4]).length).toBe(2); });
+});

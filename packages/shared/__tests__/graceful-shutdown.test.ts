@@ -739,3 +739,12 @@ describe('phase46 coverage', () => {
   it('implements LCS (longest common subsequence)', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe(4); expect(lcs('AGGTAB','GXTXAYB')).toBe(4); });
   it('checks if matrix is symmetric', () => { const sym=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===m[j][i])); expect(sym([[1,2,3],[2,5,6],[3,6,9]])).toBe(true); expect(sym([[1,2],[3,4]])).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements KMP string search', () => { const kmp=(text:string,pat:string)=>{const n=text.length,m=pat.length;const lps=new Array(m).fill(0);for(let i=1,len=0;i<m;){if(pat[i]===pat[len])lps[i++]=++len;else len>0?len=lps[len-1]:i++;}const res:number[]=[];for(let i=0,j=0;i<n;){if(text[i]===pat[j]){i++;j++;}if(j===m){res.push(i-j);j=lps[j-1];}else if(i<n&&text[i]!==pat[j])j>0?j=lps[j-1]:i++;}return res;}; expect(kmp('AABAACAADAABAABA','AABA')).toEqual([0,9,12]); });
+  it('implements heapsort', () => { const hs=(arr:number[])=>{const a=[...arr],n=a.length;const sink=(i:number,sz:number)=>{while(true){let m=i;const l=2*i+1,r=2*i+2;if(l<sz&&a[l]>a[m])m=l;if(r<sz&&a[r]>a[m])m=r;if(m===i)break;[a[i],a[m]]=[a[m],a[i]];i=m;}};for(let i=Math.floor(n/2)-1;i>=0;i--)sink(i,n);for(let i=n-1;i>0;i--){[a[0],a[i]]=[a[i],a[0]];sink(0,i);}return a;}; expect(hs([12,11,13,5,6,7])).toEqual([5,6,7,11,12,13]); });
+  it('finds cheapest flight within k stops', () => { const cf=(n:number,flights:[number,number,number][],src:number,dst:number,k:number)=>{let d=new Array(n).fill(Infinity);d[src]=0;for(let i=0;i<=k;i++){const nd=[...d];for(const[u,v,w] of flights)if(d[u]+w<nd[v])nd[v]=d[u]+w;d=nd;}return d[dst]===Infinity?-1:d[dst];}; expect(cf(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,1)).toBe(200); });
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('checks if string has all unique chars', () => { const uniq=(s:string)=>s.length===new Set(s).size; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); });
+});

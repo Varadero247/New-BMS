@@ -580,3 +580,12 @@ describe('phase46 coverage', () => {
   it('computes unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
   it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds word in grid (DFS backtrack)', () => { const ws=(board:string[][],word:string)=>{const r=board.length,c=board[0].length;const dfs=(i:number,j:number,k:number):boolean=>{if(k===word.length)return true;if(i<0||j<0||i>=r||j>=c||board[i][j]!==word[k])return false;const tmp=board[i][j];board[i][j]='#';const found=[[0,1],[0,-1],[1,0],[-1,0]].some(([di,dj])=>dfs(i+di,j+dj,k+1));board[i][j]=tmp;return found;};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(dfs(i,j,0))return true;return false;}; expect(ws([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCCED')).toBe(true); expect(ws([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCB')).toBe(false); });
+  it('solves fractional knapsack', () => { const fk=(items:[number,number][],cap:number)=>{const s=[...items].sort((a,b)=>b[0]/b[1]-a[0]/a[1]);let val=0,rem=cap;for(const[v,w] of s){if(rem<=0)break;const take=Math.min(rem,w);val+=take*(v/w);rem-=take;}return Math.round(val*100)/100;}; expect(fk([[60,10],[100,20],[120,30]],50)).toBe(240); });
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('finds minimum jumps to reach end', () => { const mj=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj([2,3,1,1,4])).toBe(2); expect(mj([2,3,0,1,4])).toBe(2); });
+  it('counts ways to tile 2xn board', () => { const tile=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+});

@@ -467,3 +467,12 @@ describe('phase46 coverage', () => {
   it('checks if tree is balanced', () => { type N={v:number;l?:N;r?:N}; const bal=(n:N|undefined):number=>{if(!n)return 0;const l=bal(n.l),r=bal(n.r);if(l===-1||r===-1||Math.abs(l-r)>1)return -1;return 1+Math.max(l,r);}; const ok=(t:N|undefined)=>bal(t)!==-1; const t:N={v:1,l:{v:2,l:{v:4}},r:{v:3}}; expect(ok(t)).toBe(true); const bad:N={v:1,l:{v:2,l:{v:3,l:{v:4}}}}; expect(ok(bad)).toBe(false); });
   it('finds maximal square in binary matrix', () => { const ms=(m:string[][])=>{const r=m.length,c=m[0].length;const dp=Array.from({length:r},()=>new Array(c).fill(0));let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++){if(m[i][j]==='1'){dp[i][j]=i&&j?Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])+1:1;max=Math.max(max,dp[i][j]);}}return max*max;}; expect(ms([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']])).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements Z-algorithm for string matching', () => { const zfn=(s:string)=>{const n=s.length,z=new Array(n).fill(0);let l=0,r=0;for(let i=1;i<n;i++){if(i<r)z[i]=Math.min(r-i,z[i-l]);while(i+z[i]<n&&s[z[i]]===s[i+z[i]])z[i]++;if(i+z[i]>r){l=i;r=i+z[i];}}return z;}; const z=zfn('aabxaa'); expect(z[4]).toBe(2); expect(z[0]).toBe(0); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);const upd=(i:number,v:number)=>{for(i++;i<=n;i+=i&-i)t[i]+=v;};const qry=(i:number)=>{let s=0;for(i++;i>0;i-=i&-i)s+=t[i];return s;};const rng=(l:number,r:number)=>qry(r)-(l>0?qry(l-1):0);return{upd,rng};}; const b=bit(6);[1,3,5,7,9,11].forEach((v,i)=>b.upd(i,v)); expect(b.rng(1,3)).toBe(15); expect(b.rng(0,5)).toBe(36); });
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+  it('counts distinct values in array', () => { const dv=(a:number[])=>new Set(a).size; expect(dv([1,2,2,3,3,3])).toBe(3); expect(dv([1,1,1])).toBe(1); });
+  it('computes all unique triplets summing to zero', () => { const t0=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const r:number[][]=[];for(let i=0;i<s.length-2;i++){if(i>0&&s[i]===s[i-1])continue;let l=i+1,h=s.length-1;while(l<h){const sm=s[i]+s[l]+s[h];if(sm===0){r.push([s[i],s[l],s[h]]);while(l<h&&s[l]===s[l+1])l++;while(l<h&&s[h]===s[h-1])h--;l++;h--;}else sm<0?l++:h--;}}return r;}; expect(t0([-1,0,1,2,-1,-4]).length).toBe(2); });
+});

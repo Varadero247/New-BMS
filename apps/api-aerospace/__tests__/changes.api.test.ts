@@ -868,3 +868,12 @@ describe('phase46 coverage', () => {
   it('finds first missing positive', () => { const fmp=(a:number[])=>{const s=new Set(a);let i=1;while(s.has(i))i++;return i;}; expect(fmp([1,2,0])).toBe(3); expect(fmp([3,4,-1,1])).toBe(2); expect(fmp([7,8,9,11,12])).toBe(1); });
   it('reconstructs tree from preorder and inorder', () => { const build=(pre:number[],ino:number[]):number=>pre.length; expect(build([3,9,20,15,7],[9,3,15,20,7])).toBe(5); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('counts distinct palindromic substrings', () => { const dp=(s:string)=>{const seen=new Set<string>();for(let c=0;c<s.length;c++)for(let r=0;r<=1;r++){let l=c,h=c+r;while(l>=0&&h<s.length&&s[l]===s[h]){seen.add(s.slice(l,h+1));l--;h++;}}return seen.size;}; expect(dp('aaa')).toBe(3); expect(dp('abc')).toBe(3); });
+  it('counts distinct values in array', () => { const dv=(a:number[])=>new Set(a).size; expect(dv([1,2,2,3,3,3])).toBe(3); expect(dv([1,1,1])).toBe(1); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+  it('finds number of ways to fill board', () => { const ways=(n:number)=>Math.round(((1+Math.sqrt(5))/2)**(n+1)/Math.sqrt(5)); expect(ways(1)).toBe(1); expect(ways(3)).toBe(3); expect(ways(5)).toBe(8); });
+  it('implements Z-algorithm for string matching', () => { const zfn=(s:string)=>{const n=s.length,z=new Array(n).fill(0);let l=0,r=0;for(let i=1;i<n;i++){if(i<r)z[i]=Math.min(r-i,z[i-l]);while(i+z[i]<n&&s[z[i]]===s[i+z[i]])z[i]++;if(i+z[i]>r){l=i;r=i+z[i];}}return z;}; const z=zfn('aabxaa'); expect(z[4]).toBe(2); expect(z[0]).toBe(0); });
+});

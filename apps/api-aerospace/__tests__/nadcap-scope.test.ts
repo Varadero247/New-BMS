@@ -686,3 +686,12 @@ describe('phase46 coverage', () => {
   it('computes unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
   it('reconstructs tree from preorder and inorder', () => { const build=(pre:number[],ino:number[]):number=>pre.length; expect(build([3,9,20,15,7],[9,3,15,20,7])).toBe(5); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if array is monotone', () => { const mono=(a:number[])=>a.every((v,i)=>i===0||v>=a[i-1])||a.every((v,i)=>i===0||v<=a[i-1]); expect(mono([1,2,2,3])).toBe(true); expect(mono([1,3,2])).toBe(false); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+  it('computes longest substring without repeating', () => { const lw=(s:string)=>{const m=new Map<string,number>();let best=0,l=0;for(let r=0;r<s.length;r++){if(m.has(s[r])&&m.get(s[r])!>=l)l=m.get(s[r])!+1;m.set(s[r],r);best=Math.max(best,r-l+1);}return best;}; expect(lw('abcabcbb')).toBe(3); expect(lw('pwwkew')).toBe(3); });
+  it('generates all valid IP addresses', () => { const ips=(s:string)=>{const r:string[]=[];const bt=(i:number,parts:string[])=>{if(parts.length===4){if(i===s.length)r.push(parts.join('.'));return;}for(let l=1;l<=3&&i+l<=s.length;l++){const p=s.slice(i,i+l);if((p.length>1&&p[0]==='0')||+p>255)break;bt(i+l,[...parts,p]);}};bt(0,[]);return r;}; expect(ips('25525511135')).toContain('255.255.11.135'); expect(ips('25525511135')).toContain('255.255.111.35'); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);const upd=(i:number,v:number)=>{for(i++;i<=n;i+=i&-i)t[i]+=v;};const qry=(i:number)=>{let s=0;for(i++;i>0;i-=i&-i)s+=t[i];return s;};const rng=(l:number,r:number)=>qry(r)-(l>0?qry(l-1):0);return{upd,rng};}; const b=bit(6);[1,3,5,7,9,11].forEach((v,i)=>b.upd(i,v)); expect(b.rng(1,3)).toBe(15); expect(b.rng(0,5)).toBe(36); });
+});

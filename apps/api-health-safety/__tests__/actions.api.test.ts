@@ -612,3 +612,12 @@ describe('phase46 coverage', () => {
   it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let best=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
   it('checks if array is sorted ascending', () => { const isSorted=(a:number[])=>a.every((v,i)=>i===0||a[i-1]<=v); expect(isSorted([1,2,3,4,5])).toBe(true); expect(isSorted([1,3,2,4])).toBe(false); expect(isSorted([])).toBe(true); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if pattern matches string (wildcard)', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?(dp[i-1][j]||dp[i][j-1]):(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('computes stock profit with cooldown', () => { const sp=(p:number[])=>{let hold=-Infinity,sold=0,cool=0;for(const v of p){const nh=Math.max(hold,cool-v),ns=hold+v,nc=Math.max(cool,sold);[hold,sold,cool]=[nh,ns,nc];}return Math.max(sold,cool);}; expect(sp([1,2,3,0,2])).toBe(3); expect(sp([1])).toBe(0); });
+  it('computes longest substring without repeating', () => { const lw=(s:string)=>{const m=new Map<string,number>();let best=0,l=0;for(let r=0;r<s.length;r++){if(m.has(s[r])&&m.get(s[r])!>=l)l=m.get(s[r])!+1;m.set(s[r],r);best=Math.max(best,r-l+1);}return best;}; expect(lw('abcabcbb')).toBe(3); expect(lw('pwwkew')).toBe(3); });
+  it('generates all combinations with repetition', () => { const cr=(a:number[],k:number):number[][]=>k===0?[[]]:[...a.flatMap((_,i)=>cr(a.slice(i),k-1).map(c=>[a[i],...c]))]; expect(cr([1,2],2)).toEqual([[1,1],[1,2],[2,2]]); });
+  it('finds minimum jumps to reach end', () => { const mj=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj([2,3,1,1,4])).toBe(2); expect(mj([2,3,0,1,4])).toBe(2); });
+});

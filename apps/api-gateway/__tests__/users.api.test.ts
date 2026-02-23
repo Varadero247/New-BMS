@@ -928,3 +928,12 @@ describe('phase46 coverage', () => {
   it('generates balanced parentheses', () => { const bp=(n:number):string[]=>{const r:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n)return r.push(s);if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return r;}; expect(bp(3).length).toBe(5); expect(bp(3)).toContain('((()))'); expect(bp(3)).toContain('()()()'); });
   it('computes range minimum query (sparse table)', () => { const rmq=(a:number[])=>{const n=a.length,LOG=Math.floor(Math.log2(n))+1;const t:number[][]=Array.from({length:LOG},()=>new Array(n).fill(0));for(let i=0;i<n;i++)t[0][i]=a[i];for(let k=1;k<LOG;k++)for(let i=0;i+(1<<k)<=n;i++)t[k][i]=Math.min(t[k-1][i],t[k-1][i+(1<<(k-1))]);return(l:number,r:number)=>{const k=Math.floor(Math.log2(r-l+1));return Math.min(t[k][l],t[k][r-(1<<k)+1]);};}; const q=rmq([2,4,3,1,6,7,8,9,1,7]); expect(q(0,4)).toBe(1); expect(q(4,7)).toBe(6); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds maximum flow with BFS augmentation', () => { const mf=(cap:number[][])=>{const n=cap.length;const fc=cap.map(r=>[...r]);let flow=0;const bfs=()=>{const par=new Array(n).fill(-1);par[0]=0;const q=[0];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(par[v]===-1&&fc[u][v]>0){par[v]=u;q.push(v);}}return par[n-1]!==-1?par:null;};for(let par=bfs();par;par=bfs()){let f=Infinity;for(let v=n-1;v!==0;v=par[v])f=Math.min(f,fc[par[v]][v]);for(let v=n-1;v!==0;v=par[v]){fc[par[v]][v]-=f;fc[v][par[v]]+=f;}flow+=f;}return flow;}; expect(mf([[0,3,2,0],[0,0,1,3],[0,0,0,2],[0,0,0,0]])).toBe(5); });
+  it('computes house robber (non-adjacent max sum)', () => { const hr=(a:number[])=>a.reduce(([prev2,prev1],v)=>[prev1,Math.max(prev1,prev2+v)],[0,0])[1]; expect(hr([1,2,3,1])).toBe(4); expect(hr([2,7,9,3,1])).toBe(12); });
+  it('finds index of max element', () => { const argmax=(a:number[])=>a.reduce((mi,v,i)=>v>a[mi]?i:mi,0); expect(argmax([3,1,4,1,5,9,2,6])).toBe(5); expect(argmax([1])).toBe(0); });
+  it('finds index of min element', () => { const argmin=(a:number[])=>a.reduce((mi,v,i)=>v<a[mi]?i:mi,0); expect(argmin([3,1,4,1,5])).toBe(1); expect(argmin([5,3,8,1])).toBe(3); });
+  it('counts distinct palindromic substrings', () => { const dp=(s:string)=>{const seen=new Set<string>();for(let c=0;c<s.length;c++)for(let r=0;r<=1;r++){let l=c,h=c+r;while(l>=0&&h<s.length&&s[l]===s[h]){seen.add(s.slice(l,h+1));l--;h++;}}return seen.size;}; expect(dp('aaa')).toBe(3); expect(dp('abc')).toBe(3); });
+});

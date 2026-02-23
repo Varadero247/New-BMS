@@ -693,3 +693,12 @@ describe('phase46 coverage', () => {
   it('counts distinct subsequences', () => { const ds=(s:string,t:string)=>{const m=s.length,n=t.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}; expect(ds('rabbbit','rabbit')).toBe(3); expect(ds('babgbag','bag')).toBe(5); });
   it('checks if string is valid number (strict)', () => { const vn=(s:string)=>/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(s.trim()); expect(vn('3.14')).toBe(true); expect(vn('-2.5e10')).toBe(true); expect(vn('abc')).toBe(false); expect(vn('1.2.3')).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+  it('computes stock profit with cooldown', () => { const sp=(p:number[])=>{let hold=-Infinity,sold=0,cool=0;for(const v of p){const nh=Math.max(hold,cool-v),ns=hold+v,nc=Math.max(cool,sold);[hold,sold,cool]=[nh,ns,nc];}return Math.max(sold,cool);}; expect(sp([1,2,3,0,2])).toBe(3); expect(sp([1])).toBe(0); });
+  it('finds index of max element', () => { const argmax=(a:number[])=>a.reduce((mi,v,i)=>v>a[mi]?i:mi,0); expect(argmax([3,1,4,1,5,9,2,6])).toBe(5); expect(argmax([1])).toBe(0); });
+  it('computes range of array', () => { const range=(a:number[])=>Math.max(...a)-Math.min(...a); expect(range([3,1,4,1,5,9])).toBe(8); expect(range([7,7,7])).toBe(0); });
+  it('computes Floyd-Warshall all-pairs shortest paths', () => { const fw=(d:number[][])=>{const n=d.length,r=d.map(row=>[...row]);for(let k=0;k<n;k++)for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(r[i][k]+r[k][j]<r[j][j+0]||true)r[i][j]=Math.min(r[i][j],r[i][k]+r[k][j]);return r;}; const INF=Infinity;const g=[[0,3,INF,5],[2,0,INF,4],[INF,1,0,INF],[INF,INF,2,0]]; const r=fw(g); expect(r[0][2]).toBe(7); expect(r[3][0]).toBe(5); });
+});

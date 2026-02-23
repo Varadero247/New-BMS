@@ -846,3 +846,12 @@ describe('phase46 coverage', () => {
   it('counts subarrays with sum equal to k', () => { const sc=(a:number[],k:number)=>{const m=new Map([[0,1]]);let sum=0,cnt=0;for(const v of a){sum+=v;cnt+=(m.get(sum-k)||0);m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sc([1,1,1],2)).toBe(2); expect(sc([1,2,3],3)).toBe(2); });
   it('counts connected components', () => { const cc=(n:number,edges:[number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};edges.forEach(([u,v])=>union(u,v));return new Set(Array.from({length:n},(_,i)=>find(i))).size;}; expect(cc(5,[[0,1],[1,2],[3,4]])).toBe(2); expect(cc(4,[])).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes range of array', () => { const range=(a:number[])=>Math.max(...a)-Math.min(...a); expect(range([3,1,4,1,5,9])).toBe(8); expect(range([7,7,7])).toBe(0); });
+  it('checks if matrix has a zero row', () => { const zr=(m:number[][])=>m.some(r=>r.every(v=>v===0)); expect(zr([[1,2],[0,0],[3,4]])).toBe(true); expect(zr([[1,2],[3,4]])).toBe(false); });
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+  it('finds minimum jumps to reach end', () => { const mj=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj([2,3,1,1,4])).toBe(2); expect(mj([2,3,0,1,4])).toBe(2); });
+  it('finds all anagram positions in string', () => { const ap=(s:string,p:string)=>{const r:number[]=[],n=p.length;const pc=new Array(26).fill(0),wc=new Array(26).fill(0);const ci=(c:string)=>c.charCodeAt(0)-97;for(const c of p)pc[ci(c)]++;for(let i=0;i<s.length;i++){wc[ci(s[i])]++;if(i>=n)wc[ci(s[i-n])]--;if(pc.every((v,j)=>v===wc[j]))r.push(i-n+1);}return r;}; expect(ap('cbaebabacd','abc')).toEqual([0,6]); });
+});

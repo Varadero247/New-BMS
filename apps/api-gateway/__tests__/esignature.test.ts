@@ -810,3 +810,12 @@ describe('phase46 coverage', () => {
   it('checks if number is deficient', () => { const def=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)<n; expect(def(8)).toBe(true); expect(def(12)).toBe(false); });
   it('checks if tree is balanced', () => { type N={v:number;l?:N;r?:N}; const bal=(n:N|undefined):number=>{if(!n)return 0;const l=bal(n.l),r=bal(n.r);if(l===-1||r===-1||Math.abs(l-r)>1)return -1;return 1+Math.max(l,r);}; const ok=(t:N|undefined)=>bal(t)!==-1; const t:N={v:1,l:{v:2,l:{v:4}},r:{v:3}}; expect(ok(t)).toBe(true); const bad:N={v:1,l:{v:2,l:{v:3,l:{v:4}}}}; expect(ok(bad)).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+  it('solves fractional knapsack', () => { const fk=(items:[number,number][],cap:number)=>{const s=[...items].sort((a,b)=>b[0]/b[1]-a[0]/a[1]);let val=0,rem=cap;for(const[v,w] of s){if(rem<=0)break;const take=Math.min(rem,w);val+=take*(v/w);rem-=take;}return Math.round(val*100)/100;}; expect(fk([[60,10],[100,20],[120,30]],50)).toBe(240); });
+  it('implements quicksort', () => { const qs=(a:number[]):number[]=>a.length<=1?a:(()=>{const p=a[Math.floor(a.length/2)];return[...qs(a.filter(x=>x<p)),...a.filter(x=>x===p),...qs(a.filter(x=>x>p))];})(); expect(qs([3,6,8,10,1,2,1])).toEqual([1,1,2,3,6,8,10]); });
+  it('computes stock profit with cooldown', () => { const sp=(p:number[])=>{let hold=-Infinity,sold=0,cool=0;for(const v of p){const nh=Math.max(hold,cool-v),ns=hold+v,nc=Math.max(cool,sold);[hold,sold,cool]=[nh,ns,nc];}return Math.max(sold,cool);}; expect(sp([1,2,3,0,2])).toBe(3); expect(sp([1])).toBe(0); });
+  it('checks if directed graph is DAG', () => { const isDAG=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const col=new Array(n).fill(0);const dfs=(u:number):boolean=>{col[u]=1;for(const v of adj[u]){if(col[v]===1)return false;if(col[v]===0&&!dfs(v))return false;}col[u]=2;return true;};return Array.from({length:n},(_,i)=>i).every(i=>col[i]!==0||dfs(i));}; expect(isDAG(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isDAG(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+});

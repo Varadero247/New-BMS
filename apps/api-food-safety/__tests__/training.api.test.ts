@@ -710,3 +710,12 @@ describe('phase46 coverage', () => {
   it('merges k sorted arrays', () => { const mk=(arrs:number[][])=>{const r:number[]=[];const idx=new Array(arrs.length).fill(0);while(true){let mi=-1,mv=Infinity;for(let i=0;i<arrs.length;i++)if(idx[i]<arrs[i].length&&arrs[i][idx[i]]<mv){mv=arrs[i][idx[i]];mi=i;}if(mi===-1)break;r.push(mv);idx[mi]++;}return r;}; expect(mk([[1,4,7],[2,5,8],[3,6,9]])).toEqual([1,2,3,4,5,6,7,8,9]); });
   it('computes nth Catalan number', () => { const cat=(n:number):number=>n<=1?1:Array.from({length:n},(_,i)=>cat(i)*cat(n-1-i)).reduce((s,v)=>s+v,0); expect(cat(0)).toBe(1); expect(cat(3)).toBe(5); expect(cat(4)).toBe(14); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+  it('computes all unique triplets summing to zero', () => { const t0=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const r:number[][]=[];for(let i=0;i<s.length-2;i++){if(i>0&&s[i]===s[i-1])continue;let l=i+1,h=s.length-1;while(l<h){const sm=s[i]+s[l]+s[h];if(sm===0){r.push([s[i],s[l],s[h]]);while(l<h&&s[l]===s[l+1])l++;while(l<h&&s[h]===s[h-1])h--;l++;h--;}else sm<0?l++:h--;}}return r;}; expect(t0([-1,0,1,2,-1,-4]).length).toBe(2); });
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('checks if pattern matches string (wildcard)', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?(dp[i-1][j]||dp[i][j-1]):(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+});

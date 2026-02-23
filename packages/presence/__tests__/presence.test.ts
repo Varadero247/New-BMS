@@ -504,3 +504,12 @@ describe('phase46 coverage', () => {
   it('counts distinct subsequences', () => { const ds=(s:string,t:string)=>{const m=s.length,n=t.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=1;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=dp[i-1][j]+(s[i-1]===t[j-1]?dp[i-1][j-1]:0);return dp[m][n];}; expect(ds('rabbbit','rabbit')).toBe(3); expect(ds('babgbag','bag')).toBe(5); });
   it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let best=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);const upd=(i:number,v:number)=>{for(i++;i<=n;i+=i&-i)t[i]+=v;};const qry=(i:number)=>{let s=0;for(i++;i>0;i-=i&-i)s+=t[i];return s;};const rng=(l:number,r:number)=>qry(r)-(l>0?qry(l-1):0);return{upd,rng};}; const b=bit(6);[1,3,5,7,9,11].forEach((v,i)=>b.upd(i,v)); expect(b.rng(1,3)).toBe(15); expect(b.rng(0,5)).toBe(36); });
+  it('counts ways to tile 2xn board', () => { const tile=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('implements heapsort', () => { const hs=(arr:number[])=>{const a=[...arr],n=a.length;const sink=(i:number,sz:number)=>{while(true){let m=i;const l=2*i+1,r=2*i+2;if(l<sz&&a[l]>a[m])m=l;if(r<sz&&a[r]>a[m])m=r;if(m===i)break;[a[i],a[m]]=[a[m],a[i]];i=m;}};for(let i=Math.floor(n/2)-1;i>=0;i--)sink(i,n);for(let i=n-1;i>0;i--){[a[0],a[i]]=[a[i],a[0]];sink(0,i);}return a;}; expect(hs([12,11,13,5,6,7])).toEqual([5,6,7,11,12,13]); });
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+});

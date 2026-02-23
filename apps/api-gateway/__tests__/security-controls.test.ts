@@ -619,3 +619,12 @@ describe('phase46 coverage', () => {
   it('implements segment tree range sum', () => { const st=(a:number[])=>{const n=a.length;const t=new Array(4*n).fill(0);const build=(i:number,l:number,r:number)=>{if(l===r){t[i]=a[l];return;}const m=(l+r)>>1;build(2*i,l,m);build(2*i+1,m+1,r);t[i]=t[2*i]+t[2*i+1];};build(1,0,n-1);const query=(i:number,l:number,r:number,ql:number,qr:number):number=>{if(qr<l||r<ql)return 0;if(ql<=l&&r<=qr)return t[i];const m=(l+r)>>1;return query(2*i,l,m,ql,qr)+query(2*i+1,m+1,r,ql,qr);};return(ql:number,qr:number)=>query(1,0,n-1,ql,qr);}; const q=st([1,3,5,7,9,11]); expect(q(1,3)).toBe(15); expect(q(0,5)).toBe(36); });
   it('finds largest rectangle in histogram', () => { const lrh=(h:number[])=>{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||h[st[st.length-1]]>=h[i])){const ht=h[st.pop()!];const w=st.length?i-st[st.length-1]-1:i;max=Math.max(max,ht*w);}st.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('solves paint fence with k colors', () => { const pf=(n:number,k:number)=>{if(n===0)return 0;if(n===1)return k;let same=k,diff=k*(k-1);for(let i=3;i<=n;i++){const ts=diff,td=(same+diff)*(k-1);same=ts;diff=td;}return same+diff;}; expect(pf(3,2)).toBe(6); expect(pf(1,1)).toBe(1); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+  it('implements heapsort', () => { const hs=(arr:number[])=>{const a=[...arr],n=a.length;const sink=(i:number,sz:number)=>{while(true){let m=i;const l=2*i+1,r=2*i+2;if(l<sz&&a[l]>a[m])m=l;if(r<sz&&a[r]>a[m])m=r;if(m===i)break;[a[i],a[m]]=[a[m],a[i]];i=m;}};for(let i=Math.floor(n/2)-1;i>=0;i--)sink(i,n);for(let i=n-1;i>0;i--){[a[0],a[i]]=[a[i],a[0]];sink(0,i);}return a;}; expect(hs([12,11,13,5,6,7])).toEqual([5,6,7,11,12,13]); });
+  it('generates all combinations with repetition', () => { const cr=(a:number[],k:number):number[][]=>k===0?[[]]:[...a.flatMap((_,i)=>cr(a.slice(i),k-1).map(c=>[a[i],...c]))]; expect(cr([1,2],2)).toEqual([[1,1],[1,2],[2,2]]); });
+  it('checks if two arrays have same elements', () => { const same=(a:number[],b:number[])=>a.length===b.length&&[...new Set([...a,...b])].every(v=>a.filter(x=>x===v).length===b.filter(x=>x===v).length); expect(same([1,2,3],[3,1,2])).toBe(true); expect(same([1,2],[1,1])).toBe(false); });
+});

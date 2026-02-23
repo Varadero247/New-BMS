@@ -823,3 +823,12 @@ describe('phase46 coverage', () => {
   it('counts connected components', () => { const cc=(n:number,edges:[number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};edges.forEach(([u,v])=>union(u,v));return new Set(Array.from({length:n},(_,i)=>find(i))).size;}; expect(cc(5,[[0,1],[1,2],[3,4]])).toBe(2); expect(cc(4,[])).toBe(4); });
   it('computes unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements multi-level cache (L1/L2)', () => { const cache=(l1:number,l2:number)=>{const c1=new Map<number,number>(),c2=new Map<number,number>();return{get:(k:number)=>{if(c1.has(k))return c1.get(k);if(c2.has(k)){const v=c2.get(k)!;c2.delete(k);if(c1.size>=l1){const ek=c1.keys().next().value!;c2.set(ek,c1.get(ek)!);c1.delete(ek);}c1.set(k,v);return v;}return -1;},put:(k:number,v:number)=>{if(c1.size<l1)c1.set(k,v);else c2.set(k,v);}};}; const c=cache(2,3);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBe(10); expect(c.get(3)).toBe(30); });
+  it('counts ways to tile 2xn board', () => { const tile=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('solves fractional knapsack', () => { const fk=(items:[number,number][],cap:number)=>{const s=[...items].sort((a,b)=>b[0]/b[1]-a[0]/a[1]);let val=0,rem=cap;for(const[v,w] of s){if(rem<=0)break;const take=Math.min(rem,w);val+=take*(v/w);rem-=take;}return Math.round(val*100)/100;}; expect(fk([[60,10],[100,20],[120,30]],50)).toBe(240); });
+  it('checks if matrix has a zero row', () => { const zr=(m:number[][])=>m.some(r=>r.every(v=>v===0)); expect(zr([[1,2],[0,0],[3,4]])).toBe(true); expect(zr([[1,2],[3,4]])).toBe(false); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+});

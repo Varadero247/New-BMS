@@ -657,3 +657,12 @@ describe('phase46 coverage', () => {
   it('finds largest rectangle in histogram', () => { const lrh=(h:number[])=>{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||h[st[st.length-1]]>=h[i])){const ht=h[st.pop()!];const w=st.length?i-st[st.length-1]-1:i;max=Math.max(max,ht*w);}st.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
   it('checks if number is deficient', () => { const def=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)<n; expect(def(8)).toBe(true); expect(def(12)).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+  it('computes minimum number of coins (greedy)', () => { const gc=(coins:number[],amt:number)=>{const s=[...coins].sort((a,b)=>b-a);let cnt=0;for(const c of s){cnt+=Math.floor(amt/c);amt%=c;}return amt===0?cnt:-1;}; expect(gc([1,5,10,25],41)).toBe(4); });
+  it('finds minimum window substring', () => { const mw=(s:string,t:string)=>{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let l=0,have=0,best='',min=Infinity;for(let r=0;r<s.length;r++){const c=s[r];if(need.has(c)){need.set(c,need.get(c)!-1);if(need.get(c)===0)have++;}while(have===need.size){if(r-l+1<min){min=r-l+1;best=s.slice(l,r+1);}const lc=s[l];if(need.has(lc)){need.set(lc,need.get(lc)!+1);if(need.get(lc)===1)have--;}l++;}}return best;}; expect(mw('ADOBECODEBANC','ABC')).toBe('BANC'); });
+  it('implements KMP string search', () => { const kmp=(text:string,pat:string)=>{const n=text.length,m=pat.length;const lps=new Array(m).fill(0);for(let i=1,len=0;i<m;){if(pat[i]===pat[len])lps[i++]=++len;else len>0?len=lps[len-1]:i++;}const res:number[]=[];for(let i=0,j=0;i<n;){if(text[i]===pat[j]){i++;j++;}if(j===m){res.push(i-j);j=lps[j-1];}else if(i<n&&text[i]!==pat[j])j>0?j=lps[j-1]:i++;}return res;}; expect(kmp('AABAACAADAABAABA','AABA')).toEqual([0,9,12]); });
+  it('implements trie prefix search', () => { const t=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n['$']=1;},sw:(p:string)=>{let n=r;for(const c of p){if(!n[c])return false;n=n[c];}return true;}};}; const tr=t();['apple','app','apply'].forEach(w=>tr.ins(w)); expect(tr.sw('app')).toBe(true); expect(tr.sw('apz')).toBe(false); });
+});

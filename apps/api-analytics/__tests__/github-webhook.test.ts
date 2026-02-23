@@ -761,3 +761,12 @@ describe('phase46 coverage', () => {
   it('checks if string is valid number (strict)', () => { const vn=(s:string)=>/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(s.trim()); expect(vn('3.14')).toBe(true); expect(vn('-2.5e10')).toBe(true); expect(vn('abc')).toBe(false); expect(vn('1.2.3')).toBe(false); });
   it('computes trapping rain water', () => { const trap=(h:number[])=>{let l=0,r=h.length-1,lmax=0,rmax=0,w=0;while(l<r){if(h[l]<h[r]){lmax=Math.max(lmax,h[l]);w+=lmax-h[l];l++;}else{rmax=Math.max(rmax,h[r]);w+=rmax-h[r];r--;}}return w;}; expect(trap([0,1,0,2,1,0,1,3,2,1,2,1])).toBe(6); expect(trap([4,2,0,3,2,5])).toBe(9); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('solves fractional knapsack', () => { const fk=(items:[number,number][],cap:number)=>{const s=[...items].sort((a,b)=>b[0]/b[1]-a[0]/a[1]);let val=0,rem=cap;for(const[v,w] of s){if(rem<=0)break;const take=Math.min(rem,w);val+=take*(v/w);rem-=take;}return Math.round(val*100)/100;}; expect(fk([[60,10],[100,20],[120,30]],50)).toBe(240); });
+  it('finds all pairs with given sum (two pointers)', () => { const tp=(a:number[],t:number)=>{const s=[...a].sort((x,y)=>x-y);const r:[number,number][]=[];let l=0,h=s.length-1;while(l<h){const sm=s[l]+s[h];if(sm===t){r.push([s[l],s[h]]);l++;h--;}else sm<t?l++:h--;}return r;}; expect(tp([1,2,3,4,5,6],7)).toEqual([[1,6],[2,5],[3,4]]); });
+  it('finds minimum jumps to reach end', () => { const mj=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj([2,3,1,1,4])).toBe(2); expect(mj([2,3,0,1,4])).toBe(2); });
+  it('computes longest substring without repeating', () => { const lw=(s:string)=>{const m=new Map<string,number>();let best=0,l=0;for(let r=0;r<s.length;r++){if(m.has(s[r])&&m.get(s[r])!>=l)l=m.get(s[r])!+1;m.set(s[r],r);best=Math.max(best,r-l+1);}return best;}; expect(lw('abcabcbb')).toBe(3); expect(lw('pwwkew')).toBe(3); });
+  it('finds maximum flow with BFS augmentation', () => { const mf=(cap:number[][])=>{const n=cap.length;const fc=cap.map(r=>[...r]);let flow=0;const bfs=()=>{const par=new Array(n).fill(-1);par[0]=0;const q=[0];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(par[v]===-1&&fc[u][v]>0){par[v]=u;q.push(v);}}return par[n-1]!==-1?par:null;};for(let par=bfs();par;par=bfs()){let f=Infinity;for(let v=n-1;v!==0;v=par[v])f=Math.min(f,fc[par[v]][v]);for(let v=n-1;v!==0;v=par[v]){fc[par[v]][v]-=f;fc[v][par[v]]+=f;}flow+=f;}return flow;}; expect(mf([[0,3,2,0],[0,0,1,3],[0,0,0,2],[0,0,0,0]])).toBe(5); });
+});

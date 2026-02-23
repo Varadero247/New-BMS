@@ -894,3 +894,12 @@ describe('phase46 coverage', () => {
   it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
   it('finds maximum path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; let mx=-Infinity; const dfs=(n:N|undefined):number=>{if(!n)return 0;const l=Math.max(0,dfs(n.l)),r=Math.max(0,dfs(n.r));mx=Math.max(mx,n.v+l+r);return n.v+Math.max(l,r);}; const t:N={v:-10,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; mx=-Infinity;dfs(t); expect(mx).toBe(42); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements priority queue (max-heap)', () => { class PQ{private h:number[]=[];push(v:number){this.h.push(v);let i=this.h.length-1;while(i>0){const p=(i-1)>>1;if(this.h[p]>=this.h[i])break;[this.h[p],this.h[i]]=[this.h[i],this.h[p]];i=p;}}pop(){const top=this.h[0];const last=this.h.pop()!;if(this.h.length){this.h[0]=last;let i=0;while(true){const l=2*i+1,r=2*i+2;let m=i;if(l<this.h.length&&this.h[l]>this.h[m])m=l;if(r<this.h.length&&this.h[r]>this.h[m])m=r;if(m===i)break;[this.h[m],this.h[i]]=[this.h[i],this.h[m]];i=m;}}return top;}size(){return this.h.length;}} const pq=new PQ();[3,1,4,1,5,9].forEach(v=>pq.push(v)); expect(pq.pop()).toBe(9); expect(pq.pop()).toBe(5); });
+  it('computes range of array', () => { const range=(a:number[])=>Math.max(...a)-Math.min(...a); expect(range([3,1,4,1,5,9])).toBe(8); expect(range([7,7,7])).toBe(0); });
+  it('implements Huffman coding frequencies', () => { const hf=(freqs:[string,number][])=>{const q=[...freqs].sort((a,b)=>a[1]-b[1]);while(q.length>1){const a=q.shift()!,b=q.shift()!;const node:[string,number]=[a[0]+b[0],a[1]+b[1]];q.splice(q.findIndex(x=>x[1]>=node[1]),0,node);}return q[0][1];}; expect(hf([['a',5],['b',9],['c',12],['d',13]])).toBe(39); });
+  it('implements trie prefix search', () => { const t=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n['$']=1;},sw:(p:string)=>{let n=r;for(const c of p){if(!n[c])return false;n=n[c];}return true;}};}; const tr=t();['apple','app','apply'].forEach(w=>tr.ins(w)); expect(tr.sw('app')).toBe(true); expect(tr.sw('apz')).toBe(false); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+});

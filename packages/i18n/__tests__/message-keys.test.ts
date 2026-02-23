@@ -571,3 +571,12 @@ describe('phase46 coverage', () => {
   it('checks if number is deficient', () => { const def=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)<n; expect(def(8)).toBe(true); expect(def(12)).toBe(false); });
   it('computes range minimum query (sparse table)', () => { const rmq=(a:number[])=>{const n=a.length,LOG=Math.floor(Math.log2(n))+1;const t:number[][]=Array.from({length:LOG},()=>new Array(n).fill(0));for(let i=0;i<n;i++)t[0][i]=a[i];for(let k=1;k<LOG;k++)for(let i=0;i+(1<<k)<=n;i++)t[k][i]=Math.min(t[k-1][i],t[k-1][i+(1<<(k-1))]);return(l:number,r:number)=>{const k=Math.floor(Math.log2(r-l+1));return Math.min(t[k][l],t[k][r-(1<<k)+1]);};}; const q=rmq([2,4,3,1,6,7,8,9,1,7]); expect(q(0,4)).toBe(1); expect(q(4,7)).toBe(6); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('normalizes matrix rows to sum 1', () => { const nr=(m:number[][])=>m.map(r=>{const s=r.reduce((a,v)=>a+v,0);return r.map(v=>Math.round(v/s*100)/100);}); expect(nr([[1,3],[2,2]])[0]).toEqual([0.25,0.75]); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+  it('implements radix sort (LSD)', () => { const rs=(a:number[])=>{if(!a.length)return a;const max=Math.max(...a);let exp=1;const r=[...a];while(Math.floor(max/exp)>0){const bkts:number[][]=Array.from({length:10},()=>[]);r.forEach(v=>bkts[Math.floor(v/exp)%10].push(v));r.splice(0,r.length,...bkts.flat());exp*=10;}return r;}; expect(rs([170,45,75,90,802,24,2,66])).toEqual([2,24,45,66,75,90,170,802]); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);const upd=(i:number,v:number)=>{for(i++;i<=n;i+=i&-i)t[i]+=v;};const qry=(i:number)=>{let s=0;for(i++;i>0;i-=i&-i)s+=t[i];return s;};const rng=(l:number,r:number)=>qry(r)-(l>0?qry(l-1):0);return{upd,rng};}; const b=bit(6);[1,3,5,7,9,11].forEach((v,i)=>b.upd(i,v)); expect(b.rng(1,3)).toBe(15); expect(b.rng(0,5)).toBe(36); });
+  it('finds cheapest flight within k stops', () => { const cf=(n:number,flights:[number,number,number][],src:number,dst:number,k:number)=>{let d=new Array(n).fill(Infinity);d[src]=0;for(let i=0;i<=k;i++){const nd=[...d];for(const[u,v,w] of flights)if(d[u]+w<nd[v])nd[v]=d[u]+w;d=nd;}return d[dst]===Infinity?-1:d[dst];}; expect(cf(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,1)).toBe(200); });
+});

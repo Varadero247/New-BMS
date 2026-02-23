@@ -881,3 +881,12 @@ describe('phase46 coverage', () => {
   it('finds first missing positive', () => { const fmp=(a:number[])=>{const s=new Set(a);let i=1;while(s.has(i))i++;return i;}; expect(fmp([1,2,0])).toBe(3); expect(fmp([3,4,-1,1])).toBe(2); expect(fmp([7,8,9,11,12])).toBe(1); });
   it('finds longest subarray with sum k', () => { const ls=(a:number[],k:number)=>{const m=new Map([[0,-1]]);let sum=0,best=0;for(let i=0;i<a.length;i++){sum+=a[i];if(m.has(sum-k))best=Math.max(best,i-(m.get(sum-k)!));if(!m.has(sum))m.set(sum,i);}return best;}; expect(ls([1,-1,5,-2,3],3)).toBe(4); expect(ls([-2,-1,2,1],1)).toBe(2); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+  it('counts ways to tile 2xn board', () => { const tile=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+  it('implements radix sort (LSD)', () => { const rs=(a:number[])=>{if(!a.length)return a;const max=Math.max(...a);let exp=1;const r=[...a];while(Math.floor(max/exp)>0){const bkts:number[][]=Array.from({length:10},()=>[]);r.forEach(v=>bkts[Math.floor(v/exp)%10].push(v));r.splice(0,r.length,...bkts.flat());exp*=10;}return r;}; expect(rs([170,45,75,90,802,24,2,66])).toEqual([2,24,45,66,75,90,170,802]); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+});

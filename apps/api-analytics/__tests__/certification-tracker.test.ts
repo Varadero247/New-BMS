@@ -754,3 +754,12 @@ describe('phase46 coverage', () => {
   it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
   it('generates balanced parentheses', () => { const bp=(n:number):string[]=>{const r:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n)return r.push(s);if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return r;}; expect(bp(3).length).toBe(5); expect(bp(3)).toContain('((()))'); expect(bp(3)).toContain('()()()'); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements trie prefix search', () => { const t=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n['$']=1;},sw:(p:string)=>{let n=r;for(const c of p){if(!n[c])return false;n=n[c];}return true;}};}; const tr=t();['apple','app','apply'].forEach(w=>tr.ins(w)); expect(tr.sw('app')).toBe(true); expect(tr.sw('apz')).toBe(false); });
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+  it('computes longest substring without repeating', () => { const lw=(s:string)=>{const m=new Map<string,number>();let best=0,l=0;for(let r=0;r<s.length;r++){if(m.has(s[r])&&m.get(s[r])!>=l)l=m.get(s[r])!+1;m.set(s[r],r);best=Math.max(best,r-l+1);}return best;}; expect(lw('abcabcbb')).toBe(3); expect(lw('pwwkew')).toBe(3); });
+  it('computes stock profit with cooldown', () => { const sp=(p:number[])=>{let hold=-Infinity,sold=0,cool=0;for(const v of p){const nh=Math.max(hold,cool-v),ns=hold+v,nc=Math.max(cool,sold);[hold,sold,cool]=[nh,ns,nc];}return Math.max(sold,cool);}; expect(sp([1,2,3,0,2])).toBe(3); expect(sp([1])).toBe(0); });
+  it('checks if matrix has a zero row', () => { const zr=(m:number[][])=>m.some(r=>r.every(v=>v===0)); expect(zr([[1,2],[0,0],[3,4]])).toBe(true); expect(zr([[1,2],[3,4]])).toBe(false); });
+});

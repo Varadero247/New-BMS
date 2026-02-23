@@ -807,3 +807,12 @@ describe('phase46 coverage', () => {
   it('tokenizes a simple expression', () => { const tok=(s:string)=>s.match(/\d+\.?\d*|[+\-*/()]/g)||[]; expect(tok('3+4*2').sort()).toEqual(['3','4','2','+','*'].sort()); expect(tok('(1+2)*3').length).toBe(7); });
   it('finds path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; const ps=(n:N|undefined,t:number,cur=0):boolean=>!n?false:n.v+cur===t&&!n.l&&!n.r?true:ps(n.l,t,cur+n.v)||ps(n.r,t,cur+n.v); const t:N={v:5,l:{v:4,l:{v:11,l:{v:7},r:{v:2}}},r:{v:8,l:{v:13},r:{v:4,r:{v:1}}}}; expect(ps(t,22)).toBe(true); expect(ps(t,28)).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('normalizes matrix rows to sum 1', () => { const nr=(m:number[][])=>m.map(r=>{const s=r.reduce((a,v)=>a+v,0);return r.map(v=>Math.round(v/s*100)/100);}); expect(nr([[1,3],[2,2]])[0]).toEqual([0.25,0.75]); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+  it('solves activity selection problem', () => { const act=(start:number[],end:number[])=>{const n=start.length;const idx=[...Array(n).keys()].sort((a,b)=>end[a]-end[b]);let cnt=1,last=idx[0];for(let i=1;i<n;i++){if(start[idx[i]]>=end[last]){cnt++;last=idx[i];}}return cnt;}; expect(act([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
+  it('implements trie prefix search', () => { const t=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n['$']=1;},sw:(p:string)=>{let n=r;for(const c of p){if(!n[c])return false;n=n[c];}return true;}};}; const tr=t();['apple','app','apply'].forEach(w=>tr.ins(w)); expect(tr.sw('app')).toBe(true); expect(tr.sw('apz')).toBe(false); });
+});

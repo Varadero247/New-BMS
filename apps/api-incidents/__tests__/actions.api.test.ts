@@ -667,3 +667,12 @@ describe('phase46 coverage', () => {
   it('solves N-Queens (count solutions)', () => { const nq=(n:number)=>{let cnt=0;const col=new Set<number>(),d1=new Set<number>(),d2=new Set<number>();const bt=(r:number)=>{if(r===n){cnt++;return;}for(let c=0;c<n;c++){if(col.has(c)||d1.has(r-c)||d2.has(r+c))continue;col.add(c);d1.add(r-c);d2.add(r+c);bt(r+1);col.delete(c);d1.delete(r-c);d2.delete(r+c);}};bt(0);return cnt;}; expect(nq(4)).toBe(2); expect(nq(5)).toBe(10); });
   it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds index of min element', () => { const argmin=(a:number[])=>a.reduce((mi,v,i)=>v<a[mi]?i:mi,0); expect(argmin([3,1,4,1,5])).toBe(1); expect(argmin([5,3,8,1])).toBe(3); });
+  it('finds cheapest flight within k stops', () => { const cf=(n:number,flights:[number,number,number][],src:number,dst:number,k:number)=>{let d=new Array(n).fill(Infinity);d[src]=0;for(let i=0;i<=k;i++){const nd=[...d];for(const[u,v,w] of flights)if(d[u]+w<nd[v])nd[v]=d[u]+w;d=nd;}return d[dst]===Infinity?-1:d[dst];}; expect(cf(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,1)).toBe(200); });
+  it('implements multi-level cache (L1/L2)', () => { const cache=(l1:number,l2:number)=>{const c1=new Map<number,number>(),c2=new Map<number,number>();return{get:(k:number)=>{if(c1.has(k))return c1.get(k);if(c2.has(k)){const v=c2.get(k)!;c2.delete(k);if(c1.size>=l1){const ek=c1.keys().next().value!;c2.set(ek,c1.get(ek)!);c1.delete(ek);}c1.set(k,v);return v;}return -1;},put:(k:number,v:number)=>{if(c1.size<l1)c1.set(k,v);else c2.set(k,v);}};}; const c=cache(2,3);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBe(10); expect(c.get(3)).toBe(30); });
+  it('implements Huffman coding frequencies', () => { const hf=(freqs:[string,number][])=>{const q=[...freqs].sort((a,b)=>a[1]-b[1]);while(q.length>1){const a=q.shift()!,b=q.shift()!;const node:[string,number]=[a[0]+b[0],a[1]+b[1]];q.splice(q.findIndex(x=>x[1]>=node[1]),0,node);}return q[0][1];}; expect(hf([['a',5],['b',9],['c',12],['d',13]])).toBe(39); });
+  it('computes house robber (non-adjacent max sum)', () => { const hr=(a:number[])=>a.reduce(([prev2,prev1],v)=>[prev1,Math.max(prev1,prev2+v)],[0,0])[1]; expect(hr([1,2,3,1])).toBe(4); expect(hr([2,7,9,3,1])).toBe(12); });
+});

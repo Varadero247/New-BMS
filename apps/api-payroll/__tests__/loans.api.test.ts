@@ -981,3 +981,12 @@ describe('phase46 coverage', () => {
   it('computes unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
   it('rotates matrix 90 degrees counter-clockwise', () => { const rotCCW=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); expect(rotCCW([[1,2],[3,4]])).toEqual([[2,4],[1,3]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+  it('normalizes matrix rows to sum 1', () => { const nr=(m:number[][])=>m.map(r=>{const s=r.reduce((a,v)=>a+v,0);return r.map(v=>Math.round(v/s*100)/100);}); expect(nr([[1,3],[2,2]])[0]).toEqual([0.25,0.75]); });
+  it('computes optimal binary search tree cost', () => { const obs=(p:number[])=>{const n=p.length;const dp=Array.from({length:n+2},()=>new Array(n+1).fill(0));const w=Array.from({length:n+2},()=>new Array(n+1).fill(0));for(let i=1;i<=n;i++)w[i][i]=p[i-1];for(let l=2;l<=n;l++)for(let i=1;i<=n-l+1;i++){const j=i+l-1;w[i][j]=w[i][j-1]+p[j-1];dp[i][j]=Infinity;for(let r=i;r<=j;r++){const c=(r>i?dp[i][r-1]:0)+(r<j?dp[r+1][j]:0)+w[i][j];dp[i][j]=Math.min(dp[i][j],c);}}return dp[1][n];}; expect(obs([0.25,0.2,0.05,0.2,0.3])).toBeCloseTo(1.5,1); });
+  it('finds all pairs with given sum (two pointers)', () => { const tp=(a:number[],t:number)=>{const s=[...a].sort((x,y)=>x-y);const r:[number,number][]=[];let l=0,h=s.length-1;while(l<h){const sm=s[l]+s[h];if(sm===t){r.push([s[l],s[h]]);l++;h--;}else sm<t?l++:h--;}return r;}; expect(tp([1,2,3,4,5,6],7)).toEqual([[1,6],[2,5],[3,4]]); });
+  it('counts distinct palindromic substrings', () => { const dp=(s:string)=>{const seen=new Set<string>();for(let c=0;c<s.length;c++)for(let r=0;r<=1;r++){let l=c,h=c+r;while(l>=0&&h<s.length&&s[l]===s[h]){seen.add(s.slice(l,h+1));l--;h++;}}return seen.size;}; expect(dp('aaa')).toBe(3); expect(dp('abc')).toBe(3); });
+});

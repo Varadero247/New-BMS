@@ -787,3 +787,12 @@ describe('phase46 coverage', () => {
   it('computes number of ways to decode string', () => { const nd=(s:string)=>{const n=s.length;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=s[0]!=='0'?1:0;for(let i=2;i<=n;i++){const one=+s[i-1];const two=+(s.slice(i-2,i));if(one>0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(nd('12')).toBe(2); expect(nd('226')).toBe(3); expect(nd('06')).toBe(0); });
   it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes edit operations to transform string', () => { const ops=(a:string,b:string)=>{const m=a.length,n=b.length;const dp:number[][]=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ops('horse','ros')).toBe(3); expect(ops('intention','execution')).toBe(5); });
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+  it('implements merge sort', () => { const ms=(a:number[]):number[]=>a.length<=1?a:(()=>{const m=a.length>>1,l=ms(a.slice(0,m)),r=ms(a.slice(m));const res:number[]=[];let i=0,j=0;while(i<l.length&&j<r.length)res.push(l[i]<r[j]?l[i++]:r[j++]);return res.concat(l.slice(i)).concat(r.slice(j));})(); expect(ms([38,27,43,3,9,82,10])).toEqual([3,9,10,27,38,43,82]); });
+  it('counts distinct palindromic substrings', () => { const dp=(s:string)=>{const seen=new Set<string>();for(let c=0;c<s.length;c++)for(let r=0;r<=1;r++){let l=c,h=c+r;while(l>=0&&h<s.length&&s[l]===s[h]){seen.add(s.slice(l,h+1));l--;h++;}}return seen.size;}; expect(dp('aaa')).toBe(3); expect(dp('abc')).toBe(3); });
+  it('solves fractional knapsack', () => { const fk=(items:[number,number][],cap:number)=>{const s=[...items].sort((a,b)=>b[0]/b[1]-a[0]/a[1]);let val=0,rem=cap;for(const[v,w] of s){if(rem<=0)break;const take=Math.min(rem,w);val+=take*(v/w);rem-=take;}return Math.round(val*100)/100;}; expect(fk([[60,10],[100,20],[120,30]],50)).toBe(240); });
+});

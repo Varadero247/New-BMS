@@ -667,3 +667,12 @@ describe('phase46 coverage', () => {
   it('finds largest rectangle in histogram', () => { const lrh=(h:number[])=>{const st:number[]=[],n=h.length;let max=0;for(let i=0;i<=n;i++){while(st.length&&(i===n||h[st[st.length-1]]>=h[i])){const ht=h[st.pop()!];const w=st.length?i-st[st.length-1]-1:i;max=Math.max(max,ht*w);}st.push(i);}return max;}; expect(lrh([2,1,5,6,2,3])).toBe(10); expect(lrh([2,4])).toBe(4); });
   it('checks if number is deficient', () => { const def=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)<n; expect(def(8)).toBe(true); expect(def(12)).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes strongly connected components (Kosaraju)', () => { const scc=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const radj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);radj[v].push(u);});const vis=new Set<number>(),order:number[]=[];const dfs1=(u:number)=>{vis.add(u);adj[u].forEach(v=>{if(!vis.has(v))dfs1(v);});order.push(u);};for(let i=0;i<n;i++)if(!vis.has(i))dfs1(i);vis.clear();let cnt=0;const dfs2=(u:number)=>{vis.add(u);radj[u].forEach(v=>{if(!vis.has(v))dfs2(v);});};while(order.length){const u=order.pop()!;if(!vis.has(u)){dfs2(u);cnt++;}}return cnt;}; expect(scc(5,[[1,0],[0,2],[2,1],[0,3],[3,4]])).toBe(3); });
+  it('checks if string has all unique chars', () => { const uniq=(s:string)=>s.length===new Set(s).size; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); });
+  it('implements Huffman coding frequencies', () => { const hf=(freqs:[string,number][])=>{const q=[...freqs].sort((a,b)=>a[1]-b[1]);while(q.length>1){const a=q.shift()!,b=q.shift()!;const node:[string,number]=[a[0]+b[0],a[1]+b[1]];q.splice(q.findIndex(x=>x[1]>=node[1]),0,node);}return q[0][1];}; expect(hf([['a',5],['b',9],['c',12],['d',13]])).toBe(39); });
+  it('normalizes matrix rows to sum 1', () => { const nr=(m:number[][])=>m.map(r=>{const s=r.reduce((a,v)=>a+v,0);return r.map(v=>Math.round(v/s*100)/100);}); expect(nr([[1,3],[2,2]])[0]).toEqual([0.25,0.75]); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+});

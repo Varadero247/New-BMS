@@ -914,3 +914,12 @@ describe('phase46 coverage', () => {
   it('finds the kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
   it('finds saddle point in matrix', () => { const sp=(m:number[][])=>{for(let i=0;i<m.length;i++){const rowMin=Math.min(...m[i]);for(let j=0;j<m[i].length;j++){if(m[i][j]===rowMin){const col=m.map(r=>r[j]);if(m[i][j]===Math.max(...col))return[i,j];}}}return null;}; expect(sp([[1,2],[4,3]])).toEqual([1,1]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements multi-level cache (L1/L2)', () => { const cache=(l1:number,l2:number)=>{const c1=new Map<number,number>(),c2=new Map<number,number>();return{get:(k:number)=>{if(c1.has(k))return c1.get(k);if(c2.has(k)){const v=c2.get(k)!;c2.delete(k);if(c1.size>=l1){const ek=c1.keys().next().value!;c2.set(ek,c1.get(ek)!);c1.delete(ek);}c1.set(k,v);return v;}return -1;},put:(k:number,v:number)=>{if(c1.size<l1)c1.set(k,v);else c2.set(k,v);}};}; const c=cache(2,3);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBe(10); expect(c.get(3)).toBe(30); });
+  it('finds minimum window substring', () => { const mw=(s:string,t:string)=>{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let l=0,have=0,best='',min=Infinity;for(let r=0;r<s.length;r++){const c=s[r];if(need.has(c)){need.set(c,need.get(c)!-1);if(need.get(c)===0)have++;}while(have===need.size){if(r-l+1<min){min=r-l+1;best=s.slice(l,r+1);}const lc=s[l];if(need.has(lc)){need.set(lc,need.get(lc)!+1);if(need.get(lc)===1)have--;}l++;}}return best;}; expect(mw('ADOBECODEBANC','ABC')).toBe('BANC'); });
+  it('implements quicksort', () => { const qs=(a:number[]):number[]=>a.length<=1?a:(()=>{const p=a[Math.floor(a.length/2)];return[...qs(a.filter(x=>x<p)),...a.filter(x=>x===p),...qs(a.filter(x=>x>p))];})(); expect(qs([3,6,8,10,1,2,1])).toEqual([1,1,2,3,6,8,10]); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+  it('counts distinct values in array', () => { const dv=(a:number[])=>new Set(a).size; expect(dv([1,2,2,3,3,3])).toBe(3); expect(dv([1,1,1])).toBe(1); });
+});

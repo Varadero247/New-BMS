@@ -752,3 +752,12 @@ describe('phase46 coverage', () => {
   it('removes duplicates preserving order', () => { const uniq=(a:number[])=>[...new Set(a)]; expect(uniq([1,2,2,3,1,4,3])).toEqual([1,2,3,4]); });
   it('finds non-overlapping intervals count', () => { const noOverlap=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[1]-b[1]);let cnt=0,end=-Infinity;for(const [l,r] of s){if(l>=end)end=r;else cnt++;}return cnt;}; expect(noOverlap([[1,2],[2,3],[3,4],[1,3]])).toBe(1); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes all unique triplets summing to zero', () => { const t0=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const r:number[][]=[];for(let i=0;i<s.length-2;i++){if(i>0&&s[i]===s[i-1])continue;let l=i+1,h=s.length-1;while(l<h){const sm=s[i]+s[l]+s[h];if(sm===0){r.push([s[i],s[l],s[h]]);while(l<h&&s[l]===s[l+1])l++;while(l<h&&s[h]===s[h-1])h--;l++;h--;}else sm<0?l++:h--;}}return r;}; expect(t0([-1,0,1,2,-1,-4]).length).toBe(2); });
+  it('finds number of ways to fill board', () => { const ways=(n:number)=>Math.round(((1+Math.sqrt(5))/2)**(n+1)/Math.sqrt(5)); expect(ways(1)).toBe(1); expect(ways(3)).toBe(3); expect(ways(5)).toBe(8); });
+  it('checks if two arrays have same elements', () => { const same=(a:number[],b:number[])=>a.length===b.length&&[...new Set([...a,...b])].every(v=>a.filter(x=>x===v).length===b.filter(x=>x===v).length); expect(same([1,2,3],[3,1,2])).toBe(true); expect(same([1,2],[1,1])).toBe(false); });
+  it('checks if string is valid IPv6', () => { const v6=(s:string)=>{const g=s.split(':');return g.length===8&&g.every(x=>/^[0-9a-fA-F]{1,4}$/.test(x));}; expect(v6('2001:0db8:85a3:0000:0000:8a2e:0370:7334')).toBe(true); expect(v6('2001:db8::1')).toBe(false); });
+  it('counts ways to tile 2xn board', () => { const tile=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+});

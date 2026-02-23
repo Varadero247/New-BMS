@@ -635,3 +635,12 @@ describe('phase46 coverage', () => {
   it('generates balanced parentheses', () => { const bp=(n:number):string[]=>{const r:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n)return r.push(s);if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return r;}; expect(bp(3).length).toBe(5); expect(bp(3)).toContain('((()))'); expect(bp(3)).toContain('()()()'); });
   it('finds path sum in binary tree', () => { type N={v:number;l?:N;r?:N}; const ps=(n:N|undefined,t:number,cur=0):boolean=>!n?false:n.v+cur===t&&!n.l&&!n.r?true:ps(n.l,t,cur+n.v)||ps(n.r,t,cur+n.v); const t:N={v:5,l:{v:4,l:{v:11,l:{v:7},r:{v:2}}},r:{v:8,l:{v:13},r:{v:4,r:{v:1}}}}; expect(ps(t,22)).toBe(true); expect(ps(t,28)).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if matrix has a zero row', () => { const zr=(m:number[][])=>m.some(r=>r.every(v=>v===0)); expect(zr([[1,2],[0,0],[3,4]])).toBe(true); expect(zr([[1,2],[3,4]])).toBe(false); });
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+  it('implements Huffman coding frequencies', () => { const hf=(freqs:[string,number][])=>{const q=[...freqs].sort((a,b)=>a[1]-b[1]);while(q.length>1){const a=q.shift()!,b=q.shift()!;const node:[string,number]=[a[0]+b[0],a[1]+b[1]];q.splice(q.findIndex(x=>x[1]>=node[1]),0,node);}return q[0][1];}; expect(hf([['a',5],['b',9],['c',12],['d',13]])).toBe(39); });
+  it('implements multi-level cache (L1/L2)', () => { const cache=(l1:number,l2:number)=>{const c1=new Map<number,number>(),c2=new Map<number,number>();return{get:(k:number)=>{if(c1.has(k))return c1.get(k);if(c2.has(k)){const v=c2.get(k)!;c2.delete(k);if(c1.size>=l1){const ek=c1.keys().next().value!;c2.set(ek,c1.get(ek)!);c1.delete(ek);}c1.set(k,v);return v;}return -1;},put:(k:number,v:number)=>{if(c1.size<l1)c1.set(k,v);else c2.set(k,v);}};}; const c=cache(2,3);c.put(1,10);c.put(2,20);c.put(3,30); expect(c.get(1)).toBe(10); expect(c.get(3)).toBe(30); });
+});

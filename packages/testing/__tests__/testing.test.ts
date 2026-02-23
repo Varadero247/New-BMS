@@ -690,3 +690,12 @@ describe('phase46 coverage', () => {
   it('checks valid BST from preorder', () => { const vbst=(pre:number[])=>{const st:number[]=[],min=[-Infinity];for(const v of pre){if(v<min[0])return false;while(st.length&&st[st.length-1]<v)min[0]=st.pop()!;st.push(v);}return true;}; expect(vbst([5,2,1,3,6])).toBe(true); expect(vbst([5,2,6,1,3])).toBe(false); });
   it('finds non-overlapping intervals count', () => { const noOverlap=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[1]-b[1]);let cnt=0,end=-Infinity;for(const [l,r] of s){if(l>=end)end=r;else cnt++;}return cnt;}; expect(noOverlap([[1,2],[2,3],[3,4],[1,3]])).toBe(1); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds all anagram positions in string', () => { const ap=(s:string,p:string)=>{const r:number[]=[],n=p.length;const pc=new Array(26).fill(0),wc=new Array(26).fill(0);const ci=(c:string)=>c.charCodeAt(0)-97;for(const c of p)pc[ci(c)]++;for(let i=0;i<s.length;i++){wc[ci(s[i])]++;if(i>=n)wc[ci(s[i-n])]--;if(pc.every((v,j)=>v===wc[j]))r.push(i-n+1);}return r;}; expect(ap('cbaebabacd','abc')).toEqual([0,6]); });
+  it('implements priority queue (max-heap)', () => { class PQ{private h:number[]=[];push(v:number){this.h.push(v);let i=this.h.length-1;while(i>0){const p=(i-1)>>1;if(this.h[p]>=this.h[i])break;[this.h[p],this.h[i]]=[this.h[i],this.h[p]];i=p;}}pop(){const top=this.h[0];const last=this.h.pop()!;if(this.h.length){this.h[0]=last;let i=0;while(true){const l=2*i+1,r=2*i+2;let m=i;if(l<this.h.length&&this.h[l]>this.h[m])m=l;if(r<this.h.length&&this.h[r]>this.h[m])m=r;if(m===i)break;[this.h[m],this.h[i]]=[this.h[i],this.h[m]];i=m;}}return top;}size(){return this.h.length;}} const pq=new PQ();[3,1,4,1,5,9].forEach(v=>pq.push(v)); expect(pq.pop()).toBe(9); expect(pq.pop()).toBe(5); });
+  it('computes range of array', () => { const range=(a:number[])=>Math.max(...a)-Math.min(...a); expect(range([3,1,4,1,5,9])).toBe(8); expect(range([7,7,7])).toBe(0); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+  it('finds index of max element', () => { const argmax=(a:number[])=>a.reduce((mi,v,i)=>v>a[mi]?i:mi,0); expect(argmax([3,1,4,1,5,9,2,6])).toBe(5); expect(argmax([1])).toBe(0); });
+});

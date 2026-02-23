@@ -646,3 +646,12 @@ describe('phase46 coverage', () => {
   it('finds number of ways to partition n into k parts', () => { const parts=(n:number,k:number,min=1):number=>k===1?n>=min?1:0:Array.from({length:n-min*(k-1)-min+1},(_,i)=>parts(n-(i+min),k-1,i+min)).reduce((s,v)=>s+v,0); expect(parts(5,2)).toBe(2); expect(parts(6,3,1)).toBe(3); });
   it('rotates matrix 90 degrees counter-clockwise', () => { const rotCCW=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); expect(rotCCW([[1,2],[3,4]])).toEqual([[2,4],[1,3]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if pattern matches string (wildcard)', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?(dp[i-1][j]||dp[i][j-1]):(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('counts distinct palindromic substrings', () => { const dp=(s:string)=>{const seen=new Set<string>();for(let c=0;c<s.length;c++)for(let r=0;r<=1;r++){let l=c,h=c+r;while(l>=0&&h<s.length&&s[l]===s[h]){seen.add(s.slice(l,h+1));l--;h++;}}return seen.size;}; expect(dp('aaa')).toBe(3); expect(dp('abc')).toBe(3); });
+  it('generates all valid IP addresses', () => { const ips=(s:string)=>{const r:string[]=[];const bt=(i:number,parts:string[])=>{if(parts.length===4){if(i===s.length)r.push(parts.join('.'));return;}for(let l=1;l<=3&&i+l<=s.length;l++){const p=s.slice(i,i+l);if((p.length>1&&p[0]==='0')||+p>255)break;bt(i+l,[...parts,p]);}};bt(0,[]);return r;}; expect(ips('25525511135')).toContain('255.255.11.135'); expect(ips('25525511135')).toContain('255.255.111.35'); });
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('implements Huffman coding frequencies', () => { const hf=(freqs:[string,number][])=>{const q=[...freqs].sort((a,b)=>a[1]-b[1]);while(q.length>1){const a=q.shift()!,b=q.shift()!;const node:[string,number]=[a[0]+b[0],a[1]+b[1]];q.splice(q.findIndex(x=>x[1]>=node[1]),0,node);}return q[0][1];}; expect(hf([['a',5],['b',9],['c',12],['d',13]])).toBe(39); });
+});

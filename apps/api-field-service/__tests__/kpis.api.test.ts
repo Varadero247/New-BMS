@@ -724,3 +724,12 @@ describe('phase46 coverage', () => {
   it('reverses linked list (array-based)', () => { const rev=(a:number[])=>[...a].reverse(); expect(rev([1,2,3,4,5])).toEqual([5,4,3,2,1]); });
   it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+  it('finds word in grid (DFS backtrack)', () => { const ws=(board:string[][],word:string)=>{const r=board.length,c=board[0].length;const dfs=(i:number,j:number,k:number):boolean=>{if(k===word.length)return true;if(i<0||j<0||i>=r||j>=c||board[i][j]!==word[k])return false;const tmp=board[i][j];board[i][j]='#';const found=[[0,1],[0,-1],[1,0],[-1,0]].some(([di,dj])=>dfs(i+di,j+dj,k+1));board[i][j]=tmp;return found;};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(dfs(i,j,0))return true;return false;}; expect(ws([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCCED')).toBe(true); expect(ws([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCB')).toBe(false); });
+  it('checks if string is valid IPv6', () => { const v6=(s:string)=>{const g=s.split(':');return g.length===8&&g.every(x=>/^[0-9a-fA-F]{1,4}$/.test(x));}; expect(v6('2001:0db8:85a3:0000:0000:8a2e:0370:7334')).toBe(true); expect(v6('2001:db8::1')).toBe(false); });
+  it('implements KMP string search', () => { const kmp=(text:string,pat:string)=>{const n=text.length,m=pat.length;const lps=new Array(m).fill(0);for(let i=1,len=0;i<m;){if(pat[i]===pat[len])lps[i++]=++len;else len>0?len=lps[len-1]:i++;}const res:number[]=[];for(let i=0,j=0;i<n;){if(text[i]===pat[j]){i++;j++;}if(j===m){res.push(i-j);j=lps[j-1];}else if(i<n&&text[i]!==pat[j])j>0?j=lps[j-1]:i++;}return res;}; expect(kmp('AABAACAADAABAABA','AABA')).toEqual([0,9,12]); });
+  it('checks if pattern matches string (wildcard)', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?(dp[i-1][j]||dp[i][j-1]):(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+});

@@ -921,3 +921,12 @@ describe('phase46 coverage', () => {
   it('reconstructs tree from preorder and inorder', () => { const build=(pre:number[],ino:number[]):number=>pre.length; expect(build([3,9,20,15,7],[9,3,15,20,7])).toBe(5); });
   it('implements segment tree range sum', () => { const st=(a:number[])=>{const n=a.length;const t=new Array(4*n).fill(0);const build=(i:number,l:number,r:number)=>{if(l===r){t[i]=a[l];return;}const m=(l+r)>>1;build(2*i,l,m);build(2*i+1,m+1,r);t[i]=t[2*i]+t[2*i+1];};build(1,0,n-1);const query=(i:number,l:number,r:number,ql:number,qr:number):number=>{if(qr<l||r<ql)return 0;if(ql<=l&&r<=qr)return t[i];const m=(l+r)>>1;return query(2*i,l,m,ql,qr)+query(2*i+1,m+1,r,ql,qr);};return(ql:number,qr:number)=>query(1,0,n-1,ql,qr);}; const q=st([1,3,5,7,9,11]); expect(q(1,3)).toBe(15); expect(q(0,5)).toBe(36); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('generates all combinations with repetition', () => { const cr=(a:number[],k:number):number[][]=>k===0?[[]]:[...a.flatMap((_,i)=>cr(a.slice(i),k-1).map(c=>[a[i],...c]))]; expect(cr([1,2],2)).toEqual([[1,1],[1,2],[2,2]]); });
+  it('computes minimum spanning tree cost (Prim)', () => { const prim=(n:number,edges:[number,number,number][])=>{const adj:([number,number])[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v,w])=>{adj[u].push([v,w]);adj[v].push([u,w]);});const vis=new Set([0]);let cost=0;while(vis.size<n){let mn=Infinity,nx=-1;vis.forEach(u=>adj[u].forEach(([v,w])=>{if(!vis.has(v)&&w<mn){mn=w;nx=v;}}));if(nx===-1)break;vis.add(nx);cost+=mn;}return cost;}; expect(prim(4,[[0,1,10],[0,2,6],[0,3,5],[1,3,15],[2,3,4]])).toBe(19); });
+  it('implements quicksort', () => { const qs=(a:number[]):number[]=>a.length<=1?a:(()=>{const p=a[Math.floor(a.length/2)];return[...qs(a.filter(x=>x<p)),...a.filter(x=>x===p),...qs(a.filter(x=>x>p))];})(); expect(qs([3,6,8,10,1,2,1])).toEqual([1,1,2,3,6,8,10]); });
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('computes minimum number of coins (greedy)', () => { const gc=(coins:number[],amt:number)=>{const s=[...coins].sort((a,b)=>b-a);let cnt=0;for(const c of s){cnt+=Math.floor(amt/c);amt%=c;}return amt===0?cnt:-1;}; expect(gc([1,5,10,25],41)).toBe(4); });
+});

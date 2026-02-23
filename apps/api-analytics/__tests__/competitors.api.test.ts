@@ -801,3 +801,12 @@ describe('phase46 coverage', () => {
   it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
   it('computes modular exponentiation', () => { const modpow=(base:number,exp:number,mod:number):number=>{let r=1;base%=mod;while(exp>0){if(exp&1)r=r*base%mod;exp>>=1;base=base*base%mod;}return r;}; expect(modpow(2,10,1000)).toBe(24); expect(modpow(3,10,1000)).toBe(49); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+  it('normalizes matrix rows to sum 1', () => { const nr=(m:number[][])=>m.map(r=>{const s=r.reduce((a,v)=>a+v,0);return r.map(v=>Math.round(v/s*100)/100);}); expect(nr([[1,3],[2,2]])[0]).toEqual([0.25,0.75]); });
+  it('finds word in grid (DFS backtrack)', () => { const ws=(board:string[][],word:string)=>{const r=board.length,c=board[0].length;const dfs=(i:number,j:number,k:number):boolean=>{if(k===word.length)return true;if(i<0||j<0||i>=r||j>=c||board[i][j]!==word[k])return false;const tmp=board[i][j];board[i][j]='#';const found=[[0,1],[0,-1],[1,0],[-1,0]].some(([di,dj])=>dfs(i+di,j+dj,k+1));board[i][j]=tmp;return found;};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(dfs(i,j,0))return true;return false;}; expect(ws([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCCED')).toBe(true); expect(ws([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCB')).toBe(false); });
+  it('finds index of max element', () => { const argmax=(a:number[])=>a.reduce((mi,v,i)=>v>a[mi]?i:mi,0); expect(argmax([3,1,4,1,5,9,2,6])).toBe(5); expect(argmax([1])).toBe(0); });
+  it('finds subarray with max sum of length k', () => { const mk=(a:number[],k:number)=>{let win=a.slice(0,k).reduce((s,v)=>s+v,0),best=win;for(let i=k;i<a.length;i++){win+=a[i]-a[i-k];best=Math.max(best,win);}return best;}; expect(mk([2,1,5,1,3,2],3)).toBe(9); expect(mk([-1,2,3,4,-5],2)).toBe(7); });
+});

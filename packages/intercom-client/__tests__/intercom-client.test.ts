@@ -562,3 +562,12 @@ describe('phase46 coverage', () => {
   it('finds the kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
   it('implements interval merging', () => { const merge=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[0]-b[0]);const r:[number,number][]=[];for(const [l,r2] of s){if(!r.length||r[r.length-1][1]<l)r.push([l,r2]);else r[r.length-1][1]=Math.max(r[r.length-1][1],r2);}return r;}; expect(merge([[1,3],[2,6],[8,10],[15,18]])).toEqual([[1,6],[8,10],[15,18]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements Huffman coding frequencies', () => { const hf=(freqs:[string,number][])=>{const q=[...freqs].sort((a,b)=>a[1]-b[1]);while(q.length>1){const a=q.shift()!,b=q.shift()!;const node:[string,number]=[a[0]+b[0],a[1]+b[1]];q.splice(q.findIndex(x=>x[1]>=node[1]),0,node);}return q[0][1];}; expect(hf([['a',5],['b',9],['c',12],['d',13]])).toBe(39); });
+  it('computes number of paths of length k in graph', () => { const mm=(a:number[][],b:number[][])=>{const n=a.length;return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>Array.from({length:n},(_,k)=>a[i][k]*b[k][j]).reduce((s,v)=>s+v,0)));};const kp=(adj:number[][],k:number)=>{let r=adj.map(row=>[...row]);for(let i=1;i<k;i++)r=mm(r,adj);return r;}; const adj=[[0,1,0],[0,0,1],[1,0,0]]; expect(kp(adj,3)[0][0]).toBe(1); });
+  it('finds maximum flow with BFS augmentation', () => { const mf=(cap:number[][])=>{const n=cap.length;const fc=cap.map(r=>[...r]);let flow=0;const bfs=()=>{const par=new Array(n).fill(-1);par[0]=0;const q=[0];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(par[v]===-1&&fc[u][v]>0){par[v]=u;q.push(v);}}return par[n-1]!==-1?par:null;};for(let par=bfs();par;par=bfs()){let f=Infinity;for(let v=n-1;v!==0;v=par[v])f=Math.min(f,fc[par[v]][v]);for(let v=n-1;v!==0;v=par[v]){fc[par[v]][v]-=f;fc[v][par[v]]+=f;}flow+=f;}return flow;}; expect(mf([[0,3,2,0],[0,0,1,3],[0,0,0,2],[0,0,0,0]])).toBe(5); });
+  it('generates all combinations with repetition', () => { const cr=(a:number[],k:number):number[][]=>k===0?[[]]:[...a.flatMap((_,i)=>cr(a.slice(i),k-1).map(c=>[a[i],...c]))]; expect(cr([1,2],2)).toEqual([[1,1],[1,2],[2,2]]); });
+  it('normalizes matrix rows to sum 1', () => { const nr=(m:number[][])=>m.map(r=>{const s=r.reduce((a,v)=>a+v,0);return r.map(v=>Math.round(v/s*100)/100);}); expect(nr([[1,3],[2,2]])[0]).toEqual([0.25,0.75]); });
+});

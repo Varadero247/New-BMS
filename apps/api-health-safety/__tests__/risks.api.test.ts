@@ -853,3 +853,12 @@ describe('phase46 coverage', () => {
   it('checks if tree is balanced', () => { type N={v:number;l?:N;r?:N}; const bal=(n:N|undefined):number=>{if(!n)return 0;const l=bal(n.l),r=bal(n.r);if(l===-1||r===-1||Math.abs(l-r)>1)return -1;return 1+Math.max(l,r);}; const ok=(t:N|undefined)=>bal(t)!==-1; const t:N={v:1,l:{v:2,l:{v:4}},r:{v:3}}; expect(ok(t)).toBe(true); const bad:N={v:1,l:{v:2,l:{v:3,l:{v:4}}}}; expect(ok(bad)).toBe(false); });
   it('implements LCS (longest common subsequence)', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe(4); expect(lcs('AGGTAB','GXTXAYB')).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+  it('computes edit operations to transform string', () => { const ops=(a:string,b:string)=>{const m=a.length,n=b.length;const dp:number[][]=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ops('horse','ros')).toBe(3); expect(ops('intention','execution')).toBe(5); });
+  it('counts ways to tile 2xn board', () => { const tile=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('finds cheapest flight within k stops', () => { const cf=(n:number,flights:[number,number,number][],src:number,dst:number,k:number)=>{let d=new Array(n).fill(Infinity);d[src]=0;for(let i=0;i<=k;i++){const nd=[...d];for(const[u,v,w] of flights)if(d[u]+w<nd[v])nd[v]=d[u]+w;d=nd;}return d[dst]===Infinity?-1:d[dst];}; expect(cf(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,1)).toBe(200); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+});

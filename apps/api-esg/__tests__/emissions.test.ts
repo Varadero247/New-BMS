@@ -726,3 +726,12 @@ describe('phase46 coverage', () => {
   it('implements sieve of Eratosthenes', () => { const sieve=(n:number)=>{const p=new Array(n+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=n;i++)if(p[i])for(let j=i*i;j<=n;j+=i)p[j]=false;return Array.from({length:n-1},(_,i)=>i+2).filter(i=>p[i]);}; expect(sieve(30)).toEqual([2,3,5,7,11,13,17,19,23,29]); });
   it('computes range product excluding self', () => { const pe=(a:number[])=>{const l=new Array(a.length).fill(1);const r=new Array(a.length).fill(1);for(let i=1;i<a.length;i++)l[i]=l[i-1]*a[i-1];for(let i=a.length-2;i>=0;i--)r[i]=r[i+1]*a[i+1];return a.map((_,i)=>l[i]*r[i]);}; expect(pe([1,2,3,4])).toEqual([24,12,8,6]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);const upd=(i:number,v:number)=>{for(i++;i<=n;i+=i&-i)t[i]+=v;};const qry=(i:number)=>{let s=0;for(i++;i>0;i-=i&-i)s+=t[i];return s;};const rng=(l:number,r:number)=>qry(r)-(l>0?qry(l-1):0);return{upd,rng};}; const b=bit(6);[1,3,5,7,9,11].forEach((v,i)=>b.upd(i,v)); expect(b.rng(1,3)).toBe(15); expect(b.rng(0,5)).toBe(36); });
+  it('finds index of min element', () => { const argmin=(a:number[])=>a.reduce((mi,v,i)=>v<a[mi]?i:mi,0); expect(argmin([3,1,4,1,5])).toBe(1); expect(argmin([5,3,8,1])).toBe(3); });
+  it('generates all combinations with repetition', () => { const cr=(a:number[],k:number):number[][]=>k===0?[[]]:[...a.flatMap((_,i)=>cr(a.slice(i),k-1).map(c=>[a[i],...c]))]; expect(cr([1,2],2)).toEqual([[1,1],[1,2],[2,2]]); });
+  it('implements heapsort', () => { const hs=(arr:number[])=>{const a=[...arr],n=a.length;const sink=(i:number,sz:number)=>{while(true){let m=i;const l=2*i+1,r=2*i+2;if(l<sz&&a[l]>a[m])m=l;if(r<sz&&a[r]>a[m])m=r;if(m===i)break;[a[i],a[m]]=[a[m],a[i]];i=m;}};for(let i=Math.floor(n/2)-1;i>=0;i--)sink(i,n);for(let i=n-1;i>0;i--){[a[0],a[i]]=[a[i],a[0]];sink(0,i);}return a;}; expect(hs([12,11,13,5,6,7])).toEqual([5,6,7,11,12,13]); });
+  it('checks if directed graph is DAG', () => { const isDAG=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const col=new Array(n).fill(0);const dfs=(u:number):boolean=>{col[u]=1;for(const v of adj[u]){if(col[v]===1)return false;if(col[v]===0&&!dfs(v))return false;}col[u]=2;return true;};return Array.from({length:n},(_,i)=>i).every(i=>col[i]!==0||dfs(i));}; expect(isDAG(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isDAG(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+});

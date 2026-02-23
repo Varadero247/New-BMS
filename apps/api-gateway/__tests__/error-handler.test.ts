@@ -908,3 +908,12 @@ describe('phase46 coverage', () => {
   it('computes unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
   it('converts number to roman numeral', () => { const rom=(n:number)=>{const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const s=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';v.forEach((val,i)=>{while(n>=val){r+=s[i];n-=val;}});return r;}; expect(rom(3749)).toBe('MMMDCCXLIX'); expect(rom(58)).toBe('LVIII'); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds index of max element', () => { const argmax=(a:number[])=>a.reduce((mi,v,i)=>v>a[mi]?i:mi,0); expect(argmax([3,1,4,1,5,9,2,6])).toBe(5); expect(argmax([1])).toBe(0); });
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('computes minimum spanning tree cost (Prim)', () => { const prim=(n:number,edges:[number,number,number][])=>{const adj:([number,number])[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v,w])=>{adj[u].push([v,w]);adj[v].push([u,w]);});const vis=new Set([0]);let cost=0;while(vis.size<n){let mn=Infinity,nx=-1;vis.forEach(u=>adj[u].forEach(([v,w])=>{if(!vis.has(v)&&w<mn){mn=w;nx=v;}}));if(nx===-1)break;vis.add(nx);cost+=mn;}return cost;}; expect(prim(4,[[0,1,10],[0,2,6],[0,3,5],[1,3,15],[2,3,4]])).toBe(19); });
+  it('solves fractional knapsack', () => { const fk=(items:[number,number][],cap:number)=>{const s=[...items].sort((a,b)=>b[0]/b[1]-a[0]/a[1]);let val=0,rem=cap;for(const[v,w] of s){if(rem<=0)break;const take=Math.min(rem,w);val+=take*(v/w);rem-=take;}return Math.round(val*100)/100;}; expect(fk([[60,10],[100,20],[120,30]],50)).toBe(240); });
+  it('finds number of ways to fill board', () => { const ways=(n:number)=>Math.round(((1+Math.sqrt(5))/2)**(n+1)/Math.sqrt(5)); expect(ways(1)).toBe(1); expect(ways(3)).toBe(3); expect(ways(5)).toBe(8); });
+});

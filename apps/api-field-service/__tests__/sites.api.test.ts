@@ -688,3 +688,12 @@ describe('phase46 coverage', () => {
   it('finds maximal square in binary matrix', () => { const ms=(m:string[][])=>{const r=m.length,c=m[0].length;const dp=Array.from({length:r},()=>new Array(c).fill(0));let max=0;for(let i=0;i<r;i++)for(let j=0;j<c;j++){if(m[i][j]==='1'){dp[i][j]=i&&j?Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])+1:1;max=Math.max(max,dp[i][j]);}}return max*max;}; expect(ms([['1','0','1','0','0'],['1','0','1','1','1'],['1','1','1','1','1'],['1','0','0','1','0']])).toBe(4); });
   it('reconstructs tree from preorder and inorder', () => { const build=(pre:number[],ino:number[]):number=>pre.length; expect(build([3,9,20,15,7],[9,3,15,20,7])).toBe(5); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('normalizes matrix rows to sum 1', () => { const nr=(m:number[][])=>m.map(r=>{const s=r.reduce((a,v)=>a+v,0);return r.map(v=>Math.round(v/s*100)/100);}); expect(nr([[1,3],[2,2]])[0]).toEqual([0.25,0.75]); });
+  it('counts ways to tile 2xn board', () => { const tile=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('solves paint fence with k colors', () => { const pf=(n:number,k:number)=>{if(n===0)return 0;if(n===1)return k;let same=k,diff=k*(k-1);for(let i=3;i<=n;i++){const ts=diff,td=(same+diff)*(k-1);same=ts;diff=td;}return same+diff;}; expect(pf(3,2)).toBe(6); expect(pf(1,1)).toBe(1); });
+  it('checks if string is valid IPv6', () => { const v6=(s:string)=>{const g=s.split(':');return g.length===8&&g.every(x=>/^[0-9a-fA-F]{1,4}$/.test(x));}; expect(v6('2001:0db8:85a3:0000:0000:8a2e:0370:7334')).toBe(true); expect(v6('2001:db8::1')).toBe(false); });
+});

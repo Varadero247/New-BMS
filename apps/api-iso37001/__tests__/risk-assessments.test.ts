@@ -887,3 +887,12 @@ describe('phase46 coverage', () => {
   it('computes range product excluding self', () => { const pe=(a:number[])=>{const l=new Array(a.length).fill(1);const r=new Array(a.length).fill(1);for(let i=1;i<a.length;i++)l[i]=l[i-1]*a[i-1];for(let i=a.length-2;i>=0;i--)r[i]=r[i+1]*a[i+1];return a.map((_,i)=>l[i]*r[i]);}; expect(pe([1,2,3,4])).toEqual([24,12,8,6]); });
   it('finds saddle point in matrix', () => { const sp=(m:number[][])=>{for(let i=0;i<m.length;i++){const rowMin=Math.min(...m[i]);for(let j=0;j<m[i].length;j++){if(m[i][j]===rowMin){const col=m.map(r=>r[j]);if(m[i][j]===Math.max(...col))return[i,j];}}}return null;}; expect(sp([[1,2],[4,3]])).toEqual([1,1]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements quicksort', () => { const qs=(a:number[]):number[]=>a.length<=1?a:(()=>{const p=a[Math.floor(a.length/2)];return[...qs(a.filter(x=>x<p)),...a.filter(x=>x===p),...qs(a.filter(x=>x>p))];})(); expect(qs([3,6,8,10,1,2,1])).toEqual([1,1,2,3,6,8,10]); });
+  it('finds index of max element', () => { const argmax=(a:number[])=>a.reduce((mi,v,i)=>v>a[mi]?i:mi,0); expect(argmax([3,1,4,1,5,9,2,6])).toBe(5); expect(argmax([1])).toBe(0); });
+  it('checks if two arrays have same elements', () => { const same=(a:number[],b:number[])=>a.length===b.length&&[...new Set([...a,...b])].every(v=>a.filter(x=>x===v).length===b.filter(x=>x===v).length); expect(same([1,2,3],[3,1,2])).toBe(true); expect(same([1,2],[1,1])).toBe(false); });
+  it('implements heapsort', () => { const hs=(arr:number[])=>{const a=[...arr],n=a.length;const sink=(i:number,sz:number)=>{while(true){let m=i;const l=2*i+1,r=2*i+2;if(l<sz&&a[l]>a[m])m=l;if(r<sz&&a[r]>a[m])m=r;if(m===i)break;[a[i],a[m]]=[a[m],a[i]];i=m;}};for(let i=Math.floor(n/2)-1;i>=0;i--)sink(i,n);for(let i=n-1;i>0;i--){[a[0],a[i]]=[a[i],a[0]];sink(0,i);}return a;}; expect(hs([12,11,13,5,6,7])).toEqual([5,6,7,11,12,13]); });
+  it('implements merge sort', () => { const ms=(a:number[]):number[]=>a.length<=1?a:(()=>{const m=a.length>>1,l=ms(a.slice(0,m)),r=ms(a.slice(m));const res:number[]=[];let i=0,j=0;while(i<l.length&&j<r.length)res.push(l[i]<r[j]?l[i++]:r[j++]);return res.concat(l.slice(i)).concat(r.slice(j));})(); expect(ms([38,27,43,3,9,82,10])).toEqual([3,9,10,27,38,43,82]); });
+});

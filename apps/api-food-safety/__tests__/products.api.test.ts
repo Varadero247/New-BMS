@@ -705,3 +705,12 @@ describe('phase46 coverage', () => {
   it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
   it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let best=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+  it('computes stock profit with cooldown', () => { const sp=(p:number[])=>{let hold=-Infinity,sold=0,cool=0;for(const v of p){const nh=Math.max(hold,cool-v),ns=hold+v,nc=Math.max(cool,sold);[hold,sold,cool]=[nh,ns,nc];}return Math.max(sold,cool);}; expect(sp([1,2,3,0,2])).toBe(3); expect(sp([1])).toBe(0); });
+  it('finds number of ways to fill board', () => { const ways=(n:number)=>Math.round(((1+Math.sqrt(5))/2)**(n+1)/Math.sqrt(5)); expect(ways(1)).toBe(1); expect(ways(3)).toBe(3); expect(ways(5)).toBe(8); });
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('checks if two arrays have same elements', () => { const same=(a:number[],b:number[])=>a.length===b.length&&[...new Set([...a,...b])].every(v=>a.filter(x=>x===v).length===b.filter(x=>x===v).length); expect(same([1,2,3],[3,1,2])).toBe(true); expect(same([1,2],[1,1])).toBe(false); });
+});

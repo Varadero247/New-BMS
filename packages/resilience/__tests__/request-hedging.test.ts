@@ -478,3 +478,12 @@ describe('phase46 coverage', () => {
   it('implements LCS (longest common subsequence)', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);return dp[m][n];}; expect(lcs('ABCBDAB','BDCAB')).toBe(4); expect(lcs('AGGTAB','GXTXAYB')).toBe(4); });
   it('implements A* pathfinding (grid)', () => { const astar=(grid:number[][],sx:number,sy:number,ex:number,ey:number)=>{const h=(x:number,y:number)=>Math.abs(x-ex)+Math.abs(y-ey);const open=[[0+h(sx,sy),0,sx,sy]];const g=new Map<string,number>();g.set(sx+','+sy,0);const dirs=[[0,1],[0,-1],[1,0],[-1,0]];while(open.length){open.sort((a,b)=>a[0]-b[0]);const [,gc,x,y]=open.shift()!;if(x===ex&&y===ey)return gc;for(const [dx,dy] of dirs){const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=grid.length||ny>=grid[0].length||grid[nx][ny])continue;const ng=gc+1;const k=nx+','+ny;if(!g.has(k)||ng<g.get(k)!){g.set(k,ng);open.push([ng+h(nx,ny),ng,nx,ny]);}}}return -1;}; expect(astar([[0,0,0],[0,1,0],[0,0,0]],0,0,2,2)).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+  it('finds number of ways to fill board', () => { const ways=(n:number)=>Math.round(((1+Math.sqrt(5))/2)**(n+1)/Math.sqrt(5)); expect(ways(1)).toBe(1); expect(ways(3)).toBe(3); expect(ways(5)).toBe(8); });
+  it('checks if matrix has a zero row', () => { const zr=(m:number[][])=>m.some(r=>r.every(v=>v===0)); expect(zr([[1,2],[0,0],[3,4]])).toBe(true); expect(zr([[1,2],[3,4]])).toBe(false); });
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+});

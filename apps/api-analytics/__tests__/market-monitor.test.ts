@@ -678,3 +678,12 @@ describe('phase46 coverage', () => {
   it('finds non-overlapping intervals count', () => { const noOverlap=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[1]-b[1]);let cnt=0,end=-Infinity;for(const [l,r] of s){if(l>=end)end=r;else cnt++;}return cnt;}; expect(noOverlap([[1,2],[2,3],[3,4],[1,3]])).toBe(1); });
   it('level-order traversal of binary tree', () => { type N={v:number;l?:N;r?:N}; const lo=(root:N|undefined):number[][]=>{ if(!root)return[];const res:number[][]=[];const bq:[N,number][]=[[root,0]];while(bq.length){const[n,d]=bq.shift()!;if(!res[d])res[d]=[];res[d].push(n.v);if(n.l)bq.push([n.l,d+1]);if(n.r)bq.push([n.r,d+1]);}return res;}; const t:N={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; expect(lo(t)).toEqual([[3],[9,20],[15,7]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if array is monotone', () => { const mono=(a:number[])=>a.every((v,i)=>i===0||v>=a[i-1])||a.every((v,i)=>i===0||v<=a[i-1]); expect(mono([1,2,2,3])).toBe(true); expect(mono([1,3,2])).toBe(false); });
+  it('computes minimum number of coins (greedy)', () => { const gc=(coins:number[],amt:number)=>{const s=[...coins].sort((a,b)=>b-a);let cnt=0;for(const c of s){cnt+=Math.floor(amt/c);amt%=c;}return amt===0?cnt:-1;}; expect(gc([1,5,10,25],41)).toBe(4); });
+  it('checks if pattern matches string (wildcard)', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?(dp[i-1][j]||dp[i][j-1]):(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+});

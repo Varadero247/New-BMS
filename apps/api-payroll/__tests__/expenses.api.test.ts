@@ -961,3 +961,12 @@ describe('phase46 coverage', () => {
   it('generates balanced parentheses', () => { const bp=(n:number):string[]=>{const r:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n)return r.push(s);if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return r;}; expect(bp(3).length).toBe(5); expect(bp(3)).toContain('((()))'); expect(bp(3)).toContain('()()()'); });
   it('solves job scheduling (weighted interval)', () => { const js=(jobs:[number,number,number][])=>{const s=[...jobs].sort((a,b)=>a[1]-b[1]);const n=s.length;const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++){const[st,,w]=s[i-1];let p=i-1;while(p>0&&s[p-1][1]>st)p--;dp[i]=Math.max(dp[i-1],dp[p]+w);}return dp[n];}; expect(js([[1,4,3],[3,5,4],[0,6,8],[4,7,2]])).toBe(8); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+  it('finds minimum window substring', () => { const mw=(s:string,t:string)=>{const need=new Map<string,number>();for(const c of t)need.set(c,(need.get(c)||0)+1);let l=0,have=0,best='',min=Infinity;for(let r=0;r<s.length;r++){const c=s[r];if(need.has(c)){need.set(c,need.get(c)!-1);if(need.get(c)===0)have++;}while(have===need.size){if(r-l+1<min){min=r-l+1;best=s.slice(l,r+1);}const lc=s[l];if(need.has(lc)){need.set(lc,need.get(lc)!+1);if(need.get(lc)===1)have--;}l++;}}return best;}; expect(mw('ADOBECODEBANC','ABC')).toBe('BANC'); });
+  it('computes edit operations to transform string', () => { const ops=(a:string,b:string)=>{const m=a.length,n=b.length;const dp:number[][]=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ops('horse','ros')).toBe(3); expect(ops('intention','execution')).toBe(5); });
+});

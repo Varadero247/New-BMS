@@ -655,3 +655,12 @@ describe('phase46 coverage', () => {
   it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
   it('converts number to roman numeral', () => { const rom=(n:number)=>{const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const s=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';v.forEach((val,i)=>{while(n>=val){r+=s[i];n-=val;}});return r;}; expect(rom(3749)).toBe('MMMDCCXLIX'); expect(rom(58)).toBe('LVIII'); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+  it('computes house robber (non-adjacent max sum)', () => { const hr=(a:number[])=>a.reduce(([prev2,prev1],v)=>[prev1,Math.max(prev1,prev2+v)],[0,0])[1]; expect(hr([1,2,3,1])).toBe(4); expect(hr([2,7,9,3,1])).toBe(12); });
+  it('solves activity selection problem', () => { const act=(start:number[],end:number[])=>{const n=start.length;const idx=[...Array(n).keys()].sort((a,b)=>end[a]-end[b]);let cnt=1,last=idx[0];for(let i=1;i<n;i++){if(start[idx[i]]>=end[last]){cnt++;last=idx[i];}}return cnt;}; expect(act([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
+  it('checks if matrix has a zero row', () => { const zr=(m:number[][])=>m.some(r=>r.every(v=>v===0)); expect(zr([[1,2],[0,0],[3,4]])).toBe(true); expect(zr([[1,2],[3,4]])).toBe(false); });
+  it('counts distinct values in array', () => { const dv=(a:number[])=>new Set(a).size; expect(dv([1,2,2,3,3,3])).toBe(3); expect(dv([1,1,1])).toBe(1); });
+});

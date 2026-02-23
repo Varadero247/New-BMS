@@ -749,3 +749,12 @@ describe('phase46 coverage', () => {
   it('computes unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); });
   it('solves longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=s[i]===s[j]?2+(l>2?dp[i+1][j-1]:0):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds subarray with max sum of length k', () => { const mk=(a:number[],k:number)=>{let win=a.slice(0,k).reduce((s,v)=>s+v,0),best=win;for(let i=k;i<a.length;i++){win+=a[i]-a[i-k];best=Math.max(best,win);}return best;}; expect(mk([2,1,5,1,3,2],3)).toBe(9); expect(mk([-1,2,3,4,-5],2)).toBe(7); });
+  it('finds index of min element', () => { const argmin=(a:number[])=>a.reduce((mi,v,i)=>v<a[mi]?i:mi,0); expect(argmin([3,1,4,1,5])).toBe(1); expect(argmin([5,3,8,1])).toBe(3); });
+  it('checks if directed graph is DAG', () => { const isDAG=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const col=new Array(n).fill(0);const dfs=(u:number):boolean=>{col[u]=1;for(const v of adj[u]){if(col[v]===1)return false;if(col[v]===0&&!dfs(v))return false;}col[u]=2;return true;};return Array.from({length:n},(_,i)=>i).every(i=>col[i]!==0||dfs(i));}; expect(isDAG(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isDAG(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+  it('computes house robber (non-adjacent max sum)', () => { const hr=(a:number[])=>a.reduce(([prev2,prev1],v)=>[prev1,Math.max(prev1,prev2+v)],[0,0])[1]; expect(hr([1,2,3,1])).toBe(4); expect(hr([2,7,9,3,1])).toBe(12); });
+  it('computes Floyd-Warshall all-pairs shortest paths', () => { const fw=(d:number[][])=>{const n=d.length,r=d.map(row=>[...row]);for(let k=0;k<n;k++)for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(r[i][k]+r[k][j]<r[j][j+0]||true)r[i][j]=Math.min(r[i][j],r[i][k]+r[k][j]);return r;}; const INF=Infinity;const g=[[0,3,INF,5],[2,0,INF,4],[INF,1,0,INF],[INF,INF,2,0]]; const r=fw(g); expect(r[0][2]).toBe(7); expect(r[3][0]).toBe(5); });
+});

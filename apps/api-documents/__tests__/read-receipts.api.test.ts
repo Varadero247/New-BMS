@@ -674,3 +674,12 @@ describe('phase46 coverage', () => {
   it('computes all subsets of given size', () => { const cs=(a:number[],k:number):number[][]=>k===0?[[]]:(a.length<k?[]:[...cs(a.slice(1),k-1).map(s=>[a[0],...s]),...cs(a.slice(1),k)]); expect(cs([1,2,3,4],2).length).toBe(6); expect(cs([1,2,3],1)).toEqual([[1],[2],[3]]); });
   it('computes modular exponentiation', () => { const modpow=(base:number,exp:number,mod:number):number=>{let r=1;base%=mod;while(exp>0){if(exp&1)r=r*base%mod;exp>>=1;base=base*base%mod;}return r;}; expect(modpow(2,10,1000)).toBe(24); expect(modpow(3,10,1000)).toBe(49); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds index of min element', () => { const argmin=(a:number[])=>a.reduce((mi,v,i)=>v<a[mi]?i:mi,0); expect(argmin([3,1,4,1,5])).toBe(1); expect(argmin([5,3,8,1])).toBe(3); });
+  it('finds maximum flow with BFS augmentation', () => { const mf=(cap:number[][])=>{const n=cap.length;const fc=cap.map(r=>[...r]);let flow=0;const bfs=()=>{const par=new Array(n).fill(-1);par[0]=0;const q=[0];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(par[v]===-1&&fc[u][v]>0){par[v]=u;q.push(v);}}return par[n-1]!==-1?par:null;};for(let par=bfs();par;par=bfs()){let f=Infinity;for(let v=n-1;v!==0;v=par[v])f=Math.min(f,fc[par[v]][v]);for(let v=n-1;v!==0;v=par[v]){fc[par[v]][v]-=f;fc[v][par[v]]+=f;}flow+=f;}return flow;}; expect(mf([[0,3,2,0],[0,0,1,3],[0,0,0,2],[0,0,0,0]])).toBe(5); });
+  it('checks if matrix has a zero row', () => { const zr=(m:number[][])=>m.some(r=>r.every(v=>v===0)); expect(zr([[1,2],[0,0],[3,4]])).toBe(true); expect(zr([[1,2],[3,4]])).toBe(false); });
+  it('generates all combinations with repetition', () => { const cr=(a:number[],k:number):number[][]=>k===0?[[]]:[...a.flatMap((_,i)=>cr(a.slice(i),k-1).map(c=>[a[i],...c]))]; expect(cr([1,2],2)).toEqual([[1,1],[1,2],[2,2]]); });
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+});

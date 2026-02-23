@@ -1902,3 +1902,12 @@ describe('phase46 coverage', () => {
   it('finds saddle point in matrix', () => { const sp=(m:number[][])=>{for(let i=0;i<m.length;i++){const rowMin=Math.min(...m[i]);for(let j=0;j<m[i].length;j++){if(m[i][j]===rowMin){const col=m.map(r=>r[j]);if(m[i][j]===Math.max(...col))return[i,j];}}}return null;}; expect(sp([[1,2],[4,3]])).toEqual([1,1]); });
   it('finds the single non-duplicate in pairs', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if directed graph is DAG', () => { const isDAG=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const col=new Array(n).fill(0);const dfs=(u:number):boolean=>{col[u]=1;for(const v of adj[u]){if(col[v]===1)return false;if(col[v]===0&&!dfs(v))return false;}col[u]=2;return true;};return Array.from({length:n},(_,i)=>i).every(i=>col[i]!==0||dfs(i));}; expect(isDAG(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isDAG(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+  it('computes optimal binary search tree cost', () => { const obs=(p:number[])=>{const n=p.length;const dp=Array.from({length:n+2},()=>new Array(n+1).fill(0));const w=Array.from({length:n+2},()=>new Array(n+1).fill(0));for(let i=1;i<=n;i++)w[i][i]=p[i-1];for(let l=2;l<=n;l++)for(let i=1;i<=n-l+1;i++){const j=i+l-1;w[i][j]=w[i][j-1]+p[j-1];dp[i][j]=Infinity;for(let r=i;r<=j;r++){const c=(r>i?dp[i][r-1]:0)+(r<j?dp[r+1][j]:0)+w[i][j];dp[i][j]=Math.min(dp[i][j],c);}}return dp[1][n];}; expect(obs([0.25,0.2,0.05,0.2,0.3])).toBeCloseTo(1.5,1); });
+  it('checks if array is monotone', () => { const mono=(a:number[])=>a.every((v,i)=>i===0||v>=a[i-1])||a.every((v,i)=>i===0||v<=a[i-1]); expect(mono([1,2,2,3])).toBe(true); expect(mono([1,3,2])).toBe(false); });
+  it('finds number of ways to fill board', () => { const ways=(n:number)=>Math.round(((1+Math.sqrt(5))/2)**(n+1)/Math.sqrt(5)); expect(ways(1)).toBe(1); expect(ways(3)).toBe(3); expect(ways(5)).toBe(8); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+});

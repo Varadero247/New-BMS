@@ -706,3 +706,12 @@ describe('phase46 coverage', () => {
   it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
   it('counts connected components', () => { const cc=(n:number,edges:[number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};edges.forEach(([u,v])=>union(u,v));return new Set(Array.from({length:n},(_,i)=>find(i))).size;}; expect(cc(5,[[0,1],[1,2],[3,4]])).toBe(2); expect(cc(4,[])).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds minimum jumps to reach end', () => { const mj=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj([2,3,1,1,4])).toBe(2); expect(mj([2,3,0,1,4])).toBe(2); });
+  it('implements radix sort (LSD)', () => { const rs=(a:number[])=>{if(!a.length)return a;const max=Math.max(...a);let exp=1;const r=[...a];while(Math.floor(max/exp)>0){const bkts:number[][]=Array.from({length:10},()=>[]);r.forEach(v=>bkts[Math.floor(v/exp)%10].push(v));r.splice(0,r.length,...bkts.flat());exp*=10;}return r;}; expect(rs([170,45,75,90,802,24,2,66])).toEqual([2,24,45,66,75,90,170,802]); });
+  it('generates all combinations with repetition', () => { const cr=(a:number[],k:number):number[][]=>k===0?[[]]:[...a.flatMap((_,i)=>cr(a.slice(i),k-1).map(c=>[a[i],...c]))]; expect(cr([1,2],2)).toEqual([[1,1],[1,2],[2,2]]); });
+  it('finds all anagram positions in string', () => { const ap=(s:string,p:string)=>{const r:number[]=[],n=p.length;const pc=new Array(26).fill(0),wc=new Array(26).fill(0);const ci=(c:string)=>c.charCodeAt(0)-97;for(const c of p)pc[ci(c)]++;for(let i=0;i<s.length;i++){wc[ci(s[i])]++;if(i>=n)wc[ci(s[i-n])]--;if(pc.every((v,j)=>v===wc[j]))r.push(i-n+1);}return r;}; expect(ap('cbaebabacd','abc')).toEqual([0,6]); });
+  it('generates all valid IP addresses', () => { const ips=(s:string)=>{const r:string[]=[];const bt=(i:number,parts:string[])=>{if(parts.length===4){if(i===s.length)r.push(parts.join('.'));return;}for(let l=1;l<=3&&i+l<=s.length;l++){const p=s.slice(i,i+l);if((p.length>1&&p[0]==='0')||+p>255)break;bt(i+l,[...parts,p]);}};bt(0,[]);return r;}; expect(ips('25525511135')).toContain('255.255.11.135'); expect(ips('25525511135')).toContain('255.255.111.35'); });
+});

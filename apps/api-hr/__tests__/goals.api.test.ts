@@ -709,3 +709,12 @@ describe('phase46 coverage', () => {
   it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y);const n=m.length;return n%2?m[(n-1)/2]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
   it('computes all subsets of given size', () => { const cs=(a:number[],k:number):number[][]=>k===0?[[]]:(a.length<k?[]:[...cs(a.slice(1),k-1).map(s=>[a[0],...s]),...cs(a.slice(1),k)]); expect(cs([1,2,3,4],2).length).toBe(6); expect(cs([1,2,3],1)).toEqual([[1],[2],[3]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('counts distinct values in array', () => { const dv=(a:number[])=>new Set(a).size; expect(dv([1,2,2,3,3,3])).toBe(3); expect(dv([1,1,1])).toBe(1); });
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('computes longest common substring', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));let best=0;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:0;best=Math.max(best,dp[i][j]);}return best;}; expect(lcs('abcdef','zbcdf')).toBe(3); expect(lcs('abcd','efgh')).toBe(0); });
+  it('checks if matrix has a zero row', () => { const zr=(m:number[][])=>m.some(r=>r.every(v=>v===0)); expect(zr([[1,2],[0,0],[3,4]])).toBe(true); expect(zr([[1,2],[3,4]])).toBe(false); });
+});

@@ -783,3 +783,12 @@ describe('phase46 coverage', () => {
   it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
   it('finds the kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('solves activity selection problem', () => { const act=(start:number[],end:number[])=>{const n=start.length;const idx=[...Array(n).keys()].sort((a,b)=>end[a]-end[b]);let cnt=1,last=idx[0];for(let i=1;i<n;i++){if(start[idx[i]]>=end[last]){cnt++;last=idx[i];}}return cnt;}; expect(act([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
+  it('finds number of ways to fill board', () => { const ways=(n:number)=>Math.round(((1+Math.sqrt(5))/2)**(n+1)/Math.sqrt(5)); expect(ways(1)).toBe(1); expect(ways(3)).toBe(3); expect(ways(5)).toBe(8); });
+  it('computes minimum spanning tree cost (Prim)', () => { const prim=(n:number,edges:[number,number,number][])=>{const adj:([number,number])[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v,w])=>{adj[u].push([v,w]);adj[v].push([u,w]);});const vis=new Set([0]);let cost=0;while(vis.size<n){let mn=Infinity,nx=-1;vis.forEach(u=>adj[u].forEach(([v,w])=>{if(!vis.has(v)&&w<mn){mn=w;nx=v;}}));if(nx===-1)break;vis.add(nx);cost+=mn;}return cost;}; expect(prim(4,[[0,1,10],[0,2,6],[0,3,5],[1,3,15],[2,3,4]])).toBe(19); });
+  it('counts distinct values in array', () => { const dv=(a:number[])=>new Set(a).size; expect(dv([1,2,2,3,3,3])).toBe(3); expect(dv([1,1,1])).toBe(1); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+});

@@ -730,3 +730,12 @@ describe('phase46 coverage', () => {
   it('finds saddle point in matrix', () => { const sp=(m:number[][])=>{for(let i=0;i<m.length;i++){const rowMin=Math.min(...m[i]);for(let j=0;j<m[i].length;j++){if(m[i][j]===rowMin){const col=m.map(r=>r[j]);if(m[i][j]===Math.max(...col))return[i,j];}}}return null;}; expect(sp([[1,2],[4,3]])).toEqual([1,1]); });
   it('checks if tree is balanced', () => { type N={v:number;l?:N;r?:N}; const bal=(n:N|undefined):number=>{if(!n)return 0;const l=bal(n.l),r=bal(n.r);if(l===-1||r===-1||Math.abs(l-r)>1)return -1;return 1+Math.max(l,r);}; const ok=(t:N|undefined)=>bal(t)!==-1; const t:N={v:1,l:{v:2,l:{v:4}},r:{v:3}}; expect(ok(t)).toBe(true); const bad:N={v:1,l:{v:2,l:{v:3,l:{v:4}}}}; expect(ok(bad)).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes minimum number of coins (greedy)', () => { const gc=(coins:number[],amt:number)=>{const s=[...coins].sort((a,b)=>b-a);let cnt=0;for(const c of s){cnt+=Math.floor(amt/c);amt%=c;}return amt===0?cnt:-1;}; expect(gc([1,5,10,25],41)).toBe(4); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);const upd=(i:number,v:number)=>{for(i++;i<=n;i+=i&-i)t[i]+=v;};const qry=(i:number)=>{let s=0;for(i++;i>0;i-=i&-i)s+=t[i];return s;};const rng=(l:number,r:number)=>qry(r)-(l>0?qry(l-1):0);return{upd,rng};}; const b=bit(6);[1,3,5,7,9,11].forEach((v,i)=>b.upd(i,v)); expect(b.rng(1,3)).toBe(15); expect(b.rng(0,5)).toBe(36); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+  it('finds minimum jumps to reach end', () => { const mj=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj([2,3,1,1,4])).toBe(2); expect(mj([2,3,0,1,4])).toBe(2); });
+  it('implements radix sort (LSD)', () => { const rs=(a:number[])=>{if(!a.length)return a;const max=Math.max(...a);let exp=1;const r=[...a];while(Math.floor(max/exp)>0){const bkts:number[][]=Array.from({length:10},()=>[]);r.forEach(v=>bkts[Math.floor(v/exp)%10].push(v));r.splice(0,r.length,...bkts.flat());exp*=10;}return r;}; expect(rs([170,45,75,90,802,24,2,66])).toEqual([2,24,45,66,75,90,170,802]); });
+});

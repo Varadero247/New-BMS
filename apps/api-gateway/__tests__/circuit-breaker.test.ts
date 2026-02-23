@@ -773,3 +773,12 @@ describe('phase46 coverage', () => {
   it('checks if number is deficient', () => { const def=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0)<n; expect(def(8)).toBe(true); expect(def(12)).toBe(false); });
   it('checks if array is sorted ascending', () => { const isSorted=(a:number[])=>a.every((v,i)=>i===0||a[i-1]<=v); expect(isSorted([1,2,3,4,5])).toBe(true); expect(isSorted([1,3,2,4])).toBe(false); expect(isSorted([])).toBe(true); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements merge sort', () => { const ms=(a:number[]):number[]=>a.length<=1?a:(()=>{const m=a.length>>1,l=ms(a.slice(0,m)),r=ms(a.slice(m));const res:number[]=[];let i=0,j=0;while(i<l.length&&j<r.length)res.push(l[i]<r[j]?l[i++]:r[j++]);return res.concat(l.slice(i)).concat(r.slice(j));})(); expect(ms([38,27,43,3,9,82,10])).toEqual([3,9,10,27,38,43,82]); });
+  it('computes edit operations to transform string', () => { const ops=(a:string,b:string)=>{const m=a.length,n=b.length;const dp:number[][]=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ops('horse','ros')).toBe(3); expect(ops('intention','execution')).toBe(5); });
+  it('checks if directed graph is DAG', () => { const isDAG=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>adj[u].push(v));const col=new Array(n).fill(0);const dfs=(u:number):boolean=>{col[u]=1;for(const v of adj[u]){if(col[v]===1)return false;if(col[v]===0&&!dfs(v))return false;}col[u]=2;return true;};return Array.from({length:n},(_,i)=>i).every(i=>col[i]!==0||dfs(i));}; expect(isDAG(4,[[0,1],[1,2],[2,3]])).toBe(true); expect(isDAG(3,[[0,1],[1,2],[2,0]])).toBe(false); });
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+});

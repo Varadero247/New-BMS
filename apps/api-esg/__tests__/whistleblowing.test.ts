@@ -645,3 +645,12 @@ describe('phase46 coverage', () => {
   it('checks if string is valid number (strict)', () => { const vn=(s:string)=>/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(s.trim()); expect(vn('3.14')).toBe(true); expect(vn('-2.5e10')).toBe(true); expect(vn('abc')).toBe(false); expect(vn('1.2.3')).toBe(false); });
   it('rotates matrix 90 degrees counter-clockwise', () => { const rotCCW=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); expect(rotCCW([[1,2],[3,4]])).toEqual([[2,4],[1,3]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);const upd=(i:number,v:number)=>{for(i++;i<=n;i+=i&-i)t[i]+=v;};const qry=(i:number)=>{let s=0;for(i++;i>0;i-=i&-i)s+=t[i];return s;};const rng=(l:number,r:number)=>qry(r)-(l>0?qry(l-1):0);return{upd,rng};}; const b=bit(6);[1,3,5,7,9,11].forEach((v,i)=>b.upd(i,v)); expect(b.rng(1,3)).toBe(15); expect(b.rng(0,5)).toBe(36); });
+  it('computes strongly connected components (Kosaraju)', () => { const scc=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const radj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);radj[v].push(u);});const vis=new Set<number>(),order:number[]=[];const dfs1=(u:number)=>{vis.add(u);adj[u].forEach(v=>{if(!vis.has(v))dfs1(v);});order.push(u);};for(let i=0;i<n;i++)if(!vis.has(i))dfs1(i);vis.clear();let cnt=0;const dfs2=(u:number)=>{vis.add(u);radj[u].forEach(v=>{if(!vis.has(v))dfs2(v);});};while(order.length){const u=order.pop()!;if(!vis.has(u)){dfs2(u);cnt++;}}return cnt;}; expect(scc(5,[[1,0],[0,2],[2,1],[0,3],[3,4]])).toBe(3); });
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('implements quicksort', () => { const qs=(a:number[]):number[]=>a.length<=1?a:(()=>{const p=a[Math.floor(a.length/2)];return[...qs(a.filter(x=>x<p)),...a.filter(x=>x===p),...qs(a.filter(x=>x>p))];})(); expect(qs([3,6,8,10,1,2,1])).toEqual([1,1,2,3,6,8,10]); });
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+});

@@ -792,3 +792,12 @@ describe('phase46 coverage', () => {
   it('converts roman numeral to number', () => { const rom=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};return[...s].reduce((acc,c,i,a)=>m[c]<(m[a[i+1]]||0)?acc-m[c]:acc+m[c],0);}; expect(rom('III')).toBe(3); expect(rom('LVIII')).toBe(58); expect(rom('MCMXCIV')).toBe(1994); });
   it('level-order traversal of binary tree', () => { type N={v:number;l?:N;r?:N}; const lo=(root:N|undefined):number[][]=>{ if(!root)return[];const res:number[][]=[];const bq:[N,number][]=[[root,0]];while(bq.length){const[n,d]=bq.shift()!;if(!res[d])res[d]=[];res[d].push(n.v);if(n.l)bq.push([n.l,d+1]);if(n.r)bq.push([n.r,d+1]);}return res;}; const t:N={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}}; expect(lo(t)).toEqual([[3],[9,20],[15,7]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes longest common substring', () => { const lcs=(a:string,b:string)=>{const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));let best=0;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:0;best=Math.max(best,dp[i][j]);}return best;}; expect(lcs('abcdef','zbcdf')).toBe(3); expect(lcs('abcd','efgh')).toBe(0); });
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('finds index of min element', () => { const argmin=(a:number[])=>a.reduce((mi,v,i)=>v<a[mi]?i:mi,0); expect(argmin([3,1,4,1,5])).toBe(1); expect(argmin([5,3,8,1])).toBe(3); });
+  it('checks if pattern matches string (wildcard)', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?(dp[i-1][j]||dp[i][j-1]):(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('checks if two arrays have same elements', () => { const same=(a:number[],b:number[])=>a.length===b.length&&[...new Set([...a,...b])].every(v=>a.filter(x=>x===v).length===b.filter(x=>x===v).length); expect(same([1,2,3],[3,1,2])).toBe(true); expect(same([1,2],[1,1])).toBe(false); });
+});

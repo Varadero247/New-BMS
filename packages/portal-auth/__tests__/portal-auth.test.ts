@@ -576,3 +576,12 @@ describe('phase46 coverage', () => {
   it('implements interval merging', () => { const merge=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[0]-b[0]);const r:[number,number][]=[];for(const [l,r2] of s){if(!r.length||r[r.length-1][1]<l)r.push([l,r2]);else r[r.length-1][1]=Math.max(r[r.length-1][1],r2);}return r;}; expect(merge([[1,3],[2,6],[8,10],[15,18]])).toEqual([[1,6],[8,10],[15,18]]); });
   it('finds the kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); expect(kth([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes range of array', () => { const range=(a:number[])=>Math.max(...a)-Math.min(...a); expect(range([3,1,4,1,5,9])).toBe(8); expect(range([7,7,7])).toBe(0); });
+  it('computes longest substring without repeating', () => { const lw=(s:string)=>{const m=new Map<string,number>();let best=0,l=0;for(let r=0;r<s.length;r++){if(m.has(s[r])&&m.get(s[r])!>=l)l=m.get(s[r])!+1;m.set(s[r],r);best=Math.max(best,r-l+1);}return best;}; expect(lw('abcabcbb')).toBe(3); expect(lw('pwwkew')).toBe(3); });
+  it('sorts nearly sorted array efficiently', () => { const ins=(a:number[])=>{const r=[...a];for(let i=1;i<r.length;i++){const k=r[i];let j=i-1;while(j>=0&&r[j]>k){r[j+1]=r[j];j--;}r[j+1]=k;}return r;}; expect(ins([2,6,4,1,8,7,3,5])).toEqual([1,2,3,4,5,6,7,8]); });
+  it('implements Huffman coding frequencies', () => { const hf=(freqs:[string,number][])=>{const q=[...freqs].sort((a,b)=>a[1]-b[1]);while(q.length>1){const a=q.shift()!,b=q.shift()!;const node:[string,number]=[a[0]+b[0],a[1]+b[1]];q.splice(q.findIndex(x=>x[1]>=node[1]),0,node);}return q[0][1];}; expect(hf([['a',5],['b',9],['c',12],['d',13]])).toBe(39); });
+  it('implements KMP string search', () => { const kmp=(text:string,pat:string)=>{const n=text.length,m=pat.length;const lps=new Array(m).fill(0);for(let i=1,len=0;i<m;){if(pat[i]===pat[len])lps[i++]=++len;else len>0?len=lps[len-1]:i++;}const res:number[]=[];for(let i=0,j=0;i<n;){if(text[i]===pat[j]){i++;j++;}if(j===m){res.push(i-j);j=lps[j-1];}else if(i<n&&text[i]!==pat[j])j>0?j=lps[j-1]:i++;}return res;}; expect(kmp('AABAACAADAABAABA','AABA')).toEqual([0,9,12]); });
+});

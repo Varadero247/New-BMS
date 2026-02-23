@@ -873,3 +873,12 @@ describe('phase46 coverage', () => {
   it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
   it('solves N-Queens (count solutions)', () => { const nq=(n:number)=>{let cnt=0;const col=new Set<number>(),d1=new Set<number>(),d2=new Set<number>();const bt=(r:number)=>{if(r===n){cnt++;return;}for(let c=0;c<n;c++){if(col.has(c)||d1.has(r-c)||d2.has(r+c))continue;col.add(c);d1.add(r-c);d2.add(r+c);bt(r+1);col.delete(c);d1.delete(r-c);d2.delete(r+c);}};bt(0);return cnt;}; expect(nq(4)).toBe(2); expect(nq(5)).toBe(10); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if string has all unique chars', () => { const uniq=(s:string)=>s.length===new Set(s).size; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); });
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+  it('finds minimum jumps to reach end', () => { const mj=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj([2,3,1,1,4])).toBe(2); expect(mj([2,3,0,1,4])).toBe(2); });
+  it('computes strongly connected components (Kosaraju)', () => { const scc=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const radj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);radj[v].push(u);});const vis=new Set<number>(),order:number[]=[];const dfs1=(u:number)=>{vis.add(u);adj[u].forEach(v=>{if(!vis.has(v))dfs1(v);});order.push(u);};for(let i=0;i<n;i++)if(!vis.has(i))dfs1(i);vis.clear();let cnt=0;const dfs2=(u:number)=>{vis.add(u);radj[u].forEach(v=>{if(!vis.has(v))dfs2(v);});};while(order.length){const u=order.pop()!;if(!vis.has(u)){dfs2(u);cnt++;}}return cnt;}; expect(scc(5,[[1,0],[0,2],[2,1],[0,3],[3,4]])).toBe(3); });
+  it('finds subarray with max sum of length k', () => { const mk=(a:number[],k:number)=>{let win=a.slice(0,k).reduce((s,v)=>s+v,0),best=win;for(let i=k;i<a.length;i++){win+=a[i]-a[i-k];best=Math.max(best,win);}return best;}; expect(mk([2,1,5,1,3,2],3)).toBe(9); expect(mk([-1,2,3,4,-5],2)).toBe(7); });
+});

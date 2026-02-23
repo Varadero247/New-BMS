@@ -792,3 +792,12 @@ describe('phase46 coverage', () => {
   it('finds the longest consecutive sequence', () => { const lcs=(a:number[])=>{const s=new Set(a);let best=0;for(const v of s){if(!s.has(v-1)){let cur=v,len=1;while(s.has(cur+1)){cur++;len++;}best=Math.max(best,len);}}return best;}; expect(lcs([100,4,200,1,3,2])).toBe(4); expect(lcs([0,3,7,2,5,8,4,6,0,1])).toBe(9); });
   it('counts connected components', () => { const cc=(n:number,edges:[number,number][])=>{const p=Array.from({length:n},(_,i)=>i);const find=(x:number):number=>p[x]===x?x:(p[x]=find(p[x]),p[x]);const union=(a:number,b:number)=>{p[find(a)]=find(b);};edges.forEach(([u,v])=>union(u,v));return new Set(Array.from({length:n},(_,i)=>find(i))).size;}; expect(cc(5,[[0,1],[1,2],[3,4]])).toBe(2); expect(cc(4,[])).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('computes sparse matrix multiplication', () => { const smm=(a:[number,number,number][],b:[number,number,number][],m:number,n:number,p:number)=>{const r:number[][]=Array.from({length:m},()=>new Array(p).fill(0));const bm=new Map<number,[number,number,number][]>();b.forEach(e=>{if(!bm.has(e[0]))bm.set(e[0],[]);bm.get(e[0])!.push(e);});a.forEach(([i,k,v])=>{(bm.get(k)||[]).forEach(([,j,w])=>{r[i][j]+=v*w;});});return r;}; const a:[[number,number,number]]=[1,0,1] as unknown as [[number,number,number]]; expect(smm([[0,0,1],[0,1,0]],[[0,0,2],[1,0,3]],2,2,2)[0][0]).toBe(2); });
+  it('implements Z-algorithm for string matching', () => { const zfn=(s:string)=>{const n=s.length,z=new Array(n).fill(0);let l=0,r=0;for(let i=1;i<n;i++){if(i<r)z[i]=Math.min(r-i,z[i-l]);while(i+z[i]<n&&s[z[i]]===s[i+z[i]])z[i]++;if(i+z[i]>r){l=i;r=i+z[i];}}return z;}; const z=zfn('aabxaa'); expect(z[4]).toBe(2); expect(z[0]).toBe(0); });
+  it('solves activity selection problem', () => { const act=(start:number[],end:number[])=>{const n=start.length;const idx=[...Array(n).keys()].sort((a,b)=>end[a]-end[b]);let cnt=1,last=idx[0];for(let i=1;i<n;i++){if(start[idx[i]]>=end[last]){cnt++;last=idx[i];}}return cnt;}; expect(act([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+});

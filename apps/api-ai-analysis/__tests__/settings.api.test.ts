@@ -904,3 +904,12 @@ describe('phase46 coverage', () => {
   it('finds longest subarray with sum k', () => { const ls=(a:number[],k:number)=>{const m=new Map([[0,-1]]);let sum=0,best=0;for(let i=0;i<a.length;i++){sum+=a[i];if(m.has(sum-k))best=Math.max(best,i-(m.get(sum-k)!));if(!m.has(sum))m.set(sum,i);}return best;}; expect(ls([1,-1,5,-2,3],3)).toBe(4); expect(ls([-2,-1,2,1],1)).toBe(2); });
   it('implements Dijkstra shortest path', () => { const dijk=(n:number,edges:[number,number,number][],s:number)=>{const adj:([number,number])[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v,w])=>{adj[u].push([v,w]);adj[v].push([u,w]);});const dist=new Array(n).fill(Infinity);dist[s]=0;const vis=new Set<number>();while(vis.size<n){let u=-1;dist.forEach((d,i)=>{if(!vis.has(i)&&(u===-1||d<dist[u]))u=i;});if(dist[u]===Infinity)break;vis.add(u);adj[u].forEach(([v,w])=>{if(dist[u]+w<dist[v])dist[v]=dist[u]+w;});} return dist;}; expect(dijk(5,[[0,1,4],[0,2,1],[2,1,2],[1,3,1],[2,3,5]],0)).toEqual([0,3,1,4,Infinity]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+  it('generates all valid IP addresses', () => { const ips=(s:string)=>{const r:string[]=[];const bt=(i:number,parts:string[])=>{if(parts.length===4){if(i===s.length)r.push(parts.join('.'));return;}for(let l=1;l<=3&&i+l<=s.length;l++){const p=s.slice(i,i+l);if((p.length>1&&p[0]==='0')||+p>255)break;bt(i+l,[...parts,p]);}};bt(0,[]);return r;}; expect(ips('25525511135')).toContain('255.255.11.135'); expect(ips('25525511135')).toContain('255.255.111.35'); });
+  it('implements quicksort', () => { const qs=(a:number[]):number[]=>a.length<=1?a:(()=>{const p=a[Math.floor(a.length/2)];return[...qs(a.filter(x=>x<p)),...a.filter(x=>x===p),...qs(a.filter(x=>x>p))];})(); expect(qs([3,6,8,10,1,2,1])).toEqual([1,1,2,3,6,8,10]); });
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+});

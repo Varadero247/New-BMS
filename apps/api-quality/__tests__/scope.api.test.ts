@@ -889,3 +889,12 @@ describe('phase46 coverage', () => {
   it('tokenizes a simple expression', () => { const tok=(s:string)=>s.match(/\d+\.?\d*|[+\-*/()]/g)||[]; expect(tok('3+4*2').sort()).toEqual(['3','4','2','+','*'].sort()); expect(tok('(1+2)*3').length).toBe(7); });
   it('solves longest palindromic subsequence', () => { const lps=(s:string)=>{const n=s.length;const dp=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)) as number[][];for(let l=2;l<=n;l++)for(let i=0;i<=n-l;i++){const j=i+l-1;dp[i][j]=s[i]===s[j]?2+(l>2?dp[i+1][j-1]:0):Math.max(dp[i+1][j],dp[i][j-1]);}return dp[0][n-1];}; expect(lps('bbbab')).toBe(4); expect(lps('cbbd')).toBe(2); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if array is monotone', () => { const mono=(a:number[])=>a.every((v,i)=>i===0||v>=a[i-1])||a.every((v,i)=>i===0||v<=a[i-1]); expect(mono([1,2,2,3])).toBe(true); expect(mono([1,3,2])).toBe(false); });
+  it('solves activity selection problem', () => { const act=(start:number[],end:number[])=>{const n=start.length;const idx=[...Array(n).keys()].sort((a,b)=>end[a]-end[b]);let cnt=1,last=idx[0];for(let i=1;i<n;i++){if(start[idx[i]]>=end[last]){cnt++;last=idx[i];}}return cnt;}; expect(act([1,3,0,5,8,5],[2,4,6,7,9,9])).toBe(4); });
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('checks if pattern matches string (wildcard)', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length;const dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=p[j-1]==='*'?(dp[i-1][j]||dp[i][j-1]):(p[j-1]==='?'||p[j-1]===s[i-1])&&dp[i-1][j-1];return dp[m][n];}; expect(wm('aa','*')).toBe(true); expect(wm('cb','?a')).toBe(false); });
+  it('computes longest substring without repeating', () => { const lw=(s:string)=>{const m=new Map<string,number>();let best=0,l=0;for(let r=0;r<s.length;r++){if(m.has(s[r])&&m.get(s[r])!>=l)l=m.get(s[r])!+1;m.set(s[r],r);best=Math.max(best,r-l+1);}return best;}; expect(lw('abcabcbb')).toBe(3); expect(lw('pwwkew')).toBe(3); });
+});

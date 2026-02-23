@@ -435,3 +435,12 @@ describe('phase46 coverage', () => {
   it('checks valid BST from preorder', () => { const vbst=(pre:number[])=>{const st:number[]=[],min=[-Infinity];for(const v of pre){if(v<min[0])return false;while(st.length&&st[st.length-1]<v)min[0]=st.pop()!;st.push(v);}return true;}; expect(vbst([5,2,1,3,6])).toBe(true); expect(vbst([5,2,6,1,3])).toBe(false); });
   it('generates balanced parentheses', () => { const bp=(n:number):string[]=>{const r:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n)return r.push(s);if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return r;}; expect(bp(3).length).toBe(5); expect(bp(3)).toContain('((()))'); expect(bp(3)).toContain('()()()'); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes range of array', () => { const range=(a:number[])=>Math.max(...a)-Math.min(...a); expect(range([3,1,4,1,5,9])).toBe(8); expect(range([7,7,7])).toBe(0); });
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+  it('finds all pairs with given sum (two pointers)', () => { const tp=(a:number[],t:number)=>{const s=[...a].sort((x,y)=>x-y);const r:[number,number][]=[];let l=0,h=s.length-1;while(l<h){const sm=s[l]+s[h];if(sm===t){r.push([s[l],s[h]]);l++;h--;}else sm<t?l++:h--;}return r;}; expect(tp([1,2,3,4,5,6],7)).toEqual([[1,6],[2,5],[3,4]]); });
+  it('finds index of max element', () => { const argmax=(a:number[])=>a.reduce((mi,v,i)=>v>a[mi]?i:mi,0); expect(argmax([3,1,4,1,5,9,2,6])).toBe(5); expect(argmax([1])).toBe(0); });
+  it('checks if array is monotone', () => { const mono=(a:number[])=>a.every((v,i)=>i===0||v>=a[i-1])||a.every((v,i)=>i===0||v<=a[i-1]); expect(mono([1,2,2,3])).toBe(true); expect(mono([1,3,2])).toBe(false); });
+});

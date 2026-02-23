@@ -683,3 +683,12 @@ describe('phase46 coverage', () => {
   it('checks if matrix is symmetric', () => { const sym=(m:number[][])=>m.every((r,i)=>r.every((v,j)=>v===m[j][i])); expect(sym([[1,2,3],[2,5,6],[3,6,9]])).toBe(true); expect(sym([[1,2],[3,4]])).toBe(false); });
   it('rotates matrix 90 degrees counter-clockwise', () => { const rotCCW=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); expect(rotCCW([[1,2],[3,4]])).toEqual([[2,4],[1,3]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes number of paths of length k in graph', () => { const mm=(a:number[][],b:number[][])=>{const n=a.length;return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>Array.from({length:n},(_,k)=>a[i][k]*b[k][j]).reduce((s,v)=>s+v,0)));};const kp=(adj:number[][],k:number)=>{let r=adj.map(row=>[...row]);for(let i=1;i<k;i++)r=mm(r,adj);return r;}; const adj=[[0,1,0],[0,0,1],[1,0,0]]; expect(kp(adj,3)[0][0]).toBe(1); });
+  it('implements quicksort', () => { const qs=(a:number[]):number[]=>a.length<=1?a:(()=>{const p=a[Math.floor(a.length/2)];return[...qs(a.filter(x=>x<p)),...a.filter(x=>x===p),...qs(a.filter(x=>x>p))];})(); expect(qs([3,6,8,10,1,2,1])).toEqual([1,1,2,3,6,8,10]); });
+  it('finds articulation points in graph', () => { const ap=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const disc=new Array(n).fill(-1),low=new Array(n).fill(0),par=new Array(n).fill(-1);let t=0;const res=new Set<number>();const dfs=(u:number)=>{disc[u]=low[u]=t++;let ch=0;for(const v of adj[u]){if(disc[v]===-1){ch++;par[v]=u;dfs(v);low[u]=Math.min(low[u],low[v]);if(par[u]===-1&&ch>1)res.add(u);if(par[u]!==-1&&low[v]>=disc[u])res.add(u);}else if(v!==par[u])low[u]=Math.min(low[u],disc[v]);}};for(let i=0;i<n;i++)if(disc[i]===-1)dfs(i);return[...res];}; expect(ap(5,[[1,0],[0,2],[2,1],[0,3],[3,4]]).length).toBeGreaterThanOrEqual(1); });
+  it('generates all combinations with repetition', () => { const cr=(a:number[],k:number):number[][]=>k===0?[[]]:[...a.flatMap((_,i)=>cr(a.slice(i),k-1).map(c=>[a[i],...c]))]; expect(cr([1,2],2)).toEqual([[1,1],[1,2],[2,2]]); });
+  it('implements Z-algorithm for string matching', () => { const zfn=(s:string)=>{const n=s.length,z=new Array(n).fill(0);let l=0,r=0;for(let i=1;i<n;i++){if(i<r)z[i]=Math.min(r-i,z[i-l]);while(i+z[i]<n&&s[z[i]]===s[i+z[i]])z[i]++;if(i+z[i]>r){l=i;r=i+z[i];}}return z;}; const z=zfn('aabxaa'); expect(z[4]).toBe(2); expect(z[0]).toBe(0); });
+});

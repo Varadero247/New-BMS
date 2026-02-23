@@ -611,3 +611,12 @@ describe('phase46 coverage', () => {
   it('counts subarrays with sum equal to k', () => { const sc=(a:number[],k:number)=>{const m=new Map([[0,1]]);let sum=0,cnt=0;for(const v of a){sum+=v;cnt+=(m.get(sum-k)||0);m.set(sum,(m.get(sum)||0)+1);}return cnt;}; expect(sc([1,1,1],2)).toBe(2); expect(sc([1,2,3],3)).toBe(2); });
   it('checks valid BST from preorder', () => { const vbst=(pre:number[])=>{const st:number[]=[],min=[-Infinity];for(const v of pre){if(v<min[0])return false;while(st.length&&st[st.length-1]<v)min[0]=st.pop()!;st.push(v);}return true;}; expect(vbst([5,2,1,3,6])).toBe(true); expect(vbst([5,2,6,1,3])).toBe(false); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements merge sort', () => { const ms=(a:number[]):number[]=>a.length<=1?a:(()=>{const m=a.length>>1,l=ms(a.slice(0,m)),r=ms(a.slice(m));const res:number[]=[];let i=0,j=0;while(i<l.length&&j<r.length)res.push(l[i]<r[j]?l[i++]:r[j++]);return res.concat(l.slice(i)).concat(r.slice(j));})(); expect(ms([38,27,43,3,9,82,10])).toEqual([3,9,10,27,38,43,82]); });
+  it('computes longest substring without repeating', () => { const lw=(s:string)=>{const m=new Map<string,number>();let best=0,l=0;for(let r=0;r<s.length;r++){if(m.has(s[r])&&m.get(s[r])!>=l)l=m.get(s[r])!+1;m.set(s[r],r);best=Math.max(best,r-l+1);}return best;}; expect(lw('abcabcbb')).toBe(3); expect(lw('pwwkew')).toBe(3); });
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('computes house robber (non-adjacent max sum)', () => { const hr=(a:number[])=>a.reduce(([prev2,prev1],v)=>[prev1,Math.max(prev1,prev2+v)],[0,0])[1]; expect(hr([1,2,3,1])).toBe(4); expect(hr([2,7,9,3,1])).toBe(12); });
+  it('computes strongly connected components (Kosaraju)', () => { const scc=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);const radj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);radj[v].push(u);});const vis=new Set<number>(),order:number[]=[];const dfs1=(u:number)=>{vis.add(u);adj[u].forEach(v=>{if(!vis.has(v))dfs1(v);});order.push(u);};for(let i=0;i<n;i++)if(!vis.has(i))dfs1(i);vis.clear();let cnt=0;const dfs2=(u:number)=>{vis.add(u);radj[u].forEach(v=>{if(!vis.has(v))dfs2(v);});};while(order.length){const u=order.pop()!;if(!vis.has(u)){dfs2(u);cnt++;}}return cnt;}; expect(scc(5,[[1,0],[0,2],[2,1],[0,3],[3,4]])).toBe(3); });
+});

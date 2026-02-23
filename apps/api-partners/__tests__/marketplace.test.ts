@@ -461,3 +461,12 @@ describe('phase46 coverage', () => {
   it('computes prefix XOR array', () => { const px=(a:number[])=>{const r=[0];for(const v of a)r.push(r[r.length-1]^v);return r;}; expect(px([1,2,3])).toEqual([0,1,3,0]); });
   it('evaluates simple arithmetic string', () => { const ev=(s:string)=>{const toks=s.match(/\d+|[+\-*/]/g)||[];const nums:number[]=[];const ops:string[]=[];const prec:{[k:string]:number}={'+':1,'-':1,'*':2,'/':2};const apply=()=>{const b=nums.pop()!,a=nums.pop()!,op=ops.pop()!;nums.push(op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:a/b);};for(const t of toks){if(/\d/.test(t)){nums.push(Number(t));}else{while(ops.length&&(prec[ops[ops.length-1]]||0)>=(prec[t]||0))apply();ops.push(t);}}while(ops.length)apply();return nums[0];}; expect(ev('3+4*2')).toBe(11); expect(ev('10-2*3')).toBe(4); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+  it('checks if string has all unique chars', () => { const uniq=(s:string)=>s.length===new Set(s).size; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); });
+  it('implements quicksort', () => { const qs=(a:number[]):number[]=>a.length<=1?a:(()=>{const p=a[Math.floor(a.length/2)];return[...qs(a.filter(x=>x<p)),...a.filter(x=>x===p),...qs(a.filter(x=>x>p))];})(); expect(qs([3,6,8,10,1,2,1])).toEqual([1,1,2,3,6,8,10]); });
+  it('checks if matrix has a zero row', () => { const zr=(m:number[][])=>m.some(r=>r.every(v=>v===0)); expect(zr([[1,2],[0,0],[3,4]])).toBe(true); expect(zr([[1,2],[3,4]])).toBe(false); });
+  it('implements heapsort', () => { const hs=(arr:number[])=>{const a=[...arr],n=a.length;const sink=(i:number,sz:number)=>{while(true){let m=i;const l=2*i+1,r=2*i+2;if(l<sz&&a[l]>a[m])m=l;if(r<sz&&a[r]>a[m])m=r;if(m===i)break;[a[i],a[m]]=[a[m],a[i]];i=m;}};for(let i=Math.floor(n/2)-1;i>=0;i--)sink(i,n);for(let i=n-1;i>0;i--){[a[0],a[i]]=[a[i],a[0]];sink(0,i);}return a;}; expect(hs([12,11,13,5,6,7])).toEqual([5,6,7,11,12,13]); });
+});

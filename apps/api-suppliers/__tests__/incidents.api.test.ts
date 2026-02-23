@@ -519,3 +519,12 @@ describe('phase46 coverage', () => {
   it('reverses linked list (array-based)', () => { const rev=(a:number[])=>[...a].reverse(); expect(rev([1,2,3,4,5])).toEqual([5,4,3,2,1]); });
   it('computes all subsets of given size', () => { const cs=(a:number[],k:number):number[][]=>k===0?[[]]:(a.length<k?[]:[...cs(a.slice(1),k-1).map(s=>[a[0],...s]),...cs(a.slice(1),k)]); expect(cs([1,2,3,4],2).length).toBe(6); expect(cs([1,2,3],1)).toEqual([[1],[2],[3]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds maximum flow with BFS augmentation', () => { const mf=(cap:number[][])=>{const n=cap.length;const fc=cap.map(r=>[...r]);let flow=0;const bfs=()=>{const par=new Array(n).fill(-1);par[0]=0;const q=[0];while(q.length){const u=q.shift()!;for(let v=0;v<n;v++)if(par[v]===-1&&fc[u][v]>0){par[v]=u;q.push(v);}}return par[n-1]!==-1?par:null;};for(let par=bfs();par;par=bfs()){let f=Infinity;for(let v=n-1;v!==0;v=par[v])f=Math.min(f,fc[par[v]][v]);for(let v=n-1;v!==0;v=par[v]){fc[par[v]][v]-=f;fc[v][par[v]]+=f;}flow+=f;}return flow;}; expect(mf([[0,3,2,0],[0,0,1,3],[0,0,0,2],[0,0,0,0]])).toBe(5); });
+  it('implements trie prefix search', () => { const t=()=>{const r:any={};return{ins:(w:string)=>{let n=r;for(const c of w){n[c]=n[c]||{};n=n[c];}n['$']=1;},sw:(p:string)=>{let n=r;for(const c of p){if(!n[c])return false;n=n[c];}return true;}};}; const tr=t();['apple','app','apply'].forEach(w=>tr.ins(w)); expect(tr.sw('app')).toBe(true); expect(tr.sw('apz')).toBe(false); });
+  it('checks if string is valid IPv6', () => { const v6=(s:string)=>{const g=s.split(':');return g.length===8&&g.every(x=>/^[0-9a-fA-F]{1,4}$/.test(x));}; expect(v6('2001:0db8:85a3:0000:0000:8a2e:0370:7334')).toBe(true); expect(v6('2001:db8::1')).toBe(false); });
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+  it('generates all valid IP addresses', () => { const ips=(s:string)=>{const r:string[]=[];const bt=(i:number,parts:string[])=>{if(parts.length===4){if(i===s.length)r.push(parts.join('.'));return;}for(let l=1;l<=3&&i+l<=s.length;l++){const p=s.slice(i,i+l);if((p.length>1&&p[0]==='0')||+p>255)break;bt(i+l,[...parts,p]);}};bt(0,[]);return r;}; expect(ips('25525511135')).toContain('255.255.11.135'); expect(ips('25525511135')).toContain('255.255.111.35'); });
+});

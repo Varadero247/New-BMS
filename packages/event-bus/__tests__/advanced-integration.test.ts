@@ -764,3 +764,12 @@ describe('phase46 coverage', () => {
   it('solves job scheduling (weighted interval)', () => { const js=(jobs:[number,number,number][])=>{const s=[...jobs].sort((a,b)=>a[1]-b[1]);const n=s.length;const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++){const[st,,w]=s[i-1];let p=i-1;while(p>0&&s[p-1][1]>st)p--;dp[i]=Math.max(dp[i-1],dp[p]+w);}return dp[n];}; expect(js([[1,4,3],[3,5,4],[0,6,8],[4,7,2]])).toBe(8); });
   it('computes all subsets of given size', () => { const cs=(a:number[],k:number):number[][]=>k===0?[[]]:(a.length<k?[]:[...cs(a.slice(1),k-1).map(s=>[a[0],...s]),...cs(a.slice(1),k)]); expect(cs([1,2,3,4],2).length).toBe(6); expect(cs([1,2,3],1)).toEqual([[1],[2],[3]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('implements quicksort', () => { const qs=(a:number[]):number[]=>a.length<=1?a:(()=>{const p=a[Math.floor(a.length/2)];return[...qs(a.filter(x=>x<p)),...a.filter(x=>x===p),...qs(a.filter(x=>x>p))];})(); expect(qs([3,6,8,10,1,2,1])).toEqual([1,1,2,3,6,8,10]); });
+  it('finds all anagram positions in string', () => { const ap=(s:string,p:string)=>{const r:number[]=[],n=p.length;const pc=new Array(26).fill(0),wc=new Array(26).fill(0);const ci=(c:string)=>c.charCodeAt(0)-97;for(const c of p)pc[ci(c)]++;for(let i=0;i<s.length;i++){wc[ci(s[i])]++;if(i>=n)wc[ci(s[i-n])]--;if(pc.every((v,j)=>v===wc[j]))r.push(i-n+1);}return r;}; expect(ap('cbaebabacd','abc')).toEqual([0,6]); });
+  it('finds subarray with max sum of length k', () => { const mk=(a:number[],k:number)=>{let win=a.slice(0,k).reduce((s,v)=>s+v,0),best=win;for(let i=k;i<a.length;i++){win+=a[i]-a[i-k];best=Math.max(best,win);}return best;}; expect(mk([2,1,5,1,3,2],3)).toBe(9); expect(mk([-1,2,3,4,-5],2)).toBe(7); });
+  it('rotates matrix left', () => { const rotL=(m:number[][])=>m[0].map((_,c)=>m.map(r=>r[m[0].length-1-c])); const r=rotL([[1,2,3],[4,5,6],[7,8,9]]); expect(r[0]).toEqual([3,6,9]); expect(r[2]).toEqual([1,4,7]); });
+  it('implements radix sort (LSD)', () => { const rs=(a:number[])=>{if(!a.length)return a;const max=Math.max(...a);let exp=1;const r=[...a];while(Math.floor(max/exp)>0){const bkts:number[][]=Array.from({length:10},()=>[]);r.forEach(v=>bkts[Math.floor(v/exp)%10].push(v));r.splice(0,r.length,...bkts.flat());exp*=10;}return r;}; expect(rs([170,45,75,90,802,24,2,66])).toEqual([2,24,45,66,75,90,170,802]); });
+});

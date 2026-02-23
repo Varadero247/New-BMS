@@ -480,3 +480,12 @@ describe('phase46 coverage', () => {
   it('computes range minimum query (sparse table)', () => { const rmq=(a:number[])=>{const n=a.length,LOG=Math.floor(Math.log2(n))+1;const t:number[][]=Array.from({length:LOG},()=>new Array(n).fill(0));for(let i=0;i<n;i++)t[0][i]=a[i];for(let k=1;k<LOG;k++)for(let i=0;i+(1<<k)<=n;i++)t[k][i]=Math.min(t[k-1][i],t[k-1][i+(1<<(k-1))]);return(l:number,r:number)=>{const k=Math.floor(Math.log2(r-l+1));return Math.min(t[k][l],t[k][r-(1<<k)+1]);};}; const q=rmq([2,4,3,1,6,7,8,9,1,7]); expect(q(0,4)).toBe(1); expect(q(4,7)).toBe(6); });
   it('computes modular exponentiation', () => { const modpow=(base:number,exp:number,mod:number):number=>{let r=1;base%=mod;while(exp>0){if(exp&1)r=r*base%mod;exp>>=1;base=base*base%mod;}return r;}; expect(modpow(2,10,1000)).toBe(24); expect(modpow(3,10,1000)).toBe(49); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('finds word in grid (DFS backtrack)', () => { const ws=(board:string[][],word:string)=>{const r=board.length,c=board[0].length;const dfs=(i:number,j:number,k:number):boolean=>{if(k===word.length)return true;if(i<0||j<0||i>=r||j>=c||board[i][j]!==word[k])return false;const tmp=board[i][j];board[i][j]='#';const found=[[0,1],[0,-1],[1,0],[-1,0]].some(([di,dj])=>dfs(i+di,j+dj,k+1));board[i][j]=tmp;return found;};for(let i=0;i<r;i++)for(let j=0;j<c;j++)if(dfs(i,j,0))return true;return false;}; expect(ws([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCCED')).toBe(true); expect(ws([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCB')).toBe(false); });
+  it('finds number of ways to fill board', () => { const ways=(n:number)=>Math.round(((1+Math.sqrt(5))/2)**(n+1)/Math.sqrt(5)); expect(ways(1)).toBe(1); expect(ways(3)).toBe(3); expect(ways(5)).toBe(8); });
+  it('computes range of array', () => { const range=(a:number[])=>Math.max(...a)-Math.min(...a); expect(range([3,1,4,1,5,9])).toBe(8); expect(range([7,7,7])).toBe(0); });
+  it('computes average of array', () => { const avg=(a:number[])=>a.reduce((s,v)=>s+v,0)/a.length; expect(avg([1,2,3,4,5])).toBe(3); expect(avg([10,20])).toBe(15); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+});

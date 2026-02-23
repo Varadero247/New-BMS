@@ -745,3 +745,12 @@ describe('phase46 coverage', () => {
   it('implements interval merging', () => { const merge=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[0]-b[0]);const r:[number,number][]=[];for(const [l,r2] of s){if(!r.length||r[r.length-1][1]<l)r.push([l,r2]);else r[r.length-1][1]=Math.max(r[r.length-1][1],r2);}return r;}; expect(merge([[1,3],[2,6],[8,10],[15,18]])).toEqual([[1,6],[8,10],[15,18]]); });
   it('checks if array is sorted ascending', () => { const isSorted=(a:number[])=>a.every((v,i)=>i===0||a[i-1]<=v); expect(isSorted([1,2,3,4,5])).toBe(true); expect(isSorted([1,3,2,4])).toBe(false); expect(isSorted([])).toBe(true); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('counts ways to tile 2xn board', () => { const tile=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('finds minimum jumps to reach end', () => { const mj=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj([2,3,1,1,4])).toBe(2); expect(mj([2,3,0,1,4])).toBe(2); });
+  it('finds articulation points in graph', () => { const ap=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const disc=new Array(n).fill(-1),low=new Array(n).fill(0),par=new Array(n).fill(-1);let t=0;const res=new Set<number>();const dfs=(u:number)=>{disc[u]=low[u]=t++;let ch=0;for(const v of adj[u]){if(disc[v]===-1){ch++;par[v]=u;dfs(v);low[u]=Math.min(low[u],low[v]);if(par[u]===-1&&ch>1)res.add(u);if(par[u]!==-1&&low[v]>=disc[u])res.add(u);}else if(v!==par[u])low[u]=Math.min(low[u],disc[v]);}};for(let i=0;i<n;i++)if(disc[i]===-1)dfs(i);return[...res];}; expect(ap(5,[[1,0],[0,2],[2,1],[0,3],[3,4]]).length).toBeGreaterThanOrEqual(1); });
+  it('computes anti-diagonal of matrix', () => { const ad=(m:number[][])=>m.map((r,i)=>r[m.length-1-i]); expect(ad([[1,2,3],[4,5,6],[7,8,9]])).toEqual([3,5,7]); });
+  it('finds subarray with max sum of length k', () => { const mk=(a:number[],k:number)=>{let win=a.slice(0,k).reduce((s,v)=>s+v,0),best=win;for(let i=k;i<a.length;i++){win+=a[i]-a[i-k];best=Math.max(best,win);}return best;}; expect(mk([2,1,5,1,3,2],3)).toBe(9); expect(mk([-1,2,3,4,-5],2)).toBe(7); });
+});

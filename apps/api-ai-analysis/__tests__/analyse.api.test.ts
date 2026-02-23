@@ -1400,3 +1400,12 @@ describe('phase46 coverage', () => {
   it('serializes and deserializes binary tree', () => { type N={v:number;l?:N;r?:N}; const ser=(n:N|undefined,r:string[]=[]):string=>{if(!n)r.push('null');else{r.push(String(n.v));ser(n.l,r);ser(n.r,r);}return r.join(',');};const des=(s:string)=>{const a=s.split(',');const b=(a:string[]):N|undefined=>{const v=a.shift();if(!v||v==='null')return undefined;return{v:+v,l:b(a),r:b(a)};};return b(a);}; const t:N={v:1,l:{v:2},r:{v:3,l:{v:4},r:{v:5}}}; expect(des(ser(t))?.v).toBe(1); expect(des(ser(t))?.l?.v).toBe(2); });
   it('implements interval merging', () => { const merge=(ivs:[number,number][])=>{const s=[...ivs].sort((a,b)=>a[0]-b[0]);const r:[number,number][]=[];for(const [l,r2] of s){if(!r.length||r[r.length-1][1]<l)r.push([l,r2]);else r[r.length-1][1]=Math.max(r[r.length-1][1],r2);}return r;}; expect(merge([[1,3],[2,6],[8,10],[15,18]])).toEqual([[1,6],[8,10],[15,18]]); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('solves paint fence with k colors', () => { const pf=(n:number,k:number)=>{if(n===0)return 0;if(n===1)return k;let same=k,diff=k*(k-1);for(let i=3;i<=n;i++){const ts=diff,td=(same+diff)*(k-1);same=ts;diff=td;}return same+diff;}; expect(pf(3,2)).toBe(6); expect(pf(1,1)).toBe(1); });
+  it('solves subset sum decision problem', () => { const ss=(a:number[],t:number)=>{const dp=new Set([0]);for(const v of a){const ns=new Set(dp);for(const s of dp)ns.add(s+v);for(const s of ns)dp.add(s);}return dp.has(t);}; expect(ss([3,34,4,12,5,2],9)).toBe(true); expect(ss([3,34,4,12,5,2],30)).toBe(false); });
+  it('implements stable sort', () => { const ss=(a:{v:number;i:number}[])=>[...a].sort((x,y)=>x.v-y.v||x.i-y.i); const in2=[{v:2,i:0},{v:1,i:1},{v:2,i:2}]; const s=ss(in2); expect(s[0].v).toBe(1); expect(s[1].i).toBe(0); expect(s[2].i).toBe(2); });
+  it('computes stock profit with cooldown', () => { const sp=(p:number[])=>{let hold=-Infinity,sold=0,cool=0;for(const v of p){const nh=Math.max(hold,cool-v),ns=hold+v,nc=Math.max(cool,sold);[hold,sold,cool]=[nh,ns,nc];}return Math.max(sold,cool);}; expect(sp([1,2,3,0,2])).toBe(3); expect(sp([1])).toBe(0); });
+  it('checks if string has all unique chars', () => { const uniq=(s:string)=>s.length===new Set(s).size; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); });
+});

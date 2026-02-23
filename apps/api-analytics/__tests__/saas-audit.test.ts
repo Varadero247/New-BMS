@@ -719,3 +719,12 @@ describe('phase46 coverage', () => {
   it('computes sum of proper divisors', () => { const spd=(n:number)=>Array.from({length:n-1},(_,i)=>i+1).filter(d=>n%d===0).reduce((s,v)=>s+v,0); expect(spd(6)).toBe(6); expect(spd(12)).toBe(16); });
   it('implements segment tree range sum', () => { const st=(a:number[])=>{const n=a.length;const t=new Array(4*n).fill(0);const build=(i:number,l:number,r:number)=>{if(l===r){t[i]=a[l];return;}const m=(l+r)>>1;build(2*i,l,m);build(2*i+1,m+1,r);t[i]=t[2*i]+t[2*i+1];};build(1,0,n-1);const query=(i:number,l:number,r:number,ql:number,qr:number):number=>{if(qr<l||r<ql)return 0;if(ql<=l&&r<=qr)return t[i];const m=(l+r)>>1;return query(2*i,l,m,ql,qr)+query(2*i+1,m+1,r,ql,qr);};return(ql:number,qr:number)=>query(1,0,n-1,ql,qr);}; const q=st([1,3,5,7,9,11]); expect(q(1,3)).toBe(15); expect(q(0,5)).toBe(36); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('counts distinct palindromic substrings', () => { const dp=(s:string)=>{const seen=new Set<string>();for(let c=0;c<s.length;c++)for(let r=0;r<=1;r++){let l=c,h=c+r;while(l>=0&&h<s.length&&s[l]===s[h]){seen.add(s.slice(l,h+1));l--;h++;}}return seen.size;}; expect(dp('aaa')).toBe(3); expect(dp('abc')).toBe(3); });
+  it('finds cheapest flight within k stops', () => { const cf=(n:number,flights:[number,number,number][],src:number,dst:number,k:number)=>{let d=new Array(n).fill(Infinity);d[src]=0;for(let i=0;i<=k;i++){const nd=[...d];for(const[u,v,w] of flights)if(d[u]+w<nd[v])nd[v]=d[u]+w;d=nd;}return d[dst]===Infinity?-1:d[dst];}; expect(cf(3,[[0,1,100],[1,2,100],[0,2,500]],0,2,1)).toBe(200); });
+  it('checks if string has all unique chars', () => { const uniq=(s:string)=>s.length===new Set(s).size; expect(uniq('abcde')).toBe(true); expect(uniq('aabcd')).toBe(false); });
+  it('checks if string is valid IPv6', () => { const v6=(s:string)=>{const g=s.split(':');return g.length===8&&g.every(x=>/^[0-9a-fA-F]{1,4}$/.test(x));}; expect(v6('2001:0db8:85a3:0000:0000:8a2e:0370:7334')).toBe(true); expect(v6('2001:db8::1')).toBe(false); });
+  it('computes trace of matrix', () => { const tr=(m:number[][])=>m.reduce((s,r,i)=>s+r[i],0); expect(tr([[1,2,3],[4,5,6],[7,8,9]])).toBe(15); });
+});

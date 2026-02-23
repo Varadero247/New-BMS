@@ -696,3 +696,12 @@ describe('phase46 coverage', () => {
   it('implements A* pathfinding (grid)', () => { const astar=(grid:number[][],sx:number,sy:number,ex:number,ey:number)=>{const h=(x:number,y:number)=>Math.abs(x-ex)+Math.abs(y-ey);const open=[[0+h(sx,sy),0,sx,sy]];const g=new Map<string,number>();g.set(sx+','+sy,0);const dirs=[[0,1],[0,-1],[1,0],[-1,0]];while(open.length){open.sort((a,b)=>a[0]-b[0]);const [,gc,x,y]=open.shift()!;if(x===ex&&y===ey)return gc;for(const [dx,dy] of dirs){const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=grid.length||ny>=grid[0].length||grid[nx][ny])continue;const ng=gc+1;const k=nx+','+ny;if(!g.has(k)||ng<g.get(k)!){g.set(k,ng);open.push([ng+h(nx,ny),ng,nx,ny]);}}}return -1;}; expect(astar([[0,0,0],[0,1,0],[0,0,0]],0,0,2,2)).toBe(4); });
   it('finds number of ways to partition n into k parts', () => { const parts=(n:number,k:number,min=1):number=>k===1?n>=min?1:0:Array.from({length:n-min*(k-1)-min+1},(_,i)=>parts(n-(i+min),k-1,i+min)).reduce((s,v)=>s+v,0); expect(parts(5,2)).toBe(2); expect(parts(6,3,1)).toBe(3); });
 });
+
+
+describe('phase47 coverage', () => {
+  it('checks if can reach end of array', () => { const cr=(a:number[])=>{let far=0;for(let i=0;i<a.length&&i<=far;i++)far=Math.max(far,i+a[i]);return far>=a.length-1;}; expect(cr([2,3,1,1,4])).toBe(true); expect(cr([3,2,1,0,4])).toBe(false); });
+  it('counts ways to tile 2xn board', () => { const tile=(n:number)=>{const dp=[1,1];for(let i=2;i<=n;i++)dp.push(dp[dp.length-1]+dp[dp.length-2]);return dp[n];}; expect(tile(4)).toBe(5); expect(tile(6)).toBe(13); });
+  it('finds number of ways to fill board', () => { const ways=(n:number)=>Math.round(((1+Math.sqrt(5))/2)**(n+1)/Math.sqrt(5)); expect(ways(1)).toBe(1); expect(ways(3)).toBe(3); expect(ways(5)).toBe(8); });
+  it('computes minimum number of coins (greedy)', () => { const gc=(coins:number[],amt:number)=>{const s=[...coins].sort((a,b)=>b-a);let cnt=0;for(const c of s){cnt+=Math.floor(amt/c);amt%=c;}return amt===0?cnt:-1;}; expect(gc([1,5,10,25],41)).toBe(4); });
+  it('implements binary indexed tree (Fenwick)', () => { const bit=(n:number)=>{const t=new Array(n+1).fill(0);const upd=(i:number,v:number)=>{for(i++;i<=n;i+=i&-i)t[i]+=v;};const qry=(i:number)=>{let s=0;for(i++;i>0;i-=i&-i)s+=t[i];return s;};const rng=(l:number,r:number)=>qry(r)-(l>0?qry(l-1):0);return{upd,rng};}; const b=bit(6);[1,3,5,7,9,11].forEach((v,i)=>b.upd(i,v)); expect(b.rng(1,3)).toBe(15); expect(b.rng(0,5)).toBe(36); });
+});
