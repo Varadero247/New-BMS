@@ -301,6 +301,8 @@ pnpm test:load:all                        # k6 baseline + crud + services
 ./scripts/typecheck-all.sh               # TypeScript check all 148 projects
 ./scripts/seed-all.sh                    # Seed all database schemas
 ./scripts/backup-db.sh                   # Backup PostgreSQL database
+./scripts/rotate-secrets.sh --dry-run    # Preview JWT secret rotation
+./scripts/rotate-secrets.sh --apply      # Rotate JWT_SECRET + JWT_REFRESH_SECRET in all .env files
 ```
 
 ## Database
@@ -319,6 +321,43 @@ npx prisma generate --schema=prisma/schemas/<domain>.prisma
 
 # Open Prisma Studio
 npx prisma studio --schema=prisma/schemas/health-safety.prisma
+```
+
+## GitHub Repository (Feb 23, 2026)
+
+```
+.github/
+├── CODEOWNERS                      # 12 team groups → 44 apps + packages
+├── SECURITY.md                     # Vulnerability disclosure policy
+├── PULL_REQUEST_TEMPLATE.md        # Project-specific PR checklist
+├── ISSUE_TEMPLATE/
+│   ├── bug_report.yml              # Structured bug report (all modules dropdown)
+│   └── feature_request.yml        # Feature request with acceptance criteria
+└── workflows/
+    ├── ci.yml                      # Lint, typecheck, test, build, e2e
+    ├── cd.yml                      # Docker build + push + K8s deploy (staging/prod)
+    ├── security.yml                # Audit, CodeQL, TruffleHog, Trivy, Semgrep, ZAP
+    ├── tests.yml                   # Daily test runner
+    ├── dependency-review.yml       # Blocks PRs with HIGH/CRITICAL CVEs
+    ├── stale.yml                   # Auto-stale issues (45d) and PRs (30d)
+    └── release.yml                 # Tag-triggered multi-arch Docker + GitHub release
+```
+
+## Monitoring Stack
+
+```bash
+# Prometheus: http://localhost:9090  (K8s: prometheus:9090)
+# Grafana:    http://localhost:3000  (K8s: grafana:3000)
+# Alertmanager: http://localhost:9093
+
+# Key metrics (pre-computed recording rules):
+# job:http_requests:rate5m              — request rate per service
+# job:http_requests_error_ratio:rate5m  — error ratio per service
+# job:http_request_duration_seconds:p95 — P95 latency per service
+# cluster:availability:rate1h           — cluster availability 1h window
+
+# Alert groups: ims-availability, ims-latency, ims-resources, ims-security,
+#               slo (multi-window burn rate: 14.4×/6×/3× thresholds)
 ```
 
 ## Current Status (Feb 23, 2026)
