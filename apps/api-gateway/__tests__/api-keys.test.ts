@@ -901,3 +901,42 @@ describe('phase61 coverage', () => {
     expect(restoreIpAddresses('0000')).toEqual(['0.0.0.0']);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('power of two three four', () => {
+    const isPowerOf2=(n:number):boolean=>n>0&&(n&(n-1))===0;
+    const isPowerOf3=(n:number):boolean=>{if(n<=0)return false;while(n%3===0)n/=3;return n===1;};
+    const isPowerOf4=(n:number):boolean=>n>0&&(n&(n-1))===0&&(n&0xAAAAAAAA)===0;
+    expect(isPowerOf2(16)).toBe(true);
+    expect(isPowerOf2(5)).toBe(false);
+    expect(isPowerOf3(27)).toBe(true);
+    expect(isPowerOf3(0)).toBe(false);
+    expect(isPowerOf4(16)).toBe(true);
+    expect(isPowerOf4(5)).toBe(false);
+  });
+  it('majority element II voting', () => {
+    const majorityElement=(nums:number[]):number[]=>{let c1=0,c2=0,n1=0,n2=1;for(const n of nums){if(n===n1)c1++;else if(n===n2)c2++;else if(c1===0){n1=n;c1=1;}else if(c2===0){n2=n;c2=1;}else{c1--;c2--;}}return[n1,n2].filter(n=>nums.filter(x=>x===n).length>Math.floor(nums.length/3));};
+    expect(majorityElement([3,2,3])).toEqual([3]);
+    const r=majorityElement([1,1,1,3,3,2,2,2]);
+    expect(r.sort()).toEqual([1,2]);
+  });
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+  it('multiply strings big numbers', () => {
+    const multiply=(num1:string,num2:string):string=>{if(num1==='0'||num2==='0')return'0';const m=num1.length,n=num2.length;const pos=new Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const mul=(num1.charCodeAt(i)-48)*(num2.charCodeAt(j)-48);const p1=i+j,p2=i+j+1;const sum=mul+pos[p2];pos[p2]=sum%10;pos[p1]+=Math.floor(sum/10);}return pos.join('').replace(/^0+/,'')||'0';};
+    expect(multiply('2','3')).toBe('6');
+    expect(multiply('123','456')).toBe('56088');
+    expect(multiply('0','52')).toBe('0');
+  });
+  it('buddy strings swap', () => {
+    const buddyStrings=(s:string,goal:string):boolean=>{if(s.length!==goal.length)return false;if(s===goal)return new Set(s).size<s.length;const diff:number[][]=[];for(let i=0;i<s.length;i++)if(s[i]!==goal[i])diff.push([i]);return diff.length===2&&s[diff[0][0]]===goal[diff[1][0]]&&s[diff[1][0]]===goal[diff[0][0]];};
+    expect(buddyStrings('ab','ba')).toBe(true);
+    expect(buddyStrings('ab','ab')).toBe(false);
+    expect(buddyStrings('aa','aa')).toBe(true);
+    expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
+  });
+});

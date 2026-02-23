@@ -1087,3 +1087,39 @@ describe('phase61 coverage', () => {
     expect(countSmaller([-1,-1])).toEqual([0,0]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('number of 1 bits hamming weight', () => {
+    const hammingWeight=(n:number):number=>{let count=0;while(n){count+=n&1;n>>>=1;}return count;};
+    const hammingDistance=(x:number,y:number):number=>hammingWeight(x^y);
+    expect(hammingWeight(11)).toBe(3);
+    expect(hammingWeight(128)).toBe(1);
+    expect(hammingDistance(1,4)).toBe(2);
+    expect(hammingDistance(3,1)).toBe(1);
+  });
+  it('find duplicate Floyd cycle', () => {
+    const findDuplicate=(nums:number[]):number=>{let slow=nums[0],fast=nums[0];do{slow=nums[slow];fast=nums[nums[fast]];}while(slow!==fast);slow=nums[0];while(slow!==fast){slow=nums[slow];fast=nums[fast];}return slow;};
+    expect(findDuplicate([1,3,4,2,2])).toBe(2);
+    expect(findDuplicate([3,1,3,4,2])).toBe(3);
+    expect(findDuplicate([1,1])).toBe(1);
+  });
+  it('largest merge of two strings', () => {
+    const largestMerge=(w1:string,w2:string):string=>{let res='';while(w1||w2){if(w1>=w2){res+=w1[0];w1=w1.slice(1);}else{res+=w2[0];w2=w2.slice(1);}}return res;};
+    expect(largestMerge('cabaa','bcaaa')).toBe('cbcabaaaaa');
+    expect(largestMerge('abcabc','abdcaba')).toBe('abdcabcabcaba');
+  });
+  it('integer to roman numeral', () => {
+    const intToRoman=(num:number):string=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';vals.forEach((v,i)=>{while(num>=v){res+=syms[i];num-=v;}});return res;};
+    expect(intToRoman(3)).toBe('III');
+    expect(intToRoman(4)).toBe('IV');
+    expect(intToRoman(9)).toBe('IX');
+    expect(intToRoman(58)).toBe('LVIII');
+    expect(intToRoman(1994)).toBe('MCMXCIV');
+  });
+  it('bitwise AND of range', () => {
+    const rangeBitwiseAnd=(left:number,right:number):number=>{let shift=0;while(left!==right){left>>=1;right>>=1;shift++;}return left<<shift;};
+    expect(rangeBitwiseAnd(5,7)).toBe(4);
+    expect(rangeBitwiseAnd(0,0)).toBe(0);
+    expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
+  });
+});

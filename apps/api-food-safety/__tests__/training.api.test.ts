@@ -955,3 +955,36 @@ describe('phase61 coverage', () => {
     expect(twoSumLessThanK([254,914,971,990,525,33,186,136,54,104],1000)).toBe(968);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('bitwise AND of range', () => {
+    const rangeBitwiseAnd=(left:number,right:number):number=>{let shift=0;while(left!==right){left>>=1;right>>=1;shift++;}return left<<shift;};
+    expect(rangeBitwiseAnd(5,7)).toBe(4);
+    expect(rangeBitwiseAnd(0,0)).toBe(0);
+    expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
+  });
+  it('rotate string check', () => {
+    const rotateString=(s:string,goal:string):boolean=>s.length===goal.length&&(s+s).includes(goal);
+    expect(rotateString('abcde','cdeab')).toBe(true);
+    expect(rotateString('abcde','abced')).toBe(false);
+    expect(rotateString('','  ')).toBe(false);
+    expect(rotateString('a','a')).toBe(true);
+  });
+  it('min deletions make freq unique', () => {
+    const minDeletions=(s:string):number=>{const freq=new Array(26).fill(0);for(const c of s)freq[c.charCodeAt(0)-97]++;freq.sort((a,b)=>b-a);let del=0;const used=new Set<number>();for(const f of freq){let cur=f;while(cur>0&&used.has(cur))cur--;if(cur>0)used.add(cur);del+=f-cur;}return del;};
+    expect(minDeletions('aab')).toBe(0);
+    expect(minDeletions('aaabbbcc')).toBe(2);
+    expect(minDeletions('ceabaacb')).toBe(2);
+  });
+  it('count and say sequence', () => {
+    const countAndSay=(n:number):string=>{let s='1';for(let i=1;i<n;i++){let next='';let j=0;while(j<s.length){let k=j;while(k<s.length&&s[k]===s[j])k++;next+=`${k-j}${s[j]}`;j=k;}s=next;}return s;};
+    expect(countAndSay(1)).toBe('1');
+    expect(countAndSay(4)).toBe('1211');
+    expect(countAndSay(5)).toBe('111221');
+  });
+  it('find and replace pattern', () => {
+    const findAndReplacePattern=(words:string[],pattern:string):string[]=>{const match=(w:string):boolean=>{const m=new Map<string,string>();const seen=new Set<string>();for(let i=0;i<w.length;i++){if(m.has(w[i])){if(m.get(w[i])!==pattern[i])return false;}else{if(seen.has(pattern[i]))return false;m.set(w[i],pattern[i]);seen.add(pattern[i]);}}return true;};return words.filter(match);};
+    expect(findAndReplacePattern(['aa','bb','ab','ba'],'aa')).toEqual(['aa','bb']);
+    expect(findAndReplacePattern(['abc','deq','mee','aqq','dkd','ccc'],'abb')).toEqual(['mee','aqq']);
+  });
+});

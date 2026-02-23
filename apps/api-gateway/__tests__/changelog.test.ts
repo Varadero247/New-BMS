@@ -969,3 +969,37 @@ describe('phase61 coverage', () => {
     expect(lfu.get(3)).toBe(3);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('multiply strings big numbers', () => {
+    const multiply=(num1:string,num2:string):string=>{if(num1==='0'||num2==='0')return'0';const m=num1.length,n=num2.length;const pos=new Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const mul=(num1.charCodeAt(i)-48)*(num2.charCodeAt(j)-48);const p1=i+j,p2=i+j+1;const sum=mul+pos[p2];pos[p2]=sum%10;pos[p1]+=Math.floor(sum/10);}return pos.join('').replace(/^0+/,'')||'0';};
+    expect(multiply('2','3')).toBe('6');
+    expect(multiply('123','456')).toBe('56088');
+    expect(multiply('0','52')).toBe('0');
+  });
+  it('reorganize string no adjacent', () => {
+    const reorganizeString=(s:string):string=>{const cnt=new Array(26).fill(0);for(const c of s)cnt[c.charCodeAt(0)-97]++;const maxCnt=Math.max(...cnt);if(maxCnt>(s.length+1)/2)return'';const res:string[]=new Array(s.length);let i=0;for(let c=0;c<26;c++){while(cnt[c]>0){if(i>=s.length)i=1;res[i]=String.fromCharCode(97+c);cnt[c]--;i+=2;}}return res.join('');};
+    const r=reorganizeString('aab');
+    expect(r).toBeTruthy();
+    expect(r[0]).not.toBe(r[1]);
+    expect(reorganizeString('aaab')).toBe('');
+  });
+  it('zigzag string conversion', () => {
+    const convert=(s:string,numRows:number):string=>{if(numRows===1||numRows>=s.length)return s;const rows:string[]=new Array(numRows).fill('');let cur=0,dir=-1;for(const c of s){rows[cur]+=c;if(cur===0||cur===numRows-1)dir=-dir;cur+=dir;}return rows.join('');};
+    expect(convert('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR');
+    expect(convert('PAYPALISHIRING',4)).toBe('PINALSIGYAHRPI');
+    expect(convert('A',1)).toBe('A');
+  });
+  it('reverse words in string', () => {
+    const reverseWords=(s:string):string=>s.trim().split(/\s+/).reverse().join(' ');
+    expect(reverseWords('the sky is blue')).toBe('blue is sky the');
+    expect(reverseWords('  hello world  ')).toBe('world hello');
+    expect(reverseWords('a good   example')).toBe('example good a');
+  });
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+});

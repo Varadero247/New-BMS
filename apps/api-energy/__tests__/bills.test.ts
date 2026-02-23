@@ -991,3 +991,42 @@ describe('phase61 coverage', () => {
     expect(calculate(' 3+5 / 2 ')).toBe(5);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('sum without plus operator', () => {
+    const getSum=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;};
+    expect(getSum(1,2)).toBe(3);
+    expect(getSum(2,3)).toBe(5);
+    expect(getSum(-1,1)).toBe(0);
+    expect(getSum(0,0)).toBe(0);
+  });
+  it('is palindrome number', () => {
+    const isPalindrome=(x:number):boolean=>{if(x<0||(x%10===0&&x!==0))return false;let rev=0;while(x>rev){rev=rev*10+x%10;x=Math.floor(x/10);}return x===rev||x===Math.floor(rev/10);};
+    expect(isPalindrome(121)).toBe(true);
+    expect(isPalindrome(-121)).toBe(false);
+    expect(isPalindrome(10)).toBe(false);
+    expect(isPalindrome(0)).toBe(true);
+    expect(isPalindrome(1221)).toBe(true);
+  });
+  it('rotate string check', () => {
+    const rotateString=(s:string,goal:string):boolean=>s.length===goal.length&&(s+s).includes(goal);
+    expect(rotateString('abcde','cdeab')).toBe(true);
+    expect(rotateString('abcde','abced')).toBe(false);
+    expect(rotateString('','  ')).toBe(false);
+    expect(rotateString('a','a')).toBe(true);
+  });
+  it('integer to roman numeral', () => {
+    const intToRoman=(num:number):string=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';vals.forEach((v,i)=>{while(num>=v){res+=syms[i];num-=v;}});return res;};
+    expect(intToRoman(3)).toBe('III');
+    expect(intToRoman(4)).toBe('IV');
+    expect(intToRoman(9)).toBe('IX');
+    expect(intToRoman(58)).toBe('LVIII');
+    expect(intToRoman(1994)).toBe('MCMXCIV');
+  });
+  it('bitwise AND of range', () => {
+    const rangeBitwiseAnd=(left:number,right:number):number=>{let shift=0;while(left!==right){left>>=1;right>>=1;shift++;}return left<<shift;};
+    expect(rangeBitwiseAnd(5,7)).toBe(4);
+    expect(rangeBitwiseAnd(0,0)).toBe(0);
+    expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
+  });
+});

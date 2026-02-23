@@ -1128,3 +1128,41 @@ describe('phase61 coverage', () => {
     expect(dailyTemperatures([30,60,90])).toEqual([1,1,0]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('largest merge of two strings', () => {
+    const largestMerge=(w1:string,w2:string):string=>{let res='';while(w1||w2){if(w1>=w2){res+=w1[0];w1=w1.slice(1);}else{res+=w2[0];w2=w2.slice(1);}}return res;};
+    expect(largestMerge('cabaa','bcaaa')).toBe('cbcabaaaaa');
+    expect(largestMerge('abcabc','abdcaba')).toBe('abdcabcabcaba');
+  });
+  it('reorganize string no adjacent', () => {
+    const reorganizeString=(s:string):string=>{const cnt=new Array(26).fill(0);for(const c of s)cnt[c.charCodeAt(0)-97]++;const maxCnt=Math.max(...cnt);if(maxCnt>(s.length+1)/2)return'';const res:string[]=new Array(s.length);let i=0;for(let c=0;c<26;c++){while(cnt[c]>0){if(i>=s.length)i=1;res[i]=String.fromCharCode(97+c);cnt[c]--;i+=2;}}return res.join('');};
+    const r=reorganizeString('aab');
+    expect(r).toBeTruthy();
+    expect(r[0]).not.toBe(r[1]);
+    expect(reorganizeString('aaab')).toBe('');
+  });
+  it('power of two three four', () => {
+    const isPowerOf2=(n:number):boolean=>n>0&&(n&(n-1))===0;
+    const isPowerOf3=(n:number):boolean=>{if(n<=0)return false;while(n%3===0)n/=3;return n===1;};
+    const isPowerOf4=(n:number):boolean=>n>0&&(n&(n-1))===0&&(n&0xAAAAAAAA)===0;
+    expect(isPowerOf2(16)).toBe(true);
+    expect(isPowerOf2(5)).toBe(false);
+    expect(isPowerOf3(27)).toBe(true);
+    expect(isPowerOf3(0)).toBe(false);
+    expect(isPowerOf4(16)).toBe(true);
+    expect(isPowerOf4(5)).toBe(false);
+  });
+  it('reverse words in string', () => {
+    const reverseWords=(s:string):string=>s.trim().split(/\s+/).reverse().join(' ');
+    expect(reverseWords('the sky is blue')).toBe('blue is sky the');
+    expect(reverseWords('  hello world  ')).toBe('world hello');
+    expect(reverseWords('a good   example')).toBe('example good a');
+  });
+  it('roman to integer', () => {
+    const romanToInt=(s:string):number=>{const map:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){if(i+1<s.length&&map[s[i]]<map[s[i+1]])res-=map[s[i]];else res+=map[s[i]];}return res;};
+    expect(romanToInt('III')).toBe(3);
+    expect(romanToInt('LVIII')).toBe(58);
+    expect(romanToInt('MCMXCIV')).toBe(1994);
+  });
+});

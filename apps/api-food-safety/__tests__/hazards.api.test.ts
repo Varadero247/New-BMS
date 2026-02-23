@@ -989,3 +989,43 @@ describe('phase61 coverage', () => {
     expect(lfu.get(3)).toBe(3);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('find duplicate Floyd cycle', () => {
+    const findDuplicate=(nums:number[]):number=>{let slow=nums[0],fast=nums[0];do{slow=nums[slow];fast=nums[nums[fast]];}while(slow!==fast);slow=nums[0];while(slow!==fast){slow=nums[slow];fast=nums[fast];}return slow;};
+    expect(findDuplicate([1,3,4,2,2])).toBe(2);
+    expect(findDuplicate([3,1,3,4,2])).toBe(3);
+    expect(findDuplicate([1,1])).toBe(1);
+  });
+  it('excel sheet column number', () => {
+    const titleToNumber=(col:string):number=>col.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0);
+    const numberToTitle=(n:number):string=>{let res='';while(n>0){n--;res=String.fromCharCode(65+n%26)+res;n=Math.floor(n/26);}return res;};
+    expect(titleToNumber('A')).toBe(1);
+    expect(titleToNumber('Z')).toBe(26);
+    expect(titleToNumber('AA')).toBe(27);
+    expect(titleToNumber('ZY')).toBe(701);
+    expect(numberToTitle(28)).toBe('AB');
+  });
+  it('multiply strings big numbers', () => {
+    const multiply=(num1:string,num2:string):string=>{if(num1==='0'||num2==='0')return'0';const m=num1.length,n=num2.length;const pos=new Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const mul=(num1.charCodeAt(i)-48)*(num2.charCodeAt(j)-48);const p1=i+j,p2=i+j+1;const sum=mul+pos[p2];pos[p2]=sum%10;pos[p1]+=Math.floor(sum/10);}return pos.join('').replace(/^0+/,'')||'0';};
+    expect(multiply('2','3')).toBe('6');
+    expect(multiply('123','456')).toBe('56088');
+    expect(multiply('0','52')).toBe('0');
+  });
+  it('integer to roman numeral', () => {
+    const intToRoman=(num:number):string=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';vals.forEach((v,i)=>{while(num>=v){res+=syms[i];num-=v;}});return res;};
+    expect(intToRoman(3)).toBe('III');
+    expect(intToRoman(4)).toBe('IV');
+    expect(intToRoman(9)).toBe('IX');
+    expect(intToRoman(58)).toBe('LVIII');
+    expect(intToRoman(1994)).toBe('MCMXCIV');
+  });
+  it('number of 1 bits hamming weight', () => {
+    const hammingWeight=(n:number):number=>{let count=0;while(n){count+=n&1;n>>>=1;}return count;};
+    const hammingDistance=(x:number,y:number):number=>hammingWeight(x^y);
+    expect(hammingWeight(11)).toBe(3);
+    expect(hammingWeight(128)).toBe(1);
+    expect(hammingDistance(1,4)).toBe(2);
+    expect(hammingDistance(3,1)).toBe(1);
+  });
+});

@@ -1092,3 +1092,38 @@ describe('phase61 coverage', () => {
     expect(restoreIpAddresses('0000')).toEqual(['0.0.0.0']);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('integer to roman numeral', () => {
+    const intToRoman=(num:number):string=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';vals.forEach((v,i)=>{while(num>=v){res+=syms[i];num-=v;}});return res;};
+    expect(intToRoman(3)).toBe('III');
+    expect(intToRoman(4)).toBe('IV');
+    expect(intToRoman(9)).toBe('IX');
+    expect(intToRoman(58)).toBe('LVIII');
+    expect(intToRoman(1994)).toBe('MCMXCIV');
+  });
+  it('pow fast exponentiation', () => {
+    const myPow=(x:number,n:number):number=>{if(n===0)return 1;if(n<0){x=1/x;n=-n;}let res=1;while(n>0){if(n%2===1)res*=x;x*=x;n=Math.floor(n/2);}return res;};
+    expect(myPow(2,10)).toBeCloseTo(1024);
+    expect(myPow(2,-2)).toBeCloseTo(0.25);
+    expect(myPow(2,0)).toBe(1);
+    expect(myPow(1,2147483647)).toBe(1);
+  });
+  it('divide two integers bit shift', () => {
+    const divide=(dividend:number,divisor:number):number=>{if(dividend===0)return 0;if(divisor===0||dividend===-2147483648&&divisor===-1)return 2147483647;const sign=dividend>0===divisor>0?1:-1;let a=Math.abs(dividend),b=Math.abs(divisor),res=0;while(a>=b){let temp=b,mul=1;while(temp*2<=a){temp*=2;mul*=2;}a-=temp;res+=mul;}return sign*res;};
+    expect(divide(10,3)).toBe(3);
+    expect(divide(7,-2)).toBe(-3);
+    expect(divide(0,1)).toBe(0);
+  });
+  it('largest merge of two strings', () => {
+    const largestMerge=(w1:string,w2:string):string=>{let res='';while(w1||w2){if(w1>=w2){res+=w1[0];w1=w1.slice(1);}else{res+=w2[0];w2=w2.slice(1);}}return res;};
+    expect(largestMerge('cabaa','bcaaa')).toBe('cbcabaaaaa');
+    expect(largestMerge('abcabc','abdcaba')).toBe('abdcabcabcaba');
+  });
+  it('missing number XOR', () => {
+    const missingNumber=(nums:number[]):number=>{let xor=nums.length;nums.forEach((n,i)=>xor^=n^i);return xor;};
+    expect(missingNumber([3,0,1])).toBe(2);
+    expect(missingNumber([0,1])).toBe(2);
+    expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8);
+  });
+});

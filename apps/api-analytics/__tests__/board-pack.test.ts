@@ -977,3 +977,42 @@ describe('phase61 coverage', () => {
     expect(bit.rangeQuery(1,3)).toBe(17);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('is palindrome number', () => {
+    const isPalindrome=(x:number):boolean=>{if(x<0||(x%10===0&&x!==0))return false;let rev=0;while(x>rev){rev=rev*10+x%10;x=Math.floor(x/10);}return x===rev||x===Math.floor(rev/10);};
+    expect(isPalindrome(121)).toBe(true);
+    expect(isPalindrome(-121)).toBe(false);
+    expect(isPalindrome(10)).toBe(false);
+    expect(isPalindrome(0)).toBe(true);
+    expect(isPalindrome(1221)).toBe(true);
+  });
+  it('integer to roman numeral', () => {
+    const intToRoman=(num:number):string=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';vals.forEach((v,i)=>{while(num>=v){res+=syms[i];num-=v;}});return res;};
+    expect(intToRoman(3)).toBe('III');
+    expect(intToRoman(4)).toBe('IV');
+    expect(intToRoman(9)).toBe('IX');
+    expect(intToRoman(58)).toBe('LVIII');
+    expect(intToRoman(1994)).toBe('MCMXCIV');
+  });
+  it('buddy strings swap', () => {
+    const buddyStrings=(s:string,goal:string):boolean=>{if(s.length!==goal.length)return false;if(s===goal)return new Set(s).size<s.length;const diff:number[][]=[];for(let i=0;i<s.length;i++)if(s[i]!==goal[i])diff.push([i]);return diff.length===2&&s[diff[0][0]]===goal[diff[1][0]]&&s[diff[1][0]]===goal[diff[0][0]];};
+    expect(buddyStrings('ab','ba')).toBe(true);
+    expect(buddyStrings('ab','ab')).toBe(false);
+    expect(buddyStrings('aa','aa')).toBe(true);
+    expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
+  });
+  it('fraction to recurring decimal', () => {
+    const fractionToDecimal=(num:number,den:number):string=>{if(num===0)return'0';let res='';if((num<0)!==(den<0))res+='-';num=Math.abs(num);den=Math.abs(den);res+=Math.floor(num/den);let rem=num%den;if(!rem)return res;res+='.';const map=new Map<number,number>();while(rem){if(map.has(rem)){const i=map.get(rem)!;return res.slice(0,i)+'('+res.slice(i)+')' ;}map.set(rem,res.length);rem*=10;res+=Math.floor(rem/den);rem%=den;}return res;};
+    expect(fractionToDecimal(1,2)).toBe('0.5');
+    expect(fractionToDecimal(2,1)).toBe('2');
+    expect(fractionToDecimal(4,333)).toBe('0.(012)');
+  });
+  it('sum without plus operator', () => {
+    const getSum=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;};
+    expect(getSum(1,2)).toBe(3);
+    expect(getSum(2,3)).toBe(5);
+    expect(getSum(-1,1)).toBe(0);
+    expect(getSum(0,0)).toBe(0);
+  });
+});

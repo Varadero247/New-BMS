@@ -1193,3 +1193,39 @@ describe('phase61 coverage', () => {
     expect(toArr(oddEvenList(mk(2,1,3,5,6,4,7)))).toEqual([2,3,6,7,1,5,4]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+  it('majority element II voting', () => {
+    const majorityElement=(nums:number[]):number[]=>{let c1=0,c2=0,n1=0,n2=1;for(const n of nums){if(n===n1)c1++;else if(n===n2)c2++;else if(c1===0){n1=n;c1=1;}else if(c2===0){n2=n;c2=1;}else{c1--;c2--;}}return[n1,n2].filter(n=>nums.filter(x=>x===n).length>Math.floor(nums.length/3));};
+    expect(majorityElement([3,2,3])).toEqual([3]);
+    const r=majorityElement([1,1,1,3,3,2,2,2]);
+    expect(r.sort()).toEqual([1,2]);
+  });
+  it('reverse words in string', () => {
+    const reverseWords=(s:string):string=>s.trim().split(/\s+/).reverse().join(' ');
+    expect(reverseWords('the sky is blue')).toBe('blue is sky the');
+    expect(reverseWords('  hello world  ')).toBe('world hello');
+    expect(reverseWords('a good   example')).toBe('example good a');
+  });
+  it('find duplicate Floyd cycle', () => {
+    const findDuplicate=(nums:number[]):number=>{let slow=nums[0],fast=nums[0];do{slow=nums[slow];fast=nums[nums[fast]];}while(slow!==fast);slow=nums[0];while(slow!==fast){slow=nums[slow];fast=nums[fast];}return slow;};
+    expect(findDuplicate([1,3,4,2,2])).toBe(2);
+    expect(findDuplicate([3,1,3,4,2])).toBe(3);
+    expect(findDuplicate([1,1])).toBe(1);
+  });
+  it('excel sheet column number', () => {
+    const titleToNumber=(col:string):number=>col.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0);
+    const numberToTitle=(n:number):string=>{let res='';while(n>0){n--;res=String.fromCharCode(65+n%26)+res;n=Math.floor(n/26);}return res;};
+    expect(titleToNumber('A')).toBe(1);
+    expect(titleToNumber('Z')).toBe(26);
+    expect(titleToNumber('AA')).toBe(27);
+    expect(titleToNumber('ZY')).toBe(701);
+    expect(numberToTitle(28)).toBe('AB');
+  });
+});

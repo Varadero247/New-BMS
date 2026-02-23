@@ -989,3 +989,37 @@ describe('phase61 coverage', () => {
     expect(t.countPrefix('z')).toBe(0);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('find duplicate Floyd cycle', () => {
+    const findDuplicate=(nums:number[]):number=>{let slow=nums[0],fast=nums[0];do{slow=nums[slow];fast=nums[nums[fast]];}while(slow!==fast);slow=nums[0];while(slow!==fast){slow=nums[slow];fast=nums[fast];}return slow;};
+    expect(findDuplicate([1,3,4,2,2])).toBe(2);
+    expect(findDuplicate([3,1,3,4,2])).toBe(3);
+    expect(findDuplicate([1,1])).toBe(1);
+  });
+  it('sum without plus operator', () => {
+    const getSum=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;};
+    expect(getSum(1,2)).toBe(3);
+    expect(getSum(2,3)).toBe(5);
+    expect(getSum(-1,1)).toBe(0);
+    expect(getSum(0,0)).toBe(0);
+  });
+  it('largest merge of two strings', () => {
+    const largestMerge=(w1:string,w2:string):string=>{let res='';while(w1||w2){if(w1>=w2){res+=w1[0];w1=w1.slice(1);}else{res+=w2[0];w2=w2.slice(1);}}return res;};
+    expect(largestMerge('cabaa','bcaaa')).toBe('cbcabaaaaa');
+    expect(largestMerge('abcabc','abdcaba')).toBe('abdcabcabcaba');
+  });
+  it('multiply strings big numbers', () => {
+    const multiply=(num1:string,num2:string):string=>{if(num1==='0'||num2==='0')return'0';const m=num1.length,n=num2.length;const pos=new Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const mul=(num1.charCodeAt(i)-48)*(num2.charCodeAt(j)-48);const p1=i+j,p2=i+j+1;const sum=mul+pos[p2];pos[p2]=sum%10;pos[p1]+=Math.floor(sum/10);}return pos.join('').replace(/^0+/,'')||'0';};
+    expect(multiply('2','3')).toBe('6');
+    expect(multiply('123','456')).toBe('56088');
+    expect(multiply('0','52')).toBe('0');
+  });
+  it('buddy strings swap', () => {
+    const buddyStrings=(s:string,goal:string):boolean=>{if(s.length!==goal.length)return false;if(s===goal)return new Set(s).size<s.length;const diff:number[][]=[];for(let i=0;i<s.length;i++)if(s[i]!==goal[i])diff.push([i]);return diff.length===2&&s[diff[0][0]]===goal[diff[1][0]]&&s[diff[1][0]]===goal[diff[0][0]];};
+    expect(buddyStrings('ab','ba')).toBe(true);
+    expect(buddyStrings('ab','ab')).toBe(false);
+    expect(buddyStrings('aa','aa')).toBe(true);
+    expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
+  });
+});

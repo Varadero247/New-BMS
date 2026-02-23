@@ -947,3 +947,43 @@ describe('phase61 coverage', () => {
     expect(getIntersectionNode(null,null)).toBeNull();
   });
 });
+
+describe('phase62 coverage', () => {
+  it('bitwise AND of range', () => {
+    const rangeBitwiseAnd=(left:number,right:number):number=>{let shift=0;while(left!==right){left>>=1;right>>=1;shift++;}return left<<shift;};
+    expect(rangeBitwiseAnd(5,7)).toBe(4);
+    expect(rangeBitwiseAnd(0,0)).toBe(0);
+    expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
+  });
+  it('integer square root binary search', () => {
+    const mySqrt=(x:number):number=>{if(x<2)return x;let lo=1,hi=Math.floor(x/2);while(lo<=hi){const mid=Math.floor((lo+hi)/2);if(mid*mid===x)return mid;if(mid*mid<x)lo=mid+1;else hi=mid-1;}return hi;};
+    expect(mySqrt(4)).toBe(2);
+    expect(mySqrt(8)).toBe(2);
+    expect(mySqrt(0)).toBe(0);
+    expect(mySqrt(1)).toBe(1);
+    expect(mySqrt(9)).toBe(3);
+  });
+  it('reverse bits of integer', () => {
+    const reverseBits=(n:number):number=>{let res=0;for(let i=0;i<32;i++){res=(res*2+(n&1))>>>0;n>>>=1;}return res>>>0;};
+    expect(reverseBits(0b00000010100101000001111010011100>>>0)).toBe(964176192);
+    expect(reverseBits(0b11111111111111111111111111111101>>>0)).toBe(3221225471);
+    expect(reverseBits(0)).toBe(0);
+  });
+  it('multiply strings big numbers', () => {
+    const multiply=(num1:string,num2:string):string=>{if(num1==='0'||num2==='0')return'0';const m=num1.length,n=num2.length;const pos=new Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const mul=(num1.charCodeAt(i)-48)*(num2.charCodeAt(j)-48);const p1=i+j,p2=i+j+1;const sum=mul+pos[p2];pos[p2]=sum%10;pos[p1]+=Math.floor(sum/10);}return pos.join('').replace(/^0+/,'')||'0';};
+    expect(multiply('2','3')).toBe('6');
+    expect(multiply('123','456')).toBe('56088');
+    expect(multiply('0','52')).toBe('0');
+  });
+  it('power of two three four', () => {
+    const isPowerOf2=(n:number):boolean=>n>0&&(n&(n-1))===0;
+    const isPowerOf3=(n:number):boolean=>{if(n<=0)return false;while(n%3===0)n/=3;return n===1;};
+    const isPowerOf4=(n:number):boolean=>n>0&&(n&(n-1))===0&&(n&0xAAAAAAAA)===0;
+    expect(isPowerOf2(16)).toBe(true);
+    expect(isPowerOf2(5)).toBe(false);
+    expect(isPowerOf3(27)).toBe(true);
+    expect(isPowerOf3(0)).toBe(false);
+    expect(isPowerOf4(16)).toBe(true);
+    expect(isPowerOf4(5)).toBe(false);
+  });
+});

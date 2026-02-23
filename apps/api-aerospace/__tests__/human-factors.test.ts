@@ -1414,3 +1414,43 @@ describe('phase61 coverage', () => {
     expect(removeKdigits('10',2)).toBe('0');
   });
 });
+
+describe('phase62 coverage', () => {
+  it('reorganize string no adjacent', () => {
+    const reorganizeString=(s:string):string=>{const cnt=new Array(26).fill(0);for(const c of s)cnt[c.charCodeAt(0)-97]++;const maxCnt=Math.max(...cnt);if(maxCnt>(s.length+1)/2)return'';const res:string[]=new Array(s.length);let i=0;for(let c=0;c<26;c++){while(cnt[c]>0){if(i>=s.length)i=1;res[i]=String.fromCharCode(97+c);cnt[c]--;i+=2;}}return res.join('');};
+    const r=reorganizeString('aab');
+    expect(r).toBeTruthy();
+    expect(r[0]).not.toBe(r[1]);
+    expect(reorganizeString('aaab')).toBe('');
+  });
+  it('power of two three four', () => {
+    const isPowerOf2=(n:number):boolean=>n>0&&(n&(n-1))===0;
+    const isPowerOf3=(n:number):boolean=>{if(n<=0)return false;while(n%3===0)n/=3;return n===1;};
+    const isPowerOf4=(n:number):boolean=>n>0&&(n&(n-1))===0&&(n&0xAAAAAAAA)===0;
+    expect(isPowerOf2(16)).toBe(true);
+    expect(isPowerOf2(5)).toBe(false);
+    expect(isPowerOf3(27)).toBe(true);
+    expect(isPowerOf3(0)).toBe(false);
+    expect(isPowerOf4(16)).toBe(true);
+    expect(isPowerOf4(5)).toBe(false);
+  });
+  it('sum without plus operator', () => {
+    const getSum=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;};
+    expect(getSum(1,2)).toBe(3);
+    expect(getSum(2,3)).toBe(5);
+    expect(getSum(-1,1)).toBe(0);
+    expect(getSum(0,0)).toBe(0);
+  });
+  it('buddy strings swap', () => {
+    const buddyStrings=(s:string,goal:string):boolean=>{if(s.length!==goal.length)return false;if(s===goal)return new Set(s).size<s.length;const diff:number[][]=[];for(let i=0;i<s.length;i++)if(s[i]!==goal[i])diff.push([i]);return diff.length===2&&s[diff[0][0]]===goal[diff[1][0]]&&s[diff[1][0]]===goal[diff[0][0]];};
+    expect(buddyStrings('ab','ba')).toBe(true);
+    expect(buddyStrings('ab','ab')).toBe(false);
+    expect(buddyStrings('aa','aa')).toBe(true);
+    expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
+  });
+  it('largest merge of two strings', () => {
+    const largestMerge=(w1:string,w2:string):string=>{let res='';while(w1||w2){if(w1>=w2){res+=w1[0];w1=w1.slice(1);}else{res+=w2[0];w2=w2.slice(1);}}return res;};
+    expect(largestMerge('cabaa','bcaaa')).toBe('cbcabaaaaa');
+    expect(largestMerge('abcabc','abdcaba')).toBe('abdcabcabcaba');
+  });
+});

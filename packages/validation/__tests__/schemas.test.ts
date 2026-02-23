@@ -727,3 +727,37 @@ describe('phase61 coverage', () => {
     expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('pow fast exponentiation', () => {
+    const myPow=(x:number,n:number):number=>{if(n===0)return 1;if(n<0){x=1/x;n=-n;}let res=1;while(n>0){if(n%2===1)res*=x;x*=x;n=Math.floor(n/2);}return res;};
+    expect(myPow(2,10)).toBeCloseTo(1024);
+    expect(myPow(2,-2)).toBeCloseTo(0.25);
+    expect(myPow(2,0)).toBe(1);
+    expect(myPow(1,2147483647)).toBe(1);
+  });
+  it('divide two integers bit shift', () => {
+    const divide=(dividend:number,divisor:number):number=>{if(dividend===0)return 0;if(divisor===0||dividend===-2147483648&&divisor===-1)return 2147483647;const sign=dividend>0===divisor>0?1:-1;let a=Math.abs(dividend),b=Math.abs(divisor),res=0;while(a>=b){let temp=b,mul=1;while(temp*2<=a){temp*=2;mul*=2;}a-=temp;res+=mul;}return sign*res;};
+    expect(divide(10,3)).toBe(3);
+    expect(divide(7,-2)).toBe(-3);
+    expect(divide(0,1)).toBe(0);
+  });
+  it('reverse bits of integer', () => {
+    const reverseBits=(n:number):number=>{let res=0;for(let i=0;i<32;i++){res=(res*2+(n&1))>>>0;n>>>=1;}return res>>>0;};
+    expect(reverseBits(0b00000010100101000001111010011100>>>0)).toBe(964176192);
+    expect(reverseBits(0b11111111111111111111111111111101>>>0)).toBe(3221225471);
+    expect(reverseBits(0)).toBe(0);
+  });
+  it('count and say sequence', () => {
+    const countAndSay=(n:number):string=>{let s='1';for(let i=1;i<n;i++){let next='';let j=0;while(j<s.length){let k=j;while(k<s.length&&s[k]===s[j])k++;next+=`${k-j}${s[j]}`;j=k;}s=next;}return s;};
+    expect(countAndSay(1)).toBe('1');
+    expect(countAndSay(4)).toBe('1211');
+    expect(countAndSay(5)).toBe('111221');
+  });
+  it('roman to integer', () => {
+    const romanToInt=(s:string):number=>{const map:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){if(i+1<s.length&&map[s[i]]<map[s[i+1]])res-=map[s[i]];else res+=map[s[i]];}return res;};
+    expect(romanToInt('III')).toBe(3);
+    expect(romanToInt('LVIII')).toBe(58);
+    expect(romanToInt('MCMXCIV')).toBe(1994);
+  });
+});

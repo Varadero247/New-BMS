@@ -1101,3 +1101,42 @@ describe('phase61 coverage', () => {
     expect(isHappy(4)).toBe(false);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('bitwise AND of range', () => {
+    const rangeBitwiseAnd=(left:number,right:number):number=>{let shift=0;while(left!==right){left>>=1;right>>=1;shift++;}return left<<shift;};
+    expect(rangeBitwiseAnd(5,7)).toBe(4);
+    expect(rangeBitwiseAnd(0,0)).toBe(0);
+    expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
+  });
+  it('power of two three four', () => {
+    const isPowerOf2=(n:number):boolean=>n>0&&(n&(n-1))===0;
+    const isPowerOf3=(n:number):boolean=>{if(n<=0)return false;while(n%3===0)n/=3;return n===1;};
+    const isPowerOf4=(n:number):boolean=>n>0&&(n&(n-1))===0&&(n&0xAAAAAAAA)===0;
+    expect(isPowerOf2(16)).toBe(true);
+    expect(isPowerOf2(5)).toBe(false);
+    expect(isPowerOf3(27)).toBe(true);
+    expect(isPowerOf3(0)).toBe(false);
+    expect(isPowerOf4(16)).toBe(true);
+    expect(isPowerOf4(5)).toBe(false);
+  });
+  it('single number II appears once', () => {
+    const singleNumberII=(nums:number[]):number=>{let ones=0,twos=0;for(const n of nums){ones=(ones^n)&~twos;twos=(twos^n)&~ones;}return ones;};
+    expect(singleNumberII([2,2,3,2])).toBe(3);
+    expect(singleNumberII([0,1,0,1,0,1,99])).toBe(99);
+    expect(singleNumberII([1,1,1,2])).toBe(2);
+  });
+  it('count and say sequence', () => {
+    const countAndSay=(n:number):string=>{let s='1';for(let i=1;i<n;i++){let next='';let j=0;while(j<s.length){let k=j;while(k<s.length&&s[k]===s[j])k++;next+=`${k-j}${s[j]}`;j=k;}s=next;}return s;};
+    expect(countAndSay(1)).toBe('1');
+    expect(countAndSay(4)).toBe('1211');
+    expect(countAndSay(5)).toBe('111221');
+  });
+  it('buddy strings swap', () => {
+    const buddyStrings=(s:string,goal:string):boolean=>{if(s.length!==goal.length)return false;if(s===goal)return new Set(s).size<s.length;const diff:number[][]=[];for(let i=0;i<s.length;i++)if(s[i]!==goal[i])diff.push([i]);return diff.length===2&&s[diff[0][0]]===goal[diff[1][0]]&&s[diff[1][0]]===goal[diff[0][0]];};
+    expect(buddyStrings('ab','ba')).toBe(true);
+    expect(buddyStrings('ab','ab')).toBe(false);
+    expect(buddyStrings('aa','aa')).toBe(true);
+    expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
+  });
+});

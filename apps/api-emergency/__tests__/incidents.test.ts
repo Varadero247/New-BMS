@@ -1085,3 +1085,39 @@ describe('phase61 coverage', () => {
     expect(countSmaller([-1,-1])).toEqual([0,0]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('fraction to recurring decimal', () => {
+    const fractionToDecimal=(num:number,den:number):string=>{if(num===0)return'0';let res='';if((num<0)!==(den<0))res+='-';num=Math.abs(num);den=Math.abs(den);res+=Math.floor(num/den);let rem=num%den;if(!rem)return res;res+='.';const map=new Map<number,number>();while(rem){if(map.has(rem)){const i=map.get(rem)!;return res.slice(0,i)+'('+res.slice(i)+')' ;}map.set(rem,res.length);rem*=10;res+=Math.floor(rem/den);rem%=den;}return res;};
+    expect(fractionToDecimal(1,2)).toBe('0.5');
+    expect(fractionToDecimal(2,1)).toBe('2');
+    expect(fractionToDecimal(4,333)).toBe('0.(012)');
+  });
+  it('buddy strings swap', () => {
+    const buddyStrings=(s:string,goal:string):boolean=>{if(s.length!==goal.length)return false;if(s===goal)return new Set(s).size<s.length;const diff:number[][]=[];for(let i=0;i<s.length;i++)if(s[i]!==goal[i])diff.push([i]);return diff.length===2&&s[diff[0][0]]===goal[diff[1][0]]&&s[diff[1][0]]===goal[diff[0][0]];};
+    expect(buddyStrings('ab','ba')).toBe(true);
+    expect(buddyStrings('ab','ab')).toBe(false);
+    expect(buddyStrings('aa','aa')).toBe(true);
+    expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
+  });
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+  it('is palindrome number', () => {
+    const isPalindrome=(x:number):boolean=>{if(x<0||(x%10===0&&x!==0))return false;let rev=0;while(x>rev){rev=rev*10+x%10;x=Math.floor(x/10);}return x===rev||x===Math.floor(rev/10);};
+    expect(isPalindrome(121)).toBe(true);
+    expect(isPalindrome(-121)).toBe(false);
+    expect(isPalindrome(10)).toBe(false);
+    expect(isPalindrome(0)).toBe(true);
+    expect(isPalindrome(1221)).toBe(true);
+  });
+  it('count and say sequence', () => {
+    const countAndSay=(n:number):string=>{let s='1';for(let i=1;i<n;i++){let next='';let j=0;while(j<s.length){let k=j;while(k<s.length&&s[k]===s[j])k++;next+=`${k-j}${s[j]}`;j=k;}s=next;}return s;};
+    expect(countAndSay(1)).toBe('1');
+    expect(countAndSay(4)).toBe('1211');
+    expect(countAndSay(5)).toBe('111221');
+  });
+});

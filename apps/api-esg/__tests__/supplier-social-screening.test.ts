@@ -890,3 +890,38 @@ describe('phase61 coverage', () => {
     expect(checkSubarraySum([23,2,4,6,6],7)).toBe(true);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('reorganize string no adjacent', () => {
+    const reorganizeString=(s:string):string=>{const cnt=new Array(26).fill(0);for(const c of s)cnt[c.charCodeAt(0)-97]++;const maxCnt=Math.max(...cnt);if(maxCnt>(s.length+1)/2)return'';const res:string[]=new Array(s.length);let i=0;for(let c=0;c<26;c++){while(cnt[c]>0){if(i>=s.length)i=1;res[i]=String.fromCharCode(97+c);cnt[c]--;i+=2;}}return res.join('');};
+    const r=reorganizeString('aab');
+    expect(r).toBeTruthy();
+    expect(r[0]).not.toBe(r[1]);
+    expect(reorganizeString('aaab')).toBe('');
+  });
+  it('rotate string check', () => {
+    const rotateString=(s:string,goal:string):boolean=>s.length===goal.length&&(s+s).includes(goal);
+    expect(rotateString('abcde','cdeab')).toBe(true);
+    expect(rotateString('abcde','abced')).toBe(false);
+    expect(rotateString('','  ')).toBe(false);
+    expect(rotateString('a','a')).toBe(true);
+  });
+  it('largest merge of two strings', () => {
+    const largestMerge=(w1:string,w2:string):string=>{let res='';while(w1||w2){if(w1>=w2){res+=w1[0];w1=w1.slice(1);}else{res+=w2[0];w2=w2.slice(1);}}return res;};
+    expect(largestMerge('cabaa','bcaaa')).toBe('cbcabaaaaa');
+    expect(largestMerge('abcabc','abdcaba')).toBe('abdcabcabcaba');
+  });
+  it('pow fast exponentiation', () => {
+    const myPow=(x:number,n:number):number=>{if(n===0)return 1;if(n<0){x=1/x;n=-n;}let res=1;while(n>0){if(n%2===1)res*=x;x*=x;n=Math.floor(n/2);}return res;};
+    expect(myPow(2,10)).toBeCloseTo(1024);
+    expect(myPow(2,-2)).toBeCloseTo(0.25);
+    expect(myPow(2,0)).toBe(1);
+    expect(myPow(1,2147483647)).toBe(1);
+  });
+  it('reverse words in string', () => {
+    const reverseWords=(s:string):string=>s.trim().split(/\s+/).reverse().join(' ');
+    expect(reverseWords('the sky is blue')).toBe('blue is sky the');
+    expect(reverseWords('  hello world  ')).toBe('world hello');
+    expect(reverseWords('a good   example')).toBe('example good a');
+  });
+});

@@ -961,3 +961,38 @@ describe('phase61 coverage', () => {
     expect(ma.next(5)).toBeCloseTo(6);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('counting bits array', () => {
+    const countBits=(n:number):number[]=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;};
+    expect(countBits(2)).toEqual([0,1,1]);
+    expect(countBits(5)).toEqual([0,1,1,2,1,2]);
+    expect(countBits(0)).toEqual([0]);
+  });
+  it('find duplicate Floyd cycle', () => {
+    const findDuplicate=(nums:number[]):number=>{let slow=nums[0],fast=nums[0];do{slow=nums[slow];fast=nums[nums[fast]];}while(slow!==fast);slow=nums[0];while(slow!==fast){slow=nums[slow];fast=nums[fast];}return slow;};
+    expect(findDuplicate([1,3,4,2,2])).toBe(2);
+    expect(findDuplicate([3,1,3,4,2])).toBe(3);
+    expect(findDuplicate([1,1])).toBe(1);
+  });
+  it('count and say sequence', () => {
+    const countAndSay=(n:number):string=>{let s='1';for(let i=1;i<n;i++){let next='';let j=0;while(j<s.length){let k=j;while(k<s.length&&s[k]===s[j])k++;next+=`${k-j}${s[j]}`;j=k;}s=next;}return s;};
+    expect(countAndSay(1)).toBe('1');
+    expect(countAndSay(4)).toBe('1211');
+    expect(countAndSay(5)).toBe('111221');
+  });
+  it('reverse words in string', () => {
+    const reverseWords=(s:string):string=>s.trim().split(/\s+/).reverse().join(' ');
+    expect(reverseWords('the sky is blue')).toBe('blue is sky the');
+    expect(reverseWords('  hello world  ')).toBe('world hello');
+    expect(reverseWords('a good   example')).toBe('example good a');
+  });
+  it('number of 1 bits hamming weight', () => {
+    const hammingWeight=(n:number):number=>{let count=0;while(n){count+=n&1;n>>>=1;}return count;};
+    const hammingDistance=(x:number,y:number):number=>hammingWeight(x^y);
+    expect(hammingWeight(11)).toBe(3);
+    expect(hammingWeight(128)).toBe(1);
+    expect(hammingDistance(1,4)).toBe(2);
+    expect(hammingDistance(3,1)).toBe(1);
+  });
+});

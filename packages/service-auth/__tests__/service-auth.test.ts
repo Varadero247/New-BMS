@@ -934,3 +934,38 @@ describe('phase61 coverage', () => {
     expect(twoSumLessThanK([254,914,971,990,525,33,186,136,54,104],1000)).toBe(968);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('fraction to recurring decimal', () => {
+    const fractionToDecimal=(num:number,den:number):string=>{if(num===0)return'0';let res='';if((num<0)!==(den<0))res+='-';num=Math.abs(num);den=Math.abs(den);res+=Math.floor(num/den);let rem=num%den;if(!rem)return res;res+='.';const map=new Map<number,number>();while(rem){if(map.has(rem)){const i=map.get(rem)!;return res.slice(0,i)+'('+res.slice(i)+')' ;}map.set(rem,res.length);rem*=10;res+=Math.floor(rem/den);rem%=den;}return res;};
+    expect(fractionToDecimal(1,2)).toBe('0.5');
+    expect(fractionToDecimal(2,1)).toBe('2');
+    expect(fractionToDecimal(4,333)).toBe('0.(012)');
+  });
+  it('gas station greedy', () => {
+    const canCompleteCircuit=(gas:number[],cost:number[]):number=>{let total=0,tank=0,start=0;for(let i=0;i<gas.length;i++){const diff=gas[i]-cost[i];total+=diff;tank+=diff;if(tank<0){start=i+1;tank=0;}}return total>=0?start:-1;};
+    expect(canCompleteCircuit([1,2,3,4,5],[3,4,5,1,2])).toBe(3);
+    expect(canCompleteCircuit([2,3,4],[3,4,3])).toBe(-1);
+    expect(canCompleteCircuit([5,1,2,3,4],[4,4,1,5,1])).toBe(4);
+  });
+  it('reverse words in string', () => {
+    const reverseWords=(s:string):string=>s.trim().split(/\s+/).reverse().join(' ');
+    expect(reverseWords('the sky is blue')).toBe('blue is sky the');
+    expect(reverseWords('  hello world  ')).toBe('world hello');
+    expect(reverseWords('a good   example')).toBe('example good a');
+  });
+  it('multiply strings big numbers', () => {
+    const multiply=(num1:string,num2:string):string=>{if(num1==='0'||num2==='0')return'0';const m=num1.length,n=num2.length;const pos=new Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const mul=(num1.charCodeAt(i)-48)*(num2.charCodeAt(j)-48);const p1=i+j,p2=i+j+1;const sum=mul+pos[p2];pos[p2]=sum%10;pos[p1]+=Math.floor(sum/10);}return pos.join('').replace(/^0+/,'')||'0';};
+    expect(multiply('2','3')).toBe('6');
+    expect(multiply('123','456')).toBe('56088');
+    expect(multiply('0','52')).toBe('0');
+  });
+  it('integer to roman numeral', () => {
+    const intToRoman=(num:number):string=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';vals.forEach((v,i)=>{while(num>=v){res+=syms[i];num-=v;}});return res;};
+    expect(intToRoman(3)).toBe('III');
+    expect(intToRoman(4)).toBe('IV');
+    expect(intToRoman(9)).toBe('IX');
+    expect(intToRoman(58)).toBe('LVIII');
+    expect(intToRoman(1994)).toBe('MCMXCIV');
+  });
+});

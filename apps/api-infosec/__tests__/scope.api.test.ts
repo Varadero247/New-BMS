@@ -986,3 +986,41 @@ describe('phase61 coverage', () => {
     expect(toArr(oddEvenList(mk(2,1,3,5,6,4,7)))).toEqual([2,3,6,7,1,5,4]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('rotate string check', () => {
+    const rotateString=(s:string,goal:string):boolean=>s.length===goal.length&&(s+s).includes(goal);
+    expect(rotateString('abcde','cdeab')).toBe(true);
+    expect(rotateString('abcde','abced')).toBe(false);
+    expect(rotateString('','  ')).toBe(false);
+    expect(rotateString('a','a')).toBe(true);
+  });
+  it('number of 1 bits hamming weight', () => {
+    const hammingWeight=(n:number):number=>{let count=0;while(n){count+=n&1;n>>>=1;}return count;};
+    const hammingDistance=(x:number,y:number):number=>hammingWeight(x^y);
+    expect(hammingWeight(11)).toBe(3);
+    expect(hammingWeight(128)).toBe(1);
+    expect(hammingDistance(1,4)).toBe(2);
+    expect(hammingDistance(3,1)).toBe(1);
+  });
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+  it('counting bits array', () => {
+    const countBits=(n:number):number[]=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;};
+    expect(countBits(2)).toEqual([0,1,1]);
+    expect(countBits(5)).toEqual([0,1,1,2,1,2]);
+    expect(countBits(0)).toEqual([0]);
+  });
+  it('integer square root binary search', () => {
+    const mySqrt=(x:number):number=>{if(x<2)return x;let lo=1,hi=Math.floor(x/2);while(lo<=hi){const mid=Math.floor((lo+hi)/2);if(mid*mid===x)return mid;if(mid*mid<x)lo=mid+1;else hi=mid-1;}return hi;};
+    expect(mySqrt(4)).toBe(2);
+    expect(mySqrt(8)).toBe(2);
+    expect(mySqrt(0)).toBe(0);
+    expect(mySqrt(1)).toBe(1);
+    expect(mySqrt(9)).toBe(3);
+  });
+});

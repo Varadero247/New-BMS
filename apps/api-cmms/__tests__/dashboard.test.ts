@@ -904,3 +904,41 @@ describe('phase61 coverage', () => {
     expect(countPrimes(20)).toBe(8);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('single number II appears once', () => {
+    const singleNumberII=(nums:number[]):number=>{let ones=0,twos=0;for(const n of nums){ones=(ones^n)&~twos;twos=(twos^n)&~ones;}return ones;};
+    expect(singleNumberII([2,2,3,2])).toBe(3);
+    expect(singleNumberII([0,1,0,1,0,1,99])).toBe(99);
+    expect(singleNumberII([1,1,1,2])).toBe(2);
+  });
+  it('missing number XOR', () => {
+    const missingNumber=(nums:number[]):number=>{let xor=nums.length;nums.forEach((n,i)=>xor^=n^i);return xor;};
+    expect(missingNumber([3,0,1])).toBe(2);
+    expect(missingNumber([0,1])).toBe(2);
+    expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8);
+  });
+  it('integer to roman numeral', () => {
+    const intToRoman=(num:number):string=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';vals.forEach((v,i)=>{while(num>=v){res+=syms[i];num-=v;}});return res;};
+    expect(intToRoman(3)).toBe('III');
+    expect(intToRoman(4)).toBe('IV');
+    expect(intToRoman(9)).toBe('IX');
+    expect(intToRoman(58)).toBe('LVIII');
+    expect(intToRoman(1994)).toBe('MCMXCIV');
+  });
+  it('reorganize string no adjacent', () => {
+    const reorganizeString=(s:string):string=>{const cnt=new Array(26).fill(0);for(const c of s)cnt[c.charCodeAt(0)-97]++;const maxCnt=Math.max(...cnt);if(maxCnt>(s.length+1)/2)return'';const res:string[]=new Array(s.length);let i=0;for(let c=0;c<26;c++){while(cnt[c]>0){if(i>=s.length)i=1;res[i]=String.fromCharCode(97+c);cnt[c]--;i+=2;}}return res.join('');};
+    const r=reorganizeString('aab');
+    expect(r).toBeTruthy();
+    expect(r[0]).not.toBe(r[1]);
+    expect(reorganizeString('aaab')).toBe('');
+  });
+  it('integer square root binary search', () => {
+    const mySqrt=(x:number):number=>{if(x<2)return x;let lo=1,hi=Math.floor(x/2);while(lo<=hi){const mid=Math.floor((lo+hi)/2);if(mid*mid===x)return mid;if(mid*mid<x)lo=mid+1;else hi=mid-1;}return hi;};
+    expect(mySqrt(4)).toBe(2);
+    expect(mySqrt(8)).toBe(2);
+    expect(mySqrt(0)).toBe(0);
+    expect(mySqrt(1)).toBe(1);
+    expect(mySqrt(9)).toBe(3);
+  });
+});

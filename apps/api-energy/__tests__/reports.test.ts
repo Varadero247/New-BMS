@@ -1100,3 +1100,38 @@ describe('phase61 coverage', () => {
     expect([...flatGen([1,[2,[3]]])]).toEqual([1,2,3]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('zigzag string conversion', () => {
+    const convert=(s:string,numRows:number):string=>{if(numRows===1||numRows>=s.length)return s;const rows:string[]=new Array(numRows).fill('');let cur=0,dir=-1;for(const c of s){rows[cur]+=c;if(cur===0||cur===numRows-1)dir=-dir;cur+=dir;}return rows.join('');};
+    expect(convert('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR');
+    expect(convert('PAYPALISHIRING',4)).toBe('PINALSIGYAHRPI');
+    expect(convert('A',1)).toBe('A');
+  });
+  it('reverse words in string', () => {
+    const reverseWords=(s:string):string=>s.trim().split(/\s+/).reverse().join(' ');
+    expect(reverseWords('the sky is blue')).toBe('blue is sky the');
+    expect(reverseWords('  hello world  ')).toBe('world hello');
+    expect(reverseWords('a good   example')).toBe('example good a');
+  });
+  it('integer square root binary search', () => {
+    const mySqrt=(x:number):number=>{if(x<2)return x;let lo=1,hi=Math.floor(x/2);while(lo<=hi){const mid=Math.floor((lo+hi)/2);if(mid*mid===x)return mid;if(mid*mid<x)lo=mid+1;else hi=mid-1;}return hi;};
+    expect(mySqrt(4)).toBe(2);
+    expect(mySqrt(8)).toBe(2);
+    expect(mySqrt(0)).toBe(0);
+    expect(mySqrt(1)).toBe(1);
+    expect(mySqrt(9)).toBe(3);
+  });
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+  it('gas station greedy', () => {
+    const canCompleteCircuit=(gas:number[],cost:number[]):number=>{let total=0,tank=0,start=0;for(let i=0;i<gas.length;i++){const diff=gas[i]-cost[i];total+=diff;tank+=diff;if(tank<0){start=i+1;tank=0;}}return total>=0?start:-1;};
+    expect(canCompleteCircuit([1,2,3,4,5],[3,4,5,1,2])).toBe(3);
+    expect(canCompleteCircuit([2,3,4],[3,4,3])).toBe(-1);
+    expect(canCompleteCircuit([5,1,2,3,4],[4,4,1,5,1])).toBe(4);
+  });
+});

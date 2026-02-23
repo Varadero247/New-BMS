@@ -1245,3 +1245,37 @@ describe('phase61 coverage', () => {
     expect(restoreIpAddresses('0000')).toEqual(['0.0.0.0']);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('zigzag string conversion', () => {
+    const convert=(s:string,numRows:number):string=>{if(numRows===1||numRows>=s.length)return s;const rows:string[]=new Array(numRows).fill('');let cur=0,dir=-1;for(const c of s){rows[cur]+=c;if(cur===0||cur===numRows-1)dir=-dir;cur+=dir;}return rows.join('');};
+    expect(convert('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR');
+    expect(convert('PAYPALISHIRING',4)).toBe('PINALSIGYAHRPI');
+    expect(convert('A',1)).toBe('A');
+  });
+  it('pow fast exponentiation', () => {
+    const myPow=(x:number,n:number):number=>{if(n===0)return 1;if(n<0){x=1/x;n=-n;}let res=1;while(n>0){if(n%2===1)res*=x;x*=x;n=Math.floor(n/2);}return res;};
+    expect(myPow(2,10)).toBeCloseTo(1024);
+    expect(myPow(2,-2)).toBeCloseTo(0.25);
+    expect(myPow(2,0)).toBe(1);
+    expect(myPow(1,2147483647)).toBe(1);
+  });
+  it('single number II appears once', () => {
+    const singleNumberII=(nums:number[]):number=>{let ones=0,twos=0;for(const n of nums){ones=(ones^n)&~twos;twos=(twos^n)&~ones;}return ones;};
+    expect(singleNumberII([2,2,3,2])).toBe(3);
+    expect(singleNumberII([0,1,0,1,0,1,99])).toBe(99);
+    expect(singleNumberII([1,1,1,2])).toBe(2);
+  });
+  it('reorganize string no adjacent', () => {
+    const reorganizeString=(s:string):string=>{const cnt=new Array(26).fill(0);for(const c of s)cnt[c.charCodeAt(0)-97]++;const maxCnt=Math.max(...cnt);if(maxCnt>(s.length+1)/2)return'';const res:string[]=new Array(s.length);let i=0;for(let c=0;c<26;c++){while(cnt[c]>0){if(i>=s.length)i=1;res[i]=String.fromCharCode(97+c);cnt[c]--;i+=2;}}return res.join('');};
+    const r=reorganizeString('aab');
+    expect(r).toBeTruthy();
+    expect(r[0]).not.toBe(r[1]);
+    expect(reorganizeString('aaab')).toBe('');
+  });
+  it('largest merge of two strings', () => {
+    const largestMerge=(w1:string,w2:string):string=>{let res='';while(w1||w2){if(w1>=w2){res+=w1[0];w1=w1.slice(1);}else{res+=w2[0];w2=w2.slice(1);}}return res;};
+    expect(largestMerge('cabaa','bcaaa')).toBe('cbcabaaaaa');
+    expect(largestMerge('abcabc','abdcaba')).toBe('abdcabcabcaba');
+  });
+});

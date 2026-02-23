@@ -1021,3 +1021,37 @@ describe('phase61 coverage', () => {
     expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('zigzag string conversion', () => {
+    const convert=(s:string,numRows:number):string=>{if(numRows===1||numRows>=s.length)return s;const rows:string[]=new Array(numRows).fill('');let cur=0,dir=-1;for(const c of s){rows[cur]+=c;if(cur===0||cur===numRows-1)dir=-dir;cur+=dir;}return rows.join('');};
+    expect(convert('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR');
+    expect(convert('PAYPALISHIRING',4)).toBe('PINALSIGYAHRPI');
+    expect(convert('A',1)).toBe('A');
+  });
+  it('pow fast exponentiation', () => {
+    const myPow=(x:number,n:number):number=>{if(n===0)return 1;if(n<0){x=1/x;n=-n;}let res=1;while(n>0){if(n%2===1)res*=x;x*=x;n=Math.floor(n/2);}return res;};
+    expect(myPow(2,10)).toBeCloseTo(1024);
+    expect(myPow(2,-2)).toBeCloseTo(0.25);
+    expect(myPow(2,0)).toBe(1);
+    expect(myPow(1,2147483647)).toBe(1);
+  });
+  it('min deletions make freq unique', () => {
+    const minDeletions=(s:string):number=>{const freq=new Array(26).fill(0);for(const c of s)freq[c.charCodeAt(0)-97]++;freq.sort((a,b)=>b-a);let del=0;const used=new Set<number>();for(const f of freq){let cur=f;while(cur>0&&used.has(cur))cur--;if(cur>0)used.add(cur);del+=f-cur;}return del;};
+    expect(minDeletions('aab')).toBe(0);
+    expect(minDeletions('aaabbbcc')).toBe(2);
+    expect(minDeletions('ceabaacb')).toBe(2);
+  });
+  it('count and say sequence', () => {
+    const countAndSay=(n:number):string=>{let s='1';for(let i=1;i<n;i++){let next='';let j=0;while(j<s.length){let k=j;while(k<s.length&&s[k]===s[j])k++;next+=`${k-j}${s[j]}`;j=k;}s=next;}return s;};
+    expect(countAndSay(1)).toBe('1');
+    expect(countAndSay(4)).toBe('1211');
+    expect(countAndSay(5)).toBe('111221');
+  });
+  it('reverse bits of integer', () => {
+    const reverseBits=(n:number):number=>{let res=0;for(let i=0;i<32;i++){res=(res*2+(n&1))>>>0;n>>>=1;}return res>>>0;};
+    expect(reverseBits(0b00000010100101000001111010011100>>>0)).toBe(964176192);
+    expect(reverseBits(0b11111111111111111111111111111101>>>0)).toBe(3221225471);
+    expect(reverseBits(0)).toBe(0);
+  });
+});

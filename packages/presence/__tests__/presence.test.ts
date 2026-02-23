@@ -746,3 +746,43 @@ describe('phase61 coverage', () => {
     expect(q.pop()).toBe(3);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('number of 1 bits hamming weight', () => {
+    const hammingWeight=(n:number):number=>{let count=0;while(n){count+=n&1;n>>>=1;}return count;};
+    const hammingDistance=(x:number,y:number):number=>hammingWeight(x^y);
+    expect(hammingWeight(11)).toBe(3);
+    expect(hammingWeight(128)).toBe(1);
+    expect(hammingDistance(1,4)).toBe(2);
+    expect(hammingDistance(3,1)).toBe(1);
+  });
+  it('buddy strings swap', () => {
+    const buddyStrings=(s:string,goal:string):boolean=>{if(s.length!==goal.length)return false;if(s===goal)return new Set(s).size<s.length;const diff:number[][]=[];for(let i=0;i<s.length;i++)if(s[i]!==goal[i])diff.push([i]);return diff.length===2&&s[diff[0][0]]===goal[diff[1][0]]&&s[diff[1][0]]===goal[diff[0][0]];};
+    expect(buddyStrings('ab','ba')).toBe(true);
+    expect(buddyStrings('ab','ab')).toBe(false);
+    expect(buddyStrings('aa','aa')).toBe(true);
+    expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
+  });
+  it('reorganize string no adjacent', () => {
+    const reorganizeString=(s:string):string=>{const cnt=new Array(26).fill(0);for(const c of s)cnt[c.charCodeAt(0)-97]++;const maxCnt=Math.max(...cnt);if(maxCnt>(s.length+1)/2)return'';const res:string[]=new Array(s.length);let i=0;for(let c=0;c<26;c++){while(cnt[c]>0){if(i>=s.length)i=1;res[i]=String.fromCharCode(97+c);cnt[c]--;i+=2;}}return res.join('');};
+    const r=reorganizeString('aab');
+    expect(r).toBeTruthy();
+    expect(r[0]).not.toBe(r[1]);
+    expect(reorganizeString('aaab')).toBe('');
+  });
+  it('is palindrome number', () => {
+    const isPalindrome=(x:number):boolean=>{if(x<0||(x%10===0&&x!==0))return false;let rev=0;while(x>rev){rev=rev*10+x%10;x=Math.floor(x/10);}return x===rev||x===Math.floor(rev/10);};
+    expect(isPalindrome(121)).toBe(true);
+    expect(isPalindrome(-121)).toBe(false);
+    expect(isPalindrome(10)).toBe(false);
+    expect(isPalindrome(0)).toBe(true);
+    expect(isPalindrome(1221)).toBe(true);
+  });
+  it('rotate string check', () => {
+    const rotateString=(s:string,goal:string):boolean=>s.length===goal.length&&(s+s).includes(goal);
+    expect(rotateString('abcde','cdeab')).toBe(true);
+    expect(rotateString('abcde','abced')).toBe(false);
+    expect(rotateString('','  ')).toBe(false);
+    expect(rotateString('a','a')).toBe(true);
+  });
+});

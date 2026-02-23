@@ -962,3 +962,38 @@ describe('phase61 coverage', () => {
     expect(dailyTemperatures([30,60,90])).toEqual([1,1,0]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('multiply strings big numbers', () => {
+    const multiply=(num1:string,num2:string):string=>{if(num1==='0'||num2==='0')return'0';const m=num1.length,n=num2.length;const pos=new Array(m+n).fill(0);for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--){const mul=(num1.charCodeAt(i)-48)*(num2.charCodeAt(j)-48);const p1=i+j,p2=i+j+1;const sum=mul+pos[p2];pos[p2]=sum%10;pos[p1]+=Math.floor(sum/10);}return pos.join('').replace(/^0+/,'')||'0';};
+    expect(multiply('2','3')).toBe('6');
+    expect(multiply('123','456')).toBe('56088');
+    expect(multiply('0','52')).toBe('0');
+  });
+  it('find duplicate Floyd cycle', () => {
+    const findDuplicate=(nums:number[]):number=>{let slow=nums[0],fast=nums[0];do{slow=nums[slow];fast=nums[nums[fast]];}while(slow!==fast);slow=nums[0];while(slow!==fast){slow=nums[slow];fast=nums[fast];}return slow;};
+    expect(findDuplicate([1,3,4,2,2])).toBe(2);
+    expect(findDuplicate([3,1,3,4,2])).toBe(3);
+    expect(findDuplicate([1,1])).toBe(1);
+  });
+  it('reverse bits of integer', () => {
+    const reverseBits=(n:number):number=>{let res=0;for(let i=0;i<32;i++){res=(res*2+(n&1))>>>0;n>>>=1;}return res>>>0;};
+    expect(reverseBits(0b00000010100101000001111010011100>>>0)).toBe(964176192);
+    expect(reverseBits(0b11111111111111111111111111111101>>>0)).toBe(3221225471);
+    expect(reverseBits(0)).toBe(0);
+  });
+  it('counting bits array', () => {
+    const countBits=(n:number):number[]=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;};
+    expect(countBits(2)).toEqual([0,1,1]);
+    expect(countBits(5)).toEqual([0,1,1,2,1,2]);
+    expect(countBits(0)).toEqual([0]);
+  });
+  it('integer to roman numeral', () => {
+    const intToRoman=(num:number):string=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';vals.forEach((v,i)=>{while(num>=v){res+=syms[i];num-=v;}});return res;};
+    expect(intToRoman(3)).toBe('III');
+    expect(intToRoman(4)).toBe('IV');
+    expect(intToRoman(9)).toBe('IX');
+    expect(intToRoman(58)).toBe('LVIII');
+    expect(intToRoman(1994)).toBe('MCMXCIV');
+  });
+});

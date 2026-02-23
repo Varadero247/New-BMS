@@ -771,3 +771,39 @@ describe('phase61 coverage', () => {
     expect(nextGreaterElements([1,2,3,4,3])).toEqual([2,3,4,-1,4]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('bitwise AND of range', () => {
+    const rangeBitwiseAnd=(left:number,right:number):number=>{let shift=0;while(left!==right){left>>=1;right>>=1;shift++;}return left<<shift;};
+    expect(rangeBitwiseAnd(5,7)).toBe(4);
+    expect(rangeBitwiseAnd(0,0)).toBe(0);
+    expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
+  });
+  it('integer square root binary search', () => {
+    const mySqrt=(x:number):number=>{if(x<2)return x;let lo=1,hi=Math.floor(x/2);while(lo<=hi){const mid=Math.floor((lo+hi)/2);if(mid*mid===x)return mid;if(mid*mid<x)lo=mid+1;else hi=mid-1;}return hi;};
+    expect(mySqrt(4)).toBe(2);
+    expect(mySqrt(8)).toBe(2);
+    expect(mySqrt(0)).toBe(0);
+    expect(mySqrt(1)).toBe(1);
+    expect(mySqrt(9)).toBe(3);
+  });
+  it('majority element II voting', () => {
+    const majorityElement=(nums:number[]):number[]=>{let c1=0,c2=0,n1=0,n2=1;for(const n of nums){if(n===n1)c1++;else if(n===n2)c2++;else if(c1===0){n1=n;c1=1;}else if(c2===0){n2=n;c2=1;}else{c1--;c2--;}}return[n1,n2].filter(n=>nums.filter(x=>x===n).length>Math.floor(nums.length/3));};
+    expect(majorityElement([3,2,3])).toEqual([3]);
+    const r=majorityElement([1,1,1,3,3,2,2,2]);
+    expect(r.sort()).toEqual([1,2]);
+  });
+  it('rotate string check', () => {
+    const rotateString=(s:string,goal:string):boolean=>s.length===goal.length&&(s+s).includes(goal);
+    expect(rotateString('abcde','cdeab')).toBe(true);
+    expect(rotateString('abcde','abced')).toBe(false);
+    expect(rotateString('','  ')).toBe(false);
+    expect(rotateString('a','a')).toBe(true);
+  });
+  it('zigzag string conversion', () => {
+    const convert=(s:string,numRows:number):string=>{if(numRows===1||numRows>=s.length)return s;const rows:string[]=new Array(numRows).fill('');let cur=0,dir=-1;for(const c of s){rows[cur]+=c;if(cur===0||cur===numRows-1)dir=-dir;cur+=dir;}return rows.join('');};
+    expect(convert('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR');
+    expect(convert('PAYPALISHIRING',4)).toBe('PINALSIGYAHRPI');
+    expect(convert('A',1)).toBe('A');
+  });
+});

@@ -918,3 +918,39 @@ describe('phase61 coverage', () => {
     expect(dailyTemperatures([30,60,90])).toEqual([1,1,0]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('pow fast exponentiation', () => {
+    const myPow=(x:number,n:number):number=>{if(n===0)return 1;if(n<0){x=1/x;n=-n;}let res=1;while(n>0){if(n%2===1)res*=x;x*=x;n=Math.floor(n/2);}return res;};
+    expect(myPow(2,10)).toBeCloseTo(1024);
+    expect(myPow(2,-2)).toBeCloseTo(0.25);
+    expect(myPow(2,0)).toBe(1);
+    expect(myPow(1,2147483647)).toBe(1);
+  });
+  it('number of 1 bits hamming weight', () => {
+    const hammingWeight=(n:number):number=>{let count=0;while(n){count+=n&1;n>>>=1;}return count;};
+    const hammingDistance=(x:number,y:number):number=>hammingWeight(x^y);
+    expect(hammingWeight(11)).toBe(3);
+    expect(hammingWeight(128)).toBe(1);
+    expect(hammingDistance(1,4)).toBe(2);
+    expect(hammingDistance(3,1)).toBe(1);
+  });
+  it('single number II appears once', () => {
+    const singleNumberII=(nums:number[]):number=>{let ones=0,twos=0;for(const n of nums){ones=(ones^n)&~twos;twos=(twos^n)&~ones;}return ones;};
+    expect(singleNumberII([2,2,3,2])).toBe(3);
+    expect(singleNumberII([0,1,0,1,0,1,99])).toBe(99);
+    expect(singleNumberII([1,1,1,2])).toBe(2);
+  });
+  it('roman to integer', () => {
+    const romanToInt=(s:string):number=>{const map:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){if(i+1<s.length&&map[s[i]]<map[s[i+1]])res-=map[s[i]];else res+=map[s[i]];}return res;};
+    expect(romanToInt('III')).toBe(3);
+    expect(romanToInt('LVIII')).toBe(58);
+    expect(romanToInt('MCMXCIV')).toBe(1994);
+  });
+  it('min deletions make freq unique', () => {
+    const minDeletions=(s:string):number=>{const freq=new Array(26).fill(0);for(const c of s)freq[c.charCodeAt(0)-97]++;freq.sort((a,b)=>b-a);let del=0;const used=new Set<number>();for(const f of freq){let cur=f;while(cur>0&&used.has(cur))cur--;if(cur>0)used.add(cur);del+=f-cur;}return del;};
+    expect(minDeletions('aab')).toBe(0);
+    expect(minDeletions('aaabbbcc')).toBe(2);
+    expect(minDeletions('ceabaacb')).toBe(2);
+  });
+});

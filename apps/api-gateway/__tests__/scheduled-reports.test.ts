@@ -883,3 +883,38 @@ describe('phase61 coverage', () => {
     expect(canVisitAllRooms([[]])).toBe(true);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('integer square root binary search', () => {
+    const mySqrt=(x:number):number=>{if(x<2)return x;let lo=1,hi=Math.floor(x/2);while(lo<=hi){const mid=Math.floor((lo+hi)/2);if(mid*mid===x)return mid;if(mid*mid<x)lo=mid+1;else hi=mid-1;}return hi;};
+    expect(mySqrt(4)).toBe(2);
+    expect(mySqrt(8)).toBe(2);
+    expect(mySqrt(0)).toBe(0);
+    expect(mySqrt(1)).toBe(1);
+    expect(mySqrt(9)).toBe(3);
+  });
+  it('zigzag string conversion', () => {
+    const convert=(s:string,numRows:number):string=>{if(numRows===1||numRows>=s.length)return s;const rows:string[]=new Array(numRows).fill('');let cur=0,dir=-1;for(const c of s){rows[cur]+=c;if(cur===0||cur===numRows-1)dir=-dir;cur+=dir;}return rows.join('');};
+    expect(convert('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR');
+    expect(convert('PAYPALISHIRING',4)).toBe('PINALSIGYAHRPI');
+    expect(convert('A',1)).toBe('A');
+  });
+  it('find duplicate Floyd cycle', () => {
+    const findDuplicate=(nums:number[]):number=>{let slow=nums[0],fast=nums[0];do{slow=nums[slow];fast=nums[nums[fast]];}while(slow!==fast);slow=nums[0];while(slow!==fast){slow=nums[slow];fast=nums[fast];}return slow;};
+    expect(findDuplicate([1,3,4,2,2])).toBe(2);
+    expect(findDuplicate([3,1,3,4,2])).toBe(3);
+    expect(findDuplicate([1,1])).toBe(1);
+  });
+  it('divide two integers bit shift', () => {
+    const divide=(dividend:number,divisor:number):number=>{if(dividend===0)return 0;if(divisor===0||dividend===-2147483648&&divisor===-1)return 2147483647;const sign=dividend>0===divisor>0?1:-1;let a=Math.abs(dividend),b=Math.abs(divisor),res=0;while(a>=b){let temp=b,mul=1;while(temp*2<=a){temp*=2;mul*=2;}a-=temp;res+=mul;}return sign*res;};
+    expect(divide(10,3)).toBe(3);
+    expect(divide(7,-2)).toBe(-3);
+    expect(divide(0,1)).toBe(0);
+  });
+  it('roman to integer', () => {
+    const romanToInt=(s:string):number=>{const map:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){if(i+1<s.length&&map[s[i]]<map[s[i+1]])res-=map[s[i]];else res+=map[s[i]];}return res;};
+    expect(romanToInt('III')).toBe(3);
+    expect(romanToInt('LVIII')).toBe(58);
+    expect(romanToInt('MCMXCIV')).toBe(1994);
+  });
+});

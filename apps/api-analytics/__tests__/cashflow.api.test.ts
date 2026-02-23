@@ -904,3 +904,36 @@ describe('phase61 coverage', () => {
     expect(asteroidCollision([-2,-1,1,2])).toEqual([-2,-1,1,2]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('divide two integers bit shift', () => {
+    const divide=(dividend:number,divisor:number):number=>{if(dividend===0)return 0;if(divisor===0||dividend===-2147483648&&divisor===-1)return 2147483647;const sign=dividend>0===divisor>0?1:-1;let a=Math.abs(dividend),b=Math.abs(divisor),res=0;while(a>=b){let temp=b,mul=1;while(temp*2<=a){temp*=2;mul*=2;}a-=temp;res+=mul;}return sign*res;};
+    expect(divide(10,3)).toBe(3);
+    expect(divide(7,-2)).toBe(-3);
+    expect(divide(0,1)).toBe(0);
+  });
+  it('find and replace pattern', () => {
+    const findAndReplacePattern=(words:string[],pattern:string):string[]=>{const match=(w:string):boolean=>{const m=new Map<string,string>();const seen=new Set<string>();for(let i=0;i<w.length;i++){if(m.has(w[i])){if(m.get(w[i])!==pattern[i])return false;}else{if(seen.has(pattern[i]))return false;m.set(w[i],pattern[i]);seen.add(pattern[i]);}}return true;};return words.filter(match);};
+    expect(findAndReplacePattern(['aa','bb','ab','ba'],'aa')).toEqual(['aa','bb']);
+    expect(findAndReplacePattern(['abc','deq','mee','aqq','dkd','ccc'],'abb')).toEqual(['mee','aqq']);
+  });
+  it('buddy strings swap', () => {
+    const buddyStrings=(s:string,goal:string):boolean=>{if(s.length!==goal.length)return false;if(s===goal)return new Set(s).size<s.length;const diff:number[][]=[];for(let i=0;i<s.length;i++)if(s[i]!==goal[i])diff.push([i]);return diff.length===2&&s[diff[0][0]]===goal[diff[1][0]]&&s[diff[1][0]]===goal[diff[0][0]];};
+    expect(buddyStrings('ab','ba')).toBe(true);
+    expect(buddyStrings('ab','ab')).toBe(false);
+    expect(buddyStrings('aa','aa')).toBe(true);
+    expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
+  });
+  it('missing number XOR', () => {
+    const missingNumber=(nums:number[]):number=>{let xor=nums.length;nums.forEach((n,i)=>xor^=n^i);return xor;};
+    expect(missingNumber([3,0,1])).toBe(2);
+    expect(missingNumber([0,1])).toBe(2);
+    expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8);
+  });
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+});

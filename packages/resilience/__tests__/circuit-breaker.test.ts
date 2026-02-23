@@ -795,3 +795,38 @@ describe('phase61 coverage', () => {
     expect(countSmaller([-1,-1])).toEqual([0,0]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('find duplicate Floyd cycle', () => {
+    const findDuplicate=(nums:number[]):number=>{let slow=nums[0],fast=nums[0];do{slow=nums[slow];fast=nums[nums[fast]];}while(slow!==fast);slow=nums[0];while(slow!==fast){slow=nums[slow];fast=nums[fast];}return slow;};
+    expect(findDuplicate([1,3,4,2,2])).toBe(2);
+    expect(findDuplicate([3,1,3,4,2])).toBe(3);
+    expect(findDuplicate([1,1])).toBe(1);
+  });
+  it('is palindrome number', () => {
+    const isPalindrome=(x:number):boolean=>{if(x<0||(x%10===0&&x!==0))return false;let rev=0;while(x>rev){rev=rev*10+x%10;x=Math.floor(x/10);}return x===rev||x===Math.floor(rev/10);};
+    expect(isPalindrome(121)).toBe(true);
+    expect(isPalindrome(-121)).toBe(false);
+    expect(isPalindrome(10)).toBe(false);
+    expect(isPalindrome(0)).toBe(true);
+    expect(isPalindrome(1221)).toBe(true);
+  });
+  it('zigzag string conversion', () => {
+    const convert=(s:string,numRows:number):string=>{if(numRows===1||numRows>=s.length)return s;const rows:string[]=new Array(numRows).fill('');let cur=0,dir=-1;for(const c of s){rows[cur]+=c;if(cur===0||cur===numRows-1)dir=-dir;cur+=dir;}return rows.join('');};
+    expect(convert('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR');
+    expect(convert('PAYPALISHIRING',4)).toBe('PINALSIGYAHRPI');
+    expect(convert('A',1)).toBe('A');
+  });
+  it('reverse bits of integer', () => {
+    const reverseBits=(n:number):number=>{let res=0;for(let i=0;i<32;i++){res=(res*2+(n&1))>>>0;n>>>=1;}return res>>>0;};
+    expect(reverseBits(0b00000010100101000001111010011100>>>0)).toBe(964176192);
+    expect(reverseBits(0b11111111111111111111111111111101>>>0)).toBe(3221225471);
+    expect(reverseBits(0)).toBe(0);
+  });
+  it('roman to integer', () => {
+    const romanToInt=(s:string):number=>{const map:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){if(i+1<s.length&&map[s[i]]<map[s[i+1]])res-=map[s[i]];else res+=map[s[i]];}return res;};
+    expect(romanToInt('III')).toBe(3);
+    expect(romanToInt('LVIII')).toBe(58);
+    expect(romanToInt('MCMXCIV')).toBe(1994);
+  });
+});

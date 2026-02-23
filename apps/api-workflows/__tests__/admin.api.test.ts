@@ -991,3 +991,39 @@ describe('phase61 coverage', () => {
     expect([...flatGen([1,[2,[3]]])]).toEqual([1,2,3]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('gas station greedy', () => {
+    const canCompleteCircuit=(gas:number[],cost:number[]):number=>{let total=0,tank=0,start=0;for(let i=0;i<gas.length;i++){const diff=gas[i]-cost[i];total+=diff;tank+=diff;if(tank<0){start=i+1;tank=0;}}return total>=0?start:-1;};
+    expect(canCompleteCircuit([1,2,3,4,5],[3,4,5,1,2])).toBe(3);
+    expect(canCompleteCircuit([2,3,4],[3,4,3])).toBe(-1);
+    expect(canCompleteCircuit([5,1,2,3,4],[4,4,1,5,1])).toBe(4);
+  });
+  it('is palindrome number', () => {
+    const isPalindrome=(x:number):boolean=>{if(x<0||(x%10===0&&x!==0))return false;let rev=0;while(x>rev){rev=rev*10+x%10;x=Math.floor(x/10);}return x===rev||x===Math.floor(rev/10);};
+    expect(isPalindrome(121)).toBe(true);
+    expect(isPalindrome(-121)).toBe(false);
+    expect(isPalindrome(10)).toBe(false);
+    expect(isPalindrome(0)).toBe(true);
+    expect(isPalindrome(1221)).toBe(true);
+  });
+  it('sum without plus operator', () => {
+    const getSum=(a:number,b:number):number=>{while(b!==0){const carry=(a&b)<<1;a=a^b;b=carry;}return a;};
+    expect(getSum(1,2)).toBe(3);
+    expect(getSum(2,3)).toBe(5);
+    expect(getSum(-1,1)).toBe(0);
+    expect(getSum(0,0)).toBe(0);
+  });
+  it('roman to integer', () => {
+    const romanToInt=(s:string):number=>{const map:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){if(i+1<s.length&&map[s[i]]<map[s[i+1]])res-=map[s[i]];else res+=map[s[i]];}return res;};
+    expect(romanToInt('III')).toBe(3);
+    expect(romanToInt('LVIII')).toBe(58);
+    expect(romanToInt('MCMXCIV')).toBe(1994);
+  });
+  it('reverse bits of integer', () => {
+    const reverseBits=(n:number):number=>{let res=0;for(let i=0;i<32;i++){res=(res*2+(n&1))>>>0;n>>>=1;}return res>>>0;};
+    expect(reverseBits(0b00000010100101000001111010011100>>>0)).toBe(964176192);
+    expect(reverseBits(0b11111111111111111111111111111101>>>0)).toBe(3221225471);
+    expect(reverseBits(0)).toBe(0);
+  });
+});

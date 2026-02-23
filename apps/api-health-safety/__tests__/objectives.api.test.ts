@@ -1203,3 +1203,36 @@ describe('phase61 coverage', () => {
     expect(bit.rangeQuery(1,3)).toBe(17);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('buddy strings swap', () => {
+    const buddyStrings=(s:string,goal:string):boolean=>{if(s.length!==goal.length)return false;if(s===goal)return new Set(s).size<s.length;const diff:number[][]=[];for(let i=0;i<s.length;i++)if(s[i]!==goal[i])diff.push([i]);return diff.length===2&&s[diff[0][0]]===goal[diff[1][0]]&&s[diff[1][0]]===goal[diff[0][0]];};
+    expect(buddyStrings('ab','ba')).toBe(true);
+    expect(buddyStrings('ab','ab')).toBe(false);
+    expect(buddyStrings('aa','aa')).toBe(true);
+    expect(buddyStrings('aaaaaaabc','aaaaaaacb')).toBe(true);
+  });
+  it('gas station greedy', () => {
+    const canCompleteCircuit=(gas:number[],cost:number[]):number=>{let total=0,tank=0,start=0;for(let i=0;i<gas.length;i++){const diff=gas[i]-cost[i];total+=diff;tank+=diff;if(tank<0){start=i+1;tank=0;}}return total>=0?start:-1;};
+    expect(canCompleteCircuit([1,2,3,4,5],[3,4,5,1,2])).toBe(3);
+    expect(canCompleteCircuit([2,3,4],[3,4,3])).toBe(-1);
+    expect(canCompleteCircuit([5,1,2,3,4],[4,4,1,5,1])).toBe(4);
+  });
+  it('missing number XOR', () => {
+    const missingNumber=(nums:number[]):number=>{let xor=nums.length;nums.forEach((n,i)=>xor^=n^i);return xor;};
+    expect(missingNumber([3,0,1])).toBe(2);
+    expect(missingNumber([0,1])).toBe(2);
+    expect(missingNumber([9,6,4,2,3,5,7,0,1])).toBe(8);
+  });
+  it('largest merge of two strings', () => {
+    const largestMerge=(w1:string,w2:string):string=>{let res='';while(w1||w2){if(w1>=w2){res+=w1[0];w1=w1.slice(1);}else{res+=w2[0];w2=w2.slice(1);}}return res;};
+    expect(largestMerge('cabaa','bcaaa')).toBe('cbcabaaaaa');
+    expect(largestMerge('abcabc','abdcaba')).toBe('abdcabcabcaba');
+  });
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+});

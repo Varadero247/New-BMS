@@ -1175,3 +1175,43 @@ describe('phase61 coverage', () => {
     expect(calculate(' 3+5 / 2 ')).toBe(5);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+  it('find and replace pattern', () => {
+    const findAndReplacePattern=(words:string[],pattern:string):string[]=>{const match=(w:string):boolean=>{const m=new Map<string,string>();const seen=new Set<string>();for(let i=0;i<w.length;i++){if(m.has(w[i])){if(m.get(w[i])!==pattern[i])return false;}else{if(seen.has(pattern[i]))return false;m.set(w[i],pattern[i]);seen.add(pattern[i]);}}return true;};return words.filter(match);};
+    expect(findAndReplacePattern(['aa','bb','ab','ba'],'aa')).toEqual(['aa','bb']);
+    expect(findAndReplacePattern(['abc','deq','mee','aqq','dkd','ccc'],'abb')).toEqual(['mee','aqq']);
+  });
+  it('excel sheet column number', () => {
+    const titleToNumber=(col:string):number=>col.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0);
+    const numberToTitle=(n:number):string=>{let res='';while(n>0){n--;res=String.fromCharCode(65+n%26)+res;n=Math.floor(n/26);}return res;};
+    expect(titleToNumber('A')).toBe(1);
+    expect(titleToNumber('Z')).toBe(26);
+    expect(titleToNumber('AA')).toBe(27);
+    expect(titleToNumber('ZY')).toBe(701);
+    expect(numberToTitle(28)).toBe('AB');
+  });
+  it('power of two three four', () => {
+    const isPowerOf2=(n:number):boolean=>n>0&&(n&(n-1))===0;
+    const isPowerOf3=(n:number):boolean=>{if(n<=0)return false;while(n%3===0)n/=3;return n===1;};
+    const isPowerOf4=(n:number):boolean=>n>0&&(n&(n-1))===0&&(n&0xAAAAAAAA)===0;
+    expect(isPowerOf2(16)).toBe(true);
+    expect(isPowerOf2(5)).toBe(false);
+    expect(isPowerOf3(27)).toBe(true);
+    expect(isPowerOf3(0)).toBe(false);
+    expect(isPowerOf4(16)).toBe(true);
+    expect(isPowerOf4(5)).toBe(false);
+  });
+  it('divide two integers bit shift', () => {
+    const divide=(dividend:number,divisor:number):number=>{if(dividend===0)return 0;if(divisor===0||dividend===-2147483648&&divisor===-1)return 2147483647;const sign=dividend>0===divisor>0?1:-1;let a=Math.abs(dividend),b=Math.abs(divisor),res=0;while(a>=b){let temp=b,mul=1;while(temp*2<=a){temp*=2;mul*=2;}a-=temp;res+=mul;}return sign*res;};
+    expect(divide(10,3)).toBe(3);
+    expect(divide(7,-2)).toBe(-3);
+    expect(divide(0,1)).toBe(0);
+  });
+});

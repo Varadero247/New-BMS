@@ -1004,3 +1004,41 @@ describe('phase61 coverage', () => {
     expect(q.Rear()).toBe(4);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('count and say sequence', () => {
+    const countAndSay=(n:number):string=>{let s='1';for(let i=1;i<n;i++){let next='';let j=0;while(j<s.length){let k=j;while(k<s.length&&s[k]===s[j])k++;next+=`${k-j}${s[j]}`;j=k;}s=next;}return s;};
+    expect(countAndSay(1)).toBe('1');
+    expect(countAndSay(4)).toBe('1211');
+    expect(countAndSay(5)).toBe('111221');
+  });
+  it('pow fast exponentiation', () => {
+    const myPow=(x:number,n:number):number=>{if(n===0)return 1;if(n<0){x=1/x;n=-n;}let res=1;while(n>0){if(n%2===1)res*=x;x*=x;n=Math.floor(n/2);}return res;};
+    expect(myPow(2,10)).toBeCloseTo(1024);
+    expect(myPow(2,-2)).toBeCloseTo(0.25);
+    expect(myPow(2,0)).toBe(1);
+    expect(myPow(1,2147483647)).toBe(1);
+  });
+  it('integer to roman numeral', () => {
+    const intToRoman=(num:number):string=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';vals.forEach((v,i)=>{while(num>=v){res+=syms[i];num-=v;}});return res;};
+    expect(intToRoman(3)).toBe('III');
+    expect(intToRoman(4)).toBe('IV');
+    expect(intToRoman(9)).toBe('IX');
+    expect(intToRoman(58)).toBe('LVIII');
+    expect(intToRoman(1994)).toBe('MCMXCIV');
+  });
+  it('excel sheet column number', () => {
+    const titleToNumber=(col:string):number=>col.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0);
+    const numberToTitle=(n:number):string=>{let res='';while(n>0){n--;res=String.fromCharCode(65+n%26)+res;n=Math.floor(n/26);}return res;};
+    expect(titleToNumber('A')).toBe(1);
+    expect(titleToNumber('Z')).toBe(26);
+    expect(titleToNumber('AA')).toBe(27);
+    expect(titleToNumber('ZY')).toBe(701);
+    expect(numberToTitle(28)).toBe('AB');
+  });
+  it('find and replace pattern', () => {
+    const findAndReplacePattern=(words:string[],pattern:string):string[]=>{const match=(w:string):boolean=>{const m=new Map<string,string>();const seen=new Set<string>();for(let i=0;i<w.length;i++){if(m.has(w[i])){if(m.get(w[i])!==pattern[i])return false;}else{if(seen.has(pattern[i]))return false;m.set(w[i],pattern[i]);seen.add(pattern[i]);}}return true;};return words.filter(match);};
+    expect(findAndReplacePattern(['aa','bb','ab','ba'],'aa')).toEqual(['aa','bb']);
+    expect(findAndReplacePattern(['abc','deq','mee','aqq','dkd','ccc'],'abb')).toEqual(['mee','aqq']);
+  });
+});

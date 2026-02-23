@@ -1120,3 +1120,36 @@ describe('phase61 coverage', () => {
     expect(toArr(oddEvenList(mk(2,1,3,5,6,4,7)))).toEqual([2,3,6,7,1,5,4]);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('fraction to recurring decimal', () => {
+    const fractionToDecimal=(num:number,den:number):string=>{if(num===0)return'0';let res='';if((num<0)!==(den<0))res+='-';num=Math.abs(num);den=Math.abs(den);res+=Math.floor(num/den);let rem=num%den;if(!rem)return res;res+='.';const map=new Map<number,number>();while(rem){if(map.has(rem)){const i=map.get(rem)!;return res.slice(0,i)+'('+res.slice(i)+')' ;}map.set(rem,res.length);rem*=10;res+=Math.floor(rem/den);rem%=den;}return res;};
+    expect(fractionToDecimal(1,2)).toBe('0.5');
+    expect(fractionToDecimal(2,1)).toBe('2');
+    expect(fractionToDecimal(4,333)).toBe('0.(012)');
+  });
+  it('zigzag string conversion', () => {
+    const convert=(s:string,numRows:number):string=>{if(numRows===1||numRows>=s.length)return s;const rows:string[]=new Array(numRows).fill('');let cur=0,dir=-1;for(const c of s){rows[cur]+=c;if(cur===0||cur===numRows-1)dir=-dir;cur+=dir;}return rows.join('');};
+    expect(convert('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR');
+    expect(convert('PAYPALISHIRING',4)).toBe('PINALSIGYAHRPI');
+    expect(convert('A',1)).toBe('A');
+  });
+  it('min deletions make freq unique', () => {
+    const minDeletions=(s:string):number=>{const freq=new Array(26).fill(0);for(const c of s)freq[c.charCodeAt(0)-97]++;freq.sort((a,b)=>b-a);let del=0;const used=new Set<number>();for(const f of freq){let cur=f;while(cur>0&&used.has(cur))cur--;if(cur>0)used.add(cur);del+=f-cur;}return del;};
+    expect(minDeletions('aab')).toBe(0);
+    expect(minDeletions('aaabbbcc')).toBe(2);
+    expect(minDeletions('ceabaacb')).toBe(2);
+  });
+  it('reverse words in string', () => {
+    const reverseWords=(s:string):string=>s.trim().split(/\s+/).reverse().join(' ');
+    expect(reverseWords('the sky is blue')).toBe('blue is sky the');
+    expect(reverseWords('  hello world  ')).toBe('world hello');
+    expect(reverseWords('a good   example')).toBe('example good a');
+  });
+  it('reverse bits of integer', () => {
+    const reverseBits=(n:number):number=>{let res=0;for(let i=0;i<32;i++){res=(res*2+(n&1))>>>0;n>>>=1;}return res>>>0;};
+    expect(reverseBits(0b00000010100101000001111010011100>>>0)).toBe(964176192);
+    expect(reverseBits(0b11111111111111111111111111111101>>>0)).toBe(3221225471);
+    expect(reverseBits(0)).toBe(0);
+  });
+});

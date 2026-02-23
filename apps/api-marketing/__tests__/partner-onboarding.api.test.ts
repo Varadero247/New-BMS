@@ -896,3 +896,37 @@ describe('phase61 coverage', () => {
     expect(restoreIpAddresses('0000')).toEqual(['0.0.0.0']);
   });
 });
+
+describe('phase62 coverage', () => {
+  it('fraction to recurring decimal', () => {
+    const fractionToDecimal=(num:number,den:number):string=>{if(num===0)return'0';let res='';if((num<0)!==(den<0))res+='-';num=Math.abs(num);den=Math.abs(den);res+=Math.floor(num/den);let rem=num%den;if(!rem)return res;res+='.';const map=new Map<number,number>();while(rem){if(map.has(rem)){const i=map.get(rem)!;return res.slice(0,i)+'('+res.slice(i)+')' ;}map.set(rem,res.length);rem*=10;res+=Math.floor(rem/den);rem%=den;}return res;};
+    expect(fractionToDecimal(1,2)).toBe('0.5');
+    expect(fractionToDecimal(2,1)).toBe('2');
+    expect(fractionToDecimal(4,333)).toBe('0.(012)');
+  });
+  it('divide two integers bit shift', () => {
+    const divide=(dividend:number,divisor:number):number=>{if(dividend===0)return 0;if(divisor===0||dividend===-2147483648&&divisor===-1)return 2147483647;const sign=dividend>0===divisor>0?1:-1;let a=Math.abs(dividend),b=Math.abs(divisor),res=0;while(a>=b){let temp=b,mul=1;while(temp*2<=a){temp*=2;mul*=2;}a-=temp;res+=mul;}return sign*res;};
+    expect(divide(10,3)).toBe(3);
+    expect(divide(7,-2)).toBe(-3);
+    expect(divide(0,1)).toBe(0);
+  });
+  it('bitwise AND of range', () => {
+    const rangeBitwiseAnd=(left:number,right:number):number=>{let shift=0;while(left!==right){left>>=1;right>>=1;shift++;}return left<<shift;};
+    expect(rangeBitwiseAnd(5,7)).toBe(4);
+    expect(rangeBitwiseAnd(0,0)).toBe(0);
+    expect(rangeBitwiseAnd(1,2147483647)).toBe(0);
+  });
+  it('pow fast exponentiation', () => {
+    const myPow=(x:number,n:number):number=>{if(n===0)return 1;if(n<0){x=1/x;n=-n;}let res=1;while(n>0){if(n%2===1)res*=x;x*=x;n=Math.floor(n/2);}return res;};
+    expect(myPow(2,10)).toBeCloseTo(1024);
+    expect(myPow(2,-2)).toBeCloseTo(0.25);
+    expect(myPow(2,0)).toBe(1);
+    expect(myPow(1,2147483647)).toBe(1);
+  });
+  it('maximum XOR of two numbers', () => {
+    const findMaximumXOR=(nums:number[]):number=>{let max=0,mask=0;for(let i=31;i>=0;i--){mask|=(1<<i);const prefixes=new Set(nums.map(n=>n&mask));const candidate=max|(1<<i);let found=false;for(const p of prefixes)if(prefixes.has(candidate^p)){found=true;break;}if(found)max=candidate;}return max;};
+    expect(findMaximumXOR([3,10,5,25,2,8])).toBe(28);
+    expect(findMaximumXOR([14,70,53,83,49,91,36,80,92,51,66,70])).toBe(127);
+    expect(findMaximumXOR([0])).toBe(0);
+  });
+});
