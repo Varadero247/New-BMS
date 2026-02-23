@@ -21,7 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Architecture Decision Records (`docs/adr/`) — 6 ADRs documenting key architectural choices
 - Kubernetes HPA for all 41 microservices (`deploy/k8s/base/hpa.yaml`) — autoscale 1–5 replicas at CPU 70%/mem 80%
 - Kubernetes PodDisruptionBudgets (`deploy/k8s/base/pdb.yaml`) — `minAvailable: 1` for all 41 services
-- Grafana dashboards: `api-performance.json` (8 panels) and `security-events.json` (8 panels)
+- Grafana dashboards: `api-performance.json` (8 panels), `security-events.json` (8 panels), `slo-overview.json` (8 panels using recording rules)
+- Prometheus recording rules (`deploy/monitoring/prometheus/rules/recording.yaml`) — 23 pre-computed rules for request rates, latency P50/P95/P99, SLO availability (5m/30m/1h/6h/1d windows), security metrics
+- SLO burn rate alerting (6 new rules replacing old SLO alerts): multi-window model at 14.4×/6×/3× burn rates with 1h+5m, 6h+30m, 1h windows following Google SRE Workbook
+- ServiceMonitor CRDs (`deploy/k8s/base/service-monitors.yaml`) — 42 Prometheus Operator `ServiceMonitor` resources (one per service + prometheus/alertmanager self-monitoring)
 - `.github/PULL_REQUEST_TEMPLATE.md` — project-specific PR checklist
 - `.github/ISSUE_TEMPLATE/bug_report.yml` — structured bug report with module dropdown
 - `.github/ISSUE_TEMPLATE/feature_request.yml` — feature request with acceptance criteria
@@ -30,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dependency-review.yml` — blocks PRs with HIGH/CRITICAL CVEs
 - `stale.yml` — auto-labels stale issues (45d) and PRs (30d)
 - `release.yml` — tag-triggered multi-arch Docker build and GitHub release creation
+- `scripts/rotate-secrets.sh` — JWT secret rotation script with `--dry-run`/`--apply` flags and `.bak` backup
 - `docs/NEXARA_IMS_PLATFORM_SOP_COMPLETE.md` — 2,578-line complete SOP (all 42 services)
 - `docs/NEXARA_FEATURE_CATALOG.md` — 1,300-line feature catalog (2,558 endpoints)
 - `docs/DATABASE_SCHEMA_REFERENCE.md` — 1,953-line full schema reference (606 models, 781 enums)
@@ -37,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `apps/web/package.json`: replaced vulnerable `xlsx@0.18.5` (Prototype Pollution) with `exceljs@4.4.0`; all Excel export functions made async
+- `.github/workflows/tests.yml`: added missing `pnpm lint` step to the Lint & Type Check job
+- `deploy/k8s/base/network-policy.yaml`: fixed `allow-prometheus-scrape` NetworkPolicy to include in-namespace Prometheus pod selector (previously only allowed cross-namespace scraping)
 
 ---
 
