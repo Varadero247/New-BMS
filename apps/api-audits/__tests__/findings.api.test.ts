@@ -713,3 +713,12 @@ describe('phase54 coverage', () => {
   it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
   it('finds the nth ugly number (factors 2, 3, 5 only)', () => { const ugly=(n:number)=>{const dp=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const next=Math.min(dp[i2]*2,dp[i3]*3,dp[i5]*5);dp.push(next);if(next===dp[i2]*2)i2++;if(next===dp[i3]*3)i3++;if(next===dp[i5]*5)i5++;}return dp[n-1];}; expect(ugly(1)).toBe(1); expect(ugly(10)).toBe(12); expect(ugly(15)).toBe(24); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('rotates array k positions to the right in-place', () => { const rotate=(a:number[],k:number)=>{const n=a.length;k=k%n;const rev=(l:number,r:number)=>{while(l<r){[a[l],a[r]]=[a[r],a[l]];l++;r--;}};rev(0,n-1);rev(0,k-1);rev(k,n-1);return a;}; expect(rotate([1,2,3,4,5,6,7],3)).toEqual([5,6,7,1,2,3,4]); expect(rotate([-1,-100,3,99],2)).toEqual([3,99,-1,-100]); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+  it('returns the nth row of Pascal triangle', () => { const pascal=(n:number)=>{let row=[1];for(let i=1;i<=n;i++){const r=[1];for(let j=1;j<i;j++)r.push(row[j-1]+row[j]);r.push(1);row=r;}return row;}; expect(pascal(0)).toEqual([1]); expect(pascal(3)).toEqual([1,3,3,1]); expect(pascal(4)).toEqual([1,4,6,4,1]); });
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+});

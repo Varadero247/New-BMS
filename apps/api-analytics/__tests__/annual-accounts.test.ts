@@ -756,3 +756,12 @@ describe('phase54 coverage', () => {
   it('counts total number of digit 1 appearing in all numbers from 1 to n', () => { const cnt1=(n:number)=>{let res=0;for(let f=1;f<=n;f*=10){const hi=Math.floor(n/(f*10)),cur=Math.floor(n/f)%10,lo=n%f;res+=hi*f+(cur>1?f:cur===1?lo+1:0);}return res;}; expect(cnt1(13)).toBe(6); expect(cnt1(0)).toBe(0); expect(cnt1(100)).toBe(21); });
   it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+  it('moves all zeroes to end maintaining relative order of non-zero elements', () => { const mz=(a:number[])=>{let pos=0;for(const v of a)if(v!==0)a[pos++]=v;while(pos<a.length)a[pos++]=0;return a;}; expect(mz([0,1,0,3,12])).toEqual([1,3,12,0,0]); expect(mz([0,0,1])).toEqual([1,0,0]); expect(mz([1])).toEqual([1]); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+  it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+});

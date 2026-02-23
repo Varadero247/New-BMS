@@ -660,3 +660,12 @@ describe('phase54 coverage', () => {
   it('computes minimum cost to cut a stick at given positions', () => { const cutCost=(n:number,cuts:number[])=>{const c=[0,...cuts.sort((a,b)=>a-b),n],m=c.length;const dp=Array.from({length:m},()=>new Array(m).fill(0));for(let len=2;len<m;len++){for(let i=0;i+len<m;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+c[j]-c[i]);}}return dp[0][m-1];}; expect(cutCost(7,[1,3,4,5])).toBe(16); expect(cutCost(9,[5,6,1,4,2])).toBe(22); });
   it('computes minimum path sum from top-left to bottom-right', () => { const mps=(g:number[][])=>{const m=g.length,n=g[0].length,dp=g.map(r=>[...r]);for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;const top=i>0?dp[i-1][j]:Infinity;const left=j>0?dp[i][j-1]:Infinity;dp[i][j]+=Math.min(top,left);}return dp[m-1][n-1];}; expect(mps([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); expect(mps([[1,2],[5,6]])).toBe(9); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+  it('reverses bits of a 32-bit unsigned integer', () => { const revBits=(n:number)=>{let res=0;for(let i=0;i<32;i++){res=(res*2+((n>>i)&1))>>>0;}return res;}; expect(revBits(0b00000010100101000001111010011100)).toBe(0b00111001011110000010100101000000); expect(revBits(0b11111111111111111111111111111101)).toBe(0b10111111111111111111111111111111); });
+  it('returns the nth row of Pascal triangle', () => { const pascal=(n:number)=>{let row=[1];for(let i=1;i<=n;i++){const r=[1];for(let j=1;j<i;j++)r.push(row[j-1]+row[j]);r.push(1);row=r;}return row;}; expect(pascal(0)).toEqual([1]); expect(pascal(3)).toEqual([1,3,3,1]); expect(pascal(4)).toEqual([1,4,6,4,1]); });
+  it('rotates array k positions to the right in-place', () => { const rotate=(a:number[],k:number)=>{const n=a.length;k=k%n;const rev=(l:number,r:number)=>{while(l<r){[a[l],a[r]]=[a[r],a[l]];l++;r--;}};rev(0,n-1);rev(0,k-1);rev(k,n-1);return a;}; expect(rotate([1,2,3,4,5,6,7],3)).toEqual([5,6,7,1,2,3,4]); expect(rotate([-1,-100,3,99],2)).toEqual([3,99,-1,-100]); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+});

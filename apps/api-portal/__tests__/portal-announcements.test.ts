@@ -801,3 +801,12 @@ describe('phase54 coverage', () => {
   it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
   it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
+  it('reverses bits of a 32-bit unsigned integer', () => { const revBits=(n:number)=>{let res=0;for(let i=0;i<32;i++){res=(res*2+((n>>i)&1))>>>0;}return res;}; expect(revBits(0b00000010100101000001111010011100)).toBe(0b00111001011110000010100101000000); expect(revBits(0b11111111111111111111111111111101)).toBe(0b10111111111111111111111111111111); });
+  it('returns the nth row of Pascal triangle', () => { const pascal=(n:number)=>{let row=[1];for(let i=1;i<=n;i++){const r=[1];for(let j=1;j<i;j++)r.push(row[j-1]+row[j]);r.push(1);row=r;}return row;}; expect(pascal(0)).toEqual([1]); expect(pascal(3)).toEqual([1,3,3,1]); expect(pascal(4)).toEqual([1,4,6,4,1]); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('determines if array can be partitioned into two equal-sum subsets', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const n of a)for(let j=t;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+});

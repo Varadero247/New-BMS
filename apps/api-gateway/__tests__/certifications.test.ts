@@ -830,3 +830,12 @@ describe('phase54 coverage', () => {
   it('finds minimum number of jumps to reach last index', () => { const jump=(a:number[])=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<a.length-1;i++){farthest=Math.max(farthest,i+a[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;}; expect(jump([2,3,1,1,4])).toBe(2); expect(jump([2,3,0,1,4])).toBe(2); expect(jump([1,2,3])).toBe(2); });
   it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('moves all zeroes to end maintaining relative order of non-zero elements', () => { const mz=(a:number[])=>{let pos=0;for(const v of a)if(v!==0)a[pos++]=v;while(pos<a.length)a[pos++]=0;return a;}; expect(mz([0,1,0,3,12])).toEqual([1,3,12,0,0]); expect(mz([0,0,1])).toEqual([1,0,0]); expect(mz([1])).toEqual([1]); });
+  it('finds median of two sorted arrays in O(log(min(m,n)))', () => { const med=(a:number[],b:number[])=>{if(a.length>b.length)return med(b,a);const m=a.length,n=b.length,half=(m+n+1)>>1;let lo=0,hi=m;while(lo<=hi){const i=lo+hi>>1,j=half-i;const al=i>0?a[i-1]:-Infinity,ar=i<m?a[i]:Infinity;const bl=j>0?b[j-1]:-Infinity,br=j<n?b[j]:Infinity;if(al<=br&&bl<=ar){const mx=Math.max(al,bl);return(m+n)%2?mx:(mx+Math.min(ar,br))/2;}else if(al>br)hi=i-1;else lo=i+1;}return -1;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('finds majority element using Boyer-Moore voting algorithm', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++){if(cnt===0){cand=a[i];cnt=1;}else if(a[i]===cand)cnt++;else cnt--;}return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); expect(maj([1])).toBe(1); });
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+});

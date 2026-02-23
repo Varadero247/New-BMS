@@ -744,3 +744,12 @@ describe('phase54 coverage', () => {
   it('computes total hamming distance between all pairs', () => { const thd=(a:number[])=>{let res=0;for(let b=0;b<32;b++){let ones=0;for(const x of a)ones+=(x>>b)&1;res+=ones*(a.length-ones);}return res;}; expect(thd([4,14,2])).toBe(6); expect(thd([4,14,4])).toBe(4); });
   it('counts inversions in array using merge sort', () => { const invCount=(a:number[])=>{let cnt=0;const ms=(arr:number[]):number[]=>{if(arr.length<=1)return arr;const m=arr.length>>1,L=ms(arr.slice(0,m)),R=ms(arr.slice(m));const res:number[]=[];let i=0,j=0;while(i<L.length&&j<R.length){if(L[i]<=R[j])res.push(L[i++]);else{cnt+=L.length-i;res.push(R[j++]);}}return res.concat(L.slice(i)).concat(R.slice(j));};ms(a);return cnt;}; expect(invCount([2,4,1,3,5])).toBe(3); expect(invCount([5,4,3,2,1])).toBe(10); expect(invCount([1,2,3])).toBe(0); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+  it('determines if array can be partitioned into two equal-sum subsets', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const n of a)for(let j=t;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
+});

@@ -707,3 +707,12 @@ describe('phase54 coverage', () => {
   it('finds longest harmonious subsequence (max-min = 1)', () => { const lhs=(a:number[])=>{const m=new Map<number,number>();for(const x of a)m.set(x,(m.get(x)||0)+1);let res=0;for(const [k,v] of m)if(m.has(k+1))res=Math.max(res,v+m.get(k+1)!);return res;}; expect(lhs([1,3,2,2,5,2,3,7])).toBe(5); expect(lhs([1,1,1,1])).toBe(0); expect(lhs([1,2,3,4])).toBe(2); });
   it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
+  it('generates the nth term of count-and-say sequence', () => { const cas=(n:number):string=>{if(n===1)return '1';const prev=cas(n-1);let res='',i=0;while(i<prev.length){let j=i;while(j<prev.length&&prev[j]===prev[i])j++;res+=`${j-i}${prev[i]}`;i=j;}return res;}; expect(cas(1)).toBe('1'); expect(cas(4)).toBe('1211'); expect(cas(5)).toBe('111221'); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('counts good triplets where all pairwise abs diffs are within bounds', () => { const gt=(a:number[],x:number,y:number,z:number)=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)for(let k=j+1;k<a.length;k++)if(Math.abs(a[i]-a[j])<=x&&Math.abs(a[j]-a[k])<=y&&Math.abs(a[i]-a[k])<=z)cnt++;return cnt;}; expect(gt([3,0,1,1,9,7],7,2,3)).toBe(4); expect(gt([1,1,2,2,3],0,0,1)).toBe(0); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+});

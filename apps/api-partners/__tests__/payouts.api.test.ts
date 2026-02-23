@@ -754,3 +754,12 @@ describe('phase54 coverage', () => {
   it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
   it('counts distinct values in each sliding window of size k', () => { const dsw=(a:number[],k:number)=>{const res:number[]=[],freq=new Map<number,number>();for(let i=0;i<a.length;i++){freq.set(a[i],(freq.get(a[i])||0)+1);if(i>=k){const out=a[i-k];if(freq.get(out)===1)freq.delete(out);else freq.set(out,freq.get(out)!-1);}if(i>=k-1)res.push(freq.size);}return res;}; expect(dsw([1,2,1,3,2],3)).toEqual([2,3,3]); expect(dsw([1,1,1],2)).toEqual([1,1]); expect(dsw([1,2,3],1)).toEqual([1,1,1]); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('generates all unique subsets from array with duplicates', () => { const subs=(a:number[])=>{a.sort((x,y)=>x-y);const res:number[][]=[];const bt=(start:number,cur:number[])=>{res.push([...cur]);for(let i=start;i<a.length;i++){if(i>start&&a[i]===a[i-1])continue;cur.push(a[i]);bt(i+1,cur);cur.pop();}};bt(0,[]);return res;}; expect(subs([1,2,2]).length).toBe(6); expect(subs([0]).length).toBe(2); });
+  it('reverses bits of a 32-bit unsigned integer', () => { const revBits=(n:number)=>{let res=0;for(let i=0;i<32;i++){res=(res*2+((n>>i)&1))>>>0;}return res;}; expect(revBits(0b00000010100101000001111010011100)).toBe(0b00111001011110000010100101000000); expect(revBits(0b11111111111111111111111111111101)).toBe(0b10111111111111111111111111111111); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+});

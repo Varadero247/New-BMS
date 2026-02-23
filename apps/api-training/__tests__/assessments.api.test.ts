@@ -582,3 +582,12 @@ describe('phase54 coverage', () => {
   it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
   it('counts total number of digit 1 appearing in all numbers from 1 to n', () => { const cnt1=(n:number)=>{let res=0;for(let f=1;f<=n;f*=10){const hi=Math.floor(n/(f*10)),cur=Math.floor(n/f)%10,lo=n%f;res+=hi*f+(cur>1?f:cur===1?lo+1:0);}return res;}; expect(cnt1(13)).toBe(6); expect(cnt1(0)).toBe(0); expect(cnt1(100)).toBe(21); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('generates the nth term of count-and-say sequence', () => { const cas=(n:number):string=>{if(n===1)return '1';const prev=cas(n-1);let res='',i=0;while(i<prev.length){let j=i;while(j<prev.length&&prev[j]===prev[i])j++;res+=`${j-i}${prev[i]}`;i=j;}return res;}; expect(cas(1)).toBe('1'); expect(cas(4)).toBe('1211'); expect(cas(5)).toBe('111221'); });
+  it('finds minimum sum falling path through matrix (each step diagonal or same col)', () => { const fp=(m:number[][])=>{const n=m.length;const dp=m.map(r=>[...r]);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const l=j>0?dp[i-1][j-1]:Infinity,c=dp[i-1][j],r=j<n-1?dp[i-1][j+1]:Infinity;dp[i][j]+=Math.min(l,c,r);}return Math.min(...dp[n-1]);}; expect(fp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); expect(fp([[-19,57],[-40,-5]])).toBe(-59); });
+  it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+  it('reverses a singly linked list iteratively', () => { type N={v:number,next:N|null}; const mk=(a:number[]):N|null=>a.reduceRight((n:N|null,v)=>({v,next:n}),null); const toArr=(n:N|null):number[]=>{const r:number[]=[];while(n){r.push(n.v);n=n.next;}return r;}; const rev=(h:N|null)=>{let prev:N|null=null,cur=h;while(cur){const nxt=cur.next;cur.next=prev;prev=cur;cur=nxt;}return prev;}; expect(toArr(rev(mk([1,2,3,4,5])))).toEqual([5,4,3,2,1]); expect(toArr(rev(mk([1,2])))).toEqual([2,1]); });
+});

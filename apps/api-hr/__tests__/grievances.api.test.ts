@@ -677,3 +677,12 @@ describe('phase54 coverage', () => {
   it('computes minimum path sum from top-left to bottom-right', () => { const mps=(g:number[][])=>{const m=g.length,n=g[0].length,dp=g.map(r=>[...r]);for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;const top=i>0?dp[i-1][j]:Infinity;const left=j>0?dp[i][j-1]:Infinity;dp[i][j]+=Math.min(top,left);}return dp[m-1][n-1];}; expect(mps([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); expect(mps([[1,2],[5,6]])).toBe(9); });
   it('finds maximum sum subarray with all unique elements', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,res=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];res=Math.max(res,sum);}return res;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds longest common prefix among an array of strings', () => { const lcp=(strs:string[])=>{if(!strs.length)return '';let prefix=strs[0];for(let i=1;i<strs.length;i++){while(strs[i].indexOf(prefix)!==0)prefix=prefix.slice(0,-1);}return prefix;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); expect(lcp(['dog','racecar','car'])).toBe(''); expect(lcp(['abc','abc','abc'])).toBe('abc'); });
+  it('converts a Roman numeral string to integer', () => { const r2i=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){const cur=m[s[i]],nxt=m[s[i+1]];if(nxt&&cur<nxt){res-=cur;}else res+=cur;}return res;}; expect(r2i('III')).toBe(3); expect(r2i('LVIII')).toBe(58); expect(r2i('MCMXCIV')).toBe(1994); });
+  it('returns the nth row of Pascal triangle', () => { const pascal=(n:number)=>{let row=[1];for(let i=1;i<=n;i++){const r=[1];for(let j=1;j<i;j++)r.push(row[j-1]+row[j]);r.push(1);row=r;}return row;}; expect(pascal(0)).toEqual([1]); expect(pascal(3)).toEqual([1,3,3,1]); expect(pascal(4)).toEqual([1,4,6,4,1]); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+});

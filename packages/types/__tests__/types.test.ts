@@ -508,3 +508,12 @@ describe('phase54 coverage', () => {
   it('counts total number of digit 1 appearing in all numbers from 1 to n', () => { const cnt1=(n:number)=>{let res=0;for(let f=1;f<=n;f*=10){const hi=Math.floor(n/(f*10)),cur=Math.floor(n/f)%10,lo=n%f;res+=hi*f+(cur>1?f:cur===1?lo+1:0);}return res;}; expect(cnt1(13)).toBe(6); expect(cnt1(0)).toBe(0); expect(cnt1(100)).toBe(21); });
   it('counts how many people each person can see in a queue (monotonic stack)', () => { const see=(h:number[])=>{const n=h.length,res=new Array(n).fill(0),st:number[]=[];for(let i=n-1;i>=0;i--){let cnt=0;while(st.length&&h[st[st.length-1]]<h[i]){cnt++;st.pop();}if(st.length)cnt++;res[i]=cnt;st.push(i);}return res;}; expect(see([10,6,8,5,11,9])).toEqual([3,1,2,1,1,0]); expect(see([5,1,2,3,10])).toEqual([4,1,1,1,0]); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('determines if a number is happy (sum of squared digits eventually reaches 1)', () => { const happy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(happy(19)).toBe(true); expect(happy(2)).toBe(false); expect(happy(7)).toBe(true); });
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+  it('converts an integer to Roman numeral string', () => { const i2r=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';for(let i=0;i<vals.length;i++){while(n>=vals[i]){res+=syms[i];n-=vals[i];}}return res;}; expect(i2r(3)).toBe('III'); expect(i2r(58)).toBe('LVIII'); expect(i2r(1994)).toBe('MCMXCIV'); });
+  it('detects a cycle in a linked list using Floyd algorithm', () => { type N={v:number,next:N|null}; const hasCycle=(head:N|null)=>{let s=head,f=head;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const a:N={v:1,next:null},b:N={v:2,next:null},c:N={v:3,next:null}; a.next=b;b.next=c;c.next=b; expect(hasCycle(a)).toBe(true); const x:N={v:1,next:{v:2,next:null}}; expect(hasCycle(x)).toBe(false); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+});

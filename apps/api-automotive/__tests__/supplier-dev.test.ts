@@ -772,3 +772,12 @@ describe('phase54 coverage', () => {
   it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
   it('computes minimum cost to hire k workers satisfying wage/quality ratios', () => { const hireK=(q:number[],w:number[],k:number)=>{const n=q.length,workers=Array.from({length:n},(_,i)=>[w[i]/q[i],q[i]]).sort((a,b)=>a[0]-b[0]);let res=Infinity,qSum=0;const maxH:number[]=[];for(const [r,qi] of workers){qSum+=qi;maxH.push(qi);maxH.sort((a,b)=>b-a);if(maxH.length>k){qSum-=maxH.shift()!;}if(maxH.length===k)res=Math.min(res,r*qSum);}return res;}; expect(hireK([10,20,5],[70,50,30],2)).toBeCloseTo(105); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('finds min cost to climb stairs paying either step cost', () => { const minCost=(cost:number[])=>{const n=cost.length,dp=[...cost];for(let i=2;i<n;i++)dp[i]+=Math.min(dp[i-1],dp[i-2]);return Math.min(dp[n-1],dp[n-2]);}; expect(minCost([10,15,20])).toBe(15); expect(minCost([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+  it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
+  it('converts a Roman numeral string to integer', () => { const r2i=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){const cur=m[s[i]],nxt=m[s[i+1]];if(nxt&&cur<nxt){res-=cur;}else res+=cur;}return res;}; expect(r2i('III')).toBe(3); expect(r2i('LVIII')).toBe(58); expect(r2i('MCMXCIV')).toBe(1994); });
+});

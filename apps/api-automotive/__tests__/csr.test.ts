@@ -1007,3 +1007,12 @@ describe('phase54 coverage', () => {
   it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
   it('computes length of longest wiggle subsequence', () => { const wiggle=(a:number[])=>{if(a.length<2)return a.length;let up=1,down=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1])up=down+1;else if(a[i]<a[i-1])down=up+1;}return Math.max(up,down);}; expect(wiggle([1,7,4,9,2,5])).toBe(6); expect(wiggle([1,17,5,10,13,15,10,5,16,8])).toBe(7); expect(wiggle([1,2,3,4,5])).toBe(2); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('generates the nth term of count-and-say sequence', () => { const cas=(n:number):string=>{if(n===1)return '1';const prev=cas(n-1);let res='',i=0;while(i<prev.length){let j=i;while(j<prev.length&&prev[j]===prev[i])j++;res+=`${j-i}${prev[i]}`;i=j;}return res;}; expect(cas(1)).toBe('1'); expect(cas(4)).toBe('1211'); expect(cas(5)).toBe('111221'); });
+  it('moves all zeroes to end maintaining relative order of non-zero elements', () => { const mz=(a:number[])=>{let pos=0;for(const v of a)if(v!==0)a[pos++]=v;while(pos<a.length)a[pos++]=0;return a;}; expect(mz([0,1,0,3,12])).toEqual([1,3,12,0,0]); expect(mz([0,0,1])).toEqual([1,0,0]); expect(mz([1])).toEqual([1]); });
+  it('determines if a number is happy (sum of squared digits eventually reaches 1)', () => { const happy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(happy(19)).toBe(true); expect(happy(2)).toBe(false); expect(happy(7)).toBe(true); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+});

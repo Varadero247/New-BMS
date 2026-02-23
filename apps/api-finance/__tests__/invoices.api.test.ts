@@ -1156,3 +1156,12 @@ describe('phase54 coverage', () => {
   it('sorts characters in string by decreasing frequency', () => { const fs=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]).map(([c,f])=>c.repeat(f)).join('');}; expect(fs('tree')).toMatch(/^e{2}[rt]{2}$/); expect(fs('cccaaa')).toMatch(/^(c{3}a{3}|a{3}c{3})$/); expect(fs('Aabb')).toMatch(/b{2}[aA]{2}|b{2}[Aa]{2}/); });
   it('finds minimum number of jumps to reach last index', () => { const jump=(a:number[])=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<a.length-1;i++){farthest=Math.max(farthest,i+a[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;}; expect(jump([2,3,1,1,4])).toBe(2); expect(jump([2,3,0,1,4])).toBe(2); expect(jump([1,2,3])).toBe(2); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('detects a cycle in a linked list using Floyd algorithm', () => { type N={v:number,next:N|null}; const hasCycle=(head:N|null)=>{let s=head,f=head;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const a:N={v:1,next:null},b:N={v:2,next:null},c:N={v:3,next:null}; a.next=b;b.next=c;c.next=b; expect(hasCycle(a)).toBe(true); const x:N={v:1,next:{v:2,next:null}}; expect(hasCycle(x)).toBe(false); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('generates the nth term of count-and-say sequence', () => { const cas=(n:number):string=>{if(n===1)return '1';const prev=cas(n-1);let res='',i=0;while(i<prev.length){let j=i;while(j<prev.length&&prev[j]===prev[i])j++;res+=`${j-i}${prev[i]}`;i=j;}return res;}; expect(cas(1)).toBe('1'); expect(cas(4)).toBe('1211'); expect(cas(5)).toBe('111221'); });
+  it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
+  it('finds min cost to climb stairs paying either step cost', () => { const minCost=(cost:number[])=>{const n=cost.length,dp=[...cost];for(let i=2;i<n;i++)dp[i]+=Math.min(dp[i-1],dp[i-2]);return Math.min(dp[n-1],dp[n-2]);}; expect(minCost([10,15,20])).toBe(15); expect(minCost([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+});

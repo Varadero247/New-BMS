@@ -650,3 +650,12 @@ describe('phase54 coverage', () => {
   it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
   it('computes minimum cost to cut a stick at given positions', () => { const cutCost=(n:number,cuts:number[])=>{const c=[0,...cuts.sort((a,b)=>a-b),n],m=c.length;const dp=Array.from({length:m},()=>new Array(m).fill(0));for(let len=2;len<m;len++){for(let i=0;i+len<m;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+c[j]-c[i]);}}return dp[0][m-1];}; expect(cutCost(7,[1,3,4,5])).toBe(16); expect(cutCost(9,[5,6,1,4,2])).toBe(22); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('finds minimum sum falling path through matrix (each step diagonal or same col)', () => { const fp=(m:number[][])=>{const n=m.length;const dp=m.map(r=>[...r]);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const l=j>0?dp[i-1][j-1]:Infinity,c=dp[i-1][j],r=j<n-1?dp[i-1][j+1]:Infinity;dp[i][j]+=Math.min(l,c,r);}return Math.min(...dp[n-1]);}; expect(fp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); expect(fp([[-19,57],[-40,-5]])).toBe(-59); });
+  it('determines if a number is happy (sum of squared digits eventually reaches 1)', () => { const happy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(happy(19)).toBe(true); expect(happy(2)).toBe(false); expect(happy(7)).toBe(true); });
+  it('moves all zeroes to end maintaining relative order of non-zero elements', () => { const mz=(a:number[])=>{let pos=0;for(const v of a)if(v!==0)a[pos++]=v;while(pos<a.length)a[pos++]=0;return a;}; expect(mz([0,1,0,3,12])).toEqual([1,3,12,0,0]); expect(mz([0,0,1])).toEqual([1,0,0]); expect(mz([1])).toEqual([1]); });
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+});

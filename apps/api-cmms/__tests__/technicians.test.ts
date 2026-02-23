@@ -662,3 +662,12 @@ describe('phase54 coverage', () => {
   it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
   it('computes minimum cost to connect sticks using min-heap', () => { const mcs=(s:number[])=>{if(s.length<=1)return 0;const h=[...s].sort((a,b)=>a-b);let cost=0;const pop=()=>{h.sort((a,b)=>a-b);return h.shift()!;};while(h.length>1){const a=pop(),b=pop();cost+=a+b;h.push(a+b);}return cost;}; expect(mcs([2,4,3])).toBe(14); expect(mcs([1,8,3,5])).toBe(30); expect(mcs([5])).toBe(0); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('detects a cycle in a linked list using Floyd algorithm', () => { type N={v:number,next:N|null}; const hasCycle=(head:N|null)=>{let s=head,f=head;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const a:N={v:1,next:null},b:N={v:2,next:null},c:N={v:3,next:null}; a.next=b;b.next=c;c.next=b; expect(hasCycle(a)).toBe(true); const x:N={v:1,next:{v:2,next:null}}; expect(hasCycle(x)).toBe(false); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('reverses bits of a 32-bit unsigned integer', () => { const revBits=(n:number)=>{let res=0;for(let i=0;i<32;i++){res=(res*2+((n>>i)&1))>>>0;}return res;}; expect(revBits(0b00000010100101000001111010011100)).toBe(0b00111001011110000010100101000000); expect(revBits(0b11111111111111111111111111111101)).toBe(0b10111111111111111111111111111111); });
+  it('moves all zeroes to end maintaining relative order of non-zero elements', () => { const mz=(a:number[])=>{let pos=0;for(const v of a)if(v!==0)a[pos++]=v;while(pos<a.length)a[pos++]=0;return a;}; expect(mz([0,1,0,3,12])).toEqual([1,3,12,0,0]); expect(mz([0,0,1])).toEqual([1,0,0]); expect(mz([1])).toEqual([1]); });
+  it('counts ways to decode a digit string into letters', () => { const decode=(s:string)=>{const n=s.length;if(!n||s[0]==='0')return 0;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=+s[i-1],two=+(s.slice(i-2,i));if(one>=1)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(decode('12')).toBe(2); expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+});

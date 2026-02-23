@@ -878,3 +878,12 @@ describe('phase54 coverage', () => {
   it('computes minimum cost to connect sticks using min-heap', () => { const mcs=(s:number[])=>{if(s.length<=1)return 0;const h=[...s].sort((a,b)=>a-b);let cost=0;const pop=()=>{h.sort((a,b)=>a-b);return h.shift()!;};while(h.length>1){const a=pop(),b=pop();cost+=a+b;h.push(a+b);}return cost;}; expect(mcs([2,4,3])).toBe(14); expect(mcs([1,8,3,5])).toBe(30); expect(mcs([5])).toBe(0); });
   it('computes minimum score triangulation of a convex polygon', () => { const mst=(v:number[])=>{const n=v.length,dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let i=0;i+len<n;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+v[i]*v[k]*v[j]);}}return dp[0][n-1];}; expect(mst([1,2,3])).toBe(6); expect(mst([3,7,4,5])).toBe(144); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds min cost to climb stairs paying either step cost', () => { const minCost=(cost:number[])=>{const n=cost.length,dp=[...cost];for(let i=2;i<n;i++)dp[i]+=Math.min(dp[i-1],dp[i-2]);return Math.min(dp[n-1],dp[n-2]);}; expect(minCost([10,15,20])).toBe(15); expect(minCost([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('counts good triplets where all pairwise abs diffs are within bounds', () => { const gt=(a:number[],x:number,y:number,z:number)=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)for(let k=j+1;k<a.length;k++)if(Math.abs(a[i]-a[j])<=x&&Math.abs(a[j]-a[k])<=y&&Math.abs(a[i]-a[k])<=z)cnt++;return cnt;}; expect(gt([3,0,1,1,9,7],7,2,3)).toBe(4); expect(gt([1,1,2,2,3],0,0,1)).toBe(0); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+  it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+});

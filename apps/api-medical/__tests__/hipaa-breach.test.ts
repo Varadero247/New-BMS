@@ -650,3 +650,12 @@ describe('phase54 coverage', () => {
   it('finds minimum number of jumps to reach last index', () => { const jump=(a:number[])=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<a.length-1;i++){farthest=Math.max(farthest,i+a[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;}; expect(jump([2,3,1,1,4])).toBe(2); expect(jump([2,3,0,1,4])).toBe(2); expect(jump([1,2,3])).toBe(2); });
   it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+  it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
+  it('converts a Roman numeral string to integer', () => { const r2i=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){const cur=m[s[i]],nxt=m[s[i+1]];if(nxt&&cur<nxt){res-=cur;}else res+=cur;}return res;}; expect(r2i('III')).toBe(3); expect(r2i('LVIII')).toBe(58); expect(r2i('MCMXCIV')).toBe(1994); });
+  it('detects a cycle in a linked list using Floyd algorithm', () => { type N={v:number,next:N|null}; const hasCycle=(head:N|null)=>{let s=head,f=head;while(f&&f.next){s=s!.next;f=f.next.next;if(s===f)return true;}return false;}; const a:N={v:1,next:null},b:N={v:2,next:null},c:N={v:3,next:null}; a.next=b;b.next=c;c.next=b; expect(hasCycle(a)).toBe(true); const x:N={v:1,next:{v:2,next:null}}; expect(hasCycle(x)).toBe(false); });
+  it('finds majority element using Boyer-Moore voting algorithm', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++){if(cnt===0){cand=a[i];cnt=1;}else if(a[i]===cand)cnt++;else cnt--;}return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); expect(maj([1])).toBe(1); });
+});

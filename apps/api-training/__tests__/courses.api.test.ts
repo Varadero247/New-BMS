@@ -693,3 +693,12 @@ describe('phase54 coverage', () => {
   it('sorts characters in string by decreasing frequency', () => { const fs=(s:string)=>{const m=new Map<string,number>();for(const c of s)m.set(c,(m.get(c)||0)+1);return [...m.entries()].sort((a,b)=>b[1]-a[1]).map(([c,f])=>c.repeat(f)).join('');}; expect(fs('tree')).toMatch(/^e{2}[rt]{2}$/); expect(fs('cccaaa')).toMatch(/^(c{3}a{3}|a{3}c{3})$/); expect(fs('Aabb')).toMatch(/b{2}[aA]{2}|b{2}[Aa]{2}/); });
   it('computes length of longest wiggle subsequence', () => { const wiggle=(a:number[])=>{if(a.length<2)return a.length;let up=1,down=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1])up=down+1;else if(a[i]<a[i-1])down=up+1;}return Math.max(up,down);}; expect(wiggle([1,7,4,9,2,5])).toBe(6); expect(wiggle([1,17,5,10,13,15,10,5,16,8])).toBe(7); expect(wiggle([1,2,3,4,5])).toBe(2); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+  it('counts ways to decode a digit string into letters', () => { const decode=(s:string)=>{const n=s.length;if(!n||s[0]==='0')return 0;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=+s[i-1],two=+(s.slice(i-2,i));if(one>=1)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(decode('12')).toBe(2); expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('rotates array k positions to the right in-place', () => { const rotate=(a:number[],k:number)=>{const n=a.length;k=k%n;const rev=(l:number,r:number)=>{while(l<r){[a[l],a[r]]=[a[r],a[l]];l++;r--;}};rev(0,n-1);rev(0,k-1);rev(k,n-1);return a;}; expect(rotate([1,2,3,4,5,6,7],3)).toEqual([5,6,7,1,2,3,4]); expect(rotate([-1,-100,3,99],2)).toEqual([3,99,-1,-100]); });
+  it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
+});

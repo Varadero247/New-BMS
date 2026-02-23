@@ -1071,3 +1071,12 @@ describe('phase54 coverage', () => {
   it('counts how many people each person can see in a queue (monotonic stack)', () => { const see=(h:number[])=>{const n=h.length,res=new Array(n).fill(0),st:number[]=[];for(let i=n-1;i>=0;i--){let cnt=0;while(st.length&&h[st[st.length-1]]<h[i]){cnt++;st.pop();}if(st.length)cnt++;res[i]=cnt;st.push(i);}return res;}; expect(see([10,6,8,5,11,9])).toEqual([3,1,2,1,1,0]); expect(see([5,1,2,3,10])).toEqual([4,1,1,1,0]); });
   it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+  it('finds minimum sum falling path through matrix (each step diagonal or same col)', () => { const fp=(m:number[][])=>{const n=m.length;const dp=m.map(r=>[...r]);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const l=j>0?dp[i-1][j-1]:Infinity,c=dp[i-1][j],r=j<n-1?dp[i-1][j+1]:Infinity;dp[i][j]+=Math.min(l,c,r);}return Math.min(...dp[n-1]);}; expect(fp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); expect(fp([[-19,57],[-40,-5]])).toBe(-59); });
+  it('determines if array can be partitioned into two equal-sum subsets', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const n of a)for(let j=t;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+});

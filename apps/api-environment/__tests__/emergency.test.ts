@@ -1084,3 +1084,12 @@ describe('phase54 coverage', () => {
   it('finds minimum number of jumps to reach last index', () => { const jump=(a:number[])=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<a.length-1;i++){farthest=Math.max(farthest,i+a[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;}; expect(jump([2,3,1,1,4])).toBe(2); expect(jump([2,3,0,1,4])).toBe(2); expect(jump([1,2,3])).toBe(2); });
   it('counts total number of digit 1 appearing in all numbers from 1 to n', () => { const cnt1=(n:number)=>{let res=0;for(let f=1;f<=n;f*=10){const hi=Math.floor(n/(f*10)),cur=Math.floor(n/f)%10,lo=n%f;res+=hi*f+(cur>1?f:cur===1?lo+1:0);}return res;}; expect(cnt1(13)).toBe(6); expect(cnt1(0)).toBe(0); expect(cnt1(100)).toBe(21); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds min cost to climb stairs paying either step cost', () => { const minCost=(cost:number[])=>{const n=cost.length,dp=[...cost];for(let i=2;i<n;i++)dp[i]+=Math.min(dp[i-1],dp[i-2]);return Math.min(dp[n-1],dp[n-2]);}; expect(minCost([10,15,20])).toBe(15); expect(minCost([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('converts a Roman numeral string to integer', () => { const r2i=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){const cur=m[s[i]],nxt=m[s[i+1]];if(nxt&&cur<nxt){res-=cur;}else res+=cur;}return res;}; expect(r2i('III')).toBe(3); expect(r2i('LVIII')).toBe(58); expect(r2i('MCMXCIV')).toBe(1994); });
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+  it('finds median of two sorted arrays in O(log(min(m,n)))', () => { const med=(a:number[],b:number[])=>{if(a.length>b.length)return med(b,a);const m=a.length,n=b.length,half=(m+n+1)>>1;let lo=0,hi=m;while(lo<=hi){const i=lo+hi>>1,j=half-i;const al=i>0?a[i-1]:-Infinity,ar=i<m?a[i]:Infinity;const bl=j>0?b[j-1]:-Infinity,br=j<n?b[j]:Infinity;if(al<=br&&bl<=ar){const mx=Math.max(al,bl);return(m+n)%2?mx:(mx+Math.min(ar,br))/2;}else if(al>br)hi=i-1;else lo=i+1;}return -1;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+});

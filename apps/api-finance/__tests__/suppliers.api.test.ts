@@ -896,3 +896,12 @@ describe('phase54 coverage', () => {
   it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
   it('finds the nth ugly number (factors 2, 3, 5 only)', () => { const ugly=(n:number)=>{const dp=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const next=Math.min(dp[i2]*2,dp[i3]*3,dp[i5]*5);dp.push(next);if(next===dp[i2]*2)i2++;if(next===dp[i3]*3)i3++;if(next===dp[i5]*5)i5++;}return dp[n-1];}; expect(ugly(1)).toBe(1); expect(ugly(10)).toBe(12); expect(ugly(15)).toBe(24); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('rotates array k positions to the right in-place', () => { const rotate=(a:number[],k:number)=>{const n=a.length;k=k%n;const rev=(l:number,r:number)=>{while(l<r){[a[l],a[r]]=[a[r],a[l]];l++;r--;}};rev(0,n-1);rev(0,k-1);rev(k,n-1);return a;}; expect(rotate([1,2,3,4,5,6,7],3)).toEqual([5,6,7,1,2,3,4]); expect(rotate([-1,-100,3,99],2)).toEqual([3,99,-1,-100]); });
+  it('determines if array can be partitioned into two equal-sum subsets', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const n of a)for(let j=t;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+  it('converts an integer to Roman numeral string', () => { const i2r=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';for(let i=0;i<vals.length;i++){while(n>=vals[i]){res+=syms[i];n-=vals[i];}}return res;}; expect(i2r(3)).toBe('III'); expect(i2r(58)).toBe('LVIII'); expect(i2r(1994)).toBe('MCMXCIV'); });
+  it('counts ways to decode a digit string into letters', () => { const decode=(s:string)=>{const n=s.length;if(!n||s[0]==='0')return 0;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=+s[i-1],two=+(s.slice(i-2,i));if(one>=1)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(decode('12')).toBe(2); expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
+});

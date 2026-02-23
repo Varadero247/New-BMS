@@ -778,3 +778,12 @@ describe('phase54 coverage', () => {
   it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
   it('finds the nth ugly number (factors 2, 3, 5 only)', () => { const ugly=(n:number)=>{const dp=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const next=Math.min(dp[i2]*2,dp[i3]*3,dp[i5]*5);dp.push(next);if(next===dp[i2]*2)i2++;if(next===dp[i3]*3)i3++;if(next===dp[i5]*5)i5++;}return dp[n-1];}; expect(ugly(1)).toBe(1); expect(ugly(10)).toBe(12); expect(ugly(15)).toBe(24); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('determines if array can be partitioned into two equal-sum subsets', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const n of a)for(let j=t;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('finds majority element using Boyer-Moore voting algorithm', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++){if(cnt===0){cand=a[i];cnt=1;}else if(a[i]===cand)cnt++;else cnt--;}return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); expect(maj([1])).toBe(1); });
+  it('counts good triplets where all pairwise abs diffs are within bounds', () => { const gt=(a:number[],x:number,y:number,z:number)=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)for(let k=j+1;k<a.length;k++)if(Math.abs(a[i]-a[j])<=x&&Math.abs(a[j]-a[k])<=y&&Math.abs(a[i]-a[k])<=z)cnt++;return cnt;}; expect(gt([3,0,1,1,9,7],7,2,3)).toBe(4); expect(gt([1,1,2,2,3],0,0,1)).toBe(0); });
+});

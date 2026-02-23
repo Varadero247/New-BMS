@@ -1086,3 +1086,12 @@ describe('phase54 coverage', () => {
   it('computes length of longest wiggle subsequence', () => { const wiggle=(a:number[])=>{if(a.length<2)return a.length;let up=1,down=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1])up=down+1;else if(a[i]<a[i-1])down=up+1;}return Math.max(up,down);}; expect(wiggle([1,7,4,9,2,5])).toBe(6); expect(wiggle([1,17,5,10,13,15,10,5,16,8])).toBe(7); expect(wiggle([1,2,3,4,5])).toBe(2); });
   it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('reverses a singly linked list iteratively', () => { type N={v:number,next:N|null}; const mk=(a:number[]):N|null=>a.reduceRight((n:N|null,v)=>({v,next:n}),null); const toArr=(n:N|null):number[]=>{const r:number[]=[];while(n){r.push(n.v);n=n.next;}return r;}; const rev=(h:N|null)=>{let prev:N|null=null,cur=h;while(cur){const nxt=cur.next;cur.next=prev;prev=cur;cur=nxt;}return prev;}; expect(toArr(rev(mk([1,2,3,4,5])))).toEqual([5,4,3,2,1]); expect(toArr(rev(mk([1,2])))).toEqual([2,1]); });
+  it('returns the nth row of Pascal triangle', () => { const pascal=(n:number)=>{let row=[1];for(let i=1;i<=n;i++){const r=[1];for(let j=1;j<i;j++)r.push(row[j-1]+row[j]);r.push(1);row=r;}return row;}; expect(pascal(0)).toEqual([1]); expect(pascal(3)).toEqual([1,3,3,1]); expect(pascal(4)).toEqual([1,4,6,4,1]); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+});

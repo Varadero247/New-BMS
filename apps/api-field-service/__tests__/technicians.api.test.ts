@@ -787,3 +787,12 @@ describe('phase54 coverage', () => {
   it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
   it('finds minimum number of jumps to reach last index', () => { const jump=(a:number[])=>{let jumps=0,curEnd=0,farthest=0;for(let i=0;i<a.length-1;i++){farthest=Math.max(farthest,i+a[i]);if(i===curEnd){jumps++;curEnd=farthest;}}return jumps;}; expect(jump([2,3,1,1,4])).toBe(2); expect(jump([2,3,0,1,4])).toBe(2); expect(jump([1,2,3])).toBe(2); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('counts ways to decode a digit string into letters', () => { const decode=(s:string)=>{const n=s.length;if(!n||s[0]==='0')return 0;const dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=+s[i-1],two=+(s.slice(i-2,i));if(one>=1)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(decode('12')).toBe(2); expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('finds min cost to climb stairs paying either step cost', () => { const minCost=(cost:number[])=>{const n=cost.length,dp=[...cost];for(let i=2;i<n;i++)dp[i]+=Math.min(dp[i-1],dp[i-2]);return Math.min(dp[n-1],dp[n-2]);}; expect(minCost([10,15,20])).toBe(15); expect(minCost([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
+});

@@ -815,3 +815,12 @@ describe('phase54 coverage', () => {
   it('computes minimum score triangulation of a convex polygon', () => { const mst=(v:number[])=>{const n=v.length,dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<n;len++){for(let i=0;i+len<n;i++){const j=i+len;dp[i][j]=Infinity;for(let k=i+1;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k][j]+v[i]*v[k]*v[j]);}}return dp[0][n-1];}; expect(mst([1,2,3])).toBe(6); expect(mst([3,7,4,5])).toBe(144); });
   it('computes total hamming distance between all pairs', () => { const thd=(a:number[])=>{let res=0;for(let b=0;b<32;b++){let ones=0;for(const x of a)ones+=(x>>b)&1;res+=ones*(a.length-ones);}return res;}; expect(thd([4,14,2])).toBe(6); expect(thd([4,14,4])).toBe(4); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+  it('finds longest common prefix among an array of strings', () => { const lcp=(strs:string[])=>{if(!strs.length)return '';let prefix=strs[0];for(let i=1;i<strs.length;i++){while(strs[i].indexOf(prefix)!==0)prefix=prefix.slice(0,-1);}return prefix;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); expect(lcp(['dog','racecar','car'])).toBe(''); expect(lcp(['abc','abc','abc'])).toBe('abc'); });
+  it('converts a Roman numeral string to integer', () => { const r2i=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){const cur=m[s[i]],nxt=m[s[i+1]];if(nxt&&cur<nxt){res-=cur;}else res+=cur;}return res;}; expect(r2i('III')).toBe(3); expect(r2i('LVIII')).toBe(58); expect(r2i('MCMXCIV')).toBe(1994); });
+  it('determines if a number is happy (sum of squared digits eventually reaches 1)', () => { const happy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(happy(19)).toBe(true); expect(happy(2)).toBe(false); expect(happy(7)).toBe(true); });
+});

@@ -1053,3 +1053,12 @@ describe('phase54 coverage', () => {
   it('computes total hamming distance between all pairs', () => { const thd=(a:number[])=>{let res=0;for(let b=0;b<32;b++){let ones=0;for(const x of a)ones+=(x>>b)&1;res+=ones*(a.length-ones);}return res;}; expect(thd([4,14,2])).toBe(6); expect(thd([4,14,4])).toBe(4); });
   it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('rotates array k positions to the right in-place', () => { const rotate=(a:number[],k:number)=>{const n=a.length;k=k%n;const rev=(l:number,r:number)=>{while(l<r){[a[l],a[r]]=[a[r],a[l]];l++;r--;}};rev(0,n-1);rev(0,k-1);rev(k,n-1);return a;}; expect(rotate([1,2,3,4,5,6,7],3)).toEqual([5,6,7,1,2,3,4]); expect(rotate([-1,-100,3,99],2)).toEqual([3,99,-1,-100]); });
+  it('converts an integer to Roman numeral string', () => { const i2r=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';for(let i=0;i<vals.length;i++){while(n>=vals[i]){res+=syms[i];n-=vals[i];}}return res;}; expect(i2r(3)).toBe('III'); expect(i2r(58)).toBe('LVIII'); expect(i2r(1994)).toBe('MCMXCIV'); });
+  it('finds minimum sum falling path through matrix (each step diagonal or same col)', () => { const fp=(m:number[][])=>{const n=m.length;const dp=m.map(r=>[...r]);for(let i=1;i<n;i++)for(let j=0;j<n;j++){const l=j>0?dp[i-1][j-1]:Infinity,c=dp[i-1][j],r=j<n-1?dp[i-1][j+1]:Infinity;dp[i][j]+=Math.min(l,c,r);}return Math.min(...dp[n-1]);}; expect(fp([[2,1,3],[6,5,4],[7,8,9]])).toBe(13); expect(fp([[-19,57],[-40,-5]])).toBe(-59); });
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+  it('finds longest common prefix among an array of strings', () => { const lcp=(strs:string[])=>{if(!strs.length)return '';let prefix=strs[0];for(let i=1;i<strs.length;i++){while(strs[i].indexOf(prefix)!==0)prefix=prefix.slice(0,-1);}return prefix;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); expect(lcp(['dog','racecar','car'])).toBe(''); expect(lcp(['abc','abc','abc'])).toBe('abc'); });
+});

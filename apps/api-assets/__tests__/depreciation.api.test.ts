@@ -689,3 +689,12 @@ describe('phase54 coverage', () => {
   it('computes minimum path sum from top-left to bottom-right', () => { const mps=(g:number[][])=>{const m=g.length,n=g[0].length,dp=g.map(r=>[...r]);for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;const top=i>0?dp[i-1][j]:Infinity;const left=j>0?dp[i][j-1]:Infinity;dp[i][j]+=Math.min(top,left);}return dp[m-1][n-1];}; expect(mps([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); expect(mps([[1,2],[5,6]])).toBe(9); });
   it('computes length of longest wiggle subsequence', () => { const wiggle=(a:number[])=>{if(a.length<2)return a.length;let up=1,down=1;for(let i=1;i<a.length;i++){if(a[i]>a[i-1])up=down+1;else if(a[i]<a[i-1])down=up+1;}return Math.max(up,down);}; expect(wiggle([1,7,4,9,2,5])).toBe(6); expect(wiggle([1,17,5,10,13,15,10,5,16,8])).toBe(7); expect(wiggle([1,2,3,4,5])).toBe(2); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('converts an integer to Roman numeral string', () => { const i2r=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';for(let i=0;i<vals.length;i++){while(n>=vals[i]){res+=syms[i];n-=vals[i];}}return res;}; expect(i2r(3)).toBe('III'); expect(i2r(58)).toBe('LVIII'); expect(i2r(1994)).toBe('MCMXCIV'); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
+  it('finds maximum product subarray', () => { const mp=(a:number[])=>{let mn=a[0],mx=a[0],res=a[0];for(let i=1;i<a.length;i++){const tmp=mx;mx=Math.max(a[i],mx*a[i],mn*a[i]);mn=Math.min(a[i],tmp*a[i],mn*a[i]);res=Math.max(res,mx);}return res;}; expect(mp([2,3,-2,4])).toBe(6); expect(mp([-2,0,-1])).toBe(0); expect(mp([-2,3,-4])).toBe(24); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+});

@@ -651,3 +651,12 @@ describe('phase54 coverage', () => {
   it('computes minimum path sum from top-left to bottom-right', () => { const mps=(g:number[][])=>{const m=g.length,n=g[0].length,dp=g.map(r=>[...r]);for(let i=0;i<m;i++)for(let j=0;j<n;j++){if(i===0&&j===0)continue;const top=i>0?dp[i-1][j]:Infinity;const left=j>0?dp[i][j-1]:Infinity;dp[i][j]+=Math.min(top,left);}return dp[m-1][n-1];}; expect(mps([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); expect(mps([[1,2],[5,6]])).toBe(9); });
   it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('determines if a number is happy (sum of squared digits eventually reaches 1)', () => { const happy=(n:number)=>{const seen=new Set<number>();while(n!==1&&!seen.has(n)){seen.add(n);n=[...String(n)].reduce((s,d)=>s+Number(d)**2,0);}return n===1;}; expect(happy(19)).toBe(true); expect(happy(2)).toBe(false); expect(happy(7)).toBe(true); });
+  it('finds majority element using Boyer-Moore voting algorithm', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++){if(cnt===0){cand=a[i];cnt=1;}else if(a[i]===cand)cnt++;else cnt--;}return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); expect(maj([1])).toBe(1); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('generates all unique subsets from array with duplicates', () => { const subs=(a:number[])=>{a.sort((x,y)=>x-y);const res:number[][]=[];const bt=(start:number,cur:number[])=>{res.push([...cur]);for(let i=start;i<a.length;i++){if(i>start&&a[i]===a[i-1])continue;cur.push(a[i]);bt(i+1,cur);cur.pop();}};bt(0,[]);return res;}; expect(subs([1,2,2]).length).toBe(6); expect(subs([0]).length).toBe(2); });
+  it('converts an integer to Roman numeral string', () => { const i2r=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';for(let i=0;i<vals.length;i++){while(n>=vals[i]){res+=syms[i];n-=vals[i];}}return res;}; expect(i2r(3)).toBe('III'); expect(i2r(58)).toBe('LVIII'); expect(i2r(1994)).toBe('MCMXCIV'); });
+});

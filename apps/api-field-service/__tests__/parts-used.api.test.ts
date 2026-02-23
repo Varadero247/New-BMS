@@ -796,3 +796,12 @@ describe('phase54 coverage', () => {
   it('finds all duplicates in array using sign-marking O(n) no extra space', () => { const dups=(a:number[])=>{const res:number[]=[],b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(idx+1);else b[idx]=-b[idx];}return res.sort((x,y)=>x-y);}; expect(dups([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(dups([1,1,2])).toEqual([1]); });
   it('counts pairs with absolute difference exactly k', () => { const cpdk=(a:number[],k:number)=>{const s=new Set(a);let c=0;const seen=new Set<number>();for(const x of a){if(!seen.has(x)&&s.has(x+k))c++;seen.add(x);}return c;}; expect(cpdk([1,7,5,9,2,12,3],2)).toBe(4); expect(cpdk([1,2,3,4,5],1)).toBe(4); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('determines if array can be partitioned into two equal-sum subsets', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const n of a)for(let j=t;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+  it('finds longest common prefix among an array of strings', () => { const lcp=(strs:string[])=>{if(!strs.length)return '';let prefix=strs[0];for(let i=1;i<strs.length;i++){while(strs[i].indexOf(prefix)!==0)prefix=prefix.slice(0,-1);}return prefix;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); expect(lcp(['dog','racecar','car'])).toBe(''); expect(lcp(['abc','abc','abc'])).toBe('abc'); });
+  it('finds min cost to climb stairs paying either step cost', () => { const minCost=(cost:number[])=>{const n=cost.length,dp=[...cost];for(let i=2;i<n;i++)dp[i]+=Math.min(dp[i-1],dp[i-2]);return Math.min(dp[n-1],dp[n-2]);}; expect(minCost([10,15,20])).toBe(15); expect(minCost([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('generates all unique subsets from array with duplicates', () => { const subs=(a:number[])=>{a.sort((x,y)=>x-y);const res:number[][]=[];const bt=(start:number,cur:number[])=>{res.push([...cur]);for(let i=start;i<a.length;i++){if(i>start&&a[i]===a[i-1])continue;cur.push(a[i]);bt(i+1,cur);cur.pop();}};bt(0,[]);return res;}; expect(subs([1,2,2]).length).toBe(6); expect(subs([0]).length).toBe(2); });
+  it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
+});

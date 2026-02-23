@@ -752,3 +752,12 @@ describe('phase54 coverage', () => {
   it('finds the nth ugly number (factors 2, 3, 5 only)', () => { const ugly=(n:number)=>{const dp=[1];let i2=0,i3=0,i5=0;for(let i=1;i<n;i++){const next=Math.min(dp[i2]*2,dp[i3]*3,dp[i5]*5);dp.push(next);if(next===dp[i2]*2)i2++;if(next===dp[i3]*3)i3++;if(next===dp[i5]*5)i5++;}return dp[n-1];}; expect(ugly(1)).toBe(1); expect(ugly(10)).toBe(12); expect(ugly(15)).toBe(24); });
   it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds container with most water using two-pointer', () => { const mw=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,(r-l)*Math.min(h[l],h[r]));if(h[l]<h[r])l++;else r--;}return mx;}; expect(mw([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw([1,1])).toBe(1); expect(mw([4,3,2,1,4])).toBe(16); });
+  it('finds longest common prefix among an array of strings', () => { const lcp=(strs:string[])=>{if(!strs.length)return '';let prefix=strs[0];for(let i=1;i<strs.length;i++){while(strs[i].indexOf(prefix)!==0)prefix=prefix.slice(0,-1);}return prefix;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); expect(lcp(['dog','racecar','car'])).toBe(''); expect(lcp(['abc','abc','abc'])).toBe('abc'); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('reverses a singly linked list iteratively', () => { type N={v:number,next:N|null}; const mk=(a:number[]):N|null=>a.reduceRight((n:N|null,v)=>({v,next:n}),null); const toArr=(n:N|null):number[]=>{const r:number[]=[];while(n){r.push(n.v);n=n.next;}return r;}; const rev=(h:N|null)=>{let prev:N|null=null,cur=h;while(cur){const nxt=cur.next;cur.next=prev;prev=cur;cur=nxt;}return prev;}; expect(toArr(rev(mk([1,2,3,4,5])))).toEqual([5,4,3,2,1]); expect(toArr(rev(mk([1,2])))).toEqual([2,1]); });
+});

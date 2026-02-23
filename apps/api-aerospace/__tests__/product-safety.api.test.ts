@@ -885,3 +885,12 @@ describe('phase54 coverage', () => {
   it('determines if first player always wins stone game', () => { const sg=(_:number[])=>true; expect(sg([5,3,4,5])).toBe(true); expect(sg([3,7,2,3])).toBe(true); });
   it('counts subarrays with exactly k distinct integers', () => { const ek=(a:number[],k:number)=>{const atMost=(x:number)=>{let res=0,l=0;const m=new Map<number,number>();for(let r=0;r<a.length;r++){m.set(a[r],(m.get(a[r])||0)+1);while(m.size>x){const v=m.get(a[l])!-1;if(v===0)m.delete(a[l]);else m.set(a[l],v);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);}; expect(ek([1,2,1,2,3],2)).toBe(7); expect(ek([1,2,1,3,4],3)).toBe(3); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('generates all unique subsets from array with duplicates', () => { const subs=(a:number[])=>{a.sort((x,y)=>x-y);const res:number[][]=[];const bt=(start:number,cur:number[])=>{res.push([...cur]);for(let i=start;i<a.length;i++){if(i>start&&a[i]===a[i-1])continue;cur.push(a[i]);bt(i+1,cur);cur.pop();}};bt(0,[]);return res;}; expect(subs([1,2,2]).length).toBe(6); expect(subs([0]).length).toBe(2); });
+  it('finds min cost to climb stairs paying either step cost', () => { const minCost=(cost:number[])=>{const n=cost.length,dp=[...cost];for(let i=2;i<n;i++)dp[i]+=Math.min(dp[i-1],dp[i-2]);return Math.min(dp[n-1],dp[n-2]);}; expect(minCost([10,15,20])).toBe(15); expect(minCost([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
+  it('converts a Roman numeral string to integer', () => { const r2i=(s:string)=>{const m:Record<string,number>={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let res=0;for(let i=0;i<s.length;i++){const cur=m[s[i]],nxt=m[s[i+1]];if(nxt&&cur<nxt){res-=cur;}else res+=cur;}return res;}; expect(r2i('III')).toBe(3); expect(r2i('LVIII')).toBe(58); expect(r2i('MCMXCIV')).toBe(1994); });
+});

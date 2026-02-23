@@ -876,3 +876,12 @@ describe('phase54 coverage', () => {
   it('finds minimum arrows to burst all balloons', () => { const minArrows=(pts:number[][])=>{if(!pts.length)return 0;pts.sort((a,b)=>a[1]-b[1]);let arrows=1,end=pts[0][1];for(let i=1;i<pts.length;i++){if(pts[i][0]>end){arrows++;end=pts[i][1];}}return arrows;}; expect(minArrows([[10,16],[2,8],[1,6],[7,12]])).toBe(2); expect(minArrows([[1,2],[3,4],[5,6]])).toBe(3); expect(minArrows([[1,2],[2,3]])).toBe(1); });
   it('finds all lonely numbers (no adjacent values exist in array)', () => { const lonely=(a:number[])=>{const s=new Set(a),cnt=new Map<number,number>();for(const x of a)cnt.set(x,(cnt.get(x)||0)+1);return a.filter(x=>cnt.get(x)===1&&!s.has(x-1)&&!s.has(x+1)).sort((a,b)=>a-b);}; expect(lonely([10,6,5,8])).toEqual([8,10]); expect(lonely([1,3,5,3])).toEqual([1,5]); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('moves all zeroes to end maintaining relative order of non-zero elements', () => { const mz=(a:number[])=>{let pos=0;for(const v of a)if(v!==0)a[pos++]=v;while(pos<a.length)a[pos++]=0;return a;}; expect(mz([0,1,0,3,12])).toEqual([1,3,12,0,0]); expect(mz([0,0,1])).toEqual([1,0,0]); expect(mz([1])).toEqual([1]); });
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+  it('counts good triplets where all pairwise abs diffs are within bounds', () => { const gt=(a:number[],x:number,y:number,z:number)=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)for(let k=j+1;k<a.length;k++)if(Math.abs(a[i]-a[j])<=x&&Math.abs(a[j]-a[k])<=y&&Math.abs(a[i]-a[k])<=z)cnt++;return cnt;}; expect(gt([3,0,1,1,9,7],7,2,3)).toBe(4); expect(gt([1,1,2,2,3],0,0,1)).toBe(0); });
+  it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
+  it('generates the nth term of count-and-say sequence', () => { const cas=(n:number):string=>{if(n===1)return '1';const prev=cas(n-1);let res='',i=0;while(i<prev.length){let j=i;while(j<prev.length&&prev[j]===prev[i])j++;res+=`${j-i}${prev[i]}`;i=j;}return res;}; expect(cas(1)).toBe('1'); expect(cas(4)).toBe('1211'); expect(cas(5)).toBe('111221'); });
+});

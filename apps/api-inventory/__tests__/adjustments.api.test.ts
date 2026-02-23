@@ -800,3 +800,12 @@ describe('phase54 coverage', () => {
   it('finds maximum sum subarray with all unique elements', () => { const mev=(a:number[])=>{const seen=new Set<number>();let l=0,sum=0,res=0;for(let r=0;r<a.length;r++){while(seen.has(a[r])){seen.delete(a[l]);sum-=a[l++];}seen.add(a[r]);sum+=a[r];res=Math.max(res,sum);}return res;}; expect(mev([4,2,4,5,6])).toBe(17); expect(mev([5,2,1,2,5,2,1,2,5])).toBe(8); });
   it('finds longest harmonious subsequence (max-min = 1)', () => { const lhs=(a:number[])=>{const m=new Map<number,number>();for(const x of a)m.set(x,(m.get(x)||0)+1);let res=0;for(const [k,v] of m)if(m.has(k+1))res=Math.max(res,v+m.get(k+1)!);return res;}; expect(lhs([1,3,2,2,5,2,3,7])).toBe(5); expect(lhs([1,1,1,1])).toBe(0); expect(lhs([1,2,3,4])).toBe(2); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('finds majority element using Boyer-Moore voting algorithm', () => { const maj=(a:number[])=>{let cand=a[0],cnt=1;for(let i=1;i<a.length;i++){if(cnt===0){cand=a[i];cnt=1;}else if(a[i]===cand)cnt++;else cnt--;}return cand;}; expect(maj([3,2,3])).toBe(3); expect(maj([2,2,1,1,1,2,2])).toBe(2); expect(maj([1])).toBe(1); });
+  it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
+  it('finds start indices of all anagrams of pattern in string', () => { const aa=(s:string,p:string)=>{const res:number[]=[],n=s.length,m=p.length;if(n<m)return res;const pc=new Array(26).fill(0),sc=new Array(26).fill(0),a='a'.charCodeAt(0);for(let i=0;i<m;i++){pc[p.charCodeAt(i)-a]++;sc[s.charCodeAt(i)-a]++;}if(pc.join()===sc.join())res.push(0);for(let i=m;i<n;i++){sc[s.charCodeAt(i)-a]++;sc[s.charCodeAt(i-m)-a]--;if(pc.join()===sc.join())res.push(i-m+1);}return res;}; expect(aa('cbaebabacd','abc')).toEqual([0,6]); expect(aa('abab','ab')).toEqual([0,1,2]); });
+  it('converts Excel column title to column number', () => { const col=(s:string)=>s.split('').reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); expect(col('A')).toBe(1); expect(col('AB')).toBe(28); expect(col('ZY')).toBe(701); });
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+});

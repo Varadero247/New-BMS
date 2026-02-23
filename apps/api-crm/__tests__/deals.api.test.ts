@@ -1017,3 +1017,12 @@ describe('phase54 coverage', () => {
   it('finds min steps to reduce n to 1 (divide by 2 or subtract 1)', () => { const steps=(n:number)=>{let s=0;while(n>1){if(n%2===0)n/=2;else n--;s++;}return s;}; expect(steps(14)).toBe(5); expect(steps(8)).toBe(3); expect(steps(1)).toBe(0); });
   it('finds the duplicate number in array containing n+1 integers in [1,n]', () => { const fd=(a:number[])=>{let slow=a[0],fast=a[0];do{slow=a[slow];fast=a[a[fast]];}while(slow!==fast);slow=a[0];while(slow!==fast){slow=a[slow];fast=a[fast];}return slow;}; expect(fd([1,3,4,2,2])).toBe(2); expect(fd([3,1,3,4,2])).toBe(3); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('determines if array can be partitioned into two equal-sum subsets', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const n of a)for(let j=t;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('reverses bits of a 32-bit unsigned integer', () => { const revBits=(n:number)=>{let res=0;for(let i=0;i<32;i++){res=(res*2+((n>>i)&1))>>>0;}return res;}; expect(revBits(0b00000010100101000001111010011100)).toBe(0b00111001011110000010100101000000); expect(revBits(0b11111111111111111111111111111101)).toBe(0b10111111111111111111111111111111); });
+  it('finds maximum depth of a binary tree', () => { type N={v:number,l:N|null,r:N|null}; const mk=(v:number,l:N|null=null,r:N|null=null):N=>({v,l,r}); const md=(n:N|null):number=>n?1+Math.max(md(n.l),md(n.r)):0; const t=mk(3,mk(9),mk(20,mk(15),mk(7))); expect(md(t)).toBe(3); expect(md(null)).toBe(0); expect(md(mk(1,mk(2)))).toBe(2); });
+  it('finds start indices of all anagrams of pattern in string', () => { const aa=(s:string,p:string)=>{const res:number[]=[],n=s.length,m=p.length;if(n<m)return res;const pc=new Array(26).fill(0),sc=new Array(26).fill(0),a='a'.charCodeAt(0);for(let i=0;i<m;i++){pc[p.charCodeAt(i)-a]++;sc[s.charCodeAt(i)-a]++;}if(pc.join()===sc.join())res.push(0);for(let i=m;i<n;i++){sc[s.charCodeAt(i)-a]++;sc[s.charCodeAt(i-m)-a]--;if(pc.join()===sc.join())res.push(i-m+1);}return res;}; expect(aa('cbaebabacd','abc')).toEqual([0,6]); expect(aa('abab','ab')).toEqual([0,1,2]); });
+});

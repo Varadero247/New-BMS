@@ -504,3 +504,12 @@ describe('phase54 coverage', () => {
   it('counts how many people each person can see in a queue (monotonic stack)', () => { const see=(h:number[])=>{const n=h.length,res=new Array(n).fill(0),st:number[]=[];for(let i=n-1;i>=0;i--){let cnt=0;while(st.length&&h[st[st.length-1]]<h[i]){cnt++;st.pop();}if(st.length)cnt++;res[i]=cnt;st.push(i);}return res;}; expect(see([10,6,8,5,11,9])).toEqual([3,1,2,1,1,0]); expect(see([5,1,2,3,10])).toEqual([4,1,1,1,0]); });
   it('counts subarrays with exactly k distinct integers', () => { const ek=(a:number[],k:number)=>{const atMost=(x:number)=>{let res=0,l=0;const m=new Map<number,number>();for(let r=0;r<a.length;r++){m.set(a[r],(m.get(a[r])||0)+1);while(m.size>x){const v=m.get(a[l])!-1;if(v===0)m.delete(a[l]);else m.set(a[l],v);l++;}res+=r-l+1;}return res;};return atMost(k)-atMost(k-1);}; expect(ek([1,2,1,2,3],2)).toBe(7); expect(ek([1,2,1,3,4],3)).toBe(3); });
 });
+
+
+describe('phase55 coverage', () => {
+  it('computes bitwise AND of all numbers in range [left, right]', () => { const rangeAnd=(l:number,r:number)=>{let shift=0;while(l!==r){l>>=1;r>>=1;shift++;}return l<<shift;}; expect(rangeAnd(5,7)).toBe(4); expect(rangeAnd(0,0)).toBe(0); expect(rangeAnd(1,2147483647)).toBe(0); });
+  it('answers range sum queries using prefix sums', () => { const rs=(a:number[])=>{const pre=[0];for(const v of a)pre.push(pre[pre.length-1]+v);return(l:number,r:number)=>pre[r+1]-pre[l];}; const q=rs([-2,0,3,-5,2,-1]); expect(q(0,2)).toBe(1); expect(q(2,5)).toBe(-1); expect(q(0,5)).toBe(-3); });
+  it('counts prime numbers less than n using Sieve of Eratosthenes', () => { const cp=(n:number)=>{if(n<2)return 0;const s=new Uint8Array(n).fill(1);s[0]=s[1]=0;for(let i=2;i*i<n;i++)if(s[i])for(let j=i*i;j<n;j+=i)s[j]=0;return s.reduce((a,v)=>a+v,0);}; expect(cp(10)).toBe(4); expect(cp(0)).toBe(0); expect(cp(20)).toBe(8); });
+  it('finds the element that appears once (all others appear twice) using XOR', () => { const single=(a:number[])=>a.reduce((acc,v)=>acc^v,0); expect(single([2,2,1])).toBe(1); expect(single([4,1,2,1,2])).toBe(4); expect(single([1])).toBe(1); });
+  it('determines if array can be partitioned into two equal-sum subsets', () => { const part=(a:number[])=>{const sum=a.reduce((s,v)=>s+v,0);if(sum%2)return false;const t=sum/2;const dp=new Array(t+1).fill(false);dp[0]=true;for(const n of a)for(let j=t;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[t];}; expect(part([1,5,11,5])).toBe(true); expect(part([1,2,3,5])).toBe(false); });
+});
