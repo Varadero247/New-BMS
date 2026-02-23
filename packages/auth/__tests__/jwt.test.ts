@@ -2281,3 +2281,88 @@ describe('ph216_mal',()=>{
   it('d',()=>{expect(mergeArraysLen216([1,3,5],[2,4,6])).toBe(6);});
   it('e',()=>{expect(mergeArraysLen216([],[]) ).toBe(0);});
 });
+
+// ── JWT coverage for uncovered branches ───────────────────────────────────────
+
+describe('JWT — uncovered branch coverage', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...originalEnv };
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  it('should warn (not throw) when JWT_SECRET is short in non-production', () => {
+    // Lines 17-24: secret.length < 32 and NODE_ENV !== 'production'
+    process.env.JWT_SECRET = 'short';
+    process.env.NODE_ENV = 'test';
+    jest.resetModules();
+    const { generateToken: gt } = require('../src/jwt');
+    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const token = gt({ userId: 'user-short' });
+    expect(typeof token).toBe('string');
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('JWT_SECRET is shorter than 32 characters')
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it('should throw in production when JWT_SECRET is short', () => {
+    // Lines 18-20: secret.length < 32 and NODE_ENV === 'production'
+    process.env.JWT_SECRET = 'short';
+    process.env.NODE_ENV = 'production';
+    jest.resetModules();
+    const { generateToken: gt } = require('../src/jwt');
+    expect(() => gt({ userId: 'user-prod-short' })).toThrow(
+      'JWT_SECRET must be at least 32 characters in production'
+    );
+    process.env.NODE_ENV = 'test';
+  });
+
+  it('should fall back to JWT_SECRET when JWT_REFRESH_SECRET is not set', () => {
+    // Line 38: fallback to getJwtSecret() when no JWT_REFRESH_SECRET
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    delete process.env.JWT_REFRESH_SECRET;
+    jest.resetModules();
+    const { generateRefreshToken: grt, verifyRefreshToken: vrt } = require('../src/jwt');
+    const token = grt('user-fallback');
+    const payload = vrt(token);
+    expect(payload.userId).toBe('user-fallback');
+  });
+
+  it('should throw Invalid refresh token when token type is not refresh', () => {
+    // Line 111: payload.type !== 'refresh'
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    // Use same secret for both so jwt.verify passes, but type is 'access' not 'refresh'
+    process.env.JWT_REFRESH_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    jest.resetModules();
+    const jwt = require('jsonwebtoken');
+    const { verifyRefreshToken: vrt } = require('../src/jwt');
+    // Sign a token with type='access' using the same secret — verify will pass but type check fails
+    const badTypeToken = jwt.sign(
+      { userId: 'u1', type: 'access' },
+      'test-secret-that-is-at-least-64-characters-long-for-testing-purposes',
+      { issuer: 'ims-api', audience: 'ims-client' }
+    );
+    expect(() => vrt(badTypeToken)).toThrow('Invalid refresh token');
+  });
+
+  it('decodeToken returns null when jwt.decode throws', () => {
+    // Line 124: catch block returns null
+    // jwt.decode does not throw on bad input normally; we test with a value that
+    // exercises the catch path by mocking jsonwebtoken
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    jest.resetModules();
+    const jwtMod = require('jsonwebtoken');
+    const origDecode = jwtMod.decode;
+    jwtMod.decode = () => { throw new Error('decode error'); };
+    const { decodeToken: dt } = require('../src/jwt');
+    const result = dt('any-token');
+    expect(result).toBeNull();
+    jwtMod.decode = origDecode;
+  });
+});

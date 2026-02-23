@@ -2207,3 +2207,69 @@ describe('ph216_gac',()=>{
   it('d',()=>{expect(groupAnagramsCnt216(["abc","bca","cba","xyz","zyx"])).toBe(2);});
   it('e',()=>{expect(groupAnagramsCnt216(["a","b","c"])).toBe(3);});
 });
+
+// ── security/src/index re-exports ─────────────────────────────────────────────
+
+import * as securityIndex from '../src/index';
+
+describe('security/src/index re-exports', () => {
+  it('should export createRasp', () => {
+    expect(typeof securityIndex.createRasp).toBe('function');
+  });
+
+  it('should export scanValue', () => {
+    expect(typeof securityIndex.scanValue).toBe('function');
+  });
+
+  it('should export scanRequest', () => {
+    expect(typeof securityIndex.scanRequest).toBe('function');
+  });
+
+  it('should export buildProfile', () => {
+    expect(typeof securityIndex.buildProfile).toBe('function');
+  });
+
+  it('should export detectAnomaly', () => {
+    expect(typeof securityIndex.detectAnomaly).toBe('function');
+  });
+
+  it('should export BehaviorProfileStore', () => {
+    expect(typeof securityIndex.BehaviorProfileStore).toBe('function');
+  });
+
+  it('should export SiemEngine', () => {
+    expect(typeof securityIndex.SiemEngine).toBe('function');
+  });
+
+  it('should export globalSiem', () => {
+    expect(securityIndex.globalSiem).toBeDefined();
+  });
+
+  it('should export DEFAULT_RULES', () => {
+    expect(Array.isArray(securityIndex.DEFAULT_RULES)).toBe(true);
+  });
+
+  it('should export encryptEnvelope', () => {
+    expect(typeof securityIndex.encryptEnvelope).toBe('function');
+  });
+
+  it('should export decryptEnvelope', () => {
+    expect(typeof securityIndex.decryptEnvelope).toBe('function');
+  });
+
+  it('should export rotateKek', () => {
+    expect(typeof securityIndex.rotateKek).toBe('function');
+  });
+
+  it('should export createCredentialScanner', () => {
+    expect(typeof securityIndex.createCredentialScanner).toBe('function');
+  });
+
+  it('should export scan', () => {
+    expect(typeof securityIndex.scan).toBe('function');
+  });
+
+  it('should export scanString', () => {
+    expect(typeof securityIndex.scanString).toBe('function');
+  });
+});
