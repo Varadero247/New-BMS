@@ -1,5 +1,18 @@
 # IMS — Fixes Log
 
+## Phase 61 — Test Depth Expansion to ≥205 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 200 tests to ≥205 each.
+
+**Fixes applied:**
+- `calculate` snippet: heredoc wrote `\|` as escaped pipes → replaced with `||` (120 files)
+- `twoSumLessThanK([254,...],1000)`: expected `998` was wrong (correct: 54+914=968) → `toBe(968)` (112 files)
+- `calculate` TS2367: `&&c!==' '` after operator union narrowing → removed redundant check (120 files)
+
+**Results:** 145,345 tests, 711/711 suites, 0 failures
+
+---
+
 ## Phase 60 — Test Depth Expansion to ≥200 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 195 tests to ≥200 each. 0 pre/post-expansion fixes needed.
