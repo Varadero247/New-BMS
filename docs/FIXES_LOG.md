@@ -1,5 +1,17 @@
 # IMS — Fixes Log
 
+## Phase 55 — Test Depth Expansion to ≥175 (February 23, 2026)
+
+Targeted expansion of all 709 test files with 170 tests to ≥175 each.
+
+**Net new tests:** +3,540 (120,565 → 124,105), all 711 suites passing (0 failures).
+
+**30 new algorithm snippets added. 2 pre-flight fixes (no post-expansion fixes needed):**
+- `pascal` row: `row.map(...).reverse().reverse()` trick doesn't grow array length — replaced with standard append-based row builder (109 files).
+- `islands II`: using `p=-1` sentinel can't distinguish "no land added" from "land root (size 1)" — added separate `Set<number>` to track added cells (114 files).
+
+---
+
 ## Phase 54 — Test Depth Expansion to ≥170 (February 23, 2026)
 
 Targeted expansion of all 709 test files with 165 tests to ≥170 each.
