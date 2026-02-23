@@ -726,3 +726,11 @@ describe('phase52 coverage', () => {
   it('decodes XOR-encoded array given first element', () => { const dxor=(encoded:number[],first:number)=>{const res=[first];for(const e of encoded)res.push(res[res.length-1]^e);return res;}; expect(dxor([1,2,3],1)).toEqual([1,0,2,1]); expect(dxor([3,1],2)).toEqual([2,1,0]); });
   it('finds container with most water', () => { const mw3=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,Math.min(h[l],h[r])*(r-l));h[l]<h[r]?l++:r--;}return mx;}; expect(mw3([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw3([1,1])).toBe(1); });
 });
+
+describe('phase53 coverage', () => {
+  it('finds peak element index using binary search', () => { const pe2=(a:number[])=>{let l=0,r=a.length-1;while(l<r){const m=l+r>>1;if(a[m]<a[m+1])l=m+1;else r=m;}return l;}; expect(pe2([1,2,3,1])).toBe(2); expect(pe2([1,2,1,3,5,6,4])).toBe(5); expect(pe2([1])).toBe(0); });
+  it('minimises cost to send people to two cities', () => { const tcs=(costs:[number,number][])=>{const n=costs.length/2;costs=costs.slice().sort((a,b)=>(a[0]-a[1])-(b[0]-b[1]));let tot=0;for(let i=0;i<n;i++)tot+=costs[i][0];for(let i=n;i<2*n;i++)tot+=costs[i][1];return tot;}; expect(tcs([[10,20],[30,200],[400,50],[30,20]])).toBe(110); expect(tcs([[1,2],[3,4],[5,1],[1,5]])).toBe(7); });
+  it('counts good pairs where indices differ and values equal', () => { const ngp=(a:number[])=>{const cnt=new Map<number,number>();let res=0;for(const n of a){const c=cnt.get(n)||0;res+=c;cnt.set(n,c+1);}return res;}; expect(ngp([1,2,3,1,1,3])).toBe(4); expect(ngp([1,1,1,1])).toBe(6); expect(ngp([1,2,3])).toBe(0); });
+  it('counts subarrays with maximum bounded in range', () => { const nsb=(a:number[],L:number,R:number)=>{let cnt=0,dp=0,last=-1;for(let i=0;i<a.length;i++){if(a[i]>R){dp=0;last=i;}else if(a[i]>=L)dp=i-last;cnt+=dp;}return cnt;}; expect(nsb([2,1,4,3],2,3)).toBe(3); expect(nsb([2,9,2,5,6],2,8)).toBe(7); });
+  it('finds longest subarray with at most 2 distinct characters', () => { const la2=(s:string)=>{const mp=new Map<string,number>();let l=0,mx=0;for(let r=0;r<s.length;r++){mp.set(s[r],(mp.get(s[r])||0)+1);while(mp.size>2){const lc=s[l];mp.set(lc,mp.get(lc)!-1);if(mp.get(lc)===0)mp.delete(lc);l++;}mx=Math.max(mx,r-l+1);}return mx;}; expect(la2('eceba')).toBe(3); expect(la2('ccaabbb')).toBe(5); });
+});

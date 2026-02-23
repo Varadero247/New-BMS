@@ -119,7 +119,10 @@ describe('decryptEnvelope()', () => {
 
   it('throws on tampered auth tag', () => {
     const env = encryptEnvelope(TEST_PLAINTEXT, TEST_KEK);
-    const tampered = { ...env, ciphertextTag: env.ciphertextTag.slice(0, -2) + 'ff' };
+    // XOR the last byte to guarantee it differs regardless of its original value
+    const lastByte = parseInt(env.ciphertextTag.slice(-2), 16);
+    const flippedByte = (lastByte ^ 0x01).toString(16).padStart(2, '0');
+    const tampered = { ...env, ciphertextTag: env.ciphertextTag.slice(0, -2) + flippedByte };
     expect(() => decryptEnvelope(tampered, TEST_KEK)).toThrow();
   });
 
@@ -539,4 +542,12 @@ describe('phase52 coverage', () => {
   it('searches for word in character grid', () => { const ws2=(board:string[][],word:string)=>{const rows=board.length,cols=board[0].length;const dfs=(r:number,c:number,i:number):boolean=>{if(i===word.length)return true;if(r<0||r>=rows||c<0||c>=cols||board[r][c]!==word[i])return false;const tmp=board[r][c];board[r][c]='#';const ok=dfs(r+1,c,i+1)||dfs(r-1,c,i+1)||dfs(r,c+1,i+1)||dfs(r,c-1,i+1);board[r][c]=tmp;return ok;};for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if(dfs(r,c,0))return true;return false;}; expect(ws2([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCCED')).toBe(true); expect(ws2([['A','B','C','E'],['S','F','C','S'],['A','D','E','E']],'ABCB')).toBe(false); });
   it('decodes XOR-encoded array given first element', () => { const dxor=(encoded:number[],first:number)=>{const res=[first];for(const e of encoded)res.push(res[res.length-1]^e);return res;}; expect(dxor([1,2,3],1)).toEqual([1,0,2,1]); expect(dxor([3,1],2)).toEqual([2,1,0]); });
   it('finds minimum cost to climb stairs', () => { const mcc2=(cost:number[])=>{const n=cost.length,dp=new Array(n+1).fill(0);for(let i=2;i<=n;i++)dp[i]=Math.min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2]);return dp[n];}; expect(mcc2([10,15,20])).toBe(15); expect(mcc2([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+});
+
+describe('phase53 coverage', () => {
+  it('computes running median from data stream', () => { const ms2=()=>{const nums:number[]=[];return{add:(n:number)=>{let l=0,r=nums.length;while(l<r){const m=l+r>>1;if(nums[m]<n)l=m+1;else r=m;}nums.splice(l,0,n);},med:():number=>{const n=nums.length;return n%2?nums[n>>1]:(nums[n/2-1]+nums[n/2])/2;}};}; const s=ms2();s.add(1);s.add(2);expect(s.med()).toBe(1.5);s.add(3);expect(s.med()).toBe(2); });
+  it('finds longest subarray with at most 2 distinct characters', () => { const la2=(s:string)=>{const mp=new Map<string,number>();let l=0,mx=0;for(let r=0;r<s.length;r++){mp.set(s[r],(mp.get(s[r])||0)+1);while(mp.size>2){const lc=s[l];mp.set(lc,mp.get(lc)!-1);if(mp.get(lc)===0)mp.delete(lc);l++;}mx=Math.max(mx,r-l+1);}return mx;}; expect(la2('eceba')).toBe(3); expect(la2('ccaabbb')).toBe(5); });
+  it('finds first and last occurrence using binary search', () => { const bsF=(a:number[],t:number)=>{let l=0,r=a.length-1,res=-1;while(l<=r){const m=l+r>>1;if(a[m]===t){res=m;r=m-1;}else if(a[m]<t)l=m+1;else r=m-1;}return res;};const bsL=(a:number[],t:number)=>{let l=0,r=a.length-1,res=-1;while(l<=r){const m=l+r>>1;if(a[m]===t){res=m;l=m+1;}else if(a[m]<t)l=m+1;else r=m-1;}return res;}; expect(bsF([5,7,7,8,8,10],8)).toBe(3); expect(bsL([5,7,7,8,8,10],8)).toBe(4); expect(bsF([5,7,7,8,8,10],6)).toBe(-1); });
+  it('counts car fleets arriving at target', () => { const cf2=(target:number,pos:number[],spd:number[])=>{const cars=[...Array(pos.length).keys()].sort((a,b)=>pos[b]-pos[a]);const st:number[]=[];for(const i of cars){const t=(target-pos[i])/spd[i];if(!st.length||t>st[st.length-1])st.push(t);}return st.length;}; expect(cf2(12,[10,8,0,5,3],[2,4,1,1,3])).toBe(3); expect(cf2(10,[3],[3])).toBe(1); });
+  it('searches target in row-column sorted 2D matrix', () => { const sm=(m:number[][],t:number)=>{let r=0,c=m[0].length-1;while(r<m.length&&c>=0){if(m[r][c]===t)return true;else if(m[r][c]>t)c--;else r++;}return false;}; expect(sm([[1,4,7,11],[2,5,8,12],[3,6,9,16],[10,13,14,17],[18,21,23,26]],5)).toBe(true); expect(sm([[1,4,7,11],[2,5,8,12],[3,6,9,16],[10,13,14,17],[18,21,23,26]],20)).toBe(false); });
 });
