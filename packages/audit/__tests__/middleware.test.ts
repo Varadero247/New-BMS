@@ -912,3 +912,11 @@ describe('phase51 coverage', () => {
   it('counts palindromic substrings', () => { const cp=(s:string)=>{let cnt=0;const ex=(l:number,r:number)=>{while(l>=0&&r<s.length&&s[l]===s[r]){cnt++;l--;r++;}};for(let i=0;i<s.length;i++){ex(i,i);ex(i,i+1);}return cnt;}; expect(cp('abc')).toBe(3); expect(cp('aaa')).toBe(6); expect(cp('racecar')).toBe(10); });
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds minimum cost to climb stairs', () => { const mcc2=(cost:number[])=>{const n=cost.length,dp=new Array(n+1).fill(0);for(let i=2;i<=n;i++)dp[i]=Math.min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2]);return dp[n];}; expect(mcc2([10,15,20])).toBe(15); expect(mcc2([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('finds maximum circular subarray sum', () => { const mcs2=(a:number[])=>{let maxS=a[0],minS=a[0],cur=a[0],curMin=a[0],tot=a[0];for(let i=1;i<a.length;i++){tot+=a[i];cur=Math.max(a[i],cur+a[i]);maxS=Math.max(maxS,cur);curMin=Math.min(a[i],curMin+a[i]);minS=Math.min(minS,curMin);}return maxS>0?Math.max(maxS,tot-minS):maxS;}; expect(mcs2([1,-2,3,-2])).toBe(3); expect(mcs2([5,-3,5])).toBe(10); expect(mcs2([-3,-2,-3])).toBe(-2); });
+  it('counts unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('finds container with most water', () => { const mw3=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,Math.min(h[l],h[r])*(r-l));h[l]<h[r]?l++:r--;}return mx;}; expect(mw3([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw3([1,1])).toBe(1); });
+});

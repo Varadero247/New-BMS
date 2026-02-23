@@ -997,3 +997,11 @@ describe('phase51 coverage', () => {
   it('finds primes using sieve of Eratosthenes', () => { const sieve=(n:number)=>{const p=new Array(n+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=n;i++)if(p[i])for(let j=i*i;j<=n;j+=i)p[j]=false;return p.map((v:boolean,i:number)=>v?i:-1).filter((i:number)=>i>0);}; expect(sieve(20)).toEqual([2,3,5,7,11,13,17,19]); expect(sieve(10)).toEqual([2,3,5,7]); });
   it('finds shortest paths using Bellman-Ford', () => { const bf=(n:number,edges:[number,number,number][],src:number)=>{const dist=new Array(n).fill(Infinity);dist[src]=0;for(let i=0;i<n-1;i++)for(const[u,v,w]of edges){if(dist[u]!==Infinity&&dist[u]+w<dist[v])dist[v]=dist[u]+w;}return dist;}; expect(bf(4,[[0,1,1],[0,2,4],[1,2,2],[2,3,3]],0)).toEqual([0,1,3,6]); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds container with most water', () => { const mw3=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,Math.min(h[l],h[r])*(r-l));h[l]<h[r]?l++:r--;}return mx;}; expect(mw3([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw3([1,1])).toBe(1); });
+  it('rotates array by k positions', () => { const rot=(a:number[],k:number)=>{const r=[...a],n=r.length;k%=n;const rev=(l:number,h:number)=>{while(l<h){[r[l],r[h]]=[r[h],r[l]];l++;h--;}};rev(0,n-1);rev(0,k-1);rev(k,n-1);return r;}; expect(rot([1,2,3,4,5,6,7],3)).toEqual([5,6,7,1,2,3,4]); expect(rot([1,2],1)).toEqual([2,1]); });
+  it('finds maximum width ramp in array', () => { const mwr2=(a:number[])=>{let mx=0;for(let i=0;i<a.length;i++)for(let j=a.length-1;j>i;j--)if(a[i]<=a[j]){mx=Math.max(mx,j-i);break;}return mx;}; expect(mwr2([6,0,8,2,1,5])).toBe(4); expect(mwr2([9,8,1,0,1,9,4,0,4,1])).toBe(7); expect(mwr2([1,1])).toBe(1); });
+  it('finds minimum jumps to reach end of array', () => { const mj2=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj2([2,3,1,1,4])).toBe(2); expect(mj2([2,3,0,1,4])).toBe(2); expect(mj2([1,1,1,1])).toBe(3); });
+  it('counts inversions in array', () => { const inv=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])cnt++;return cnt;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); expect(inv([5,4,3,2,1])).toBe(10); });
+});

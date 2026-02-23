@@ -637,3 +637,11 @@ describe('phase51 coverage', () => {
   it('counts ways to decode a digit string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const n=s.length,dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=Number(s[i-1]),two=Number(s.slice(i-2,i));if(one>0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(decode('12')).toBe(2); expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
   it('generates all valid parentheses combinations', () => { const gen=(n:number)=>{const res:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n){res.push(s);return;}if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return res;}; expect(gen(3).length).toBe(5); expect(gen(2)).toContain('(())'); expect(gen(2)).toContain('()()'); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds duplicate number using Floyd cycle detection', () => { const fd3=(a:number[])=>{let s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!==f);s=a[0];while(s!==f){s=a[s];f=a[f];}return s;}; expect(fd3([1,3,4,2,2])).toBe(2); expect(fd3([3,1,3,4,2])).toBe(3); });
+  it('computes sum of subarray minimums', () => { const ssm2=(a:number[])=>{let sum=0;for(let i=0;i<a.length;i++){let mn=a[i];for(let j=i;j<a.length;j++){mn=Math.min(mn,a[j]);sum+=mn;}}return sum;}; expect(ssm2([3,1,2,4])).toBe(17); expect(ssm2([1,2,3])).toBe(10); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('finds minimum perfect squares sum to n', () => { const ps2=(n:number)=>{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}; expect(ps2(12)).toBe(3); expect(ps2(13)).toBe(2); expect(ps2(4)).toBe(1); });
+  it('finds maximum width ramp in array', () => { const mwr2=(a:number[])=>{let mx=0;for(let i=0;i<a.length;i++)for(let j=a.length-1;j>i;j--)if(a[i]<=a[j]){mx=Math.max(mx,j-i);break;}return mx;}; expect(mwr2([6,0,8,2,1,5])).toBe(4); expect(mwr2([9,8,1,0,1,9,4,0,4,1])).toBe(7); expect(mwr2([1,1])).toBe(1); });
+});

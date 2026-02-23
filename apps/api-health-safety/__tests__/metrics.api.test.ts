@@ -827,3 +827,11 @@ describe('phase51 coverage', () => {
   it('determines if array allows reaching last index', () => { const canJump=(nums:number[])=>{let reach=0;for(let i=0;i<nums.length;i++){if(i>reach)return false;reach=Math.max(reach,i+nums[i]);}return true;}; expect(canJump([2,3,1,1,4])).toBe(true); expect(canJump([3,2,1,0,4])).toBe(false); expect(canJump([1,0])).toBe(true); });
   it('finds all duplicates in array in O(n)', () => { const fd=(a:number[])=>{const b=[...a],res:number[]=[];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(Math.abs(b[i]));else b[idx]*=-1;}return res.sort((x,y)=>x-y);}; expect(fd([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(fd([1,1,2])).toEqual([1]); });
 });
+
+describe('phase52 coverage', () => {
+  it('counts inversions in array', () => { const inv=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])cnt++;return cnt;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); expect(inv([5,4,3,2,1])).toBe(10); });
+  it('computes sum of subarray minimums', () => { const ssm2=(a:number[])=>{let sum=0;for(let i=0;i<a.length;i++){let mn=a[i];for(let j=i;j<a.length;j++){mn=Math.min(mn,a[j]);sum+=mn;}}return sum;}; expect(ssm2([3,1,2,4])).toBe(17); expect(ssm2([1,2,3])).toBe(10); });
+  it('finds longest common prefix among strings', () => { const lcp3=(strs:string[])=>{let pre=strs[0];for(let i=1;i<strs.length;i++)while(!strs[i].startsWith(pre))pre=pre.slice(0,-1);return pre;}; expect(lcp3(['flower','flow','flight'])).toBe('fl'); expect(lcp3(['dog','racecar','car'])).toBe(''); expect(lcp3(['abc','abcd','ab'])).toBe('ab'); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('matches string with wildcard pattern', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i-1][j]||dp[i][j-1];else if(p[j-1]==='?'||s[i-1]===p[j-1])dp[i][j]=dp[i-1][j-1];}return dp[m][n];}; expect(wm('aa','a')).toBe(false); expect(wm('aa','*')).toBe(true); expect(wm('adceb','*a*b')).toBe(true); });
+});

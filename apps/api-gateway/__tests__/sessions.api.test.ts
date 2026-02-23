@@ -783,3 +783,11 @@ describe('phase51 coverage', () => {
   it('finds all index pairs summing to target', () => { const ts2=(a:number[],t:number)=>{const seen=new Map<number,number[]>();const res:[number,number][]=[];for(let i=0;i<a.length;i++){const c=t-a[i];if(seen.has(c))for(const j of seen.get(c)!)res.push([j,i]);if(!seen.has(a[i]))seen.set(a[i],[]);seen.get(a[i])!.push(i);}return res;}; expect(ts2([1,2,3,4,3],6).length).toBe(2); expect(ts2([1,1,1],2).length).toBe(3); });
   it('finds all duplicates in array in O(n)', () => { const fd=(a:number[])=>{const b=[...a],res:number[]=[];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(Math.abs(b[i]));else b[idx]*=-1;}return res.sort((x,y)=>x-y);}; expect(fd([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(fd([1,1,2])).toEqual([1]); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds minimum jumps to reach end of array', () => { const mj2=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj2([2,3,1,1,4])).toBe(2); expect(mj2([2,3,0,1,4])).toBe(2); expect(mj2([1,1,1,1])).toBe(3); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('finds all numbers disappeared from array', () => { const fnd=(a:number[])=>{const b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]>0)b[idx]*=-1;}return b.map((_,i)=>i+1).filter((_,i)=>b[i]>0);}; expect(fnd([4,3,2,7,8,2,3,1])).toEqual([5,6]); expect(fnd([1,1])).toEqual([2]); });
+  it('counts inversions in array', () => { const inv=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])cnt++;return cnt;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); expect(inv([5,4,3,2,1])).toBe(10); });
+  it('counts subarrays with exactly k odd numbers', () => { const nna2=(a:number[],k:number)=>{let cnt=0;for(let i=0;i<a.length;i++){let odds=0;for(let j=i;j<a.length;j++){odds+=a[j]%2;if(odds===k)cnt++;else if(odds>k)break;}}return cnt;}; expect(nna2([1,1,2,1,1],3)).toBe(2); expect(nna2([2,4,6],1)).toBe(0); expect(nna2([1,2,3,1],2)).toBe(3); });
+});

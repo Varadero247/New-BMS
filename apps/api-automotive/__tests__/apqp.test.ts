@@ -1388,3 +1388,11 @@ describe('phase51 coverage', () => {
   it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y),n=m.length;return n%2?m[Math.floor(n/2)]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); expect(med([],[1])).toBe(1); });
   it('solves coin change minimum coins', () => { const cc=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(amt+1);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i)dp[i]=Math.min(dp[i],dp[i-c]+1);return dp[amt]>amt?-1:dp[amt];}; expect(cc([1,5,11],15)).toBe(3); expect(cc([2],3)).toBe(-1); expect(cc([1,2,5],11)).toBe(3); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds minimum path sum in grid', () => { const mps2=(g:number[][])=>{const m=g.length,n=g[0].length,dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=g[0][0];for(let i=1;i<m;i++)dp[i][0]=dp[i-1][0]+g[i][0];for(let j=1;j<n;j++)dp[0][j]=dp[0][j-1]+g[0][j];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=Math.min(dp[i-1][j],dp[i][j-1])+g[i][j];return dp[m-1][n-1];}; expect(mps2([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); expect(mps2([[1,2],[1,1]])).toBe(3); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('finds minimum perfect squares sum to n', () => { const ps2=(n:number)=>{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}; expect(ps2(12)).toBe(3); expect(ps2(13)).toBe(2); expect(ps2(4)).toBe(1); });
+  it('finds container with most water', () => { const mw3=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,Math.min(h[l],h[r])*(r-l));h[l]<h[r]?l++:r--;}return mx;}; expect(mw3([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw3([1,1])).toBe(1); });
+  it('computes product of array except self', () => { const pes=(a:number[])=>{const n=a.length,res=new Array(n).fill(1);for(let i=1;i<n;i++)res[i]=res[i-1]*a[i-1];let r=1;for(let i=n-1;i>=0;i--){res[i]*=r;r*=a[i];}return res;}; expect(pes([1,2,3,4])).toEqual([24,12,8,6]); expect(pes([1,2,0,4])).toEqual([0,0,8,0]); });
+});

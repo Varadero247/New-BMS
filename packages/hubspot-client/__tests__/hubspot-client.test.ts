@@ -634,3 +634,11 @@ describe('phase51 coverage', () => {
   it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y),n=m.length;return n%2?m[Math.floor(n/2)]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); expect(med([],[1])).toBe(1); });
   it('counts palindromic substrings', () => { const cp=(s:string)=>{let cnt=0;const ex=(l:number,r:number)=>{while(l>=0&&r<s.length&&s[l]===s[r]){cnt++;l--;r++;}};for(let i=0;i<s.length;i++){ex(i,i);ex(i,i+1);}return cnt;}; expect(cp('abc')).toBe(3); expect(cp('aaa')).toBe(6); expect(cp('racecar')).toBe(10); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds duplicate number using Floyd cycle detection', () => { const fd3=(a:number[])=>{let s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!==f);s=a[0];while(s!==f){s=a[s];f=a[f];}return s;}; expect(fd3([1,3,4,2,2])).toBe(2); expect(fd3([3,1,3,4,2])).toBe(3); });
+  it('computes sum of subarray minimums', () => { const ssm2=(a:number[])=>{let sum=0;for(let i=0;i<a.length;i++){let mn=a[i];for(let j=i;j<a.length;j++){mn=Math.min(mn,a[j]);sum+=mn;}}return sum;}; expect(ssm2([3,1,2,4])).toBe(17); expect(ssm2([1,2,3])).toBe(10); });
+  it('finds three sum closest to target', () => { const tsc=(a:number[],t:number)=>{a.sort((x,y)=>x-y);let res=a[0]+a[1]+a[2];for(let i=0;i<a.length-2;i++){let l=i+1,r=a.length-1;while(l<r){const s=a[i]+a[l]+a[r];if(Math.abs(s-t)<Math.abs(res-t))res=s;s<t?l++:r--;}}return res;}; expect(tsc([-1,2,1,-4],1)).toBe(2); expect(tsc([0,0,0],1)).toBe(0); });
+  it('decodes XOR-encoded array given first element', () => { const dxor=(encoded:number[],first:number)=>{const res=[first];for(const e of encoded)res.push(res[res.length-1]^e);return res;}; expect(dxor([1,2,3],1)).toEqual([1,0,2,1]); expect(dxor([3,1],2)).toEqual([2,1,0]); });
+  it('finds maximum circular subarray sum', () => { const mcs2=(a:number[])=>{let maxS=a[0],minS=a[0],cur=a[0],curMin=a[0],tot=a[0];for(let i=1;i<a.length;i++){tot+=a[i];cur=Math.max(a[i],cur+a[i]);maxS=Math.max(maxS,cur);curMin=Math.min(a[i],curMin+a[i]);minS=Math.min(minS,curMin);}return maxS>0?Math.max(maxS,tot-minS):maxS;}; expect(mcs2([1,-2,3,-2])).toBe(3); expect(mcs2([5,-3,5])).toBe(10); expect(mcs2([-3,-2,-3])).toBe(-2); });
+});

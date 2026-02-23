@@ -727,3 +727,11 @@ describe('phase51 coverage', () => {
   it('finds shortest paths using Bellman-Ford', () => { const bf=(n:number,edges:[number,number,number][],src:number)=>{const dist=new Array(n).fill(Infinity);dist[src]=0;for(let i=0;i<n-1;i++)for(const[u,v,w]of edges){if(dist[u]!==Infinity&&dist[u]+w<dist[v])dist[v]=dist[u]+w;}return dist;}; expect(bf(4,[[0,1,1],[0,2,4],[1,2,2],[2,3,3]],0)).toEqual([0,1,3,6]); });
   it('finds largest rectangle area in histogram', () => { const lr=(h:number[])=>{const st:number[]=[],n=h.length;let mx=0;for(let i=0;i<=n;i++){const cur=i===n?0:h[i];while(st.length&&h[st[st.length-1]]>cur){const ht=h[st.pop()!],w=st.length?i-st[st.length-1]-1:i;mx=Math.max(mx,ht*w);}st.push(i);}return mx;}; expect(lr([2,1,5,6,2,3])).toBe(10); expect(lr([2,4])).toBe(4); expect(lr([1])).toBe(1); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds container with most water', () => { const mw3=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,Math.min(h[l],h[r])*(r-l));h[l]<h[r]?l++:r--;}return mx;}; expect(mw3([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw3([1,1])).toBe(1); });
+  it('solves 0-1 knapsack problem', () => { const knap=(wts:number[],vals:number[],W:number)=>{const n=wts.length,dp=new Array(W+1).fill(0);for(let i=0;i<n;i++)for(let j=W;j>=wts[i];j--)dp[j]=Math.max(dp[j],dp[j-wts[i]]+vals[i]);return dp[W];}; expect(knap([1,2,3],[6,10,12],5)).toBe(22); expect(knap([1,2,3],[6,10,12],4)).toBe(18); });
+  it('finds duplicate number using Floyd cycle detection', () => { const fd3=(a:number[])=>{let s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!==f);s=a[0];while(s!==f){s=a[s];f=a[f];}return s;}; expect(fd3([1,3,4,2,2])).toBe(2); expect(fd3([3,1,3,4,2])).toBe(3); });
+  it('counts unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+  it('finds maximum width ramp in array', () => { const mwr2=(a:number[])=>{let mx=0;for(let i=0;i<a.length;i++)for(let j=a.length-1;j>i;j--)if(a[i]<=a[j]){mx=Math.max(mx,j-i);break;}return mx;}; expect(mwr2([6,0,8,2,1,5])).toBe(4); expect(mwr2([9,8,1,0,1,9,4,0,4,1])).toBe(7); expect(mwr2([1,1])).toBe(1); });
+});

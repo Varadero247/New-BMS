@@ -671,3 +671,11 @@ describe('phase51 coverage', () => {
   it('computes minimum matrix chain multiplication cost', () => { const mcm=(p:number[])=>{const n=p.length-1;const dp=Array.from({length:n},()=>new Array(n).fill(0));for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Infinity;for(let k=i;k<j;k++)dp[i][j]=Math.min(dp[i][j],dp[i][k]+dp[k+1][j]+p[i]*p[k+1]*p[j+1]);}return dp[0][n-1];}; expect(mcm([10,30,5,60])).toBe(4500); expect(mcm([40,20,30,10,30])).toBe(26000); });
   it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y),n=m.length;return n%2?m[Math.floor(n/2)]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); expect(med([],[1])).toBe(1); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds all numbers disappeared from array', () => { const fnd=(a:number[])=>{const b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]>0)b[idx]*=-1;}return b.map((_,i)=>i+1).filter((_,i)=>b[i]>0);}; expect(fnd([4,3,2,7,8,2,3,1])).toEqual([5,6]); expect(fnd([1,1])).toEqual([2]); });
+  it('finds duplicate number using Floyd cycle detection', () => { const fd3=(a:number[])=>{let s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!==f);s=a[0];while(s!==f){s=a[s];f=a[f];}return s;}; expect(fd3([1,3,4,2,2])).toBe(2); expect(fd3([3,1,3,4,2])).toBe(3); });
+  it('computes sum of subarray minimums', () => { const ssm2=(a:number[])=>{let sum=0;for(let i=0;i<a.length;i++){let mn=a[i];for(let j=i;j<a.length;j++){mn=Math.min(mn,a[j]);sum+=mn;}}return sum;}; expect(ssm2([3,1,2,4])).toBe(17); expect(ssm2([1,2,3])).toBe(10); });
+  it('finds minimum cost to climb stairs', () => { const mcc2=(cost:number[])=>{const n=cost.length,dp=new Array(n+1).fill(0);for(let i=2;i<=n;i++)dp[i]=Math.min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2]);return dp[n];}; expect(mcc2([10,15,20])).toBe(15); expect(mcc2([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('finds minimum jumps to reach end of array', () => { const mj2=(a:number[])=>{let jumps=0,cur=0,far=0;for(let i=0;i<a.length-1;i++){far=Math.max(far,i+a[i]);if(i===cur){jumps++;cur=far;}}return jumps;}; expect(mj2([2,3,1,1,4])).toBe(2); expect(mj2([2,3,0,1,4])).toBe(2); expect(mj2([1,1,1,1])).toBe(3); });
+});

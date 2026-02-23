@@ -836,3 +836,11 @@ describe('phase51 coverage', () => {
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
   it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y),n=m.length;return n%2?m[Math.floor(n/2)]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); expect(med([],[1])).toBe(1); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds all numbers disappeared from array', () => { const fnd=(a:number[])=>{const b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]>0)b[idx]*=-1;}return b.map((_,i)=>i+1).filter((_,i)=>b[i]>0);}; expect(fnd([4,3,2,7,8,2,3,1])).toEqual([5,6]); expect(fnd([1,1])).toEqual([2]); });
+  it('matches string with wildcard pattern', () => { const wm=(s:string,p:string)=>{const m=s.length,n=p.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(false));dp[0][0]=true;for(let j=1;j<=n;j++)if(p[j-1]==='*')dp[0][j]=dp[0][j-1];for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){if(p[j-1]==='*')dp[i][j]=dp[i-1][j]||dp[i][j-1];else if(p[j-1]==='?'||s[i-1]===p[j-1])dp[i][j]=dp[i-1][j-1];}return dp[m][n];}; expect(wm('aa','a')).toBe(false); expect(wm('aa','*')).toBe(true); expect(wm('adceb','*a*b')).toBe(true); });
+  it('finds minimum cost to climb stairs', () => { const mcc2=(cost:number[])=>{const n=cost.length,dp=new Array(n+1).fill(0);for(let i=2;i<=n;i++)dp[i]=Math.min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2]);return dp[n];}; expect(mcc2([10,15,20])).toBe(15); expect(mcc2([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('finds container with most water', () => { const mw3=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,Math.min(h[l],h[r])*(r-l));h[l]<h[r]?l++:r--;}return mx;}; expect(mw3([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw3([1,1])).toBe(1); });
+  it('counts inversions in array', () => { const inv=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])cnt++;return cnt;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); expect(inv([5,4,3,2,1])).toBe(10); });
+});

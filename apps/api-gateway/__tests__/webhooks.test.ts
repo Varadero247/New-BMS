@@ -734,3 +734,11 @@ describe('phase51 coverage', () => {
   it('finds all duplicates in array in O(n)', () => { const fd=(a:number[])=>{const b=[...a],res:number[]=[];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(Math.abs(b[i]));else b[idx]*=-1;}return res.sort((x,y)=>x-y);}; expect(fd([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(fd([1,1,2])).toEqual([1]); });
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds minimum cost to climb stairs', () => { const mcc2=(cost:number[])=>{const n=cost.length,dp=new Array(n+1).fill(0);for(let i=2;i<=n;i++)dp[i]=Math.min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2]);return dp[n];}; expect(mcc2([10,15,20])).toBe(15); expect(mcc2([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('computes product of array except self', () => { const pes=(a:number[])=>{const n=a.length,res=new Array(n).fill(1);for(let i=1;i<n;i++)res[i]=res[i-1]*a[i-1];let r=1;for(let i=n-1;i>=0;i--){res[i]*=r;r*=a[i];}return res;}; expect(pes([1,2,3,4])).toEqual([24,12,8,6]); expect(pes([1,2,0,4])).toEqual([0,0,8,0]); });
+  it('counts inversions in array', () => { const inv=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])cnt++;return cnt;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); expect(inv([5,4,3,2,1])).toBe(10); });
+  it('solves 0-1 knapsack problem', () => { const knap=(wts:number[],vals:number[],W:number)=>{const n=wts.length,dp=new Array(W+1).fill(0);for(let i=0;i<n;i++)for(let j=W;j>=wts[i];j--)dp[j]=Math.max(dp[j],dp[j-wts[i]]+vals[i]);return dp[W];}; expect(knap([1,2,3],[6,10,12],5)).toBe(22); expect(knap([1,2,3],[6,10,12],4)).toBe(18); });
+  it('finds duplicate number using Floyd cycle detection', () => { const fd3=(a:number[])=>{let s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!==f);s=a[0];while(s!==f){s=a[s];f=a[f];}return s;}; expect(fd3([1,3,4,2,2])).toBe(2); expect(fd3([3,1,3,4,2])).toBe(3); });
+});

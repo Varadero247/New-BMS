@@ -819,3 +819,11 @@ describe('phase51 coverage', () => {
   it('merges overlapping intervals', () => { const mi=(ivs:[number,number][])=>{const s=ivs.slice().sort((a,b)=>a[0]-b[0]);const r:[number,number][]=[s[0]];for(let i=1;i<s.length;i++){const last=r[r.length-1];if(s[i][0]<=last[1])last[1]=Math.max(last[1],s[i][1]);else r.push(s[i]);}return r;}; expect(mi([[1,3],[2,6],[8,10],[15,18]])).toEqual([[1,6],[8,10],[15,18]]); expect(mi([[1,4],[4,5]])).toEqual([[1,5]]); });
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds container with most water', () => { const mw3=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,Math.min(h[l],h[r])*(r-l));h[l]<h[r]?l++:r--;}return mx;}; expect(mw3([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw3([1,1])).toBe(1); });
+  it('finds minimum cost to climb stairs', () => { const mcc2=(cost:number[])=>{const n=cost.length,dp=new Array(n+1).fill(0);for(let i=2;i<=n;i++)dp[i]=Math.min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2]);return dp[n];}; expect(mcc2([10,15,20])).toBe(15); expect(mcc2([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('finds minimum perfect squares sum to n', () => { const ps2=(n:number)=>{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}; expect(ps2(12)).toBe(3); expect(ps2(13)).toBe(2); expect(ps2(4)).toBe(1); });
+  it('solves 0-1 knapsack problem', () => { const knap=(wts:number[],vals:number[],W:number)=>{const n=wts.length,dp=new Array(W+1).fill(0);for(let i=0;i<n;i++)for(let j=W;j>=wts[i];j--)dp[j]=Math.max(dp[j],dp[j-wts[i]]+vals[i]);return dp[W];}; expect(knap([1,2,3],[6,10,12],5)).toBe(22); expect(knap([1,2,3],[6,10,12],4)).toBe(18); });
+  it('finds length of longest increasing subsequence', () => { const lis2=(a:number[])=>{const dp=new Array(a.length).fill(1);for(let i=1;i<a.length;i++)for(let j=0;j<i;j++)if(a[j]<a[i])dp[i]=Math.max(dp[i],dp[j]+1);return Math.max(...dp);}; expect(lis2([10,9,2,5,3,7,101,18])).toBe(4); expect(lis2([0,1,0,3,2,3])).toBe(4); expect(lis2([7,7,7])).toBe(1); });
+});

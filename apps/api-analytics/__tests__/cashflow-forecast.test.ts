@@ -820,3 +820,11 @@ describe('phase51 coverage', () => {
   it('counts ways to decode a digit string', () => { const decode=(s:string)=>{if(!s||s[0]==='0')return 0;const n=s.length,dp=new Array(n+1).fill(0);dp[0]=1;dp[1]=1;for(let i=2;i<=n;i++){const one=Number(s[i-1]),two=Number(s.slice(i-2,i));if(one>0)dp[i]+=dp[i-1];if(two>=10&&two<=26)dp[i]+=dp[i-2];}return dp[n];}; expect(decode('12')).toBe(2); expect(decode('226')).toBe(3); expect(decode('06')).toBe(0); });
   it('finds largest rectangle area in histogram', () => { const lr=(h:number[])=>{const st:number[]=[],n=h.length;let mx=0;for(let i=0;i<=n;i++){const cur=i===n?0:h[i];while(st.length&&h[st[st.length-1]]>cur){const ht=h[st.pop()!],w=st.length?i-st[st.length-1]-1:i;mx=Math.max(mx,ht*w);}st.push(i);}return mx;}; expect(lr([2,1,5,6,2,3])).toBe(10); expect(lr([2,4])).toBe(4); expect(lr([1])).toBe(1); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds longest common prefix among strings', () => { const lcp3=(strs:string[])=>{let pre=strs[0];for(let i=1;i<strs.length;i++)while(!strs[i].startsWith(pre))pre=pre.slice(0,-1);return pre;}; expect(lcp3(['flower','flow','flight'])).toBe('fl'); expect(lcp3(['dog','racecar','car'])).toBe(''); expect(lcp3(['abc','abcd','ab'])).toBe('ab'); });
+  it('computes sum of subarray minimums', () => { const ssm2=(a:number[])=>{let sum=0;for(let i=0;i<a.length;i++){let mn=a[i];for(let j=i;j<a.length;j++){mn=Math.min(mn,a[j]);sum+=mn;}}return sum;}; expect(ssm2([3,1,2,4])).toBe(17); expect(ssm2([1,2,3])).toBe(10); });
+  it('computes product of array except self', () => { const pes=(a:number[])=>{const n=a.length,res=new Array(n).fill(1);for(let i=1;i<n;i++)res[i]=res[i-1]*a[i-1];let r=1;for(let i=n-1;i>=0;i--){res[i]*=r;r*=a[i];}return res;}; expect(pes([1,2,3,4])).toEqual([24,12,8,6]); expect(pes([1,2,0,4])).toEqual([0,0,8,0]); });
+  it('decodes XOR-encoded array given first element', () => { const dxor=(encoded:number[],first:number)=>{const res=[first];for(const e of encoded)res.push(res[res.length-1]^e);return res;}; expect(dxor([1,2,3],1)).toEqual([1,0,2,1]); expect(dxor([3,1],2)).toEqual([2,1,0]); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+});

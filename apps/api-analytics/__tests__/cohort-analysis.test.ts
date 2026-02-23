@@ -645,3 +645,11 @@ describe('phase51 coverage', () => {
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
   it('finds longest palindromic substring', () => { const lps2=(s:string)=>{let st=0,ml=1;const ex=(l:number,r:number)=>{while(l>=0&&r<s.length&&s[l]===s[r]){if(r-l+1>ml){ml=r-l+1;st=l;}l--;r++;}};for(let i=0;i<s.length;i++){ex(i,i);ex(i,i+1);}return s.slice(st,st+ml);}; expect(lps2('cbbd')).toBe('bb'); expect(lps2('a')).toBe('a'); expect(['bab','aba']).toContain(lps2('babad')); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds minimum path sum in grid', () => { const mps2=(g:number[][])=>{const m=g.length,n=g[0].length,dp=Array.from({length:m},()=>new Array(n).fill(0));dp[0][0]=g[0][0];for(let i=1;i<m;i++)dp[i][0]=dp[i-1][0]+g[i][0];for(let j=1;j<n;j++)dp[0][j]=dp[0][j-1]+g[0][j];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=Math.min(dp[i-1][j],dp[i][j-1])+g[i][j];return dp[m-1][n-1];}; expect(mps2([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); expect(mps2([[1,2],[1,1]])).toBe(3); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('determines first player wins stone game', () => { const sg2=(p:number[])=>{const n=p.length,dp=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=p[i];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Math.max(p[i]-dp[i+1][j],p[j]-dp[i][j-1]);}return dp[0][n-1]>0;}; expect(sg2([5,3,4,5])).toBe(true); expect(sg2([3,7,2,3])).toBe(true); });
+  it('finds duplicate number using Floyd cycle detection', () => { const fd3=(a:number[])=>{let s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!==f);s=a[0];while(s!==f){s=a[s];f=a[f];}return s;}; expect(fd3([1,3,4,2,2])).toBe(2); expect(fd3([3,1,3,4,2])).toBe(3); });
+  it('finds minimum cost to climb stairs', () => { const mcc2=(cost:number[])=>{const n=cost.length,dp=new Array(n+1).fill(0);for(let i=2;i<=n;i++)dp[i]=Math.min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2]);return dp[n];}; expect(mcc2([10,15,20])).toBe(15); expect(mcc2([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+});

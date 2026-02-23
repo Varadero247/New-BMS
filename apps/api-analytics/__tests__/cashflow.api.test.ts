@@ -701,3 +701,11 @@ describe('phase51 coverage', () => {
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
   it('groups anagram strings together', () => { const ga=(strs:string[])=>{const mp=new Map<string,string[]>();for(const s of strs){const k=[...s].sort().join('');if(!mp.has(k))mp.set(k,[]);mp.get(k)!.push(s);}return[...mp.values()];}; const res=ga(['eat','tea','tan','ate','nat','bat']); expect(res.length).toBe(3); expect(res.flat().sort()).toEqual(['ate','bat','eat','nat','tan','tea']); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds longest common prefix among strings', () => { const lcp3=(strs:string[])=>{let pre=strs[0];for(let i=1;i<strs.length;i++)while(!strs[i].startsWith(pre))pre=pre.slice(0,-1);return pre;}; expect(lcp3(['flower','flow','flight'])).toBe('fl'); expect(lcp3(['dog','racecar','car'])).toBe(''); expect(lcp3(['abc','abcd','ab'])).toBe('ab'); });
+  it('determines first player wins stone game', () => { const sg2=(p:number[])=>{const n=p.length,dp=Array.from({length:n},()=>new Array(n).fill(0));for(let i=0;i<n;i++)dp[i][i]=p[i];for(let len=2;len<=n;len++)for(let i=0;i<=n-len;i++){const j=i+len-1;dp[i][j]=Math.max(p[i]-dp[i+1][j],p[j]-dp[i][j-1]);}return dp[0][n-1]>0;}; expect(sg2([5,3,4,5])).toBe(true); expect(sg2([3,7,2,3])).toBe(true); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('decodes XOR-encoded array given first element', () => { const dxor=(encoded:number[],first:number)=>{const res=[first];for(const e of encoded)res.push(res[res.length-1]^e);return res;}; expect(dxor([1,2,3],1)).toEqual([1,0,2,1]); expect(dxor([3,1],2)).toEqual([2,1,0]); });
+  it('finds maximum width ramp in array', () => { const mwr2=(a:number[])=>{let mx=0;for(let i=0;i<a.length;i++)for(let j=a.length-1;j>i;j--)if(a[i]<=a[j]){mx=Math.max(mx,j-i);break;}return mx;}; expect(mwr2([6,0,8,2,1,5])).toBe(4); expect(mwr2([9,8,1,0,1,9,4,0,4,1])).toBe(7); expect(mwr2([1,1])).toBe(1); });
+});

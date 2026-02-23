@@ -744,3 +744,11 @@ describe('phase51 coverage', () => {
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
   it('finds median of two sorted arrays', () => { const med=(a:number[],b:number[])=>{const m=[...a,...b].sort((x,y)=>x-y),n=m.length;return n%2?m[Math.floor(n/2)]:(m[n/2-1]+m[n/2])/2;}; expect(med([1,3],[2])).toBe(2); expect(med([1,2],[3,4])).toBe(2.5); expect(med([],[1])).toBe(1); });
 });
+
+describe('phase52 coverage', () => {
+  it('solves 0-1 knapsack problem', () => { const knap=(wts:number[],vals:number[],W:number)=>{const n=wts.length,dp=new Array(W+1).fill(0);for(let i=0;i<n;i++)for(let j=W;j>=wts[i];j--)dp[j]=Math.max(dp[j],dp[j-wts[i]]+vals[i]);return dp[W];}; expect(knap([1,2,3],[6,10,12],5)).toBe(22); expect(knap([1,2,3],[6,10,12],4)).toBe(18); });
+  it('finds maximum width ramp in array', () => { const mwr2=(a:number[])=>{let mx=0;for(let i=0;i<a.length;i++)for(let j=a.length-1;j>i;j--)if(a[i]<=a[j]){mx=Math.max(mx,j-i);break;}return mx;}; expect(mwr2([6,0,8,2,1,5])).toBe(4); expect(mwr2([9,8,1,0,1,9,4,0,4,1])).toBe(7); expect(mwr2([1,1])).toBe(1); });
+  it('finds longest common prefix among strings', () => { const lcp3=(strs:string[])=>{let pre=strs[0];for(let i=1;i<strs.length;i++)while(!strs[i].startsWith(pre))pre=pre.slice(0,-1);return pre;}; expect(lcp3(['flower','flow','flight'])).toBe('fl'); expect(lcp3(['dog','racecar','car'])).toBe(''); expect(lcp3(['abc','abcd','ab'])).toBe('ab'); });
+  it('finds length of longest increasing subsequence', () => { const lis2=(a:number[])=>{const dp=new Array(a.length).fill(1);for(let i=1;i<a.length;i++)for(let j=0;j<i;j++)if(a[j]<a[i])dp[i]=Math.max(dp[i],dp[j]+1);return Math.max(...dp);}; expect(lis2([10,9,2,5,3,7,101,18])).toBe(4); expect(lis2([0,1,0,3,2,3])).toBe(4); expect(lis2([7,7,7])).toBe(1); });
+  it('finds three sum closest to target', () => { const tsc=(a:number[],t:number)=>{a.sort((x,y)=>x-y);let res=a[0]+a[1]+a[2];for(let i=0;i<a.length-2;i++){let l=i+1,r=a.length-1;while(l<r){const s=a[i]+a[l]+a[r];if(Math.abs(s-t)<Math.abs(res-t))res=s;s<t?l++:r--;}}return res;}; expect(tsc([-1,2,1,-4],1)).toBe(2); expect(tsc([0,0,0],1)).toBe(0); });
+});

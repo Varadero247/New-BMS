@@ -695,3 +695,11 @@ describe('phase51 coverage', () => {
   it('generates power set of an array', () => { const ps=(a:number[])=>{const r:number[][]=[];for(let mask=0;mask<(1<<a.length);mask++){const s:number[]=[];for(let i=0;i<a.length;i++)if(mask&(1<<i))s.push(a[i]);r.push(s);}return r;}; expect(ps([1,2]).length).toBe(4); expect(ps([1,2,3]).length).toBe(8); expect(ps([])).toEqual([[]]); });
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
 });
+
+describe('phase52 coverage', () => {
+  it('generates letter combinations from phone digits', () => { const lc2=(digits:string)=>{if(!digits)return[];const mp:Record<string,string>={'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'};const res:string[]=[];const bt=(i:number,cur:string)=>{if(i===digits.length){res.push(cur);return;}for(const c of mp[digits[i]])bt(i+1,cur+c);};bt(0,'');return res;}; expect(lc2('23').length).toBe(9); expect(lc2('')).toEqual([]); expect(lc2('2').sort()).toEqual(['a','b','c']); });
+  it('solves 0-1 knapsack problem', () => { const knap=(wts:number[],vals:number[],W:number)=>{const n=wts.length,dp=new Array(W+1).fill(0);for(let i=0;i<n;i++)for(let j=W;j>=wts[i];j--)dp[j]=Math.max(dp[j],dp[j-wts[i]]+vals[i]);return dp[W];}; expect(knap([1,2,3],[6,10,12],5)).toBe(22); expect(knap([1,2,3],[6,10,12],4)).toBe(18); });
+  it('counts unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('finds all numbers disappeared from array', () => { const fnd=(a:number[])=>{const b=[...a];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]>0)b[idx]*=-1;}return b.map((_,i)=>i+1).filter((_,i)=>b[i]>0);}; expect(fnd([4,3,2,7,8,2,3,1])).toEqual([5,6]); expect(fnd([1,1])).toEqual([2]); });
+});

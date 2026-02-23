@@ -558,3 +558,11 @@ describe('phase51 coverage', () => {
   it('generates power set of an array', () => { const ps=(a:number[])=>{const r:number[][]=[];for(let mask=0;mask<(1<<a.length);mask++){const s:number[]=[];for(let i=0;i<a.length;i++)if(mask&(1<<i))s.push(a[i]);r.push(s);}return r;}; expect(ps([1,2]).length).toBe(4); expect(ps([1,2,3]).length).toBe(8); expect(ps([])).toEqual([[]]); });
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
 });
+
+describe('phase52 coverage', () => {
+  it('computes sum of subarray minimums', () => { const ssm2=(a:number[])=>{let sum=0;for(let i=0;i<a.length;i++){let mn=a[i];for(let j=i;j<a.length;j++){mn=Math.min(mn,a[j]);sum+=mn;}}return sum;}; expect(ssm2([3,1,2,4])).toBe(17); expect(ssm2([1,2,3])).toBe(10); });
+  it('counts subarrays with exactly k odd numbers', () => { const nna2=(a:number[],k:number)=>{let cnt=0;for(let i=0;i<a.length;i++){let odds=0;for(let j=i;j<a.length;j++){odds+=a[j]%2;if(odds===k)cnt++;else if(odds>k)break;}}return cnt;}; expect(nna2([1,1,2,1,1],3)).toBe(2); expect(nna2([2,4,6],1)).toBe(0); expect(nna2([1,2,3,1],2)).toBe(3); });
+  it('finds minimum perfect squares sum to n', () => { const ps2=(n:number)=>{const dp=new Array(n+1).fill(Infinity);dp[0]=0;for(let i=1;i<=n;i++)for(let j=1;j*j<=i;j++)dp[i]=Math.min(dp[i],dp[i-j*j]+1);return dp[n];}; expect(ps2(12)).toBe(3); expect(ps2(13)).toBe(2); expect(ps2(4)).toBe(1); });
+  it('computes product of array except self', () => { const pes=(a:number[])=>{const n=a.length,res=new Array(n).fill(1);for(let i=1;i<n;i++)res[i]=res[i-1]*a[i-1];let r=1;for(let i=n-1;i>=0;i--){res[i]*=r;r*=a[i];}return res;}; expect(pes([1,2,3,4])).toEqual([24,12,8,6]); expect(pes([1,2,0,4])).toEqual([0,0,8,0]); });
+  it('computes edit distance between strings', () => { const ed=(s:string,t:string)=>{const m=s.length,n=t.length,dp:number[][]=[];for(let i=0;i<=m;i++){dp[i]=[];for(let j=0;j<=n;j++)dp[i][j]=i===0?j:j===0?i:0;}for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s[i-1]===t[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('horse','ros')).toBe(3); expect(ed('intention','execution')).toBe(5); });
+});

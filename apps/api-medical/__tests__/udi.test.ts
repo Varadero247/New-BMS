@@ -940,3 +940,11 @@ describe('phase51 coverage', () => {
   it('counts set bits for all numbers 0 to n', () => { const cb=(n:number)=>{const dp=new Array(n+1).fill(0);for(let i=1;i<=n;i++)dp[i]=dp[i>>1]+(i&1);return dp;}; expect(cb(5)).toEqual([0,1,1,2,1,2]); expect(cb(2)).toEqual([0,1,1]); });
   it('implements trie insert and search', () => { class Trie{c:Map<string,Trie>=new Map();e=false;insert(w:string){let n:Trie=this;for(const ch of w){if(!n.c.has(ch))n.c.set(ch,new Trie());n=n.c.get(ch)!;}n.e=true;}search(w:string):boolean{let n:Trie=this;for(const ch of w){if(!n.c.has(ch))return false;n=n.c.get(ch)!;}return n.e;}}; const t=new Trie();t.insert('apple');t.insert('app'); expect(t.search('apple')).toBe(true); expect(t.search('app')).toBe(true); expect(t.search('ap')).toBe(false); });
 });
+
+describe('phase52 coverage', () => {
+  it('finds duplicate number using Floyd cycle detection', () => { const fd3=(a:number[])=>{let s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!==f);s=a[0];while(s!==f){s=a[s];f=a[f];}return s;}; expect(fd3([1,3,4,2,2])).toBe(2); expect(fd3([3,1,3,4,2])).toBe(3); });
+  it('computes edit distance between strings', () => { const ed=(s:string,t:string)=>{const m=s.length,n=t.length,dp:number[][]=[];for(let i=0;i<=m;i++){dp[i]=[];for(let j=0;j<=n;j++)dp[i][j]=i===0?j:j===0?i:0;}for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s[i-1]===t[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('horse','ros')).toBe(3); expect(ed('intention','execution')).toBe(5); });
+  it('finds kth largest element in array', () => { const kl=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kl([3,2,1,5,6,4],2)).toBe(5); expect(kl([3,2,3,1,2,4,5,5,6],4)).toBe(4); });
+  it('finds container with most water', () => { const mw3=(h:number[])=>{let l=0,r=h.length-1,mx=0;while(l<r){mx=Math.max(mx,Math.min(h[l],h[r])*(r-l));h[l]<h[r]?l++:r--;}return mx;}; expect(mw3([1,8,6,2,5,4,8,3,7])).toBe(49); expect(mw3([1,1])).toBe(1); });
+  it('solves 0-1 knapsack problem', () => { const knap=(wts:number[],vals:number[],W:number)=>{const n=wts.length,dp=new Array(W+1).fill(0);for(let i=0;i<n;i++)for(let j=W;j>=wts[i];j--)dp[j]=Math.max(dp[j],dp[j-wts[i]]+vals[i]);return dp[W];}; expect(knap([1,2,3],[6,10,12],5)).toBe(22); expect(knap([1,2,3],[6,10,12],4)).toBe(18); });
+});

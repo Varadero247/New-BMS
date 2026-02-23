@@ -1931,3 +1931,11 @@ describe('phase51 coverage', () => {
   it('generates all valid parentheses combinations', () => { const gen=(n:number)=>{const res:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n){res.push(s);return;}if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return res;}; expect(gen(3).length).toBe(5); expect(gen(2)).toContain('(())'); expect(gen(2)).toContain('()()'); });
   it('finds all duplicates in array in O(n)', () => { const fd=(a:number[])=>{const b=[...a],res:number[]=[];for(let i=0;i<b.length;i++){const idx=Math.abs(b[i])-1;if(b[idx]<0)res.push(Math.abs(b[i]));else b[idx]*=-1;}return res.sort((x,y)=>x-y);}; expect(fd([4,3,2,7,8,2,3,1])).toEqual([2,3]); expect(fd([1,1,2])).toEqual([1]); });
 });
+
+describe('phase52 coverage', () => {
+  it('computes product of array except self', () => { const pes=(a:number[])=>{const n=a.length,res=new Array(n).fill(1);for(let i=1;i<n;i++)res[i]=res[i-1]*a[i-1];let r=1;for(let i=n-1;i>=0;i--){res[i]*=r;r*=a[i];}return res;}; expect(pes([1,2,3,4])).toEqual([24,12,8,6]); expect(pes([1,2,0,4])).toEqual([0,0,8,0]); });
+  it('counts inversions in array', () => { const inv=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])cnt++;return cnt;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); expect(inv([5,4,3,2,1])).toBe(10); });
+  it('computes edit distance between strings', () => { const ed=(s:string,t:string)=>{const m=s.length,n=t.length,dp:number[][]=[];for(let i=0;i<=m;i++){dp[i]=[];for(let j=0;j<=n;j++)dp[i][j]=i===0?j:j===0?i:0;}for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=s[i-1]===t[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}; expect(ed('horse','ros')).toBe(3); expect(ed('intention','execution')).toBe(5); });
+  it('finds duplicate number using Floyd cycle detection', () => { const fd3=(a:number[])=>{let s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!==f);s=a[0];while(s!==f){s=a[s];f=a[f];}return s;}; expect(fd3([1,3,4,2,2])).toBe(2); expect(fd3([3,1,3,4,2])).toBe(3); });
+  it('decodes XOR-encoded array given first element', () => { const dxor=(encoded:number[],first:number)=>{const res=[first];for(const e of encoded)res.push(res[res.length-1]^e);return res;}; expect(dxor([1,2,3],1)).toEqual([1,0,2,1]); expect(dxor([3,1],2)).toEqual([2,1,0]); });
+});

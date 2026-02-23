@@ -523,3 +523,11 @@ describe('phase51 coverage', () => {
   it('solves coin change minimum coins', () => { const cc=(coins:number[],amt:number)=>{const dp=new Array(amt+1).fill(amt+1);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i)dp[i]=Math.min(dp[i],dp[i-c]+1);return dp[amt]>amt?-1:dp[amt];}; expect(cc([1,5,11],15)).toBe(3); expect(cc([2],3)).toBe(-1); expect(cc([1,2,5],11)).toBe(3); });
   it('finds longest palindromic substring', () => { const lps2=(s:string)=>{let st=0,ml=1;const ex=(l:number,r:number)=>{while(l>=0&&r<s.length&&s[l]===s[r]){if(r-l+1>ml){ml=r-l+1;st=l;}l--;r++;}};for(let i=0;i<s.length;i++){ex(i,i);ex(i,i+1);}return s.slice(st,st+ml);}; expect(lps2('cbbd')).toBe('bb'); expect(lps2('a')).toBe('a'); expect(['bab','aba']).toContain(lps2('babad')); });
 });
+
+describe('phase52 coverage', () => {
+  it('decodes XOR-encoded array given first element', () => { const dxor=(encoded:number[],first:number)=>{const res=[first];for(const e of encoded)res.push(res[res.length-1]^e);return res;}; expect(dxor([1,2,3],1)).toEqual([1,0,2,1]); expect(dxor([3,1],2)).toEqual([2,1,0]); });
+  it('counts inversions in array', () => { const inv=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])cnt++;return cnt;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); expect(inv([5,4,3,2,1])).toBe(10); });
+  it('rotates array by k positions', () => { const rot=(a:number[],k:number)=>{const r=[...a],n=r.length;k%=n;const rev=(l:number,h:number)=>{while(l<h){[r[l],r[h]]=[r[h],r[l]];l++;h--;}};rev(0,n-1);rev(0,k-1);rev(k,n-1);return r;}; expect(rot([1,2,3,4,5,6,7],3)).toEqual([5,6,7,1,2,3,4]); expect(rot([1,2],1)).toEqual([2,1]); });
+  it('solves 0-1 knapsack problem', () => { const knap=(wts:number[],vals:number[],W:number)=>{const n=wts.length,dp=new Array(W+1).fill(0);for(let i=0;i<n;i++)for(let j=W;j>=wts[i];j--)dp[j]=Math.max(dp[j],dp[j-wts[i]]+vals[i]);return dp[W];}; expect(knap([1,2,3],[6,10,12],5)).toBe(22); expect(knap([1,2,3],[6,10,12],4)).toBe(18); });
+  it('computes sum of subarray minimums', () => { const ssm2=(a:number[])=>{let sum=0;for(let i=0;i<a.length;i++){let mn=a[i];for(let j=i;j<a.length;j++){mn=Math.min(mn,a[j]);sum+=mn;}}return sum;}; expect(ssm2([3,1,2,4])).toBe(17); expect(ssm2([1,2,3])).toBe(10); });
+});

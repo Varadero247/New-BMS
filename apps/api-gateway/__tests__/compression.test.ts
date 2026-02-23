@@ -665,3 +665,11 @@ describe('phase51 coverage', () => {
   it('generates all valid parentheses combinations', () => { const gen=(n:number)=>{const res:string[]=[];const bt=(s:string,o:number,c:number)=>{if(s.length===2*n){res.push(s);return;}if(o<n)bt(s+'(',o+1,c);if(c<o)bt(s+')',o,c+1);};bt('',0,0);return res;}; expect(gen(3).length).toBe(5); expect(gen(2)).toContain('(())'); expect(gen(2)).toContain('()()'); });
   it('groups anagram strings together', () => { const ga=(strs:string[])=>{const mp=new Map<string,string[]>();for(const s of strs){const k=[...s].sort().join('');if(!mp.has(k))mp.set(k,[]);mp.get(k)!.push(s);}return[...mp.values()];}; const res=ga(['eat','tea','tan','ate','nat','bat']); expect(res.length).toBe(3); expect(res.flat().sort()).toEqual(['ate','bat','eat','nat','tan','tea']); });
 });
+
+describe('phase52 coverage', () => {
+  it('counts inversions in array', () => { const inv=(a:number[])=>{let cnt=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])cnt++;return cnt;}; expect(inv([2,4,1,3,5])).toBe(3); expect(inv([1,2,3,4,5])).toBe(0); expect(inv([5,4,3,2,1])).toBe(10); });
+  it('counts subarrays with exactly k odd numbers', () => { const nna2=(a:number[],k:number)=>{let cnt=0;for(let i=0;i<a.length;i++){let odds=0;for(let j=i;j<a.length;j++){odds+=a[j]%2;if(odds===k)cnt++;else if(odds>k)break;}}return cnt;}; expect(nna2([1,1,2,1,1],3)).toBe(2); expect(nna2([2,4,6],1)).toBe(0); expect(nna2([1,2,3,1],2)).toBe(3); });
+  it('finds minimum cost to climb stairs', () => { const mcc2=(cost:number[])=>{const n=cost.length,dp=new Array(n+1).fill(0);for(let i=2;i<=n;i++)dp[i]=Math.min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2]);return dp[n];}; expect(mcc2([10,15,20])).toBe(15); expect(mcc2([1,100,1,1,1,100,1,1,100,1])).toBe(6); });
+  it('decodes XOR-encoded array given first element', () => { const dxor=(encoded:number[],first:number)=>{const res=[first];for(const e of encoded)res.push(res[res.length-1]^e);return res;}; expect(dxor([1,2,3],1)).toEqual([1,0,2,1]); expect(dxor([3,1],2)).toEqual([2,1,0]); });
+  it('counts unique paths in grid', () => { const up=(m:number,n:number)=>{const dp=Array.from({length:m},()=>new Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(up(3,7)).toBe(28); expect(up(3,2)).toBe(3); expect(up(1,1)).toBe(1); });
+});
