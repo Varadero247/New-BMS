@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-22
+> Last updated: 2026-02-23
 
 ## Summary
 
@@ -12,7 +12,7 @@
 | Prisma Schemas           | 44                                     |
 | Database Tables (models) | ~590                                   |
 | Scripts                  | 28                                     |
-| Unit Tests               | 95,785 across 711 suites (all passing) |
+| Unit Tests               | 99,325 across 711 suites (all passing) |
 | Integration Test Scripts | 9 (+ 1 finance)                        |
 
 ---
