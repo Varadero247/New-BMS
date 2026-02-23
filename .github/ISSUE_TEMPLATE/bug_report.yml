@@ -1,0 +1,108 @@
+name: Bug Report
+description: Report a bug in the IMS platform
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill in as much detail as possible.
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Affected Module
+      description: Which module or service is affected?
+      options:
+        - API Gateway (4000)
+        - Health & Safety (4001)
+        - Environment (4002)
+        - Quality (4003)
+        - AI Analysis (4004)
+        - Inventory (4005)
+        - HR (4006)
+        - Payroll (4007)
+        - Workflows (4008)
+        - Project Management (4009)
+        - Finance (4013)
+        - CRM (4014)
+        - InfoSec (4015)
+        - ESG (4016)
+        - CMMS (4017)
+        - Portal (4018)
+        - Food Safety (4019)
+        - Energy (4020)
+        - Analytics (4021)
+        - Field Service (4022)
+        - ISO 42001 (4023)
+        - ISO 37001 (4024)
+        - Risk (4027)
+        - Training (4028)
+        - Suppliers (4029)
+        - Assets (4030)
+        - Documents (4031)
+        - Complaints (4032)
+        - Contracts (4033)
+        - PTW (4034)
+        - Reg Monitor (4035)
+        - Incidents (4036)
+        - Audits (4037)
+        - Mgmt Review (4038)
+        - Chemicals (4040)
+        - Emergency (4041)
+        - Frontend / Web App
+        - Database / Prisma
+        - CI/CD Pipeline
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? What did you expect to happen?
+      placeholder: "When I click X, Y happens. I expected Z."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Log in as admin@ims.local
+        2. Navigate to /incidents
+        3. Click "New Incident"
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        - Node.js version: 20.x
+        - Browser: Chrome 121
+        - Docker version: 24.x
+        - Is Docker running? Yes/No
+      render: markdown
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs or Error Messages
+      render: shell
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I checked the [RUNBOOK.md](../docs/RUNBOOK.md) for known issues
+          required: false
+        - label: I checked [CLAUDE.md](../CLAUDE.md) Known Issues section
+          required: false
+        - label: This is not a duplicate of an existing issue
+          required: true

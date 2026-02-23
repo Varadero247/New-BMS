@@ -1,0 +1,136 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for the IMS platform
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement. Please fill in as much detail as possible.
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Target Module
+      description: Which module or service should this feature be added to?
+      options:
+        - API Gateway (4000)
+        - Health & Safety (4001)
+        - Environment (4002)
+        - Quality (4003)
+        - AI Analysis (4004)
+        - Inventory (4005)
+        - HR (4006)
+        - Payroll (4007)
+        - Workflows (4008)
+        - Project Management (4009)
+        - Finance (4013)
+        - CRM (4014)
+        - InfoSec (4015)
+        - ESG (4016)
+        - CMMS (4017)
+        - Portal (4018)
+        - Food Safety (4019)
+        - Energy (4020)
+        - Analytics (4021)
+        - Field Service (4022)
+        - ISO 42001 (4023)
+        - ISO 37001 (4024)
+        - Risk (4027)
+        - Training (4028)
+        - Suppliers (4029)
+        - Assets (4030)
+        - Documents (4031)
+        - Complaints (4032)
+        - Contracts (4033)
+        - PTW (4034)
+        - Reg Monitor (4035)
+        - Incidents (4036)
+        - Audits (4037)
+        - Mgmt Review (4038)
+        - Chemicals (4040)
+        - Emergency (4041)
+        - Frontend / Web App
+        - Database / Prisma
+        - CI/CD Pipeline
+        - New Module / Service
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Feature Type
+      options:
+        - New API endpoint
+        - New UI page / component
+        - New report / export
+        - Integration with external system
+        - Performance improvement
+        - UX / accessibility improvement
+        - ISO standard compliance
+        - Developer tooling
+        - Infrastructure / DevOps
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What is the current limitation?
+      placeholder: "Currently, users cannot... This means they have to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe what you'd like to happen. Include UI mockups, API shapes, or workflow diagrams if helpful.
+      placeholder: "Add a new endpoint POST /api/quality/audits that..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Are there workarounds or alternative approaches you've considered?
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Business Priority
+      options:
+        - Critical — blocks production use
+        - High — significant user impact
+        - Medium — nice to have
+        - Low — minor improvement
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How will we know this feature is complete?
+      placeholder: |
+        - [ ] API returns { success, data } shape
+        - [ ] UI updates without page reload
+        - [ ] Unit tests added (≥110 per test file)
+        - [ ] Integration test updated in scripts/test-<module>-modules.sh
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I checked the [NEXARA_FEATURE_CATALOG.md](../docs/NEXARA_FEATURE_CATALOG.md) — this feature doesn't already exist
+          required: true
+        - label: I checked [open issues](../../issues) — this is not a duplicate
+          required: true
+        - label: I reviewed the [CONTRIBUTING.md](../CONTRIBUTING.md) guidelines
+          required: false

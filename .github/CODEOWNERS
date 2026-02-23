@@ -1,0 +1,124 @@
+# CODEOWNERS — Nexara IMS Platform
+#
+# Each line maps a path pattern to one or more owners.
+# Owners are automatically requested for review on PRs that touch those paths.
+# Syntax: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ─── Default owner (all files not matched below) ────────────────────────────
+*                                   @nexara/platform-core
+
+# ─── Core infrastructure ────────────────────────────────────────────────────
+/.github/                           @nexara/platform-core
+/deploy/                            @nexara/devops
+/deploy/k8s/                        @nexara/devops
+/deploy/monitoring/                 @nexara/devops @nexara/platform-core
+
+# ─── Root config & docs ─────────────────────────────────────────────────────
+CLAUDE.md                           @nexara/platform-core
+SYSTEM_STATE.md                     @nexara/platform-core
+QUICK_REFERENCE.md                  @nexara/platform-core
+docker-compose.yml                  @nexara/devops @nexara/platform-core
+turbo.json                          @nexara/platform-core
+pnpm-workspace.yaml                 @nexara/platform-core
+
+# ─── Shared packages ────────────────────────────────────────────────────────
+/packages/auth/                     @nexara/security
+/packages/security/                 @nexara/security
+/packages/rbac/                     @nexara/security
+/packages/database/                 @nexara/platform-core
+/packages/ui/                       @nexara/frontend
+/packages/shared/                   @nexara/platform-core
+/packages/monitoring/               @nexara/devops @nexara/platform-core
+/packages/validation/               @nexara/platform-core
+/packages/finance-calculations/     @nexara/finance
+/packages/tax-engine/               @nexara/finance
+/packages/emission-factors/         @nexara/esg
+/packages/nlq/                      @nexara/ai
+/packages/oee-engine/               @nexara/manufacturing
+
+# ─── API Gateway ────────────────────────────────────────────────────────────
+/apps/api-gateway/                  @nexara/platform-core @nexara/security
+
+# ─── ISO / Compliance modules ───────────────────────────────────────────────
+/apps/api-health-safety/            @nexara/hse
+/apps/web-health-safety/            @nexara/hse
+/apps/api-environment/              @nexara/hse
+/apps/web-environment/              @nexara/hse
+/apps/api-esg/                      @nexara/esg
+/apps/web-esg/                      @nexara/esg
+/apps/api-energy/                   @nexara/esg
+/apps/web-energy/                   @nexara/esg
+/apps/api-food-safety/              @nexara/quality
+/apps/web-food-safety/              @nexara/quality
+/apps/api-quality/                  @nexara/quality
+/apps/web-quality/                  @nexara/quality
+/apps/api-infosec/                  @nexara/security
+/apps/web-infosec/                  @nexara/security
+/apps/api-iso42001/                 @nexara/ai @nexara/security
+/apps/web-iso42001/                 @nexara/ai @nexara/security
+/apps/api-iso37001/                 @nexara/security
+/apps/web-iso37001/                 @nexara/security
+
+# ─── Finance & HR ───────────────────────────────────────────────────────────
+/apps/api-finance/                  @nexara/finance
+/apps/web-finance/                  @nexara/finance
+/apps/api-payroll/                  @nexara/finance
+/apps/web-payroll/                  @nexara/finance
+/apps/api-hr/                       @nexara/hr
+/apps/web-hr/                       @nexara/hr
+/apps/api-training/                 @nexara/hr
+/apps/web-training/                 @nexara/hr
+
+# ─── Operations modules ─────────────────────────────────────────────────────
+/apps/api-incidents/                @nexara/hse
+/apps/web-incidents/                @nexara/hse
+/apps/api-audits/                   @nexara/quality
+/apps/web-audits/                   @nexara/quality
+/apps/api-risk/                     @nexara/quality @nexara/finance
+/apps/web-risk/                     @nexara/quality @nexara/finance
+/apps/api-cmms/                     @nexara/operations
+/apps/web-cmms/                     @nexara/operations
+/apps/api-assets/                   @nexara/operations
+/apps/web-assets/                   @nexara/operations
+/apps/api-ptw/                      @nexara/hse @nexara/operations
+/apps/web-ptw/                      @nexara/hse @nexara/operations
+/apps/api-chemicals/                @nexara/hse
+/apps/web-chemicals/                @nexara/hse
+/apps/api-emergency/                @nexara/hse
+/apps/web-emergency/                @nexara/hse
+
+# ─── CRM / Customer-facing ──────────────────────────────────────────────────
+/apps/api-crm/                      @nexara/crm
+/apps/web-crm/                      @nexara/crm
+/apps/api-portal/                   @nexara/crm
+/apps/web-customer-portal/          @nexara/crm
+/apps/api-complaints/               @nexara/crm
+/apps/web-complaints/               @nexara/crm
+/apps/api-contracts/                @nexara/crm @nexara/finance
+/apps/web-contracts/                @nexara/crm @nexara/finance
+/apps/api-suppliers/                @nexara/operations
+/apps/web-suppliers/                @nexara/operations
+/apps/api-partners/                 @nexara/crm
+/apps/web-partners/                 @nexara/crm
+
+# ─── Analytics & AI ─────────────────────────────────────────────────────────
+/apps/api-analytics/                @nexara/ai
+/apps/web-analytics/                @nexara/ai
+/apps/api-ai-analysis/              @nexara/ai
+/apps/web-ai-analysis/              @nexara/ai
+
+# ─── Dashboard & Admin ──────────────────────────────────────────────────────
+/apps/web-dashboard/                @nexara/frontend @nexara/platform-core
+/apps/web-admin/                    @nexara/platform-core
+/apps/api-gateway/src/routes/       @nexara/platform-core @nexara/security
+
+# ─── Documentation ──────────────────────────────────────────────────────────
+/docs/                              @nexara/platform-core
+/docs/adr/                          @nexara/platform-core
+/docs/uat/                          @nexara/qa
+
+# ─── CI/CD workflows ────────────────────────────────────────────────────────
+/.github/workflows/                 @nexara/devops @nexara/platform-core
+
+# ─── Prisma schemas ─────────────────────────────────────────────────────────
+/packages/database/prisma/          @nexara/platform-core
