@@ -12,10 +12,10 @@ Welcome to the Integrated Management System (IMS) monorepo. This guide gets you 
 
 ## Project Overview
 
-IMS is a monorepo containing 43 API services, 44 web apps, and 280 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
+IMS is a monorepo containing 43 API services, 44 web apps, and 358 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
 
 **Stack:** Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose, pnpm workspaces, TypeScript
-**Scale:** 44 Prisma schemas, ~590 database tables, 1,009,560 unit tests across 944 suites (all passing)
+**Scale:** 44 Prisma schemas, ~590 database tables, ~1,161,000 unit tests across ~1,051 suites (all passing)
 
 ## Prerequisites
 
@@ -200,7 +200,7 @@ jest.mock('@ims/database', () => ({ ... }));
 pnpm test
 ```
 
-Runs 998,510 Jest tests across 944 suites. All must pass. Every `.test.ts` file has at minimum 1,000 tests.
+Runs ~1,161,000 Jest tests across ~1,051 suites. All must pass. Every `.test.ts` file has at minimum 1,000 tests.
 
 ### Integration Tests
 

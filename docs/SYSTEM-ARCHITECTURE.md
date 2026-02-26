@@ -392,7 +392,7 @@ Total services running: 52 / 52
 - **Monorepo**: Turborepo
 - **Package Manager**: pnpm
 - **Build Tool**: tsup (all API services and shared packages)
-- **Testing**: Jest (1,009,560 tests across 944 suites), 40 integration test scripts (~1,800+ assertions), CI via GitHub Actions
+- **Testing**: Jest (~1,161,000 tests across ~1,051 suites), 40 integration test scripts (~1,800+ assertions), CI via GitHub Actions
 - **Containerization**: Docker Compose (43 APIs + 44 web apps + PostgreSQL + Redis + main API)
 - **Logging**: Winston
 - **Metrics**: prom-client (Prometheus)

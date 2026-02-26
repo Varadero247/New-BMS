@@ -76,13 +76,13 @@ Completed **full professional CS library coverage** across Phases 110–117, add
 
 ## Metrics
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Shared packages | 327 | 358 |
-| Unit tests | 1,076,705 | ~1,160,000 |
-| Test suites | 1,003 | ~1,051 |
-| TypeScript projects | 372 | 410 |
-| jest.config.js entries | ~372 | 410 |
+| Metric | Before | After (session 1) | After (session 2) |
+|--------|--------|-------|-------|
+| Shared packages | 327 | 358 | 358 |
+| Unit tests | 1,076,705 | ~1,160,000 | ~1,161,000 |
+| Test suites | 1,003 | ~1,051 | ~1,051 |
+| TypeScript projects | 372 | 410 | **406** |
+| jest.config.js entries | ~372 | 410 | **406** (4 duplicates removed) |
 
 ## CS Library Coverage (Complete)
 
@@ -105,8 +105,27 @@ All major categories covered:
 - **Sampling**: reservoir, weighted, Latin hypercube ✓
 - **Sequences**: linear recurrence, Berlekamp-Massey ✓
 
+## Session 2 — Stale Agent Processing & Cleanup
+
+Processed 12+ stale task notifications from agents launched in session 1. For each:
+- Verified package committed and tests passing from package directory
+- Checked for duplicate jest.config.js entries
+
+### Duplicate jest.config.js Entries Removed
+
+| Package | Stale entry (Feb 25) | Canonical entry (Feb 26) | Commit |
+|---------|----------------------|--------------------------|--------|
+| `sparse-table` | line 478 | line 656 | `4d18052c1` |
+| `skip-list` | line 429 | line 669 | `4551a0767` |
+| `polynomial` | line 496 | line 656 | `f78c52c2d` |
+| `network-flow` | line 225 | line 651 | `51238a963` (session 1) |
+
+### Test Count Increase
+
+`@ims/sparse-table` was expanded by a stale agent: **1,651 → 2,373 tests** (+722).
+This brings the project total from ~1,160,000 → **~1,161,000**.
+
 ## Status
 
-**COMPLETE** — No more algorithm packages needed. Full professional CS library coverage achieved.
-
-Next session should focus on other product improvements if needed.
+**COMPLETE** — Full professional CS library coverage achieved. All packages verified passing.
+jest.config.js cleaned of all duplicates (406 unique entries).
