@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 /**
  * Web App Manifest Generator — Creates per-module PWA manifests
  * Generates W3C Web App Manifest JSON for IMS modules with custom icons and theme colors.

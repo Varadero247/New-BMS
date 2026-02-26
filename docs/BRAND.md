@@ -1,5 +1,13 @@
 # Nexara Brand Identity v3.0
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Brand
 
 - **Name**: Nexara IMS
@@ -127,7 +135,7 @@
 
 ## Legal
 
-Copyright (c) 2026 Nexara Ltd. All rights reserved.
+Copyright (c) 2026 Nexara DMCC. All rights reserved.
 
 ---
 

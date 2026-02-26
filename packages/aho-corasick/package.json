@@ -1,0 +1,1 @@
+{"name":"@ims/aho-corasick","version":"1.0.0","main":"src/aho-corasick.ts","scripts":{"test":"jest"},"devDependencies":{"jest":"*","ts-jest":"*","typescript":"*"}}

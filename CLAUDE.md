@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Integrated Management System (IMS) monorepo with 42 API services, 44 web apps, and 61 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 44 Prisma schemas with ~590 database tables. 708,565 unit tests across 712 suites (all passing, every file ≥1000 tests).
+Integrated Management System (IMS) monorepo with 43 API services, 44 web apps, and 358 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 44 Prisma schemas with ~590 database tables. ~1,160,000 unit tests across ~1,051 suites (all passing, every file ≥1,000 tests).
 
 ## Known Issues & Fixes
 
@@ -106,7 +106,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 
 ### Service Ports
 
-- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows), 4009 (PM), 4010 (Automotive), 4011 (Medical), 4012 (Aerospace), 4013 (Finance), 4014 (CRM), 4015 (InfoSec), 4016 (ESG), 4017 (CMMS), 4018 (Portal), 4019 (Food Safety), 4020 (Energy), 4021 (Analytics), 4022 (Field Service), 4023 (ISO 42001), 4024 (ISO 37001), 4025 (Marketing), 4026 (Partners), 4027 (Risk), 4028 (Training), 4029 (Suppliers), 4030 (Assets), 4031 (Documents), 4032 (Complaints), 4033 (Contracts), 4034 (PTW), 4035 (Reg Monitor), 4036 (Incidents), 4037 (Audits), 4038 (Mgmt Review), 4040 (Chemicals), 4041 (Emergency)
+- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows), 4009 (PM), 4010 (Automotive), 4011 (Medical), 4012 (Aerospace), 4013 (Finance), 4014 (CRM), 4015 (InfoSec), 4016 (ESG), 4017 (CMMS), 4018 (Portal), 4019 (Food Safety), 4020 (Energy), 4021 (Analytics), 4022 (Field Service), 4023 (ISO 42001), 4024 (ISO 37001), 4025 (Marketing), 4026 (Partners), 4027 (Risk), 4028 (Training), 4029 (Suppliers), 4030 (Assets), 4031 (Documents), 4032 (Complaints), 4033 (Contracts), 4034 (PTW), 4035 (Reg Monitor), 4036 (Incidents), 4037 (Audits), 4038 (Mgmt Review), 4040 (Chemicals), 4041 (Emergency), 4050 (Search)
 - Web: 3000 (Dashboard), 3001 (H&S), 3002 (Env), 3003 (Quality), 3004 (Settings), 3005 (Inventory), 3006 (HR), 3007 (Payroll), 3008 (Workflows), 3009 (PM), 3010 (Automotive), 3011 (Medical), 3012 (Aerospace), 3013 (Finance), 3014 (CRM), 3015 (InfoSec), 3016 (ESG), 3017 (CMMS), 3018 (Customer Portal), 3019 (Supplier Portal), 3020 (Food Safety), 3021 (Energy), 3022 (Analytics), 3023 (Field Service), 3024 (ISO 42001), 3025 (ISO 37001), 3026 (Partners Portal), 3027 (Admin Dashboard), 3030 (Marketing), 3031 (Risk), 3032 (Training), 3033 (Suppliers), 3034 (Assets), 3035 (Documents), 3036 (Complaints), 3037 (Contracts), 3038 (Fin Compliance), 3039 (PTW), 3040 (Reg Monitor), 3041 (Incidents), 3042 (Audits), 3043 (Mgmt Review), 3044 (Chemicals), 3045 (Emergency)
 
 ### Gateway Routing
@@ -153,6 +153,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 - `/api/mgmt-review/*` → api-mgmt-review:4038
 - `/api/chemicals/*` → api-chemicals:4040
 - `/api/emergency/*` → api-emergency:4041
+- `/api/search/*` → api-search:4050 (Global Search microservice)
 - All routes also available under `/api/v1/` prefix
 
 ### Database
@@ -171,7 +172,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 ### Testing
 
 ```bash
-pnpm test                        # 708,565 Jest unit tests (712 suites)
+pnpm test                        # 1,076,705 Jest unit tests (1,003 suites)
 ./scripts/test-all-modules.sh    # All integration tests (9 modules, ~465+ assertions)
 ./scripts/test-hs-modules.sh     # H&S integration tests (~70)
 ./scripts/test-env-modules.sh    # Environment integration tests (~60)
@@ -217,7 +218,7 @@ npx prisma migrate diff --from-empty --to-schema-datamodel=prisma/schemas/enviro
   PGPASSWORD=... psql -h localhost -U postgres -d ims -v ON_ERROR_STOP=0
 ```
 
-### Shared Packages (39)
+### Shared Packages (85)
 
 See `SYSTEM_STATE.md` for the complete list. Key packages:
 
@@ -225,7 +226,7 @@ See `SYSTEM_STATE.md` for the complete list. Key packages:
 - `@ims/notifications` — WebSocket real-time notifications
 - `@ims/pwa` — Progressive Web App (service worker, offline sync)
 - `@ims/performance` — k6 load tests, Lighthouse CI, WCAG audit
-- `@ims/templates` — 184 built-in document/report templates
+- `@ims/templates` — 192 built-in document/report templates
 - `@ims/emission-factors` — GHG emission factor database
 - `@ims/finance-calculations` — Financial calculation engine
 - `@ims/tax-engine` — Multi-jurisdiction tax calculation
@@ -235,6 +236,23 @@ See `SYSTEM_STATE.md` for the complete list. Key packages:
 - `@ims/regulatory-feed` — Live regulatory change feed
 - `@ims/standards-convergence` — Cross-standard mapping engine
 - `@ims/event-bus` — Cross-service event bus
+- `@ims/command-palette` — Cmd+K command palette with fuzzy search (Q1 2026)
+- `@ims/keyboard-shortcuts` — Global keyboard shortcut registry (Q1 2026)
+- `@ims/bulk-actions` — Bulk selection and batch operations (Q1 2026)
+- `@ims/inline-edit` — Inline field editing with validation (Q1 2026)
+- `@ims/deep-links` — Deep link URL builder and registry (Q1 2026)
+- `@ims/search` — Global search client and utilities (Q1 2026)
+- `@ims/graphql-schema` — Shared GraphQL type definitions (Q2 2026)
+- `@ims/collab` — Real-time collaboration engine (OT, cursors) (Q2 2026)
+- `@ims/workflow-builder` — Workflow automation DSL and runtime (Q2 2026)
+- `@ims/report-builder` — Custom report builder and query engine (Q2 2026)
+- `@ims/risk-ml` — Predictive risk scoring ML engine (Q3 2026)
+- `@ims/iot-gateway` — IoT device integration gateway (Q3 2026)
+- `@ims/plugin-registry` — Plugin marketplace registry (Q4 2026)
+- `@ims/developer-portal` — Developer portal and SDK docs (Q4 2026)
+
+### New API Service (port 4050)
+- `apps/api-search` — Global Search microservice (port 4050, proxied at `/api/search/*`)
 
 ## Documentation
 

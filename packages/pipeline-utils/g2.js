@@ -1,0 +1,1 @@
+const hdr=["// Copyright (c) 2026 Nexara DMCC. All rights reserved.","// This file is part of the Nexara IMS Platform. CONFIDENTIAL \u2014 TRADE SECRET.","// Unauthorised copying, modification, or distribution is strictly prohibited."];

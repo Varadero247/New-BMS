@@ -1,5 +1,13 @@
 # API Reference — Nexara IMS
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Overview
 
 All API traffic flows through the gateway at **port 4000**. Base URL: `http://localhost:4000/api` (also available as `/api/v1`).

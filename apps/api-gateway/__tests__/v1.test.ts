@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import express from 'express';
 import request from 'supertest';
 
@@ -104,6 +107,7 @@ jest.mock('../src/middleware/rate-limiter', () => ({
   authLimiter: (_req: any, _res: any, next: any) => next(),
   registerLimiter: (_req: any, _res: any, next: any) => next(),
   passwordResetLimiter: (_req: any, _res: any, next: any) => next(),
+  refreshLimiter: (_req: any, _res: any, next: any) => next(),
   apiLimiter: (_req: any, _res: any, next: any) => next(),
 }));
 

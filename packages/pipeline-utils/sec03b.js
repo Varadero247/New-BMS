@@ -1,0 +1,1 @@
+for(let i=1;i<=100;i++){ out.push("  it(\"transform " + String(i) + ": applies fn to value\", () => { expect(transform(" + String(i) + ", (x: unknown) => (x as number) + 1)).toBe(" + String(i+1) + "); });"); }

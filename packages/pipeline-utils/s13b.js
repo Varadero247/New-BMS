@@ -1,0 +1,1 @@
+for(let i=1;i<=50;i++){ lines.push("  it(\"parallel test \"+i+\"\", async () => { const results=await parallel(\"\"+i,(x)=>x+\"a\",(x)=>x+\"b\"); expect(results).toEqual([\"\"+i+\"a\",\"\"+i+\"b\"]); });"); }

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 // Quality Schema - Quality Management Domain (ISO 9001:2015)
 // 18 Qual-prefixed models for the Quality Management System
 // Database: ims (shared) or ims_quality (microservice mode)

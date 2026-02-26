@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 /**
  * Fire, Emergency & Disaster Management — Seed Data
  * Run: EMERGENCY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims?schema=public" npx tsx packages/database/prisma/seed-emergency.ts

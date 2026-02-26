@@ -1,0 +1,14 @@
+{
+  "name": "@ims/crypto-utils",
+  "version": "1.0.0",
+  "description": "Cryptographic utility library using Node.js built-in crypto",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": { "build": "tsc", "test": "jest" },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "^29.0.0", "jest": "^29.0.0", "@types/jest": "^29.0.0", "typescript": "^5.0.0" }
+}

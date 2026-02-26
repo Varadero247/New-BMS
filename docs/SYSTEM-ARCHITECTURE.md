@@ -1,8 +1,16 @@
 # IMS System Architecture Documentation
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Overview
 
-The Integrated Management System (IMS) is a comprehensive microservices-based platform for managing organizational compliance across multiple ISO standards (ISO 9001, ISO 14001, ISO 45001). The system consists of 52 services: 25 backend APIs and 26 frontend web applications, plus 1 main API.
+The Integrated Management System (IMS) is a comprehensive microservices-based platform for managing organizational compliance across multiple ISO standards (ISO 9001, ISO 14001, ISO 45001). The system consists of 88 services: 43 backend APIs and 44 frontend web applications, plus 1 main API.
 
 ## Architecture Diagram
 
@@ -384,8 +392,8 @@ Total services running: 52 / 52
 - **Monorepo**: Turborepo
 - **Package Manager**: pnpm
 - **Build Tool**: tsup (all API services and shared packages)
-- **Testing**: Jest (12,321 tests across 578 suites), 9 integration test scripts (~465+ assertions), CI via GitHub Actions
-- **Containerization**: Docker Compose (42 APIs + 44 web apps + PostgreSQL + Redis + main API)
+- **Testing**: Jest (1,009,560 tests across 944 suites), 40 integration test scripts (~1,800+ assertions), CI via GitHub Actions
+- **Containerization**: Docker Compose (43 APIs + 44 web apps + PostgreSQL + Redis + main API)
 - **Logging**: Winston
 - **Metrics**: prom-client (Prometheus)
 

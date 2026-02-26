@@ -1,6 +1,6 @@
 # @ims/web-partners
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3026  
 **Standard/Domain**: Partner Portal  
 **Part of**: [Nexara IMS](../../README.md)

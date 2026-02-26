@@ -1,5 +1,13 @@
 # NEXARA IMS PLATFORM — DOCUMENTATION INDEX
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Updated:** February 23, 2026
 **Total documentation:** ~215 KB primary references + 50+ supporting docs + 40 UAT test plans
 
@@ -190,7 +198,7 @@
 | Database Models | 606 |
 | Database Enums | 781 |
 | REST API Endpoints | 2,558 |
-| Unit Tests | 708,565 / 712 suites |
+| Unit Tests | 823,153 / 799 suites |
 | Code Score | 100/100 |
 | ISO Standards Supported | 16+ |
 | GitHub Workflows | 7 |

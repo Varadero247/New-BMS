@@ -1,0 +1,8 @@
+{
+  "name": "@ims/priority-queue",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": { "test": "jest" },
+  "devDependencies": { "jest": "*", "ts-jest": "*", "typescript": "*", "@types/jest": "*" }
+}

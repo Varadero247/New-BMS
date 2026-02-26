@@ -1,6 +1,6 @@
 # @ims/web-admin
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3027  
 **Standard/Domain**: Admin Dashboard  
 **Part of**: [Nexara IMS](../../README.md)

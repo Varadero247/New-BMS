@@ -1,5 +1,13 @@
 # Nexara IMS — Compliance Template Library
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **172 professional DOCX templates** covering 10 ISO standards, GDPR, and ESG/CSRD requirements.
 
 All templates feature: branded cover page, revision history, document numbering, `[COMPANY NAME]` placeholders for customisation, and ISO clause cross-references.

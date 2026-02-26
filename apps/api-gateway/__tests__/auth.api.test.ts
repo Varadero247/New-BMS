@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import express from 'express';
 import request from 'supertest';
 import { z } from 'zod';
@@ -61,6 +64,7 @@ jest.mock('../src/middleware/rate-limiter', () => ({
   authLimiter: (req: any, res: any, next: any) => next(),
   registerLimiter: (req: any, res: any, next: any) => next(),
   passwordResetLimiter: (req: any, res: any, next: any) => next(),
+  refreshLimiter: (req: any, res: any, next: any) => next(),
 }));
 
 jest.mock('../src/middleware/account-lockout', () => ({

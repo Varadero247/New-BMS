@@ -1,8 +1,16 @@
 # Module Status
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 Last updated: 2026-02-16 (test counts are as-of Feb 16; actual counts are much higher — all
-services have been expanded to ≥1,000 tests per test file, for a platform total of 708,565 tests
-across 712 suites as of Feb 23, 2026. See `SYSTEM_STATE.md` for current totals.)
+services have been expanded to ≥1,000 tests per test file, for a platform total of 823,153 tests
+across 799 suites as of Feb 23, 2026. See `SYSTEM_STATE.md` for current totals.)
 
 ## API Services
 
@@ -98,7 +106,7 @@ across 712 suites as of Feb 23, 2026. See `SYSTEM_STATE.md` for current totals.)
 | @ims/regulatory-feed | Regulatory update feeds | - |
 | @ims/benchmarks | Performance benchmarking | - |
 
-**Total: 60 packages | ~1,109 package-level tests**
+**Total: 124 packages | ~318,565 package-level tests**
 
 ## Standards Compliance Matrix
 

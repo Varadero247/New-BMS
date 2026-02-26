@@ -1,5 +1,13 @@
 # IMS — Fixes Log
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Phases 117–216 — Test Depth Expansion to ≥1000 (February 23, 2026)
 
 Bulk expansion from ≥500 → ≥1000 tests per file (100 phases × 5 tests). 7 parallel agents × ~102 files.

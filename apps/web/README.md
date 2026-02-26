@@ -1,6 +1,6 @@
 # @ims/web
 
-**Type**: Web App (Next.js 14)
+**Type**: Web App (Next.js 15)
 **Port**: 3030
 **Standard/Domain**: Marketing Site
 **Part of**: [Nexara IMS](../../README.md)

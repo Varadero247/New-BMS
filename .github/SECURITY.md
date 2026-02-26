@@ -1,5 +1,8 @@
 # Security Policy
 
+**Product:** Nexara IMS Platform
+**Owner:** Nexara DMCC, Dubai Multi Commodities Centre Free Zone, Dubai, UAE
+
 ## Supported Versions
 
 | Version | Supported |

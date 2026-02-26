@@ -1,5 +1,13 @@
 # Deployment Guide — Nexara IMS
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Environment Variables
 
 | Variable                     | Description                                          | Required   |
@@ -49,7 +57,7 @@ module.exports = {
       cwd: './apps/api-health-safety',
       env: { PORT: 4001, NODE_ENV: 'production' },
     },
-    // ... repeat for all 27 API services (ports 4000-4026)
+    // ... repeat for all 42 API services (ports 4000-4041)
     {
       name: 'web-dashboard',
       script: 'node_modules/.bin/next',
@@ -57,7 +65,7 @@ module.exports = {
       cwd: './apps/web-dashboard',
       env: { NODE_ENV: 'production' },
     },
-    // ... repeat for all 30 web apps (ports 3000-3030)
+    // ... repeat for all 44 web apps (ports 3000-3045)
   ],
 };
 ```

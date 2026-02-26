@@ -1,0 +1,45 @@
+{
+  "id": "automotive-iatf-16949",
+  "name": "Automotive — IATF 16949:2016",
+  "version": "1.0.0",
+  "standards": ["IATF 16949:2016", "ISO 9001:2015"],
+  "estimatedSetupMinutes": 45,
+  "description": "Pre-configured pack for automotive suppliers targeting IATF 16949:2016 certification. Includes APQP, PPAP, FMEA, SPC, and MSA templates with Ford/GM/Stellantis customer-specific requirements.",
+  "targetCustomer": "Tier 1 / Tier 2 automotive suppliers",
+  "includes": {
+    "riskCategories": 18,
+    "documentTypes": 32,
+    "workflowTemplates": 14,
+    "auditChecklists": 8,
+    "kpis": 24
+  },
+  "prerequisites": ["Quality module enabled", "Document Control module enabled"],
+  "customisationOptions": [
+    {
+      "key": "primaryOem",
+      "label": "Primary OEM Customer",
+      "type": "select",
+      "required": false,
+      "options": ["Ford", "GM", "Stellantis", "BMW", "VW", "Toyota", "Honda", "Other"]
+    },
+    {
+      "key": "supplierCode",
+      "label": "Supplier Code (DUNS or CAGE)",
+      "type": "string",
+      "required": false,
+      "placeholder": "e.g. 123456789"
+    },
+    {
+      "key": "enableApqp",
+      "label": "Enable APQP / PPAP workflows",
+      "type": "boolean",
+      "required": false
+    },
+    {
+      "key": "enableSpc",
+      "label": "Enable SPC control charts",
+      "type": "boolean",
+      "required": false
+    }
+  ]
+}

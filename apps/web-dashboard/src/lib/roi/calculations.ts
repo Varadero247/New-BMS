@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import type { RoiInputs, RoiResults } from '@/components/roi/types';
 
 // Constants — referenced in sales materials, do not change without approval

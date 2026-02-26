@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 /** @type {import('jest').Config} */
 module.exports = {
   // Use projects mode: each workspace runs its own jest config in parallel
@@ -125,7 +128,561 @@ module.exports = {
     '<rootDir>/packages/testing',
     // Charts package (logic tests)
     '<rootDir>/packages/charts',
+    // Implementation acceleration packages (added Feb 24, 2026)
+    '<rootDir>/packages/migration-assistant',
+    '<rootDir>/packages/instant-start',
+    '<rootDir>/packages/sync-engine',
+    '<rootDir>/packages/bamboohr-client',
+    '<rootDir>/packages/workday-client',
+    '<rootDir>/packages/sap-client',
+    '<rootDir>/packages/dynamics-client',
+    '<rootDir>/packages/xero-client',
+    '<rootDir>/packages/command-palette',
+    // Q1 2026 Strategic Recommendations packages
+    '<rootDir>/packages/keyboard-shortcuts',
+    '<rootDir>/packages/bulk-actions',
+    '<rootDir>/packages/inline-edit',
+    '<rootDir>/packages/deep-links',
+    '<rootDir>/packages/search',
+    // Q2–Q4 2026 Strategic Recommendations packages
+    '<rootDir>/packages/graphql-schema',
+    '<rootDir>/packages/collab',
+    '<rootDir>/packages/workflow-builder',
+    '<rootDir>/packages/report-builder',
+    '<rootDir>/packages/risk-ml',
+    '<rootDir>/packages/iot-gateway',
+    '<rootDir>/packages/plugin-registry',
+    '<rootDir>/packages/developer-portal',
+    // Q2–Q4 new packages (batch 2)
+    '<rootDir>/packages/bulk-export',
+    '<rootDir>/packages/onboarding-flow',
+    '<rootDir>/packages/embedded-bi',
+    '<rootDir>/packages/ai-root-cause',
+    // Global Search microservice
+    '<rootDir>/apps/api-search',
+    // Q2–Q4 new packages (batch 3) — AI/form/vision/chain
+    '<rootDir>/packages/ai-autofill',
+    '<rootDir>/packages/form-builder',
+    '<rootDir>/packages/vision-inspect',
+    '<rootDir>/packages/chain-audit',
+    '<rootDir>/packages/anomaly-detector',
+    // Strategic recommendations packages (added Feb 24, 2026 — batch 4)
+    '<rootDir>/packages/rule-engine',
+    '<rootDir>/packages/kanban-engine',
+    '<rootDir>/packages/ab-testing',
+    '<rootDir>/packages/gantt-engine',
+    '<rootDir>/packages/data-pipeline',
+    '<rootDir>/packages/doc-classifier',
+    '<rootDir>/packages/score-engine',
+    '<rootDir>/packages/timeline-engine',
+    '<rootDir>/packages/budget-engine',
+    '<rootDir>/packages/checklist-engine',
+    '<rootDir>/packages/approval-flow',
+    '<rootDir>/packages/geo-utils',
+    '<rootDir>/packages/crypto-utils',
+    // Strategic recommendations packages (added Feb 24, 2026 — batch 5)
+    '<rootDir>/packages/event-sourcing',
+    // type-utils (added Feb 25, 2026)
+    '<rootDir>/packages/type-utils',
+    // measurement-utils (added Feb 25, 2026)
+    '<rootDir>/packages/measurement-utils',
+    '<rootDir>/packages/price-engine',
+    '<rootDir>/packages/date-utils',
+    '<rootDir>/packages/matrix-utils',
+    '<rootDir>/packages/filter-engine',
+    '<rootDir>/packages/unit-converter',
+    '<rootDir>/packages/kpi-engine',
+    '<rootDir>/packages/locale-utils',
+    '<rootDir>/packages/string-utils',
+    '<rootDir>/packages/pagination',
+    '<rootDir>/packages/compliance-rules',
+    '<rootDir>/packages/import-validator',
+    '<rootDir>/packages/audit-formatter',
+    // Strategic recommendations packages (added Feb 24, 2026 — batch 6)
+    '<rootDir>/packages/number-utils',
+    '<rootDir>/packages/color-utils',
+    '<rootDir>/packages/array-utils',
+    '<rootDir>/packages/object-utils',
+    '<rootDir>/packages/url-utils',
+    '<rootDir>/packages/text-analytics',
+    '<rootDir>/packages/duration-utils',
+
+    // Phase 74 utility packages (added Feb 24, 2026)
+    '<rootDir>/packages/formula-engine',
+    '<rootDir>/packages/alerting-engine',
+    '<rootDir>/packages/chart-utils',
+    '<rootDir>/packages/format-utils',
+    '<rootDir>/packages/tree-utils',
+
+    // Phase 75 utility packages (added Feb 24, 2026)
+    '<rootDir>/packages/diff-utils',
+    '<rootDir>/packages/graph-utils',
+
+    // graph-algorithms-2 package (added Feb 25, 2026)
+    '<rootDir>/packages/graph-algorithms-2',
+
+    // network-flow package (added Feb 25, 2026)
+    '<rootDir>/packages/network-flow',
+    '<rootDir>/packages/state-machine',
+    '<rootDir>/packages/event-utils',
+    '<rootDir>/packages/schema-builder',
+
+    // Phase 76 utility packages (added Feb 24, 2026)
+    '<rootDir>/packages/parser-utils',
+    '<rootDir>/packages/sort-utils',
+    '<rootDir>/packages/math-utils',
+
+    // statistics package (added Feb 25, 2026)
+    '<rootDir>/packages/statistics',
+
+    // matrix-ops package (added Feb 25, 2026)
+    '<rootDir>/packages/matrix-ops',
+    '<rootDir>/packages/codec-utils',
+    '<rootDir>/packages/promise-utils',
+
+    // Phase 77 utility packages (added Feb 24, 2026)
+    '<rootDir>/packages/queue-utils',
+    '<rootDir>/packages/random-utils',
+    '<rootDir>/packages/time-utils',
+    '<rootDir>/packages/xml-utils',
+    '<rootDir>/packages/path-utils',
+
+    // Phase 78 utility packages (added Feb 24, 2026)
+    '<rootDir>/packages/collection-utils',
+
+    // set-operations package (added Feb 25, 2026)
+    '<rootDir>/packages/set-operations',
+    '<rootDir>/packages/template-engine',
+    '<rootDir>/packages/markdown-utils',
+    '<rootDir>/packages/stream-utils',
+    '<rootDir>/packages/csv-utils',
+
+    // Phase 79 utility packages (added Feb 24, 2026)
+    '<rootDir>/packages/regex-utils',
+    '<rootDir>/packages/binary-utils',
+    '<rootDir>/packages/log-utils',
+    '<rootDir>/packages/validator-utils',
+    '<rootDir>/packages/config-utils',
+
+    // Phase 80 utility packages (added Feb 24, 2026)
+    '<rootDir>/packages/http-utils',
+    '<rootDir>/packages/ip-utils',
+    '<rootDir>/packages/money-utils',
+    '<rootDir>/packages/table-utils',
+    '<rootDir>/packages/fuzzy-utils',
+
+    // Phase 81 utility packages (added Feb 24, 2026)
+    '<rootDir>/packages/jwt-utils',
+    '<rootDir>/packages/phone-utils',
+    '<rootDir>/packages/semver-utils',
+    '<rootDir>/packages/search-utils',
+    '<rootDir>/packages/circular-linked-list',
+    '<rootDir>/packages/file-utils',
+    '<rootDir>/packages/lazy-utils',
+    '<rootDir>/packages/builder-pattern',
+    '<rootDir>/packages/animation-utils',
+    '<rootDir>/packages/reactive-utils',
+    '<rootDir>/packages/dependency-graph',
+    '<rootDir>/packages/html-utils',
+    '<rootDir>/packages/observer-utils',
+    '<rootDir>/packages/lru-cache-2',
+
+    // caching-strategies package (added Feb 25, 2026)
+    '<rootDir>/packages/caching-strategies',
+    '<rootDir>/packages/pattern-match',
+
+    // string-template package (added Feb 25, 2026)
+    '<rootDir>/packages/string-template',
+
+    // Phase 82 utility packages
+    '<rootDir>/packages/tz-utils',
+
+    // Email address utilities package (added Feb 24, 2026)
+    '<rootDir>/packages/email-utils',
+
+    // Cron expression utilities package (added Feb 24, 2026)
+    '<rootDir>/packages/cron-utils',
+
+    // Phase 82 gap-closing packages (added Feb 25, 2026)
+    '<rootDir>/packages/totp-utils',
+    '<rootDir>/packages/stats-utils',
+    '<rootDir>/packages/slug-utils',
+    '<rootDir>/packages/compression-utils',
+    // error-correction package (added Feb 25, 2026)
+    '<rootDir>/packages/cryptography-utils',
+    // error-correction package (added Feb 25, 2026)
+    '<rootDir>/packages/error-correction',
+    // signal-processing package (added Feb 25, 2026)
+    '<rootDir>/packages/signal-processing',
+    // protocol-utils package (added Feb 25, 2026)
+    '<rootDir>/packages/protocol-utils',
+    // concurrency-utils package (added Feb 25, 2026)
+    '<rootDir>/packages/concurrency-utils',
+    // data-validation package (added Feb 25, 2026)
+    '<rootDir>/packages/data-validation',
+    // pipeline-utils (added Feb 25, 2026)
+    '<rootDir>/packages/pipeline-utils',
+    '<rootDir>/packages/observable',
+    '<rootDir>/packages/business-calendar',
+    '<rootDir>/packages/barcode-utils',
+
+    // Phase 83 utility packages (added Feb 25, 2026)
+    '<rootDir>/packages/retry-utils',
+
+    // Phase 84 utility packages (added Feb 25, 2026)
+    '<rootDir>/packages/hash-utils',
+
+    // Phase 85 utility packages (added Feb 25, 2026)
+    '<rootDir>/packages/uuid-utils',
+
+    // Phase 86 utility packages (added Feb 25, 2026)
+    '<rootDir>/packages/mime-utils',
+
+    // Phase 87 utility packages (added Feb 25, 2026)
+    '<rootDir>/packages/sanitize-utils',
+
+    // Phase 88 utility packages (added Feb 25, 2026)
+    '<rootDir>/packages/i18n-formatter',
+
+    // Phase 88 utility packages (added Feb 25, 2026)
+    '<rootDir>/packages/event-emitter',
+
+    // quadtree package (added Feb 25, 2026)
+    '<rootDir>/packages/quadtree',
+
+    // Phase 84 utility packages — feature-toggle (added Feb 25, 2026)
+    '<rootDir>/packages/feature-toggle',
+
+    // Phase 84 utility packages
+    '<rootDir>/packages/qr-utils',
+
+    // Phase 84 utility packages
+    '<rootDir>/packages/pdf-utils',
+
+    // Phase 85 utility packages
+    '<rootDir>/packages/cache-strategy',
+    '<rootDir>/packages/metric-utils',
+
+    // Phase 85 utility packages
+    '<rootDir>/packages/rate-limit-utils',
+
+    // Phase 85 utility packages (added Feb 25, 2026)
+    '<rootDir>/packages/expression-eval',
+
+    // Phase 85 utility packages
+    '<rootDir>/packages/text-diff',
+
+    // Phase 85 utility packages — locale-detect (added Feb 25, 2026)
+    '<rootDir>/packages/locale-detect',
+
+    // Phase 86 utility packages (added Feb 25, 2026)
+    '<rootDir>/packages/result-type',
+
+    // query-builder package (added Feb 25, 2026)
+    '<rootDir>/packages/query-builder',
+
+    // task-queue package (added Feb 25, 2026)
+    '<rootDir>/packages/task-queue',
+
+    // state-utils package (added Feb 25, 2026)
+    '<rootDir>/packages/state-utils',
+    // functional-utils package (added Feb 25, 2026)
+    '<rootDir>/packages/functional-utils',
+    // serialization-utils package (added Feb 25, 2026)
+    '<rootDir>/packages/serialization-utils',
+    // geometry-2d package (added Feb 25, 2026)
+    '<rootDir>/packages/geometry-2d',
+
+    // bloom-filter package (added Feb 25, 2026)
+    '<rootDir>/packages/bloom-filter',
+
+    // bloom-filter-2 package (added Feb 25, 2026)
+    '<rootDir>/packages/bloom-filter-2',
+    // hash-table package (added Feb 25, 2026)
+    '<rootDir>/packages/hash-table',
+
+    // trie package (added Feb 25, 2026)
+    '<rootDir>/packages/trie',
+
+    // message-bus package (added Feb 25, 2026)
+    '<rootDir>/packages/message-bus',
+
+    // circuit-breaker package (added Feb 25, 2026)
+    '<rootDir>/packages/circuit-breaker',
+
+    // health-check package (added Feb 25, 2026)
+    '<rootDir>/packages/health-check',
+
+    // lru-map package (added Feb 25, 2026)
+    '<rootDir>/packages/lru-map',
+
+    // interval-tree package (added Feb 25, 2026)
+    '<rootDir>/packages/interval-tree',
+
+    // interval-tree-2 package (added Feb 25, 2026)
+    '<rootDir>/packages/interval-tree-2',
+
+    // z-algorithm package (added Feb 26, 2026)
+    '<rootDir>/packages/z-algorithm',
+
+    // union-find package (added Feb 25, 2026)
+    '<rootDir>/packages/union-find',
+
+    // skip-list package (added Feb 25, 2026)
+    '<rootDir>/packages/skip-list',
+
+    // sliding-window package (added Feb 25, 2026)
+    '<rootDir>/packages/sliding-window',
+
+    // finite-automata package (added Feb 25, 2026)
+    '<rootDir>/packages/finite-automata',
+
+    // segment-tree package (added Feb 25, 2026)
+    '<rootDir>/packages/segment-tree',
+    // segment-tree-2 package (added Feb 25, 2026)
+    '<rootDir>/packages/segment-tree-2',
+
+    // avl-tree package (added Feb 25, 2026)
+    '<rootDir>/packages/avl-tree',
+
+    // fenwick-tree package (added Feb 25, 2026)
+    '<rootDir>/packages/fenwick-tree',
+    // merkle-tree package (added Feb 25, 2026)
+    '<rootDir>/packages/merkle-tree',
+
+    // deque package (added Feb 25, 2026)
+    '<rootDir>/packages/deque',
+
+    // heap-utils package (added Feb 25, 2026)
+    '<rootDir>/packages/heap-utils',
+
+    // sorting-algorithms package (added Feb 25, 2026)
+    '<rootDir>/packages/sorting-algorithms',
+
+    // scheduling-algorithms package (added Feb 25, 2026)
+    '<rootDir>/packages/scheduling-algorithms',
+
+    // suffix-array package (added Feb 25, 2026)
+    '<rootDir>/packages/suffix-array',
+
+    // string-search package (added Feb 25, 2026)
+    '<rootDir>/packages/string-search',
+
+    // text-search package (added Feb 25, 2026)
+    '<rootDir>/packages/text-search',
+
+    // graph-algorithms package
+    '<rootDir>/packages/graph-algorithms',
+
+    // lfu-cache package (added Feb 25, 2026)
+    '<rootDir>/packages/lfu-cache',
+
+    // sparse-table package (added Feb 25, 2026)
+    '<rootDir>/packages/sparse-table',
+
+    // red-black-tree package (added Feb 25, 2026)
+    '<rootDir>/packages/red-black-tree',
+
+    // number-theory package (added Feb 25, 2026)
+    '<rootDir>/packages/number-theory',
+
+    // dynamic-programming package (added Feb 25, 2026)
+    '<rootDir>/packages/dynamic-programming',
+
+    // optimization-algorithms package (added Feb 25, 2026)
+    '<rootDir>/packages/optimization-algorithms',
+
+    // geometry-utils package (added Feb 25, 2026)
+    '<rootDir>/packages/geometry-utils',
+
+    // bitset package (added Feb 25, 2026)
+    '<rootDir>/packages/bitset',
+
+    // combinatorics package (added Feb 25, 2026)
+    '<rootDir>/packages/combinatorics',
+
+    // polynomial package (added Feb 25, 2026)
+    '<rootDir>/packages/polynomial',
+
+    // linear-algebra package (added Feb 25, 2026)
+    '<rootDir>/packages/linear-algebra',
+
+    // probability package (added Feb 25, 2026)
+    '<rootDir>/packages/probability',
+
+    // optimization package (added Feb 25, 2026)
+    '<rootDir>/packages/optimization',
+
+    // huffman package (added Feb 25, 2026)
+    '<rootDir>/packages/huffman',
+
+    // time-series package (added Feb 25, 2026)
+    { displayName: 'time-series', testMatch: ['<rootDir>/packages/time-series/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // fft package (added Feb 25, 2026)
+    { displayName: 'fft', testMatch: ['<rootDir>/packages/fft/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // markov-chain package (added Feb 25, 2026)
+    { displayName: 'markov-chain', testMatch: ['<rootDir>/packages/markov-chain/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // neural-net package (added Feb 25, 2026)
+    { displayName: 'neural-net', testMatch: ['<rootDir>/packages/neural-net/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // treap package (added Feb 25, 2026)
+    { displayName: 'treap', testMatch: ['<rootDir>/packages/treap/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // b-tree package (added Feb 25, 2026)
+    { displayName: 'b-tree', testMatch: ['<rootDir>/packages/b-tree/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // b-plus-tree package (added Feb 25, 2026)
+    { displayName: 'b-plus-tree', testMatch: ['<rootDir>/packages/b-plus-tree/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // cache-replacement package (added Feb 25, 2026)
+    { displayName: 'cache-replacement', testMatch: ['<rootDir>/packages/cache-replacement/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // rope-structure package (added Feb 25, 2026)
+    { displayName: 'rope-structure', testMatch: ['<rootDir>/packages/rope-structure/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // persistent-ds package (added Feb 25, 2026)
+    { displayName: 'persistent-ds', testMatch: ['<rootDir>/packages/persistent-ds/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // spatial-index package (added Feb 25, 2026)
+    { displayName: 'spatial-index', testMatch: ['<rootDir>/packages/spatial-index/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+    // finger-tree package (added Feb 25, 2026)
+    { displayName: 'finger-tree', testMatch: ['<rootDir>/packages/finger-tree/src/__tests__/**/*.test.ts'], transform: { '^.+\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+    // van-emde-boas package (added Feb 25, 2026)
+    '<rootDir>/packages/van-emde-boas',
+    // disjoint-set package (added Feb 25, 2026)
+    '<rootDir>/packages/disjoint-set',
+    // cartesian-tree package (added Feb 25, 2026)
+    '<rootDir>/packages/cartesian-tree',
+    // k-d-tree package (added Feb 25, 2026)
+    '<rootDir>/packages/k-d-tree',
+    // i18n-utils package (added Feb 25, 2026)
+    { displayName: 'i18n-utils', testMatch: ['<rootDir>/packages/i18n-utils/src/__tests__/**/*.test.ts'], transform: { '^.+\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
+
+    // splay-tree package (added Feb 25, 2026)
+    '<rootDir>/packages/splay-tree',
+  '<rootDir>/packages/dependency-injection',
+
+  // command-pattern package (added Feb 25, 2026)
+  '<rootDir>/packages/command-pattern',
+  // accessibility-utils package (added Feb 25, 2026)
+  '<rootDir>/packages/accessibility-utils',
+  // immutable-utils package (added Feb 25, 2026)
+  '<rootDir>/packages/immutable-utils',
+  // Phase 103 packages (added Feb 25, 2026)
+  '<rootDir>/packages/finite-state-machine',
+  '<rootDir>/packages/cache-utils',
+  '<rootDir>/packages/async-utils',
+  '<rootDir>/packages/storage-utils',
+  '<rootDir>/packages/network-utils',
+  '<rootDir>/packages/error-utils',
+  '<rootDir>/packages/permission-utils',
+  '<rootDir>/packages/event-replay',
+  // Phase 103 final packages (added Feb 25, 2026)
+  '<rootDir>/packages/runtime-utils',
+  '<rootDir>/packages/crypto-primitives',
+  '<rootDir>/packages/task-scheduler',
+  // Phase 104 packages (added Feb 25, 2026)
+  '<rootDir>/packages/locale-format',
+  '<rootDir>/packages/signal-utils',
+  '<rootDir>/packages/cache-store',
+  '<rootDir>/packages/text-analysis',
+  '<rootDir>/packages/config-schema',
+  // Phase 105 packages (added Feb 25, 2026)
+  '<rootDir>/packages/vector-math',
+  '<rootDir>/packages/interval-utils',
+  '<rootDir>/packages/color-convert',
+  '<rootDir>/packages/mime-types',
+  '<rootDir>/packages/deep-utils',
+  // Phase 106 packages (added Feb 25, 2026)
+  '<rootDir>/packages/bezier',
+  '<rootDir>/packages/easing-functions',
+  '<rootDir>/packages/noise-gen',
+  '<rootDir>/packages/quaternion',
+  '<rootDir>/packages/interpolation',
+  '<rootDir>/packages/audit-trail',
+  '<rootDir>/packages/unit-of-work',
+  // Phase 107 packages (added Feb 25, 2026)
+  '<rootDir>/packages/rope-data-structure',
+  '<rootDir>/packages/trie-search',
+  '<rootDir>/packages/lru-cache',
+  '<rootDir>/packages/priority-queue',
+  // Phase 108 packages (added Feb 25, 2026)
+  '<rootDir>/packages/string-algorithms',
+  '<rootDir>/packages/aho-corasick',
+  '<rootDir>/packages/ring-buffer',
+  '<rootDir>/packages/fibonacci-heap',
+  '<rootDir>/packages/convex-hull',
+  '<rootDir>/packages/scapegoat-tree',
+  '<rootDir>/packages/wavelet-tree',
+  // Phase 110 packages (added Feb 25, 2026)
+  '<rootDir>/packages/bit-manipulation',
+  '<rootDir>/packages/string-hashing',
+  '<rootDir>/packages/edit-distance',
+  '<rootDir>/packages/double-ended-queue',
+  '<rootDir>/packages/order-statistics-tree',
+  // persistent-segment-tree package (added Feb 26, 2026)
+  '<rootDir>/packages/persistent-segment-tree',
+  // galois-field package (added Feb 26, 2026)
+  '<rootDir>/packages/galois-field',
+  // vp-tree package (added Feb 26, 2026)
+  '<rootDir>/packages/vp-tree',
+  // suffix-automaton package (added Feb 26, 2026)
+  '<rootDir>/packages/suffix-automaton',
+  // hyperloglog package (added Feb 26, 2026)
+  '<rootDir>/packages/hyperloglog',
+  // count-min-sketch package (added Feb 26, 2026)
+  '<rootDir>/packages/count-min-sketch',
+  // dancing-links package (added Feb 26, 2026)
+  '<rootDir>/packages/dancing-links',
+  // link-cut-tree package (added Feb 26, 2026)
+  '<rootDir>/packages/link-cut-tree',
+  // cuckoo-hash package (added Feb 26, 2026)
+  '<rootDir>/packages/cuckoo-hash',
+  // auto-diff package (added Feb 26, 2026)
+  '<rootDir>/packages/auto-diff',
+  // hungarian-algorithm package (added Feb 26, 2026)
+  '<rootDir>/packages/hungarian-algorithm',
+  // simplex-method package (added Feb 26, 2026)
+  '<rootDir>/packages/simplex-method',
+  // regex-engine package (added Feb 26, 2026)
+  '<rootDir>/packages/regex-engine',
+  // lsh package (added Feb 26, 2026)
+  '<rootDir>/packages/lsh',
+  // wavelet-tree package (added Feb 26, 2026)
+  '<rootDir>/packages/wavelet-tree',
+  // treap package (added Feb 26, 2026)
+  '<rootDir>/packages/treap',
+  // sparse-table package (added Feb 26, 2026)
+  '<rootDir>/packages/sparse-table',
+  // monotone-queue package (added Feb 26, 2026)
+  '<rootDir>/packages/monotone-queue',
+  // network-flow package (added Feb 26, 2026)
+  '<rootDir>/packages/network-flow',
+  // polynomial package (added Feb 26, 2026)
+  '<rootDir>/packages/polynomial',
+  // sampling package (added Feb 26, 2026)
+  '<rootDir>/packages/sampling',
+  // disjoint-sets package (added Feb 26, 2026)
+  '<rootDir>/packages/disjoint-sets',
+  // rope package (added Feb 26, 2026)
+  '<rootDir>/packages/rope',
+  // kd-tree package (added Feb 26, 2026)
+  '<rootDir>/packages/kd-tree',
+  // skip-list package (added Feb 26, 2026)
+  '<rootDir>/packages/skip-list',
+  // heavy-light-decomposition package (added Feb 26, 2026)
+  '<rootDir>/packages/heavy-light-decomposition',
+  // interval-scheduling package (added Feb 26, 2026)
+  '<rootDir>/packages/interval-scheduling',
+  // centroid-decomposition package (added Feb 26, 2026)
+  '<rootDir>/packages/centroid-decomposition',
+  // linear-recurrence package (added Feb 26, 2026)
+  '<rootDir>/packages/linear-recurrence',
   ],
+
 
   // Global settings
   forceExit: true,

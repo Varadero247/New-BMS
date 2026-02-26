@@ -1,6 +1,6 @@
 # @ims/web-crm
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3014  
 **Standard/Domain**: CRM  
 **Part of**: [Nexara IMS](../../README.md)

@@ -1,5 +1,13 @@
 # UAT Test Plan: ESG Reporting Module (GRI / SASB / TCFD)
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Document ID:** UAT-ESG-001
 **Version:** 1.0
 **Date:** 2026-02-23
@@ -68,7 +76,7 @@
 
 **Given** I am logged in as an ESG Manager with GHG and social metrics recorded for FY2025
 **When** I navigate to ESG > Reports and click "New Report"
-**And** I enter: Title "FY2025 ESG Report", Framework "GRI_STANDARDS", Reporting Period "2025-01-01 to 2025-12-31", Organisation "Nexara Ltd"
+**And** I enter: Title "FY2025 ESG Report", Framework "GRI_STANDARDS", Reporting Period "2025-01-01 to 2025-12-31", Organisation "Nexara DMCC"
 **Then** the system creates the report with status "DRAFT" and a reference number "ESG-RPT-2026-XXXX"
 **And** GRI disclosures relevant to the recorded data are pre-populated as sections
 **Result:** [ ] Pass / [ ] Fail

@@ -1,0 +1,1 @@
+for(let i=1;i<=100;i++){ lines.push("  it(\"Pipeline run steps test \"+i+\"\", () => { const p=new Pipeline<number>(); const result=p.pipe((x)=>x).pipe((x)=>(x)+\"\"+i).run(0); expect(result).toBe(\"0\"+i); });"); }

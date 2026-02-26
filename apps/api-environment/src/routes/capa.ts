@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma, Prisma, EnvCapaSeverity, EnvCapaTrigger, EnvCapaType, EnvEffectiveness, EnvRCAMethod, EnvRootCauseCategory } from '../prisma';

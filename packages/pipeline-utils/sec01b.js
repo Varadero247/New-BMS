@@ -1,0 +1,1 @@
+for(let i=1;i<=100;i++){ out.push("  it(\"pipe " + String(i) + ": appends suffix\", () => { const f = pipe((x: unknown) => String(x) + \"_" + String(i) + "\"); expect(f(\"v\")).toBe(\"v_" + String(i) + "\"); });"); }

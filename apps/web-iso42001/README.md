@@ -1,6 +1,6 @@
 # @ims/web-iso42001
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3024  
 **Standard/Domain**: ISO 42001  
 **Part of**: [Nexara IMS](../../README.md)

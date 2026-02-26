@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import { initSentry, sentryErrorHandler, Sentry } from '@ims/sentry';
 import express from 'express';
 import type { Express, Request } from 'express';
@@ -50,6 +53,10 @@ import dsarRouter from './routes/dsar';
 import dpaRouter from './routes/dpa';
 import marketplaceRouter from './routes/marketplace';
 import esignatureRouter from './routes/esignature';
+import migrationRouter from './routes/migration';
+import ssoWizardRouter from './routes/sso-wizard';
+import erpConnectorsRouter from './routes/erp-connectors';
+import favouritesRouter from './routes/favourites';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { errorHandler } from './middleware/error-handler';
 import { compressionMiddleware } from './middleware/compression';
@@ -140,6 +147,7 @@ const SERVICES = {
     process.env.SERVICE_CHEMICALS_URL || process.env.CHEMICALS_URL || 'http://localhost:4040',
   emergency:
     process.env.SERVICE_EMERGENCY_URL || process.env.EMERGENCY_URL || 'http://localhost:4041',
+  search: process.env.SERVICE_SEARCH_URL || process.env.SEARCH_URL || 'http://localhost:4050',
 };
 
 // FINDING-027: Warn in production when service URLs fall back to localhost defaults
@@ -418,6 +426,12 @@ app.use('/api/marketplace', marketplaceRouter);
 app.use('/api/v1/marketplace', addVersionHeader('v1'), marketplaceRouter);
 app.use('/api/esignatures', esignatureRouter);
 app.use('/api/v1/esignatures', addVersionHeader('v1'), esignatureRouter);
+app.use('/api/migration', migrationRouter);
+app.use('/api/v1/migration', addVersionHeader('v1'), migrationRouter);
+app.use('/api/sso', ssoWizardRouter);
+app.use('/api/v1/sso', addVersionHeader('v1'), ssoWizardRouter);
+app.use('/api/erp-connectors', erpConnectorsRouter);
+app.use('/api/v1/erp-connectors', addVersionHeader('v1'), erpConnectorsRouter);
 
 // ─── Cookie Consent Persistence ──────────────────────────────────────────
 // Shared handler with input validation — only accepts boolean fields
@@ -856,6 +870,11 @@ app.use(
     'Fire, Emergency & Disaster Management service unavailable'
   )
 );
+app.use(
+  '/api/v1/search',
+  addVersionHeader('v1'),
+  createServiceProxy('Search', SERVICES.search, '/api/v1/search', 'Global Search service unavailable')
+);
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -1186,6 +1205,14 @@ app.use(
     'Fire, Emergency & Disaster Management service unavailable'
   )
 );
+app.use(
+  '/api/search',
+  deprecatedRoute('/api/v1/search'),
+  createServiceProxy('Search', SERVICES.search, '/api/search', 'Global Search service unavailable')
+);
+
+// Favourites (bookmarks)
+app.use(favouritesRouter);
 
 // Error handling
 app.use(notFoundHandler);

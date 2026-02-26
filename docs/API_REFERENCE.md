@@ -1,6 +1,14 @@
 # IMS API Reference
 
-> **Note:** This reference covers all 42 API services. See SYSTEM_STATE.md for the complete inventory.
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
+> **Note:** This reference covers all 43 API services. See SYSTEM_STATE.md for the complete inventory.
 
 ## Base URL
 

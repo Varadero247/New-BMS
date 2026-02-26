@@ -1,5 +1,13 @@
 # Architecture Decision Records
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 This directory contains Architecture Decision Records (ADRs) — lightweight documents that capture important architectural decisions, their context, and their consequences.
 
 ## Format

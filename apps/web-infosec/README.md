@@ -1,6 +1,6 @@
 # @ims/web-infosec
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3015  
 **Standard/Domain**: ISO 27001  
 **Part of**: [Nexara IMS](../../README.md)

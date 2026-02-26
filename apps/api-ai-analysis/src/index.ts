@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import express from 'express';
 import type { Express } from 'express';
@@ -40,6 +43,7 @@ import analyzeRouter from './routes/analyze';
 import documentsRouter from './routes/documents';
 import complianceRouter from './routes/compliance';
 import assistantRouter from './routes/assistant';
+import onboardingAssistantRouter from './routes/onboarding-assistant';
 import { writeRoleGuard } from '@ims/auth';
 import { errorHandler } from '@ims/shared';
 
@@ -80,6 +84,7 @@ app.use('/api/analyze', analyzeRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/compliance', complianceRouter);
 app.use('/api/assistant', assistantRouter);
+app.use('/api/onboarding', onboardingAssistantRouter);
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

@@ -1,13 +1,21 @@
 # Developer Onboarding Guide — IMS
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 Welcome to the Integrated Management System (IMS) monorepo. This guide gets you from zero to productive as quickly as possible.
 
 ## Project Overview
 
-IMS is a monorepo containing 42 API services, 44 web apps, and 61 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
+IMS is a monorepo containing 43 API services, 44 web apps, and 280 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
 
 **Stack:** Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose, pnpm workspaces, TypeScript
-**Scale:** 44 Prisma schemas, ~590 database tables, 708,565 unit tests across 712 suites (all passing)
+**Scale:** 44 Prisma schemas, ~590 database tables, 1,009,560 unit tests across 944 suites (all passing)
 
 ## Prerequisites
 
@@ -192,7 +200,7 @@ jest.mock('@ims/database', () => ({ ... }));
 pnpm test
 ```
 
-Runs 708,565 Jest tests across 712 suites. All must pass. Every `.test.ts` file has at minimum 1,000 tests.
+Runs 998,510 Jest tests across 944 suites. All must pass. Every `.test.ts` file has at minimum 1,000 tests.
 
 ### Integration Tests
 

@@ -1,6 +1,6 @@
 # @ims/web-health-safety
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3001  
 **Standard/Domain**: ISO 45001  
 **Part of**: [Nexara IMS](../../README.md)

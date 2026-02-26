@@ -1,0 +1,14 @@
+{
+  "name": "@ims/embedded-bi",
+  "version": "1.0.0",
+  "description": "Embedded BI analytics — chart configs, drill-down, dataset builders",
+  "main": "src/index.ts",
+  "scripts": { "test": "jest" },
+  "jest": {
+    "displayName": "embedded-bi",
+    "testEnvironment": "node",
+    "testMatch": ["<rootDir>/__tests__/**/*.test.ts"],
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}

@@ -1,0 +1,39 @@
+{
+  "id": "food-safety-brcgs",
+  "name": "Food Manufacturing — BRCGS Food Safety Issue 9",
+  "version": "1.0.0",
+  "standards": ["BRCGS Food Safety Issue 9", "ISO 22000:2018", "HACCP Codex Alimentarius"],
+  "estimatedSetupMinutes": 35,
+  "description": "Pre-configured food safety management pack for food manufacturers targeting BRCGS Food Safety Issue 9 certification. Includes HACCP plan templates, prerequisite programmes, allergen management, and traceability workflows.",
+  "targetCustomer": "Food manufacturers, food processors, packaging companies, cold chain operators",
+  "includes": {
+    "riskCategories": 16,
+    "documentTypes": 26,
+    "workflowTemplates": 12,
+    "auditChecklists": 6,
+    "kpis": 16
+  },
+  "prerequisites": ["Food Safety module enabled"],
+  "customisationOptions": [
+    {
+      "key": "brcgsGrade",
+      "label": "Target BRCGS Grade",
+      "type": "select",
+      "required": false,
+      "options": ["AA", "A", "B", "C"]
+    },
+    {
+      "key": "enableAllergens",
+      "label": "Enable allergen management module",
+      "type": "boolean",
+      "required": false
+    },
+    {
+      "key": "productionType",
+      "label": "Production Environment",
+      "type": "select",
+      "required": false,
+      "options": ["Ambient", "Chilled", "Frozen", "Ambient High Care", "High Care", "High Risk"]
+    }
+  ]
+}

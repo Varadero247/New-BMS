@@ -1,0 +1,1 @@
+module.exports = { displayName: 'number-theory', preset: 'ts-jest', testEnvironment: 'node', roots: ['<rootDir>/src'], transform: { '^.+\\.tsx?$': ['ts-jest', { tsconfig: { strict: false }, isolatedModules: true, diagnostics: false }] } };

@@ -1,0 +1,1 @@
+{"name":"@ims/ring-buffer","version":"1.0.0","main":"src/ring-buffer.ts","scripts":{"test":"jest"},"devDependencies":{"jest":"*","ts-jest":"*","typescript":"*"}}

@@ -1,8 +1,16 @@
 # Nexara IMS — Launch Readiness Report
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Date:** 2026-02-17 (Updated: 2026-02-17 — P0 + P1 + P2 fixes applied)
 **Audit Scope:** Full-stack deep audit across 7 dimensions
-**Codebase:** 42 API services, 44 web apps, 60 shared packages, 44 Prisma schemas (~590 tables)
+**Codebase:** 42 API services, 44 web apps, 124 shared packages, 44 Prisma schemas (~590 tables)
 
 ---
 

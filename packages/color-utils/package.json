@@ -1,0 +1,7 @@
+{
+  "name": "@ims/color-utils",
+  "version": "1.0.0",
+  "main": "src/color-utils.ts",
+  "scripts": { "test": "jest" },
+  "devDependencies": { "jest": "*", "ts-jest": "*", "typescript": "*" }
+}

@@ -24,7 +24,9 @@
     "@ims/validation": "workspace:*",
     "@ims/sentry": "workspace:*",
     "@ims/rbac": "workspace:*",
-    "@ims/shared": "workspace:*"
+    "@ims/shared": "workspace:*",
+    "@ims/instant-start": "workspace:*",
+    "@ims/iso-checklists": "workspace:*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

@@ -1,6 +1,6 @@
 # @ims/web-automotive
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3010  
 **Standard/Domain**: IATF 16949  
 **Part of**: [Nexara IMS](../../README.md)

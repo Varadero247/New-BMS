@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import rateLimit, { type RateLimitRequestHandler, type Options } from 'express-rate-limit';
 import type { Request, Response } from 'express';
 import Redis from 'ioredis';

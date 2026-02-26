@@ -1,0 +1,1 @@
+for(let i=1;i<=50;i++){ lines.push("  it(\"Pipeline pipe chain test \"+i+\"\", () => { const p=new Pipeline(); const result=p.pipe((x)=>x).pipe((x)=>(x)+\"\"+i).pipe((x)=>x.toUpperCase()).run(\"v\"); expect(result).toBe((\"v\"+i).toUpperCase()); });"); }

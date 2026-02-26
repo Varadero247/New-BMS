@@ -1,6 +1,6 @@
 # @ims/web-aerospace
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3012  
 **Standard/Domain**: AS9100  
 **Part of**: [Nexara IMS](../../README.md)

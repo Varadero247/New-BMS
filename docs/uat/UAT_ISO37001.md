@@ -1,4 +1,12 @@
 # UAT Test Plan: ISO 37001 Anti-Bribery Management System
+
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
 **Version**: 1.0
 **Date**: 2026-02-23
 **Module**: iso37001

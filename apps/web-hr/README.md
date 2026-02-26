@@ -1,6 +1,6 @@
 # @ims/web-hr
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3006  
 **Standard/Domain**: Human Resources  
 **Part of**: [Nexara IMS](../../README.md)

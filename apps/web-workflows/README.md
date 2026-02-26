@@ -1,6 +1,6 @@
 # @ims/web-workflows
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3008  
 **Standard/Domain**: Workflows  
 **Part of**: [Nexara IMS](../../README.md)

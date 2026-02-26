@@ -1,8 +1,16 @@
 # Nexara IMS Monorepo — Troubleshooting Guide
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 This guide covers the most common issues encountered when developing in the Nexara IMS monorepo. Every section follows **SYMPTOM / CAUSE / FIX** format with copy-paste-ready commands.
 
-**Stack:** pnpm workspaces + Turborepo, 27 Express.js APIs (ports 4000-4026), 30 Next.js 14 web apps (ports 3000-3030), 59 shared packages, PostgreSQL, Redis, Prisma v5.22.0, Node 20.
+**Stack:** pnpm workspaces + Turborepo, 42 Express.js APIs (ports 4000-4041), 44 Next.js 15 web apps (ports 3000-3045), 124 shared packages, PostgreSQL, Redis, Prisma v5.22.0, Node 20.
 
 ---
 
@@ -38,7 +46,7 @@ Processes crash shortly after starting `pnpm dev`, especially when running multi
 
 **Cause:**
 
-The default Linux `ulimit` for open files is 1024. This monorepo has 3000+ source files across 59 packages and 57 apps. File watchers (chokidar, Next.js, tsup) each hold file descriptors open, easily exhausting the limit.
+The default Linux `ulimit` for open files is 1024. This monorepo has 3000+ source files across 124 packages and 86 apps. File watchers (chokidar, Next.js, tsup) each hold file descriptors open, easily exhausting the limit.
 
 **Fix:**
 

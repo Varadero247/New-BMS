@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 /** @type {import('@stryker-mutator/api/core').PartialStrykerOptions} */
 /**
  * Root Stryker config — targets packages/validation only.

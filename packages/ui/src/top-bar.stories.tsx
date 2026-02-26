@@ -29,7 +29,7 @@ export const WithPlanBadge: Story = {
   args: {
     userName: 'Jane Doe',
     userInitials: 'JD',
-    orgName: 'Nexara Ltd',
+    orgName: 'Nexara DMCC',
     planBadge: <PlanBadge plan="enterprise" />,
   },
 };

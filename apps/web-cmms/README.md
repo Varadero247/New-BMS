@@ -1,6 +1,6 @@
 # @ims/web-cmms
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3017  
 **Standard/Domain**: CMMS  
 **Part of**: [Nexara IMS](../../README.md)

@@ -1,6 +1,6 @@
 # @ims/web-quality
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3003  
 **Standard/Domain**: ISO 9001  
 **Part of**: [Nexara IMS](../../README.md)

@@ -1,9 +1,18 @@
 # Privacy Impact Assessment (PIA) — Integrated Management System
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Document Reference:** IMS-PIA-001
 **Version:** 1.0
 **Date:** 2026-02-12
 **Classification:** Confidential
+**Data Controller:** Nexara DMCC, Dubai Multi Commodities Centre Free Zone, Dubai, UAE
 
 ---
 

@@ -1,6 +1,6 @@
 # @ims/web-energy
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3021  
 **Standard/Domain**: ISO 50001  
 **Part of**: [Nexara IMS](../../README.md)

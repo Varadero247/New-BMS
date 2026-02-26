@@ -1,6 +1,6 @@
 # @ims/web-analytics
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3022  
 **Standard/Domain**: Analytics  
 **Part of**: [Nexara IMS](../../README.md)

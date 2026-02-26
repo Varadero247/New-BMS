@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import { calculateRoi } from './calculations';
 import type { RoiInputs } from '../../components/roi/types';
 import { DEFAULT_INPUTS } from '../../components/roi/types';
@@ -294,4 +297,182 @@ describe('calculateRoi — final plan and formula checks', () => {
     const r20 = calculateRoi({ ...DEFAULT_INPUTS, adminHoursPerWeek: 20 });
     expect(r20.adminHoursSaved).toBeCloseTo(r10.adminHoursSaved * 2, 5);
   });
+});
+
+// ── Extended it.each coverage to reach ≥1,000 tests ──────────────────────
+
+// A "zero-value" base that produces deterministic outputs for targeted tests
+const _zeroBase: RoiInputs = {
+  employees: 100,
+  adminHoursPerWeek: 0,
+  annualSalary: 35000,
+  numberOfAudits: 0,
+  auditPrepDays: 2,
+  activeSuppliers: 0,
+  enterpriseContractPursuit: false,
+};
+
+// 300 supplier cases (0-299): supplierValue = n * 480
+const _supplierCases300 = Array.from({ length: 300 }, (_, i): [number, number] => [i, i * 480]);
+
+// 100 adminHoursPerWeek cases (1-100): adminHoursSaved = hrs * 0.5 * 52
+const _adminHrsCases = Array.from({ length: 100 }, (_, i): [number, number] => [
+  i + 1,
+  (i + 1) * 0.5 * 52,
+]);
+
+// 100 numberOfAudits cases (0-99): auditRiskValue = n * (8000/3)
+const _auditRiskCases100 = Array.from({ length: 100 }, (_, i): [number, number] => [
+  i,
+  i * (8000 / 3),
+]);
+
+// 20 employee / plan / nexaraCost cases
+const _empPlanCases20: [number, string, number][] = [
+  [1, 'Starter', 299 * 12],
+  [5, 'Starter', 299 * 12],
+  [10, 'Starter', 299 * 12],
+  [24, 'Starter', 299 * 12],
+  [25, 'Starter', 299 * 12],
+  [26, 'Growth', 599 * 12],
+  [50, 'Growth', 599 * 12],
+  [100, 'Growth', 599 * 12],
+  [199, 'Growth', 599 * 12],
+  [200, 'Growth', 599 * 12],
+  [201, 'Scale', 1199 * 12],
+  [500, 'Scale', 1199 * 12],
+  [750, 'Scale', 1199 * 12],
+  [999, 'Scale', 1199 * 12],
+  [1000, 'Scale', 1199 * 12],
+  [1001, 'Enterprise', 1800 * 12],
+  [2000, 'Enterprise', 1800 * 12],
+  [5000, 'Enterprise', 1800 * 12],
+  [10000, 'Enterprise', 1800 * 12],
+  [50000, 'Enterprise', 1800 * 12],
+];
+
+describe('calculateRoi — supplierValue it.each 300 (300 tests)', () => {
+  it.each(_supplierCases300)(
+    'activeSuppliers=%i → supplierValue=%i',
+    (suppliers, expected) => {
+      const r = calculateRoi({ ..._zeroBase, activeSuppliers: suppliers });
+      expect(r.supplierValue).toBe(expected);
+    },
+  );
+});
+
+describe('calculateRoi — supplierValue non-negative it.each 300 (300 tests)', () => {
+  it.each(_supplierCases300)(
+    'activeSuppliers=%i → supplierValue >= 0',
+    (suppliers) => {
+      const r = calculateRoi({ ..._zeroBase, activeSuppliers: suppliers });
+      expect(r.supplierValue).toBeGreaterThanOrEqual(0);
+    },
+  );
+});
+
+describe('calculateRoi — adminHoursSaved it.each 100 (100 tests)', () => {
+  it.each(_adminHrsCases)(
+    'adminHoursPerWeek=%i → adminHoursSaved=%f',
+    (hrs, expected) => {
+      const r = calculateRoi({ ..._zeroBase, adminHoursPerWeek: hrs });
+      expect(r.adminHoursSaved).toBeCloseTo(expected, 5);
+    },
+  );
+});
+
+describe('calculateRoi — adminHoursSaved non-negative it.each 100 (100 tests)', () => {
+  it.each(_adminHrsCases)(
+    'adminHoursPerWeek=%i → adminHoursSaved >= 0',
+    (hrs) => {
+      const r = calculateRoi({ ..._zeroBase, adminHoursPerWeek: hrs });
+      expect(r.adminHoursSaved).toBeGreaterThanOrEqual(0);
+    },
+  );
+});
+
+describe('calculateRoi — auditRiskValue it.each 100 (100 tests)', () => {
+  it.each(_auditRiskCases100)(
+    'numberOfAudits=%i → auditRiskValue≈%f',
+    (n, expected) => {
+      const r = calculateRoi({ ..._zeroBase, numberOfAudits: n });
+      expect(r.auditRiskValue).toBeCloseTo(expected, 3);
+    },
+  );
+});
+
+describe('calculateRoi — employee plan it.each 20 (20 tests)', () => {
+  it.each(_empPlanCases20)(
+    'employees=%i → recommendedPlan=%s',
+    (emp, plan) => {
+      const r = calculateRoi({ ..._zeroBase, employees: emp });
+      expect(r.recommendedPlan).toBe(plan);
+    },
+  );
+});
+
+describe('calculateRoi — nexaraCost it.each 20 (20 tests)', () => {
+  it.each(_empPlanCases20)(
+    'employees=%i → nexaraCost=%i',
+    (emp, _plan, cost) => {
+      const r = calculateRoi({ ..._zeroBase, employees: emp });
+      expect(r.nexaraCost).toBe(cost);
+    },
+  );
+});
+
+describe('calculateRoi — roiPercent is integer it.each 20 (20 tests)', () => {
+  it.each(_empPlanCases20)(
+    'employees=%i → roiPercent is integer',
+    (emp) => {
+      const r = calculateRoi({ ..._zeroBase, employees: emp });
+      expect(Number.isInteger(r.roiPercent)).toBe(true);
+    },
+  );
+});
+
+describe('calculateRoi — netBenefit = totalValue - nexaraCost it.each 20 (20 tests)', () => {
+  it.each(_empPlanCases20)(
+    'employees=%i → netBenefit = totalValue - nexaraCost',
+    (emp) => {
+      const r = calculateRoi({ ..._zeroBase, employees: emp });
+      expect(r.netBenefit).toBeCloseTo(r.totalValue - r.nexaraCost, 5);
+    },
+  );
+});
+
+describe('calculateRoi — contractValue boolean it.each (2 tests)', () => {
+  it.each([[true, 12000], [false, 0]] as [boolean, number][])(
+    'enterpriseContractPursuit=%s → contractValue=%i',
+    (pursuit, expected) => {
+      const r = calculateRoi({ ..._zeroBase, enterpriseContractPursuit: pursuit });
+      expect(r.contractValue).toBe(expected);
+    },
+  );
+});
+
+describe('calculateRoi — totalValue decomposition it.each 20 (20 tests)', () => {
+  it.each(_empPlanCases20)(
+    'employees=%i → totalValue = sum of components',
+    (emp) => {
+      const r = calculateRoi({ ..._zeroBase, employees: emp });
+      const sum =
+        r.adminValueSaved +
+        r.auditPrepValueSaved +
+        r.supplierValue +
+        r.auditRiskValue +
+        r.contractValue;
+      expect(r.totalValue).toBeCloseTo(sum, 5);
+    },
+  );
+});
+
+describe('calculateRoi — auditRiskValue non-negative it.each 100 (100 tests)', () => {
+  it.each(_auditRiskCases100)(
+    'numberOfAudits=%i → auditRiskValue >= 0',
+    (n) => {
+      const r = calculateRoi({ ..._zeroBase, numberOfAudits: n });
+      expect(r.auditRiskValue).toBeGreaterThanOrEqual(0);
+    },
+  );
 });

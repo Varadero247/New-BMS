@@ -1,0 +1,146 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+import type { StandardAssessment } from './types';
+
+export const iso31000Assessment: StandardAssessment = {
+  standardId: 'iso-31000-2018',
+  standardName: 'ISO 31000:2018',
+  version: '2018',
+  clauses: [
+    {
+      id: '4.1',
+      title: 'Leadership and commitment',
+      description: 'Top management shall demonstrate leadership and commitment by customising and implementing all components of the risk management framework.',
+      evidenceExamples: ['Risk management policy signed by top management', 'Board minutes referencing risk oversight', 'Risk management mandate document'],
+      mandatory: true,
+    },
+    {
+      id: '4.2',
+      title: 'Integration',
+      description: 'Risk management shall be integrated into all organisational activities and functions. Integration is dynamic, iterative and responsive to change.',
+      evidenceExamples: ['Risk register linked to strategic plans', 'Risk integrated into project governance', 'Departmental risk ownership evidence'],
+      mandatory: true,
+    },
+    {
+      id: '4.3',
+      title: 'Design — Understanding the organisation',
+      description: 'Identify and articulate internal and external context relevant to risk management, including stakeholders and objectives.',
+      evidenceExamples: ['Internal/external context analysis', 'Stakeholder register', 'Organisational objectives linked to risk'],
+      mandatory: true,
+    },
+    {
+      id: '4.4',
+      title: 'Design — Risk management policy',
+      description: 'Articulate commitment to risk management and establish a policy that guides decision-making across the organisation.',
+      evidenceExamples: ['Risk management policy', 'Policy communication evidence', 'Risk appetite statement'],
+      mandatory: true,
+    },
+    {
+      id: '4.5',
+      title: 'Design — Accountability',
+      description: 'Assign risk ownership, responsibilities, and authority at appropriate levels of the organisation.',
+      evidenceExamples: ['RACI matrix for risk management', 'Risk owner assignments', 'Risk committee terms of reference'],
+      mandatory: true,
+    },
+    {
+      id: '4.6',
+      title: 'Design — Resources',
+      description: 'Allocate appropriate resources for risk management including people, skills, experience, technology, and budget.',
+      evidenceExamples: ['Risk management budget allocation', 'Training records', 'Risk management tool/system evidence'],
+      mandatory: true,
+    },
+    {
+      id: '4.7',
+      title: 'Design — Communication and consultation',
+      description: 'Establish communication and consultation to support risk management and facilitate timely, relevant, accurate, and understandable information exchange.',
+      evidenceExamples: ['Risk communication plan', 'Stakeholder consultation records', 'Risk reporting schedule'],
+      mandatory: true,
+    },
+    {
+      id: '5.1',
+      title: 'Implementation',
+      description: 'Implement the risk management framework and process through appropriate plans including time, resources, responsibilities, and decision-making processes.',
+      evidenceExamples: ['Risk management implementation plan', 'Progress tracking against plan', 'Management review records'],
+      mandatory: true,
+    },
+    {
+      id: '5.2',
+      title: 'Evaluation',
+      description: 'Periodically measure framework performance against purpose, implementation plan, indicators, and expected behaviours.',
+      evidenceExamples: ['Framework performance KPIs', 'Evaluation reports', 'Gap analysis against framework components'],
+      mandatory: true,
+    },
+    {
+      id: '5.3',
+      title: 'Improvement — Adaptation',
+      description: 'Continually monitor and adapt the risk management framework to address external and internal changes, improving its value.',
+      evidenceExamples: ['Framework revision history', 'Continuous improvement log', 'Lessons learned records'],
+      mandatory: true,
+    },
+    {
+      id: '6.1',
+      title: 'Risk process — Communication and consultation',
+      description: 'Involve stakeholders appropriately throughout all steps of the risk management process. Consider views of stakeholders in defining criteria.',
+      evidenceExamples: ['Stakeholder engagement plan for risk', 'Consultation meeting records', 'Communication matrix'],
+      mandatory: true,
+    },
+    {
+      id: '6.2',
+      title: 'Risk process — Scope, context and criteria',
+      description: 'Define scope, establish external and internal context, and define risk criteria including risk appetite, tolerance and thresholds.',
+      evidenceExamples: ['Risk scope statement', 'Risk criteria document', 'Risk appetite and tolerance thresholds'],
+      mandatory: true,
+    },
+    {
+      id: '6.3.1',
+      title: 'Risk identification',
+      description: 'Find, recognise, and describe risks. Consider all sources, causes, events and consequences. Apply consistent and comprehensive identification methods.',
+      evidenceExamples: ['Risk register with identified risks', 'Risk identification workshops', 'Risk categorisation taxonomy'],
+      mandatory: true,
+    },
+    {
+      id: '6.3.2',
+      title: 'Risk analysis',
+      description: 'Understand the nature of risk and determine the level of risk. Consider likelihood, magnitude of consequences, interconnections, time factors, and control effectiveness.',
+      evidenceExamples: ['Risk assessment matrix', 'Likelihood/consequence analysis', 'Inherent vs residual risk ratings'],
+      mandatory: true,
+    },
+    {
+      id: '6.3.3',
+      title: 'Risk evaluation',
+      description: 'Compare risk analysis results with risk criteria to determine whether risk requires treatment and to prioritise treatment.',
+      evidenceExamples: ['Risk ranking against appetite/tolerance', 'Treatment priority decisions', 'Risk acceptance records'],
+      mandatory: true,
+    },
+    {
+      id: '6.4.1',
+      title: 'Risk treatment — General',
+      description: 'Select and implement risk treatment options to modify risk. Options include avoiding, taking or increasing, removing the source, changing likelihood/consequence, sharing, or retaining risk.',
+      evidenceExamples: ['Risk treatment plan', 'Treatment option evaluation', 'Control implementation records'],
+      mandatory: true,
+    },
+    {
+      id: '6.4.2',
+      title: 'Preparing and implementing treatment plans',
+      description: 'Document treatment plans identifying responsibilities, resources, performance measures, constraints, reporting, and monitoring requirements.',
+      evidenceExamples: ['Treatment action plans with owners', 'Treatment implementation evidence', 'Residual risk assessment post-treatment'],
+      mandatory: true,
+    },
+    {
+      id: '6.5',
+      title: 'Monitoring and review',
+      description: 'Continuously monitor risks, controls, and the risk management process. Review risks at defined intervals and when significant changes occur.',
+      evidenceExamples: ['Monitoring schedule', 'Review meeting minutes', 'KRI dashboard', 'Risk register update log'],
+      mandatory: true,
+    },
+    {
+      id: '6.6',
+      title: 'Recording and reporting',
+      description: 'Document and report risk management activities, outcomes, and performance across all levels of the organisation.',
+      evidenceExamples: ['Risk reports to management/board', 'Risk register history', 'Audit trail of risk decisions'],
+      mandatory: true,
+    },
+  ],
+};

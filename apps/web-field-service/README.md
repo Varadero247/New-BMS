@@ -1,6 +1,6 @@
 # @ims/web-field-service
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3023  
 **Standard/Domain**: Field Service  
 **Part of**: [Nexara IMS](../../README.md)

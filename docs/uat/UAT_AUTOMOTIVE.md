@@ -1,5 +1,13 @@
 # UAT Test Plan: Automotive Module (IATF 16949)
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Document ID:** UAT-AUTO-001
 **Version:** 1.0
 **Date:** 2026-02-12

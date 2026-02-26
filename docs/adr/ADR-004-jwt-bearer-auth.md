@@ -1,5 +1,13 @@
 # ADR-004: JWT Bearer Token Auth Stored in localStorage
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Date**: 2026-02-05
 **Status**: Accepted
 

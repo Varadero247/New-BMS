@@ -1,0 +1,1 @@
+for(let i=1;i<=50;i++){ lines.push("  it(\"AsyncPipeline test \"+i+\"\", async () => { const p=new AsyncPipeline<number>(); const result=await p.pipe(async(x)=>x+\"\"+i).run(0); expect(result).toBe(\"0\"+i); });"); }

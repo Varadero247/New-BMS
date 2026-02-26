@@ -1,0 +1,1 @@
+for(let i=1;i<=100;i++){ lines.push("  it(\"memoizePipe test \"+i+\"\", () => { let calls=0; const f=memoizePipe((x)=>{ calls++; return x+\"\"+i; }); f(\"k\"); f(\"k\"); expect(calls).toBe(1); expect(f(\"k\")).toBe(\"k\"+i); });"); }

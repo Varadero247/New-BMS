@@ -1,6 +1,6 @@
 # @ims/web-project-management
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3009  
 **Standard/Domain**: Project Management  
 **Part of**: [Nexara IMS](../../README.md)

@@ -1,6 +1,6 @@
 # @ims/web-esg
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3016  
 **Standard/Domain**: ESG / CSRD  
 **Part of**: [Nexara IMS](../../README.md)

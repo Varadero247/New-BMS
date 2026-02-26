@@ -1,8 +1,16 @@
 # Template Library — Developer Guide
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Overview
 
-The IMS Template Library provides 192 built-in templates across 34 modules, plus 18 Risk Management DOCX compliance templates. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 42 API services, 44 web apps, and 60 shared packages — templates integrate with 12 of the 44 web frontends.
+The IMS Template Library provides 192 built-in templates across 34 modules, plus 18 Risk Management DOCX compliance templates. Templates are managed centrally via the API Gateway and stored in the core PostgreSQL database. The platform has 42 API services, 44 web apps, and 124 shared packages — templates integrate with 12 of the 44 web frontends.
 
 ## Architecture
 

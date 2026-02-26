@@ -1,6 +1,6 @@
 # @ims/web-settings
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3004  
 **Standard/Domain**: System Settings  
 **Part of**: [Nexara IMS](../../README.md)

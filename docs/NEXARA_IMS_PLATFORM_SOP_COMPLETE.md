@@ -1,4 +1,12 @@
 # NEXARA IMS PLATFORM — STANDARD OPERATING PROCEDURES (SOP)
+
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
 ## Complete Technical & Operational Reference Manual
 
 **Document Version:** 2.0

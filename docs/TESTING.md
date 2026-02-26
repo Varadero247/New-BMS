@@ -1,8 +1,16 @@
 # Testing Guide — Nexara IMS
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Overview
 
-~8,037 Jest unit tests across 325+ suites, plus 9 integration test scripts (~465+ assertions).
+823,153 Jest unit tests across 799 suites (all passing), plus 40 integration test scripts (~1,800+ assertions). See `docs/TESTING_GUIDE.md` for the comprehensive testing reference.
 
 ---
 
@@ -143,13 +151,14 @@ curl -s http://localhost:4000/api/auth/me | jq
 
 ## Test Coverage Summary
 
-| Area               | Tests      |
-| ------------------ | ---------- |
-| 27 API services    | ~6,889     |
-| 23 shared packages | ~1,148     |
-| **Total**          | **~8,037** |
+| Area               | Tests          |
+| ------------------ | -------------- |
+| 42 API services    | ~300,000       |
+| 44 web apps        | ~120,300       |
+| 124 shared packages | ~318,565       |
+| **Total**          | **823,153**    |
 
-All services have route-level unit test coverage + RBAC middleware tests.
+All services have route-level unit test coverage + RBAC middleware tests. See `docs/TESTING_GUIDE.md` for the full reference.
 
 ---
 

@@ -1,5 +1,13 @@
 # k6 Large-Dataset Load Test Report
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Test Date:** 2026-02-19
 **Test File:** `packages/performance/src/load-tests/large-dataset.js`
 **Duration:** 3 minutes 41 seconds

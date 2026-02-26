@@ -1,5 +1,13 @@
 # Non-Codeable Items — Actions Requiring Human Input
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Date:** 2026-02-17
 **Context:** Items identified during launch readiness audit that cannot be resolved through code changes alone. These require manual intervention, external service access, or business decisions.
 
@@ -135,7 +143,7 @@
 
 1. Run `pnpm install --no-frozen-lockfile`
 2. Resolve any peer dependency warnings
-3. Run `pnpm test` to verify all 708,565 tests still pass
+3. Run `pnpm test` to verify all 823,153 tests still pass
 4. Run `pnpm build` to verify all apps build successfully
 
 ---

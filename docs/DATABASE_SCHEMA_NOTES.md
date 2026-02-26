@@ -1,5 +1,13 @@
 # Database Schema Notes
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Why hs\_\* Tables May Be Missing After Restart
 
 When Docker recreates the postgres container (e.g. after `fuser -k` kills the process, or `--force-recreate` is used), the volume may be lost. This means:

@@ -1,6 +1,6 @@
 # @ims/web-customer-portal
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3018  
 **Standard/Domain**: Customer Portal  
 **Part of**: [Nexara IMS](../../README.md)

@@ -1,5 +1,13 @@
 # Contributing — Nexara IMS
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Branch Naming
 
 | Prefix       | Purpose                   |
@@ -49,7 +57,7 @@ Common scopes: `gateway`, `health-safety`, `environment`, `quality`, `finance`, 
 ## Adding a New ISO Standard Module
 
 1. Create `apps/api-[standard]/` — Express.js service from template
-2. Create `apps/web-[standard]/` — Next.js 14 App Router from template
+2. Create `apps/web-[standard]/` — Next.js 15 App Router from template
 3. Add Prisma models to `packages/database/prisma/schemas/[standard].prisma`
 4. Register port in gateway `SERVICES` config and proxy routes
 5. Add CORS origin for the new web app port in gateway

@@ -1,0 +1,17 @@
+{
+  "name": "@ims/permission-utils",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Permission and access control utilities for the IMS platform",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,5 +1,13 @@
 # IMS Database Architecture
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## Overview
 
 The IMS system is designed to support both monolithic (single database) and microservices (database-per-service) architectures. This document outlines the database structure and migration path.

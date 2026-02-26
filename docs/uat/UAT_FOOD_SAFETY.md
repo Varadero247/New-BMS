@@ -1,5 +1,13 @@
 # UAT Test Plan: Food Safety Module (ISO 22000:2018 / HACCP)
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Document ID:** UAT-FS-001
 **Version:** 1.0
 **Date:** 2026-02-23

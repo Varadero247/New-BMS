@@ -90,7 +90,7 @@ export default function Footer() {
         <div className="border-t border-white/[0.06] mt-12 pt-8 flex justify-between items-center flex-wrap gap-4">
           {/* Copyright */}
           <p className="text-white/35 text-sm font-body">
-            &copy; 2026 Nexara Ltd. All rights reserved.
+            &copy; 2026 Nexara DMCC. All rights reserved.
           </p>
 
           {/* Cert badges */}

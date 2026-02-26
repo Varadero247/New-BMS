@@ -1,6 +1,6 @@
 # @ims/web-payroll
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3007  
 **Standard/Domain**: Payroll  
 **Part of**: [Nexara IMS](../../README.md)

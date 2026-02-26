@@ -1,0 +1,1 @@
+{"name":"@ims/circular-linked-list","version":"1.0.0","main":"src/circular-linked-list.ts","scripts":{"test":"jest"}}

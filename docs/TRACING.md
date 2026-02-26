@@ -1,5 +1,13 @@
 # Distributed Tracing — Nexara IMS
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 > **Package**: `@ims/monitoring`
 > **Function**: `initTracing()` in `packages/monitoring/src/tracing.ts`
 

@@ -1,4 +1,12 @@
 # NEXARA IMS PLATFORM — DATABASE SCHEMA REFERENCE
+
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
 ## Complete Model & Field Documentation
 
 **Document Version:** 1.0

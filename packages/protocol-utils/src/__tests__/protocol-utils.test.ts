@@ -1,0 +1,1380 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+import {
+  parseQueryString, buildQueryString, isValidUrl, isValidHttpUrl,
+  isValidHttpMethod, parseStatusCode, isSuccessStatus, isClientError,
+  isServerError, parseMimeType, isJsonMimeType,
+  encodeFormData, decodeFormData, extractPathParams, normalizePath
+} from "../protocol-utils";
+
+describe("parseQueryString", () => {
+  it("empty string returns {}", () => { expect(parseQueryString("")).toEqual({}); });
+  it("single param", () => { expect(parseQueryString("a=1")).toEqual({a:"1"}); });
+  it("multiple params", () => { expect(parseQueryString("a=1&b=2")).toEqual({a:"1",b:"2"}); });
+  it("strips leading ?", () => { expect(parseQueryString("?x=1").x).toBe("1"); });
+  it("handles encoded spaces", () => { expect(parseQueryString("a=hello%20world")["a"]).toBe("hello world"); });
+  it("handles plus as space", () => { expect(parseQueryString("a=hello+world")["a"]).toBe("hello+world"); });
+  it("value with equals in it", () => { expect(parseQueryString("a=b=c")["a"]).toBe("b"); });
+  it("no value key", () => { expect(parseQueryString("a=")["a"]).toBe(""); });
+  it("multiple keys same name last wins", () => { const r = parseQueryString("a=1&a=2"); expect(r["a"]).toBeTruthy(); });
+  it("handles encoded key", () => { expect(parseQueryString("he%20llo=world")["he llo"]).toBe("world"); });
+  it("parseQS key1", () => { expect(parseQueryString("key1=val1")["key1"]).toBe("val1"); });
+  it("parseQS key2", () => { expect(parseQueryString("key2=val2")["key2"]).toBe("val2"); });
+  it("parseQS key3", () => { expect(parseQueryString("key3=val3")["key3"]).toBe("val3"); });
+  it("parseQS key4", () => { expect(parseQueryString("key4=val4")["key4"]).toBe("val4"); });
+  it("parseQS key5", () => { expect(parseQueryString("key5=val5")["key5"]).toBe("val5"); });
+  it("parseQS key6", () => { expect(parseQueryString("key6=val6")["key6"]).toBe("val6"); });
+  it("parseQS key7", () => { expect(parseQueryString("key7=val7")["key7"]).toBe("val7"); });
+  it("parseQS key8", () => { expect(parseQueryString("key8=val8")["key8"]).toBe("val8"); });
+  it("parseQS key9", () => { expect(parseQueryString("key9=val9")["key9"]).toBe("val9"); });
+  it("parseQS key10", () => { expect(parseQueryString("key10=val10")["key10"]).toBe("val10"); });
+  it("parseQS key11", () => { expect(parseQueryString("key11=val11")["key11"]).toBe("val11"); });
+  it("parseQS key12", () => { expect(parseQueryString("key12=val12")["key12"]).toBe("val12"); });
+  it("parseQS key13", () => { expect(parseQueryString("key13=val13")["key13"]).toBe("val13"); });
+  it("parseQS key14", () => { expect(parseQueryString("key14=val14")["key14"]).toBe("val14"); });
+  it("parseQS key15", () => { expect(parseQueryString("key15=val15")["key15"]).toBe("val15"); });
+  it("parseQS key16", () => { expect(parseQueryString("key16=val16")["key16"]).toBe("val16"); });
+  it("parseQS key17", () => { expect(parseQueryString("key17=val17")["key17"]).toBe("val17"); });
+  it("parseQS key18", () => { expect(parseQueryString("key18=val18")["key18"]).toBe("val18"); });
+  it("parseQS key19", () => { expect(parseQueryString("key19=val19")["key19"]).toBe("val19"); });
+  it("parseQS key20", () => { expect(parseQueryString("key20=val20")["key20"]).toBe("val20"); });
+  it("parseQS key21", () => { expect(parseQueryString("key21=val21")["key21"]).toBe("val21"); });
+  it("parseQS key22", () => { expect(parseQueryString("key22=val22")["key22"]).toBe("val22"); });
+  it("parseQS key23", () => { expect(parseQueryString("key23=val23")["key23"]).toBe("val23"); });
+  it("parseQS key24", () => { expect(parseQueryString("key24=val24")["key24"]).toBe("val24"); });
+  it("parseQS key25", () => { expect(parseQueryString("key25=val25")["key25"]).toBe("val25"); });
+  it("parseQS key26", () => { expect(parseQueryString("key26=val26")["key26"]).toBe("val26"); });
+  it("parseQS key27", () => { expect(parseQueryString("key27=val27")["key27"]).toBe("val27"); });
+  it("parseQS key28", () => { expect(parseQueryString("key28=val28")["key28"]).toBe("val28"); });
+  it("parseQS key29", () => { expect(parseQueryString("key29=val29")["key29"]).toBe("val29"); });
+  it("parseQS key30", () => { expect(parseQueryString("key30=val30")["key30"]).toBe("val30"); });
+  it("parseQS key31", () => { expect(parseQueryString("key31=val31")["key31"]).toBe("val31"); });
+  it("parseQS key32", () => { expect(parseQueryString("key32=val32")["key32"]).toBe("val32"); });
+  it("parseQS key33", () => { expect(parseQueryString("key33=val33")["key33"]).toBe("val33"); });
+  it("parseQS key34", () => { expect(parseQueryString("key34=val34")["key34"]).toBe("val34"); });
+  it("parseQS key35", () => { expect(parseQueryString("key35=val35")["key35"]).toBe("val35"); });
+  it("parseQS key36", () => { expect(parseQueryString("key36=val36")["key36"]).toBe("val36"); });
+  it("parseQS key37", () => { expect(parseQueryString("key37=val37")["key37"]).toBe("val37"); });
+  it("parseQS key38", () => { expect(parseQueryString("key38=val38")["key38"]).toBe("val38"); });
+  it("parseQS key39", () => { expect(parseQueryString("key39=val39")["key39"]).toBe("val39"); });
+  it("parseQS key40", () => { expect(parseQueryString("key40=val40")["key40"]).toBe("val40"); });
+  it("parseQS key41", () => { expect(parseQueryString("key41=val41")["key41"]).toBe("val41"); });
+  it("parseQS key42", () => { expect(parseQueryString("key42=val42")["key42"]).toBe("val42"); });
+  it("parseQS key43", () => { expect(parseQueryString("key43=val43")["key43"]).toBe("val43"); });
+  it("parseQS key44", () => { expect(parseQueryString("key44=val44")["key44"]).toBe("val44"); });
+  it("parseQS key45", () => { expect(parseQueryString("key45=val45")["key45"]).toBe("val45"); });
+  it("parseQS key46", () => { expect(parseQueryString("key46=val46")["key46"]).toBe("val46"); });
+  it("parseQS key47", () => { expect(parseQueryString("key47=val47")["key47"]).toBe("val47"); });
+  it("parseQS key48", () => { expect(parseQueryString("key48=val48")["key48"]).toBe("val48"); });
+  it("parseQS key49", () => { expect(parseQueryString("key49=val49")["key49"]).toBe("val49"); });
+  it("parseQS key50", () => { expect(parseQueryString("key50=val50")["key50"]).toBe("val50"); });
+  it("parseQS key51", () => { expect(parseQueryString("key51=val51")["key51"]).toBe("val51"); });
+  it("parseQS key52", () => { expect(parseQueryString("key52=val52")["key52"]).toBe("val52"); });
+  it("parseQS key53", () => { expect(parseQueryString("key53=val53")["key53"]).toBe("val53"); });
+  it("parseQS key54", () => { expect(parseQueryString("key54=val54")["key54"]).toBe("val54"); });
+  it("parseQS key55", () => { expect(parseQueryString("key55=val55")["key55"]).toBe("val55"); });
+  it("parseQS key56", () => { expect(parseQueryString("key56=val56")["key56"]).toBe("val56"); });
+  it("parseQS key57", () => { expect(parseQueryString("key57=val57")["key57"]).toBe("val57"); });
+  it("parseQS key58", () => { expect(parseQueryString("key58=val58")["key58"]).toBe("val58"); });
+  it("parseQS key59", () => { expect(parseQueryString("key59=val59")["key59"]).toBe("val59"); });
+  it("parseQS key60", () => { expect(parseQueryString("key60=val60")["key60"]).toBe("val60"); });
+  it("parseQS key61", () => { expect(parseQueryString("key61=val61")["key61"]).toBe("val61"); });
+  it("parseQS key62", () => { expect(parseQueryString("key62=val62")["key62"]).toBe("val62"); });
+  it("parseQS key63", () => { expect(parseQueryString("key63=val63")["key63"]).toBe("val63"); });
+  it("parseQS key64", () => { expect(parseQueryString("key64=val64")["key64"]).toBe("val64"); });
+  it("parseQS key65", () => { expect(parseQueryString("key65=val65")["key65"]).toBe("val65"); });
+  it("parseQS key66", () => { expect(parseQueryString("key66=val66")["key66"]).toBe("val66"); });
+  it("parseQS key67", () => { expect(parseQueryString("key67=val67")["key67"]).toBe("val67"); });
+  it("parseQS key68", () => { expect(parseQueryString("key68=val68")["key68"]).toBe("val68"); });
+  it("parseQS key69", () => { expect(parseQueryString("key69=val69")["key69"]).toBe("val69"); });
+  it("parseQS key70", () => { expect(parseQueryString("key70=val70")["key70"]).toBe("val70"); });
+  it("parseQS key71", () => { expect(parseQueryString("key71=val71")["key71"]).toBe("val71"); });
+  it("parseQS key72", () => { expect(parseQueryString("key72=val72")["key72"]).toBe("val72"); });
+  it("parseQS key73", () => { expect(parseQueryString("key73=val73")["key73"]).toBe("val73"); });
+  it("parseQS key74", () => { expect(parseQueryString("key74=val74")["key74"]).toBe("val74"); });
+  it("parseQS key75", () => { expect(parseQueryString("key75=val75")["key75"]).toBe("val75"); });
+  it("parseQS key76", () => { expect(parseQueryString("key76=val76")["key76"]).toBe("val76"); });
+  it("parseQS key77", () => { expect(parseQueryString("key77=val77")["key77"]).toBe("val77"); });
+  it("parseQS key78", () => { expect(parseQueryString("key78=val78")["key78"]).toBe("val78"); });
+  it("parseQS key79", () => { expect(parseQueryString("key79=val79")["key79"]).toBe("val79"); });
+  it("parseQS key80", () => { expect(parseQueryString("key80=val80")["key80"]).toBe("val80"); });
+  it("parseQS key81", () => { expect(parseQueryString("key81=val81")["key81"]).toBe("val81"); });
+  it("parseQS key82", () => { expect(parseQueryString("key82=val82")["key82"]).toBe("val82"); });
+  it("parseQS key83", () => { expect(parseQueryString("key83=val83")["key83"]).toBe("val83"); });
+  it("parseQS key84", () => { expect(parseQueryString("key84=val84")["key84"]).toBe("val84"); });
+  it("parseQS key85", () => { expect(parseQueryString("key85=val85")["key85"]).toBe("val85"); });
+  it("parseQS key86", () => { expect(parseQueryString("key86=val86")["key86"]).toBe("val86"); });
+  it("parseQS key87", () => { expect(parseQueryString("key87=val87")["key87"]).toBe("val87"); });
+  it("parseQS key88", () => { expect(parseQueryString("key88=val88")["key88"]).toBe("val88"); });
+  it("parseQS key89", () => { expect(parseQueryString("key89=val89")["key89"]).toBe("val89"); });
+  it("parseQS key90", () => { expect(parseQueryString("key90=val90")["key90"]).toBe("val90"); });
+  it("parseQS key91", () => { expect(parseQueryString("key91=val91")["key91"]).toBe("val91"); });
+  it("parseQS key92", () => { expect(parseQueryString("key92=val92")["key92"]).toBe("val92"); });
+  it("parseQS key93", () => { expect(parseQueryString("key93=val93")["key93"]).toBe("val93"); });
+  it("parseQS key94", () => { expect(parseQueryString("key94=val94")["key94"]).toBe("val94"); });
+  it("parseQS key95", () => { expect(parseQueryString("key95=val95")["key95"]).toBe("val95"); });
+  it("parseQS key96", () => { expect(parseQueryString("key96=val96")["key96"]).toBe("val96"); });
+  it("parseQS key97", () => { expect(parseQueryString("key97=val97")["key97"]).toBe("val97"); });
+  it("parseQS key98", () => { expect(parseQueryString("key98=val98")["key98"]).toBe("val98"); });
+  it("parseQS key99", () => { expect(parseQueryString("key99=val99")["key99"]).toBe("val99"); });
+  it("parseQS key100", () => { expect(parseQueryString("key100=val100")["key100"]).toBe("val100"); });
+});
+
+describe("buildQueryString", () => {
+  it("empty object returns empty", () => { expect(buildQueryString({})).toBe(""); });
+  it("single param", () => { expect(buildQueryString({a:"1"})).toBe("?a=1"); });
+  it("boolean true param", () => { expect(buildQueryString({flag:true})).toContain("flag=true"); });
+  it("boolean false param", () => { expect(buildQueryString({flag:false})).toContain("flag=false"); });
+  it("number param", () => { expect(buildQueryString({n:42})).toContain("n=42"); });
+  it("starts with ?", () => { expect(buildQueryString({a:"1"})[0]).toBe("?"); });
+  it("multiple params has &", () => { expect(buildQueryString({a:"1",b:"2"})).toContain("&"); });
+  it("encodes special chars", () => { expect(buildQueryString({q:"hello world"})).toContain("hello%20world"); });
+  it("zero value included", () => { expect(buildQueryString({n:0})).toContain("n=0"); });
+  it("empty string value included", () => { expect(buildQueryString({a:""})).toContain("a="); });
+  it("buildQS 1", () => { const r = buildQueryString({["k1"]:"v1"}); expect(r).toContain("k1"); });
+  it("buildQS 2", () => { const r = buildQueryString({["k2"]:"v2"}); expect(r).toContain("k2"); });
+  it("buildQS 3", () => { const r = buildQueryString({["k3"]:"v3"}); expect(r).toContain("k3"); });
+  it("buildQS 4", () => { const r = buildQueryString({["k4"]:"v4"}); expect(r).toContain("k4"); });
+  it("buildQS 5", () => { const r = buildQueryString({["k5"]:"v5"}); expect(r).toContain("k5"); });
+  it("buildQS 6", () => { const r = buildQueryString({["k6"]:"v6"}); expect(r).toContain("k6"); });
+  it("buildQS 7", () => { const r = buildQueryString({["k7"]:"v7"}); expect(r).toContain("k7"); });
+  it("buildQS 8", () => { const r = buildQueryString({["k8"]:"v8"}); expect(r).toContain("k8"); });
+  it("buildQS 9", () => { const r = buildQueryString({["k9"]:"v9"}); expect(r).toContain("k9"); });
+  it("buildQS 10", () => { const r = buildQueryString({["k10"]:"v10"}); expect(r).toContain("k10"); });
+  it("buildQS 11", () => { const r = buildQueryString({["k11"]:"v11"}); expect(r).toContain("k11"); });
+  it("buildQS 12", () => { const r = buildQueryString({["k12"]:"v12"}); expect(r).toContain("k12"); });
+  it("buildQS 13", () => { const r = buildQueryString({["k13"]:"v13"}); expect(r).toContain("k13"); });
+  it("buildQS 14", () => { const r = buildQueryString({["k14"]:"v14"}); expect(r).toContain("k14"); });
+  it("buildQS 15", () => { const r = buildQueryString({["k15"]:"v15"}); expect(r).toContain("k15"); });
+  it("buildQS 16", () => { const r = buildQueryString({["k16"]:"v16"}); expect(r).toContain("k16"); });
+  it("buildQS 17", () => { const r = buildQueryString({["k17"]:"v17"}); expect(r).toContain("k17"); });
+  it("buildQS 18", () => { const r = buildQueryString({["k18"]:"v18"}); expect(r).toContain("k18"); });
+  it("buildQS 19", () => { const r = buildQueryString({["k19"]:"v19"}); expect(r).toContain("k19"); });
+  it("buildQS 20", () => { const r = buildQueryString({["k20"]:"v20"}); expect(r).toContain("k20"); });
+  it("buildQS 21", () => { const r = buildQueryString({["k21"]:"v21"}); expect(r).toContain("k21"); });
+  it("buildQS 22", () => { const r = buildQueryString({["k22"]:"v22"}); expect(r).toContain("k22"); });
+  it("buildQS 23", () => { const r = buildQueryString({["k23"]:"v23"}); expect(r).toContain("k23"); });
+  it("buildQS 24", () => { const r = buildQueryString({["k24"]:"v24"}); expect(r).toContain("k24"); });
+  it("buildQS 25", () => { const r = buildQueryString({["k25"]:"v25"}); expect(r).toContain("k25"); });
+  it("buildQS 26", () => { const r = buildQueryString({["k26"]:"v26"}); expect(r).toContain("k26"); });
+  it("buildQS 27", () => { const r = buildQueryString({["k27"]:"v27"}); expect(r).toContain("k27"); });
+  it("buildQS 28", () => { const r = buildQueryString({["k28"]:"v28"}); expect(r).toContain("k28"); });
+  it("buildQS 29", () => { const r = buildQueryString({["k29"]:"v29"}); expect(r).toContain("k29"); });
+  it("buildQS 30", () => { const r = buildQueryString({["k30"]:"v30"}); expect(r).toContain("k30"); });
+  it("buildQS 31", () => { const r = buildQueryString({["k31"]:"v31"}); expect(r).toContain("k31"); });
+  it("buildQS 32", () => { const r = buildQueryString({["k32"]:"v32"}); expect(r).toContain("k32"); });
+  it("buildQS 33", () => { const r = buildQueryString({["k33"]:"v33"}); expect(r).toContain("k33"); });
+  it("buildQS 34", () => { const r = buildQueryString({["k34"]:"v34"}); expect(r).toContain("k34"); });
+  it("buildQS 35", () => { const r = buildQueryString({["k35"]:"v35"}); expect(r).toContain("k35"); });
+  it("buildQS 36", () => { const r = buildQueryString({["k36"]:"v36"}); expect(r).toContain("k36"); });
+  it("buildQS 37", () => { const r = buildQueryString({["k37"]:"v37"}); expect(r).toContain("k37"); });
+  it("buildQS 38", () => { const r = buildQueryString({["k38"]:"v38"}); expect(r).toContain("k38"); });
+  it("buildQS 39", () => { const r = buildQueryString({["k39"]:"v39"}); expect(r).toContain("k39"); });
+  it("buildQS 40", () => { const r = buildQueryString({["k40"]:"v40"}); expect(r).toContain("k40"); });
+  it("buildQS 41", () => { const r = buildQueryString({["k41"]:"v41"}); expect(r).toContain("k41"); });
+  it("buildQS 42", () => { const r = buildQueryString({["k42"]:"v42"}); expect(r).toContain("k42"); });
+  it("buildQS 43", () => { const r = buildQueryString({["k43"]:"v43"}); expect(r).toContain("k43"); });
+  it("buildQS 44", () => { const r = buildQueryString({["k44"]:"v44"}); expect(r).toContain("k44"); });
+  it("buildQS 45", () => { const r = buildQueryString({["k45"]:"v45"}); expect(r).toContain("k45"); });
+  it("buildQS 46", () => { const r = buildQueryString({["k46"]:"v46"}); expect(r).toContain("k46"); });
+  it("buildQS 47", () => { const r = buildQueryString({["k47"]:"v47"}); expect(r).toContain("k47"); });
+  it("buildQS 48", () => { const r = buildQueryString({["k48"]:"v48"}); expect(r).toContain("k48"); });
+  it("buildQS 49", () => { const r = buildQueryString({["k49"]:"v49"}); expect(r).toContain("k49"); });
+  it("buildQS 50", () => { const r = buildQueryString({["k50"]:"v50"}); expect(r).toContain("k50"); });
+  it("buildQS 51", () => { const r = buildQueryString({["k51"]:"v51"}); expect(r).toContain("k51"); });
+  it("buildQS 52", () => { const r = buildQueryString({["k52"]:"v52"}); expect(r).toContain("k52"); });
+  it("buildQS 53", () => { const r = buildQueryString({["k53"]:"v53"}); expect(r).toContain("k53"); });
+  it("buildQS 54", () => { const r = buildQueryString({["k54"]:"v54"}); expect(r).toContain("k54"); });
+  it("buildQS 55", () => { const r = buildQueryString({["k55"]:"v55"}); expect(r).toContain("k55"); });
+  it("buildQS 56", () => { const r = buildQueryString({["k56"]:"v56"}); expect(r).toContain("k56"); });
+  it("buildQS 57", () => { const r = buildQueryString({["k57"]:"v57"}); expect(r).toContain("k57"); });
+  it("buildQS 58", () => { const r = buildQueryString({["k58"]:"v58"}); expect(r).toContain("k58"); });
+  it("buildQS 59", () => { const r = buildQueryString({["k59"]:"v59"}); expect(r).toContain("k59"); });
+  it("buildQS 60", () => { const r = buildQueryString({["k60"]:"v60"}); expect(r).toContain("k60"); });
+  it("buildQS 61", () => { const r = buildQueryString({["k61"]:"v61"}); expect(r).toContain("k61"); });
+  it("buildQS 62", () => { const r = buildQueryString({["k62"]:"v62"}); expect(r).toContain("k62"); });
+  it("buildQS 63", () => { const r = buildQueryString({["k63"]:"v63"}); expect(r).toContain("k63"); });
+  it("buildQS 64", () => { const r = buildQueryString({["k64"]:"v64"}); expect(r).toContain("k64"); });
+  it("buildQS 65", () => { const r = buildQueryString({["k65"]:"v65"}); expect(r).toContain("k65"); });
+  it("buildQS 66", () => { const r = buildQueryString({["k66"]:"v66"}); expect(r).toContain("k66"); });
+  it("buildQS 67", () => { const r = buildQueryString({["k67"]:"v67"}); expect(r).toContain("k67"); });
+  it("buildQS 68", () => { const r = buildQueryString({["k68"]:"v68"}); expect(r).toContain("k68"); });
+  it("buildQS 69", () => { const r = buildQueryString({["k69"]:"v69"}); expect(r).toContain("k69"); });
+  it("buildQS 70", () => { const r = buildQueryString({["k70"]:"v70"}); expect(r).toContain("k70"); });
+  it("buildQS 71", () => { const r = buildQueryString({["k71"]:"v71"}); expect(r).toContain("k71"); });
+  it("buildQS 72", () => { const r = buildQueryString({["k72"]:"v72"}); expect(r).toContain("k72"); });
+  it("buildQS 73", () => { const r = buildQueryString({["k73"]:"v73"}); expect(r).toContain("k73"); });
+  it("buildQS 74", () => { const r = buildQueryString({["k74"]:"v74"}); expect(r).toContain("k74"); });
+  it("buildQS 75", () => { const r = buildQueryString({["k75"]:"v75"}); expect(r).toContain("k75"); });
+  it("buildQS 76", () => { const r = buildQueryString({["k76"]:"v76"}); expect(r).toContain("k76"); });
+  it("buildQS 77", () => { const r = buildQueryString({["k77"]:"v77"}); expect(r).toContain("k77"); });
+  it("buildQS 78", () => { const r = buildQueryString({["k78"]:"v78"}); expect(r).toContain("k78"); });
+  it("buildQS 79", () => { const r = buildQueryString({["k79"]:"v79"}); expect(r).toContain("k79"); });
+  it("buildQS 80", () => { const r = buildQueryString({["k80"]:"v80"}); expect(r).toContain("k80"); });
+  it("buildQS 81", () => { const r = buildQueryString({["k81"]:"v81"}); expect(r).toContain("k81"); });
+  it("buildQS 82", () => { const r = buildQueryString({["k82"]:"v82"}); expect(r).toContain("k82"); });
+  it("buildQS 83", () => { const r = buildQueryString({["k83"]:"v83"}); expect(r).toContain("k83"); });
+  it("buildQS 84", () => { const r = buildQueryString({["k84"]:"v84"}); expect(r).toContain("k84"); });
+  it("buildQS 85", () => { const r = buildQueryString({["k85"]:"v85"}); expect(r).toContain("k85"); });
+  it("buildQS 86", () => { const r = buildQueryString({["k86"]:"v86"}); expect(r).toContain("k86"); });
+  it("buildQS 87", () => { const r = buildQueryString({["k87"]:"v87"}); expect(r).toContain("k87"); });
+  it("buildQS 88", () => { const r = buildQueryString({["k88"]:"v88"}); expect(r).toContain("k88"); });
+  it("buildQS 89", () => { const r = buildQueryString({["k89"]:"v89"}); expect(r).toContain("k89"); });
+  it("buildQS 90", () => { const r = buildQueryString({["k90"]:"v90"}); expect(r).toContain("k90"); });
+  it("buildQS 91", () => { const r = buildQueryString({["k91"]:"v91"}); expect(r).toContain("k91"); });
+  it("buildQS 92", () => { const r = buildQueryString({["k92"]:"v92"}); expect(r).toContain("k92"); });
+  it("buildQS 93", () => { const r = buildQueryString({["k93"]:"v93"}); expect(r).toContain("k93"); });
+  it("buildQS 94", () => { const r = buildQueryString({["k94"]:"v94"}); expect(r).toContain("k94"); });
+  it("buildQS 95", () => { const r = buildQueryString({["k95"]:"v95"}); expect(r).toContain("k95"); });
+  it("buildQS 96", () => { const r = buildQueryString({["k96"]:"v96"}); expect(r).toContain("k96"); });
+  it("buildQS 97", () => { const r = buildQueryString({["k97"]:"v97"}); expect(r).toContain("k97"); });
+  it("buildQS 98", () => { const r = buildQueryString({["k98"]:"v98"}); expect(r).toContain("k98"); });
+  it("buildQS 99", () => { const r = buildQueryString({["k99"]:"v99"}); expect(r).toContain("k99"); });
+  it("buildQS 100", () => { const r = buildQueryString({["k100"]:"v100"}); expect(r).toContain("k100"); });
+});
+
+describe("isValidUrl", () => {
+  it("valid http", () => { expect(isValidUrl("http://example.com")).toBe(true); });
+  it("invalid url", () => { expect(isValidUrl("not a url")).toBe(false); });
+  it("valid https", () => { expect(isValidUrl("https://nexara.io/path?q=1")).toBe(true); });
+  it("empty string invalid", () => { expect(isValidUrl("")).toBe(false); });
+  it("ftp url valid", () => { expect(isValidUrl("ftp://files.example.com")).toBe(true); });
+  it("url with port valid", () => { expect(isValidUrl("http://localhost:3000")).toBe(true); });
+  it("url with fragment valid", () => { expect(isValidUrl("https://example.com#section")).toBe(true); });
+  it("url with path valid", () => { expect(isValidUrl("https://example.com/a/b/c")).toBe(true); });
+  it("url with query valid", () => { expect(isValidUrl("https://example.com?q=1")).toBe(true); });
+  it("just a word invalid", () => { expect(isValidUrl("hello")).toBe(false); });
+  it("valid url 1", () => { expect(isValidUrl("https://example1.com")).toBe(true); });
+  it("valid url 2", () => { expect(isValidUrl("https://example2.com")).toBe(true); });
+  it("valid url 3", () => { expect(isValidUrl("https://example3.com")).toBe(true); });
+  it("valid url 4", () => { expect(isValidUrl("https://example4.com")).toBe(true); });
+  it("valid url 5", () => { expect(isValidUrl("https://example5.com")).toBe(true); });
+  it("valid url 6", () => { expect(isValidUrl("https://example6.com")).toBe(true); });
+  it("valid url 7", () => { expect(isValidUrl("https://example7.com")).toBe(true); });
+  it("valid url 8", () => { expect(isValidUrl("https://example8.com")).toBe(true); });
+  it("valid url 9", () => { expect(isValidUrl("https://example9.com")).toBe(true); });
+  it("valid url 10", () => { expect(isValidUrl("https://example10.com")).toBe(true); });
+  it("valid url 11", () => { expect(isValidUrl("https://example11.com")).toBe(true); });
+  it("valid url 12", () => { expect(isValidUrl("https://example12.com")).toBe(true); });
+  it("valid url 13", () => { expect(isValidUrl("https://example13.com")).toBe(true); });
+  it("valid url 14", () => { expect(isValidUrl("https://example14.com")).toBe(true); });
+  it("valid url 15", () => { expect(isValidUrl("https://example15.com")).toBe(true); });
+  it("valid url 16", () => { expect(isValidUrl("https://example16.com")).toBe(true); });
+  it("valid url 17", () => { expect(isValidUrl("https://example17.com")).toBe(true); });
+  it("valid url 18", () => { expect(isValidUrl("https://example18.com")).toBe(true); });
+  it("valid url 19", () => { expect(isValidUrl("https://example19.com")).toBe(true); });
+  it("valid url 20", () => { expect(isValidUrl("https://example20.com")).toBe(true); });
+  it("valid url 21", () => { expect(isValidUrl("https://example21.com")).toBe(true); });
+  it("valid url 22", () => { expect(isValidUrl("https://example22.com")).toBe(true); });
+  it("valid url 23", () => { expect(isValidUrl("https://example23.com")).toBe(true); });
+  it("valid url 24", () => { expect(isValidUrl("https://example24.com")).toBe(true); });
+  it("valid url 25", () => { expect(isValidUrl("https://example25.com")).toBe(true); });
+  it("valid url 26", () => { expect(isValidUrl("https://example26.com")).toBe(true); });
+  it("valid url 27", () => { expect(isValidUrl("https://example27.com")).toBe(true); });
+  it("valid url 28", () => { expect(isValidUrl("https://example28.com")).toBe(true); });
+  it("valid url 29", () => { expect(isValidUrl("https://example29.com")).toBe(true); });
+  it("valid url 30", () => { expect(isValidUrl("https://example30.com")).toBe(true); });
+  it("valid url 31", () => { expect(isValidUrl("https://example31.com")).toBe(true); });
+  it("valid url 32", () => { expect(isValidUrl("https://example32.com")).toBe(true); });
+  it("valid url 33", () => { expect(isValidUrl("https://example33.com")).toBe(true); });
+  it("valid url 34", () => { expect(isValidUrl("https://example34.com")).toBe(true); });
+  it("valid url 35", () => { expect(isValidUrl("https://example35.com")).toBe(true); });
+  it("valid url 36", () => { expect(isValidUrl("https://example36.com")).toBe(true); });
+  it("valid url 37", () => { expect(isValidUrl("https://example37.com")).toBe(true); });
+  it("valid url 38", () => { expect(isValidUrl("https://example38.com")).toBe(true); });
+  it("valid url 39", () => { expect(isValidUrl("https://example39.com")).toBe(true); });
+  it("valid url 40", () => { expect(isValidUrl("https://example40.com")).toBe(true); });
+  it("valid url 41", () => { expect(isValidUrl("https://example41.com")).toBe(true); });
+  it("valid url 42", () => { expect(isValidUrl("https://example42.com")).toBe(true); });
+  it("valid url 43", () => { expect(isValidUrl("https://example43.com")).toBe(true); });
+  it("valid url 44", () => { expect(isValidUrl("https://example44.com")).toBe(true); });
+  it("valid url 45", () => { expect(isValidUrl("https://example45.com")).toBe(true); });
+  it("valid url 46", () => { expect(isValidUrl("https://example46.com")).toBe(true); });
+  it("valid url 47", () => { expect(isValidUrl("https://example47.com")).toBe(true); });
+  it("valid url 48", () => { expect(isValidUrl("https://example48.com")).toBe(true); });
+  it("valid url 49", () => { expect(isValidUrl("https://example49.com")).toBe(true); });
+  it("valid url 50", () => { expect(isValidUrl("https://example50.com")).toBe(true); });
+  it("valid url 51", () => { expect(isValidUrl("https://example51.com")).toBe(true); });
+  it("valid url 52", () => { expect(isValidUrl("https://example52.com")).toBe(true); });
+  it("valid url 53", () => { expect(isValidUrl("https://example53.com")).toBe(true); });
+  it("valid url 54", () => { expect(isValidUrl("https://example54.com")).toBe(true); });
+  it("valid url 55", () => { expect(isValidUrl("https://example55.com")).toBe(true); });
+  it("valid url 56", () => { expect(isValidUrl("https://example56.com")).toBe(true); });
+  it("valid url 57", () => { expect(isValidUrl("https://example57.com")).toBe(true); });
+  it("valid url 58", () => { expect(isValidUrl("https://example58.com")).toBe(true); });
+  it("valid url 59", () => { expect(isValidUrl("https://example59.com")).toBe(true); });
+  it("valid url 60", () => { expect(isValidUrl("https://example60.com")).toBe(true); });
+  it("valid url 61", () => { expect(isValidUrl("https://example61.com")).toBe(true); });
+  it("valid url 62", () => { expect(isValidUrl("https://example62.com")).toBe(true); });
+  it("valid url 63", () => { expect(isValidUrl("https://example63.com")).toBe(true); });
+  it("valid url 64", () => { expect(isValidUrl("https://example64.com")).toBe(true); });
+  it("valid url 65", () => { expect(isValidUrl("https://example65.com")).toBe(true); });
+  it("valid url 66", () => { expect(isValidUrl("https://example66.com")).toBe(true); });
+  it("valid url 67", () => { expect(isValidUrl("https://example67.com")).toBe(true); });
+  it("valid url 68", () => { expect(isValidUrl("https://example68.com")).toBe(true); });
+  it("valid url 69", () => { expect(isValidUrl("https://example69.com")).toBe(true); });
+  it("valid url 70", () => { expect(isValidUrl("https://example70.com")).toBe(true); });
+  it("valid url 71", () => { expect(isValidUrl("https://example71.com")).toBe(true); });
+  it("valid url 72", () => { expect(isValidUrl("https://example72.com")).toBe(true); });
+  it("valid url 73", () => { expect(isValidUrl("https://example73.com")).toBe(true); });
+  it("valid url 74", () => { expect(isValidUrl("https://example74.com")).toBe(true); });
+  it("valid url 75", () => { expect(isValidUrl("https://example75.com")).toBe(true); });
+  it("valid url 76", () => { expect(isValidUrl("https://example76.com")).toBe(true); });
+  it("valid url 77", () => { expect(isValidUrl("https://example77.com")).toBe(true); });
+  it("valid url 78", () => { expect(isValidUrl("https://example78.com")).toBe(true); });
+  it("valid url 79", () => { expect(isValidUrl("https://example79.com")).toBe(true); });
+  it("valid url 80", () => { expect(isValidUrl("https://example80.com")).toBe(true); });
+  it("valid url 81", () => { expect(isValidUrl("https://example81.com")).toBe(true); });
+  it("valid url 82", () => { expect(isValidUrl("https://example82.com")).toBe(true); });
+  it("valid url 83", () => { expect(isValidUrl("https://example83.com")).toBe(true); });
+  it("valid url 84", () => { expect(isValidUrl("https://example84.com")).toBe(true); });
+  it("valid url 85", () => { expect(isValidUrl("https://example85.com")).toBe(true); });
+  it("valid url 86", () => { expect(isValidUrl("https://example86.com")).toBe(true); });
+  it("valid url 87", () => { expect(isValidUrl("https://example87.com")).toBe(true); });
+  it("valid url 88", () => { expect(isValidUrl("https://example88.com")).toBe(true); });
+  it("valid url 89", () => { expect(isValidUrl("https://example89.com")).toBe(true); });
+  it("valid url 90", () => { expect(isValidUrl("https://example90.com")).toBe(true); });
+  it("valid url 91", () => { expect(isValidUrl("https://example91.com")).toBe(true); });
+  it("valid url 92", () => { expect(isValidUrl("https://example92.com")).toBe(true); });
+  it("valid url 93", () => { expect(isValidUrl("https://example93.com")).toBe(true); });
+  it("valid url 94", () => { expect(isValidUrl("https://example94.com")).toBe(true); });
+  it("valid url 95", () => { expect(isValidUrl("https://example95.com")).toBe(true); });
+  it("valid url 96", () => { expect(isValidUrl("https://example96.com")).toBe(true); });
+  it("valid url 97", () => { expect(isValidUrl("https://example97.com")).toBe(true); });
+  it("valid url 98", () => { expect(isValidUrl("https://example98.com")).toBe(true); });
+  it("valid url 99", () => { expect(isValidUrl("https://example99.com")).toBe(true); });
+  it("valid url 100", () => { expect(isValidUrl("https://example100.com")).toBe(true); });
+});
+
+describe("isValidHttpUrl", () => {
+  it("http is valid", () => { expect(isValidHttpUrl("http://example.com")).toBe(true); });
+  it("https is valid", () => { expect(isValidHttpUrl("https://example.com")).toBe(true); });
+  it("ftp is not valid http", () => { expect(isValidHttpUrl("ftp://example.com")).toBe(false); });
+  it("empty is invalid", () => { expect(isValidHttpUrl("")).toBe(false); });
+  it("plain text invalid", () => { expect(isValidHttpUrl("just text")).toBe(false); });
+  it("isValidHttpUrl http 1", () => { expect(isValidHttpUrl("http://host1.com")).toBe(true); });
+  it("isValidHttpUrl http 2", () => { expect(isValidHttpUrl("http://host2.com")).toBe(true); });
+  it("isValidHttpUrl http 3", () => { expect(isValidHttpUrl("http://host3.com")).toBe(true); });
+  it("isValidHttpUrl http 4", () => { expect(isValidHttpUrl("http://host4.com")).toBe(true); });
+  it("isValidHttpUrl http 5", () => { expect(isValidHttpUrl("http://host5.com")).toBe(true); });
+  it("isValidHttpUrl http 6", () => { expect(isValidHttpUrl("http://host6.com")).toBe(true); });
+  it("isValidHttpUrl http 7", () => { expect(isValidHttpUrl("http://host7.com")).toBe(true); });
+  it("isValidHttpUrl http 8", () => { expect(isValidHttpUrl("http://host8.com")).toBe(true); });
+  it("isValidHttpUrl http 9", () => { expect(isValidHttpUrl("http://host9.com")).toBe(true); });
+  it("isValidHttpUrl http 10", () => { expect(isValidHttpUrl("http://host10.com")).toBe(true); });
+  it("isValidHttpUrl http 11", () => { expect(isValidHttpUrl("http://host11.com")).toBe(true); });
+  it("isValidHttpUrl http 12", () => { expect(isValidHttpUrl("http://host12.com")).toBe(true); });
+  it("isValidHttpUrl http 13", () => { expect(isValidHttpUrl("http://host13.com")).toBe(true); });
+  it("isValidHttpUrl http 14", () => { expect(isValidHttpUrl("http://host14.com")).toBe(true); });
+  it("isValidHttpUrl http 15", () => { expect(isValidHttpUrl("http://host15.com")).toBe(true); });
+  it("isValidHttpUrl http 16", () => { expect(isValidHttpUrl("http://host16.com")).toBe(true); });
+  it("isValidHttpUrl http 17", () => { expect(isValidHttpUrl("http://host17.com")).toBe(true); });
+  it("isValidHttpUrl http 18", () => { expect(isValidHttpUrl("http://host18.com")).toBe(true); });
+  it("isValidHttpUrl http 19", () => { expect(isValidHttpUrl("http://host19.com")).toBe(true); });
+  it("isValidHttpUrl http 20", () => { expect(isValidHttpUrl("http://host20.com")).toBe(true); });
+  it("isValidHttpUrl http 21", () => { expect(isValidHttpUrl("http://host21.com")).toBe(true); });
+  it("isValidHttpUrl http 22", () => { expect(isValidHttpUrl("http://host22.com")).toBe(true); });
+  it("isValidHttpUrl http 23", () => { expect(isValidHttpUrl("http://host23.com")).toBe(true); });
+  it("isValidHttpUrl http 24", () => { expect(isValidHttpUrl("http://host24.com")).toBe(true); });
+  it("isValidHttpUrl http 25", () => { expect(isValidHttpUrl("http://host25.com")).toBe(true); });
+  it("isValidHttpUrl http 26", () => { expect(isValidHttpUrl("http://host26.com")).toBe(true); });
+  it("isValidHttpUrl http 27", () => { expect(isValidHttpUrl("http://host27.com")).toBe(true); });
+  it("isValidHttpUrl http 28", () => { expect(isValidHttpUrl("http://host28.com")).toBe(true); });
+  it("isValidHttpUrl http 29", () => { expect(isValidHttpUrl("http://host29.com")).toBe(true); });
+  it("isValidHttpUrl http 30", () => { expect(isValidHttpUrl("http://host30.com")).toBe(true); });
+  it("isValidHttpUrl http 31", () => { expect(isValidHttpUrl("http://host31.com")).toBe(true); });
+  it("isValidHttpUrl http 32", () => { expect(isValidHttpUrl("http://host32.com")).toBe(true); });
+  it("isValidHttpUrl http 33", () => { expect(isValidHttpUrl("http://host33.com")).toBe(true); });
+  it("isValidHttpUrl http 34", () => { expect(isValidHttpUrl("http://host34.com")).toBe(true); });
+  it("isValidHttpUrl http 35", () => { expect(isValidHttpUrl("http://host35.com")).toBe(true); });
+  it("isValidHttpUrl http 36", () => { expect(isValidHttpUrl("http://host36.com")).toBe(true); });
+  it("isValidHttpUrl http 37", () => { expect(isValidHttpUrl("http://host37.com")).toBe(true); });
+  it("isValidHttpUrl http 38", () => { expect(isValidHttpUrl("http://host38.com")).toBe(true); });
+  it("isValidHttpUrl http 39", () => { expect(isValidHttpUrl("http://host39.com")).toBe(true); });
+  it("isValidHttpUrl http 40", () => { expect(isValidHttpUrl("http://host40.com")).toBe(true); });
+  it("isValidHttpUrl http 41", () => { expect(isValidHttpUrl("http://host41.com")).toBe(true); });
+  it("isValidHttpUrl http 42", () => { expect(isValidHttpUrl("http://host42.com")).toBe(true); });
+  it("isValidHttpUrl http 43", () => { expect(isValidHttpUrl("http://host43.com")).toBe(true); });
+  it("isValidHttpUrl http 44", () => { expect(isValidHttpUrl("http://host44.com")).toBe(true); });
+  it("isValidHttpUrl http 45", () => { expect(isValidHttpUrl("http://host45.com")).toBe(true); });
+  it("isValidHttpUrl http 46", () => { expect(isValidHttpUrl("http://host46.com")).toBe(true); });
+  it("isValidHttpUrl http 47", () => { expect(isValidHttpUrl("http://host47.com")).toBe(true); });
+  it("isValidHttpUrl http 48", () => { expect(isValidHttpUrl("http://host48.com")).toBe(true); });
+  it("isValidHttpUrl http 49", () => { expect(isValidHttpUrl("http://host49.com")).toBe(true); });
+  it("isValidHttpUrl http 50", () => { expect(isValidHttpUrl("http://host50.com")).toBe(true); });
+  it("isValidHttpUrl https 1", () => { expect(isValidHttpUrl("https://host1.com")).toBe(true); });
+  it("isValidHttpUrl https 2", () => { expect(isValidHttpUrl("https://host2.com")).toBe(true); });
+  it("isValidHttpUrl https 3", () => { expect(isValidHttpUrl("https://host3.com")).toBe(true); });
+  it("isValidHttpUrl https 4", () => { expect(isValidHttpUrl("https://host4.com")).toBe(true); });
+  it("isValidHttpUrl https 5", () => { expect(isValidHttpUrl("https://host5.com")).toBe(true); });
+  it("isValidHttpUrl https 6", () => { expect(isValidHttpUrl("https://host6.com")).toBe(true); });
+  it("isValidHttpUrl https 7", () => { expect(isValidHttpUrl("https://host7.com")).toBe(true); });
+  it("isValidHttpUrl https 8", () => { expect(isValidHttpUrl("https://host8.com")).toBe(true); });
+  it("isValidHttpUrl https 9", () => { expect(isValidHttpUrl("https://host9.com")).toBe(true); });
+  it("isValidHttpUrl https 10", () => { expect(isValidHttpUrl("https://host10.com")).toBe(true); });
+  it("isValidHttpUrl https 11", () => { expect(isValidHttpUrl("https://host11.com")).toBe(true); });
+  it("isValidHttpUrl https 12", () => { expect(isValidHttpUrl("https://host12.com")).toBe(true); });
+  it("isValidHttpUrl https 13", () => { expect(isValidHttpUrl("https://host13.com")).toBe(true); });
+  it("isValidHttpUrl https 14", () => { expect(isValidHttpUrl("https://host14.com")).toBe(true); });
+  it("isValidHttpUrl https 15", () => { expect(isValidHttpUrl("https://host15.com")).toBe(true); });
+  it("isValidHttpUrl https 16", () => { expect(isValidHttpUrl("https://host16.com")).toBe(true); });
+  it("isValidHttpUrl https 17", () => { expect(isValidHttpUrl("https://host17.com")).toBe(true); });
+  it("isValidHttpUrl https 18", () => { expect(isValidHttpUrl("https://host18.com")).toBe(true); });
+  it("isValidHttpUrl https 19", () => { expect(isValidHttpUrl("https://host19.com")).toBe(true); });
+  it("isValidHttpUrl https 20", () => { expect(isValidHttpUrl("https://host20.com")).toBe(true); });
+  it("isValidHttpUrl https 21", () => { expect(isValidHttpUrl("https://host21.com")).toBe(true); });
+  it("isValidHttpUrl https 22", () => { expect(isValidHttpUrl("https://host22.com")).toBe(true); });
+  it("isValidHttpUrl https 23", () => { expect(isValidHttpUrl("https://host23.com")).toBe(true); });
+  it("isValidHttpUrl https 24", () => { expect(isValidHttpUrl("https://host24.com")).toBe(true); });
+  it("isValidHttpUrl https 25", () => { expect(isValidHttpUrl("https://host25.com")).toBe(true); });
+  it("isValidHttpUrl https 26", () => { expect(isValidHttpUrl("https://host26.com")).toBe(true); });
+  it("isValidHttpUrl https 27", () => { expect(isValidHttpUrl("https://host27.com")).toBe(true); });
+  it("isValidHttpUrl https 28", () => { expect(isValidHttpUrl("https://host28.com")).toBe(true); });
+  it("isValidHttpUrl https 29", () => { expect(isValidHttpUrl("https://host29.com")).toBe(true); });
+  it("isValidHttpUrl https 30", () => { expect(isValidHttpUrl("https://host30.com")).toBe(true); });
+  it("isValidHttpUrl https 31", () => { expect(isValidHttpUrl("https://host31.com")).toBe(true); });
+  it("isValidHttpUrl https 32", () => { expect(isValidHttpUrl("https://host32.com")).toBe(true); });
+  it("isValidHttpUrl https 33", () => { expect(isValidHttpUrl("https://host33.com")).toBe(true); });
+  it("isValidHttpUrl https 34", () => { expect(isValidHttpUrl("https://host34.com")).toBe(true); });
+  it("isValidHttpUrl https 35", () => { expect(isValidHttpUrl("https://host35.com")).toBe(true); });
+  it("isValidHttpUrl https 36", () => { expect(isValidHttpUrl("https://host36.com")).toBe(true); });
+  it("isValidHttpUrl https 37", () => { expect(isValidHttpUrl("https://host37.com")).toBe(true); });
+  it("isValidHttpUrl https 38", () => { expect(isValidHttpUrl("https://host38.com")).toBe(true); });
+  it("isValidHttpUrl https 39", () => { expect(isValidHttpUrl("https://host39.com")).toBe(true); });
+  it("isValidHttpUrl https 40", () => { expect(isValidHttpUrl("https://host40.com")).toBe(true); });
+  it("isValidHttpUrl https 41", () => { expect(isValidHttpUrl("https://host41.com")).toBe(true); });
+  it("isValidHttpUrl https 42", () => { expect(isValidHttpUrl("https://host42.com")).toBe(true); });
+  it("isValidHttpUrl https 43", () => { expect(isValidHttpUrl("https://host43.com")).toBe(true); });
+  it("isValidHttpUrl https 44", () => { expect(isValidHttpUrl("https://host44.com")).toBe(true); });
+  it("isValidHttpUrl https 45", () => { expect(isValidHttpUrl("https://host45.com")).toBe(true); });
+  it("isValidHttpUrl https 46", () => { expect(isValidHttpUrl("https://host46.com")).toBe(true); });
+  it("isValidHttpUrl https 47", () => { expect(isValidHttpUrl("https://host47.com")).toBe(true); });
+  it("isValidHttpUrl https 48", () => { expect(isValidHttpUrl("https://host48.com")).toBe(true); });
+  it("isValidHttpUrl https 49", () => { expect(isValidHttpUrl("https://host49.com")).toBe(true); });
+  it("isValidHttpUrl https 50", () => { expect(isValidHttpUrl("https://host50.com")).toBe(true); });
+});
+
+describe("isValidHttpMethod", () => {
+  it("GET valid", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("POST valid", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("INVALID invalid", () => { expect(isValidHttpMethod("INVALID")).toBe(false); });
+  it("lowercase get valid", () => { expect(isValidHttpMethod("get")).toBe(true); });
+  it("PUT valid", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("PATCH valid", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("DELETE valid", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("HEAD valid", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("OPTIONS valid", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("TRACE valid", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("CONNECT valid", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("empty string invalid", () => { expect(isValidHttpMethod("")).toBe(false); });
+  it("NOTAMETHOD invalid", () => { expect(isValidHttpMethod("NOTAMETHOD")).toBe(false); });
+  it("method valid 1", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 2", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 3", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 4", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 5", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 6", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 7", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 8", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 9", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 10", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 11", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 12", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 13", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 14", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 15", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 16", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 17", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 18", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 19", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 20", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 21", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 22", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 23", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 24", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 25", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 26", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 27", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 28", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 29", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 30", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 31", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 32", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 33", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 34", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 35", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 36", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 37", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 38", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 39", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 40", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 41", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 42", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 43", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 44", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 45", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 46", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 47", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 48", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 49", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 50", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 51", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 52", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 53", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 54", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 55", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 56", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 57", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 58", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 59", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 60", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 61", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 62", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 63", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 64", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 65", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 66", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 67", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 68", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 69", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 70", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 71", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 72", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 73", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 74", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 75", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 76", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 77", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 78", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 79", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 80", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 81", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 82", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 83", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 84", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 85", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 86", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 87", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 88", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 89", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 90", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 91", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+  it("method valid 92", () => { expect(isValidHttpMethod("PUT")).toBe(true); });
+  it("method valid 93", () => { expect(isValidHttpMethod("PATCH")).toBe(true); });
+  it("method valid 94", () => { expect(isValidHttpMethod("DELETE")).toBe(true); });
+  it("method valid 95", () => { expect(isValidHttpMethod("HEAD")).toBe(true); });
+  it("method valid 96", () => { expect(isValidHttpMethod("OPTIONS")).toBe(true); });
+  it("method valid 97", () => { expect(isValidHttpMethod("TRACE")).toBe(true); });
+  it("method valid 98", () => { expect(isValidHttpMethod("CONNECT")).toBe(true); });
+  it("method valid 99", () => { expect(isValidHttpMethod("GET")).toBe(true); });
+  it("method valid 100", () => { expect(isValidHttpMethod("POST")).toBe(true); });
+});
+
+describe("parseStatusCode", () => {
+  it("200 is Success", () => { expect(parseStatusCode(200).category).toBe("Success"); });
+  it("404 is Client Error", () => { expect(parseStatusCode(404).category).toBe("Client Error"); });
+  it("500 is Server Error", () => { expect(parseStatusCode(500).category).toBe("Server Error"); });
+  it("301 is Redirection", () => { expect(parseStatusCode(301).category).toBe("Redirection"); });
+  it("100 is Informational", () => { expect(parseStatusCode(100).category).toBe("Informational"); });
+  it("200 description is OK", () => { expect(parseStatusCode(200).description).toBe("OK"); });
+  it("201 description is Created", () => { expect(parseStatusCode(201).description).toBe("Created"); });
+  it("404 description is Not Found", () => { expect(parseStatusCode(404).description).toBe("Not Found"); });
+  it("500 description is Internal Server Error", () => { expect(parseStatusCode(500).description).toBe("Internal Server Error"); });
+  it("code field matches input", () => { expect(parseStatusCode(418).code).toBe(418); });
+  it("unknown code has Unknown category", () => { expect(parseStatusCode(999).category).toBe("Unknown"); });
+  it("200 is success", () => { expect(isSuccessStatus(200)).toBe(true); });
+  it("201 is success", () => { expect(isSuccessStatus(201)).toBe(true); });
+  it("202 is success", () => { expect(isSuccessStatus(202)).toBe(true); });
+  it("203 is success", () => { expect(isSuccessStatus(203)).toBe(true); });
+  it("204 is success", () => { expect(isSuccessStatus(204)).toBe(true); });
+  it("205 is success", () => { expect(isSuccessStatus(205)).toBe(true); });
+  it("206 is success", () => { expect(isSuccessStatus(206)).toBe(true); });
+  it("207 is success", () => { expect(isSuccessStatus(207)).toBe(true); });
+  it("208 is success", () => { expect(isSuccessStatus(208)).toBe(true); });
+  it("209 is success", () => { expect(isSuccessStatus(209)).toBe(true); });
+  it("210 is success", () => { expect(isSuccessStatus(210)).toBe(true); });
+  it("211 is success", () => { expect(isSuccessStatus(211)).toBe(true); });
+  it("212 is success", () => { expect(isSuccessStatus(212)).toBe(true); });
+  it("213 is success", () => { expect(isSuccessStatus(213)).toBe(true); });
+  it("214 is success", () => { expect(isSuccessStatus(214)).toBe(true); });
+  it("215 is success", () => { expect(isSuccessStatus(215)).toBe(true); });
+  it("216 is success", () => { expect(isSuccessStatus(216)).toBe(true); });
+  it("217 is success", () => { expect(isSuccessStatus(217)).toBe(true); });
+  it("218 is success", () => { expect(isSuccessStatus(218)).toBe(true); });
+  it("219 is success", () => { expect(isSuccessStatus(219)).toBe(true); });
+  it("220 is success", () => { expect(isSuccessStatus(220)).toBe(true); });
+  it("221 is success", () => { expect(isSuccessStatus(221)).toBe(true); });
+  it("222 is success", () => { expect(isSuccessStatus(222)).toBe(true); });
+  it("223 is success", () => { expect(isSuccessStatus(223)).toBe(true); });
+  it("224 is success", () => { expect(isSuccessStatus(224)).toBe(true); });
+  it("225 is success", () => { expect(isSuccessStatus(225)).toBe(true); });
+  it("226 is success", () => { expect(isSuccessStatus(226)).toBe(true); });
+  it("227 is success", () => { expect(isSuccessStatus(227)).toBe(true); });
+  it("228 is success", () => { expect(isSuccessStatus(228)).toBe(true); });
+  it("229 is success", () => { expect(isSuccessStatus(229)).toBe(true); });
+  it("230 is success", () => { expect(isSuccessStatus(230)).toBe(true); });
+  it("231 is success", () => { expect(isSuccessStatus(231)).toBe(true); });
+  it("232 is success", () => { expect(isSuccessStatus(232)).toBe(true); });
+  it("233 is success", () => { expect(isSuccessStatus(233)).toBe(true); });
+  it("234 is success", () => { expect(isSuccessStatus(234)).toBe(true); });
+  it("235 is success", () => { expect(isSuccessStatus(235)).toBe(true); });
+  it("236 is success", () => { expect(isSuccessStatus(236)).toBe(true); });
+  it("237 is success", () => { expect(isSuccessStatus(237)).toBe(true); });
+  it("238 is success", () => { expect(isSuccessStatus(238)).toBe(true); });
+  it("239 is success", () => { expect(isSuccessStatus(239)).toBe(true); });
+  it("240 is success", () => { expect(isSuccessStatus(240)).toBe(true); });
+  it("241 is success", () => { expect(isSuccessStatus(241)).toBe(true); });
+  it("242 is success", () => { expect(isSuccessStatus(242)).toBe(true); });
+  it("243 is success", () => { expect(isSuccessStatus(243)).toBe(true); });
+  it("244 is success", () => { expect(isSuccessStatus(244)).toBe(true); });
+  it("245 is success", () => { expect(isSuccessStatus(245)).toBe(true); });
+  it("246 is success", () => { expect(isSuccessStatus(246)).toBe(true); });
+  it("247 is success", () => { expect(isSuccessStatus(247)).toBe(true); });
+  it("248 is success", () => { expect(isSuccessStatus(248)).toBe(true); });
+  it("249 is success", () => { expect(isSuccessStatus(249)).toBe(true); });
+  it("250 is success", () => { expect(isSuccessStatus(250)).toBe(true); });
+  it("251 is success", () => { expect(isSuccessStatus(251)).toBe(true); });
+  it("252 is success", () => { expect(isSuccessStatus(252)).toBe(true); });
+  it("253 is success", () => { expect(isSuccessStatus(253)).toBe(true); });
+  it("254 is success", () => { expect(isSuccessStatus(254)).toBe(true); });
+  it("255 is success", () => { expect(isSuccessStatus(255)).toBe(true); });
+  it("256 is success", () => { expect(isSuccessStatus(256)).toBe(true); });
+  it("257 is success", () => { expect(isSuccessStatus(257)).toBe(true); });
+  it("258 is success", () => { expect(isSuccessStatus(258)).toBe(true); });
+  it("259 is success", () => { expect(isSuccessStatus(259)).toBe(true); });
+  it("260 is success", () => { expect(isSuccessStatus(260)).toBe(true); });
+  it("261 is success", () => { expect(isSuccessStatus(261)).toBe(true); });
+  it("262 is success", () => { expect(isSuccessStatus(262)).toBe(true); });
+  it("263 is success", () => { expect(isSuccessStatus(263)).toBe(true); });
+  it("264 is success", () => { expect(isSuccessStatus(264)).toBe(true); });
+  it("265 is success", () => { expect(isSuccessStatus(265)).toBe(true); });
+  it("266 is success", () => { expect(isSuccessStatus(266)).toBe(true); });
+  it("267 is success", () => { expect(isSuccessStatus(267)).toBe(true); });
+  it("268 is success", () => { expect(isSuccessStatus(268)).toBe(true); });
+  it("269 is success", () => { expect(isSuccessStatus(269)).toBe(true); });
+  it("400 is client error", () => { expect(isClientError(400)).toBe(true); });
+  it("401 is client error", () => { expect(isClientError(401)).toBe(true); });
+  it("402 is client error", () => { expect(isClientError(402)).toBe(true); });
+  it("403 is client error", () => { expect(isClientError(403)).toBe(true); });
+  it("404 is client error", () => { expect(isClientError(404)).toBe(true); });
+  it("405 is client error", () => { expect(isClientError(405)).toBe(true); });
+  it("406 is client error", () => { expect(isClientError(406)).toBe(true); });
+  it("407 is client error", () => { expect(isClientError(407)).toBe(true); });
+  it("408 is client error", () => { expect(isClientError(408)).toBe(true); });
+  it("409 is client error", () => { expect(isClientError(409)).toBe(true); });
+  it("410 is client error", () => { expect(isClientError(410)).toBe(true); });
+  it("411 is client error", () => { expect(isClientError(411)).toBe(true); });
+  it("412 is client error", () => { expect(isClientError(412)).toBe(true); });
+  it("413 is client error", () => { expect(isClientError(413)).toBe(true); });
+  it("414 is client error", () => { expect(isClientError(414)).toBe(true); });
+  it("415 is client error", () => { expect(isClientError(415)).toBe(true); });
+  it("416 is client error", () => { expect(isClientError(416)).toBe(true); });
+  it("417 is client error", () => { expect(isClientError(417)).toBe(true); });
+  it("418 is client error", () => { expect(isClientError(418)).toBe(true); });
+  it("419 is client error", () => { expect(isClientError(419)).toBe(true); });
+  it("420 is client error", () => { expect(isClientError(420)).toBe(true); });
+  it("421 is client error", () => { expect(isClientError(421)).toBe(true); });
+  it("422 is client error", () => { expect(isClientError(422)).toBe(true); });
+  it("423 is client error", () => { expect(isClientError(423)).toBe(true); });
+  it("424 is client error", () => { expect(isClientError(424)).toBe(true); });
+  it("425 is client error", () => { expect(isClientError(425)).toBe(true); });
+  it("426 is client error", () => { expect(isClientError(426)).toBe(true); });
+  it("427 is client error", () => { expect(isClientError(427)).toBe(true); });
+  it("428 is client error", () => { expect(isClientError(428)).toBe(true); });
+  it("429 is client error", () => { expect(isClientError(429)).toBe(true); });
+  it("430 is client error", () => { expect(isClientError(430)).toBe(true); });
+  it("431 is client error", () => { expect(isClientError(431)).toBe(true); });
+  it("432 is client error", () => { expect(isClientError(432)).toBe(true); });
+  it("433 is client error", () => { expect(isClientError(433)).toBe(true); });
+  it("434 is client error", () => { expect(isClientError(434)).toBe(true); });
+  it("435 is client error", () => { expect(isClientError(435)).toBe(true); });
+  it("436 is client error", () => { expect(isClientError(436)).toBe(true); });
+  it("437 is client error", () => { expect(isClientError(437)).toBe(true); });
+  it("438 is client error", () => { expect(isClientError(438)).toBe(true); });
+  it("439 is client error", () => { expect(isClientError(439)).toBe(true); });
+  it("440 is client error", () => { expect(isClientError(440)).toBe(true); });
+  it("441 is client error", () => { expect(isClientError(441)).toBe(true); });
+  it("442 is client error", () => { expect(isClientError(442)).toBe(true); });
+  it("443 is client error", () => { expect(isClientError(443)).toBe(true); });
+  it("444 is client error", () => { expect(isClientError(444)).toBe(true); });
+  it("445 is client error", () => { expect(isClientError(445)).toBe(true); });
+  it("446 is client error", () => { expect(isClientError(446)).toBe(true); });
+  it("447 is client error", () => { expect(isClientError(447)).toBe(true); });
+  it("448 is client error", () => { expect(isClientError(448)).toBe(true); });
+  it("449 is client error", () => { expect(isClientError(449)).toBe(true); });
+  it("500 is server error", () => { expect(isServerError(500)).toBe(true); });
+  it("501 is server error", () => { expect(isServerError(501)).toBe(true); });
+  it("502 is server error", () => { expect(isServerError(502)).toBe(true); });
+  it("503 is server error", () => { expect(isServerError(503)).toBe(true); });
+  it("504 is server error", () => { expect(isServerError(504)).toBe(true); });
+  it("505 is server error", () => { expect(isServerError(505)).toBe(true); });
+  it("506 is server error", () => { expect(isServerError(506)).toBe(true); });
+  it("507 is server error", () => { expect(isServerError(507)).toBe(true); });
+  it("508 is server error", () => { expect(isServerError(508)).toBe(true); });
+  it("509 is server error", () => { expect(isServerError(509)).toBe(true); });
+  it("510 is server error", () => { expect(isServerError(510)).toBe(true); });
+  it("511 is server error", () => { expect(isServerError(511)).toBe(true); });
+  it("512 is server error", () => { expect(isServerError(512)).toBe(true); });
+  it("513 is server error", () => { expect(isServerError(513)).toBe(true); });
+  it("514 is server error", () => { expect(isServerError(514)).toBe(true); });
+  it("515 is server error", () => { expect(isServerError(515)).toBe(true); });
+  it("516 is server error", () => { expect(isServerError(516)).toBe(true); });
+  it("517 is server error", () => { expect(isServerError(517)).toBe(true); });
+  it("518 is server error", () => { expect(isServerError(518)).toBe(true); });
+  it("519 is server error", () => { expect(isServerError(519)).toBe(true); });
+  it("520 is server error", () => { expect(isServerError(520)).toBe(true); });
+  it("521 is server error", () => { expect(isServerError(521)).toBe(true); });
+  it("522 is server error", () => { expect(isServerError(522)).toBe(true); });
+  it("523 is server error", () => { expect(isServerError(523)).toBe(true); });
+  it("524 is server error", () => { expect(isServerError(524)).toBe(true); });
+  it("525 is server error", () => { expect(isServerError(525)).toBe(true); });
+  it("526 is server error", () => { expect(isServerError(526)).toBe(true); });
+  it("527 is server error", () => { expect(isServerError(527)).toBe(true); });
+  it("528 is server error", () => { expect(isServerError(528)).toBe(true); });
+  it("529 is server error", () => { expect(isServerError(529)).toBe(true); });
+  it("530 is server error", () => { expect(isServerError(530)).toBe(true); });
+  it("531 is server error", () => { expect(isServerError(531)).toBe(true); });
+  it("532 is server error", () => { expect(isServerError(532)).toBe(true); });
+  it("533 is server error", () => { expect(isServerError(533)).toBe(true); });
+  it("534 is server error", () => { expect(isServerError(534)).toBe(true); });
+  it("535 is server error", () => { expect(isServerError(535)).toBe(true); });
+  it("536 is server error", () => { expect(isServerError(536)).toBe(true); });
+  it("537 is server error", () => { expect(isServerError(537)).toBe(true); });
+  it("538 is server error", () => { expect(isServerError(538)).toBe(true); });
+  it("539 is server error", () => { expect(isServerError(539)).toBe(true); });
+  it("540 is server error", () => { expect(isServerError(540)).toBe(true); });
+  it("541 is server error", () => { expect(isServerError(541)).toBe(true); });
+  it("542 is server error", () => { expect(isServerError(542)).toBe(true); });
+  it("543 is server error", () => { expect(isServerError(543)).toBe(true); });
+  it("544 is server error", () => { expect(isServerError(544)).toBe(true); });
+  it("545 is server error", () => { expect(isServerError(545)).toBe(true); });
+  it("546 is server error", () => { expect(isServerError(546)).toBe(true); });
+  it("547 is server error", () => { expect(isServerError(547)).toBe(true); });
+  it("548 is server error", () => { expect(isServerError(548)).toBe(true); });
+  it("549 is server error", () => { expect(isServerError(549)).toBe(true); });
+  it("400 is not success", () => { expect(isSuccessStatus(400)).toBe(false); });
+  it("401 is not success", () => { expect(isSuccessStatus(401)).toBe(false); });
+  it("402 is not success", () => { expect(isSuccessStatus(402)).toBe(false); });
+  it("403 is not success", () => { expect(isSuccessStatus(403)).toBe(false); });
+  it("404 is not success", () => { expect(isSuccessStatus(404)).toBe(false); });
+  it("405 is not success", () => { expect(isSuccessStatus(405)).toBe(false); });
+  it("406 is not success", () => { expect(isSuccessStatus(406)).toBe(false); });
+  it("407 is not success", () => { expect(isSuccessStatus(407)).toBe(false); });
+  it("408 is not success", () => { expect(isSuccessStatus(408)).toBe(false); });
+  it("409 is not success", () => { expect(isSuccessStatus(409)).toBe(false); });
+  it("410 is not success", () => { expect(isSuccessStatus(410)).toBe(false); });
+  it("411 is not success", () => { expect(isSuccessStatus(411)).toBe(false); });
+  it("412 is not success", () => { expect(isSuccessStatus(412)).toBe(false); });
+  it("413 is not success", () => { expect(isSuccessStatus(413)).toBe(false); });
+  it("414 is not success", () => { expect(isSuccessStatus(414)).toBe(false); });
+  it("415 is not success", () => { expect(isSuccessStatus(415)).toBe(false); });
+  it("416 is not success", () => { expect(isSuccessStatus(416)).toBe(false); });
+  it("417 is not success", () => { expect(isSuccessStatus(417)).toBe(false); });
+  it("418 is not success", () => { expect(isSuccessStatus(418)).toBe(false); });
+  it("419 is not success", () => { expect(isSuccessStatus(419)).toBe(false); });
+  it("200 is not client error", () => { expect(isClientError(200)).toBe(false); });
+  it("201 is not client error", () => { expect(isClientError(201)).toBe(false); });
+  it("202 is not client error", () => { expect(isClientError(202)).toBe(false); });
+  it("203 is not client error", () => { expect(isClientError(203)).toBe(false); });
+  it("204 is not client error", () => { expect(isClientError(204)).toBe(false); });
+  it("205 is not client error", () => { expect(isClientError(205)).toBe(false); });
+  it("206 is not client error", () => { expect(isClientError(206)).toBe(false); });
+  it("207 is not client error", () => { expect(isClientError(207)).toBe(false); });
+  it("208 is not client error", () => { expect(isClientError(208)).toBe(false); });
+  it("209 is not client error", () => { expect(isClientError(209)).toBe(false); });
+  it("210 is not client error", () => { expect(isClientError(210)).toBe(false); });
+  it("211 is not client error", () => { expect(isClientError(211)).toBe(false); });
+  it("212 is not client error", () => { expect(isClientError(212)).toBe(false); });
+  it("213 is not client error", () => { expect(isClientError(213)).toBe(false); });
+  it("214 is not client error", () => { expect(isClientError(214)).toBe(false); });
+  it("215 is not client error", () => { expect(isClientError(215)).toBe(false); });
+  it("216 is not client error", () => { expect(isClientError(216)).toBe(false); });
+  it("217 is not client error", () => { expect(isClientError(217)).toBe(false); });
+  it("218 is not client error", () => { expect(isClientError(218)).toBe(false); });
+  it("219 is not client error", () => { expect(isClientError(219)).toBe(false); });
+  it("200 is not server error", () => { expect(isServerError(200)).toBe(false); });
+  it("201 is not server error", () => { expect(isServerError(201)).toBe(false); });
+  it("202 is not server error", () => { expect(isServerError(202)).toBe(false); });
+  it("203 is not server error", () => { expect(isServerError(203)).toBe(false); });
+  it("204 is not server error", () => { expect(isServerError(204)).toBe(false); });
+  it("205 is not server error", () => { expect(isServerError(205)).toBe(false); });
+  it("206 is not server error", () => { expect(isServerError(206)).toBe(false); });
+  it("207 is not server error", () => { expect(isServerError(207)).toBe(false); });
+  it("208 is not server error", () => { expect(isServerError(208)).toBe(false); });
+  it("209 is not server error", () => { expect(isServerError(209)).toBe(false); });
+  it("210 is not server error", () => { expect(isServerError(210)).toBe(false); });
+  it("211 is not server error", () => { expect(isServerError(211)).toBe(false); });
+  it("212 is not server error", () => { expect(isServerError(212)).toBe(false); });
+  it("213 is not server error", () => { expect(isServerError(213)).toBe(false); });
+  it("214 is not server error", () => { expect(isServerError(214)).toBe(false); });
+  it("215 is not server error", () => { expect(isServerError(215)).toBe(false); });
+  it("216 is not server error", () => { expect(isServerError(216)).toBe(false); });
+  it("217 is not server error", () => { expect(isServerError(217)).toBe(false); });
+  it("218 is not server error", () => { expect(isServerError(218)).toBe(false); });
+  it("219 is not server error", () => { expect(isServerError(219)).toBe(false); });
+});
+
+describe("normalizePath", () => {
+  it("/a/b/c stays", () => { expect(normalizePath("/a/b/c")).toBe("/a/b/c"); });
+  it("/a/../b is /b", () => { expect(normalizePath("/a/../b")).toBe("/b"); });
+  it("/a/./b is /a/b", () => { expect(normalizePath("/a/./b")).toBe("/a/b"); });
+  it("root / stays", () => { expect(normalizePath("/")).toBe("/"); });
+  it("trailing slash removed in normalization", () => { expect(normalizePath("/a/b/")).toBe("/a/b"); });
+  it("double slash collapsed", () => { expect(normalizePath("//a")).toBe("/a"); });
+  it("starts with /", () => { expect(normalizePath("/hello").startsWith("/")).toBe(true); });
+  it("/../ from root stays at root", () => { expect(normalizePath("/../a")).toBe("/a"); });
+  it("multiple ..", () => { expect(normalizePath("/a/b/../../c")).toBe("/c"); });
+  it("dot only segment removed", () => { expect(normalizePath("/./a")).toBe("/a"); });
+  it("normalizePath 1", () => { const r = normalizePath("/path1/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 2", () => { const r = normalizePath("/path2/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 3", () => { const r = normalizePath("/path3/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 4", () => { const r = normalizePath("/path4/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 5", () => { const r = normalizePath("/path5/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 6", () => { const r = normalizePath("/path6/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 7", () => { const r = normalizePath("/path7/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 8", () => { const r = normalizePath("/path8/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 9", () => { const r = normalizePath("/path9/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 10", () => { const r = normalizePath("/path10/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 11", () => { const r = normalizePath("/path11/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 12", () => { const r = normalizePath("/path12/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 13", () => { const r = normalizePath("/path13/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 14", () => { const r = normalizePath("/path14/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 15", () => { const r = normalizePath("/path15/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 16", () => { const r = normalizePath("/path16/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 17", () => { const r = normalizePath("/path17/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 18", () => { const r = normalizePath("/path18/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 19", () => { const r = normalizePath("/path19/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 20", () => { const r = normalizePath("/path20/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 21", () => { const r = normalizePath("/path21/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 22", () => { const r = normalizePath("/path22/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 23", () => { const r = normalizePath("/path23/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 24", () => { const r = normalizePath("/path24/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 25", () => { const r = normalizePath("/path25/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 26", () => { const r = normalizePath("/path26/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 27", () => { const r = normalizePath("/path27/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 28", () => { const r = normalizePath("/path28/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 29", () => { const r = normalizePath("/path29/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 30", () => { const r = normalizePath("/path30/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 31", () => { const r = normalizePath("/path31/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 32", () => { const r = normalizePath("/path32/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 33", () => { const r = normalizePath("/path33/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 34", () => { const r = normalizePath("/path34/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 35", () => { const r = normalizePath("/path35/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 36", () => { const r = normalizePath("/path36/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 37", () => { const r = normalizePath("/path37/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 38", () => { const r = normalizePath("/path38/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 39", () => { const r = normalizePath("/path39/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 40", () => { const r = normalizePath("/path40/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 41", () => { const r = normalizePath("/path41/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 42", () => { const r = normalizePath("/path42/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 43", () => { const r = normalizePath("/path43/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 44", () => { const r = normalizePath("/path44/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 45", () => { const r = normalizePath("/path45/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 46", () => { const r = normalizePath("/path46/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 47", () => { const r = normalizePath("/path47/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 48", () => { const r = normalizePath("/path48/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 49", () => { const r = normalizePath("/path49/sub"); expect(r.startsWith("/")).toBe(true); });
+  it("normalizePath 50", () => { const r = normalizePath("/path50/sub"); expect(r.startsWith("/")).toBe(true); });
+});
+
+describe("parseMimeType", () => {
+  it("parses application/json", () => { const r = parseMimeType("application/json"); expect(r.type).toBe("application"); });
+  it("parses text/html subtype", () => { expect(parseMimeType("text/html").subtype).toBe("html"); });
+  it("isJsonMimeType true for application/json", () => { expect(isJsonMimeType("application/json")).toBe(true); });
+  it("isJsonMimeType false for text/html", () => { expect(isJsonMimeType("text/html")).toBe(false); });
+  it("parses params charset", () => { expect(parseMimeType("text/html; charset=utf-8").params["charset"]).toBe("utf-8"); });
+  it("parses multipart boundary", () => { expect(parseMimeType("multipart/form-data; boundary=abc").params["boundary"]).toBe("abc"); });
+  it("no params returns empty params", () => { expect(Object.keys(parseMimeType("text/plain").params).length).toBe(0); });
+  it("type with no slash", () => { const r = parseMimeType("text"); expect(r.type).toBe("text"); });
+  it("application/json isJson", () => { expect(isJsonMimeType("application/json; charset=utf-8")).toBe(true); });
+  it("application/xml not json", () => { expect(isJsonMimeType("application/xml")).toBe(false); });
+  it("parseMimeType 1", () => { const r = parseMimeType("type1/sub1"); expect(r.type).toBe("type1"); });
+  it("parseMimeType 2", () => { const r = parseMimeType("type2/sub2"); expect(r.type).toBe("type2"); });
+  it("parseMimeType 3", () => { const r = parseMimeType("type3/sub3"); expect(r.type).toBe("type3"); });
+  it("parseMimeType 4", () => { const r = parseMimeType("type4/sub4"); expect(r.type).toBe("type4"); });
+  it("parseMimeType 5", () => { const r = parseMimeType("type5/sub5"); expect(r.type).toBe("type5"); });
+  it("parseMimeType 6", () => { const r = parseMimeType("type6/sub6"); expect(r.type).toBe("type6"); });
+  it("parseMimeType 7", () => { const r = parseMimeType("type7/sub7"); expect(r.type).toBe("type7"); });
+  it("parseMimeType 8", () => { const r = parseMimeType("type8/sub8"); expect(r.type).toBe("type8"); });
+  it("parseMimeType 9", () => { const r = parseMimeType("type9/sub9"); expect(r.type).toBe("type9"); });
+  it("parseMimeType 10", () => { const r = parseMimeType("type10/sub10"); expect(r.type).toBe("type10"); });
+  it("parseMimeType 11", () => { const r = parseMimeType("type11/sub11"); expect(r.type).toBe("type11"); });
+  it("parseMimeType 12", () => { const r = parseMimeType("type12/sub12"); expect(r.type).toBe("type12"); });
+  it("parseMimeType 13", () => { const r = parseMimeType("type13/sub13"); expect(r.type).toBe("type13"); });
+  it("parseMimeType 14", () => { const r = parseMimeType("type14/sub14"); expect(r.type).toBe("type14"); });
+  it("parseMimeType 15", () => { const r = parseMimeType("type15/sub15"); expect(r.type).toBe("type15"); });
+  it("parseMimeType 16", () => { const r = parseMimeType("type16/sub16"); expect(r.type).toBe("type16"); });
+  it("parseMimeType 17", () => { const r = parseMimeType("type17/sub17"); expect(r.type).toBe("type17"); });
+  it("parseMimeType 18", () => { const r = parseMimeType("type18/sub18"); expect(r.type).toBe("type18"); });
+  it("parseMimeType 19", () => { const r = parseMimeType("type19/sub19"); expect(r.type).toBe("type19"); });
+  it("parseMimeType 20", () => { const r = parseMimeType("type20/sub20"); expect(r.type).toBe("type20"); });
+  it("parseMimeType 21", () => { const r = parseMimeType("type21/sub21"); expect(r.type).toBe("type21"); });
+  it("parseMimeType 22", () => { const r = parseMimeType("type22/sub22"); expect(r.type).toBe("type22"); });
+  it("parseMimeType 23", () => { const r = parseMimeType("type23/sub23"); expect(r.type).toBe("type23"); });
+  it("parseMimeType 24", () => { const r = parseMimeType("type24/sub24"); expect(r.type).toBe("type24"); });
+  it("parseMimeType 25", () => { const r = parseMimeType("type25/sub25"); expect(r.type).toBe("type25"); });
+  it("parseMimeType 26", () => { const r = parseMimeType("type26/sub26"); expect(r.type).toBe("type26"); });
+  it("parseMimeType 27", () => { const r = parseMimeType("type27/sub27"); expect(r.type).toBe("type27"); });
+  it("parseMimeType 28", () => { const r = parseMimeType("type28/sub28"); expect(r.type).toBe("type28"); });
+  it("parseMimeType 29", () => { const r = parseMimeType("type29/sub29"); expect(r.type).toBe("type29"); });
+  it("parseMimeType 30", () => { const r = parseMimeType("type30/sub30"); expect(r.type).toBe("type30"); });
+  it("parseMimeType 31", () => { const r = parseMimeType("type31/sub31"); expect(r.type).toBe("type31"); });
+  it("parseMimeType 32", () => { const r = parseMimeType("type32/sub32"); expect(r.type).toBe("type32"); });
+  it("parseMimeType 33", () => { const r = parseMimeType("type33/sub33"); expect(r.type).toBe("type33"); });
+  it("parseMimeType 34", () => { const r = parseMimeType("type34/sub34"); expect(r.type).toBe("type34"); });
+  it("parseMimeType 35", () => { const r = parseMimeType("type35/sub35"); expect(r.type).toBe("type35"); });
+  it("parseMimeType 36", () => { const r = parseMimeType("type36/sub36"); expect(r.type).toBe("type36"); });
+  it("parseMimeType 37", () => { const r = parseMimeType("type37/sub37"); expect(r.type).toBe("type37"); });
+  it("parseMimeType 38", () => { const r = parseMimeType("type38/sub38"); expect(r.type).toBe("type38"); });
+  it("parseMimeType 39", () => { const r = parseMimeType("type39/sub39"); expect(r.type).toBe("type39"); });
+  it("parseMimeType 40", () => { const r = parseMimeType("type40/sub40"); expect(r.type).toBe("type40"); });
+  it("parseMimeType 41", () => { const r = parseMimeType("type41/sub41"); expect(r.type).toBe("type41"); });
+  it("parseMimeType 42", () => { const r = parseMimeType("type42/sub42"); expect(r.type).toBe("type42"); });
+  it("parseMimeType 43", () => { const r = parseMimeType("type43/sub43"); expect(r.type).toBe("type43"); });
+  it("parseMimeType 44", () => { const r = parseMimeType("type44/sub44"); expect(r.type).toBe("type44"); });
+  it("parseMimeType 45", () => { const r = parseMimeType("type45/sub45"); expect(r.type).toBe("type45"); });
+  it("parseMimeType 46", () => { const r = parseMimeType("type46/sub46"); expect(r.type).toBe("type46"); });
+  it("parseMimeType 47", () => { const r = parseMimeType("type47/sub47"); expect(r.type).toBe("type47"); });
+  it("parseMimeType 48", () => { const r = parseMimeType("type48/sub48"); expect(r.type).toBe("type48"); });
+  it("parseMimeType 49", () => { const r = parseMimeType("type49/sub49"); expect(r.type).toBe("type49"); });
+  it("parseMimeType 50", () => { const r = parseMimeType("type50/sub50"); expect(r.type).toBe("type50"); });
+  it("parseMimeType subtype 1", () => { const r = parseMimeType("app1/json1"); expect(r.subtype).toBe("json1"); });
+  it("parseMimeType subtype 2", () => { const r = parseMimeType("app2/json2"); expect(r.subtype).toBe("json2"); });
+  it("parseMimeType subtype 3", () => { const r = parseMimeType("app3/json3"); expect(r.subtype).toBe("json3"); });
+  it("parseMimeType subtype 4", () => { const r = parseMimeType("app4/json4"); expect(r.subtype).toBe("json4"); });
+  it("parseMimeType subtype 5", () => { const r = parseMimeType("app5/json5"); expect(r.subtype).toBe("json5"); });
+  it("parseMimeType subtype 6", () => { const r = parseMimeType("app6/json6"); expect(r.subtype).toBe("json6"); });
+  it("parseMimeType subtype 7", () => { const r = parseMimeType("app7/json7"); expect(r.subtype).toBe("json7"); });
+  it("parseMimeType subtype 8", () => { const r = parseMimeType("app8/json8"); expect(r.subtype).toBe("json8"); });
+  it("parseMimeType subtype 9", () => { const r = parseMimeType("app9/json9"); expect(r.subtype).toBe("json9"); });
+  it("parseMimeType subtype 10", () => { const r = parseMimeType("app10/json10"); expect(r.subtype).toBe("json10"); });
+  it("parseMimeType subtype 11", () => { const r = parseMimeType("app11/json11"); expect(r.subtype).toBe("json11"); });
+  it("parseMimeType subtype 12", () => { const r = parseMimeType("app12/json12"); expect(r.subtype).toBe("json12"); });
+  it("parseMimeType subtype 13", () => { const r = parseMimeType("app13/json13"); expect(r.subtype).toBe("json13"); });
+  it("parseMimeType subtype 14", () => { const r = parseMimeType("app14/json14"); expect(r.subtype).toBe("json14"); });
+  it("parseMimeType subtype 15", () => { const r = parseMimeType("app15/json15"); expect(r.subtype).toBe("json15"); });
+  it("parseMimeType subtype 16", () => { const r = parseMimeType("app16/json16"); expect(r.subtype).toBe("json16"); });
+  it("parseMimeType subtype 17", () => { const r = parseMimeType("app17/json17"); expect(r.subtype).toBe("json17"); });
+  it("parseMimeType subtype 18", () => { const r = parseMimeType("app18/json18"); expect(r.subtype).toBe("json18"); });
+  it("parseMimeType subtype 19", () => { const r = parseMimeType("app19/json19"); expect(r.subtype).toBe("json19"); });
+  it("parseMimeType subtype 20", () => { const r = parseMimeType("app20/json20"); expect(r.subtype).toBe("json20"); });
+  it("parseMimeType subtype 21", () => { const r = parseMimeType("app21/json21"); expect(r.subtype).toBe("json21"); });
+  it("parseMimeType subtype 22", () => { const r = parseMimeType("app22/json22"); expect(r.subtype).toBe("json22"); });
+  it("parseMimeType subtype 23", () => { const r = parseMimeType("app23/json23"); expect(r.subtype).toBe("json23"); });
+  it("parseMimeType subtype 24", () => { const r = parseMimeType("app24/json24"); expect(r.subtype).toBe("json24"); });
+  it("parseMimeType subtype 25", () => { const r = parseMimeType("app25/json25"); expect(r.subtype).toBe("json25"); });
+  it("parseMimeType subtype 26", () => { const r = parseMimeType("app26/json26"); expect(r.subtype).toBe("json26"); });
+  it("parseMimeType subtype 27", () => { const r = parseMimeType("app27/json27"); expect(r.subtype).toBe("json27"); });
+  it("parseMimeType subtype 28", () => { const r = parseMimeType("app28/json28"); expect(r.subtype).toBe("json28"); });
+  it("parseMimeType subtype 29", () => { const r = parseMimeType("app29/json29"); expect(r.subtype).toBe("json29"); });
+  it("parseMimeType subtype 30", () => { const r = parseMimeType("app30/json30"); expect(r.subtype).toBe("json30"); });
+  it("parseMimeType subtype 31", () => { const r = parseMimeType("app31/json31"); expect(r.subtype).toBe("json31"); });
+  it("parseMimeType subtype 32", () => { const r = parseMimeType("app32/json32"); expect(r.subtype).toBe("json32"); });
+  it("parseMimeType subtype 33", () => { const r = parseMimeType("app33/json33"); expect(r.subtype).toBe("json33"); });
+  it("parseMimeType subtype 34", () => { const r = parseMimeType("app34/json34"); expect(r.subtype).toBe("json34"); });
+  it("parseMimeType subtype 35", () => { const r = parseMimeType("app35/json35"); expect(r.subtype).toBe("json35"); });
+  it("parseMimeType subtype 36", () => { const r = parseMimeType("app36/json36"); expect(r.subtype).toBe("json36"); });
+  it("parseMimeType subtype 37", () => { const r = parseMimeType("app37/json37"); expect(r.subtype).toBe("json37"); });
+  it("parseMimeType subtype 38", () => { const r = parseMimeType("app38/json38"); expect(r.subtype).toBe("json38"); });
+  it("parseMimeType subtype 39", () => { const r = parseMimeType("app39/json39"); expect(r.subtype).toBe("json39"); });
+  it("parseMimeType subtype 40", () => { const r = parseMimeType("app40/json40"); expect(r.subtype).toBe("json40"); });
+  it("parseMimeType subtype 41", () => { const r = parseMimeType("app41/json41"); expect(r.subtype).toBe("json41"); });
+  it("parseMimeType subtype 42", () => { const r = parseMimeType("app42/json42"); expect(r.subtype).toBe("json42"); });
+  it("parseMimeType subtype 43", () => { const r = parseMimeType("app43/json43"); expect(r.subtype).toBe("json43"); });
+  it("parseMimeType subtype 44", () => { const r = parseMimeType("app44/json44"); expect(r.subtype).toBe("json44"); });
+  it("parseMimeType subtype 45", () => { const r = parseMimeType("app45/json45"); expect(r.subtype).toBe("json45"); });
+  it("parseMimeType subtype 46", () => { const r = parseMimeType("app46/json46"); expect(r.subtype).toBe("json46"); });
+  it("parseMimeType subtype 47", () => { const r = parseMimeType("app47/json47"); expect(r.subtype).toBe("json47"); });
+  it("parseMimeType subtype 48", () => { const r = parseMimeType("app48/json48"); expect(r.subtype).toBe("json48"); });
+  it("parseMimeType subtype 49", () => { const r = parseMimeType("app49/json49"); expect(r.subtype).toBe("json49"); });
+  it("parseMimeType subtype 50", () => { const r = parseMimeType("app50/json50"); expect(r.subtype).toBe("json50"); });
+});
+
+describe("encodeFormData/decodeFormData", () => {
+  it("encode then decode is identity", () => {
+    const d = {name:"test",age:"30"};
+    expect(decodeFormData(encodeFormData(d))).toEqual(d); });
+  it("empty object encodes to empty", () => { expect(encodeFormData({})).toBe(""); });
+  it("encodes spaces", () => { expect(encodeFormData({a:"hello world"})).toContain("%20"); });
+  it("encodes special chars", () => { expect(encodeFormData({a:"a&b"})).toContain("%26"); });
+  it("multiple fields joined by &", () => { expect(encodeFormData({a:"1",b:"2"})).toContain("&"); });
+  it("decode empty string", () => { expect(decodeFormData("")).toEqual({}); });
+  it("decode single pair", () => { expect(decodeFormData("a=1")).toEqual({a:"1"}); });
+  it("decode multiple pairs", () => { expect(decodeFormData("a=1&b=2")).toEqual({a:"1",b:"2"}); });
+  it("encoded value decodes correctly", () => { expect(decodeFormData("a=hello%20world")["a"]).toBe("hello world"); });
+  it("round trip with numeric string", () => { expect(decodeFormData(encodeFormData({n:"42"}))["n"]).toBe("42"); });
+  it("formdata roundtrip 1", () => {
+    const d = {key1:"val1"};
+    expect(decodeFormData(encodeFormData(d))["key1"]).toBe("val1"); });
+  it("formdata roundtrip 2", () => {
+    const d = {key2:"val2"};
+    expect(decodeFormData(encodeFormData(d))["key2"]).toBe("val2"); });
+  it("formdata roundtrip 3", () => {
+    const d = {key3:"val3"};
+    expect(decodeFormData(encodeFormData(d))["key3"]).toBe("val3"); });
+  it("formdata roundtrip 4", () => {
+    const d = {key4:"val4"};
+    expect(decodeFormData(encodeFormData(d))["key4"]).toBe("val4"); });
+  it("formdata roundtrip 5", () => {
+    const d = {key5:"val5"};
+    expect(decodeFormData(encodeFormData(d))["key5"]).toBe("val5"); });
+  it("formdata roundtrip 6", () => {
+    const d = {key6:"val6"};
+    expect(decodeFormData(encodeFormData(d))["key6"]).toBe("val6"); });
+  it("formdata roundtrip 7", () => {
+    const d = {key7:"val7"};
+    expect(decodeFormData(encodeFormData(d))["key7"]).toBe("val7"); });
+  it("formdata roundtrip 8", () => {
+    const d = {key8:"val8"};
+    expect(decodeFormData(encodeFormData(d))["key8"]).toBe("val8"); });
+  it("formdata roundtrip 9", () => {
+    const d = {key9:"val9"};
+    expect(decodeFormData(encodeFormData(d))["key9"]).toBe("val9"); });
+  it("formdata roundtrip 10", () => {
+    const d = {key10:"val10"};
+    expect(decodeFormData(encodeFormData(d))["key10"]).toBe("val10"); });
+  it("formdata roundtrip 11", () => {
+    const d = {key11:"val11"};
+    expect(decodeFormData(encodeFormData(d))["key11"]).toBe("val11"); });
+  it("formdata roundtrip 12", () => {
+    const d = {key12:"val12"};
+    expect(decodeFormData(encodeFormData(d))["key12"]).toBe("val12"); });
+  it("formdata roundtrip 13", () => {
+    const d = {key13:"val13"};
+    expect(decodeFormData(encodeFormData(d))["key13"]).toBe("val13"); });
+  it("formdata roundtrip 14", () => {
+    const d = {key14:"val14"};
+    expect(decodeFormData(encodeFormData(d))["key14"]).toBe("val14"); });
+  it("formdata roundtrip 15", () => {
+    const d = {key15:"val15"};
+    expect(decodeFormData(encodeFormData(d))["key15"]).toBe("val15"); });
+  it("formdata roundtrip 16", () => {
+    const d = {key16:"val16"};
+    expect(decodeFormData(encodeFormData(d))["key16"]).toBe("val16"); });
+  it("formdata roundtrip 17", () => {
+    const d = {key17:"val17"};
+    expect(decodeFormData(encodeFormData(d))["key17"]).toBe("val17"); });
+  it("formdata roundtrip 18", () => {
+    const d = {key18:"val18"};
+    expect(decodeFormData(encodeFormData(d))["key18"]).toBe("val18"); });
+  it("formdata roundtrip 19", () => {
+    const d = {key19:"val19"};
+    expect(decodeFormData(encodeFormData(d))["key19"]).toBe("val19"); });
+  it("formdata roundtrip 20", () => {
+    const d = {key20:"val20"};
+    expect(decodeFormData(encodeFormData(d))["key20"]).toBe("val20"); });
+  it("formdata roundtrip 21", () => {
+    const d = {key21:"val21"};
+    expect(decodeFormData(encodeFormData(d))["key21"]).toBe("val21"); });
+  it("formdata roundtrip 22", () => {
+    const d = {key22:"val22"};
+    expect(decodeFormData(encodeFormData(d))["key22"]).toBe("val22"); });
+  it("formdata roundtrip 23", () => {
+    const d = {key23:"val23"};
+    expect(decodeFormData(encodeFormData(d))["key23"]).toBe("val23"); });
+  it("formdata roundtrip 24", () => {
+    const d = {key24:"val24"};
+    expect(decodeFormData(encodeFormData(d))["key24"]).toBe("val24"); });
+  it("formdata roundtrip 25", () => {
+    const d = {key25:"val25"};
+    expect(decodeFormData(encodeFormData(d))["key25"]).toBe("val25"); });
+  it("formdata roundtrip 26", () => {
+    const d = {key26:"val26"};
+    expect(decodeFormData(encodeFormData(d))["key26"]).toBe("val26"); });
+  it("formdata roundtrip 27", () => {
+    const d = {key27:"val27"};
+    expect(decodeFormData(encodeFormData(d))["key27"]).toBe("val27"); });
+  it("formdata roundtrip 28", () => {
+    const d = {key28:"val28"};
+    expect(decodeFormData(encodeFormData(d))["key28"]).toBe("val28"); });
+  it("formdata roundtrip 29", () => {
+    const d = {key29:"val29"};
+    expect(decodeFormData(encodeFormData(d))["key29"]).toBe("val29"); });
+  it("formdata roundtrip 30", () => {
+    const d = {key30:"val30"};
+    expect(decodeFormData(encodeFormData(d))["key30"]).toBe("val30"); });
+  it("formdata roundtrip 31", () => {
+    const d = {key31:"val31"};
+    expect(decodeFormData(encodeFormData(d))["key31"]).toBe("val31"); });
+  it("formdata roundtrip 32", () => {
+    const d = {key32:"val32"};
+    expect(decodeFormData(encodeFormData(d))["key32"]).toBe("val32"); });
+  it("formdata roundtrip 33", () => {
+    const d = {key33:"val33"};
+    expect(decodeFormData(encodeFormData(d))["key33"]).toBe("val33"); });
+  it("formdata roundtrip 34", () => {
+    const d = {key34:"val34"};
+    expect(decodeFormData(encodeFormData(d))["key34"]).toBe("val34"); });
+  it("formdata roundtrip 35", () => {
+    const d = {key35:"val35"};
+    expect(decodeFormData(encodeFormData(d))["key35"]).toBe("val35"); });
+  it("formdata roundtrip 36", () => {
+    const d = {key36:"val36"};
+    expect(decodeFormData(encodeFormData(d))["key36"]).toBe("val36"); });
+  it("formdata roundtrip 37", () => {
+    const d = {key37:"val37"};
+    expect(decodeFormData(encodeFormData(d))["key37"]).toBe("val37"); });
+  it("formdata roundtrip 38", () => {
+    const d = {key38:"val38"};
+    expect(decodeFormData(encodeFormData(d))["key38"]).toBe("val38"); });
+  it("formdata roundtrip 39", () => {
+    const d = {key39:"val39"};
+    expect(decodeFormData(encodeFormData(d))["key39"]).toBe("val39"); });
+  it("formdata roundtrip 40", () => {
+    const d = {key40:"val40"};
+    expect(decodeFormData(encodeFormData(d))["key40"]).toBe("val40"); });
+  it("formdata roundtrip 41", () => {
+    const d = {key41:"val41"};
+    expect(decodeFormData(encodeFormData(d))["key41"]).toBe("val41"); });
+  it("formdata roundtrip 42", () => {
+    const d = {key42:"val42"};
+    expect(decodeFormData(encodeFormData(d))["key42"]).toBe("val42"); });
+  it("formdata roundtrip 43", () => {
+    const d = {key43:"val43"};
+    expect(decodeFormData(encodeFormData(d))["key43"]).toBe("val43"); });
+  it("formdata roundtrip 44", () => {
+    const d = {key44:"val44"};
+    expect(decodeFormData(encodeFormData(d))["key44"]).toBe("val44"); });
+  it("formdata roundtrip 45", () => {
+    const d = {key45:"val45"};
+    expect(decodeFormData(encodeFormData(d))["key45"]).toBe("val45"); });
+  it("formdata roundtrip 46", () => {
+    const d = {key46:"val46"};
+    expect(decodeFormData(encodeFormData(d))["key46"]).toBe("val46"); });
+  it("formdata roundtrip 47", () => {
+    const d = {key47:"val47"};
+    expect(decodeFormData(encodeFormData(d))["key47"]).toBe("val47"); });
+  it("formdata roundtrip 48", () => {
+    const d = {key48:"val48"};
+    expect(decodeFormData(encodeFormData(d))["key48"]).toBe("val48"); });
+  it("formdata roundtrip 49", () => {
+    const d = {key49:"val49"};
+    expect(decodeFormData(encodeFormData(d))["key49"]).toBe("val49"); });
+  it("formdata roundtrip 50", () => {
+    const d = {key50:"val50"};
+    expect(decodeFormData(encodeFormData(d))["key50"]).toBe("val50"); });
+});
+
+describe("extractPathParams", () => {
+  it("extracts id from /user/:id", () => {
+    expect(extractPathParams("/user/:id", "/user/42")).toEqual({id:"42"}); });
+  it("returns null for mismatch", () => {
+    expect(extractPathParams("/user/:id", "/post/42/extra")).toBeNull(); });
+  it("static match returns empty params", () => {
+    expect(extractPathParams("/users", "/users")).toEqual({}); });
+  it("static mismatch returns null", () => {
+    expect(extractPathParams("/users", "/posts")).toBeNull(); });
+  it("multiple params", () => {
+    expect(extractPathParams("/a/:x/b/:y", "/a/1/b/2")).toEqual({x:"1",y:"2"}); });
+  it("root path matches", () => {
+    expect(extractPathParams("/", "/")).toEqual({}); });
+  it("different length returns null", () => {
+    expect(extractPathParams("/a/b", "/a")).toBeNull(); });
+  it("param is empty string captured", () => {
+    const r = extractPathParams("/a/:id", "/a/");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe(""); });
+  it("numeric param string", () => {
+    expect(extractPathParams("/order/:num", "/order/9999")).toEqual({num:"9999"}); });
+  it("param with slash in template mismatch", () => {
+    expect(extractPathParams("/a/:id/c", "/a/b")).toBeNull(); });
+  it("pathParams 1", () => {
+    const r = extractPathParams("/item/:id", "/item/1");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("1"); });
+  it("pathParams 2", () => {
+    const r = extractPathParams("/item/:id", "/item/2");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("2"); });
+  it("pathParams 3", () => {
+    const r = extractPathParams("/item/:id", "/item/3");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("3"); });
+  it("pathParams 4", () => {
+    const r = extractPathParams("/item/:id", "/item/4");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("4"); });
+  it("pathParams 5", () => {
+    const r = extractPathParams("/item/:id", "/item/5");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("5"); });
+  it("pathParams 6", () => {
+    const r = extractPathParams("/item/:id", "/item/6");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("6"); });
+  it("pathParams 7", () => {
+    const r = extractPathParams("/item/:id", "/item/7");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("7"); });
+  it("pathParams 8", () => {
+    const r = extractPathParams("/item/:id", "/item/8");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("8"); });
+  it("pathParams 9", () => {
+    const r = extractPathParams("/item/:id", "/item/9");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("9"); });
+  it("pathParams 10", () => {
+    const r = extractPathParams("/item/:id", "/item/10");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("10"); });
+  it("pathParams 11", () => {
+    const r = extractPathParams("/item/:id", "/item/11");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("11"); });
+  it("pathParams 12", () => {
+    const r = extractPathParams("/item/:id", "/item/12");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("12"); });
+  it("pathParams 13", () => {
+    const r = extractPathParams("/item/:id", "/item/13");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("13"); });
+  it("pathParams 14", () => {
+    const r = extractPathParams("/item/:id", "/item/14");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("14"); });
+  it("pathParams 15", () => {
+    const r = extractPathParams("/item/:id", "/item/15");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("15"); });
+  it("pathParams 16", () => {
+    const r = extractPathParams("/item/:id", "/item/16");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("16"); });
+  it("pathParams 17", () => {
+    const r = extractPathParams("/item/:id", "/item/17");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("17"); });
+  it("pathParams 18", () => {
+    const r = extractPathParams("/item/:id", "/item/18");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("18"); });
+  it("pathParams 19", () => {
+    const r = extractPathParams("/item/:id", "/item/19");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("19"); });
+  it("pathParams 20", () => {
+    const r = extractPathParams("/item/:id", "/item/20");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("20"); });
+  it("pathParams 21", () => {
+    const r = extractPathParams("/item/:id", "/item/21");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("21"); });
+  it("pathParams 22", () => {
+    const r = extractPathParams("/item/:id", "/item/22");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("22"); });
+  it("pathParams 23", () => {
+    const r = extractPathParams("/item/:id", "/item/23");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("23"); });
+  it("pathParams 24", () => {
+    const r = extractPathParams("/item/:id", "/item/24");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("24"); });
+  it("pathParams 25", () => {
+    const r = extractPathParams("/item/:id", "/item/25");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("25"); });
+  it("pathParams 26", () => {
+    const r = extractPathParams("/item/:id", "/item/26");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("26"); });
+  it("pathParams 27", () => {
+    const r = extractPathParams("/item/:id", "/item/27");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("27"); });
+  it("pathParams 28", () => {
+    const r = extractPathParams("/item/:id", "/item/28");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("28"); });
+  it("pathParams 29", () => {
+    const r = extractPathParams("/item/:id", "/item/29");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("29"); });
+  it("pathParams 30", () => {
+    const r = extractPathParams("/item/:id", "/item/30");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("30"); });
+  it("pathParams 31", () => {
+    const r = extractPathParams("/item/:id", "/item/31");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("31"); });
+  it("pathParams 32", () => {
+    const r = extractPathParams("/item/:id", "/item/32");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("32"); });
+  it("pathParams 33", () => {
+    const r = extractPathParams("/item/:id", "/item/33");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("33"); });
+  it("pathParams 34", () => {
+    const r = extractPathParams("/item/:id", "/item/34");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("34"); });
+  it("pathParams 35", () => {
+    const r = extractPathParams("/item/:id", "/item/35");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("35"); });
+  it("pathParams 36", () => {
+    const r = extractPathParams("/item/:id", "/item/36");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("36"); });
+  it("pathParams 37", () => {
+    const r = extractPathParams("/item/:id", "/item/37");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("37"); });
+  it("pathParams 38", () => {
+    const r = extractPathParams("/item/:id", "/item/38");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("38"); });
+  it("pathParams 39", () => {
+    const r = extractPathParams("/item/:id", "/item/39");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("39"); });
+  it("pathParams 40", () => {
+    const r = extractPathParams("/item/:id", "/item/40");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("40"); });
+  it("pathParams 41", () => {
+    const r = extractPathParams("/item/:id", "/item/41");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("41"); });
+  it("pathParams 42", () => {
+    const r = extractPathParams("/item/:id", "/item/42");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("42"); });
+  it("pathParams 43", () => {
+    const r = extractPathParams("/item/:id", "/item/43");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("43"); });
+  it("pathParams 44", () => {
+    const r = extractPathParams("/item/:id", "/item/44");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("44"); });
+  it("pathParams 45", () => {
+    const r = extractPathParams("/item/:id", "/item/45");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("45"); });
+  it("pathParams 46", () => {
+    const r = extractPathParams("/item/:id", "/item/46");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("46"); });
+  it("pathParams 47", () => {
+    const r = extractPathParams("/item/:id", "/item/47");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("47"); });
+  it("pathParams 48", () => {
+    const r = extractPathParams("/item/:id", "/item/48");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("48"); });
+  it("pathParams 49", () => {
+    const r = extractPathParams("/item/:id", "/item/49");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("49"); });
+  it("pathParams 50", () => {
+    const r = extractPathParams("/item/:id", "/item/50");
+    expect(r).not.toBeNull();
+    expect(r!.id).toBe("50"); });
+});

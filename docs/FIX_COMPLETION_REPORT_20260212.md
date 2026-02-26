@@ -1,5 +1,13 @@
 # IMS System Review — Fix Completion Report
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Date:** 2026-02-12
 **Baseline Commit:** `64afcf3` (Full System Review — architecture, design & security)
 **Fix Commit:** `0e2e5ce` (Resolve all 15 system review findings)

@@ -1,6 +1,6 @@
 # @ims/web-medical
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3011  
 **Standard/Domain**: ISO 13485  
 **Part of**: [Nexara IMS](../../README.md)

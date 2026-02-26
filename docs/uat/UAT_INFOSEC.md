@@ -1,5 +1,13 @@
 # UAT Test Plan: Information Security Module (ISO 27001:2022)
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 **Document ID:** UAT-ISEC-001
 **Version:** 1.0
 **Date:** 2026-02-23

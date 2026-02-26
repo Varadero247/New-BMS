@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 process.env.JWT_SECRET = 'test-secret';
 process.env.MAX_LOGIN_ATTEMPTS = '200';
 process.env.MAX_REGISTER_ATTEMPTS = '200';

@@ -1,6 +1,6 @@
 # @ims/web-supplier-portal
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3019  
 **Standard/Domain**: Supplier Portal  
 **Part of**: [Nexara IMS](../../README.md)

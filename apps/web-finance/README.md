@@ -1,6 +1,6 @@
 # @ims/web-finance
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3013  
 **Standard/Domain**: Finance  
 **Part of**: [Nexara IMS](../../README.md)

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -38,6 +41,10 @@ import referralsRouter from './routes/referrals';
 import commissionRouter from './routes/commission';
 import supportRouter from './routes/support';
 import collateralRouter from './routes/collateral';
+import sandboxesRouter from './routes/sandboxes';
+import dealRegistrationRouter from './routes/deal-registration';
+import commissionTrackerRouter from './routes/commission-tracker';
+import certificationRouter from './routes/certification';
 import { writeRoleGuard } from '@ims/auth';
 import { errorHandler } from '@ims/shared';
 
@@ -79,6 +86,10 @@ app.use('/api/referrals', authenticatePartner, referralsRouter);
 app.use('/api/commission', authenticatePartner, commissionRouter);
 app.use('/api/support', authenticatePartner, supportRouter);
 app.use('/api/collateral', authenticatePartner, collateralRouter);
+app.use('/api/sandboxes', authenticatePartner, sandboxesRouter);
+app.use('/api/deal-registrations', authenticatePartner, dealRegistrationRouter);
+app.use('/api/commission-tracker', authenticatePartner, commissionTrackerRouter);
+app.use('/api/certifications', authenticatePartner, certificationRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

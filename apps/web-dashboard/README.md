@@ -1,6 +1,6 @@
 # @ims/web-dashboard
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3000  
 **Standard/Domain**: Main Dashboard  
 **Part of**: [Nexara IMS](../../README.md)

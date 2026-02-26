@@ -1,0 +1,1 @@
+{"name":"@ims/scapegoat-tree","version":"1.0.0","main":"src/scapegoat-tree.ts","scripts":{"test":"jest"},"devDependencies":{"jest":"*","ts-jest":"*","typescript":"*"}}

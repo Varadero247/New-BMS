@@ -1,0 +1,1 @@
+export function batch<T,U>(fn:(items:T[])=>U,size:number):(items:T[])=>U[] { return (items:T[]):U[]=>{ const r:U[]=[]; for(let i=0;i<items.length;i+=size){ r.push(fn(items.slice(i,i+size))); } return r; }; }

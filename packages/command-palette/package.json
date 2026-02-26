@@ -1,0 +1,28 @@
+{
+  "name": "@ims/command-palette",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "echo 'No build step required — consumed as TypeScript source'"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "react": "^18.3.1",
+    "typescript": "^5.3.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }]
+    },
+    "moduleNameMapper": {
+      "^@ims/ui(.*)$": "<rootDir>/../ui/src$1"
+    }
+  }
+}

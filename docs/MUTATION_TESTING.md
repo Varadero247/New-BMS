@@ -1,5 +1,13 @@
 # Mutation Testing Guide
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 Mutation testing systematically checks how well the test suite catches bugs by
 introducing small code changes ("mutants") and verifying that at least one test
 fails for each change.  A mutant that is NOT killed by any test is called a

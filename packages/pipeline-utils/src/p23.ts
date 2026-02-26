@@ -1,0 +1,1 @@
+export async function retry<T>(fn:()=>Promise<T>|T,maxAttempts:number):Promise<T> { let e:unknown; for(let i=1;i<=maxAttempts;i++){ try{ return await fn(); }catch(err){ e=err; if(i===maxAttempts) break; } } throw e; }

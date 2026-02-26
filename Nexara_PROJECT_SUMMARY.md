@@ -7,7 +7,7 @@
 **Architecture**: Microservices Monorepo  
 **Purpose**: Enterprise-grade ISO compliance management system covering ISO 45001 (Health & Safety), ISO 14001 (Environmental), and ISO 9001 (Quality)  
 **Technology Stack**: Next.js 15, React 18, TypeScript, Express.js, PostgreSQL, Prisma ORM
-**Total Codebase**: 2,000+ TypeScript files across 86 applications (42 APIs + 44 web apps) and 60 shared packages
+**Total Codebase**: 2,000+ TypeScript files across 86 applications (42 APIs + 44 web apps) and 71 shared packages
 **Last Updated**: February 17, 2026
 
 ---

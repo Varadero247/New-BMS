@@ -1,5 +1,13 @@
 # IMS Testing Guide
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 Comprehensive reference for all testing layers in the Nexara IMS monorepo.
 
 ---
@@ -25,7 +33,7 @@ Comprehensive reference for all testing layers in the Nexara IMS monorepo.
 
 | Layer | Count | Tool | Command |
 |---|---|---|---|
-| Unit tests | 708,565 tests / 712 suites | Jest + Supertest | `pnpm test` |
+| Unit tests | 1,009,560 tests / 944 suites | Jest + Supertest | `pnpm test` |
 | Integration tests | 40 scripts | bash/curl | `./scripts/test-all-modules.sh` |
 | Mutation tests | 5 packages | Stryker | `pnpm test:mutation:all` |
 | Load tests | 7 scenarios | k6 | `pnpm run k6:baseline` |
@@ -42,7 +50,7 @@ All unit tests pass with 0 failures. Every `.test.ts` file has a minimum of 1,00
 ### Running tests
 
 ```bash
-# All 712 suites from the repo root
+# All 944 suites from the repo root
 pnpm test
 
 # Single package
@@ -265,7 +273,7 @@ echo "Results: $PASS passed, $FAIL failed"
 ### Service health check
 
 ```bash
-./scripts/check-services.sh    # Health checks all 56 services
+./scripts/check-services.sh    # Health checks all 57 services
 ```
 
 ---
@@ -577,7 +585,7 @@ The CI pipeline runs in GitHub Actions (`.github/workflows/ci.yml` / `docs/ci-cd
 |---|---|---|
 | Lint | every push/PR | `pnpm lint` |
 | Type check | every push/PR | `pnpm typecheck` |
-| Unit tests + coverage | every push/PR | `pnpm test --coverage` — all 712 suites |
+| Unit tests + coverage | every push/PR | `pnpm test --coverage` — all 944 suites |
 | Build | after lint + typecheck + tests pass | `pnpm build` |
 | Security scan | every push/PR | `pnpm audit --audit-level=high` + secret pattern grep |
 | Docker build | push to `main` only | builds and pushes images for all API services |

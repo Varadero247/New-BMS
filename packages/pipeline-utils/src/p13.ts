@@ -1,0 +1,1 @@
+  filter(pred:(val:T)=>boolean|Promise<boolean>):AsyncPipeline<T> { const p=new AsyncPipeline<T>(); p.steps=[...this.steps,async(v:unknown)=>{ const r=await pred(v as T); if(\!r) throw new Error("filtered"); return v; }]; return p; }

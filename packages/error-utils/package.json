@@ -1,0 +1,17 @@
+{
+  "name": "@ims/error-utils",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Error utilities for IMS monorepo",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  }
+}

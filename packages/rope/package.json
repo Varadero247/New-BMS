@@ -1,0 +1,8 @@
+{
+  "name": "@ims/rope",
+  "version": "1.0.0",
+  "description": "Rope data structure for efficient string manipulation",
+  "main": "src/index.ts",
+  "scripts": { "test": "jest" },
+  "devDependencies": { "jest": "^29.0.0", "ts-jest": "^29.0.0", "typescript": "^5.0.0", "@types/jest": "^29.0.0" }
+}

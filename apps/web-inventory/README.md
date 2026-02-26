@@ -1,6 +1,6 @@
 # @ims/web-inventory
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3005  
 **Standard/Domain**: Inventory  
 **Part of**: [Nexara IMS](../../README.md)

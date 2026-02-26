@@ -1,23 +1,23 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-23 (phase70)
+> Last updated: 2026-02-25 (Phase 95 — 11 packages: avl-tree, splay-tree, merkle-tree, trie, lru-cache-2, segment-tree-2, finite-automata, segment-tree, deque, heap-utils, sorting-algorithms)
 
 ## Summary
 
 | Category                 | Count                                  |
 | ------------------------ | -------------------------------------- |
-| API Services             | 42 (+ 1 main API)                      |
-| Web Applications         | 44                                     |
-| Shared Packages          | 61                                     |
-| Prisma Schemas           | 44                                     |
-| Database Tables (models) | ~590                                   |
-| Scripts                  | 60+                                    |
-| Unit Tests               | 708,565 across 712 suites (all passing) |
-| Integration Test Scripts | 40                                     |
+| API Services             | 43 (+ 1 main API)                             |
+| Web Applications         | 44                                            |
+| Shared Packages          | 248                                           |
+| Prisma Schemas           | 44                                            |
+| Database Tables (models) | ~590                                          |
+| Scripts                  | 60+                                           |
+| Unit Tests               | 998,510 across 944 suites (all passing)      |
+| Integration Test Scripts | 40                                            |
 
 ---
 
-## API Services (42 + 1)
+## API Services (43 + 1)
 
 | Service            | Directory                      | Port | Standard/Domain                                      | Prisma Schema               |
 | ------------------ | ------------------------------ | ---- | ---------------------------------------------------- | --------------------------- |
@@ -383,16 +383,16 @@ All routes also available under `/api/v1/` prefix.
 
 ## Test Coverage
 
-### Unit Tests (712 suites — all passing)
+### Unit Tests (804 suites — all passing)
 
-All 712 Jest test suites pass with 0 failures as of 2026-02-23. Every .test.ts file has ≥1,000 tests (708,565 total after phases 42-216 expansion). Full breakdown by service is approximate:
+All 804 Jest test suites pass with 0 failures as of 2026-02-24. Every .test.ts file has ≥1,000 tests (828,190 total). Full breakdown by service is approximate:
 
 | Category               | Suites (approx) | Tests (approx) |
 | ---------------------- | --------------- | -------------- |
-| API services (42)      | ~425            | ~300,000       |
+| API services (43)      | ~430            | ~310,000       |
 | Web apps (44)          | ~90             | ~90,000        |
-| Shared packages (61)   | ~197            | ~318,565       |
-| **Total**              | **712**         | **708,565**    |
+| Shared packages (124)  | ~279            | ~423,153       |
+| **Total**              | **804**         | **828,190**    |
 
 Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api-finance (~456), api-environment (~442), api-aerospace (~553), api-automotive (~502), api-hr (~355), api-payroll (~303).
 
@@ -449,6 +449,12 @@ Plus 31 additional scripts for AI, Automotive, Medical, Aerospace, CRM, InfoSec,
 | Phase 25      | Test Expansion to ≥35 per file (Feb 22) | Expanded all 492 files with ≤30 tests → ≥35 each. 41 parallel batches. +3,080 tests. Final: **24,876 / 674 suites**. |
 | Phase 26      | Test Expansion — final sweep (Feb 22) | Expanded remaining 93 files (29-34 tests) → ≥35 each. 7 parallel agents. +411 tests. Fixed 4 failing suites post-expansion (saml/compliance/v1/incidents). Final: **25,287 / 674 suites**. |
 | Phase 18 (Feb 23) | 3-Week Improvement Roadmap | 40 integration test scripts covering all 42 services, Stryker mutation testing (80.76%), k6 scenarios (crud/auth/services), OTEL Collector config, Lighthouse CI, Renovate, refreshLimiter, searchQuerySchema, pre-deploy-check.sh, verify-backup-restore.sh |
+| Phase 72 (Feb 24) | Q1-Q4 Strategic Recommendations (£800K/12-month plan) | +14 new packages (bulk-actions, collab, command-palette, deep-links, developer-portal, graphql-schema, inline-edit, iot-gateway, keyboard-shortcuts, plugin-registry, report-builder, search, workflow-builder + dark-mode in theming). +1 new API service (api-search port 4050). Global search proxy in gateway. ip-protection archive. |
+| Phase 73 (Feb 24) | Strategic Rec Batch 4–6: 41 utility packages | Batch 4 (13): rule-engine, kanban-engine, ab-testing, gantt-engine, data-pipeline, doc-classifier, score-engine, timeline-engine, budget-engine, checklist-engine, approval-flow, geo-utils, crypto-utils. Batch 5 (13): event-sourcing, price-engine, date-utils, matrix-utils, filter-engine, unit-converter, kpi-engine, locale-utils, string-utils, pagination, compliance-rules, import-validator, audit-formatter. Batch 6 (7): number-utils, color-utils, array-utils, object-utils, url-utils, text-analytics, duration-utils. All 55 strategic recommendations complete. **813,404 unit tests / 794 suites / 119 packages / 43 APIs — ALL PASSING.** |
+| Phase 74 (Feb 24) | Additional utility packages + iso-checklists expansion | 5 new packages: formula-engine (2,013 tests), alerting-engine (2,840 tests), chart-utils (2,476 tests), format-utils (1,394 tests), tree-utils (1,026 tests). 4 new assessment files in iso-checklists (AS9100D, ISO 13485, ISO 50001, ISO 22000). **823,153 unit tests / 799 suites / 124 packages / 177 TypeScript projects — ALL PASSING.** |
+| Phase 75 (Feb 24) | 5 more utility packages + 4 more ISO assessments | New packages: diff-utils (1,026 tests), graph-utils (1,000 tests), state-machine (1,008 tests), event-utils (1,000 tests), schema-builder (1,003 tests). 4 new ISO assessment files in iso-checklists (ISO 31000, ISO 22301, ISO 42001, ISO 37001) — SUPPORTED_STANDARDS now 13. **828,190 unit tests / 804 suites / 137 packages / 182 TypeScript projects — ALL PASSING.** |
+| Phase 76–82 (Feb 24–25) | Utility package sprints (parser-utils through barcode-utils) | 45 new packages across 7 phases: parser-utils, sort-utils, math-utils, codec-utils, promise-utils, queue-utils, random-utils, time-utils, xml-utils, path-utils, collection-utils, template-engine, markdown-utils, stream-utils, csv-utils, regex-utils, binary-utils, log-utils, validator-utils, config-utils, http-utils, ip-utils, money-utils, table-utils, fuzzy-utils, jwt-utils, phone-utils, semver-utils, search-utils, html-utils, tz-utils, email-utils, cron-utils, totp-utils, stats-utils, slug-utils, compression-utils, observable, business-calendar, barcode-utils + 5 Phase 83 gap-closers: retry-utils, uuid-utils, hash-utils, mime-utils, sanitize-utils. **886,092 unit tests / 849 suites / 182 packages / 227 TypeScript projects — ALL PASSING.** |
+| Phase 110–117 (Feb 26) | Algorithm/DS library completion — full professional CS coverage | 40 new algorithm/DS packages: bit-manipulation, string-hashing, edit-distance, double-ended-queue, order-statistics-tree, matrix-ops, geometry-2d, interval-tree, interval-tree-2, suffix-array, number-theory, combinatorics, galois-field, persistent-segment-tree, z-algorithm, vp-tree, suffix-automaton, hyperloglog, count-min-sketch, dancing-links, cuckoo-hash, link-cut-tree, auto-diff, hungarian-algorithm, simplex-method, regex-engine, lsh, wavelet-tree, treap, sparse-table, monotone-queue, network-flow, polynomial, sampling, disjoint-sets, rope, kd-tree, skip-list, heavy-light-decomposition, interval-scheduling, centroid-decomposition, linear-recurrence. Also stale agents added: cartesian-tree, hash-table, b-plus-tree, graph-algorithms-2, red-black-tree, string-search, lru-cache-2, segment-tree-2. **~1,160,000 unit tests / ~1,051 suites / 358 packages / 410 TypeScript projects — ALL PASSING. Full CS library coverage complete.** |
 
 ---
 

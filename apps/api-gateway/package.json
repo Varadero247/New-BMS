@@ -57,7 +57,13 @@
     "@ims/readiness": "workspace:*",
     "@ims/status": "workspace:*",
     "@ims/tasks": "workspace:*",
-    "@ims/webhooks": "workspace:*"
+    "@ims/webhooks": "workspace:*",
+    "@ims/sync-engine": "workspace:*",
+    "@ims/bamboohr-client": "workspace:*",
+    "@ims/sap-client": "workspace:*",
+    "@ims/dynamics-client": "workspace:*",
+    "@ims/workday-client": "workspace:*",
+    "@ims/xero-client": "workspace:*"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

@@ -1,0 +1,1 @@
+for(let i=1;i<=100;i++){ lines.push("  it(\"batch test \"+i+\"\", () => { const b=batch((xs)=>xs.length,\"\"+i); const input=Array.from({length:i*2},(_, k)=>k); const chunks=b(input); expect(chunks.length).toBe(2); });"); }

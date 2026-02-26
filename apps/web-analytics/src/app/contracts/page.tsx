@@ -31,7 +31,7 @@ interface ContractForm {
 const EMPTY_FORM: ContractForm = { name: '', vendor: '', category: 'SOFTWARE', startDate: '', endDate: '', annualCost: '', status: 'ACTIVE', notes: '' };
 
 const MOCK_CONTRACTS: Contract[] = [
-  { id: '1', name: 'Nexara IMS Platform', vendor: 'Nexara Ltd', category: 'SOFTWARE', startDate: '2026-01-01', endDate: '2026-12-31', annualCost: 48000, status: 'ACTIVE' },
+  { id: '1', name: 'Nexara IMS Platform', vendor: 'Nexara DMCC', category: 'SOFTWARE', startDate: '2026-01-01', endDate: '2026-12-31', annualCost: 48000, status: 'ACTIVE' },
   { id: '2', name: 'AWS Cloud Infrastructure', vendor: 'Amazon Web Services', category: 'CLOUD', startDate: '2025-06-01', endDate: '2026-05-31', annualCost: 36000, status: 'EXPIRING_SOON', notes: 'Renewal negotiation in progress' },
   { id: '3', name: 'Cleaning & Facilities Management', vendor: 'CleanPro Ltd', category: 'FACILITIES', startDate: '2024-04-01', endDate: '2027-03-31', annualCost: 24000, status: 'ACTIVE' },
   { id: '4', name: 'Legal Advisory Retainer', vendor: 'Morrison & Partners LLP', category: 'PROFESSIONAL', startDate: '2026-01-01', endDate: '2026-12-31', annualCost: 60000, status: 'ACTIVE' },

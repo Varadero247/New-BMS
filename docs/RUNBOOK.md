@@ -1,7 +1,15 @@
 # IMS Platform — Operational Runbook
 
-**Last updated:** 2026-02-23
-**Scope:** 42 API services (ports 4000–4041), 44 web apps (ports 3000–3045)
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
+**Last updated:** 2026-02-25
+**Scope:** 43 API services (ports 4000–4050), 44 web apps (ports 3000–3045)
 **On-call channel:** #ims-alerts-critical (Slack)
 
 ---
@@ -363,7 +371,7 @@ Use only when confirmed abuse or a runaway job has filled the rate-limit counter
 ./scripts/check-services.sh
 ```
 
-Runs health checks against all 56 services (42 API + 14 shared infrastructure). Exit code 0 = all healthy.
+Runs health checks against all 57 services (43 API + 14 shared infrastructure). Exit code 0 = all healthy.
 
 ### 2.7 Full system restart
 

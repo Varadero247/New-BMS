@@ -1,6 +1,6 @@
 # @ims/web-food-safety
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3020  
 **Standard/Domain**: ISO 22000  
 **Part of**: [Nexara IMS](../../README.md)

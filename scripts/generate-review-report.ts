@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 /**
  * Full System Review v3 — Word Document Report Generator
  * Generates a comprehensive 10-page report covering all review phases
@@ -119,9 +122,9 @@ const doc = new Document({
         ),
         para(''),
         para('Key Metrics:', { bold: true }),
-        bullet('42 API services, 44 web applications, 60 shared packages'),
-        bullet('44+ Prisma schemas with 600+ database models'),
-        bullet('12,326 unit tests across 578 suites — ALL PASSING'),
+        bullet('42 API services, 44 web applications, 71 shared packages'),
+        bullet('44+ Prisma schemas with ~590 database models'),
+        bullet('738,865 unit tests across 733 suites — ALL PASSING'),
         bullet('15 health check endpoints verified — ALL returning 200'),
         bullet('0 hardcoded secrets found in codebase'),
         bullet('0 Modal prop violations (458 correct usages)'),

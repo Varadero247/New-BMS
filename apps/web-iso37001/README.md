@@ -1,6 +1,6 @@
 # @ims/web-iso37001
 
-**Type**: Web App (Next.js 14)  
+**Type**: Web App (Next.js 15)  
 **Port**: 3025  
 **Standard/Domain**: ISO 37001  
 **Part of**: [Nexara IMS](../../README.md)

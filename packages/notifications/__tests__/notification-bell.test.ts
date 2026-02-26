@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 /**
  * Tests for NotificationBellState — in-memory notification store.
  * Covers: addNotification (FIFO eviction), getUnread, getAll (pagination),

@@ -1,0 +1,1 @@
+for(let i=1;i<=100;i++){ lines.push("  it(\"Pipeline tap test \"+i+\"\", () => { let seen=undefined; const p=new Pipeline<number>(); const result=p.tap((x)=>{ seen=x; }).run(\"\"+i); expect(result).toBe(\"\"+i); expect(seen).toBe(\"\"+i); });"); }

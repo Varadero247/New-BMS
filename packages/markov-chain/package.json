@@ -1,0 +1,13 @@
+{
+  "name": "@ims/markov-chain",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "*",
+    "ts-jest": "*",
+    "typescript": "*"
+  }
+}

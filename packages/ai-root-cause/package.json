@@ -1,0 +1,14 @@
+{
+  "name": "@ims/ai-root-cause",
+  "version": "1.0.0",
+  "description": "AI-powered root cause analysis engine for incidents and non-conformances",
+  "main": "src/index.ts",
+  "scripts": { "test": "jest" },
+  "jest": {
+    "displayName": "ai-root-cause",
+    "testEnvironment": "node",
+    "testMatch": ["<rootDir>/__tests__/**/*.test.ts"],
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}

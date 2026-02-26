@@ -1,0 +1,12 @@
+{
+  "name": "@ims/lru-cache-2",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": { "test": "jest --no-coverage" },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.0.0",
+    "@types/jest": "^29.0.0"
+  }
+}

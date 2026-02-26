@@ -1,0 +1,39 @@
+{
+  "id": "construction-iso45001",
+  "name": "Construction & Civil Engineering — ISO 45001:2018 + CDM",
+  "version": "1.0.0",
+  "standards": ["ISO 45001:2018", "ISO 14001:2015", "UK CDM 2015"],
+  "estimatedSetupMinutes": 40,
+  "description": "Pre-configured health, safety and environment pack for construction and civil engineering companies. Includes CDM duty-holder workflows, site induction templates, risk assessments, and RIDDOR reporting.",
+  "targetCustomer": "Construction contractors, civil engineering firms, principal contractors",
+  "includes": {
+    "riskCategories": 20,
+    "documentTypes": 28,
+    "workflowTemplates": 12,
+    "auditChecklists": 6,
+    "kpis": 18
+  },
+  "prerequisites": ["Health & Safety module enabled"],
+  "customisationOptions": [
+    {
+      "key": "cdmRole",
+      "label": "CDM Duty Holder Role",
+      "type": "select",
+      "required": false,
+      "options": ["Principal Contractor", "Principal Designer", "Contractor", "Client", "Designer"]
+    },
+    {
+      "key": "riskMatrixSize",
+      "label": "Risk Matrix Size",
+      "type": "select",
+      "required": false,
+      "options": ["3x3", "4x4", "5x5"]
+    },
+    {
+      "key": "enablePermitToWork",
+      "label": "Enable Permit to Work system",
+      "type": "boolean",
+      "required": false
+    }
+  ]
+}

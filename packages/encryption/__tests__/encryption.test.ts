@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import { encrypt, decrypt, encryptIfPresent, decryptIfEncrypted, isEncryptionConfigured } from '../src/index';
 
 const TEST_KEY = 'a'.repeat(64); // 32 bytes of 0xAA

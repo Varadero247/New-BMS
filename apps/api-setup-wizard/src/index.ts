@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -25,6 +28,9 @@ import { prisma } from './prisma';
 const logger = createLogger('api-setup-wizard');
 
 import wizardRouter from './routes/wizard';
+import instantStartRouter from './routes/instant-start';
+import assessmentsRouter from './routes/assessments';
+import onboardingProjectRouter from './routes/onboarding-project';
 import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
@@ -59,6 +65,9 @@ app.get('/metrics', metricsHandler);
 // Gateway rewrites /api/wizard/* → /api/*, so mount at /api
 app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api', authenticate, wizardRouter);
+app.use('/api/instant-start', authenticate, instantStartRouter);
+app.use('/api/assessments', authenticate, assessmentsRouter);
+app.use('/api/onboarding-project', authenticate, onboardingProjectRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

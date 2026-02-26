@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 /** @type {import('jest').Config} */
 module.exports = {
   displayName: 'api-analytics',
@@ -16,5 +19,6 @@ module.exports = {
   collectCoverageFrom: ['src/**/*.ts', '!src/index.ts'],
   moduleNameMapper: {
     '^@ims/(.*)$': '<rootDir>/../../packages/$1/src',
+    '^@anthropic-ai/sdk$': '<rootDir>/../../packages/nlq/__mocks__/@anthropic-ai/sdk.js',
   },
 };

@@ -1,5 +1,13 @@
 # Architecture — Nexara IMS
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 ## System Overview
 
 ```
@@ -49,10 +57,10 @@
 ```
 New-BMS/
 ├── apps/           # Deployable applications
-│   ├── api-*       # 27 Express.js API services
-│   ├── web-*       # 30 Next.js 14 web applications
+│   ├── api-*       # 42 Express.js API services
+│   ├── web-*       # 44 Next.js 15 web applications
 │   └── mobile/     # React Native (excluded from dev)
-├── packages/       # 60 shared libraries
+├── packages/       # 119 shared libraries
 │   ├── database/   # Prisma schemas + generated clients
 │   ├── auth/       # JWT verification middleware
 │   ├── rbac/       # Role-based access control

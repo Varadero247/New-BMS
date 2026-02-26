@@ -1,0 +1,8 @@
+{
+  "name": "@ims/regex-engine",
+  "version": "1.0.0",
+  "description": "Simple regex engine with NFA/DFA construction",
+  "main": "src/index.ts",
+  "scripts": { "test": "jest" },
+  "devDependencies": { "jest": "^29.0.0", "ts-jest": "^29.0.0", "typescript": "^5.0.0", "@types/jest": "^29.0.0" }
+}

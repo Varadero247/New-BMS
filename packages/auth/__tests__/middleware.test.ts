@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 import { authenticate, requireRole, optionalAuth } from '../src/middleware';
 import { generateToken } from '../src/jwt';
 import type { AuthRequest } from '../src/types';

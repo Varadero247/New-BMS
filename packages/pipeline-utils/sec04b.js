@@ -1,0 +1,1 @@
+for(let i=1;i<=100;i++){ out.push("  it(\"Pipeline.map " + String(i) + ": transforms input\", () => { const p = new Pipeline(); expect(p.map((x: unknown) => String(x) + \"_" + String(i) + "\").run(\"v\")).toBe(\"v_" + String(i) + "\"); });"); }

@@ -1,0 +1,39 @@
+{
+  "id": "medtech-iso13485",
+  "name": "Medical Devices — ISO 13485:2016 + MDR 2017/745",
+  "version": "1.0.0",
+  "standards": ["ISO 13485:2016", "EU MDR 2017/745", "FDA 21 CFR Part 820"],
+  "estimatedSetupMinutes": 50,
+  "description": "Pre-configured quality management pack for medical device manufacturers targeting ISO 13485:2016 certification and EU MDR compliance. Includes design controls, UDI management, complaint handling, and post-market surveillance workflows.",
+  "targetCustomer": "Medical device manufacturers, IVD manufacturers, notified body applicants",
+  "includes": {
+    "riskCategories": 22,
+    "documentTypes": 36,
+    "workflowTemplates": 16,
+    "auditChecklists": 8,
+    "kpis": 20
+  },
+  "prerequisites": ["Quality module enabled", "Document Control module enabled"],
+  "customisationOptions": [
+    {
+      "key": "deviceClass",
+      "label": "Device Risk Classification",
+      "type": "select",
+      "required": false,
+      "options": ["Class I", "Class IIa", "Class IIb", "Class III", "IVD Class A", "IVD Class B", "IVD Class C", "IVD Class D"]
+    },
+    {
+      "key": "enableUdi",
+      "label": "Enable UDI / EUDAMED tracking",
+      "type": "boolean",
+      "required": false
+    },
+    {
+      "key": "regulatoryTerritory",
+      "label": "Primary Regulatory Territory",
+      "type": "select",
+      "required": false,
+      "options": ["EU (MDR)", "UK (UKCA)", "USA (FDA)", "Canada (Health Canada)", "Australia (TGA)", "Japan (PMDA)"]
+    }
+  ]
+}

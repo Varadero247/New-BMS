@@ -1,5 +1,13 @@
 # ISO 27001 Information Security Controls
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 This document maps ISO/IEC 27001:2022 Annex A controls to the IMS (Integrated Management System) implementation. It covers access control, cryptography, operations security, incident management, and compliance.
 
 ---

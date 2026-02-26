@@ -1,5 +1,13 @@
 # IMS Security Documentation
 
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
+
 This document describes the security measures implemented in the Integrated Management System (IMS).
 
 ## Table of Contents
@@ -817,11 +825,11 @@ Database indexes on `deletedAt` have been added across all 41 schemas (342 index
 
 ## Container Scanning in CI
 
-Container image scanning has been expanded to cover all 42 API services in the CI/CD pipeline (previously 25). The GitHub Actions security workflow (`security.yml`) runs vulnerability scans on every Docker image built during the CI matrix.
+Container image scanning has been expanded to cover all 43 API services in the CI/CD pipeline (previously 25). The GitHub Actions security workflow (`security.yml`) runs vulnerability scans on every Docker image built during the CI matrix.
 
 ### Scope
 
-- All 42 API service Docker images are scanned
+- All 43 API service Docker images are scanned
 - Scans detect known CVEs in OS packages, application dependencies, and base images
 - Critical and high-severity vulnerabilities block the pipeline
 

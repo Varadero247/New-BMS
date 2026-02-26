@@ -1,0 +1,14 @@
+{
+  "name": "@ims/onboarding-flow",
+  "version": "1.0.0",
+  "description": "Guided onboarding tours, checklists, and progress tracking",
+  "main": "src/index.ts",
+  "scripts": { "test": "jest" },
+  "jest": {
+    "displayName": "onboarding-flow",
+    "testEnvironment": "node",
+    "testMatch": ["<rootDir>/__tests__/**/*.test.ts"],
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}

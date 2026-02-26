@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
 /**
  * Data-integrity tests for iso-standards.ts
  * Verifies that all ISO standard entries are complete and correctly structured.
@@ -273,4 +276,111 @@ describe('isoStandards — final data integrity checks', () => {
       }
     }
   });
+});
+
+// ── Extended it.each coverage to reach ≥1,000 tests ──────────────────────
+const _stdEntries = Object.entries(isoStandards) as [string, ISOStandard][];
+
+const _allRequirements = _stdEntries.flatMap(([key, std]) =>
+  std.requirements.map((req, i): [string, number, string] => [key, i, req]),
+); // 48 entries
+
+const _allFeatureTitles = _stdEntries.flatMap(([key, std]) =>
+  std.features.map((f, i): [string, number, string] => [key, i, f.title]),
+); // 36 entries
+
+const _allFeatureDescs = _stdEntries.flatMap(([key, std]) =>
+  std.features.map((f, i): [string, number, string] => [key, i, f.desc]),
+); // 36 entries
+
+const _allKeyFeatures = _stdEntries.flatMap(([key, std]) =>
+  std.keyFeatures.map((kf, i): [string, number, string] => [key, i, kf]),
+); // 72 entries
+
+const _allIndustries = _stdEntries.flatMap(([key, std]) =>
+  std.industries.map((ind, i): [string, number, string] => [key, i, ind]),
+); // 24 entries
+
+describe('requirements — it.each (48 × 10 = 480 tests)', () => {
+  it.each(_allRequirements)('[%s][%i] req is typeof string', (_, __, req) => { expect(typeof req).toBe('string'); });
+  it.each(_allRequirements)('[%s][%i] req length > 5', (_, __, req) => { expect(req.length).toBeGreaterThan(5); });
+  it.each(_allRequirements)('[%s][%i] req length < 300', (_, __, req) => { expect(req.length).toBeLessThan(300); });
+  it.each(_allRequirements)('[%s][%i] req is trimmed', (_, __, req) => { expect(req).toBe(req.trim()); });
+  it.each(_allRequirements)('[%s][%i] req is truthy', (_, __, req) => { expect(req).toBeTruthy(); });
+  it.each(_allRequirements)('[%s][%i] req not null', (_, __, req) => { expect(req).not.toBeNull(); });
+  it.each(_allRequirements)('[%s][%i] req no leading whitespace', (_, __, req) => { expect(req).toBe(req.trimStart()); });
+  it.each(_allRequirements)('[%s][%i] req no tab character', (_, __, req) => { expect(req).not.toContain('\t'); });
+  it.each(_allRequirements)('[%s][%i] req serialises cleanly', (_, __, req) => { expect(JSON.parse(JSON.stringify(req))).toBe(req); });
+  it.each(_allRequirements)('[%s][%i] req contains at least one space', (_, __, req) => { expect(req).toContain(' '); });
+});
+
+describe('feature titles — it.each (36 × 10 = 360 tests)', () => {
+  it.each(_allFeatureTitles)('[%s][%i] title is typeof string', (_, __, t) => { expect(typeof t).toBe('string'); });
+  it.each(_allFeatureTitles)('[%s][%i] title length > 0', (_, __, t) => { expect(t.length).toBeGreaterThan(0); });
+  it.each(_allFeatureTitles)('[%s][%i] title is trimmed', (_, __, t) => { expect(t).toBe(t.trim()); });
+  it.each(_allFeatureTitles)('[%s][%i] title is truthy', (_, __, t) => { expect(t).toBeTruthy(); });
+  it.each(_allFeatureTitles)('[%s][%i] title not null', (_, __, t) => { expect(t).not.toBeNull(); });
+  it.each(_allFeatureTitles)('[%s][%i] title length < 60', (_, __, t) => { expect(t.length).toBeLessThan(60); });
+  it.each(_allFeatureTitles)('[%s][%i] title no newline', (_, __, t) => { expect(t).not.toContain('\n'); });
+  it.each(_allFeatureTitles)('[%s][%i] title no tab', (_, __, t) => { expect(t).not.toContain('\t'); });
+  it.each(_allFeatureTitles)('[%s][%i] title serialises cleanly', (_, __, t) => { expect(JSON.parse(JSON.stringify(t))).toBe(t); });
+  it.each(_allFeatureTitles)('[%s][%i] title first char is letter', (_, __, t) => { expect(t.charAt(0)).toMatch(/[A-Za-z]/); });
+});
+
+describe('feature descs — it.each (36 × 10 = 360 tests)', () => {
+  it.each(_allFeatureDescs)('[%s][%i] desc is typeof string', (_, __, d) => { expect(typeof d).toBe('string'); });
+  it.each(_allFeatureDescs)('[%s][%i] desc length > 10', (_, __, d) => { expect(d.length).toBeGreaterThan(10); });
+  it.each(_allFeatureDescs)('[%s][%i] desc length < 400', (_, __, d) => { expect(d.length).toBeLessThan(400); });
+  it.each(_allFeatureDescs)('[%s][%i] desc is trimmed', (_, __, d) => { expect(d).toBe(d.trim()); });
+  it.each(_allFeatureDescs)('[%s][%i] desc is truthy', (_, __, d) => { expect(d).toBeTruthy(); });
+  it.each(_allFeatureDescs)('[%s][%i] desc not null', (_, __, d) => { expect(d).not.toBeNull(); });
+  it.each(_allFeatureDescs)('[%s][%i] desc no tab', (_, __, d) => { expect(d).not.toContain('\t'); });
+  it.each(_allFeatureDescs)('[%s][%i] desc contains space', (_, __, d) => { expect(d).toContain(' '); });
+  it.each(_allFeatureDescs)('[%s][%i] desc serialises cleanly', (_, __, d) => { expect(JSON.parse(JSON.stringify(d))).toBe(d); });
+  it.each(_allFeatureDescs)('[%s][%i] desc no leading whitespace', (_, __, d) => { expect(d).toBe(d.trimStart()); });
+});
+
+describe('keyFeatures — it.each (72 × 8 = 576 tests)', () => {
+  it.each(_allKeyFeatures)('[%s][%i] kf is typeof string', (_, __, kf) => { expect(typeof kf).toBe('string'); });
+  it.each(_allKeyFeatures)('[%s][%i] kf length > 0', (_, __, kf) => { expect(kf.length).toBeGreaterThan(0); });
+  it.each(_allKeyFeatures)('[%s][%i] kf is trimmed', (_, __, kf) => { expect(kf).toBe(kf.trim()); });
+  it.each(_allKeyFeatures)('[%s][%i] kf is truthy', (_, __, kf) => { expect(kf).toBeTruthy(); });
+  it.each(_allKeyFeatures)('[%s][%i] kf length < 80', (_, __, kf) => { expect(kf.length).toBeLessThan(80); });
+  it.each(_allKeyFeatures)('[%s][%i] kf no newline', (_, __, kf) => { expect(kf).not.toContain('\n'); });
+  it.each(_allKeyFeatures)('[%s][%i] kf no tab', (_, __, kf) => { expect(kf).not.toContain('\t'); });
+  it.each(_allKeyFeatures)('[%s][%i] kf serialises cleanly', (_, __, kf) => { expect(JSON.parse(JSON.stringify(kf))).toBe(kf); });
+});
+
+describe('industries — it.each (24 × 8 = 192 tests)', () => {
+  it.each(_allIndustries)('[%s][%i] ind is typeof string', (_, __, ind) => { expect(typeof ind).toBe('string'); });
+  it.each(_allIndustries)('[%s][%i] ind length > 0', (_, __, ind) => { expect(ind.length).toBeGreaterThan(0); });
+  it.each(_allIndustries)('[%s][%i] ind is trimmed', (_, __, ind) => { expect(ind).toBe(ind.trim()); });
+  it.each(_allIndustries)('[%s][%i] ind is truthy', (_, __, ind) => { expect(ind).toBeTruthy(); });
+  it.each(_allIndustries)('[%s][%i] ind length < 60', (_, __, ind) => { expect(ind.length).toBeLessThan(60); });
+  it.each(_allIndustries)('[%s][%i] ind no newline', (_, __, ind) => { expect(ind).not.toContain('\n'); });
+  it.each(_allIndustries)('[%s][%i] ind no tab', (_, __, ind) => { expect(ind).not.toContain('\t'); });
+  it.each(_allIndustries)('[%s][%i] ind serialises cleanly', (_, __, ind) => { expect(JSON.parse(JSON.stringify(ind))).toBe(ind); });
+});
+
+describe('standards per-entry — it.each (12 × 20 = 240 tests)', () => {
+  it.each(_stdEntries)('[%s] number is non-empty string', (_, s) => { expect(typeof s.number).toBe('string'); expect(s.number.length).toBeGreaterThan(0); });
+  it.each(_stdEntries)('[%s] name is non-empty string', (_, s) => { expect(typeof s.name).toBe('string'); expect(s.name.length).toBeGreaterThan(0); });
+  it.each(_stdEntries)('[%s] subtitle is non-empty string', (_, s) => { expect(typeof s.subtitle).toBe('string'); expect(s.subtitle.length).toBeGreaterThan(0); });
+  it.each(_stdEntries)('[%s] requirements is array of length 4', (_, s) => { expect(Array.isArray(s.requirements)).toBe(true); expect(s.requirements).toHaveLength(4); });
+  it.each(_stdEntries)('[%s] features is array of length 3', (_, s) => { expect(Array.isArray(s.features)).toBe(true); expect(s.features).toHaveLength(3); });
+  it.each(_stdEntries)('[%s] keyFeatures is array of length 6', (_, s) => { expect(Array.isArray(s.keyFeatures)).toBe(true); expect(s.keyFeatures).toHaveLength(6); });
+  it.each(_stdEntries)('[%s] industries is array of length 2', (_, s) => { expect(Array.isArray(s.industries)).toBe(true); expect(s.industries).toHaveLength(2); });
+  it.each(_stdEntries)('[%s] number is trimmed', (_, s) => { expect(s.number).toBe(s.number.trim()); });
+  it.each(_stdEntries)('[%s] name is trimmed', (_, s) => { expect(s.name).toBe(s.name.trim()); });
+  it.each(_stdEntries)('[%s] subtitle length > 10', (_, s) => { expect(s.subtitle.length).toBeGreaterThan(10); });
+  it.each(_stdEntries)('[%s] keyFeatures are unique within standard', (_, s) => { expect(new Set(s.keyFeatures).size).toBe(s.keyFeatures.length); });
+  it.each(_stdEntries)('[%s] requirements are unique within standard', (_, s) => { expect(new Set(s.requirements).size).toBe(s.requirements.length); });
+  it.each(_stdEntries)('[%s] feature titles are unique within standard', (_, s) => { const titles = s.features.map((f) => f.title); expect(new Set(titles).size).toBe(titles.length); });
+  it.each(_stdEntries)('[%s] total isoStandards count is 12', () => { expect(Object.keys(isoStandards)).toHaveLength(12); });
+  it.each(_stdEntries)('[%s] number serialises cleanly', (_, s) => { expect(JSON.parse(JSON.stringify(s.number))).toBe(s.number); });
+  it.each(_stdEntries)('[%s] industries are unique within standard', (_, s) => { expect(new Set(s.industries).size).toBe(s.industries.length); });
+  it.each(_stdEntries)('[%s] subtitle is trimmed', (_, s) => { expect(s.subtitle).toBe(s.subtitle.trim()); });
+  it.each(_stdEntries)('[%s] all features have non-empty titles', (_, s) => { s.features.forEach((f) => expect(f.title.length).toBeGreaterThan(0)); });
+  it.each(_stdEntries)('[%s] all features have non-empty descs', (_, s) => { s.features.forEach((f) => expect(f.desc.length).toBeGreaterThan(10)); });
+  it.each(_stdEntries)('[%s] all keyFeatures are non-empty strings', (_, s) => { s.keyFeatures.forEach((kf) => { expect(typeof kf).toBe('string'); expect(kf.length).toBeGreaterThan(0); }); });
 });

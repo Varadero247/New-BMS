@@ -1,393 +1,245 @@
 // Copyright (c) 2026 Nexara DMCC. All rights reserved.
-// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
-// Unauthorised copying, modification, or distribution is strictly prohibited.
+// Proprietary and confidential. Unauthorised copying prohibited.
+// See LICENCE file for details.
 
-const BITS_PER_WORD = 32;
-
-function wordCount(size: number): number {
-  return Math.ceil(size / BITS_PER_WORD);
-}
-
-// Mask for bits in the last word (covers only valid bit positions)
-function lastWordMask(size: number): number {
-  const rem = size % BITS_PER_WORD;
-  return rem === 0 ? 0xffffffff : (1 << rem) - 1;
-}
-
-export class BitSet {
+export class VanEmdeBoasSet {
+  private readonly _u: number;
+  private _bits: Uint32Array;
   private _size: number;
-  private _words: Uint32Array;
 
-  constructor(size: number) {
-    if (size < 0) throw new RangeError('size must be >= 0');
-    this._size = size;
-    this._words = new Uint32Array(wordCount(size));
+  constructor(universeSize: number) {
+    if (universeSize < 1 || universeSize > 65536)
+      throw new RangeError("universeSize must be 1..65536, got " + universeSize);
+    if ((universeSize & (universeSize - 1)) !== 0)
+      throw new RangeError("universeSize must be power of 2, got " + universeSize);
+    this._u = universeSize;
+    this._bits = new Uint32Array(Math.ceil(universeSize / 32));
+    this._size = 0;
   }
 
-  get size(): number {
-    return this._size;
+  get universeSize(): number { return this._u; }
+  get size(): number { return this._size; }
+
+  private _check(x: number): void {
+    if (!Number.isInteger(x) || x < 0 || x >= this._u)
+      throw new RangeError("Value " + x + " out of range [0, " + this._u + ")");
   }
 
-  get byteLength(): number {
-    return this._words.byteLength;
+  insert(x: number): void {
+    this._check(x);
+    const word = x >>> 5, bit = x & 31, mask = 1 << bit;
+    if ((this._bits[word] & mask) === 0) { this._bits[word] |= mask; this._size++; }
   }
 
-  private _checkIndex(index: number): void {
-    if (index < 0 || index >= this._size) {
-      throw new RangeError(`index ${index} out of range [0, ${this._size})`);
+  delete(x: number): void {
+    this._check(x);
+    const word = x >>> 5, bit = x & 31, mask = 1 << bit;
+    if ((this._bits[word] & mask) !== 0) { this._bits[word] &= ~mask; this._size--; }
+  }
+
+  has(x: number): boolean {
+    if (!Number.isInteger(x) || x < 0 || x >= this._u) return false;
+    const w = x >>> 5, b = x & 31;
+    return (this._bits[w] >>> b & 1) === 1;
+  }
+
+  min(): number | null {
+    for (let w = 0; w < this._bits.length; w++) {
+      const v = this._bits[w];
+      if (v !== 0) return w * 32 + _ctz32(v);
     }
+    return null;
   }
 
-  set(index: number): void {
-    this._checkIndex(index);
-    this._words[index >>> 5] |= 1 << (index & 31);
-  }
-
-  clear(index: number): void {
-    this._checkIndex(index);
-    this._words[index >>> 5] &= ~(1 << (index & 31));
-  }
-
-  flip(index: number): void {
-    this._checkIndex(index);
-    this._words[index >>> 5] ^= 1 << (index & 31);
-  }
-
-  get(index: number): boolean {
-    this._checkIndex(index);
-    return (this._words[index >>> 5] >>> (index & 31) & 1) === 1;
-  }
-
-  test(index: number): boolean {
-    return this.get(index);
-  }
-
-  setAll(): void {
-    const n = this._words.length;
-    for (let i = 0; i < n; i++) {
-      this._words[i] = 0xffffffff;
+  max(): number | null {
+    for (let w = this._bits.length - 1; w >= 0; w--) {
+      const v = this._bits[w];
+      if (v !== 0) return w * 32 + _clz32c(v);
     }
-    // Mask last word
-    if (n > 0 && this._size % BITS_PER_WORD !== 0) {
-      this._words[n - 1] = lastWordMask(this._size);
-    }
+    return null;
   }
 
-  clearAll(): void {
-    this._words.fill(0);
+  successor(x: number): number | null {
+    if (!Number.isInteger(x)) return null;
+    const start = x + 1;
+    if (start >= this._u) return null;
+    const sw = start >>> 5, sb = start & 31;
+    const fw = this._bits[sw];
+    const fm = fw & (~0 << sb);
+    if (fm !== 0) return sw * 32 + _ctz32(fm);
+    for (let w = sw + 1; w < this._bits.length; w++) {
+      const bw = this._bits[w];
+      if (bw !== 0) return w * 32 + _ctz32(bw);
+    }
+    return null;
   }
 
-  setRange(start: number, end: number): void {
-    if (start < 0 || end >= this._size || start > end) {
-      throw new RangeError(`Invalid range [${start}, ${end}]`);
+  predecessor(x: number): number | null {
+    if (!Number.isInteger(x)) return null;
+    const end = x - 1;
+    if (end < 0) return null;
+    const ew = end >>> 5, eb = end & 31;
+    const ew2 = this._bits[ew];
+    const lm = ew2 & ((2 << eb) - 1);
+    if (lm !== 0) return ew * 32 + _clz32c(lm);
+    for (let w = ew - 1; w >= 0; w--) {
+      const bw = this._bits[w];
+      if (bw !== 0) return w * 32 + _clz32c(bw);
     }
-    for (let i = start; i <= end; i++) {
-      this._words[i >>> 5] |= 1 << (i & 31);
-    }
-  }
-
-  clearRange(start: number, end: number): void {
-    if (start < 0 || end >= this._size || start > end) {
-      throw new RangeError(`Invalid range [${start}, ${end}]`);
-    }
-    for (let i = start; i <= end; i++) {
-      this._words[i >>> 5] &= ~(1 << (i & 31));
-    }
-  }
-
-  and(other: BitSet): BitSet {
-    const result = new BitSet(this._size);
-    const len = Math.min(this._words.length, other._words.length);
-    for (let i = 0; i < len; i++) {
-      result._words[i] = this._words[i] & other._words[i];
-    }
-    return result;
-  }
-
-  or(other: BitSet): BitSet {
-    const result = new BitSet(this._size);
-    const len = Math.min(this._words.length, other._words.length);
-    for (let i = 0; i < len; i++) {
-      result._words[i] = this._words[i] | other._words[i];
-    }
-    // If this is larger, copy remaining words
-    for (let i = len; i < this._words.length; i++) {
-      result._words[i] = this._words[i];
-    }
-    return result;
-  }
-
-  xor(other: BitSet): BitSet {
-    const result = new BitSet(this._size);
-    const len = Math.min(this._words.length, other._words.length);
-    for (let i = 0; i < len; i++) {
-      result._words[i] = this._words[i] ^ other._words[i];
-    }
-    for (let i = len; i < this._words.length; i++) {
-      result._words[i] = this._words[i];
-    }
-    return result;
-  }
-
-  not(): BitSet {
-    const result = new BitSet(this._size);
-    for (let i = 0; i < this._words.length; i++) {
-      result._words[i] = ~this._words[i];
-    }
-    // Mask last word so out-of-range bits stay 0
-    if (this._words.length > 0 && this._size % BITS_PER_WORD !== 0) {
-      result._words[this._words.length - 1] &= lastWordMask(this._size);
-    }
-    return result;
-  }
-
-  andNot(other: BitSet): BitSet {
-    const result = new BitSet(this._size);
-    const len = Math.min(this._words.length, other._words.length);
-    for (let i = 0; i < len; i++) {
-      result._words[i] = this._words[i] & ~other._words[i];
-    }
-    for (let i = len; i < this._words.length; i++) {
-      result._words[i] = this._words[i];
-    }
-    return result;
-  }
-
-  andInPlace(other: BitSet): void {
-    const len = Math.min(this._words.length, other._words.length);
-    for (let i = 0; i < len; i++) {
-      this._words[i] &= other._words[i];
-    }
-    // Words beyond other's length become 0
-    for (let i = len; i < this._words.length; i++) {
-      this._words[i] = 0;
-    }
-  }
-
-  orInPlace(other: BitSet): void {
-    const len = Math.min(this._words.length, other._words.length);
-    for (let i = 0; i < len; i++) {
-      this._words[i] |= other._words[i];
-    }
-  }
-
-  xorInPlace(other: BitSet): void {
-    const len = Math.min(this._words.length, other._words.length);
-    for (let i = 0; i < len; i++) {
-      this._words[i] ^= other._words[i];
-    }
-  }
-
-  count(): number {
-    return popCount32Array(this._words);
-  }
-
-  isEmpty(): boolean {
-    return this.count() === 0;
-  }
-
-  isFull(): boolean {
-    return this.count() === this._size;
-  }
-
-  isSubsetOf(other: BitSet): boolean {
-    const len = Math.min(this._words.length, other._words.length);
-    for (let i = 0; i < len; i++) {
-      if ((this._words[i] & ~other._words[i]) !== 0) return false;
-    }
-    // Any bits in this beyond other's words means not a subset
-    for (let i = len; i < this._words.length; i++) {
-      if (this._words[i] !== 0) return false;
-    }
-    return true;
-  }
-
-  isSupersetOf(other: BitSet): boolean {
-    return other.isSubsetOf(this);
-  }
-
-  intersects(other: BitSet): boolean {
-    const len = Math.min(this._words.length, other._words.length);
-    for (let i = 0; i < len; i++) {
-      if ((this._words[i] & other._words[i]) !== 0) return true;
-    }
-    return false;
-  }
-
-  equals(other: BitSet): boolean {
-    if (this._size !== other._size) return false;
-    for (let i = 0; i < this._words.length; i++) {
-      if (this._words[i] !== other._words[i]) return false;
-    }
-    return true;
-  }
-
-  firstSet(): number | undefined {
-    for (let w = 0; w < this._words.length; w++) {
-      const word = this._words[w];
-      if (word !== 0) {
-        const bit = w * BITS_PER_WORD + trailingZeros(word);
-        return bit < this._size ? bit : undefined;
-      }
-    }
-    return undefined;
-  }
-
-  nextSet(from: number): number | undefined {
-    if (from >= this._size) return undefined;
-    if (from < 0) from = 0;
-
-    let w = from >>> 5;
-    // Mask off bits before 'from' in first word
-    let word = this._words[w] & (0xffffffff << (from & 31));
-
-    while (true) {
-      if (word !== 0) {
-        const bit = w * BITS_PER_WORD + trailingZeros(word);
-        return bit < this._size ? bit : undefined;
-      }
-      w++;
-      if (w >= this._words.length) return undefined;
-      word = this._words[w];
-    }
+    return null;
   }
 
   toArray(): number[] {
     const result: number[] = [];
-    let idx = this.firstSet();
-    while (idx !== undefined) {
-      result.push(idx);
-      idx = this.nextSet(idx + 1);
+    for (let w = 0; w < this._bits.length; w++) {
+      let v = this._bits[w];
+      while (v !== 0) { result.push(w * 32 + _ctz32(v)); v &= v - 1; }
     }
     return result;
   }
 
-  toString(): string {
-    let s = '';
-    for (let i = 0; i < this._size; i++) {
-      s += this.get(i) ? '1' : '0';
+  clear(): void { this._bits.fill(0); this._size = 0; }
+}
+
+function _ctz32(v: number): number {
+  if (v === 0) return 32;
+  let c = 0;
+  if ((v & 0x0000ffff) === 0) { c += 16; v >>>= 16; }
+  if ((v & 0x000000ff) === 0) { c += 8;  v >>>= 8; }
+  if ((v & 0x0000000f) === 0) { c += 4;  v >>>= 4; }
+  if ((v & 0x00000003) === 0) { c += 2;  v >>>= 2; }
+  if ((v & 0x00000001) === 0) { c += 1; }
+  return c;
+}
+
+function _clz32c(v: number): number { return 31 - Math.clz32(v); }
+
+export class IntegerMinHeap {
+  private _data: number[];
+  constructor() { this._data = []; }
+  get size(): number { return this._data.length; }
+  peek(): number | undefined { return this._data[0]; }
+  has(x: number): boolean { return this._data.includes(x); }
+  toArray(): number[] { return [...this._data]; }
+  toSortedArray(): number[] { return [...this._data].sort((a, b) => a - b); }
+  clear(): void { this._data = []; }
+
+  push(x: number): void {
+    this._data.push(x);
+    let i = this._data.length - 1;
+    while (i > 0) {
+      const p = (i - 1) >>> 1;
+      if (this._data[p] <= this._data[i]) break;
+      const tmp = this._data[p]; this._data[p] = this._data[i]; this._data[i] = tmp;
+      i = p;
     }
-    return s;
   }
 
-  toHex(): string {
-    let s = '';
-    for (let i = 0; i < this._words.length; i++) {
-      s += this._words[i].toString(16).padStart(8, '0');
+  pop(): number | undefined {
+    if (this._data.length === 0) return undefined;
+    const top = this._data[0];
+    const last = this._data.pop()!;
+    if (this._data.length > 0) {
+      this._data[0] = last;
+      let i = 0;
+      const n = this._data.length;
+      while (true) {
+        let s = i, l = 2*i+1, r = 2*i+2;
+        if (l < n && this._data[l] < this._data[s]) s = l;
+        if (r < n && this._data[r] < this._data[s]) s = r;
+        if (s === i) break;
+        const tmp = this._data[s]; this._data[s] = this._data[i]; this._data[i] = tmp;
+        i = s;
+      }
     }
-    return s;
+    return top;
+  }
+}
+
+export class IntegerMaxHeap {
+  private _data: number[];
+  constructor() { this._data = []; }
+  get size(): number { return this._data.length; }
+  peek(): number | undefined { return this._data[0]; }
+  has(x: number): boolean { return this._data.includes(x); }
+  toArray(): number[] { return [...this._data]; }
+  toSortedArray(): number[] { return [...this._data].sort((a, b) => a - b); }
+  clear(): void { this._data = []; }
+
+  push(x: number): void {
+    this._data.push(x);
+    let i = this._data.length - 1;
+    while (i > 0) {
+      const p = (i - 1) >>> 1;
+      if (this._data[p] >= this._data[i]) break;
+      const tmp = this._data[p]; this._data[p] = this._data[i]; this._data[i] = tmp;
+      i = p;
+    }
   }
 
-  clone(): BitSet {
-    const result = new BitSet(this._size);
-    result._words.set(this._words);
+  pop(): number | undefined {
+    if (this._data.length === 0) return undefined;
+    const top = this._data[0];
+    const last = this._data.pop()!;
+    if (this._data.length > 0) {
+      this._data[0] = last;
+      let i = 0;
+      const n = this._data.length;
+      while (true) {
+        let s = i, l = 2*i+1, r = 2*i+2;
+        if (l < n && this._data[l] > this._data[s]) s = l;
+        if (r < n && this._data[r] > this._data[s]) s = r;
+        if (s === i) break;
+        const tmp = this._data[s]; this._data[s] = this._data[i]; this._data[i] = tmp;
+        i = s;
+      }
+    }
+    return top;
+  }
+}
+
+export class SortedIntegerSet {
+  private _arr: number[];
+  constructor() { this._arr = []; }
+  get size(): number { return this._arr.length; }
+  min(): number | undefined { return this._arr[0]; }
+  max(): number | undefined { return this._arr[this._arr.length - 1]; }
+  toArray(): number[] { return [...this._arr]; }
+  clear(): void { this._arr = []; }
+
+  private _lb(x: number): number {
+    let lo = 0, hi = this._arr.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >>> 1;
+      if (this._arr[mid] < x) lo = mid + 1; else hi = mid;
+    }
+    return lo;
+  }
+
+  add(x: number): void {
+    const idx = this._lb(x);
+    if (idx < this._arr.length && this._arr[idx] === x) return;
+    this._arr.splice(idx, 0, x);
+  }
+
+  delete(x: number): boolean {
+    const idx = this._lb(x);
+    if (idx < this._arr.length && this._arr[idx] === x) {
+      this._arr.splice(idx, 1); return true;
+    }
+    return false;
+  }
+
+  has(x: number): boolean {
+    const idx = this._lb(x);
+    return idx < this._arr.length && this._arr[idx] === x;
+  }
+
+  range(lo: number, hi: number): number[] {
+    const start = this._lb(lo);
+    const result: number[] = [];
+    for (let i = start; i < this._arr.length && this._arr[i] <= hi; i++)
+      result.push(this._arr[i]);
     return result;
   }
-}
-
-// ─── Number-level bit helpers ─────────────────────────────────────────────────
-
-export function setBit(n: number, i: number): number {
-  return (n | (1 << i)) >>> 0;
-}
-
-export function clearBit(n: number, i: number): number {
-  return (n & ~(1 << i)) >>> 0;
-}
-
-export function flipBit(n: number, i: number): number {
-  return (n ^ (1 << i)) >>> 0;
-}
-
-export function getBit(n: number, i: number): boolean {
-  return ((n >>> i) & 1) === 1;
-}
-
-export function popCount(n: number): number {
-  // Kernighan's algorithm for 32-bit
-  let v = n >>> 0;
-  let count = 0;
-  while (v !== 0) {
-    v &= v - 1;
-    count++;
-  }
-  return count;
-}
-
-export function popCount32Array(arr: Uint32Array): number {
-  let total = 0;
-  for (let i = 0; i < arr.length; i++) {
-    total += popCount(arr[i]);
-  }
-  return total;
-}
-
-export function trailingZeros(n: number): number {
-  if (n === 0) return 32;
-  let v = n >>> 0;
-  let count = 0;
-  while ((v & 1) === 0) {
-    v >>>= 1;
-    count++;
-  }
-  return count;
-}
-
-export function leadingZeros(n: number): number {
-  if (n === 0) return 32;
-  let v = n >>> 0;
-  let count = 0;
-  while ((v & 0x80000000) === 0) {
-    v <<= 1;
-    count++;
-  }
-  return count;
-}
-
-export function isPowerOfTwo(n: number): boolean {
-  if (n <= 0) return false;
-  return (n & (n - 1)) === 0;
-}
-
-export function nextPowerOfTwo(n: number): number {
-  if (n <= 1) return 1;
-  let v = n - 1;
-  v |= v >>> 1;
-  v |= v >>> 2;
-  v |= v >>> 4;
-  v |= v >>> 8;
-  v |= v >>> 16;
-  return (v + 1) >>> 0;
-}
-
-export function lowestSetBit(n: number): number {
-  return (n & -n) >>> 0;
-}
-
-// ─── Factory functions ────────────────────────────────────────────────────────
-
-export function fromIndices(indices: number[], size: number): BitSet {
-  const bs = new BitSet(size);
-  for (const i of indices) {
-    bs.set(i);
-  }
-  return bs;
-}
-
-export function fromString(s: string): BitSet {
-  const bs = new BitSet(s.length);
-  for (let i = 0; i < s.length; i++) {
-    if (s[i] === '1') bs.set(i);
-  }
-  return bs;
-}
-
-export function fromNumber(n: number, size: number = 32): BitSet {
-  const bs = new BitSet(size);
-  const v = n >>> 0;
-  const limit = Math.min(size, 32);
-  for (let i = 0; i < limit; i++) {
-    if ((v >>> i) & 1) bs.set(i);
-  }
-  return bs;
 }

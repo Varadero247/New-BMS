@@ -1,4 +1,12 @@
 # NEXARA IMS — ISO STANDARDS COMPLIANCE COVERAGE & COMPETITIVE ANALYSIS
+
+---
+> **CONFIDENTIAL — TRADE SECRET**
+> This document is the property of Nexara DMCC and contains confidential and
+> proprietary information. Unauthorised disclosure is prohibited.
+> © 2026 Nexara DMCC. All rights reserved.
+---
+
 ## Sections 6 & 7: Enterprise Marketing Reference Document
 
 **Document Version:** 1.0
@@ -182,7 +190,7 @@ Gartner's 2025 Magic Quadrant for Integrated Risk Management positions the marke
 
 **Nexara's Unique Market Position**
 
-Nexara occupies a market position that no existing vendor credibly claims: a genuinely unified IMS platform covering 22 standards and regulatory frameworks across 42 microservices and 44 user-facing applications, built from the ground up on a modern, API-first, cloud-native architecture. Unlike legacy platforms that have bolted additional modules onto an ageing core, Nexara's architecture shares a single data model, authentication layer, permissions framework, notification system, document control engine, and reporting infrastructure across every module. This is not a marketing claim — it is demonstrable in the codebase, where 63 shared packages eliminate the code duplication that creates data inconsistency in multi-module legacy platforms. The result is that a corrective action raised in an EHS incident is immediately visible in the quality CAPA register, the risk register, the supplier performance record, and the management review agenda — with no ETL, no overnight batch sync, and no manual reconciliation.
+Nexara occupies a market position that no existing vendor credibly claims: a genuinely unified IMS platform covering 22 standards and regulatory frameworks across 42 microservices and 44 user-facing applications, built from the ground up on a modern, API-first, cloud-native architecture. Unlike legacy platforms that have bolted additional modules onto an ageing core, Nexara's architecture shares a single data model, authentication layer, permissions framework, notification system, document control engine, and reporting infrastructure across every module. This is not a marketing claim — it is demonstrable in the codebase, where 119 shared packages eliminate the code duplication that creates data inconsistency in multi-module legacy platforms. The result is that a corrective action raised in an EHS incident is immediately visible in the quality CAPA register, the risk register, the supplier performance record, and the management review agenda — with no ETL, no overnight batch sync, and no manual reconciliation.
 
 ---
 

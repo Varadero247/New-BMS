@@ -1,0 +1,1 @@
+{"name":"@ims/fibonacci-heap","version":"1.0.0","main":"src/fibonacci-heap.ts","scripts":{"test":"jest"},"devDependencies":{"jest":"*","ts-jest":"*","typescript":"*"}}
