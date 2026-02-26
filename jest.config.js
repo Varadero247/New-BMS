@@ -493,9 +493,6 @@ module.exports = {
     // combinatorics package (added Feb 25, 2026)
     '<rootDir>/packages/combinatorics',
 
-    // polynomial package (added Feb 25, 2026)
-    '<rootDir>/packages/polynomial',
-
     // linear-algebra package (added Feb 25, 2026)
     '<rootDir>/packages/linear-algebra',
 
