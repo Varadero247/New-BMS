@@ -426,9 +426,6 @@ module.exports = {
     // union-find package (added Feb 25, 2026)
     '<rootDir>/packages/union-find',
 
-    // skip-list package (added Feb 25, 2026)
-    '<rootDir>/packages/skip-list',
-
     // sliding-window package (added Feb 25, 2026)
     '<rootDir>/packages/sliding-window',
 
