@@ -221,8 +221,6 @@ module.exports = {
     // graph-algorithms-2 package (added Feb 25, 2026)
     '<rootDir>/packages/graph-algorithms-2',
 
-    // network-flow package (added Feb 25, 2026)
-    '<rootDir>/packages/network-flow',
     '<rootDir>/packages/state-machine',
     '<rootDir>/packages/event-utils',
     '<rootDir>/packages/schema-builder',
