@@ -475,9 +475,6 @@ module.exports = {
     // lfu-cache package (added Feb 25, 2026)
     '<rootDir>/packages/lfu-cache',
 
-    // sparse-table package (added Feb 25, 2026)
-    '<rootDir>/packages/sparse-table',
-
     // red-black-tree package (added Feb 25, 2026)
     '<rootDir>/packages/red-black-tree',
 
