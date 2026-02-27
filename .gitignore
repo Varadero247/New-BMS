@@ -2,6 +2,9 @@
 node_modules
 .pnpm-store
 
+# Large IP protection archives (21GB+ tar.gz — keep local only, never commit)
+ip-protection/archives/
+
 # Build outputs
 dist
 .next
