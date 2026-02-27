@@ -57,7 +57,7 @@ We use CVSS v3.1 for severity scoring:
 
 ### In Scope
 
-- **API Gateway** (port 4000) and all 41 microservices (4001–4041)
+- **API Gateway** (port 4000) and all 42 microservices (4001–4041 + api-search:4050)
 - **Authentication & authorisation** (JWT, RBAC, SAML, SCIM)
 - **Web applications** (ports 3000–3045)
 - **API endpoint security** (injection, IDOR, BOLA, BFLA)

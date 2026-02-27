@@ -36,23 +36,23 @@ echo -e "${BLUE}║  IMS Pre-Launch Readiness Check      ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════╝${NC}"
 
 # =============================================================================
-# 1. API Service Health Checks (ports 4000–4041)
+# 1. API Service Health Checks (ports 4000–4041 + 4050)
 # =============================================================================
-section "API Service Health (42 services)"
+section "API Service Health (43 services + api-search)"
 
 API_PORTS=(
   4000 4001 4002 4003 4004 4005 4006 4007 4008 4009
   4010 4011 4012 4013 4014 4015 4016 4017 4018 4019
   4020 4021 4022 4023 4024 4025 4026 4027 4028 4029
   4030 4031 4032 4033 4034 4035 4036 4037 4038 4039
-  4040 4041
+  4040 4041 4050
 )
 API_NAMES=(
   "Gateway" "H&S" "Environment" "Quality" "AI" "Inventory" "HR" "Payroll" "Workflows" "PM"
   "Automotive" "Medical" "Aerospace" "Finance" "CRM" "InfoSec" "ESG" "CMMS" "Portal" "Food Safety"
   "Energy" "Analytics" "Field Service" "ISO 42001" "ISO 37001" "Marketing" "Partners" "Risk" "Training" "Suppliers"
   "Assets" "Documents" "Complaints" "Contracts" "PTW" "Reg Monitor" "Incidents" "Audits" "Mgmt Review" "Setup Wizard"
-  "Chemicals" "Emergency"
+  "Chemicals" "Emergency" "Search"
 )
 
 for i in "${!API_PORTS[@]}"; do

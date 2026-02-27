@@ -1,6 +1,6 @@
 # =============================================================================
 # IMS Prometheus Configuration
-# Scrapes metrics from all 42 API services and loads alert rules.
+# Scrapes metrics from all 43 API services + api-search and loads alert rules.
 # =============================================================================
 
 global:

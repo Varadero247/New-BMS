@@ -4,7 +4,7 @@ Performance testing and accessibility auditing toolkit for IMS.
 
 ## Features
 
-- k6 load test scripts for all 41 API services
+- k6 load test scripts for all 42 API services (4001–4041 + api-search:4050)
 - Large dataset stress testing (25 scenarios)
 - Lighthouse CI configuration for web performance
 - axe-core WCAG 2.2 AA accessibility auditing
@@ -27,7 +27,7 @@ k6 run --env SERVICE=health-safety packages/performance/k6/individual-services.j
 
 | Script                   | Description                                    |
 | ------------------------ | ---------------------------------------------- |
-| `individual-services.js` | Tests all 41 API services with CRUD operations |
+| `individual-services.js` | Tests all 42 API services with CRUD operations |
 | `large-dataset.js`       | 25 stress scenarios with large payloads        |
 
 ## Accessibility

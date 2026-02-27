@@ -1937,7 +1937,7 @@ npx prisma@5.22.0 generate --schema=packages/database/prisma/schemas/<domain>.pr
 ```
 postgresql://postgres:<password>@localhost:5432/ims?connection_limit=1
 ```
-`connection_limit=1` — each service maintains 1 connection (42 services × 1 = 42 total, within max_connections=100)
+`connection_limit=1` — each service maintains 1 connection (43+ services × 1 = 43+ total, within max_connections=100)
 
 ### Environment Variable Naming
 ```bash

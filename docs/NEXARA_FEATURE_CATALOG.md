@@ -10,8 +10,8 @@
 ## Complete Business Capabilities Matrix
 
 **Document Version:** 1.0
-**Last Updated:** February 21, 2026
-**Total Endpoints:** 2,558 across 42 microservices
+**Last Updated:** February 27, 2026
+**Total Endpoints:** 2,558+ across 43 microservices + api-search (4050)
 
 ---
 
@@ -1304,5 +1304,5 @@ RIDDOR-specific reporting, investigation workflow, timeline recording, dashboard
 
 ---
 
-*Document generated: February 21, 2026*
-*Coverage: 42 services, 2,558 endpoints, 606 database models*
+*Document generated: February 21, 2026 (updated: February 27, 2026)*
+*Coverage: 43 services + api-search (4050), 2,558+ endpoints, ~590 database models*

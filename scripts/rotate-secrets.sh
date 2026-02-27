@@ -5,7 +5,7 @@
 #
 # What this does:
 #   1. Generates new JWT_SECRET and JWT_REFRESH_SECRET values
-#   2. Updates the root .env file and all 42 API service .env files
+#   2. Updates the root .env file and all 43 API service .env files
 #   3. Prints a summary of what was changed (no secrets printed to stdout)
 #   4. Instructs operator to restart services
 #
@@ -49,7 +49,7 @@ echo "  Nexara IMS — JWT Secret Rotation"
 echo "==================================================================="
 echo ""
 echo "  This script rotates JWT_SECRET and JWT_REFRESH_SECRET across all"
-echo "  42 API service .env files."
+echo "  43 API service .env files."
 echo ""
 echo "  ⚠️  After rotation, all active sessions will be invalidated."
 echo "     Users will need to log in again."
@@ -151,7 +151,7 @@ else
   echo "  To clean up backups: find . -name '*.bak.*' -delete"
   echo ""
   echo "  NEXT STEPS:"
-  echo "  1. Restart all 42 API services (or rolling restart in K8s):"
+  echo "  1. Restart all 43 API services (or rolling restart in K8s):"
   echo "     Docker:  docker compose restart"
   echo "     K8s:     kubectl rollout restart deployment -n ims"
   echo ""

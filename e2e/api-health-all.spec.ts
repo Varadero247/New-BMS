@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Comprehensive health checks for all 42 API services.
+ * Comprehensive health checks for all 43 API services + api-search.
  *
  * Each test hits GET /health on the service's direct port and verifies
  * { status: 'ok' }. Tests run in parallel (fullyParallel: true in config).
@@ -55,6 +55,7 @@ const SERVICES = [
   { name: 'Setup Wizard',     port: 4039 },
   { name: 'Chemicals',        port: 4040 },
   { name: 'Emergency',        port: 4041 },
+  { name: 'Search',           port: 4050 },
 ] as const;
 
 // ─── Health endpoint tests ────────────────────────────────────────────────────

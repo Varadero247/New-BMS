@@ -20,7 +20,7 @@
 │  api-gateway    │ ──────────────► │  OpenTelemetry       │
 │  api-health-*   │                 │  Collector           │
 │  api-environment│                 │  (port 4317 gRPC,    │
-│  … 42 services  │                 │   port 4318 HTTP)    │
+│  … 43 services  │                 │   port 4318 HTTP)    │
 └─────────────────┘                 └──────────┬───────────┘
                                                │
                            ┌───────────────────┼───────────────────┐
@@ -32,7 +32,7 @@
                     └─────────────┘   └──────────────┘   └─────────────────┘
 ```
 
-All 42 API services call `initTracing()` at startup. Tracing is **opt-in** — it is a no-op unless `OTEL_TRACING_ENABLED=true` or `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
+All 43 API services (+ api-search:4050) call `initTracing()` at startup. Tracing is **opt-in** — it is a no-op unless `OTEL_TRACING_ENABLED=true` or `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
 
 ### Trace propagation
 

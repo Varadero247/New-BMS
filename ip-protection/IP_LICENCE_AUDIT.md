@@ -30,8 +30,8 @@ Overall Status: **PASS**
 | Unlicense | 0 |
 
 > **Note:** The above counts reflect the root `node_modules` audit scope (41 non-private packages).  
-> The monorepo contains 738,865 unit tests across 733 suites and 86 workspace packages  
-> (42 API services, 44 web apps); workspace packages are excluded as private and owned by Nexara.
+> The monorepo contains ~1,202,000 unit tests across ~1,084 suites and 88 workspace packages
+> (43 API services + api-search, 44 web apps); workspace packages are excluded as private and owned by Nexara.
 
 ---
 

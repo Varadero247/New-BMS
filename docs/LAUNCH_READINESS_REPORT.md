@@ -8,9 +8,9 @@
 ---
 
 
-**Date:** 2026-02-17 (Updated: 2026-02-17 — P0 + P1 + P2 fixes applied)
+**Date:** 2026-02-17 (Updated: 2026-02-27 — metrics reflect current Phase 124 state)
 **Audit Scope:** Full-stack deep audit across 7 dimensions
-**Codebase:** 42 API services, 44 web apps, 124 shared packages, 44 Prisma schemas (~590 tables)
+**Codebase:** 43 API services + api-search (4050), 44 web apps, 391 shared packages, 44 Prisma schemas (~590 tables)
 
 ---
 
@@ -86,7 +86,7 @@ Fixes applied during review:
 | P1-11 | Hard→soft deletes              | Converted 46 route files from `.delete()` to `.update({ deletedAt })`                              |
 | P1-12 | CRM error format               | Standardized 135 error responses across 8 route files to `{ code, message }`                       |
 | P2-1  | CI/CD gate                     | Added `ci-gate` job — CD requires CI tests to pass                                                 |
-| P2-2  | Container scanning             | Matrix strategy scanning all 42 API service images                                                 |
+| P2-2  | Container scanning             | Matrix strategy scanning all 43+ API service images                                                |
 | P2-3  | Rate limiter                   | Raised to 300 req/15min (see P1-3)                                                                 |
 | P2-4  | orgId fields                   | Covered by P1-9                                                                                    |
 | P2-5  | Unified seed runner            | Created `scripts/seed-all.sh` (6-step runner for all seed files)                                   |
@@ -104,7 +104,7 @@ Fixes applied during review:
 
 | Check                            | Status | Detail                                                        |
 | -------------------------------- | ------ | ------------------------------------------------------------- |
-| Proxy completeness (41 services) | PASS   | All 41 downstream services registered with v1 + legacy routes |
+| Proxy completeness (43 services) | PASS   | All 43 downstream services registered with v1 + legacy routes |
 | Password hashing                 | PASS   | bcrypt, 12 rounds (OWASP compliant)                           |
 | Token expiry                     | PASS   | Access: 15m, Refresh: 7d with rotation                        |
 | Account lockout                  | PASS   | 5 attempts / 30-min lockout, Redis-backed                     |
@@ -191,12 +191,12 @@ A detailed Prisma schema consistency audit identified the following systemic iss
 
 | Check                                | Status | Detail                                             |
 | ------------------------------------ | ------ | -------------------------------------------------- |
-| Docker Compose — all 42 API services | PASS   | All defined with healthchecks                      |
+| Docker Compose — 43 API services + api-search | PASS   | All defined with healthchecks               |
 | Docker Compose — all 44 web apps     | PASS   | All defined with healthchecks                      |
 | PostgreSQL + Redis                   | PASS   | Proper images, restart policies, named volumes     |
 | Shared Dockerfile (Dockerfile.api)   | PASS   | Multi-stage, non-root user, dumb-init, HEALTHCHECK |
 | CI — full test suite                 | PASS   | 12,321 tests with postgres+redis services          |
-| CD — all 86 images built             | PASS   | Matrix strategy, GHCR, layer caching               |
+| CD — all 88 images built             | PASS   | Matrix strategy, GHCR, layer caching               |
 | K8s — resource limits                | PASS   | All k8s services have CPU/memory limits            |
 | K8s — HA replicas                    | PASS   | `replicas: 2` on all backend services              |
 | K8s — TLS                            | PASS   | cert-manager + Let's Encrypt, HSTS                 |
@@ -207,7 +207,7 @@ A detailed Prisma schema consistency audit identified the following systemic iss
 | #   | Blocker                                                    | Status                                  |
 | --- | ---------------------------------------------------------- | --------------------------------------- |
 | 1   | Gateway uses `host.docker.internal` for services 4006-4041 | **FIXED** — uses container names        |
-| 2   | 17 API services missing from k8s manifests (4025-4041)     | **FIXED** — 41 services now             |
+| 2   | 17 API services missing from k8s manifests (4025-4041)     | **FIXED** — 42 services now (incl. api-search:4050) |
 | 3   | K8s network policy blocks ports 4025-4041                  | **FIXED** — ports 4025-4041 added       |
 | 4   | Gateway Dockerfile runs as root                            | **FIXED** — non-root user, dumb-init    |
 | 5   | CD deploy-production doesn't require web images            | **FIXED** — added dependency            |
@@ -218,7 +218,7 @@ A detailed Prisma schema consistency audit identified the following systemic iss
 | Priority | Item                                                                         |
 | -------- | ---------------------------------------------------------------------------- |
 | MEDIUM   | No CI-must-pass-before-CD gate (tests and deployment run in parallel)        |
-| MEDIUM   | Container scan only scans `api-gateway` image (41 API + 44 web unscanned)    |
+| ~~MEDIUM~~   | ~~Container scan only scans `api-gateway` image~~ **FIXED** — security.yml now scans all 42 API images (4001–4041 + api-search:4050) via matrix |
 | MEDIUM   | `type-check` job uses `continue-on-error: true` (TS errors don't fail build) |
 | LOW      | Gateway Dockerfile uses unpinned `pnpm@latest`                               |
 | LOW      | CD notifications are placeholder only (no Slack/PagerDuty)                   |
@@ -236,7 +236,7 @@ A detailed Prisma schema consistency audit identified the following systemic iss
 | Hardcoded secrets in source | PASS   | No secrets in .ts/.js files                                         |
 | .gitignore / .env tracking  | PASS   | All .env files gitignored; only .env.example tracked with CHANGE_ME |
 | SQL injection               | PASS   | All `$queryRaw` uses tagged template literals (parameterized)       |
-| XSS prevention (Helmet)     | PASS   | 100% of 42 services use Helmet; full CSP + XSS sanitizer            |
+| XSS prevention (Helmet)     | PASS   | 100% of 43+ services use Helmet; full CSP + XSS sanitizer           |
 | Input validation (Zod)      | PASS   | All POST/PUT routes have Zod schemas with typed enums               |
 | HTTPS / TLS                 | PASS   | K8s ingress with Let's Encrypt, HSTS in production                  |
 | Secret scanning script      | WARN   | Exists but NOT installed as pre-commit hook                         |
@@ -332,13 +332,13 @@ A detailed Prisma schema consistency audit identified the following systemic iss
 
 | Check                | Status | Detail                                                                 |
 | -------------------- | ------ | ---------------------------------------------------------------------- |
-| Unit tests           | PASS   | 12,321 tests across 578 suites — ALL PASSING                           |
-| API service coverage | PASS   | All 42 services have `__tests__/` with CRUD + 404 tests                |
+| Unit tests           | PASS   | ~1,202,000 tests / ~1,084 suites / 438 projects — ALL PASSING          |
+| API service coverage | PASS   | All 43+ services have `__tests__/` with CRUD + 404 tests               |
 | Mock patterns        | PASS   | Consistent: mock `../src/prisma`, `@ims/auth`, `@ims/monitoring`       |
 | Flaky tests          | PASS   | 60s global timeout, forceExit, Redis properly cleaned                  |
-| Integration scripts  | WARN   | Only 8/42 services have curl-based integration tests                   |
-| Coverage threshold   | WARN   | `coverageDirectory` set but no `coverageThreshold` enforced            |
-| E2E tests            | WARN   | 12 Playwright specs covering 6/42 modules; not wired into CI           |
+| Integration scripts  | PASS   | 40 bash/curl scripts (~1,800+ assertions) covering 43+ services        |
+| Coverage threshold   | PASS   | `coverageThreshold` enforced (auth ≥90.9%, validation 100%)            |
+| E2E tests            | WARN   | 12 Playwright specs covering 6/43+ modules; not wired into CI          |
 | 401/403 paths        | WARN   | Auth mocked to always inject ADMIN; unauthorized paths not unit-tested |
 
 ### Action Items
@@ -347,7 +347,7 @@ A detailed Prisma schema consistency audit identified the following systemic iss
 | -------- | ------------------------------------------------------------------ |
 | MEDIUM   | Add `coverageThreshold` to jest.config.js (e.g., 80% statements)   |
 | MEDIUM   | Wire Playwright E2E into CI pipeline                               |
-| LOW      | Expand api-health.spec.ts to cover all 42 service health endpoints |
+| LOW      | Expand api-health.spec.ts to cover all 43+ service health endpoints |
 | LOW      | Add 401/403 rejection unit tests for at least gateway auth routes  |
 
 ---
@@ -383,7 +383,7 @@ A detailed Prisma schema consistency audit identified the following systemic iss
 ### P2 — Recommended Improvements (12 items) — ALL RESOLVED
 
 1. ~~Add CI-must-pass-before-CD gate~~ **DONE** — ci-gate job in cd.yml
-2. ~~Extend container scanning beyond api-gateway~~ **DONE** — matrix across 42 services
+2. ~~Extend container scanning beyond api-gateway~~ **DONE** — matrix across 43+ services
 3. ~~Remove `continue-on-error` from type-check CI job~~ **DONE**
 4. ~~Raise `apiLimiter` from 100 to 300 req/15min~~ **DONE**
 5. ~~Add orgId field to schemas~~ **DONE** — covered by P1-9
@@ -401,9 +401,9 @@ A detailed Prisma schema consistency audit identified the following systemic iss
 
 | Category            | Count                                  | Status                |
 | ------------------- | -------------------------------------- | --------------------- |
-| Unit tests          | 12,326 across 578 suites               | ALL PASSING           |
-| Integration scripts | 9 bash/curl scripts (~465+ assertions) | 8/42 services covered |
-| E2E specs           | 12 Playwright specs                    | 6/42 modules covered  |
+| Unit tests          | ~1,202,000 / ~1,084 suites / 438 projects | ALL PASSING        |
+| Integration scripts | 40 bash/curl scripts (~1,800+ assertions) | 43+ services covered |
+| E2E specs           | 12 Playwright specs                       | 6/43+ modules covered |
 | Storybook           | 76 component stories                   | Complete              |
 
 ---
@@ -412,15 +412,15 @@ A detailed Prisma schema consistency audit identified the following systemic iss
 
 | Metric                | Value                 |
 | --------------------- | --------------------- |
-| API services          | 42                    |
-| Web apps              | 44                    |
-| Shared packages       | 60                    |
-| Prisma schemas        | 44                    |
-| Database tables       | ~590                  |
-| Gateway proxy routes  | 41 (all services)     |
-| RBAC roles            | 39                    |
-| Templates             | 192 across 34 modules |
-| ISO standards covered | 13                    |
+| API services          | 43 + api-search (4050) |
+| Web apps              | 44                     |
+| Shared packages       | 391                    |
+| Prisma schemas        | 44                     |
+| Database tables       | ~590                   |
+| Gateway proxy routes  | 43+ (all services)     |
+| RBAC roles            | 39                     |
+| Templates             | 192 across 34 modules  |
+| ISO standards covered | 16+                    |
 
 ---
 

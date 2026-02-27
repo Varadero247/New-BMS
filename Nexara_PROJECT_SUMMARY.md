@@ -2,13 +2,15 @@
 
 ## Executive Overview
 
-**Project Name**: IMS - Nexara  
-**Version**: 1.0.0  
-**Architecture**: Microservices Monorepo  
-**Purpose**: Enterprise-grade ISO compliance management system covering ISO 45001 (Health & Safety), ISO 14001 (Environmental), and ISO 9001 (Quality)  
+**Project Name**: IMS - Nexara
+**Version**: 1.0.0
+**Architecture**: Microservices Monorepo
+**Purpose**: Enterprise-grade ISO compliance management system covering 29 ISO standards, ESG, HACCP, HR, Finance, CRM, and full operational compliance across 43 domain verticals
 **Technology Stack**: Next.js 15, React 18, TypeScript, Express.js, PostgreSQL, Prisma ORM
-**Total Codebase**: 2,000+ TypeScript files across 86 applications (42 APIs + 44 web apps) and 71 shared packages
-**Last Updated**: February 17, 2026
+**Total Codebase**: 43 API services (+ api-search:4050) · 44 web apps · 391 shared packages · 44 Prisma schemas · ~590 database tables · ~1,202,000 unit tests (all passing)
+**Last Updated**: February 27, 2026 (Phase 124 complete)
+
+> **Note:** The detailed module descriptions below were written at an early phase (Feb 17, 2026) covering the initial 9 core services. The platform has since grown to 43 API services + api-search, 44 web apps, and 391 shared packages. See `SYSTEM_STATE.md` for the authoritative current state.
 
 ---
 
@@ -18,12 +20,11 @@
 
 ```
 ims-monorepo/
-├── apps/                    # 21 Applications (9 APIs + 9 Web + 1 Mobile)
-│   ├── API Services (9)
-│   ├── Web Applications (9)
-│   └── Mobile App (1)
-├── packages/                # 16 Shared Libraries
-├── scripts/                 # Automation & DevOps Scripts
+├── apps/                    # 88 Applications (43 APIs + api-search + 44 Web)
+│   ├── API Services (43 domain services + api-search:4050)
+│   └── Web Applications (44)
+├── packages/                # 391 Shared Libraries (@ims/* scope)
+├── scripts/                 # 60+ Automation & DevOps Scripts
 ├── docs/                    # Comprehensive Documentation
 └── deploy/                  # Docker & Kubernetes Config
 ```
@@ -66,7 +67,7 @@ ims-monorepo/
 
 ---
 
-## Shared Package Library (16 Packages)
+## Shared Package Library (391 Packages)
 
 ### Core Infrastructure Packages
 
@@ -138,14 +139,14 @@ ims-monorepo/
 
 ## Database Architecture
 
-### Current State (Monolithic)
+### Current State (Multi-Schema, Unified DB)
 
-Single PostgreSQL database with unified schema:
+Single PostgreSQL database with 44 domain-separated Prisma schemas:
 
 - **Database Name**: `ims`
-- **Tables**: 94 tables covering all domains
-- **Technology**: PostgreSQL 16+ with Prisma ORM
-- **Connection Pooling**: Enabled
+- **Tables**: ~590 tables across 44 schemas
+- **Technology**: PostgreSQL 16+ with Prisma ORM 5.22.0
+- **Connection Pooling**: `connection_limit=1` per service (lazy connect)
 
 ### Future State (Database Per Service)
 
@@ -818,7 +819,7 @@ pnpm dev:health-safety      # H&S module
 | `pnpm dev`            | Start all 30+ processes concurrently      |
 | `pnpm build`          | Build all apps and packages               |
 | `pnpm build:packages` | Build shared packages only                |
-| `pnpm test`           | Run Jest tests (12,321 across 578 suites) |
+| `pnpm test`           | Run Jest tests (~1,202,000 across ~1,084 suites / 438 projects) |
 | `pnpm lint`           | Run ESLint across codebase                |
 | `pnpm db:generate`    | Generate Prisma client                    |
 | `pnpm db:push`        | Push schema to database                   |
@@ -906,7 +907,7 @@ docker-compose restart <service>  # Restart one
 
 ### Current Test Coverage
 
-**Jest Unit Tests**: 12,321 tests across 578 suites (all passing)
+**Jest Unit Tests**: ~1,202,000 tests across ~1,084 suites / 438 projects (all passing)
 
 - `risks.api.test.ts` — 24 tests (CRUD, matrix, filters, validation, error handling)
 - `incidents.api.test.ts` — 27 tests (CRUD, auto RIDDOR, investigation dates, AI fields)

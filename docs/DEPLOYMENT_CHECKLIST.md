@@ -427,7 +427,7 @@ done
 - [ ] Verify `ALLOWED_ORIGINS` is set for production CORS
 - [ ] Rotate Anthropic API key before launch (replace development key with production key)
 - [ ] Database backups: backup service runs daily via docker-compose; manual backup via `scripts/backup-db.sh`
-- [ ] Run the Full System Review to verify all services: `npx tsx scripts/generate-review-report.ts` (generates `docs/Full_System_Review_v3_Report.docx` with findings across all 42 API services)
+- [ ] Run the Full System Review to verify all services: `npx tsx scripts/generate-review-report.ts` (generates `docs/Full_System_Review_v3_Report.docx` with findings across all 43 API services + api-search)
 
 ---
 

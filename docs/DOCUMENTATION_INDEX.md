@@ -13,13 +13,13 @@
 
 ---
 
-## Primary Reference Documents (Generated Feb 21, 2026)
+## Primary Reference Documents (Updated Feb 27, 2026)
 
 | Document | Lines | Size | Description |
 |----------|-------|------|-------------|
-| [NEXARA_IMS_PLATFORM_SOP_COMPLETE.md](./NEXARA_IMS_PLATFORM_SOP_COMPLETE.md) | 2,578 | 93 KB | Complete Standard Operating Procedures — architecture, all 42 services, SOPs for every module, deployment, monitoring, security, troubleshooting, development guidelines, testing |
-| [NEXARA_FEATURE_CATALOG.md](./NEXARA_FEATURE_CATALOG.md) | 1,300 | 56 KB | Full business capabilities matrix — every feature with exact HTTP endpoints for all 42 services (2,558 endpoints total) |
-| [DATABASE_SCHEMA_REFERENCE.md](./DATABASE_SCHEMA_REFERENCE.md) | 1,953 | 65 KB | Complete database reference — all 44 schemas, 606 models with field definitions, 781 enums, migration commands |
+| [NEXARA_IMS_PLATFORM_SOP_COMPLETE.md](./NEXARA_IMS_PLATFORM_SOP_COMPLETE.md) | 2,578 | 93 KB | Complete Standard Operating Procedures — architecture, all 43 services + api-search, SOPs for every module, deployment, monitoring, security, troubleshooting, development guidelines, testing |
+| [NEXARA_FEATURE_CATALOG.md](./NEXARA_FEATURE_CATALOG.md) | 1,300 | 56 KB | Full business capabilities matrix — every feature with exact HTTP endpoints for all 43 services + api-search (2,558+ endpoints total) |
+| [DATABASE_SCHEMA_REFERENCE.md](./DATABASE_SCHEMA_REFERENCE.md) | 1,953 | 65 KB | Complete database reference — all 44 schemas, ~590 models with field definitions, 781+ enums, migration commands |
 
 ---
 
@@ -45,7 +45,7 @@
 | [TRACING.md](./TRACING.md) | OpenTelemetry distributed tracing — setup, custom spans, production |
 | [STRATEGIC_RECOMMENDATIONS_REPORT.md](./STRATEGIC_RECOMMENDATIONS_REPORT.md) | Implemented and deferred strategic recommendations |
 | [NON_CODEABLE_ITEMS.md](./NON_CODEABLE_ITEMS.md) | Items requiring human/ops intervention before production launch |
-| [MODULE_STATUS.md](./MODULE_STATUS.md) | Full module status matrix — all 42 services with endpoints and standards |
+| [MODULE_STATUS.md](./MODULE_STATUS.md) | Full module status matrix — all 43 services + api-search with endpoints and standards |
 
 ---
 
@@ -131,7 +131,7 @@
 
 | Path | Description |
 |------|-------------|
-| `deploy/k8s/base/` | Kubernetes base manifests — namespace, deployments, services, ingress, HPA (42 services), PDB (41 services), monitoring, ServiceMonitors (42 CRDs) |
+| `deploy/k8s/base/` | Kubernetes base manifests — namespace, deployments, services, ingress, HPA (42 services), PDB (42 services), monitoring, ServiceMonitors (43 CRDs) |
 | `deploy/k8s/overlays/` | Environment-specific overlays (dev, staging, prod) |
 | `deploy/monitoring/grafana/dashboards/` | Grafana dashboards — `ims-overview.json`, `api-performance.json`, `security-events.json`, `slo-overview.json` |
 | `deploy/monitoring/grafana/provisioning/` | Auto-provisioning — datasources (Prometheus, Alertmanager), dashboards, alerting (rules, contact-points, notification-policy) |
@@ -150,7 +150,7 @@
 | `.github/ISSUE_TEMPLATE/bug_report.yml` | Structured bug report with affected-module dropdown (all 40+ services) |
 | `.github/ISSUE_TEMPLATE/feature_request.yml` | Feature request with problem, solution, acceptance criteria fields |
 | `.github/workflows/ci.yml` | PR/push: lint, typecheck, unit tests (with Redis + Postgres services), build, E2E, accessibility |
-| `.github/workflows/cd.yml` | Main push: Docker build/push for 42 services, staging smoke test, post-deploy validation |
+| `.github/workflows/cd.yml` | Main push: Docker build/push for 43+ services, staging smoke test, post-deploy validation |
 | `.github/workflows/security.yml` | Weekly + PR: dependency audit, CodeQL, TruffleHog secrets, Trivy container scan, Semgrep SAST, ZAP DAST |
 | `.github/workflows/tests.yml` | Daily 6am: unit tests + lint + typecheck |
 | `.github/workflows/dependency-review.yml` | PR: blocks merges with HIGH/CRITICAL CVEs; enforces allowed license list |
@@ -191,23 +191,23 @@
 
 | Metric | Value |
 |--------|-------|
-| API Microservices | 42 |
+| API Microservices | 43 + api-search (4050) |
 | Web Applications | 44 |
-| Shared NPM Packages | 63 |
+| Shared NPM Packages | 391 |
 | Prisma Schemas | 44 |
-| Database Models | 606 |
+| Database Models | ~590 |
 | Database Enums | 781 |
 | REST API Endpoints | 2,558 |
-| Unit Tests | 823,153 / 799 suites |
+| Unit Tests | ~1,202,000 / ~1,084 suites / 438 projects |
 | Code Score | 100/100 |
 | ISO Standards Supported | 16+ |
 | GitHub Workflows | 7 |
 | Grafana Dashboards | 4 |
 | Prometheus Alert Rules | 19 |
 | Prometheus Recording Rules | 23 |
-| K8s HPA Resources | 41 |
-| K8s PDB Resources | 41 |
+| K8s HPA Resources | 42 |
+| K8s PDB Resources | 42 |
 | UAT Test Plans | 40 (1,000 BDD test cases) |
 | ADRs | 6 |
 
-*Updated: February 23, 2026*
+*Updated: February 27, 2026*

@@ -1,5 +1,5 @@
 # OpenTelemetry Collector configuration for Nexara IMS
-# Receives traces/metrics from all 42 API services and forwards to storage
+# Receives traces/metrics from all 43 API services + api-search and forwards to storage
 # Documentation: docs/TRACING.md
 
 receivers:

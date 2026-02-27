@@ -57,7 +57,7 @@ module.exports = {
       cwd: './apps/api-health-safety',
       env: { PORT: 4001, NODE_ENV: 'production' },
     },
-    // ... repeat for all 42 API services (ports 4000-4041)
+    // ... repeat for all 43 API services (ports 4000-4041 + 4050)
     {
       name: 'web-dashboard',
       script: 'node_modules/.bin/next',

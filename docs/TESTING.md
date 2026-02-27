@@ -10,7 +10,7 @@
 
 ## Overview
 
-823,153 Jest unit tests across 799 suites (all passing), plus 40 integration test scripts (~1,800+ assertions). See `docs/TESTING_GUIDE.md` for the comprehensive testing reference.
+~1,202,000 Jest unit tests across ~1,084 suites / 438 projects (all passing), plus 40 integration test scripts (~1,800+ assertions). See `docs/TESTING_GUIDE.md` for the comprehensive testing reference.
 
 ---
 
@@ -151,12 +151,12 @@ curl -s http://localhost:4000/api/auth/me | jq
 
 ## Test Coverage Summary
 
-| Area               | Tests          |
-| ------------------ | -------------- |
-| 42 API services    | ~300,000       |
-| 44 web apps        | ~120,300       |
-| 124 shared packages | ~318,565       |
-| **Total**          | **823,153**    |
+| Area                | Tests              |
+| ------------------- | ------------------ |
+| 43 API services + api-search | ~440,000  |
+| 44 web apps         | ~130,000           |
+| 391 shared packages | ~632,000           |
+| **Total**           | **~1,202,000**     |
 
 All services have route-level unit test coverage + RBAC middleware tests. See `docs/TESTING_GUIDE.md` for the full reference.
 

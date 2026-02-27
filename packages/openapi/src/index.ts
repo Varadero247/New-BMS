@@ -4,7 +4,7 @@
 /**
  * @ims/openapi — OpenAPI 3.0 Specification Generator
  *
- * Generates a complete OpenAPI spec covering all 42 API services.
+ * Generates a complete OpenAPI spec covering all 43 API services + api-search.
  */
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -619,6 +619,17 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
+    tag: 'Search',
+    prefix: '/api/search',
+    description: 'Global Search microservice — full-text search across all modules',
+    port: 4050,
+    endpoints: [
+      { method: 'get', path: '/api/search', summary: 'Global search', operationId: 'globalSearch', paginated: true },
+      { method: 'get', path: '/api/search/suggest', summary: 'Search suggestions', operationId: 'searchSuggest' },
+      { method: 'get', path: '/api/search/recent', summary: 'Recent searches', operationId: 'recentSearches' },
+    ],
+  },
+  {
     tag: 'Gateway',
     prefix: '/api',
     description: 'API Gateway — auth, users, dashboard, admin',
@@ -828,7 +839,7 @@ export function generateOpenApiSpec(): OpenApiSpec {
       title: 'IMS — Integrated Management System API',
       version: '1.0.0',
       description:
-        'Complete API reference for the IMS platform covering 42 API services across ISO 9001, 14001, 45001, 27001, 42001, 37001, 22000, 50001, IATF 16949, AS9100, ISO 13485 and more.',
+        'Complete API reference for the IMS platform covering 43 API services + api-search (4050) across ISO 9001, 14001, 45001, 27001, 42001, 37001, 22000, 50001, IATF 16949, AS9100, ISO 13485 and more.',
       contact: {
         name: 'IMS Platform Team',
         email: 'api@ims.local',

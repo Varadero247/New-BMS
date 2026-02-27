@@ -143,7 +143,7 @@
 
 1. Run `pnpm install --no-frozen-lockfile`
 2. Resolve any peer dependency warnings
-3. Run `pnpm test` to verify all 823,153 tests still pass
+3. Run `pnpm test` to verify all ~1,202,000 tests still pass
 4. Run `pnpm build` to verify all apps build successfully
 
 ---
@@ -172,7 +172,7 @@
 
 **Recommended stack:**
 
-- **Metrics:** Prometheus + Grafana (scrape `/metrics` endpoints on all 42 APIs)
+- **Metrics:** Prometheus + Grafana (scrape `/metrics` endpoints on all 43 APIs + api-search)
 - **Logging:** ELK Stack or Loki (aggregate structured logs)
 - **Alerting:** PagerDuty/OpsGenie integration
 - **APM:** Datadog or New Relic (optional)

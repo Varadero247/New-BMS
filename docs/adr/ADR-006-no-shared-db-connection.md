@@ -13,11 +13,11 @@
 
 ## Context
 
-With 42 API services all connecting to the same PostgreSQL instance, connection pooling strategy is critical. The database's `max_connections` is configured at 100.
+With 43+ API services all connecting to the same PostgreSQL instance, connection pooling strategy is critical. The database's `max_connections` is configured at 100.
 
 Without a connection strategy:
 - Each service's Prisma client opens a pool of connections by default (typically 5–10)
-- 42 services × 5 connections = 210 connections → exceeds `max_connections=100`
+- 43 services × 5 connections = 215 connections → exceeds `max_connections=100`
 - Services start failing with "too many clients" errors under load
 
 Options:
@@ -34,12 +34,12 @@ Add `?connection_limit=1` to every service's `DATABASE_URL` / domain-specific UR
 HEALTH_SAFETY_DATABASE_URL=postgresql://postgres:...@localhost:5432/ims?connection_limit=1
 ```
 
-This is applied to all 42 API services and `packages/database/.env`.
+This is applied to all 43+ API services and `packages/database/.env`.
 
 ## Consequences
 
 **Positive:**
-- 42 services × 1 connection = 42 total connections — well within `max_connections=100`
+- 43+ services × 1 connection = 43+ total connections — well within `max_connections=100`
 - No PgBouncer required — reduces operational complexity
 - Prisma lazy-connects (opens the connection only on first query) — services that are idle hold 0 connections
 - Sufficient for current load: each service handles requests sequentially per connection; under low-to-medium load this is adequate

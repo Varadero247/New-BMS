@@ -18,8 +18,8 @@ describe('@ims/status', () => {
   });
 
   describe('SERVICE_REGISTRY', () => {
-    it('should have exactly 42 services', () => {
-      expect(SERVICE_REGISTRY).toHaveLength(42);
+    it('should have exactly 43 services', () => {
+      expect(SERVICE_REGISTRY).toHaveLength(43);
     });
 
     it('should have unique names', () => {
@@ -32,10 +32,10 @@ describe('@ims/status', () => {
       expect(new Set(ports).size).toBe(ports.length);
     });
 
-    it('should have ports in range 4000-4041', () => {
+    it('should have ports in range 4000-4050', () => {
       for (const service of SERVICE_REGISTRY) {
         expect(service.port).toBeGreaterThanOrEqual(4000);
-        expect(service.port).toBeLessThanOrEqual(4041);
+        expect(service.port).toBeLessThanOrEqual(4050);
       }
     });
 
@@ -55,6 +55,7 @@ describe('@ims/status', () => {
       expect(ports).toContain(4037); // Audits
       expect(ports).toContain(4040); // Chemicals
       expect(ports).toContain(4041); // Emergency
+      expect(ports).toContain(4050); // Search
     });
   });
 
@@ -86,9 +87,9 @@ describe('@ims/status', () => {
   });
 
   describe('getAllServiceStatus', () => {
-    it('should return status for all 42 services', () => {
+    it('should return status for all 43 services', () => {
       const statuses = getAllServiceStatus();
-      expect(statuses).toHaveLength(42);
+      expect(statuses).toHaveLength(43);
     });
 
     it('each service should have all required fields', () => {

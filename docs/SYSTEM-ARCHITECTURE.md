@@ -392,8 +392,8 @@ Total services running: 52 / 52
 - **Monorepo**: Turborepo
 - **Package Manager**: pnpm
 - **Build Tool**: tsup (all API services and shared packages)
-- **Testing**: Jest (~1,161,000 tests across ~1,051 suites), 40 integration test scripts (~1,800+ assertions), CI via GitHub Actions
-- **Containerization**: Docker Compose (43 APIs + 44 web apps + PostgreSQL + Redis + main API)
+- **Testing**: Jest (~1,202,000 tests across ~1,084 suites / 438 projects), 40 integration test scripts (~1,800+ assertions), CI via GitHub Actions
+- **Containerization**: Docker Compose (43 APIs + api-search:4050 + 44 web apps + PostgreSQL + Redis + main API)
 - **Logging**: Winston
 - **Metrics**: prom-client (Prometheus)
 
@@ -669,4 +669,4 @@ psql $DATABASE_URL -c "SELECT 1"
 
 ---
 
-_Last Updated: February 13, 2026_
+_Last Updated: February 27, 2026_

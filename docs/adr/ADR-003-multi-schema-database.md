@@ -16,7 +16,7 @@
 The platform manages ~590 database tables across domains including health & safety, environment, quality, finance, HR, and 38 more modules. Decisions:
 
 1. **Single Prisma schema** — all 590 tables in one `schema.prisma`
-2. **One schema per service** — each of the 42 services has its own schema
+2. **One schema per service** — each of the 43 services has its own schema
 3. **One schema per domain** — logical grouping (e.g., `core.prisma` covers auth/users/dashboard)
 
 ## Decision

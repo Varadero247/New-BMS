@@ -182,7 +182,7 @@ Built `@ims/sentry` to CJS dist, changed `"main"` from `"src/index.ts"` to `"dis
 To achieve a clean k6 run with all thresholds passing:
 
 ### 1. Deploy All Services
-All 42 API services must be running before the test:
+All 43 API services + api-search must be running before the test:
 ```bash
 ./scripts/start-all-services.sh
 # Wait 60s for startup

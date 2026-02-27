@@ -71,6 +71,7 @@ export const SERVICE_REGISTRY: Array<{ name: string; port: number }> = [
   { name: 'Setup Wizard', port: 4039 },
   { name: 'Chemicals', port: 4040 },
   { name: 'Emergency', port: 4041 },
+  { name: 'Search', port: 4050 },
 ];
 
 // ─── In-Memory Health Store ─────────────────────────────────────────────────

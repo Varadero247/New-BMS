@@ -94,6 +94,7 @@ jobs:
           - api-setup-wizard
           - api-chemicals
           - api-emergency
+          - api-search
 
     steps:
       - name: Checkout
@@ -305,6 +306,7 @@ jobs:
             "api-mgmt-review:4038"
             "api-chemicals:4040"
             "api-emergency:4041"
+            "api-search:4050"
           )
 
           FAILED=0

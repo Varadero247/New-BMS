@@ -362,9 +362,9 @@ describe('generateOpenApiSpec', () => {
   // ── Tag count ─────────────────────────────────────────────────
 
   describe('tag count', () => {
-    it('has exactly 42 tags matching the 42 API services', () => {
-      // 41 domain services + 1 Gateway = 42
-      expect(spec.tags).toHaveLength(42);
+    it('has exactly 43 tags matching the 43 API services + api-search', () => {
+      // 41 domain services + api-search + 1 Gateway = 43
+      expect(spec.tags).toHaveLength(43);
     });
 
     it('every tag has a non-empty name and description', () => {

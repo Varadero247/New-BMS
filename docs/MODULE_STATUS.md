@@ -8,9 +8,9 @@
 ---
 
 
-Last updated: 2026-02-16 (test counts are as-of Feb 16; actual counts are much higher — all
-services have been expanded to ≥1,000 tests per test file, for a platform total of 823,153 tests
-across 799 suites as of Feb 23, 2026. See `SYSTEM_STATE.md` for current totals.)
+Last updated: 2026-02-27 (test counts in the table below are historical; actual counts are much higher — all
+services have been expanded to ≥1,000 tests per test file, for a platform total of ~1,202,000 tests
+across ~1,084 suites / 438 projects as of Feb 27, 2026. See `SYSTEM_STATE.md` for current totals.)
 
 ## API Services
 
@@ -60,7 +60,7 @@ across 799 suites as of Feb 23, 2026. See `SYSTEM_STATE.md` for current totals.)
 | Emergency           | ISO 22320 / ISO 22301   | api-emergency          | 4041 | Active | 45        | 216   | 2026-02-16   |
 | Setup Wizard        | Guided Setup            | api-setup-wizard       | 4039 | Active | 5         | 15    | 2026-02-16   |
 
-**Total: 43 services | ~1,727 endpoints | ~12,321 tests**
+**Total: 43 services + api-search (4050) | ~1,727+ endpoints | ~1,202,000 unit tests (all passing)**
 
 ## Shared Packages
 
@@ -106,7 +106,7 @@ across 799 suites as of Feb 23, 2026. See `SYSTEM_STATE.md` for current totals.)
 | @ims/regulatory-feed | Regulatory update feeds | - |
 | @ims/benchmarks | Performance benchmarking | - |
 
-**Total: 124 packages | ~318,565 package-level tests**
+**Total: 391 packages | ~1,202,000 unit tests (all packages ≥1,000 tests each)**
 
 ## Standards Compliance Matrix
 

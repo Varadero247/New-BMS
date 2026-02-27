@@ -148,6 +148,7 @@ jobs:
           - api-setup-wizard
           - api-chemicals
           - api-emergency
+          - api-search
 
     steps:
       - name: Checkout

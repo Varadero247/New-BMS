@@ -8,7 +8,7 @@
 ---
 
 
-242 shared packages in `packages/`. All use `@ims/*` scope.
+391 shared packages in `packages/`. All use `@ims/*` scope.
 
 ---
 

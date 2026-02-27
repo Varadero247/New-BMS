@@ -10,10 +10,9 @@
 ## Complete Technical & Operational Reference Manual
 
 **Document Version:** 2.0
-**Last Updated:** February 21, 2026
+**Last Updated:** February 27, 2026 (Phase 124 — 391 packages, ~1,202,000 tests)
 **Classification:** Internal Use Only
 **Repository:** `/home/dyl/New-BMS`
-**Branch:** `feature/100-percent-score`
 
 ---
 
@@ -21,9 +20,9 @@
 
 1. [Platform Overview](#1-platform-overview)
 2. [System Architecture](#2-system-architecture)
-3. [API Service Inventory (42 Services)](#3-api-service-inventory)
+3. [API Service Inventory (43 Services + api-search)](#3-api-service-inventory)
 4. [Web Application Inventory (44 Apps)](#4-web-application-inventory)
-5. [Shared Package Reference (63 Packages)](#5-shared-package-reference)
+5. [Shared Package Reference (391 Packages)](#5-shared-package-reference)
 6. [Database Schema Reference](#6-database-schema-reference)
 7. [Module-Specific SOPs](#7-module-specific-sops)
 8. [API Reference](#8-api-reference)
@@ -42,19 +41,19 @@
 
 Nexara is an **Integrated Management System (IMS)** built for regulated industries. It unifies quality, environmental, health & safety, food safety, aerospace, automotive, medical, financial compliance, HR, and 20+ other management domains into a single multi-tenant SaaS platform.
 
-### 1.2 Key Statistics (February 2026)
+### 1.2 Key Statistics (February 27, 2026 — Phase 124)
 
 | Metric | Count |
 |--------|-------|
-| API Microservices | 42 |
+| API Microservices | 43 + api-search (4050) |
 | Web Applications (Next.js) | 44 |
-| Shared NPM Packages | 63 |
+| Shared NPM Packages | 391 |
 | Prisma Database Schemas | 44 |
-| Database Models | 606 |
-| Database Enums | 781 |
-| REST API Endpoints | 2,558 |
-| Unit Test Files | 655 |
-| Unit Test Cases | 17,410 |
+| Database Models | ~590 |
+| Database Enums | 781+ |
+| REST API Endpoints | 2,558+ |
+| Unit Test Files | ~1,084 suites |
+| Unit Test Cases | ~1,202,000 |
 | Node.js Requirement | ≥ 20.0.0 |
 | Package Manager | pnpm ≥ 9.0.0 |
 | Code Evaluation Score | 100/100 |
@@ -166,8 +165,8 @@ Nexara is an **Integrated Management System (IMS)** built for regulated industri
            ┌───────────────────────▼──────────────────────┐
            │                 DATA LAYER                    │
            │  PostgreSQL 16 (port 5432)                   │
-           │    44 schemas, 606 models, 781 enums          │
-           │    connection_limit=1 per service (~42 total) │
+           │    44 schemas, ~590 models, 781+ enums         │
+           │    connection_limit=1 per service (~43+ total) │
            │                                              │
            │  Redis 7 (port 6379)                         │
            │    Rate limit counters (persistent)           │
@@ -1187,7 +1186,7 @@ QUALITY_DATABASE_URL=...
 # (etc. — each service has its OWN named env var, NOT DATABASE_URL)
 
 # Connection pooling
-connection_limit=1  # per service, 42 services × 1 = 42 connections (within max_connections=100)
+connection_limit=1  # per service, 43+ services × 1 = 43+ connections (within max_connections=100)
 ```
 
 ### 6.4 Safe Schema Migration Process
@@ -1819,7 +1818,7 @@ cp apps/api-gateway/.env.example apps/api-gateway/.env
 # 4. Seed database
 ./scripts/seed-all.sh
 
-# 5. Start all 86 services (42 API + 44 web)
+# 5. Start all 88 services (43 API + api-search + 44 web)
 ./scripts/start-all-services.sh
 
 # 6. Check health
@@ -1943,7 +1942,7 @@ Response:
 }
 ```
 
-Check all 42 services:
+Check all 43+ services:
 ```bash
 ./scripts/check-services.sh
 # or individually:
@@ -1990,7 +1989,7 @@ Log format: JSON, includes `correlationId`, `service`, `timestamp`, `level`.
 ```bash
 ./scripts/pre-launch-check.sh
 # Runs 111 checks:
-# - All 42 API services healthy
+# - All 43 API services + api-search healthy
 # - All 44 web apps running
 # - JWT secret configured
 # - Database connected
@@ -2374,7 +2373,7 @@ pnpm test -- --testPathPattern="nonconformances"
 pnpm test --watch
 ```
 
-**Current Status:** 17,410 tests / 655 suites — ALL PASSING
+**Current Status:** ~1,202,000 tests / ~1,084 suites / 438 projects — ALL PASSING
 
 **Test Structure:**
 ```typescript
@@ -2502,7 +2501,7 @@ pnpm audit --audit-level=high
 | Script | Purpose |
 |--------|---------|
 | `./scripts/startup.sh` | Full system startup (handles port conflicts, Docker, seeds) |
-| `./scripts/start-all-services.sh` | Start all 86 services (42 API + 44 web) |
+| `./scripts/start-all-services.sh` | Start all 88 services (43 API + api-search + 44 web) |
 | `./scripts/stop-all-services.sh` | Gracefully stop all services |
 | `./scripts/check-services.sh` | Health check all 51+ services |
 | `./scripts/pre-launch-check.sh` | 111-point pre-launch validation |

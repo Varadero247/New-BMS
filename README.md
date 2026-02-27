@@ -11,11 +11,11 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/Redis-6+-DC382D?logo=redis)](https://redis.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/Tests-708%2C565%20passing-brightgreen)](docs/TESTING_GUIDE.md)
+[![Tests](https://img.shields.io/badge/Tests-1%2C202%2C000%20passing-brightgreen)](docs/TESTING_GUIDE.md)
 [![Code Score](https://img.shields.io/badge/Code%20Score-100%2F100-brightgreen)](docs/CODE_EVALUATION_REPORT.md)
 [![Mutation Score](https://img.shields.io/badge/Mutation-80.76%25-yellow)](docs/MUTATION_TESTING.md)
 
-Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 29 ISO standards · 86 apps · 71 packages · 6 verticals, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
+Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 29 ISO standards · 43 APIs · 44 web apps · 391 packages · 6 verticals, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
 
 ---
 
@@ -109,6 +109,7 @@ Default login credentials after seeding:
 | api-setup-wizard       | 4039 | Setup Wizard                           |
 | api-chemicals          | 4040 | Chemical Management (COSHH/GHS)        |
 | api-emergency          | 4041 | Fire, Emergency & Disaster Management  |
+| api-search             | 4050 | Global Search microservice             |
 
 ### Web Applications (Next.js 15)
 
@@ -201,10 +202,10 @@ New-BMS/
 │   ├── email/                # Email templates + sending
 │   ├── event-bus/            # Cross-service event system
 │   ├── sdk/                  # @ims/sdk public SDK
-│   └── .../                  # 63 more shared packages
+│   └── .../                  # 391 total shared packages
 ├── scripts/
 │   ├── startup.sh            # Full system startup
-│   ├── start-all-services.sh # Start all 86 services
+│   ├── start-all-services.sh # Start all 88 services
 │   ├── stop-all-services.sh  # Stop all services
 │   └── check-services.sh     # Health check all services
 ├── docs/                     # Documentation
@@ -225,7 +226,7 @@ See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for the complete development envi
 | [TESTING_GUIDE.md](docs/TESTING_GUIDE.md)                    | All 7 test layers — unit, integration, load, UAT, E2E    |
 | [RUNBOOK.md](docs/RUNBOOK.md)                                 | Operational runbook — alerts, incidents, deployment      |
 | [SYSTEM-ARCHITECTURE.md](docs/SYSTEM-ARCHITECTURE.md)        | System architecture, diagrams, and design decisions      |
-| [API_REFERENCE.md](docs/API_REFERENCE.md)                    | Full API reference for all 42 services                   |
+| [API_REFERENCE.md](docs/API_REFERENCE.md)                    | Full API reference for all 43 services + api-search      |
 | [DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md)      | Production deployment and restart procedure              |
 | [SECURITY.md](docs/SECURITY.md)                              | Security implementation details                          |
 | [MUTATION_TESTING.md](docs/MUTATION_TESTING.md)              | Stryker mutation testing guide (80.76% score)            |

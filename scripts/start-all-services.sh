@@ -74,6 +74,7 @@ start_service "@ims/api-mgmt-review" "api-mgmt-review" "Management Review API"
 start_service "@ims/api-setup-wizard" "api-setup-wizard" "Setup Wizard API"
 start_service "@ims/api-chemicals" "api-chemicals" "Chemicals API"
 start_service "@ims/api-emergency" "api-emergency" "Emergency API"
+start_service "@ims/api-search" "api-search" "Global Search API"
 
 sleep 3  # Give APIs time to start
 
@@ -216,6 +217,9 @@ echo "  Incidents:          http://localhost:3041 (API: 4036)"
 echo "  Audits:             http://localhost:3042 (API: 4037)"
 echo "  Mgmt Review:        http://localhost:3043 (API: 4038)"
 echo "  Setup Wizard:       API: 4039"
+echo "  Chemicals:          http://localhost:3044 (API: 4040)"
+echo "  Emergency:          http://localhost:3045 (API: 4041)"
+echo "  Global Search:      API: 4050"
 echo ""
 echo "View logs: ls -la $LOG_DIR"
 echo "Check status: ./scripts/check-services.sh"

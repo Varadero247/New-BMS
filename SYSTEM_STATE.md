@@ -1,19 +1,19 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-25 (Phase 95 — 11 packages: avl-tree, splay-tree, merkle-tree, trie, lru-cache-2, segment-tree-2, finite-automata, segment-tree, deque, heap-utils, sorting-algorithms)
+> Last updated: 2026-02-27 (Phase 124 — IMS domain packages: inspection-management, contractor-management, waste-management, energy-monitoring, complaint-management)
 
 ## Summary
 
 | Category                 | Count                                  |
 | ------------------------ | -------------------------------------- |
-| API Services             | 43 (+ 1 main API)                             |
-| Web Applications         | 44                                            |
-| Shared Packages          | 248                                           |
-| Prisma Schemas           | 44                                            |
-| Database Tables (models) | ~590                                          |
-| Scripts                  | 60+                                           |
-| Unit Tests               | ~1,161,000 across ~1,051 suites (all passing) |
-| Integration Test Scripts | 40                                            |
+| API Services             | 43 total (gateway:4000, 41 domain:4001–4041, search:4050) |
+| Web Applications         | 44                                                    |
+| Shared Packages          | 391                                                   |
+| Prisma Schemas           | 44                                                    |
+| Database Tables (models) | ~590                                                  |
+| Scripts                  | 60+                                                   |
+| Unit Tests               | ~1,202,000 across ~1,084 suites / 438 projects (all passing) |
+| Integration Test Scripts | 40                                                    |
 
 ---
 
@@ -64,6 +64,7 @@
 | Setup Wizard       | `apps/api-setup-wizard/`       | 4039 | Guided setup wizard                                  | `wizard.prisma`             |
 | Chemicals          | `apps/api-chemicals/`          | 4040 | ISO 11014, COSHH, GHS/CLP, REACH                     | `chemicals.prisma`          |
 | Emergency          | `apps/api-emergency/`          | 4041 | ISO 22320, ISO 22301, FSO 2005, BSA 2022             | `emergency.prisma`          |
+| Search             | `apps/api-search/`             | 4050 | Global Search microservice (cross-domain full-text)  | —                           |
 
 ---
 
@@ -118,7 +119,9 @@
 
 ---
 
-## Shared Packages (61)
+## Shared Packages (391)
+
+> The table below lists the 61 original core packages. An additional 330 domain and strategy packages were added across Phases 42–124. See `docs/PACKAGES.md` for the full enumerated list.
 
 | Package                      | Directory                         | Description                                                                               |
 | ---------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -308,6 +311,7 @@
 | `/api/wizard/*`             | api-setup-wizard       | 4039 |
 | `/api/chemicals/*`          | api-chemicals          | 4040 |
 | `/api/emergency/*`          | api-emergency          | 4041 |
+| `/api/search/*`             | api-search             | 4050 |
 
 All routes also available under `/api/v1/` prefix.
 
@@ -318,9 +322,9 @@ All routes also available under `/api/v1/` prefix.
 | Script                              | Description                                                          |
 | ----------------------------------- | -------------------------------------------------------------------- |
 | `scripts/startup.sh`                | Full startup (kill ports, Docker up, seed DB, recreate tables)       |
-| `scripts/start-all-services.sh`     | Start all 86 services with staggered delays                          |
+| `scripts/start-all-services.sh`     | Start all 88 services with staggered delays                          |
 | `scripts/stop-all-services.sh`      | Stop all services (ports 4000-4041 + 3000-3045)                      |
-| `scripts/check-services.sh`         | Health check all 86 services                                         |
+| `scripts/check-services.sh`         | Health check all 88 services                                         |
 | `scripts/create-databases.sh`       | Create per-service databases                                         |
 | `scripts/migrate-data.sh`           | Migrate data between databases                                       |
 | `scripts/daily-report.sh`           | Generate daily status report                                         |
@@ -330,7 +334,7 @@ All routes also available under `/api/v1/` prefix.
 | `scripts/check-secrets.sh`          | Verify all required secrets are present                              |
 | `scripts/provision-db-users.sh`     | Provision database users per service                                 |
 | `scripts/pre-launch-check.sh`       | 111-point launch readiness check (8 categories)                      |
-| `scripts/typecheck-all.sh`          | TypeScript check across all 42 APIs + 44 web apps + packages         |
+| `scripts/typecheck-all.sh`          | TypeScript check across all 43 APIs + api-search + 44 web apps + packages (438 projects) |
 | `scripts/test-backup-restore.sh`    | Backup restore validation (7 steps, creates ims_restore_test DB)     |
 | `scripts/test-all-modules.sh`       | Master integration test runner — all 40 modules                      |
 | `scripts/test-hs-modules.sh`        | H&S integration tests (~70 assertions)                               |
@@ -456,6 +460,13 @@ Plus 31 additional scripts for AI, Automotive, Medical, Aerospace, CRM, InfoSec,
 | Phase 76–82 (Feb 24–25) | Utility package sprints (parser-utils through barcode-utils) | 45 new packages across 7 phases: parser-utils, sort-utils, math-utils, codec-utils, promise-utils, queue-utils, random-utils, time-utils, xml-utils, path-utils, collection-utils, template-engine, markdown-utils, stream-utils, csv-utils, regex-utils, binary-utils, log-utils, validator-utils, config-utils, http-utils, ip-utils, money-utils, table-utils, fuzzy-utils, jwt-utils, phone-utils, semver-utils, search-utils, html-utils, tz-utils, email-utils, cron-utils, totp-utils, stats-utils, slug-utils, compression-utils, observable, business-calendar, barcode-utils + 5 Phase 83 gap-closers: retry-utils, uuid-utils, hash-utils, mime-utils, sanitize-utils. **886,092 unit tests / 849 suites / 182 packages / 227 TypeScript projects — ALL PASSING.** |
 | Phase 110–117 (Feb 26) | Algorithm/DS library completion — full professional CS coverage | 40 new algorithm/DS packages: bit-manipulation, string-hashing, edit-distance, double-ended-queue, order-statistics-tree, matrix-ops, geometry-2d, interval-tree, interval-tree-2, suffix-array, number-theory, combinatorics, galois-field, persistent-segment-tree, z-algorithm, vp-tree, suffix-automaton, hyperloglog, count-min-sketch, dancing-links, cuckoo-hash, link-cut-tree, auto-diff, hungarian-algorithm, simplex-method, regex-engine, lsh, wavelet-tree, treap, sparse-table, monotone-queue, network-flow, polynomial, sampling, disjoint-sets, rope, kd-tree, skip-list, heavy-light-decomposition, interval-scheduling, centroid-decomposition, linear-recurrence. Also stale agents added: cartesian-tree, hash-table, b-plus-tree, graph-algorithms-2, red-black-tree, string-search, lru-cache-2, segment-tree-2. **~1,161,000 unit tests / ~1,051 suites / 358 packages / 406 TypeScript projects — ALL PASSING. Full CS library coverage complete.** |
 | Feb 26 (session 2) | Duplicate jest.config.js cleanup | Removed 4 stale duplicate entries added by background agents: sparse-table, skip-list, polynomial, network-flow. sparse-table expanded to 2,373 tests (+722). jest.config.js: 410 → 406 entries. |
+| Phase 118 (Feb 26, session 3) | NEXARA AI Safety & Cybersecurity Framework | 3 new packages: `@ims/ai-container` (1,002 tests), `@ims/ai-security` (1,000 tests), `@ims/cyber-security` (1,000 tests). Standards: ISO 42001, ISO 27001, NIST AI RMF, NIST CSF 2.0, OWASP Top 10, CIS Controls v8. Audit docs at `/home/dyl/Desktop/Nexara/Security-AI-Governance/` (4 files incl. Week 1–12 roadmap). Fixed wavelet-tree duplicate in jest.config.js. **~1,164,000 unit tests / ~1,054 suites / 361 packages / 408 TypeScript projects — ALL PASSING.** |
+| Phase 119 (Feb 26, session 4) | Security & Governance Packages | 5 new packages: `@ims/threat-intel` (1,225 tests), `@ims/data-governance` (1,045 tests), `@ims/security-scanner` (1,002 tests), `@ims/incident-response` (1,006 tests), `@ims/compliance-automation` (1,071 tests). IOC management, CVE tracking, threat feeds, consent management, data classification, CVSS v3.1 scoring, patch tracking, playbook runner, SLA tracking, control testing, evidence collection, audit scheduling. **~1,169,000 unit tests / ~1,059 suites / 366 packages / 413 TypeScript projects — ALL PASSING.** |
+| Phase 120 (Feb 26, session 5) | IMS Domain Packages | 5 new packages: `@ims/supply-chain-risk` (1,187 tests), `@ims/business-continuity` (1,005 tests), `@ims/change-management` (1,372 tests), `@ims/knowledge-base` (1,000 tests), `@ims/performance-kpi` (1,000 tests). Vendor registry, supply chain incident tracking, BCP management, BCP testing, change request lifecycle, KB article store, category manager, KPI definition and measurement tracking. **~1,175,000 unit tests / ~1,064 suites / 371 packages / 418 TypeScript projects — ALL PASSING.** |
+| Phase 121 (Feb 26, session 6) | IMS Domain Packages II | 5 new packages: `@ims/asset-lifecycle` (1,023 tests), `@ims/training-tracker` (1,010 tests), `@ims/document-control` (1,353 tests), `@ims/corrective-action` (2,834 tests), `@ims/stakeholder-management` (1,427 tests). Asset registry, maintenance scheduler, straight-line/declining-balance depreciation, training records, competency gap tracking, ISO document versioning, review workflows, CAPA lifecycle, action tracking, stakeholder power/interest grid, communication tracking. **~1,183,000 unit tests / ~1,069 suites / 376 packages / 423 TypeScript projects — ALL PASSING.** |
+| Phase 122 (Feb 26, session 7) | IMS Domain Packages III | 5 new packages: `@ims/environmental-monitoring` (1,030 tests), `@ims/quality-control` (1,000 tests), `@ims/legal-register` (1,002 tests), `@ims/meeting-management` (1,841 tests), `@ims/objective-tracker` (1,224 tests). ISO 14001 emission/waste tracking, compliance status monitoring, ISO 9001 inspection management, defect/nonconformance tracking, ISO legal obligation management, ISO 9001/14001/45001 meeting lifecycle, minutes/action item tracking, management system objectives (ISO 6.2), target progress tracking. **~1,190,000 unit tests / ~1,074 suites / 381 packages / 428 TypeScript projects — ALL PASSING.** |
+| Phase 123 (Feb 26, session 8) | IMS Domain Packages IV | 5 new packages: `@ims/audit-management` (1,003 tests), `@ims/risk-register` (1,083 tests), `@ims/supplier-evaluation` (1,167 tests), `@ims/equipment-calibration` (1,068 tests), `@ims/permit-to-work` (1,201 tests). ISO 9001/14001/45001 internal audit planning/findings, ISO 31000 risk register with 5×5 matrix and treatment tracking, ISO 9001 clause 8.4 supplier qualification/evaluation (AVL), ISO 9001 clause 7.1.5/ISO 17025 calibration records/certificates, ISO 45001 permit-to-work workflow with LOTO isolation tracking. **~1,196,000 unit tests / ~1,079 suites / 386 packages / 433 TypeScript projects — ALL PASSING.** |
+| Phase 124 (Feb 26, session 9) | IMS Domain Packages V | 5 new packages: `@ims/inspection-management` (1,026 tests), `@ims/contractor-management` (1,007 tests), `@ims/waste-management` (1,016 tests), `@ims/energy-monitoring` (1,002 tests), `@ims/complaint-management` (1,105 tests). ISO 9001 inspection planning/checklists, ISO 45001 contractor induction/permit tracking, ISO 14001 waste register/disposal tracking, ISO 50001 energy meter management/baseline comparison (IMPROVEMENT/NO_CHANGE/DETERIORATION), ISO 10002 complaint register with auto-reference (CMP-YYYY-NNN) and resolution SLA tracking. **~1,202,000 unit tests / ~1,084 suites / 391 packages / 438 TypeScript projects — ALL PASSING.** |
 
 ---
 

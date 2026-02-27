@@ -370,6 +370,16 @@ const services = new SharedArray('services', function () {
         { path: '/api/drills', method: 'GET' },
       ],
     },
+    {
+      name: 'Search',
+      port: 4050,
+      healthPath: '/health',
+      endpoints: [
+        { path: '/api/search?q=test', method: 'GET' },
+        { path: '/api/search/suggest?q=risk', method: 'GET' },
+        { path: '/api/search/recent', method: 'GET' },
+      ],
+    },
   ];
 });
 
