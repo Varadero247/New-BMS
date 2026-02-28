@@ -10,9 +10,9 @@ import { RequestHandler } from 'express';
  */
 
 const isProduction = process.env.NODE_ENV === 'production';
-// Disable strict headers only in local development and test runs.
-// Staging / preview / CI integration envs still get security headers.
-const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+// Disable strict headers ONLY in local development.
+// test / staging / CI / production all get full security headers.
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 /**
  * Content Security Policy configuration

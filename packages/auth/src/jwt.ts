@@ -71,7 +71,7 @@ export function generateToken(options: GenerateTokenOptions): string {
  */
 export function generateRefreshToken(userId: string): string {
   return jwt.sign({ userId, type: 'refresh' }, getJwtRefreshSecret(), {
-    expiresIn: '7d',
+    expiresIn: '24h', // Reduced from 7d to limit exposure window on token theft
     issuer: JWT_ISSUER,
     audience: JWT_AUDIENCE,
   });

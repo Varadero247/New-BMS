@@ -223,6 +223,8 @@ describe('POST /api/queries/:id/execute', () => {
     mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sql: 'SELECT 1',
+      ownerId: 'user-123', // matches the test user injected by auth mock
+      isPublic: false,
     });
     mockPrisma.analyticsQuery.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
@@ -251,6 +253,8 @@ describe('POST /api/queries/:id/execute', () => {
     mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sql: 'DROP TABLE users',
+      ownerId: 'user-123',
+      isPublic: false,
     });
 
     const res = await request(app).post(
@@ -265,6 +269,8 @@ describe('POST /api/queries/:id/execute', () => {
     mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sql: 'SELECT 1; DROP TABLE users',
+      ownerId: 'user-123',
+      isPublic: false,
     });
 
     const res = await request(app).post(
@@ -393,6 +399,8 @@ describe('Queries — edge cases and extended coverage', () => {
     mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sql: 'SELECT 1',
+      ownerId: 'user-123',
+      isPublic: false,
     });
     mockPrisma.$transaction.mockRejectedValue(new Error('TX error'));
     const res = await request(app).post('/api/queries/00000000-0000-0000-0000-000000000001/execute');

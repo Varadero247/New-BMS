@@ -116,7 +116,7 @@ function createRateLimitHandler(message: string, limiterName = 'api') {
 
 /**
  * Authentication rate limiter - strict limits for login/register
- * 5 attempts per 15 minutes per IP+email combination
+ * 5 attempts per 15 minutes per IP (keyed on IP only to prevent user enumeration)
  */
 export const authLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -126,9 +126,10 @@ export const authLimiter: RateLimitRequestHandler = rateLimit({
   legacyHeaders: false,
   skip: skipRateLimit,
   keyGenerator: (req: Request) => {
-    const email = req.body?.email || 'unknown';
+    // Keyed on IP only — including email in the key allows user enumeration
+    // (attacker observes different rate-limit counters per email to detect existence)
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    return `auth:${ip}:${email}`;
+    return `auth:${ip}`;
   },
   store: createStore(),
   handler: createRateLimitHandler('Too many login attempts. Please try again in 15 minutes.', 'auth'),

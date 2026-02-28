@@ -19,7 +19,7 @@ const logger = createLogger('api-gateway:api-key-auth');
  *
  * On success, injects orgId and scopes into req context and increments usage stats.
  */
-export function apiKeyAuth(req: Request, _res: Response, next: NextFunction): void {
+export async function apiKeyAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
 
   // No auth header or not a Bearer token — skip
@@ -38,51 +38,47 @@ export function apiKeyAuth(req: Request, _res: Response, next: NextFunction): vo
 
   const prefix = token.substring(0, 12);
 
-  // Look up by prefix in database
-  prisma.apiKey
-    .findFirst({ where: { prefix, isActive: true } })
-    .then((record) => {
-      if (!record) {
-        // Invalid or revoked key — let JWT auth reject
-        next();
-        return;
-      }
+  try {
+    const record = await prisma.apiKey.findFirst({ where: { prefix, isActive: true } });
 
-      // Verify bcrypt hash
-      return bcrypt.compare(token, record.keyHash).then((isValid) => {
-        if (!isValid) {
-          logger.warn('API key hash mismatch', { prefix });
-          next();
-          return;
-        }
-
-        // Inject context into request
-        (req as Request & { user?: Record<string, unknown> }).user = {
-          id: record.createdById,
-          orgId: record.orgId,
-          role: 'ADMIN', // API keys get admin-level access within their scopes
-          email: `apikey:${record.name}`,
-          apiKey: true,
-          apiKeyId: record.id,
-          scopes: record.permissions,
-        };
-
-        // Update usage stats (non-blocking fire-and-forget)
-        void prisma.apiKey
-          .update({
-            where: { id: record.id },
-            data: { usageCount: { increment: 1 }, lastUsedAt: new Date() },
-          })
-          .catch((err: Error) =>
-            logger.warn('Failed to update API key usage stats', { error: err.message })
-          );
-
-        logger.info('API key authenticated', { prefix, name: record.name });
-        next();
-      });
-    })
-    .catch((err: Error) => {
-      logger.error('API key verification error', { error: err.message });
+    if (!record) {
+      // Invalid or revoked key — let JWT auth reject
       next();
-    });
+      return;
+    }
+
+    const isValid = await bcrypt.compare(token, record.keyHash);
+    if (!isValid) {
+      logger.warn('API key hash mismatch', { prefix });
+      next();
+      return;
+    }
+
+    // Inject context into request
+    (req as Request & { user?: Record<string, unknown> }).user = {
+      id: record.createdById,
+      orgId: record.orgId,
+      role: 'ADMIN', // API keys get admin-level access within their scopes
+      email: `apikey:${record.name}`,
+      apiKey: true,
+      apiKeyId: record.id,
+      scopes: record.permissions,
+    };
+
+    // Update usage stats (non-blocking fire-and-forget)
+    void prisma.apiKey
+      .update({
+        where: { id: record.id },
+        data: { usageCount: { increment: 1 }, lastUsedAt: new Date() },
+      })
+      .catch((err: Error) =>
+        logger.warn('Failed to update API key usage stats', { error: err.message })
+      );
+
+    logger.info('API key authenticated', { prefix, name: record.name });
+    next();
+  } catch (err: unknown) {
+    logger.error('API key verification error', { error: (err as Error).message });
+    next();
+  }
 }

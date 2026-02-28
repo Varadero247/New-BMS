@@ -18,25 +18,28 @@ function NotActivatedContent() {
     setStatus('loading');
     setErrorMsg('');
 
-    // Simulate a brief validation delay
-    await new Promise((r) => setTimeout(r, 600));
-
     const trimmed = key.trim().toUpperCase();
 
-    // Nexara-issued keys follow the pattern NEXARA-ATP-<ORG>-<YEAR>
-    if (trimmed.startsWith('NEXARA-ATP-') && trimmed.length >= 20) {
-      // Set the activation cookie (expires 1 year)
-      const expires = new Date();
-      expires.setFullYear(expires.getFullYear() + 1);
-      document.cookie = `nexara_portal_key=${trimmed}; path=/; expires=${expires.toUTCString()}; SameSite=Strict`;
+    try {
+      // POST to server-side route so the cookie is set HttpOnly + Secure (FINDING-002)
+      const res = await fetch('/api/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: trimmed }),
+      });
 
-      setStatus('success');
-      setTimeout(() => router.push(next), 1200);
-    } else {
+      if (res.ok) {
+        setStatus('success');
+        setTimeout(() => router.push(next), 1200);
+      } else {
+        setStatus('error');
+        setErrorMsg(
+          'This activation key is not recognised. Keys are issued by Nexara and follow the format NEXARA-ATP-ORGNAME-YEAR. Contact training@nexara.io if you believe this is an error.'
+        );
+      }
+    } catch {
       setStatus('error');
-      setErrorMsg(
-        'This activation key is not recognised. Keys are issued by Nexara and follow the format NEXARA-ATP-ORGNAME-YEAR. Contact training@nexara.io if you believe this is an error.'
-      );
+      setErrorMsg('An error occurred while validating your key. Please try again.');
     }
   };
 

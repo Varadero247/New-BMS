@@ -28,11 +28,19 @@ const router: IRouter = Router();
 const lockoutManager = getAccountLockoutManager();
 
 /**
- * FINDING-031: Hash JWT before storing in DB session table.
- * If the DB is compromised, hashed tokens cannot be replayed directly.
- * The full JWT is only ever in memory/transit; the DB stores a SHA-256 digest.
+ * Hash JWT before storing in DB session table (FINDING-008 / FINDING-031).
+ * Uses HMAC-SHA256 with TOKEN_STORAGE_HMAC_KEY when set (cryptographically bound
+ * to the deployment secret). Falls back to plain SHA-256 only if no key is
+ * configured (e.g. local dev without .env).
+ *
+ * NOTE: Changing TOKEN_STORAGE_HMAC_KEY invalidates all active sessions —
+ * users will be asked to log in again.
  */
 function hashTokenForStorage(token: string): string {
+  const hmacKey = process.env.TOKEN_STORAGE_HMAC_KEY;
+  if (hmacKey) {
+    return crypto.createHmac('sha256', hmacKey).update(token).digest('hex');
+  }
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
@@ -112,7 +120,7 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
     // Successful login - reset lockout counter
     await lockoutManager.reset(email);
 
-    // Generate access token (15 minutes) and refresh token (7 days)
+    // Generate access token (15 minutes) and refresh token (24 hours)
     const accessToken = generateToken({
       userId: user.id,
       email: user.email,
@@ -121,7 +129,7 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
     });
     const refreshToken = generateRefreshToken(user.id);
     const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-    const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const refreshTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h (reduced from 7d)
 
     // Create session — store hashed token (FINDING-031: never store raw JWT in DB)
     await prisma.session.create({
@@ -339,7 +347,7 @@ router.post('/refresh', refreshLimiter, async (req, res) => {
     });
     const newRefreshToken = generateRefreshToken(user.id);
     const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const refreshTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h (reduced from 7d)
 
     // Delete expired sessions for this user, then create new session
     await prisma.session.deleteMany({

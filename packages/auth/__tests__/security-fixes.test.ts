@@ -123,14 +123,14 @@ describe('Security Fix Verification', () => {
       expect(expiresInMs).not.toBe(sevenDays);
     });
 
-    it('should default refresh token expiry to 7 days (not 30 days)', () => {
+    it('should default refresh token expiry to 24 hours (reduced from 7d, not 30d)', () => {
       const token = generateRefreshToken('user-123');
       const decoded = decodeToken(token)!;
       const expiresInMs = (decoded.exp! - decoded.iat!) * 1000;
-      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+      const twentyFourHours = 24 * 60 * 60 * 1000;
       const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
-      expect(expiresInMs).toBe(sevenDays);
+      expect(expiresInMs).toBe(twentyFourHours);
       expect(expiresInMs).not.toBe(thirtyDays);
     });
 

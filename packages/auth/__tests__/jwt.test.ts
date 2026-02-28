@@ -87,13 +87,13 @@ describe('JWT Utilities', () => {
       expect(token.split('.')).toHaveLength(3);
     });
 
-    it('should have 7 day expiration', () => {
+    it('should have 24 hour expiration (reduced from 7d for security)', () => {
       const token = generateRefreshToken('user-123');
       const decoded = decodeToken(token);
 
       const expiresIn = (decoded!.exp! - decoded!.iat!) * 1000;
-      const sevenDays = 7 * 24 * 60 * 60 * 1000;
-      expect(expiresIn).toBe(sevenDays);
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+      expect(expiresIn).toBe(twentyFourHours);
     });
 
     it('should include refresh type marker', () => {

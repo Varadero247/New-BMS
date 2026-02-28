@@ -12,19 +12,67 @@ import type { NextRequest } from 'next/server';
  * Activation keys are issued by Nexara via:
  *   training@nexara.io  |  https://nexara.io/contact
  *
- * Key format: NEXARA-ATP-<ORG_CODE>-<YEAR>
- * Example:    NEXARA-ATP-MERIDIAN-2026
+ * Key format (legacy):  NEXARA-ATP-<ORG_CODE>-<YEAR>
+ * Key format (signed):  NEXARA-ATP-<ORG_CODE>-<YEAR>-<16-char HMAC>
+ * Example:              NEXARA-ATP-MERIDIAN-2026
+ *
+ * FINDING-006 fix: When PORTAL_HMAC_SECRET is set, keys with a 5th dash-separated
+ * segment are verified against an HMAC-SHA256 signature.  Legacy keys (4 segments,
+ * no sig) remain accepted for backward compatibility with already-issued keys.
+ *
+ * Return type: NextResponse (sync, no HMAC) | Promise<NextResponse> (async, HMAC set).
+ * Tests run without PORTAL_HMAC_SECRET so the middleware stays synchronous and all
+ * existing test helpers continue to work without awaiting.
  */
-function isValidActivationKey(key: string | undefined): boolean {
+
+function isValidKeyPattern(key: string | undefined): boolean {
   if (!key) return false;
-  // Nexara-issued keys always start with the ATP (Administrator Training Programme) prefix
   return key.startsWith('NEXARA-ATP-') && key.length >= 20;
 }
 
-export function middleware(request: NextRequest) {
+async function isValidKeyWithHmac(key: string, secret: string): Promise<boolean> {
+  if (!key.startsWith('NEXARA-ATP-') || key.length < 20) return false;
+
+  // Keys with a signature have ≥5 segments: NEXARA-ATP-<ORG>-<YEAR>-<SIG>
+  const parts = key.split('-');
+  if (parts.length < 5) {
+    // Old-format key without signature — accept as legacy
+    return true;
+  }
+
+  const lastDash = key.lastIndexOf('-');
+  const payload = key.substring(0, lastDash);
+  const providedSig = key.substring(lastDash + 1).toLowerCase();
+
+  // Web Crypto API (Edge-runtime compatible)
+  const encoder = new TextEncoder();
+  const cryptoKey = await globalThis.crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const sigBytes = await globalThis.crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(payload));
+  const expectedSig = Array.from(new Uint8Array(sigBytes))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+    .substring(0, 16); // First 16 hex chars (64-bit security)
+
+  return providedSig === expectedSig;
+}
+
+function buildRedirect(request: NextRequest, pathname: string): NextResponse {
+  const url = request.nextUrl.clone();
+  url.pathname = '/not-activated';
+  url.searchParams.set('next', pathname);
+  return NextResponse.redirect(url);
+}
+
+export function middleware(request: NextRequest): NextResponse | Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
-  // Always allow: the not-activated page, Next.js internals, static assets
+  // Always allow: the not-activated page, Next.js internals, static assets, API routes
   if (
     pathname.startsWith('/not-activated') ||
     pathname.startsWith('/_next') ||
@@ -35,13 +83,18 @@ export function middleware(request: NextRequest) {
   }
 
   const activationKey = request.cookies.get('nexara_portal_key')?.value;
+  const hmacSecret = process.env.PORTAL_HMAC_SECRET;
 
-  if (!isValidActivationKey(activationKey)) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/not-activated';
-    // Preserve the originally requested path so we can redirect back after activation
-    url.searchParams.set('next', pathname);
-    return NextResponse.redirect(url);
+  if (hmacSecret) {
+    // Async path: HMAC-validate the key (FINDING-006)
+    return isValidKeyWithHmac(activationKey ?? '', hmacSecret).then((isValid) =>
+      isValid ? NextResponse.next() : buildRedirect(request, pathname)
+    );
+  }
+
+  // Synchronous path: pattern-only check (no HMAC secret configured)
+  if (!isValidKeyPattern(activationKey)) {
+    return buildRedirect(request, pathname);
   }
 
   return NextResponse.next();
