@@ -276,7 +276,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 ## Run Tests
 
 ```bash
-pnpm test                                # All Jest tests (~1,203,000 across ~1,085 suites / 439 projects — all passing)
+pnpm test                                # All Jest tests (~1,204,000 across ~1,086 suites / 440 projects — all passing)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 40 modules, ~1,800+ assertions)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -375,12 +375,13 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - **Phase 17**: Compliance gap closure — ISO 45001, HIPAA, COSHH, GRI, TCFD, ISO 27001:2022, AS9100D
   - **Phases 42-124**: 392 shared packages (all with ≥1,000 tests each); Global Search (api-search:4050); IP protection; Stryker mutation testing; k6 load scenarios; monitoring + alerting; IP protection + copyright headers
   - **Phase 125**: Knowledge Base — 801 self-service articles in `@ims/knowledge-base` (31 seed files); KB page in Admin Dashboard (`/knowledge-base`, port 3027); Module Owner & End User Training programmes (54 + 22 Markdown files); `apps/web-training-portal/` (port 3046, activation-key gated, 9 routes, 1,325 tests); 2 new packages (`@ims/module-owner-training`, `@ims/end-user-training`)
+  - **Phase 126**: Train-the-Trainer — `packages/train-the-trainer/` (32 MD files + TypeScript package: scoring engine, CohortManager, TrainerRegistry, programme-registry; 1,012 tests all passing); `/train-the-trainer` web portal route; homepage updated to 4-programme selector; 1 new package (`@ims/train-the-trainer`)
   - **Platform**: RBAC (39 roles), WebSocket notifications, visual workflow builder, PWA offline, performance baseline, i18n (4 locales), white-label theming, marketplace
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
 - 44 Prisma schemas, ~590 database models
-- 394 shared packages (all with test suites ≥1,000 tests each)
-- **Tests**: **~1,203,000 Jest tests (~1,085 suites / 439 projects)** + 40 integration test scripts (~1,800+ assertions) — ALL PASSING, 0 failures
-- **TypeScript**: 0 errors across all 43 APIs + 45 web apps + 394 packages (439 projects)
+- 395 shared packages (all with test suites ≥1,000 tests each)
+- **Tests**: **~1,204,000 Jest tests (~1,086 suites / 440 projects)** + 40 integration test scripts (~1,800+ assertions) — ALL PASSING, 0 failures
+- **TypeScript**: 0 errors across all 43 APIs + 45 web apps + 395 packages (440 projects)
 - **E2E**: 48 Playwright spec files, 195 tests across all 44 modules
 - **Code Evaluation**: 100/100 composite score (Security 100, Architecture 100, Code Quality 100)
 - **Mutation Testing**: Stryker 80.76% score (above 80% high threshold) — auth/security/rbac/finance configs

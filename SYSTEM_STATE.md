@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-28 (Phase 125 — Knowledge Base: 801 self-service articles + Module Owner & End User Training programmes (web-training-portal:3046, 1,325 tests, 2 new packages))
+> Last updated: 2026-02-28 (Phase 126 — Train-the-Trainer programme: 32 Markdown files + TypeScript package (1,012 tests), 1 new web route at /train-the-trainer, packages 394→395)
 
 ## Summary
 
@@ -8,11 +8,11 @@
 | ------------------------ | -------------------------------------- |
 | API Services             | 43 total (gateway:4000, 41 domain:4001–4041, search:4050) |
 | Web Applications         | 45                                                    |
-| Shared Packages          | 394                                                   |
+| Shared Packages          | 395                                                   |
 | Prisma Schemas           | 44                                                    |
 | Database Tables (models) | ~590                                                  |
 | Scripts                  | 60+                                                   |
-| Unit Tests               | ~1,203,000 across ~1,085 suites / 439 projects (all passing) |
+| Unit Tests               | ~1,204,000 across ~1,086 suites / 440 projects (all passing) |
 | Integration Test Scripts | 40                                                    |
 
 ---
@@ -120,9 +120,9 @@
 
 ---
 
-## Shared Packages (394)
+## Shared Packages (395)
 
-> The table below lists the 61 original core packages. An additional 333 domain and strategy packages were added across Phases 42–125. See `docs/PACKAGES.md` for the full enumerated list.
+> The table below lists the 61 original core packages. An additional 334 domain and strategy packages were added across Phases 42–126. See `docs/PACKAGES.md` for the full enumerated list.
 
 | Package                      | Directory                         | Description                                                                               |
 | ---------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -470,6 +470,7 @@ Plus 31 additional scripts for AI, Automotive, Medical, Aerospace, CRM, InfoSec,
 | Phase 123 (Feb 26, session 8) | IMS Domain Packages IV | 5 new packages: `@ims/audit-management` (1,003 tests), `@ims/risk-register` (1,083 tests), `@ims/supplier-evaluation` (1,167 tests), `@ims/equipment-calibration` (1,068 tests), `@ims/permit-to-work` (1,201 tests). ISO 9001/14001/45001 internal audit planning/findings, ISO 31000 risk register with 5×5 matrix and treatment tracking, ISO 9001 clause 8.4 supplier qualification/evaluation (AVL), ISO 9001 clause 7.1.5/ISO 17025 calibration records/certificates, ISO 45001 permit-to-work workflow with LOTO isolation tracking. **~1,196,000 unit tests / ~1,079 suites / 386 packages / 433 TypeScript projects — ALL PASSING.** |
 | Phase 124 (Feb 26, session 9) | IMS Domain Packages V | 5 new packages: `@ims/inspection-management` (1,026 tests), `@ims/contractor-management` (1,007 tests), `@ims/waste-management` (1,016 tests), `@ims/energy-monitoring` (1,002 tests), `@ims/complaint-management` (1,105 tests). ISO 9001 inspection planning/checklists, ISO 45001 contractor induction/permit tracking, ISO 14001 waste register/disposal tracking, ISO 50001 energy meter management/baseline comparison (IMPROVEMENT/NO_CHANGE/DETERIORATION), ISO 10002 complaint register with auto-reference (CMP-YYYY-NNN) and resolution SLA tracking. **~1,202,000 unit tests / ~1,084 suites / 392 packages / 438 TypeScript projects — ALL PASSING.** |
 | Phase 125 (Feb 28) | Knowledge Base + Module Owner & End User Training Programmes | (1) Expanded `@ims/knowledge-base` with 801 published articles across 31 seed files (GUIDE: 229, PROCEDURE: 320, FAQ: 60, REFERENCE: 192); KB page in Admin Dashboard with category tabs, full-text search, expandable cards. Fixed broken ts-jest@29.4.6 installation. (2) `packages/module-owner-training/` — 54 Markdown files covering 5 one-day programmes (Quality/NC, HSE, HR/Payroll, Finance/Contracts, Advanced); `packages/end-user-training/` — 22 Markdown files covering 4-hour Foundation programme. (3) `apps/web-training-portal/` (port 3046) — activation-key-gated Next.js portal with 9 new routes across 3 programme tracks (Administrator, Module Owner, End User); middleware.ts key-gate, 1,325 tests. New packages: `@ims/module-owner-training`, `@ims/end-user-training`. **~1,203,000 unit tests / ~1,085 suites / 394 packages / 439 TypeScript projects — ALL PASSING.** |
+| Phase 126 (Feb 28) | Train-the-Trainer Programme | `packages/train-the-trainer/` — 32 Markdown files across 6 subdirectories + full TypeScript package (1,012 tests, all passing): types, scoring engine, CohortManager, TrainerRegistry, programme-registry. Dual assessment: written (20 MCQ, ≥75%) + observed delivery (20 min, 5-domain 4-point scale, ≥70%); 14 CPD hours; max 8 participants. Web portal: `/train-the-trainer` route added to `apps/web-training-portal`; homepage updated to 4-programme selector with purple-accented T3 card. New package: `@ims/train-the-trainer`. **395 packages / 440 TypeScript projects / ~1,204,000 unit tests — ALL PASSING.** |
 
 ---
 

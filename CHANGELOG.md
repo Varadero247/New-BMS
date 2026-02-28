@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Phase 126] — 2026-02-28
+
+### Added
+- **Train-the-Trainer Programme** (`packages/train-the-trainer/`): 32 Markdown files covering the complete 2-day instructor-led certification programme
+  - `00-programme-overview/` (4 files): PROGRAMME-OVERVIEW.md, LEARNING-OBJECTIVES.md, COMPETENCY-FRAMEWORK.md, CERTIFICATION-CRITERIA.md
+  - `01-day-1-foundations/` (7 files): DAY-1-SCHEDULE.md, DAY-1-FACILITATION-GUIDE.md, MODULE-ADULT-LEARNING.md, MODULE-FACILITATION-SKILLS.md, MODULE-NEXARA-CURRICULUM.md, LAB-DAY-1.md, ANSWER-KEY-DAY-1.md
+  - `02-day-2-delivery-certification/` (7 files): DAY-2-SCHEDULE.md, DAY-2-FACILITATION-GUIDE.md, MODULE-ASSESSMENT-DELIVERY.md, MODULE-PROGRAMME-MANAGEMENT.md, LAB-DAY-2.md, ASSESSMENT-WRITTEN.md, ANSWER-KEY-WRITTEN.md
+  - `03-trainer-certification/` (4 files): DELIVERY-OBSERVER-CHECKLIST.md, CERTIFICATE-SPEC.md, CO-BRANDING-GUIDE.md, AWARD-CRITERIA.md
+  - `04-curriculum-handover/` (3 files): CURRICULUM-HANDOVER-GUIDE.md, CUSTOMISATION-GUIDE.md, VERSION-CONTROL-GUIDE.md
+  - `05-delivery-logistics/` (3 files): INTERNAL-TRAINER-HANDBOOK.md, VIRTUAL-DELIVERY-GUIDE.md, IN-PERSON-DELIVERY-GUIDE.md
+  - Plus `package.json`, `README.md`, and full TypeScript package (1,012 tests — all passing)
+  - TypeScript sources: `types.ts` (all domain interfaces), `scoring.ts` (written/delivery/renewal scoring engine), `cohort-manager.ts` (CohortManager class), `trainer-registry.ts` (TrainerRegistry class), `programme-registry.ts` (programme structure + validation), `index.ts`
+  - Certification: dual assessment — written (20 MCQ, ≥75%) + observed delivery (20 min, ≥70% on 5-domain 4-point scale); both required for "Nexara Certified Internal Trainer" credential; 14 CPD hours; max 8 participants
+- **Training Portal — Train-the-Trainer page** (`apps/web-training-portal/src/app/train-the-trainer/page.tsx`): purple-accented landing page with programme stats, 2-day structure detail, certification requirements table, curriculum-included cards, and request CTA (mailto only — no self-serve enrolment)
+- **Training Portal homepage** (`apps/web-training-portal/src/app/page.tsx`): updated to 4-programme selector; added T3 card with purple accent; updated hero text from "Three" to "Four"; added Train-the-Trainer nav link; imported `GraduationCap` icon
+
+### Changed
+- Shared packages count: 394 → 395 (added `@ims/train-the-trainer`)
+- SYSTEM_STATE.md, QUICK_REFERENCE.md, CLAUDE.md, MEMORY.md updated to reflect Phase 126 changes
+
+---
+
 ## [Phase 125] — 2026-02-28
 
 ### Added

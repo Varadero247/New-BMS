@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ChevronRight, Clock, Award, Users, BookOpen, Shield, Settings } from 'lucide-react';
+import { ChevronRight, Clock, Award, Users, BookOpen, Shield, Settings, GraduationCap } from 'lucide-react';
 
 const PROGRAMMES = [
   {
@@ -59,6 +59,25 @@ const PROGRAMMES = [
     iconColour: 'text-green-400',
     badgeColour: 'text-green-400',
   },
+  {
+    href: '/train-the-trainer',
+    badge: 'Train-the-Trainer',
+    title: 'Build Your Internal Training Capability',
+    desc: 'A two-day programme for designated internal trainers. Earn the "Nexara Certified Internal Trainer" credential and deliver End User and all five Module Owner programmes independently — using Nexara's editable source materials, facilitation guides, and assessment tools.',
+    stats: [
+      { icon: Clock, label: '14 CPD hours' },
+      { icon: BookOpen, label: 'Dual assessment' },
+      { icon: Award, label: 'Written (75%) + Delivery (70%)' },
+      { icon: Users, label: 'Max 8 participants' },
+    ],
+    ctaLabel: 'View Programme',
+    secondary: null,
+    accent: 'border-purple-700/40',
+    iconBg: 'bg-purple-900/30',
+    icon: GraduationCap,
+    iconColour: 'text-purple-400',
+    badgeColour: 'text-purple-400',
+  },
 ];
 
 export default function HomePage() {
@@ -73,6 +92,7 @@ export default function HomePage() {
         <div className="flex items-center gap-6">
           <Link href="/module-owner" className="text-sm text-slate-300 hover:text-white transition-colors">Module Owner</Link>
           <Link href="/end-user" className="text-sm text-slate-300 hover:text-white transition-colors">End User</Link>
+          <Link href="/train-the-trainer" className="text-sm text-slate-300 hover:text-white transition-colors">Train-the-Trainer</Link>
           <Link href="/login" className="text-sm bg-[#B8860B] text-white px-3 py-1.5 rounded hover:bg-[#D4A017] transition-colors">
             Sign In
           </Link>
@@ -88,7 +108,7 @@ export default function HomePage() {
           Select Your Programme
         </h1>
         <p className="text-xl text-slate-300 mb-4 leading-relaxed max-w-2xl mx-auto">
-          Three role-based training tracks — each with its own assessment and Nexara certificate.
+          Four role-based training tracks — each with its own assessment and Nexara certificate.
           Attend only the programme that matches your role.
         </p>
       </section>

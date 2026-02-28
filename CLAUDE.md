@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Integrated Management System (IMS) monorepo with 43 API services, 45 web apps, and 394 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 44 Prisma schemas with ~590 database tables. ~1,203,000 unit tests across ~1,085 suites (all passing, every file ≥1,000 tests).
+Integrated Management System (IMS) monorepo with 43 API services, 45 web apps, and 395 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 44 Prisma schemas with ~590 database tables. ~1,204,000 unit tests across ~1,086 suites (all passing, every file ≥1,000 tests).
 
 ## Known Issues & Fixes
 
@@ -172,7 +172,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 ### Testing
 
 ```bash
-pnpm test                        # ~1,203,000 Jest unit tests (~1,085 suites / 439 projects)
+pnpm test                        # ~1,204,000 Jest unit tests (~1,086 suites / 440 projects)
 ./scripts/test-all-modules.sh    # All integration tests (9 modules, ~465+ assertions)
 ./scripts/test-hs-modules.sh     # H&S integration tests (~70)
 ./scripts/test-env-modules.sh    # Environment integration tests (~60)
@@ -250,6 +250,9 @@ See `SYSTEM_STATE.md` for the complete list. Key packages:
 - `@ims/iot-gateway` — IoT device integration gateway (Q3 2026)
 - `@ims/plugin-registry` — Plugin marketplace registry (Q4 2026)
 - `@ims/developer-portal` — Developer portal and SDK docs (Q4 2026)
+- `@ims/module-owner-training` — Module Owner Training source materials (5 one-day programmes)
+- `@ims/end-user-training` — End User Training source materials (4-hour Foundation programme)
+- `@ims/train-the-trainer` — Train-the-Trainer programme (2-day, dual assessment, 14 CPD, max 8)
 
 ### New API Service (port 4050)
 - `apps/api-search` — Global Search microservice (port 4050, proxied at `/api/search/*`)

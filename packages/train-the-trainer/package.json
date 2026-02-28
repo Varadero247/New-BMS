@@ -1,0 +1,24 @@
+{
+  "name": "@ims/train-the-trainer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nexara IMS — Train-the-Trainer Programme (2-day instructor-led, dual assessment, certification for internal trainers)",
+  "keywords": ["training", "train-the-trainer", "t3", "ims", "nexara", "certification", "facilitation"],
+  "license": "UNLICENSED",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  },
+  "types": "./src/index.ts",
+  "scripts": { "build": "tsc", "test": "jest" },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}
