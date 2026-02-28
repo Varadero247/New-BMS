@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Phase 126 + Test Audit] — 2026-02-28
+
+### Fixed
+- **`@ims/status` service count** (`packages/status/__tests__/status.test.ts`): Updated `toHaveLength(42)` → `toHaveLength(43)` to match actual registered API service count (was failing after api-search:4050 was added)
+- **Test count audit**: Full `pnpm test` run confirmed actual figures — **1,183,918 tests / 1,069 suites / 438 Jest projects — ALL PASSING, 0 failures**; all docs corrected (previous ~1,203,000 / ~1,204,000 estimates were overstated)
+
+---
+
 ## [Phase 126] — 2026-02-28
 
 ### Added

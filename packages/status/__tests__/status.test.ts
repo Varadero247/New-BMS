@@ -157,7 +157,7 @@ describe('@ims/status', () => {
       const status = getPlatformStatus();
       expect(status.status).toBeDefined();
       expect(status.timestamp).toBeDefined();
-      expect(status.services).toHaveLength(42);
+      expect(status.services).toHaveLength(43);
       expect(status.uptime).toBeDefined();
       expect(status.uptime['24h']).toBe(99.98);
     });

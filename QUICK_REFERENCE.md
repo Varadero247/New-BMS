@@ -276,7 +276,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 ## Run Tests
 
 ```bash
-pnpm test                                # All Jest tests (~1,204,000 across ~1,086 suites / 440 projects — all passing)
+pnpm test                                # All Jest tests (1,183,918 across 1,069 suites / 438 projects — all passing)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 40 modules, ~1,800+ assertions)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -300,7 +300,7 @@ pnpm test:load:all                        # k6 baseline + crud + services
 ./scripts/pre-launch-check.sh            # 111-point launch readiness check
 ./scripts/pre-deploy-check.sh            # 7-check pre-deployment validation
 ./scripts/verify-backup-restore.sh       # Backup + restore verification
-./scripts/typecheck-all.sh               # TypeScript check all 439 projects
+./scripts/typecheck-all.sh               # TypeScript check all 438 projects
 ./scripts/seed-all.sh                    # Seed all database schemas
 ./scripts/backup-db.sh                   # Backup PostgreSQL database
 ./scripts/rotate-secrets.sh --dry-run    # Preview JWT secret rotation
@@ -380,8 +380,8 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
 - 44 Prisma schemas, ~590 database models
 - 395 shared packages (all with test suites ≥1,000 tests each)
-- **Tests**: **~1,204,000 Jest tests (~1,086 suites / 440 projects)** + 40 integration test scripts (~1,800+ assertions) — ALL PASSING, 0 failures
-- **TypeScript**: 0 errors across all 43 APIs + 45 web apps + 395 packages (440 projects)
+- **Tests**: **1,183,918 Jest tests (1,069 suites / 438 projects)** + 40 integration test scripts (~1,800+ assertions) — ALL PASSING, 0 failures
+- **TypeScript**: 0 errors across all 43 APIs + 45 web apps + 395 packages (438 projects)
 - **E2E**: 48 Playwright spec files, 195 tests across all 44 modules
 - **Code Evaluation**: 100/100 composite score (Security 100, Architecture 100, Code Quality 100)
 - **Mutation Testing**: Stryker 80.76% score (above 80% high threshold) — auth/security/rbac/finance configs
