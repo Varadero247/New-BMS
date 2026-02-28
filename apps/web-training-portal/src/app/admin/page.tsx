@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Users, Award, BarChart2, CheckSquare } from 'lucide-react';
+import { Users, Award, BarChart2, CheckSquare, ShieldCheck, ShieldOff, Copy, Check, AlertTriangle } from 'lucide-react';
 
 // Mock data for facilitator dashboard
 const MOCK_PARTICIPANTS = [
@@ -20,8 +20,29 @@ const stats = [
   { label: 'Distinctions', value: '1', icon: Award, colour: 'text-[#B8860B]' },
 ];
 
+// Mock activation records — in production these would be fetched from the Nexara admin API
+const ACTIVATION_RECORDS = [
+  { org: 'Meridian Manufacturing Ltd', key: 'NEXARA-ATP-MERIDIAN-2026', status: 'active', issued: '2026-01-15', cohort: 'NEXARA-2026-02-28', issuedBy: 'T.Hartley (Nexara)' },
+  { org: 'Apex Solutions Group', key: 'NEXARA-ATP-APEX-2026', status: 'active', issued: '2026-01-22', cohort: 'NEXARA-2026-02-28', issuedBy: 'T.Hartley (Nexara)' },
+  { org: 'Suncroft Industries', key: 'NEXARA-ATP-SUNCROFT-2026', status: 'pending', issued: '—', cohort: '—', issuedBy: '—' },
+];
+
 export default function AdminPage() {
   const [cohort] = useState('NEXARA-2026-02-28');
+  const [copied, setCopied] = useState<string | null>(null);
+  const [revoking, setRevoking] = useState<string | null>(null);
+
+  const copyKey = (key: string) => {
+    navigator.clipboard.writeText(key).catch(() => {});
+    setCopied(key);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const handleRevoke = (org: string) => {
+    setRevoking(org);
+    // In production: call Nexara admin API to revoke the key
+    setTimeout(() => setRevoking(null), 1500);
+  };
 
   return (
     <main className="min-h-screen p-6 max-w-5xl mx-auto">
@@ -92,7 +113,7 @@ export default function AdminPage() {
       </div>
 
       {/* Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
         <Link href="/certificate" className="bg-[#1E3A5F]/20 border border-[#1E3A5F] rounded-xl p-5 hover:border-[#B8860B]/50 transition-colors">
           <Award className="w-5 h-5 text-[#B8860B] mb-3" />
           <div className="font-medium text-white text-sm">Issue Certificates</div>
@@ -109,6 +130,112 @@ export default function AdminPage() {
           <div className="text-xs text-slate-400 mt-1">Record lab competency sign-offs per participant</div>
         </button>
       </div>
+
+      {/* ── Portal Activation Management ─────────────────────────────────── */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-bold text-white">Portal Activation Management</h2>
+            <p className="text-sm text-slate-400 mt-1">
+              Nexara controls which organisations can access this training portal.
+              Access is <strong className="text-white">off by default</strong> and must be explicitly
+              activated per organisation by Nexara staff.
+            </p>
+          </div>
+          <button className="flex items-center gap-2 bg-[#B8860B] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#D4A017] transition-colors">
+            <ShieldCheck className="w-4 h-4" />
+            Issue New Key
+          </button>
+        </div>
+
+        {/* Info banner */}
+        <div className="bg-amber-950/10 border border-amber-800/50 rounded-xl p-4 mb-5 flex items-start gap-3">
+          <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+          <p className="text-xs text-amber-200/80">
+            Activation keys grant full access to the training programme for all participants
+            in the named organisation. Only issue keys to organisations with a confirmed
+            training enrolment. Revoke immediately if misuse is suspected.
+          </p>
+        </div>
+
+        <div className="bg-[#091628] border border-[#1E3A5F] rounded-xl overflow-hidden">
+          <div className="px-6 py-3 border-b border-[#1E3A5F] bg-[#0d1f38]">
+            <div className="grid grid-cols-12 text-xs font-medium text-slate-400 uppercase tracking-wider">
+              <span className="col-span-3">Organisation</span>
+              <span className="col-span-4">Activation Key</span>
+              <span className="col-span-2">Issued</span>
+              <span className="col-span-2">Status</span>
+              <span className="col-span-1 text-right">Actions</span>
+            </div>
+          </div>
+          <div className="divide-y divide-[#1E3A5F]/50">
+            {ACTIVATION_RECORDS.map((rec) => (
+              <div key={rec.org} className="px-6 py-4 grid grid-cols-12 items-center text-sm hover:bg-[#1E3A5F]/10 transition-colors">
+                <div className="col-span-3">
+                  <div className="text-white font-medium">{rec.org}</div>
+                  {rec.issuedBy !== '—' && (
+                    <div className="text-xs text-slate-500 mt-0.5">by {rec.issuedBy}</div>
+                  )}
+                </div>
+                <div className="col-span-4">
+                  {rec.status === 'active' ? (
+                    <div className="flex items-center gap-2">
+                      <code className="text-xs text-[#B8860B] font-mono bg-[#B8860B]/10 px-2 py-0.5 rounded">
+                        {rec.key}
+                      </code>
+                      <button
+                        onClick={() => copyKey(rec.key)}
+                        className="text-slate-500 hover:text-slate-300 transition-colors"
+                        title="Copy key"
+                      >
+                        {copied === rec.key ? (
+                          <Check className="w-3.5 h-3.5 text-green-400" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-slate-500 italic text-xs">Pending approval</span>
+                  )}
+                </div>
+                <div className="col-span-2 text-slate-400 text-xs">{rec.issued}</div>
+                <div className="col-span-2">
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    rec.status === 'active'
+                      ? 'bg-green-900/30 text-green-400'
+                      : 'bg-slate-800 text-slate-400'
+                  }`}>
+                    {rec.status === 'active' ? 'Active' : 'Pending'}
+                  </span>
+                </div>
+                <div className="col-span-1 text-right">
+                  {rec.status === 'active' ? (
+                    <button
+                      onClick={() => handleRevoke(rec.org)}
+                      disabled={revoking === rec.org}
+                      className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition-colors ml-auto disabled:opacity-50"
+                      title="Revoke access"
+                    >
+                      <ShieldOff className="w-3.5 h-3.5" />
+                      {revoking === rec.org ? '…' : 'Revoke'}
+                    </button>
+                  ) : (
+                    <button className="text-xs text-[#B8860B] hover:text-[#D4A017] transition-colors">
+                      Approve
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-xs text-slate-500 mt-3">
+          This portal is a Nexara-managed service. Clients cannot discover or access it
+          without a valid activation key issued by Nexara.
+        </p>
+      </section>
     </main>
   );
 }

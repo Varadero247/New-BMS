@@ -1,0 +1,8 @@
+{
+  "name": "@ims/end-user-training",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nexara IMS — End User Training Programme (4-hour programme, editable source materials)",
+  "keywords": ["training", "end-user", "ims", "nexara", "operational"],
+  "license": "UNLICENSED"
+}

@@ -1,18 +1,64 @@
 import Link from 'next/link';
-import { BookOpen, Award, ClipboardCheck, ChevronRight, Shield, Users, Database, Zap } from 'lucide-react';
+import { ChevronRight, Clock, Award, Users, BookOpen, Shield, Settings } from 'lucide-react';
 
-const highlights = [
-  { icon: Users, label: '7 Core Modules', desc: 'User Mgmt, RBAC, Integrations, Audit, Backup, Updates' },
-  { icon: ClipboardCheck, label: '14 CPD Hours', desc: 'Two full days, instructor-led or self-paced' },
-  { icon: Award, label: 'Nexara Certificate', desc: 'Pass 75% · Distinction 90%' },
-  { icon: Shield, label: '3 Assessments', desc: 'Diagnostic, formative, and summative' },
-];
-
-const quickLinks = [
-  { href: '/programme', label: 'View Full Programme', icon: BookOpen, colour: 'bg-[#1E3A5F]' },
-  { href: '/modules', label: 'Browse Modules', icon: Zap, colour: 'bg-[#1E3A5F]' },
-  { href: '/assessments', label: 'Take Assessment', icon: ClipboardCheck, colour: 'bg-[#B8860B]' },
-  { href: '/certificate', label: 'Get Certificate', icon: Award, colour: 'bg-[#1E4A2F]' },
+const PROGRAMMES = [
+  {
+    href: '/programme',
+    badge: 'Administrator Training',
+    title: 'Nexara Certified Platform Administrator',
+    desc: 'A two-day, instructor-led programme covering the complete Nexara IMS administration lifecycle: user management, RBAC, integrations, audit, backup, and platform updates.',
+    stats: [
+      { icon: Clock, label: '14 CPD hours' },
+      { icon: BookOpen, label: '7 modules' },
+      { icon: Award, label: 'Pass 75% · Distinction 90%' },
+      { icon: Users, label: 'Max 16 participants' },
+    ],
+    ctaLabel: 'View Programme',
+    secondary: { href: '/assessments', label: 'Take Assessment' },
+    accent: 'border-[#B8860B]/40',
+    iconBg: 'bg-[#B8860B]/20',
+    icon: Settings,
+    iconColour: 'text-[#B8860B]',
+    badgeColour: 'text-[#D4A017]',
+  },
+  {
+    href: '/module-owner',
+    badge: 'Module Owner Training',
+    title: 'Five Targeted One-Day Programmes',
+    desc: 'Designed for compliance professionals and department heads who own and operate specific Nexara modules. Choose from Quality & NC, HSE, HR & Payroll, Finance & Contracts, or Advanced (Audits, CAPA & Management Review).',
+    stats: [
+      { icon: Clock, label: '7 CPD hours per day' },
+      { icon: BookOpen, label: '5 specialist programmes' },
+      { icon: Award, label: 'Certificate on ≥ 75%' },
+      { icon: Users, label: 'Max 14 participants' },
+    ],
+    ctaLabel: 'Select Programme',
+    secondary: null,
+    accent: 'border-blue-700/40',
+    iconBg: 'bg-blue-900/30',
+    icon: Shield,
+    iconColour: 'text-blue-400',
+    badgeColour: 'text-blue-400',
+  },
+  {
+    href: '/end-user',
+    badge: 'End User Training',
+    title: 'Nexara Platform Foundation',
+    desc: 'A four-hour programme for operational staff. Learn how to record incidents, complete training acknowledgements, raise permits, log observations, and read your compliance dashboard. Available as a live virtual session or self-paced e-learning.',
+    stats: [
+      { icon: Clock, label: '4 CPD hours' },
+      { icon: BookOpen, label: '6 modules' },
+      { icon: Award, label: 'Certificate on ≥ 80%' },
+      { icon: Users, label: 'No prerequisites' },
+    ],
+    ctaLabel: 'Start Training',
+    secondary: { href: '/end-user/assessment', label: 'Take Assessment' },
+    accent: 'border-green-700/40',
+    iconBg: 'bg-green-900/30',
+    icon: Users,
+    iconColour: 'text-green-400',
+    badgeColour: 'text-green-400',
+  },
 ];
 
 export default function HomePage() {
@@ -25,10 +71,8 @@ export default function HomePage() {
           <span className="font-semibold text-white">Nexara IMS — Training Portal</span>
         </div>
         <div className="flex items-center gap-6">
-          <Link href="/modules" className="text-sm text-slate-300 hover:text-white transition-colors">Modules</Link>
-          <Link href="/assessments" className="text-sm text-slate-300 hover:text-white transition-colors">Assessments</Link>
-          <Link href="/certificate" className="text-sm text-slate-300 hover:text-white transition-colors">Certificate</Link>
-          <Link href="/admin" className="text-sm text-slate-300 hover:text-white transition-colors">Admin</Link>
+          <Link href="/module-owner" className="text-sm text-slate-300 hover:text-white transition-colors">Module Owner</Link>
+          <Link href="/end-user" className="text-sm text-slate-300 hover:text-white transition-colors">End User</Link>
           <Link href="/login" className="text-sm bg-[#B8860B] text-white px-3 py-1.5 rounded hover:bg-[#D4A017] transition-colors">
             Sign In
           </Link>
@@ -36,99 +80,77 @@ export default function HomePage() {
       </nav>
 
       {/* Hero */}
-      <section className="px-6 py-20 text-center max-w-4xl mx-auto">
-        <div className="inline-block bg-[#B8860B]/20 text-[#D4A017] text-sm font-medium px-3 py-1 rounded-full mb-6 border border-[#B8860B]/30">
-          Nexara Certified Platform Administrator
+      <section className="px-6 py-16 text-center max-w-4xl mx-auto">
+        <div className="inline-block bg-[#B8860B]/20 text-[#D4A017] text-xs font-semibold px-3 py-1 rounded-full mb-5 border border-[#B8860B]/30 uppercase tracking-wide">
+          Nexara Training Academy
         </div>
-        <h1 className="text-5xl font-bold text-white mb-6 leading-tight" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-          Role-Based Administrator<br />Training Programme
+        <h1 className="text-5xl font-bold text-white mb-5 leading-tight" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          Select Your Programme
         </h1>
-        <p className="text-xl text-slate-300 mb-10 leading-relaxed">
-          A two-day, instructor-led programme covering the complete Nexara IMS administration lifecycle.
-          Complete modules, assessments, and earn your Nexara certificate.
+        <p className="text-xl text-slate-300 mb-4 leading-relaxed max-w-2xl mx-auto">
+          Three role-based training tracks — each with its own assessment and Nexara certificate.
+          Attend only the programme that matches your role.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            href="/programme"
-            className="inline-flex items-center gap-2 bg-[#B8860B] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#D4A017] transition-colors"
-          >
-            View Programme <ChevronRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/modules"
-            className="inline-flex items-center gap-2 border border-[#1E3A5F] text-slate-300 px-6 py-3 rounded-lg font-semibold hover:border-[#B8860B] hover:text-white transition-colors"
-          >
-            Browse Modules
-          </Link>
-        </div>
       </section>
 
-      {/* Highlights */}
-      <section className="px-6 py-12 max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {highlights.map(({ icon: Icon, label, desc }) => (
-            <div key={label} className="bg-[#1E3A5F]/30 border border-[#1E3A5F] rounded-xl p-5">
-              <Icon className="w-6 h-6 text-[#B8860B] mb-3" />
-              <div className="font-semibold text-white mb-1">{label}</div>
-              <div className="text-sm text-slate-400">{desc}</div>
+      {/* Programme Cards */}
+      <section className="px-6 pb-16 max-w-5xl mx-auto">
+        <div className="space-y-6">
+          {PROGRAMMES.map(({ href, badge, title, desc, stats, ctaLabel, secondary, accent, iconBg, icon: Icon, iconColour, badgeColour }) => (
+            <div key={href} className={`bg-[#091628] border ${accent} rounded-2xl p-8`}>
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Icon */}
+                <div className={`w-14 h-14 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>
+                  <Icon className={`w-7 h-7 ${iconColour}`} />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1">
+                  <div className={`text-xs font-semibold uppercase tracking-wide ${badgeColour} mb-1`}>{badge}</div>
+                  <h2 className="text-xl font-bold text-white mb-2">{title}</h2>
+                  <p className="text-sm text-slate-400 mb-5 leading-relaxed">{desc}</p>
+
+                  {/* Stats */}
+                  <div className="flex flex-wrap gap-4 mb-5">
+                    {stats.map(({ icon: StatIcon, label }) => (
+                      <div key={label} className="flex items-center gap-1.5 text-sm text-slate-400">
+                        <StatIcon className="w-3.5 h-3.5 text-[#B8860B]" />
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* CTAs */}
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href={href}
+                      className="inline-flex items-center gap-2 bg-[#B8860B] text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-[#D4A017] transition-colors"
+                    >
+                      {ctaLabel} <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                    {secondary && (
+                      <Link
+                        href={secondary.href}
+                        className="inline-flex items-center gap-2 border border-[#1E3A5F] text-slate-300 text-sm px-5 py-2.5 rounded-lg hover:border-[#B8860B]/50 hover:text-white transition-colors"
+                      >
+                        {secondary.label}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Quick Links */}
-      <section className="px-6 py-12 max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold text-white mb-6">Get Started</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {quickLinks.map(({ href, label, icon: Icon, colour }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`${colour} rounded-xl p-5 flex flex-col gap-3 hover:opacity-90 transition-opacity border border-white/10`}
-            >
-              <Icon className="w-6 h-6 text-white" />
-              <span className="font-semibold text-white">{label}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Schedule Card */}
-      <section className="px-6 py-12 max-w-5xl mx-auto">
-        <div className="bg-[#091628] border border-[#1E3A5F] rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Programme at a Glance</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <div className="text-[#B8860B] font-semibold mb-3">Day 1 — Platform Foundations</div>
-              <ul className="space-y-2 text-sm text-slate-300">
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">09:00–10:30</span> Module 1: User Management & SCIM</li>
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">10:45–12:15</span> Module 2: Roles & Permissions</li>
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">13:00–14:30</span> Module 3: Module Activation</li>
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">14:45–16:15</span> Module 4: Integration Management</li>
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">16:15–16:45</span> Day 1 Formative Assessment</li>
-              </ul>
-            </div>
-            <div>
-              <div className="text-[#B8860B] font-semibold mb-3">Day 2 — Operations & Maintenance</div>
-              <ul className="space-y-2 text-sm text-slate-300">
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">09:00–10:30</span> Module 5: Audit Log Review</li>
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">10:45–12:15</span> Module 6: Backup & Restore</li>
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">13:00–14:00</span> Module 7: Platform Updates</li>
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">14:15–15:15</span> Summative Assessment</li>
-                <li className="flex gap-2"><span className="text-slate-500 w-24 shrink-0">16:15–16:30</span> Certificate Ceremony</li>
-              </ul>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#1E3A5F] px-6 py-8 mt-8">
+      <footer className="border-t border-[#1E3A5F] px-6 py-8 mt-4">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-sm text-slate-500">© 2026 Nexara DMCC. All rights reserved.</div>
           <div className="flex gap-6">
             <Link href="/login" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">Facilitator Login</Link>
-            <Link href="/admin" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">Admin Dashboard</Link>
+            <a href="mailto:training@nexara.io" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">Request Access</a>
           </div>
         </div>
       </footer>

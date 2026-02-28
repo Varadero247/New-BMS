@@ -6,7 +6,8 @@
     "dev": "next dev -p 3046",
     "build": "next build",
     "start": "next start -p 3046",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest"
   },
   "dependencies": {
     "@ims/types": "workspace:*",
@@ -21,12 +22,15 @@
     "tailwind-merge": "^2.2.0"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.0",
     "@types/node": "^20.10.0",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.16",
+    "jest": "^29.7.0",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
+    "ts-jest": "^29.1.0",
     "typescript": "^5.3.3"
   }
 }

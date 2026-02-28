@@ -1,0 +1,8 @@
+{
+  "name": "@ims/module-owner-training",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nexara IMS — Module Owner Training Programme (5 one-day programmes, editable source materials)",
+  "keywords": ["training", "module-owner", "ims", "nexara", "compliance"],
+  "license": "UNLICENSED"
+}

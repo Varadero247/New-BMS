@@ -100,7 +100,12 @@ export default function LoginPage() {
           <div className="mt-6 pt-6 border-t border-[#1E3A5F] text-center">
             <p className="text-xs text-slate-500">
               Training portal credentials are provided by your facilitator.
-              Contact <a href="mailto:training@nexara.io" className="text-[#B8860B] hover:underline">training@nexara.io</a> for access.
+              Access to this portal requires a{' '}
+              <strong className="text-slate-400">Nexara-issued activation key</strong> — contact{' '}
+              <a href="mailto:training@nexara.io" className="text-[#B8860B] hover:underline">
+                training@nexara.io
+              </a>{' '}
+              if your organisation has not yet been activated.
             </p>
           </div>
         </div>

@@ -74,6 +74,7 @@ start_web web-incidents         3041 "Incidents"
 start_web web-audits            3042 "Audits"
 start_web web-mgmt-review       3043 "Mgmt Review"
 start_web web-emergency         3045 "Emergency"
+start_web web-training-portal   3046 "Nexara Training Portal"
 
 # Resources
 start_web web-training          3032 "Training"

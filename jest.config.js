@@ -724,6 +724,8 @@ module.exports = {
   '<rootDir>/packages/complaint-management',
   // energy-monitoring package (added Feb 26, 2026)
   '<rootDir>/packages/energy-monitoring',
+  // Training Portal web app (added Feb 28, 2026)
+  '<rootDir>/apps/web-training-portal',
   ],
 
 

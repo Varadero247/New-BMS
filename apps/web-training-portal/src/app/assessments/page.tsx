@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ClipboardCheck, BookOpen, Trophy, Lock } from 'lucide-react';
+import { ClipboardCheck, BookOpen, Trophy, Lock, FileText } from 'lucide-react';
 
 const ASSESSMENTS = [
   {
@@ -11,10 +11,12 @@ const ASSESSMENTS = [
     duration: '15 min',
     scored: false,
     available: true,
+    href: '/assessments/pre',
     icon: BookOpen,
     colour: 'border-blue-800 bg-blue-950/20',
     iconColour: 'text-blue-400',
     badge: 'Day 1 Opening',
+    note: null,
   },
   {
     id: 'day1',
@@ -25,24 +27,44 @@ const ASSESSMENTS = [
     duration: '15 min',
     scored: true,
     available: true,
+    href: '/assessments/day1',
     icon: ClipboardCheck,
     colour: 'border-amber-800 bg-amber-950/20',
     iconColour: 'text-amber-400',
     badge: 'Day 1 Close',
+    note: null,
   },
   {
     id: 'final',
-    title: 'Summative Assessment',
-    subtitle: 'Scored — determines certificate',
-    description: 'Part A: 40 MCQ (45 min, timed). Part B: 3 written scenarios (15 min). Combined score determines your certificate grade.',
-    questions: 55,
-    duration: '60 min',
+    title: 'Summative — Part A',
+    subtitle: '40 MCQ, timed (45 min)',
+    description: 'Forty multiple-choice questions covering all seven modules. Timed at 45 minutes. Individual work only — no reference materials permitted.',
+    questions: 40,
+    duration: '45 min',
     scored: true,
     available: true,
+    href: '/assessments/final',
     icon: Trophy,
     colour: 'border-[#B8860B] bg-[#B8860B]/5',
     iconColour: 'text-[#B8860B]',
     badge: 'Day 2 Afternoon',
+    note: 'Complete Part A first — on submit you will be directed to Part B.',
+  },
+  {
+    id: 'final-partb',
+    title: 'Summative — Part B',
+    subtitle: '3 written scenarios (15 min)',
+    description: 'Three practical scenarios worth 5 marks each: SCIM outage diagnosis, privilege escalation response, and failed update rollback. Marked by your facilitator.',
+    questions: 3,
+    duration: '15 min',
+    scored: true,
+    available: true,
+    href: '/assessments/final-partb',
+    icon: FileText,
+    colour: 'border-[#B8860B] bg-[#B8860B]/5',
+    iconColour: 'text-[#B8860B]',
+    badge: 'Day 2 Afternoon',
+    note: 'Follows Part A. Combined 55-mark score determines your certificate grade.',
   },
 ];
 
@@ -52,7 +74,7 @@ export default function AssessmentsPage() {
       <div className="mb-8">
         <Link href="/" className="text-sm text-slate-400 hover:text-white transition-colors">← Back to Home</Link>
         <h1 className="text-3xl font-bold text-white mt-4 mb-2">Assessment Hub</h1>
-        <p className="text-slate-400">Complete all three assessments to qualify for your Nexara certificate.</p>
+        <p className="text-slate-400">Complete the pre-assessment, Day 1 formative, and both parts of the summative to qualify for your Nexara certificate.</p>
       </div>
 
       {/* Grade table */}
@@ -92,15 +114,18 @@ export default function AssessmentsPage() {
                   <p className="text-xs text-slate-400 mb-3">{a.subtitle}</p>
                   <p className="text-sm text-slate-300 mb-4">{a.description}</p>
                   <div className="flex gap-4 text-sm text-slate-400">
-                    <span>{a.questions} questions</span>
+                    <span>{a.questions} {a.questions === 3 ? 'scenarios' : 'questions'}</span>
                     <span>{a.duration}</span>
                     <span>{a.scored ? '✓ Scored' : '○ Diagnostic'}</span>
                   </div>
+                  {a.note && (
+                    <p className="text-xs text-slate-500 mt-3 italic">{a.note}</p>
+                  )}
                 </div>
                 <div className="shrink-0 pt-1">
                   {a.available ? (
                     <Link
-                      href={`/assessments/${a.id}`}
+                      href={a.href}
                       className="inline-block bg-[#B8860B] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#D4A017] transition-colors"
                     >
                       Start →
