@@ -15,9 +15,6 @@ const prisma = prismaBase as unknown as PrismaClient;
 const router = Router();
 router.param('id', validateIdParam());
 
-// All template routes require authentication
-router.use(authenticate);
-
 // ---------------------------------------------------------------------------
 // Validation schemas
 // ---------------------------------------------------------------------------
@@ -48,6 +45,18 @@ const createTemplateSchema = z.object({
     'ENERGY',
     'FIELD_SERVICE',
     'ANALYTICS',
+    'RISK',
+    'TRAINING',
+    'SUPPLIERS',
+    'ASSETS',
+    'COMPLAINTS',
+    'DOCUMENTS',
+    'CONTRACTS',
+    'PTW',
+    'INCIDENTS',
+    'AUDITS',
+    'MANAGEMENT_REVIEW',
+    'CHEMICALS',
   ]),
   category: z.enum([
     'RISK_ASSESSMENT',
@@ -177,7 +186,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const skip =
       (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
-    const take = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+    const take = Math.min(250, Math.max(1, parseInt(limit, 10) || 20));
 
     const [templates, total] = await Promise.all([
       prisma.template.findMany({
@@ -195,6 +204,7 @@ router.get('/', async (req: Request, res: Response) => {
           status: true,
           version: true,
           tags: true,
+          fields: true,
           usageCount: true,
           isBuiltIn: true,
           createdAt: true,
@@ -358,7 +368,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // POST /api/v1/templates — Create template
 // ---------------------------------------------------------------------------
 
-router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Response) => {
+router.post('/', authenticate, requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Response) => {
   try {
     const parsed = createTemplateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -399,7 +409,7 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Resp
 // PUT /api/v1/templates/:id — Update template (auto-versions)
 // ---------------------------------------------------------------------------
 
-router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Response) => {
+router.put('/:id', authenticate, requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -451,7 +461,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Re
 // DELETE /api/v1/templates/:id — Soft-delete
 // ---------------------------------------------------------------------------
 
-router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Response) => {
+router.delete('/:id', authenticate, requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -496,6 +506,7 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: Request, res:
 
 router.post(
   '/:id/clone',
+  authenticate,
   requireRole('MANAGER', 'ADMIN'),
   async (req: Request, res: Response) => {
     try {
@@ -549,7 +560,7 @@ router.post(
 // POST /api/v1/templates/:id/use — Create TemplateInstance
 // ---------------------------------------------------------------------------
 
-router.post('/:id/use', async (req: Request, res: Response) => {
+router.post('/:id/use', authenticate, async (req: Request, res: Response) => {
   try {
     const template = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -635,6 +646,7 @@ router.get('/:id/versions', async (req: Request, res: Response) => {
 
 router.post(
   '/:id/versions/:version/restore',
+  authenticate,
   requireRole('MANAGER', 'ADMIN'),
   async (req: Request, res: Response) => {
     try {

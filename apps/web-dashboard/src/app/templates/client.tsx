@@ -25,21 +25,30 @@ interface Template {
   status: string;
   version: string;
   usageCount: number;
-  fieldDefinitions: FieldDefinition[];
+  fields: FieldDefinition[];
   createdAt: string;
   updatedAt: string;
 }
 
 const CATEGORIES = [
   'All',
-  'Assessment',
-  'Audit',
-  'Checklist',
-  'Form',
-  'Policy',
-  'Procedure',
-  'Register',
-  'Report',
+  'AUDIT',
+  'CAPA',
+  'CERTIFICATION',
+  'COMPLIANCE',
+  'CUSTOMER',
+  'DESIGN_DEVELOPMENT',
+  'GENERAL',
+  'INCIDENT_INVESTIGATION',
+  'INSPECTION',
+  'MANAGEMENT_REVIEW',
+  'PLANNING',
+  'PROCESS_CONTROL',
+  'REGULATORY',
+  'REPORTING',
+  'RISK_ASSESSMENT',
+  'SUPPLIER',
+  'TRAINING',
 ];
 const STATUSES = ['All', 'ACTIVE', 'DRAFT', 'ARCHIVED'];
 
@@ -57,7 +66,7 @@ export default function TemplatesClient() {
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
     try {
-      const params: Record<string, string | number> = { limit: 50 };
+      const params: Record<string, string | number> = { limit: 200 };
       if (search) params.search = search;
       if (categoryFilter !== 'All') params.category = categoryFilter;
       if (statusFilter !== 'All') params.status = statusFilter;
@@ -370,7 +379,7 @@ export default function TemplatesClient() {
                   Field Definitions
                 </h4>
                 <div className="space-y-2">
-                  {selectedTemplate.fieldDefinitions?.map((field) => (
+                  {selectedTemplate.fields?.map((field) => (
                     <div
                       key={field.name}
                       className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
@@ -437,7 +446,7 @@ export default function TemplatesClient() {
                 {selectedTemplate.description}
               </p>
               <div className="grid grid-cols-2 gap-4">
-                {selectedTemplate.fieldDefinitions?.map((field) => renderFormField(field))}
+                {selectedTemplate.fields?.map((field) => renderFormField(field))}
               </div>
             </div>
           )}

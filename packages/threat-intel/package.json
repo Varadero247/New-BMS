@@ -1,0 +1,14 @@
+{
+  "name": "@ims/threat-intel",
+  "version": "1.0.0",
+  "description": "Threat intelligence: IOC management, CVE tracking, threat feeds",
+  "main": "dist/index.js",
+  "scripts": { "build": "tsc", "test": "jest" },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "dependencies": {},
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}

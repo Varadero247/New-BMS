@@ -60,6 +60,7 @@ module.exports = {
     '<rootDir>/packages/database',
     '<rootDir>/packages/email',
     '<rootDir>/packages/emission-factors',
+    '<rootDir>/packages/environmental-monitoring',
     '<rootDir>/packages/esig',
     '<rootDir>/packages/event-bus',
     '<rootDir>/packages/file-upload',
@@ -104,6 +105,7 @@ module.exports = {
     '<rootDir>/packages/csv-import',
     '<rootDir>/packages/encryption',
     '<rootDir>/packages/performance',
+    '<rootDir>/packages/performance-kpi',
     // New test suites added Feb 20 (Session 23+)
     '<rootDir>/packages/comments',
     '<rootDir>/packages/cache',
@@ -140,6 +142,7 @@ module.exports = {
     '<rootDir>/packages/command-palette',
     // Q1 2026 Strategic Recommendations packages
     '<rootDir>/packages/keyboard-shortcuts',
+    '<rootDir>/packages/knowledge-base',
     '<rootDir>/packages/bulk-actions',
     '<rootDir>/packages/inline-edit',
     '<rootDir>/packages/deep-links',
@@ -158,6 +161,9 @@ module.exports = {
     '<rootDir>/packages/onboarding-flow',
     '<rootDir>/packages/embedded-bi',
     '<rootDir>/packages/ai-root-cause',
+    '<rootDir>/packages/ai-container',
+    '<rootDir>/packages/ai-security',
+    '<rootDir>/packages/cyber-security',
     // Global Search microservice
     '<rootDir>/apps/api-search',
     // Q2–Q4 new packages (batch 3) — AI/form/vision/chain
@@ -640,8 +646,6 @@ module.exports = {
   '<rootDir>/packages/regex-engine',
   // lsh package (added Feb 26, 2026)
   '<rootDir>/packages/lsh',
-  // wavelet-tree package (added Feb 26, 2026)
-  '<rootDir>/packages/wavelet-tree',
   // treap package (added Feb 26, 2026)
   '<rootDir>/packages/treap',
   // sparse-table package (added Feb 26, 2026)
@@ -670,6 +674,56 @@ module.exports = {
   '<rootDir>/packages/centroid-decomposition',
   // linear-recurrence package (added Feb 26, 2026)
   '<rootDir>/packages/linear-recurrence',
+  // Phase 119 packages: security/governance (added Feb 26, 2026)
+  '<rootDir>/packages/threat-intel',
+  '<rootDir>/packages/data-governance',
+  '<rootDir>/packages/security-scanner',
+  '<rootDir>/packages/incident-response',
+  '<rootDir>/packages/compliance-automation',
+  // supply-chain-risk package (added Feb 26, 2026)
+  '<rootDir>/packages/supply-chain-risk',
+  // change-management package (added Feb 26, 2026)
+  '<rootDir>/packages/change-management',
+  // business-continuity package (added Feb 26, 2026)
+  '<rootDir>/packages/business-continuity',
+  // document-control package (added Feb 26, 2026)
+  '<rootDir>/packages/document-control',
+  // asset-lifecycle package (added Feb 26, 2026)
+  '<rootDir>/packages/asset-lifecycle',
+  // training-tracker package (added Feb 26, 2026)
+  '<rootDir>/packages/training-tracker',
+  // corrective-action package (added Feb 26, 2026)
+  '<rootDir>/packages/corrective-action',
+  // stakeholder-management package (added Feb 26, 2026)
+  '<rootDir>/packages/stakeholder-management',
+  // quality-control package (added Feb 26, 2026)
+  '<rootDir>/packages/quality-control',
+  // legal-register package (added Feb 26, 2026)
+  '<rootDir>/packages/legal-register',
+  // meeting-management package (added Feb 26, 2026)
+  '<rootDir>/packages/meeting-management',
+  // objective-tracker package (added Feb 26, 2026)
+  '<rootDir>/packages/objective-tracker',
+  // supplier-evaluation package (added Feb 26, 2026)
+  '<rootDir>/packages/supplier-evaluation',
+  // audit-management package (added Feb 26, 2026)
+  '<rootDir>/packages/audit-management',
+  // equipment-calibration package (added Feb 26, 2026)
+  '<rootDir>/packages/equipment-calibration',
+  // risk-register package (added Feb 26, 2026)
+  '<rootDir>/packages/risk-register',
+  // permit-to-work package (added Feb 26, 2026)
+  '<rootDir>/packages/permit-to-work',
+  // contractor-management package (added Feb 26, 2026)
+  '<rootDir>/packages/contractor-management',
+  // inspection-management package (added Feb 26, 2026)
+  '<rootDir>/packages/inspection-management',
+  // waste-management package (added Feb 26, 2026)
+  '<rootDir>/packages/waste-management',
+  // complaint-management package (added Feb 26, 2026)
+  '<rootDir>/packages/complaint-management',
+  // energy-monitoring package (added Feb 26, 2026)
+  '<rootDir>/packages/energy-monitoring',
   ],
 
 

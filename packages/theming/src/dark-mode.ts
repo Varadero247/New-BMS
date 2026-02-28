@@ -1,3 +1,4 @@
+'use client';
 // Copyright (c) 2026 Nexara DMCC. All rights reserved.
 // CONFIDENTIAL — TRADE SECRET.
 // Unauthorised copying, modification, or distribution is strictly prohibited.

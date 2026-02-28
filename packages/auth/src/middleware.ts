@@ -2,9 +2,14 @@
 // This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
 // Unauthorised copying, modification, or distribution is strictly prohibited.
 import type { Request, Response, NextFunction } from 'express';
+import { createHash } from 'crypto';
 import { prisma } from '@ims/database';
 import { verifyToken } from './jwt';
 import type { AuthRequest } from './types';
+
+function hashToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex');
+}
 
 /**
  * Authenticate requests by validating JWT and session
@@ -44,9 +49,10 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     }
 
     // 2. Validate session exists in database and is not expired
+    // Gateway stores SHA-256 hash of token (FINDING-031), so hash before lookup
     const session = await prisma.session.findFirst({
       where: {
-        token: token,
+        token: hashToken(token),
         userId: decoded.userId,
         expiresAt: { gte: new Date() },
       },

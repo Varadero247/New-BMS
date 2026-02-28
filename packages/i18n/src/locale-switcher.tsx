@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { locales, type Locale } from './index';
+import { locales, type Locale } from './constants';
 import { useI18n } from './provider';
 
 const LOCALE_LABELS: Record<Locale, string> = {

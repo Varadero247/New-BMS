@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
-import { defaultLocale, type Locale, locales } from './index';
+import { defaultLocale, type Locale, locales } from './constants';
 
 // Static imports — required for Next.js production builds (dynamic require() fails at runtime)
 import en from '../messages/en.json';

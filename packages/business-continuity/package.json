@@ -1,0 +1,13 @@
+{
+  "name": "@ims/business-continuity",
+  "version": "1.0.0",
+  "description": "Business continuity planning: BCP management, RTO/RPO tracking, test orchestration",
+  "main": "dist/index.js",
+  "scripts": { "build": "tsc", "test": "jest" },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}

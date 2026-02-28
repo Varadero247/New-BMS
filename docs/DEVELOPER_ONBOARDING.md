@@ -12,7 +12,7 @@ Welcome to the Integrated Management System (IMS) monorepo. This guide gets you 
 
 ## Project Overview
 
-IMS is a monorepo containing 43 API services, 44 web apps, and 391 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
+IMS is a monorepo containing 43 API services, 44 web apps, and 392 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
 
 **Stack:** Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose, pnpm workspaces, TypeScript
 **Scale:** 44 Prisma schemas, ~590 database tables, ~1,202,000 unit tests across ~1,084 suites / 438 projects (all passing)

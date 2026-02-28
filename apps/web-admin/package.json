@@ -11,6 +11,7 @@
   "dependencies": {
     "@ims/charts": "workspace:*",
     "@ims/i18n": "workspace:*",
+    "@ims/knowledge-base": "workspace:*",
     "@ims/theming": "workspace:*",
     "@ims/types": "workspace:*",
     "@ims/ui": "workspace:*",

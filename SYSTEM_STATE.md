@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-27 (Phase 124 — IMS domain packages: inspection-management, contractor-management, waste-management, energy-monitoring, complaint-management)
+> Last updated: 2026-02-28 (Phase 125 — Knowledge Base: 801 self-service articles, 31 seed files, Admin Dashboard KB page)
 
 ## Summary
 
@@ -8,7 +8,7 @@
 | ------------------------ | -------------------------------------- |
 | API Services             | 43 total (gateway:4000, 41 domain:4001–4041, search:4050) |
 | Web Applications         | 44                                                    |
-| Shared Packages          | 391                                                   |
+| Shared Packages          | 392                                                   |
 | Prisma Schemas           | 44                                                    |
 | Database Tables (models) | ~590                                                  |
 | Scripts                  | 60+                                                   |
@@ -100,7 +100,7 @@
 | ISO 37001          | `apps/web-iso37001/`           | 3025 | Anti-Bribery                                                                                                                                                                                   |
 | Marketing          | `apps/web-marketing/`          | 3030 | Landing page, ROI calculator, chatbot                                                                                                                                                          |
 | Partners Portal    | `apps/web-partners/`           | 3026 | Partner referral portal                                                                                                                                                                        |
-| Admin Dashboard    | `apps/web-admin/`              | 3027 | Founder growth dashboard                                                                                                                                                                       |
+| Admin Dashboard    | `apps/web-admin/`              | 3027 | Founder growth dashboard + Knowledge Base (801 articles, /knowledge-base page)                                                                                                                |
 | Risk (ERM)         | `apps/web-risk/`               | 3031 | ISO 31000 Enterprise Risk Management (15 pages: dashboard, risks, risks/new, risks/[id], reviews, CAPA, heat-map, appetite, bowtie, kri, actions, analytics, categories, login)                |
 | Training           | `apps/web-training/`           | 3032 | Competence management (8 pages: dashboard, records, courses, competencies, matrix, TNA, inductions, login)                                                                                     |
 | Suppliers          | `apps/web-suppliers/`          | 3033 | Supplier management (8 pages: dashboard, suppliers, scorecards, documents, spend, approval, categories, login)                                                                                 |
@@ -121,7 +121,7 @@
 
 ## Shared Packages (391)
 
-> The table below lists the 61 original core packages. An additional 330 domain and strategy packages were added across Phases 42–124. See `docs/PACKAGES.md` for the full enumerated list.
+> The table below lists the 61 original core packages. An additional 331 domain and strategy packages were added across Phases 42–125. See `docs/PACKAGES.md` for the full enumerated list.
 
 | Package                      | Directory                         | Description                                                                               |
 | ---------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -151,6 +151,7 @@
 | `@ims/i18n`                  | `packages/i18n/`                  | Internationalisation (4 locales, 9 namespaces, locale switcher)                           |
 | `@ims/intercom-client`       | `packages/intercom-client/`       | Intercom integration                                                                      |
 | `@ims/iso-checklists`        | `packages/iso-checklists/`        | ISO audit checklist engine                                                                |
+| `@ims/knowledge-base`        | `packages/knowledge-base/`        | 801 self-service KB articles, ArticleStore, CategoryManager (1,000 tests)                |
 | `@ims/monitoring`            | `packages/monitoring/`            | Winston logging, Prometheus metrics, health checks                                        |
 | `@ims/nlq`                   | `packages/nlq/`                   | Natural language query engine (30+ additional patterns, AI fallback)                      |
 | `@ims/notifications`         | `packages/notifications/`         | WebSocket real-time notifications                                                         |
@@ -466,7 +467,8 @@ Plus 31 additional scripts for AI, Automotive, Medical, Aerospace, CRM, InfoSec,
 | Phase 121 (Feb 26, session 6) | IMS Domain Packages II | 5 new packages: `@ims/asset-lifecycle` (1,023 tests), `@ims/training-tracker` (1,010 tests), `@ims/document-control` (1,353 tests), `@ims/corrective-action` (2,834 tests), `@ims/stakeholder-management` (1,427 tests). Asset registry, maintenance scheduler, straight-line/declining-balance depreciation, training records, competency gap tracking, ISO document versioning, review workflows, CAPA lifecycle, action tracking, stakeholder power/interest grid, communication tracking. **~1,183,000 unit tests / ~1,069 suites / 376 packages / 423 TypeScript projects — ALL PASSING.** |
 | Phase 122 (Feb 26, session 7) | IMS Domain Packages III | 5 new packages: `@ims/environmental-monitoring` (1,030 tests), `@ims/quality-control` (1,000 tests), `@ims/legal-register` (1,002 tests), `@ims/meeting-management` (1,841 tests), `@ims/objective-tracker` (1,224 tests). ISO 14001 emission/waste tracking, compliance status monitoring, ISO 9001 inspection management, defect/nonconformance tracking, ISO legal obligation management, ISO 9001/14001/45001 meeting lifecycle, minutes/action item tracking, management system objectives (ISO 6.2), target progress tracking. **~1,190,000 unit tests / ~1,074 suites / 381 packages / 428 TypeScript projects — ALL PASSING.** |
 | Phase 123 (Feb 26, session 8) | IMS Domain Packages IV | 5 new packages: `@ims/audit-management` (1,003 tests), `@ims/risk-register` (1,083 tests), `@ims/supplier-evaluation` (1,167 tests), `@ims/equipment-calibration` (1,068 tests), `@ims/permit-to-work` (1,201 tests). ISO 9001/14001/45001 internal audit planning/findings, ISO 31000 risk register with 5×5 matrix and treatment tracking, ISO 9001 clause 8.4 supplier qualification/evaluation (AVL), ISO 9001 clause 7.1.5/ISO 17025 calibration records/certificates, ISO 45001 permit-to-work workflow with LOTO isolation tracking. **~1,196,000 unit tests / ~1,079 suites / 386 packages / 433 TypeScript projects — ALL PASSING.** |
-| Phase 124 (Feb 26, session 9) | IMS Domain Packages V | 5 new packages: `@ims/inspection-management` (1,026 tests), `@ims/contractor-management` (1,007 tests), `@ims/waste-management` (1,016 tests), `@ims/energy-monitoring` (1,002 tests), `@ims/complaint-management` (1,105 tests). ISO 9001 inspection planning/checklists, ISO 45001 contractor induction/permit tracking, ISO 14001 waste register/disposal tracking, ISO 50001 energy meter management/baseline comparison (IMPROVEMENT/NO_CHANGE/DETERIORATION), ISO 10002 complaint register with auto-reference (CMP-YYYY-NNN) and resolution SLA tracking. **~1,202,000 unit tests / ~1,084 suites / 391 packages / 438 TypeScript projects — ALL PASSING.** |
+| Phase 124 (Feb 26, session 9) | IMS Domain Packages V | 5 new packages: `@ims/inspection-management` (1,026 tests), `@ims/contractor-management` (1,007 tests), `@ims/waste-management` (1,016 tests), `@ims/energy-monitoring` (1,002 tests), `@ims/complaint-management` (1,105 tests). ISO 9001 inspection planning/checklists, ISO 45001 contractor induction/permit tracking, ISO 14001 waste register/disposal tracking, ISO 50001 energy meter management/baseline comparison (IMPROVEMENT/NO_CHANGE/DETERIORATION), ISO 10002 complaint register with auto-reference (CMP-YYYY-NNN) and resolution SLA tracking. **~1,202,000 unit tests / ~1,084 suites / 392 packages / 438 TypeScript projects — ALL PASSING.** |
+| Phase 125 (Feb 28) | Knowledge Base — 801 Self-Service Articles | Expanded `@ims/knowledge-base` with 801 published articles across 31 seed files: getting-started (5), module-guides ×3 (35), module-deep-dives ×10 (~200+), admin-guides ×2 (30), how-to-guides ×3 (60), role-based-guides (25), troubleshooting ×2 (80), compliance-guides ×2 (50), integration-guides ×2 (45), faq ×3 (54), onboarding-journeys (12), migration-guides (12), best-practices (20), mobile-guides (10), advanced-admin (15), industry-guides (12). Knowledge Base page in Admin Dashboard (`/knowledge-base`) with category tabs, full-text search, expandable cards. Fixed broken ts-jest@29.4.6 installation (missing `dist/` in pnpm store). **~1,202,000 unit tests / ~1,084 suites / 392 packages / 438 TypeScript projects — ALL PASSING.** |
 
 ---
 

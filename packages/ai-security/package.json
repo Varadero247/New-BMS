@@ -1,0 +1,23 @@
+{
+  "name": "@ims/ai-security",
+  "version": "1.0.0",
+  "description": "AI-specific security: prompt injection detection, model drift monitoring, threat classification, API key vault",
+  "main": "src/index.ts",
+  "scripts": { "test": "jest", "build": "tsc" },
+  "dependencies": { "zod": "^3.22.0" },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.3.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/src"],
+    "transform": {
+      "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }]
+    }
+  }
+}

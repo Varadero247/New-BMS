@@ -143,7 +143,13 @@ export async function chat(
 
   if (client) {
     try {
-      const knowledgeContext = buildKnowledgeContext(userMessage);
+      // Security: sanitize user input before sending to LLM (prompt injection defence)
+      const sanitizedMessage = userMessage
+        .replace(/<\|.*?\|>/g, '')           // strip model control tokens
+        .replace(/\[INST\]|\[\/INST\]/g, '') // strip Llama instruction tags
+        .slice(0, 4000);                      // enforce max input length
+
+      const knowledgeContext = buildKnowledgeContext(sanitizedMessage);
       const systemPrompt = buildContextualSystemPrompt(session.context) + knowledgeContext;
 
       const messages = session.messages.slice(-10).map(m => ({

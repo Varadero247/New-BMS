@@ -1,0 +1,13 @@
+{
+  "name": "@ims/legal-register",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": { "test": "jest" },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  }
+}

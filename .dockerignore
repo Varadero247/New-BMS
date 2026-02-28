@@ -50,6 +50,12 @@ docs
 # Scripts (not needed in containers)
 scripts
 
+# IP protection archives (large binary files, not needed in containers)
+ip-protection/
+
+# Prisma generated clients (regenerated inside container via generate:all)
+packages/database/generated/
+
 # OS
 .DS_Store
 Thumbs.db

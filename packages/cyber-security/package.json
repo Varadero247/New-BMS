@@ -1,0 +1,23 @@
+{
+  "name": "@ims/cyber-security",
+  "version": "1.0.0",
+  "description": "Enterprise cybersecurity: credential protection, phishing detection, session security, anomaly detection, zero-trust",
+  "main": "src/index.ts",
+  "scripts": { "test": "jest", "build": "tsc" },
+  "dependencies": { "zod": "^3.22.0" },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.3.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/src"],
+    "transform": {
+      "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }]
+    }
+  }
+}

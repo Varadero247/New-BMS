@@ -1,0 +1,8 @@
+{
+  "name": "@ims/administrator-training",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nexara IMS — Role-Based Administrator Training Programme (editable source materials)",
+  "keywords": ["training", "administrator", "ims", "nexara"],
+  "license": "UNLICENSED"
+}

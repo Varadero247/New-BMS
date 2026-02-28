@@ -5,7 +5,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  transpilePackages: ['@ims/ui', '@ims/types', '@ims/theming', '@ims/i18n', '@ims/charts'],
+  transpilePackages: ['@ims/ui', '@ims/types', '@ims/theming', '@ims/i18n', '@ims/charts', '@ims/knowledge-base'],
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
 };

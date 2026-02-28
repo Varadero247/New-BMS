@@ -1,0 +1,13 @@
+{
+  "name": "@ims/data-governance",
+  "version": "1.0.0",
+  "description": "Data governance: GDPR consent, data classification, PII mapping",
+  "main": "dist/index.js",
+  "scripts": { "build": "tsc", "test": "jest" },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}

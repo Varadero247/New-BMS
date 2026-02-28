@@ -1,0 +1,13 @@
+{
+  "name": "@ims/compliance-automation",
+  "version": "1.0.0",
+  "description": "Compliance automation: control testing, evidence collection, audit scheduling",
+  "main": "dist/index.js",
+  "scripts": { "build": "tsc", "test": "jest" },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}

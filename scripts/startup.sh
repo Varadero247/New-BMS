@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-export DOCKER_API_VERSION=1.41
+export DOCKER_HOST=unix:///var/run/docker.sock
 
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$PROJECT_DIR"
@@ -22,9 +22,10 @@ for port in 5432 6379; do
 done
 sleep 3
 
-# Step 2: Start all containers
-echo "Starting containers..."
-docker compose up -d
+# Step 2: Start infrastructure containers only (postgres + redis)
+# App services run on the host via pnpm dev (see start-all-services.sh)
+echo "Starting infrastructure containers..."
+docker compose up -d postgres redis
 sleep 30
 
 # Step 3: Wait for postgres to be healthy
@@ -83,6 +84,21 @@ PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U postgres -d ims -v ON_ERROR
 ALTER TABLE hr_employees ADD COLUMN IF NOT EXISTS \"deletedAt\" TIMESTAMP(3);
 ALTER TABLE hr_employees ADD COLUMN IF NOT EXISTS \"salary\" DECIMAL(12,2);
 ALTER TABLE payroll_payslips ADD COLUMN IF NOT EXISTS \"deletedAt\" TIMESTAMP(3);
+ALTER TABLE inventory ADD COLUMN IF NOT EXISTS \"orgId\" TEXT;
+ALTER TABLE ai_systems ADD COLUMN IF NOT EXISTS \"reference\" TEXT;
+ALTER TABLE ai_systems ADD COLUMN IF NOT EXISTS \"department\" TEXT;
+ALTER TABLE ai_systems ADD COLUMN IF NOT EXISTS \"dataTypes\" TEXT;
+ALTER TABLE ai_systems ADD COLUMN IF NOT EXISTS \"userBase\" TEXT;
+ALTER TABLE ai_systems ADD COLUMN IF NOT EXISTS \"notes\" TEXT;
+ALTER TABLE ai_systems ADD COLUMN IF NOT EXISTS \"updatedBy\" TEXT;
+ALTER TABLE ai_systems ADD COLUMN IF NOT EXISTS \"deletedBy\" TEXT;
+ALTER TABLE esg_reports ADD COLUMN IF NOT EXISTS \"referenceNumber\" TEXT;
+ALTER TABLE esg_reports ADD COLUMN IF NOT EXISTS \"aiGenerated\" BOOLEAN DEFAULT false;
+ALTER TABLE esg_reports ADD COLUMN IF NOT EXISTS \"generatedBy\" TEXT;
+ALTER TABLE esg_reports ADD COLUMN IF NOT EXISTS \"orgId\" TEXT;
+ALTER TABLE ab_risk_assessments ADD COLUMN IF NOT EXISTS \"referenceNumber\" TEXT;
+ALTER TABLE ab_risk_assessments ADD COLUMN IF NOT EXISTS \"updatedBy\" TEXT;
+ALTER TABLE ab_risk_assessments ADD COLUMN IF NOT EXISTS \"organisationId\" TEXT;
 " 2>/dev/null
 
 TABLE_COUNT=$(PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U postgres -d ims -t -c \

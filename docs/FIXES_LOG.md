@@ -8,6 +8,53 @@
 ---
 
 
+## Phase 125 — Knowledge Base Seed Data + ts-jest Fix (February 28, 2026)
+
+### Fix: ts-jest@29.4.6 missing `dist/` directory
+
+**Symptom:** All Jest test runs across the monorepo failed with `Preset ts-jest not found`.
+
+**Root cause:** The pnpm virtual store installation of ts-jest@29.4.6 at
+`node_modules/.pnpm/ts-jest@29.4.6_.../node_modules/ts-jest/` had an empty `dist/` directory — the
+compiled JavaScript was never installed, so ts-jest could not load its preset.
+
+**Fix:** A working copy of the ts-jest `dist/` was found at
+`packages/sort-utils/node_modules/.ignored/ts-jest/dist`. Restored it using:
+```python
+import shutil
+shutil.copytree('/home/dyl/New-BMS/packages/sort-utils/node_modules/.ignored/ts-jest/dist',
+                '/home/dyl/New-BMS/node_modules/.pnpm/ts-jest@29.4.6_.../node_modules/ts-jest/dist')
+```
+
+**Result:** All 1,000 knowledge-base tests (and all other monorepo tests) pass again.
+
+### Feature: @ims/knowledge-base — 801 self-service articles
+
+Expanded the existing `@ims/knowledge-base` package with 31 seed files providing 801 published
+articles for the Admin Dashboard self-service Knowledge Base:
+
+| Category  | Count |
+|-----------|-------|
+| GUIDE     | 229   |
+| PROCEDURE | 320   |
+| FAQ       | 60    |
+| REFERENCE | 192   |
+| **Total** | **801** |
+
+**Seed files (31):**
+getting-started, module-guides, module-guides-2, module-guides-3, module-deep-dives-1 through -10,
+admin-guides, admin-guides-2, how-to-guides, how-to-guides-2, how-to-guides-3, role-based-guides,
+troubleshooting, troubleshooting-2, compliance-guides, compliance-guides-2, integration-guides,
+integration-guides-2, faq, faq-2, faq-3, onboarding-journeys, migration-guides, best-practices,
+mobile-guides, advanced-admin-3, industry-guides.
+
+**Frontend:** `apps/web-admin/src/app/knowledge-base/page.tsx` — category tabs, full-text search,
+expandable article cards, inline read-time estimates. Available at `http://localhost:3027/knowledge-base`.
+
+**Tests:** 1,000/1,000 passing in `packages/knowledge-base/`.
+
+---
+
 ## Phases 117–216 — Test Depth Expansion to ≥1000 (February 23, 2026)
 
 Bulk expansion from ≥500 → ≥1000 tests per file (100 phases × 5 tests). 7 parallel agents × ~102 files.

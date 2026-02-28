@@ -8,7 +8,7 @@
 ---
 
 
-391 shared packages in `packages/`. All use `@ims/*` scope.
+392 shared packages in `packages/`. All use `@ims/*` scope. *(Updated Feb 28, 2026 — Phase 125)*
 
 ---
 
@@ -77,6 +77,7 @@
 | `@ims/standards-convergence` | Cross-standard mapping (Annex SL)      | Convergence engine |
 | `@ims/regulatory-feed`       | Live regulatory change feed            | Feed processor     |
 | `@ims/templates`             | 192 built-in document/report templates | Template renderer  |
+| `@ims/knowledge-base`        | 801 self-service KB articles (31 seed files, ArticleStore, CategoryManager) | `allKBArticles`, `ArticleStore`, `CategoryManager` |
 
 ### Data and Integration
 
@@ -270,6 +271,80 @@ These 119 packages were added in Phases 74–93 to provide zero-dependency utili
 | `@ims/b-tree` | B-tree/B+-tree, range queries, bulk load | 1,737 |
 | `@ims/cache-replacement` | LRU/LFU/ARC/CLOCK replacement policies | ~1,530 |
 | `@ims/spatial-index` | KD-tree 2D/3D, R-tree, Grid, k-NN | 2,673+ |
+
+---
+
+## IMS Domain Package Library (Phases 118–125)
+
+These 40 domain packages were added in Phases 118–125 to provide IMS-specific business logic engines. All have ≥1,000 Jest tests and zero runtime dependencies.
+
+### Phase 118 — AI Safety & Cybersecurity
+
+| Package | Purpose | Tests |
+|---------|---------|-------|
+| `@ims/ai-container` | AI system lifecycle containment, oversight, sandboxing (ISO 42001) | 1,002 |
+| `@ims/ai-security` | AI model security scanning, adversarial input detection, NIST AI RMF | 1,000 |
+| `@ims/cyber-security` | Vulnerability management, NIST CSF 2.0, CIS Controls v8, OWASP Top 10 | 1,000 |
+
+### Phase 119 — Security & Governance
+
+| Package | Purpose | Tests |
+|---------|---------|-------|
+| `@ims/threat-intel` | IOC management, CVE tracking, threat feed processing, CVSS v3.1 | 1,225 |
+| `@ims/data-governance` | Consent management, data classification, GDPR controls | 1,045 |
+| `@ims/security-scanner` | Static/dynamic security scanning, control testing, evidence collection | 1,002 |
+| `@ims/incident-response` | Playbook runner, SLA tracking, incident classification, escalation | 1,006 |
+| `@ims/compliance-automation` | Automated control testing, audit scheduling, evidence collection | 1,071 |
+
+### Phase 120 — IMS Domain I
+
+| Package | Purpose | Tests |
+|---------|---------|-------|
+| `@ims/supply-chain-risk` | Vendor registry, supply chain incident tracking, risk classification | 1,187 |
+| `@ims/business-continuity` | BCP management, BCP testing, RTO/RPO tracking (ISO 22301) | 1,005 |
+| `@ims/change-management` | Change request lifecycle, emergency/standard/major workflows | 1,372 |
+| `@ims/knowledge-base` | 801 KB articles (31 seed files), ArticleStore, CategoryManager, full-text search | 1,000 |
+| `@ims/performance-kpi` | KPI definition and measurement tracking, target comparison | 1,000 |
+
+### Phase 121 — IMS Domain II
+
+| Package | Purpose | Tests |
+|---------|---------|-------|
+| `@ims/asset-lifecycle` | Asset registry, maintenance scheduler, depreciation (straight-line/declining) | 1,023 |
+| `@ims/training-tracker` | Training records, competency gap tracking, induction management | 1,010 |
+| `@ims/document-control` | ISO document versioning, review workflows, controlled distribution | 1,353 |
+| `@ims/corrective-action` | CAPA lifecycle, root-cause methods (5-Why, fishbone, 8D), action tracking | 2,834 |
+| `@ims/stakeholder-management` | Power/interest grid, communication tracking, engagement scoring | 1,427 |
+
+### Phase 122 — IMS Domain III
+
+| Package | Purpose | Tests |
+|---------|---------|-------|
+| `@ims/environmental-monitoring` | ISO 14001 emission/waste tracking, compliance status monitoring | 1,030 |
+| `@ims/quality-control` | ISO 9001 inspection management, defect/nonconformance tracking, sampling | 1,000 |
+| `@ims/legal-register` | ISO legal obligation management, jurisdiction tracking, renewal alerts | 1,002 |
+| `@ims/meeting-management` | Meeting lifecycle, minutes, action item tracking (ISO 9001/14001/45001) | 1,841 |
+| `@ims/objective-tracker` | Management system objectives (ISO 6.2), target progress, milestone tracking | 1,224 |
+
+### Phase 123 — IMS Domain IV
+
+| Package | Purpose | Tests |
+|---------|---------|-------|
+| `@ims/audit-management` | Internal audit planning/findings, programme management (ISO 9001/14001/45001) | 1,003 |
+| `@ims/risk-register` | ISO 31000 risk register, 5×5 matrix, treatment tracking, residual risk | 1,083 |
+| `@ims/supplier-evaluation` | ISO 9001 clause 8.4 supplier qualification/evaluation, AVL management | 1,167 |
+| `@ims/equipment-calibration` | ISO 9001 clause 7.1.5 / ISO 17025 calibration records, certificates | 1,068 |
+| `@ims/permit-to-work` | ISO 45001 PTW workflow, LOTO isolation tracking, permit lifecycle | 1,201 |
+
+### Phase 124 — IMS Domain V
+
+| Package | Purpose | Tests |
+|---------|---------|-------|
+| `@ims/inspection-management` | ISO 9001 inspection planning, checklists, pass/fail/conditional results | 1,026 |
+| `@ims/contractor-management` | ISO 45001 contractor induction, permit tracking, competency verification | 1,007 |
+| `@ims/waste-management` | ISO 14001 waste register, disposal tracking, recycling rate calculation | 1,016 |
+| `@ims/energy-monitoring` | ISO 50001 energy meter management, baseline comparison, EnPI tracking | 1,002 |
+| `@ims/complaint-management` | ISO 10002 complaint register, auto-reference (CMP-YYYY-NNN), SLA tracking | 1,105 |
 
 ---
 

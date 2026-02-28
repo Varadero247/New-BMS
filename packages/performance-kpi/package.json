@@ -1,0 +1,13 @@
+{
+  "name": "@ims/performance-kpi",
+  "version": "1.0.0",
+  "description": "KPI tracking and performance management: define, measure, trend analysis",
+  "main": "dist/index.js",
+  "scripts": { "build": "tsc", "test": "jest" },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@ims/supply-chain-risk",
+  "version": "1.0.0",
+  "description": "Supply chain risk management: vendor registry, incident tracking, risk assessment",
+  "main": "dist/index.js",
+  "scripts": { "build": "tsc", "test": "jest" },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": { "^.+\\.tsx?$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }] }
+  },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
+}

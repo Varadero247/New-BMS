@@ -33,6 +33,6 @@ router.use('/audit', authenticate, auditRoutes);
 router.use('/unified-audit', authenticate, unifiedAuditRoutes);
 router.use('/gdpr', authenticate, gdprRoutes);
 router.use('/security-controls', securityControlsRoutes); // has own auth
-router.use('/templates', authenticate, templateRoutes);
+router.use('/templates', templateRoutes); // list/search are public; mutations handled per-route
 
 export default router;
