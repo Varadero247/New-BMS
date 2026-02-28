@@ -12,10 +12,10 @@ Welcome to the Integrated Management System (IMS) monorepo. This guide gets you 
 
 ## Project Overview
 
-IMS is a monorepo containing 43 API services, 44 web apps, and 392 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
+IMS is a monorepo containing 43 API services, 45 web apps, and 394 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
 
 **Stack:** Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose, pnpm workspaces, TypeScript
-**Scale:** 44 Prisma schemas, ~590 database tables, ~1,202,000 unit tests across ~1,084 suites / 438 projects (all passing)
+**Scale:** 44 Prisma schemas, ~590 database tables, ~1,203,000 unit tests across ~1,085 suites / 439 projects (all passing)
 
 ## Prerequisites
 
@@ -73,7 +73,7 @@ This script handles port conflicts, starts Docker Compose, seeds the admin user,
 ./scripts/check-services.sh
 ```
 
-This checks all 88 services (43 APIs + api-search + 44 web apps) for health. Expect ~15 web apps to show warnings in dev mode since they require a running Next.js dev server.
+This checks all 89 services (43 APIs + api-search + 45 web apps) for health. Expect ~15 web apps to show warnings in dev mode since they require a running Next.js dev server.
 
 ### 6. Log in
 
@@ -90,7 +90,7 @@ Open `http://localhost:3000` and use:
 |------------|------------|-------------------------------------------------|
 | API Gateway| 4000       | All traffic enters here                         |
 | API Services | 4001–4041 | H&S: 4001, Env: 4002, Quality: 4003, Finance: 4013 |
-| Web Apps   | 3000–3045  | Dashboard: 3000, H&S: 3001, HR: 3006           |
+| Web Apps   | 3000–3046  | Dashboard: 3000, H&S: 3001, Training Portal: 3046 |
 
 See `CLAUDE.md` and `SYSTEM_STATE.md` for the complete port map.
 
@@ -200,7 +200,7 @@ jest.mock('@ims/database', () => ({ ... }));
 pnpm test
 ```
 
-Runs ~1,202,000 Jest tests across ~1,084 suites / 438 projects. All must pass. Every `.test.ts` file has at minimum 1,000 tests.
+Runs ~1,203,000 Jest tests across ~1,085 suites / 439 projects. All must pass. Every `.test.ts` file has at minimum 1,000 tests.
 
 ### Integration Tests
 

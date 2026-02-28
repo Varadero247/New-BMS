@@ -145,7 +145,7 @@
 | Path | Description |
 |------|-------------|
 | `.github/SECURITY.md` | Vulnerability disclosure policy, severity classification (CVSS), scope, supported versions |
-| `.github/CODEOWNERS` | Maps all 44 apps + packages to 12 team groups (hse, security, quality, finance, hr, devops, ai, etc.) |
+| `.github/CODEOWNERS` | Maps all 45 apps + packages to 12 team groups (hse, security, quality, finance, hr, devops, ai, etc.) |
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR checklist with testing requirements (≥110 tests/file) and project-specific code checks |
 | `.github/ISSUE_TEMPLATE/bug_report.yml` | Structured bug report with affected-module dropdown (all 40+ services) |
 | `.github/ISSUE_TEMPLATE/feature_request.yml` | Feature request with problem, solution, acceptance criteria fields |
@@ -192,13 +192,13 @@
 | Metric | Value |
 |--------|-------|
 | API Microservices | 43 + api-search (4050) |
-| Web Applications | 44 |
-| Shared NPM Packages | 392 |
+| Web Applications | 45 |
+| Shared NPM Packages | 394 |
 | Prisma Schemas | 44 |
 | Database Models | ~590 |
 | Database Enums | 781 |
 | REST API Endpoints | 2,558 |
-| Unit Tests | ~1,202,000 / ~1,084 suites / 438 projects |
+| Unit Tests | ~1,203,000 / ~1,085 suites / 439 projects |
 | Code Score | 100/100 |
 | ISO Standards Supported | 16+ |
 | GitHub Workflows | 7 |

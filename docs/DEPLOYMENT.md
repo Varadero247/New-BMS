@@ -65,7 +65,7 @@ module.exports = {
       cwd: './apps/web-dashboard',
       env: { NODE_ENV: 'production' },
     },
-    // ... repeat for all 44 web apps (ports 3000-3045)
+    // ... repeat for all 45 web apps (ports 3000-3046)
   ],
 };
 ```

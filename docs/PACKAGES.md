@@ -8,7 +8,7 @@
 ---
 
 
-392 shared packages in `packages/`. All use `@ims/*` scope. *(Updated Feb 28, 2026 — Phase 125)*
+394 shared packages in `packages/`. All use `@ims/*` scope. *(Updated Feb 28, 2026 — Phase 125)*
 
 ---
 
@@ -345,6 +345,13 @@ These 40 domain packages were added in Phases 118–125 to provide IMS-specific 
 | `@ims/waste-management` | ISO 14001 waste register, disposal tracking, recycling rate calculation | 1,016 |
 | `@ims/energy-monitoring` | ISO 50001 energy meter management, baseline comparison, EnPI tracking | 1,002 |
 | `@ims/complaint-management` | ISO 10002 complaint register, auto-reference (CMP-YYYY-NNN), SLA tracking | 1,105 |
+
+### Phase 125 — Training Programmes
+
+| Package | Purpose | Tests |
+|---------|---------|-------|
+| `@ims/module-owner-training` | 5 one-day Module Owner programmes (Quality/NC, HSE, HR/Payroll, Finance/Contracts, Advanced); 54 Markdown source files | — |
+| `@ims/end-user-training` | 4-hour End User Foundation programme; 6 content modules + e-learning design + assessments; 22 Markdown source files | — |
 
 ---
 

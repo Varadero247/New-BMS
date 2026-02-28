@@ -143,7 +143,7 @@
 
 1. Run `pnpm install --no-frozen-lockfile`
 2. Resolve any peer dependency warnings
-3. Run `pnpm test` to verify all ~1,202,000 tests still pass
+3. Run `pnpm test` to verify all ~1,203,000 tests still pass
 4. Run `pnpm build` to verify all apps build successfully
 
 ---

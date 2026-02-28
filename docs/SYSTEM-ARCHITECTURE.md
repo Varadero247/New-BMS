@@ -10,7 +10,7 @@
 
 ## Overview
 
-The Integrated Management System (IMS) is a comprehensive microservices-based platform for managing organizational compliance across multiple ISO standards (ISO 9001, ISO 14001, ISO 45001). The system consists of 88 services: 43 backend APIs and 44 frontend web applications, plus 1 main API.
+The Integrated Management System (IMS) is a comprehensive microservices-based platform for managing organizational compliance across multiple ISO standards (ISO 9001, ISO 14001, ISO 45001). The system consists of 89 services: 43 backend APIs and 45 frontend web applications, plus 1 main API.
 
 ## Architecture Diagram
 
@@ -195,6 +195,7 @@ The Integrated Management System (IMS) is a comprehensive microservices-based pl
 | **Mgmt Review**        | 3043 | Management review                               |
 | **Chemicals**          | 3044 | Chemical management                             |
 | **Emergency**          | 3045 | Fire & emergency management                     |
+| **Training Portal**    | 3046 | Activation-key-gated training portal             |
 
 ## Monitoring System
 
@@ -392,8 +393,8 @@ Total services running: 52 / 52
 - **Monorepo**: Turborepo
 - **Package Manager**: pnpm
 - **Build Tool**: tsup (all API services and shared packages)
-- **Testing**: Jest (~1,202,000 tests across ~1,084 suites / 438 projects), 40 integration test scripts (~1,800+ assertions), CI via GitHub Actions
-- **Containerization**: Docker Compose (43 APIs + api-search:4050 + 44 web apps + PostgreSQL + Redis + main API)
+- **Testing**: Jest (~1,203,000 tests across ~1,085 suites / 439 projects), 40 integration test scripts (~1,800+ assertions), CI via GitHub Actions
+- **Containerization**: Docker Compose (43 APIs + api-search:4050 + 45 web apps + PostgreSQL + Redis + main API)
 - **Logging**: Winston
 - **Metrics**: prom-client (Prometheus)
 

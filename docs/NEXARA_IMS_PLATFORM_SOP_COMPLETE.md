@@ -10,7 +10,7 @@
 ## Complete Technical & Operational Reference Manual
 
 **Document Version:** 2.0
-**Last Updated:** February 28, 2026 (Phase 125 — 392 packages, ~1,202,000 tests)
+**Last Updated:** February 28, 2026 (Phase 125 — 394 packages, ~1,203,000 tests)
 **Classification:** Internal Use Only
 **Repository:** `/home/dyl/New-BMS`
 
@@ -52,8 +52,8 @@ Nexara is an **Integrated Management System (IMS)** built for regulated industri
 | Database Models | ~590 |
 | Database Enums | 781+ |
 | REST API Endpoints | 2,558+ |
-| Unit Test Files | ~1,084 suites |
-| Unit Test Cases | ~1,202,000 |
+| Unit Test Files | ~1,085 suites |
+| Unit Test Cases | ~1,203,000 |
 | Node.js Requirement | ≥ 20.0.0 |
 | Package Manager | pnpm ≥ 9.0.0 |
 | Code Evaluation Score | 100/100 |
@@ -1818,7 +1818,7 @@ cp apps/api-gateway/.env.example apps/api-gateway/.env
 # 4. Seed database
 ./scripts/seed-all.sh
 
-# 5. Start all 88 services (43 API + api-search + 44 web)
+# 5. Start all 89 services (43 API + api-search + 45 web)
 ./scripts/start-all-services.sh
 
 # 6. Check health
@@ -1990,7 +1990,7 @@ Log format: JSON, includes `correlationId`, `service`, `timestamp`, `level`.
 ./scripts/pre-launch-check.sh
 # Runs 111 checks:
 # - All 43 API services + api-search healthy
-# - All 44 web apps running
+# - All 45 web apps running
 # - JWT secret configured
 # - Database connected
 # - Redis connected
@@ -2373,7 +2373,7 @@ pnpm test -- --testPathPattern="nonconformances"
 pnpm test --watch
 ```
 
-**Current Status:** ~1,202,000 tests / ~1,084 suites / 438 projects — ALL PASSING
+**Current Status:** ~1,203,000 tests / ~1,085 suites / 439 projects — ALL PASSING
 
 **Test Structure:**
 ```typescript
@@ -2501,7 +2501,7 @@ pnpm audit --audit-level=high
 | Script | Purpose |
 |--------|---------|
 | `./scripts/startup.sh` | Full system startup (handles port conflicts, Docker, seeds) |
-| `./scripts/start-all-services.sh` | Start all 88 services (43 API + api-search + 44 web) |
+| `./scripts/start-all-services.sh` | Start all 89 services (43 API + api-search + 45 web) |
 | `./scripts/stop-all-services.sh` | Gracefully stop all services |
 | `./scripts/check-services.sh` | Health check all 51+ services |
 | `./scripts/pre-launch-check.sh` | 111-point pre-launch validation |

@@ -58,9 +58,9 @@
 New-BMS/
 ├── apps/           # Deployable applications
 │   ├── api-*       # 43 Express.js API services + api-search (4050)
-│   ├── web-*       # 44 Next.js 15 web applications
+│   ├── web-*       # 45 Next.js 15 web applications
 │   └── mobile/     # React Native (excluded from dev)
-├── packages/       # 392 shared libraries
+├── packages/       # 394 shared libraries
 │   ├── database/   # Prisma schemas + generated clients
 │   ├── auth/       # JWT verification middleware
 │   ├── rbac/       # Role-based access control

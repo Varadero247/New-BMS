@@ -10,15 +10,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Phase 125] — 2026-02-28
 
 ### Added
-- New shared package: `@ims/knowledge-base` — self-service article management with 801 published articles across 31 seed files
-- Article categories: GUIDE (229), PROCEDURE (320), FAQ (60), REFERENCE (192)
-- Seed file coverage: getting-started (5), module-guides ×3 (35), module-deep-dives ×10 (~200+), admin-guides ×2 (30), how-to-guides ×3 (60), role-based-guides (25), troubleshooting ×2 (80), compliance-guides ×2 (50), integration-guides ×2 (45), faq ×3 (54), onboarding-journeys (12), migration-guides (12), best-practices (20), mobile-guides (10), advanced-admin (15), industry-guides (12)
-- Knowledge Base page in Admin Dashboard (`apps/web-admin/src/app/knowledge-base/`, port 3027) with category tabs, full-text search, expandable article cards, and read-time estimates
-- Sidebar link to Knowledge Base with BookOpen icon in `apps/web-admin/src/components/sidebar.tsx`
-- Fixed broken ts-jest@29.4.6 installation (missing `dist/` in pnpm store) — restored from working `.ignored` copy
-- 1,000 unit tests in `packages/knowledge-base/src/__tests__/` — all passing
-- Total unit tests: ~1,202,000 across ~1,084 suites / 438 projects — all passing
-- Shared packages: 392 total
+- **Knowledge Base**: Expanded `@ims/knowledge-base` with 801 published articles across 31 seed files
+  - Article categories: GUIDE (229), PROCEDURE (320), FAQ (60), REFERENCE (192)
+  - Seed file coverage: getting-started (5), module-guides ×3 (35), module-deep-dives ×10 (~200+), admin-guides ×2 (30), how-to-guides ×3 (60), role-based-guides (25), troubleshooting ×2 (80), compliance-guides ×2 (50), integration-guides ×2 (45), faq ×3 (54), onboarding-journeys (12), migration-guides (12), best-practices (20), mobile-guides (10), advanced-admin (15), industry-guides (12)
+  - Knowledge Base page in Admin Dashboard (`apps/web-admin/src/app/knowledge-base/`, port 3027) with category tabs, full-text search, expandable article cards, and read-time estimates
+  - Sidebar link to Knowledge Base with BookOpen icon in `apps/web-admin/src/components/sidebar.tsx`
+  - Fixed broken ts-jest@29.4.6 installation (missing `dist/` in pnpm store) — restored from working `.ignored` copy
+- **Module Owner Training** (`packages/module-owner-training/`): 54 Markdown files covering 5 one-day instructor-led programmes
+  - Day A: Quality & Non-Conformance Management
+  - Day B: Health, Safety & Environment
+  - Day C: HR & Payroll
+  - Day D: Finance & Contracts
+  - Day E: Advanced — Audits, CAPA & Management Review
+  - Each day includes: schedule, facilitation guide, 3 module content files, hands-on lab, 20-MCQ assessment, answer key
+  - New package: `@ims/module-owner-training`
+- **End User Training** (`packages/end-user-training/`): 22 Markdown files covering 4-hour Foundation programme
+  - 6 content modules: Platform Navigation, Recording Incidents, Training Acknowledgements, Permit to Work, Observations, Reports & Dashboards
+  - Virtual session guide + e-learning design spec + summative assessment (20 MCQ, 80% pass)
+  - New package: `@ims/end-user-training`
+- **Training Portal** (`apps/web-training-portal/`, port 3046): Activation-key-gated Next.js portal
+  - 9 new routes: module-owner landing, 5 group content pages, 5 assessments, end-user landing, virtual/modules/assessment pages
+  - Homepage updated to 3-programme selector (Administrator, Module Owner, End User)
+  - Middleware key gate: `NEXARA-ATP-<ORG>-<YEAR>` cookie-based access control
+  - 1,325 tests in `src/__tests__/middleware.test.ts` — all passing
+- Total unit tests: ~1,203,000 across ~1,085 suites / 439 projects — all passing
+- Shared packages: 394 total (+2: `@ims/module-owner-training`, `@ims/end-user-training`)
 
 ---
 
