@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-28 (Phase 126 + test count audit — @ims/status fix; accurate counts: 1,183,918 tests / 1,069 suites / 438 Jest projects — ALL PASSING)
+> Last updated: 2026-03-04 (Phase 127 — production-grade integration test suite: 111 tests / 12 suites via `pnpm test:integration:ci`; 1,183,918 unit tests / 1,069 suites / 438 Jest projects — ALL PASSING)
 
 ## Summary
 
@@ -13,7 +13,7 @@
 | Database Tables (models) | ~590                                                  |
 | Scripts                  | 60+                                                   |
 | Unit Tests               | 1,183,918 across 1,069 suites / 438 Jest projects (all passing) |
-| Integration Test Scripts | 40                                                    |
+| Integration Test Scripts | 40 shell scripts + 12 Jest suites (111 tests, `pnpm test:integration:ci`) |
 
 ---
 
@@ -402,7 +402,9 @@ All 804 Jest test suites pass with 0 failures as of 2026-02-24. Every .test.ts f
 
 Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api-finance (~456), api-environment (~442), api-aerospace (~553), api-automotive (~502), api-hr (~355), api-payroll (~303).
 
-### Integration Tests (40 scripts, ~1,800+ assertions)
+### Integration Tests
+
+#### Shell scripts (40 scripts, ~1,800+ assertions) — `./scripts/test-all-modules.sh`
 
 | Script                    | Module             | Assertions |
 | ------------------------- | ------------------ | ---------- |
@@ -417,6 +419,27 @@ Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api
 | test-finance-modules.sh   | Finance            | ~40        |
 
 Plus 31 additional scripts for AI, Automotive, Medical, Aerospace, CRM, InfoSec, ESG, CMMS, Portal, Food Safety, Energy, Analytics, Field Service, ISO 42001, ISO 37001, Marketing, Partners, Risk, Training, Suppliers, Assets, Documents, Complaints, Contracts, PTW, Reg Monitor, Incidents, Audits, Mgmt Review, Chemicals, Emergency.
+
+#### Jest integration suite (Phase 127) — 111 tests / 12 suites — `pnpm test:integration:ci`
+
+Uses real PostgreSQL + Redis (no infrastructure mocks). Separate per-schema databases (`ims_test_core`, `ims_test_quality`, `ims_test_health_safety`, `ims_test_hr`, `ims_test_workflows`, `ims_test_inventory`, `ims_test_payroll`) to avoid enum conflicts. Serial execution (`maxWorkers: 1`).
+
+| Suite                                          | Tests | Layer          |
+| ---------------------------------------------- | ----- | -------------- |
+| `packages/database/__tests__/integration/prisma-queries.test.ts`      | ~10 | Database       |
+| `packages/event-bus/__tests__/integration/event-bus.integration.test.ts` | ~8  | Event Bus      |
+| `apps/api-gateway/__tests__/integration/auth.test.ts`                 | ~12 | Gateway auth   |
+| `apps/api-gateway/__tests__/integration/rbac.test.ts`                 | ~10 | Gateway RBAC   |
+| `apps/api-gateway/__tests__/integration/proxy-routing.test.ts`        | ~6  | Gateway proxy  |
+| `apps/api-gateway/__tests__/integration/redis-cache.test.ts`          | ~5  | Rate limit/blacklist |
+| `apps/api-quality/__tests__/integration/nonconformances.test.ts`      | ~10 | Quality        |
+| `apps/api-health-safety/__tests__/integration/incidents.test.ts`      | ~10 | H&S            |
+| `apps/api-hr/__tests__/integration/employees.test.ts`                 | ~11 | HR             |
+| `apps/api-workflows/__tests__/integration/workflows.test.ts`          | ~10 | Workflows      |
+| `apps/api-inventory/__tests__/integration/inventory.test.ts`          | ~9  | Inventory      |
+| `apps/api-payroll/__tests__/integration/payroll.test.ts`              | ~10 | Payroll        |
+
+Key helpers: `packages/database/src/test-helpers.ts` (`resetTestDatabase`, `flushTestRedis`, `captureEvents`), `packages/shared/src/test-utils/auth-helpers.ts` (`generateTestToken` — creates real DB session), `packages/shared/src/test-utils/api-helpers.ts` (`assertSuccess`, `assertError`, `assertPagination`). Local credentials in `.env.integration` (gitignored).
 
 ---
 
@@ -471,6 +494,7 @@ Plus 31 additional scripts for AI, Automotive, Medical, Aerospace, CRM, InfoSec,
 | Phase 124 (Feb 26, session 9) | IMS Domain Packages V | 5 new packages: `@ims/inspection-management` (1,026 tests), `@ims/contractor-management` (1,007 tests), `@ims/waste-management` (1,016 tests), `@ims/energy-monitoring` (1,002 tests), `@ims/complaint-management` (1,105 tests). ISO 9001 inspection planning/checklists, ISO 45001 contractor induction/permit tracking, ISO 14001 waste register/disposal tracking, ISO 50001 energy meter management/baseline comparison (IMPROVEMENT/NO_CHANGE/DETERIORATION), ISO 10002 complaint register with auto-reference (CMP-YYYY-NNN) and resolution SLA tracking. **~1,202,000 unit tests / ~1,084 suites / 392 packages / 438 TypeScript projects — ALL PASSING.** |
 | Phase 125 (Feb 28) | Knowledge Base + Module Owner & End User Training Programmes | (1) Expanded `@ims/knowledge-base` with 801 published articles across 31 seed files (GUIDE: 229, PROCEDURE: 320, FAQ: 60, REFERENCE: 192); KB page in Admin Dashboard with category tabs, full-text search, expandable cards. Fixed broken ts-jest@29.4.6 installation. (2) `packages/module-owner-training/` — 54 Markdown files covering 5 one-day programmes (Quality/NC, HSE, HR/Payroll, Finance/Contracts, Advanced); `packages/end-user-training/` — 22 Markdown files covering 4-hour Foundation programme. (3) `apps/web-training-portal/` (port 3046) — activation-key-gated Next.js portal with 9 new routes across 3 programme tracks (Administrator, Module Owner, End User); middleware.ts key-gate, 1,325 tests. New packages: `@ims/module-owner-training`, `@ims/end-user-training`. **~1,203,000 unit tests / ~1,085 suites / 394 packages / 439 TypeScript projects — ALL PASSING.** |
 | Phase 126 (Feb 28) | Train-the-Trainer Programme | `packages/train-the-trainer/` — 32 Markdown files across 6 subdirectories + full TypeScript package (1,012 tests, all passing): types, scoring engine, CohortManager, TrainerRegistry, programme-registry. Dual assessment: written (20 MCQ, ≥75%) + observed delivery (20 min, 5-domain 4-point scale, ≥70%); 14 CPD hours; max 8 participants. Web portal: `/train-the-trainer` route added to `apps/web-training-portal`; homepage updated to 4-programme selector with purple-accented T3 card. New package: `@ims/train-the-trainer`. Also fixed `@ims/status` service-count assertion (42→43). **395 packages / 438 Jest projects / 1,183,918 unit tests — ALL PASSING.** |
+| Phase 127 (Mar 4) | Production-grade Integration Test Suite | 20 new files: `jest.integration.config.js`, `jest.integration.globalSetup.js`, `jest.integration.setup.js` (with `.env.integration` auto-loading), `packages/database/prisma/seed-test.ts` (deterministic seeder with per-schema DBs), `packages/database/src/test-helpers.ts` (`resetTestDatabase`, `flushTestRedis`, `captureEvents`), `packages/shared/src/test-utils/auth-helpers.ts` (real DB session creation), `packages/shared/src/test-utils/api-helpers.ts`, `.github/workflows/integration-tests.yml`, 12 test suites (database, event-bus, gateway auth/RBAC/proxy/redis-cache, quality, H&S, HR, workflows, inventory, payroll). Uses real PostgreSQL + Redis with no infrastructure mocks. Per-schema databases avoid enum conflicts. Fixed 2 production bugs found during testing: `SalaryComponentType` `deletedAt` Prisma error (500), `session.create()` unique-constraint on rapid login+refresh (now `upsert()`). **111 tests / 12 suites — ALL PASSING.** |
 
 ---
 

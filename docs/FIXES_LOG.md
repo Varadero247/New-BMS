@@ -8,6 +8,61 @@
 ---
 
 
+## Phase 127 — Production-grade Integration Test Suite (March 4, 2026)
+
+### Feature: Jest integration test suite — 111 tests / 12 suites
+
+Added a full production-grade integration test suite (`pnpm test:integration:ci`) that exercises the real PostgreSQL, Redis, and event-bus infrastructure with no mocks for those layers.
+
+**Architecture decisions:**
+- Per-schema PostgreSQL databases (`ims_test_core`, `ims_test_quality`, `ims_test_health_safety`, `ims_test_hr`, `ims_test_workflows`, `ims_test_inventory`, `ims_test_payroll`) to avoid enum conflicts (`PaymentStatus` defined with incompatible values in both `inventory.prisma` and `payroll.prisma`)
+- Serial execution (`maxWorkers: 1`) to avoid DB conflicts between suites
+- `jest.integration.globalSetup.js` runs `prisma migrate diff --from-empty | psql -v ON_ERROR_STOP=0` (pure CREATE SQL, safe for multi-schema environment)
+- `.env.integration` (gitignored) auto-loaded by `jest.integration.setup.js` for local Docker credentials
+
+**New files (20):**
+- `jest.integration.config.js`, `jest.integration.globalSetup.js`, `jest.integration.setup.js`
+- `packages/database/prisma/seed-test.ts` — deterministic seeder, exports `TEST_IDS`
+- `packages/database/src/test-helpers.ts` — `resetTestDatabase`, `flushTestRedis`, `captureEvents`
+- `packages/shared/src/test-utils/auth-helpers.ts` — `generateTestToken` creates real DB session
+- `packages/shared/src/test-utils/api-helpers.ts` — `assertSuccess`, `assertError`, `assertPagination`
+- `.github/workflows/integration-tests.yml` — CI workflow (postgres:16-alpine + redis:7-alpine)
+- 12 test suites across database, event-bus, gateway (auth/RBAC/proxy/redis-cache), quality, H&S, HR, workflows, inventory, payroll
+
+### Fix: `SalaryComponentType` Prisma 500 (`deletedAt: null` on model without soft-delete)
+
+**Symptom:** `GET /api/payroll/salary/component-types` returned 500 in integration tests.
+
+**Root cause:** `apps/api-payroll/src/routes/salary.ts` queried `{ isActive: true, deletedAt: null }` but `SalaryComponentType` has no `deletedAt` field — Prisma throws a validation error at runtime.
+
+**Fix:** Removed `deletedAt: null` from the where clause; updated 3 unit test assertions in `apps/api-payroll/__tests__/salary.api.test.ts` to match.
+
+### Fix: `session.create()` unique constraint on rapid login + refresh
+
+**Symptom:** `POST /api/auth/refresh` returned 500 when called immediately after login.
+
+**Root cause:** When login and refresh happen within the same second, the new access token has identical `iat`/`exp` bytes → same SHA-256 hash → UNIQUE constraint violation on `sessions.token`.
+
+**Fix:** Changed `prisma.session.create()` to `prisma.session.upsert()` in `apps/api-gateway/src/routes/auth.ts`, using the token hash as the upsert key.
+
+### Fix: Account lockout accumulation between test runs
+
+**Symptom:** `returns 401 for non-existent user email` started returning 423 (ACCOUNT_LOCKED) after multiple test runs.
+
+**Root cause:** `flushTestRedis()` only cleared `nexara:*` keys; account lockout uses `lockout:*` prefix. After 5+ runs, `ghost@ims-test.io` accumulated enough failed attempts to trigger lockout.
+
+**Fix:** Extended `flushTestRedis()` in `packages/database/src/test-helpers.ts` to also clear `lockout:*`, `ratelimit:*`, and `ims:*` prefixes.
+
+### Fix: `SESSION_EXPIRED` test returns 200 (same-second JWT collision)
+
+**Symptom:** A token with no DB session returned 200 instead of 401 — `authenticate` was finding the existing session.
+
+**Root cause:** Same-second JWT signing produces identical `iat`/`exp` → identical token bytes → same SHA-256 hash → `authenticate` finds the real user's session.
+
+**Fix:** Added `jti: 'no-session-${Date.now()}'` to the manually-constructed JWT in the test to guarantee byte-level uniqueness.
+
+---
+
 ## Phase 125 — Knowledge Base Seed Data + ts-jest Fix (February 28, 2026)
 
 ### Fix: ts-jest@29.4.6 missing `dist/` directory
