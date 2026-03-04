@@ -53,6 +53,7 @@ module.exports = {
     '<rootDir>/apps/web-marketing',
     '<rootDir>/apps/web-quality',
     '<rootDir>/apps/web-health-safety',
+    '<rootDir>/apps/web-risk',
     // Shared packages
     '<rootDir>/packages/shared',
     '<rootDir>/packages/audit',
