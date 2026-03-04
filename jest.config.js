@@ -54,6 +54,7 @@ module.exports = {
     '<rootDir>/apps/web-quality',
     '<rootDir>/apps/web-health-safety',
     '<rootDir>/apps/web-risk',
+    '<rootDir>/apps/web-esg',
     // Shared packages
     '<rootDir>/packages/shared',
     '<rootDir>/packages/audit',
