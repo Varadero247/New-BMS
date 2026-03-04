@@ -70,3 +70,4 @@ playwright-report/
 .zap/
 .stryker-tmp/
 test-results/
+.env.integration
