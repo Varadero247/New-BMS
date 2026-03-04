@@ -237,12 +237,12 @@ See `SYSTEM_STATE.md` for the complete list. Key packages:
 - `@ims/regulatory-feed` — Live regulatory change feed
 - `@ims/standards-convergence` — Cross-standard mapping engine
 - `@ims/event-bus` — Cross-service event bus
-- `@ims/command-palette` — Cmd+K command palette with fuzzy search (Q1 2026)
-- `@ims/keyboard-shortcuts` — Global keyboard shortcut registry (Q1 2026)
-- `@ims/bulk-actions` — Bulk selection and batch operations (Q1 2026)
-- `@ims/inline-edit` — Inline field editing with validation (Q1 2026)
-- `@ims/deep-links` — Deep link URL builder and registry (Q1 2026)
-- `@ims/search` — Global search client and utilities (Q1 2026)
+- `@ims/command-palette` — Cmd+K command palette with fuzzy search (1,426 tests)
+- `@ims/keyboard-shortcuts` — Global keyboard shortcut registry (1,368 tests)
+- `@ims/bulk-actions` — Bulk selection and batch operations (1,375 tests)
+- `@ims/inline-edit` — Inline field editing with validation (1,668 tests)
+- `@ims/deep-links` — Deep link URL builder and registry (1,294 tests)
+- `@ims/search` — Global search client and utilities (1,335 tests)
 - `@ims/graphql-schema` — Shared GraphQL type definitions (Q2 2026)
 - `@ims/collab` — Real-time collaboration engine (OT, cursors) (Q2 2026)
 - `@ims/workflow-builder` — Workflow automation DSL and runtime (Q2 2026)
