@@ -29,6 +29,9 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "test:integration": "./scripts/test-all-modules.sh",
+    "test:integration:ci": "jest --config jest.integration.config.js",
+    "test:integration:watch": "jest --config jest.integration.config.js --watch",
+    "test:integration:coverage": "jest --config jest.integration.config.js --coverage",
     "test:mutation": "stryker run stryker.config.mjs",
     "test:mutation:auth": "stryker run stryker.auth.config.mjs",
     "test:mutation:security": "stryker run stryker.security.config.mjs",
@@ -60,8 +63,11 @@
     "@stryker-mutator/jest-runner": "^9.5.1",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.0",
+    "@types/supertest": "^6.0.2",
     "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
     "prettier": "^3.1.0",
+    "supertest": "^7.0.0",
     "ts-jest": "^29.1.1",
     "tsup": "^8.0.0",
     "tsx": "^4.7.0",
@@ -78,6 +84,11 @@
       "fast-xml-parser": ">=5.3.5",
       "axios": ">=1.13.5",
       "jspdf": ">=4.2.0"
+    },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "react-native>react": "^18"
+      }
     }
   },
   "dependencies": {

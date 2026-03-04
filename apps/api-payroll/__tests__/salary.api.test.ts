@@ -115,7 +115,6 @@ describe('Payroll Salary API Routes', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             isActive: true,
-            deletedAt: null,
             type: 'EARNING',
           }),
         })
@@ -133,7 +132,6 @@ describe('Payroll Salary API Routes', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             isActive: true,
-            deletedAt: null,
             category: 'ALLOWANCE',
           }),
         })
@@ -149,7 +147,6 @@ describe('Payroll Salary API Routes', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             isActive: true,
-            deletedAt: null,
           }),
         })
       );

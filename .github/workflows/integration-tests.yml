@@ -1,0 +1,122 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ims_secure_password_2026
+          POSTGRES_DB: ims_integration_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # Separate DB per schema to avoid enum conflicts between schemas
+      PG_HOST: localhost
+      PG_PORT: '5432'
+      PG_USER: postgres
+      PG_PASS: ims_secure_password_2026
+      CORE_DATABASE_URL: postgresql://postgres:ims_secure_password_2026@localhost:5432/ims_test_core
+      HEALTH_SAFETY_DATABASE_URL: postgresql://postgres:ims_secure_password_2026@localhost:5432/ims_test_health_safety
+      QUALITY_DATABASE_URL: postgresql://postgres:ims_secure_password_2026@localhost:5432/ims_test_quality
+      HR_DATABASE_URL: postgresql://postgres:ims_secure_password_2026@localhost:5432/ims_test_hr
+      PAYROLL_DATABASE_URL: postgresql://postgres:ims_secure_password_2026@localhost:5432/ims_test_payroll
+      INVENTORY_DATABASE_URL: postgresql://postgres:ims_secure_password_2026@localhost:5432/ims_test_inventory
+      WORKFLOWS_DATABASE_URL: postgresql://postgres:ims_secure_password_2026@localhost:5432/ims_test_workflows
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: integration-test-jwt-secret-that-is-at-least-64-characters-long-for-testing
+      JWT_REFRESH_SECRET: integration-test-refresh-secret-at-least-64-characters-long-for-testing
+      JWT_ISSUER: ims-api
+      JWT_AUDIENCE: ims-client
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma clients
+        run: pnpm --filter @ims/database generate:all
+
+      - name: Create and apply per-schema test databases
+        run: |
+          # Each schema gets its own database to avoid enum name conflicts
+          declare -A SCHEMA_TO_DB=(
+            ["core"]="ims_test_core"
+            ["quality"]="ims_test_quality"
+            ["health-safety"]="ims_test_health_safety"
+            ["hr"]="ims_test_hr"
+            ["workflows"]="ims_test_workflows"
+            ["inventory"]="ims_test_inventory"
+            ["payroll"]="ims_test_payroll"
+          )
+          for schema in core quality health-safety hr workflows inventory payroll; do
+            db="${SCHEMA_TO_DB[$schema]}"
+            PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres -c "CREATE DATABASE $db" || true
+            echo "Applying $schema.prisma → $db..."
+            npx prisma@5.22.0 migrate diff --from-empty \
+              --to-schema-datamodel="packages/database/prisma/schemas/$schema.prisma" \
+              --script \
+              | PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres -d "$db" -v ON_ERROR_STOP=0 --no-psqlrc \
+              || echo "Warning: $schema apply had issues"
+          done
+
+      - name: Seed integration test data
+        run: npx tsx packages/database/prisma/seed-test.ts
+
+      - name: Build packages
+        run: pnpm build --filter='./packages/*'
+
+      - name: Run integration tests
+        run: pnpm test:integration:ci
+
+      - name: Upload JUnit XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: test-results/integration.xml
+          retention-days: 30

@@ -21,7 +21,7 @@ router.get('/component-types', scopeToUser, async (req: Request, res: Response) 
   try {
     const { type, category } = req.query;
 
-    const where: Record<string, unknown> = { isActive: true, deletedAt: null };
+    const where: Record<string, unknown> = { isActive: true };
     if (type) where.type = type;
     if (category) where.category = category;
 

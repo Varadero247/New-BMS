@@ -354,8 +354,10 @@ router.post('/refresh', refreshLimiter, async (req, res) => {
       where: { userId: user.id, expiresAt: { lt: new Date() } },
     });
 
-    await prisma.session.create({
-      data: {
+    await prisma.session.upsert({
+      where: { token: hashTokenForStorage(newAccessToken) },
+      update: { expiresAt: accessTokenExpiresAt, lastActivityAt: new Date() },
+      create: {
         id: uuidv4(),
         userId: user.id,
         token: hashTokenForStorage(newAccessToken),
