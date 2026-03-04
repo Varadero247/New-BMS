@@ -27,6 +27,10 @@ export default function QualityDashboard() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('token')) {
+      window.location.href = '/login';
+      return;
+    }
     loadStats();
   }, []);
 

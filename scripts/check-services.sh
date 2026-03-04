@@ -116,8 +116,9 @@ check_service 3042 "Audits Web"
 check_service 3043 "Management Review Web"
 check_service 3044 "Chemicals Web"
 check_service 3045 "Emergency Web"
+check_service 3046 "Training Portal"
 
 echo ""
 # Count running services using ss
-RUNNING=$(ss -tlnp 2>/dev/null | grep -cE ":(30[0-4][0-9]|40([0-4][0-9]|50)) ")
-echo "Total services running: $RUNNING / 88"
+RUNNING=$(ss -tlnp 2>/dev/null | grep -cE ":(30[0-4][0-9]|3046|40([0-4][0-9]|50)) ")
+echo "Total services running: $RUNNING / 89"

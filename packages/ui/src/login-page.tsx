@@ -70,6 +70,7 @@ export function LoginPage({
       return;
     }
 
+    let loginSucceeded = false;
     try {
       const response = await fetch(`${gatewayUrl}/api/auth/login`, {
         method: 'POST',
@@ -85,14 +86,19 @@ export function LoginPage({
         if (user) {
           localStorage.setItem('user', JSON.stringify(user));
         }
-        onLoginSuccess?.();
+        loginSucceeded = true;
       } else {
         setError(data.message || 'Login failed. Please try again.');
       }
-    } catch {
+    } catch (err) {
+      console.error('[LoginPage] Login error:', err);
       setError('Network error. Please check your connection.');
     } finally {
       setLoading(false);
+    }
+
+    if (loginSucceeded) {
+      onLoginSuccess?.();
     }
   };
 

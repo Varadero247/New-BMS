@@ -2,8 +2,7 @@
 // This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
 // Unauthorised copying, modification, or distribution is strictly prohibited.
 import { Router, Request, Response } from 'express';
-import { prisma } from '@ims/database';
-import type { PrismaClient as MktPrismaClient } from '@ims/database/marketplace';
+import { PrismaClient as MktPrismaClient } from '@ims/database/marketplace';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import crypto from 'crypto';
@@ -11,8 +10,7 @@ import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-gateway');
 
-// Marketplace models live in a separate schema; use a typed cast
-const mp = prisma as unknown as MktPrismaClient;
+const mp = new MktPrismaClient();
 
 const router = Router();
 router.use(authenticate);

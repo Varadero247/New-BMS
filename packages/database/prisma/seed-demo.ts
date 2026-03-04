@@ -19,9 +19,9 @@
 // raw SQL via a generic PrismaClient.
 // ============================================================
 
-import { PrismaClient as AutomotiveClient } from '../../generated/automotive';
-import { PrismaClient as MedicalClient } from '../../generated/medical';
-import { PrismaClient as AerospaceClient } from '../../generated/aerospace';
+import { PrismaClient as AutomotiveClient } from '../generated/automotive';
+import { PrismaClient as MedicalClient } from '../generated/medical';
+import { PrismaClient as AerospaceClient } from '../generated/aerospace';
 
 const automotive = new AutomotiveClient();
 const medical = new MedicalClient();

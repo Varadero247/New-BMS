@@ -57,6 +57,7 @@ import migrationRouter from './routes/migration';
 import ssoWizardRouter from './routes/sso-wizard';
 import erpConnectorsRouter from './routes/erp-connectors';
 import favouritesRouter from './routes/favourites';
+import templatesRouter from './routes/templates';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { errorHandler } from './middleware/error-handler';
 import { compressionMiddleware } from './middleware/compression';
@@ -243,6 +244,8 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3043',
   'http://localhost:3044',
   'http://localhost:3045',
+  // Training Portal (port 3046)
+  'http://localhost:3046',
   // Alternative ports for when Docker orphans block standard ports
   'http://localhost:3051',
   'http://localhost:3052',
@@ -253,16 +256,69 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3057',
   'http://localhost:3058',
   'http://localhost:3059',
+  // 127.0.0.1 variants — browsers may use IP instead of hostname
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  'http://127.0.0.1:3002',
+  'http://127.0.0.1:3003',
+  'http://127.0.0.1:3004',
+  'http://127.0.0.1:3005',
+  'http://127.0.0.1:3006',
+  'http://127.0.0.1:3007',
+  'http://127.0.0.1:3008',
+  'http://127.0.0.1:3009',
+  'http://127.0.0.1:3010',
+  'http://127.0.0.1:3011',
+  'http://127.0.0.1:3012',
+  'http://127.0.0.1:3013',
+  'http://127.0.0.1:3014',
+  'http://127.0.0.1:3015',
+  'http://127.0.0.1:3016',
+  'http://127.0.0.1:3017',
+  'http://127.0.0.1:3018',
+  'http://127.0.0.1:3019',
+  'http://127.0.0.1:3020',
+  'http://127.0.0.1:3021',
+  'http://127.0.0.1:3022',
+  'http://127.0.0.1:3023',
+  'http://127.0.0.1:3024',
+  'http://127.0.0.1:3025',
+  'http://127.0.0.1:3026',
+  'http://127.0.0.1:3027',
+  'http://127.0.0.1:3030',
+  'http://127.0.0.1:3031',
+  'http://127.0.0.1:3032',
+  'http://127.0.0.1:3033',
+  'http://127.0.0.1:3034',
+  'http://127.0.0.1:3035',
+  'http://127.0.0.1:3036',
+  'http://127.0.0.1:3037',
+  'http://127.0.0.1:3038',
+  'http://127.0.0.1:3039',
+  'http://127.0.0.1:3040',
+  'http://127.0.0.1:3041',
+  'http://127.0.0.1:3042',
+  'http://127.0.0.1:3043',
+  'http://127.0.0.1:3044',
+  'http://127.0.0.1:3045',
+  'http://127.0.0.1:3046',
 ];
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim())
   : DEFAULT_ORIGINS;
 
+// Any localhost or 127.0.0.1 origin is allowed (development). Pattern covers all ports.
+const DEV_ORIGIN_RE = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+
+function isOriginAllowed(origin: string): boolean {
+  return allowedOrigins.includes(origin) || DEV_ORIGIN_RE.test(origin);
+}
+
 // Raw CORS headers - must be absolute first middleware
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
   const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin && isOriginAllowed(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -271,6 +327,12 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
     'Access-Control-Allow-Headers',
     'Content-Type,Authorization,X-CSRF-Token,X-Correlation-ID'
   );
+  // Chrome Private Network Access (PNA): cross-origin requests from localhost to localhost
+  // require Access-Control-Allow-Private-Network: true in the preflight response.
+  // Without this, Chrome 94+ blocks the fetch with "TypeError: Failed to fetch".
+  if (req.headers['access-control-request-private-network']) {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  }
   if (req.method === 'OPTIONS') {
     res.sendStatus(204);
     return;
@@ -432,6 +494,8 @@ app.use('/api/sso', ssoWizardRouter);
 app.use('/api/v1/sso', addVersionHeader('v1'), ssoWizardRouter);
 app.use('/api/erp-connectors', erpConnectorsRouter);
 app.use('/api/v1/erp-connectors', addVersionHeader('v1'), erpConnectorsRouter);
+app.use('/api/templates', templatesRouter);
+app.use('/api/v1/templates', addVersionHeader('v1'), templatesRouter);
 
 // ─── Cookie Consent Persistence ──────────────────────────────────────────
 // Shared handler with input validation — only accepts boolean fields
@@ -1248,6 +1312,15 @@ const server = app.listen(PORT, () => {
   logger.info('Session cleanup job started');
 });
 
+// Prevent EADDRINUSE and other listen errors from becoming uncaughtExceptions
+server.on('error', (err: NodeJS.ErrnoException) => {
+  console.error(`[api-gateway] Server error: ${err.code} ${err.message}`);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`[api-gateway] Port ${PORT} already in use — exiting so process manager can retry`);
+  }
+  process.exit(1);
+});
+
 // Graceful shutdown
 const gracefulShutdown = async (signal: string) => {
   logger.info(`${signal} received, shutting down gracefully`);
@@ -1271,7 +1344,9 @@ process.on('unhandledRejection', (reason) => {
 });
 
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
+  // Use synchronous console.error so the message flushes before process.exit
+  console.error('[api-gateway] Uncaught exception:', error.message);
+  console.error(error.stack);
   process.exit(1);
 });
 

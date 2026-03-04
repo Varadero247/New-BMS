@@ -5,7 +5,6 @@ import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-workflows');
-initTracing({ serviceName: 'api-workflows' });
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];
@@ -45,6 +44,8 @@ import webhooksRouter from './routes/webhooks';
 import adminRouter from './routes/admin';
 import { writeRoleGuard } from '@ims/auth';
 import { errorHandler } from '@ims/shared';
+
+initTracing({ serviceName: 'api-workflows' });
 
 const app: Express = express();
 const PORT = process.env.PORT || 4008;

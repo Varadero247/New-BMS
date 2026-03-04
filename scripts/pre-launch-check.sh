@@ -219,7 +219,7 @@ if command -v redis-cli &>/dev/null; then
   else
     fail "Redis on ${REDIS_HOST}:${REDIS_PORT} — not responding"
   fi
-elif DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli ${REDIS_PASS:+-a "${REDIS_PASS}"} ping 2>/dev/null | grep -q PONG; then
+elif DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli ${REDIS_PASS:+-a "${REDIS_PASS}"} ping 2>/dev/null | grep -q PONG; then
   pass "Redis on ${REDIS_HOST}:${REDIS_PORT} — connected (via docker exec)"
 else
   fail "Redis on ${REDIS_HOST}:${REDIS_PORT} — not responding"

@@ -10,7 +10,7 @@ import {
   metricsHandler,
   correlationIdMiddleware,
 } from '@ims/monitoring';
-import { authenticateToken } from '@ims/auth';
+import { authenticate } from '@ims/auth';
 import { MockSearchAdapter } from './adapter';
 import {
   SearchAdapter,
@@ -90,7 +90,7 @@ app.get('/metrics', metricsHandler);
 // ---------------------------------------------------------------------------
 
 // GET /api/search/suggest
-app.get('/api/search/suggest', authenticateToken, async (req: Request, res: Response) => {
+app.get('/api/search/suggest', authenticate, async (req: Request, res: Response) => {
   try {
     const q = (req.query['q'] as string | undefined) ?? '';
     if (!q) {
@@ -108,21 +108,21 @@ app.get('/api/search/suggest', authenticateToken, async (req: Request, res: Resp
 });
 
 // GET /api/search/recent
-app.get('/api/search/recent', authenticateToken, (req: Request, res: Response) => {
+app.get('/api/search/recent', authenticate, (req: Request, res: Response) => {
   const userId = (req as any).user?.id as string;
   const recent = getRecentSearches(userId);
   return res.json({ success: true, data: { searches: recent } });
 });
 
 // DELETE /api/search/recent
-app.delete('/api/search/recent', authenticateToken, (req: Request, res: Response) => {
+app.delete('/api/search/recent', authenticate, (req: Request, res: Response) => {
   const userId = (req as any).user?.id as string;
   clearRecentSearches(userId);
   return res.json({ success: true, data: { message: 'Recent searches cleared' } });
 });
 
 // GET /api/search
-app.get('/api/search', authenticateToken, async (req: Request, res: Response) => {
+app.get('/api/search', authenticate, async (req: Request, res: Response) => {
   try {
     const q = (req.query['q'] as string | undefined) ?? '';
     if (!q || q.trim() === '') {

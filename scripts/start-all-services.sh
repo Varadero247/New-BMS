@@ -168,6 +168,8 @@ sleep 2
 start_service "@ims/web-emergency" "web-emergency" "Emergency Web"
 sleep 2
 start_service "@ims/web-marketing" "web-marketing" "Marketing Web"
+sleep 2
+start_service "@ims/web-training-portal" "web-training-portal" "Training Portal"
 
 echo ""
 echo "All services starting..."
@@ -220,6 +222,7 @@ echo "  Setup Wizard:       API: 4039"
 echo "  Chemicals:          http://localhost:3044 (API: 4040)"
 echo "  Emergency:          http://localhost:3045 (API: 4041)"
 echo "  Global Search:      API: 4050"
+echo "  Training Portal:    http://localhost:3046"
 echo ""
 echo "View logs: ls -la $LOG_DIR"
 echo "Check status: ./scripts/check-services.sh"
