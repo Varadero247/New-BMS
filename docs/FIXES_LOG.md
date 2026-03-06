@@ -8,6 +8,32 @@
 ---
 
 
+## Phase 133b — Full Codebase Audit + Stub Package Fix (March 6, 2026)
+
+### Fix: Add package.json to 4 stub packages
+
+**Context:** Full codebase audit revealed 4 packages in `packages/` with no `package.json`: `double-ended-queue`, `edit-distance`, `order-statistics-tree`, `string-hashing`. They had `jest.config.js`, `tsconfig.json`, and full source/test files but were not proper pnpm workspace members.
+
+**Fix:** Added minimal `package.json` (name, version, private, main, scripts, devDependencies) to each, giving them names `@ims/double-ended-queue`, `@ims/edit-distance`, `@ims/order-statistics-tree`, `@ims/string-hashing`.
+
+**Result:** Package count corrected from 395 → 396. Updated across SYSTEM_STATE, CLAUDE.md, QUICK_REFERENCE, README, CONTRIBUTING, all docs.
+
+### Audit findings — all clear
+
+- ✅ All 43 API services present with correct ports (4000–4041, 4050)
+- ✅ All 45 web apps present and covered by `start-all-web.sh`
+- ✅ Gateway SERVICES object maps all 41 domain APIs to correct ports
+- ✅ All 44 Prisma schemas present in `packages/database/prisma/schemas/`
+- ✅ All scripts executable; `check-services.sh` covers all 89 services
+- ✅ All web apps have `NEXT_PUBLIC_API_URL=http://localhost:4000` (except training portal which is self-contained)
+- ✅ No stray ThemeSwitch imports in any layout.tsx
+- ✅ `/api/templates` properly registered in gateway
+- ✅ No hardcoded downstream service URLs in web app API clients
+- ✅ Jest projects all point to existing directories
+- ✅ `start-all-web.sh` covers all 45 web apps exactly
+
+---
+
 ## Phase 133 — Production-mode Startup, web-settings Pages, Compression Fix (March 6, 2026)
 
 ### Feature: All 45 web apps run in production mode

@@ -15,7 +15,7 @@
 [![Code Score](https://img.shields.io/badge/Code%20Score-100%2F100-brightgreen)](docs/CODE_EVALUATION_REPORT.md)
 [![Mutation Score](https://img.shields.io/badge/Mutation-80.76%25-yellow)](docs/MUTATION_TESTING.md)
 
-Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 29 ISO standards · 43 APIs · 45 web apps · 395 packages · 6 verticals, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
+Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 29 ISO standards · 43 APIs · 45 web apps · 396 packages · 6 verticals, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
 
 ---
 
@@ -203,7 +203,7 @@ New-BMS/
 │   ├── email/                # Email templates + sending
 │   ├── event-bus/            # Cross-service event system
 │   ├── sdk/                  # @ims/sdk public SDK
-│   └── .../                  # 395 total shared packages
+│   └── .../                  # 396 total shared packages
 ├── scripts/
 │   ├── startup.sh            # Full system startup
 │   ├── start-all-services.sh # Start all 89 services

@@ -155,7 +155,7 @@ curl -s http://localhost:4000/api/auth/me | jq
 | ------------------- | ------------------ |
 | 43 API services + api-search | ~440,000  |
 | 45 web apps         | ~131,000           |
-| 395 shared packages | ~632,000           |
+| 396 shared packages | ~632,000           |
 | **Total**           | **1,196,395**      |
 
 All services have route-level unit test coverage + RBAC middleware tests. See `docs/TESTING_GUIDE.md` for the full reference.

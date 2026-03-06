@@ -1,6 +1,6 @@
 # Contributing to IMS (Nexara)
 
-Monorepo: 43 API services, 45 web apps, 395 shared packages. Stack: Next.js 15, Express.js, PostgreSQL/Prisma 5.22.0, TypeScript 5, pnpm workspaces. 1,196,395 unit tests across 1,079 suites / 442 projects — all passing, 0 TS errors.
+Monorepo: 43 API services, 45 web apps, 396 shared packages. Stack: Next.js 15, Express.js, PostgreSQL/Prisma 5.22.0, TypeScript 5, pnpm workspaces. 1,196,395 unit tests across 1,079 suites / 442 projects — all passing, 0 TS errors.
 
 ---
 

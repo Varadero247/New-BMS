@@ -10,7 +10,7 @@
 
 Last updated: 2026-03-06 (test counts in the table below are historical; actual counts are much higher — all
 services have been expanded to ≥1,000 tests per test file, for a platform total of 1,196,395 tests
-across 1,079 suites / 442 projects. 395 shared packages as of Mar 6, 2026. See `SYSTEM_STATE.md` for current totals.)
+across 1,079 suites / 442 projects. 396 shared packages as of Mar 6, 2026. See `SYSTEM_STATE.md` for current totals.)
 
 ## API Services
 
@@ -106,7 +106,7 @@ across 1,079 suites / 442 projects. 395 shared packages as of Mar 6, 2026. See `
 | @ims/regulatory-feed | Regulatory update feeds | - |
 | @ims/benchmarks | Performance benchmarking | - |
 
-**Total: 395 packages | 1,196,395 unit tests (all packages ≥1,000 tests each)**
+**Total: 396 packages | 1,196,395 unit tests (all packages ≥1,000 tests each)**
 
 ## Standards Compliance Matrix
 
