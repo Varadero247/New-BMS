@@ -198,7 +198,7 @@
 | Database Models | ~590 |
 | Database Enums | 781 |
 | REST API Endpoints | 2,558 |
-| Unit Tests | 1,196,395 / 1,079 suites / 442 projects |
+| Unit Tests | ~1,220,715 / 1,117 suites / 480 projects |
 | Code Score | 100/100 |
 | ISO Standards Supported | 16+ |
 | GitHub Workflows | 7 |

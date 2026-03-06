@@ -7,7 +7,7 @@
 **Architecture**: Microservices Monorepo
 **Purpose**: Enterprise-grade ISO compliance management system covering 29 ISO standards, ESG, HACCP, HR, Finance, CRM, and full operational compliance across 43 domain verticals
 **Technology Stack**: Next.js 15, React 18, TypeScript, Express.js, PostgreSQL, Prisma ORM
-**Total Codebase**: 43 API services (+ api-search:4050) · 45 web apps · 396 shared packages · 44 Prisma schemas · ~590 database tables · 1,196,395 unit tests (all passing)
+**Total Codebase**: 43 API services (+ api-search:4050) · 45 web apps · 396 shared packages · 44 Prisma schemas · ~590 database tables · ~1,220,715 unit tests (all passing)
 **Last Updated**: February 28, 2026 (Phase 125 complete — Knowledge Base: 801 articles + Module Owner & End User Training programmes)
 
 > **Note:** The detailed module descriptions below were written at an early phase (Feb 17, 2026) covering the initial 9 core services. The platform has since grown to 43 API services + api-search, 45 web apps, and 396 shared packages. See `SYSTEM_STATE.md` for the authoritative current state.
@@ -819,7 +819,7 @@ pnpm dev:health-safety      # H&S module
 | `pnpm dev`            | Start all 30+ processes concurrently      |
 | `pnpm build`          | Build all apps and packages               |
 | `pnpm build:packages` | Build shared packages only                |
-| `pnpm test`           | Run Jest tests (1,196,395 across 1,079 suites / 442 projects) |
+| `pnpm test`           | Run Jest tests (~1,220,715 across 1,117 suites / 480 projects) |
 | `pnpm lint`           | Run ESLint across codebase                |
 | `pnpm db:generate`    | Generate Prisma client                    |
 | `pnpm db:push`        | Push schema to database                   |
@@ -907,7 +907,7 @@ docker-compose restart <service>  # Restart one
 
 ### Current Test Coverage
 
-**Jest Unit Tests**: 1,196,395 tests across 1,079 suites / 442 projects (all passing)
+**Jest Unit Tests**: ~1,220,715 tests across 1,117 suites / 480 projects (all passing)
 
 - `risks.api.test.ts` — 24 tests (CRUD, matrix, filters, validation, error handling)
 - `incidents.api.test.ts` — 27 tests (CRUD, auto RIDDOR, investigation dates, AI fields)

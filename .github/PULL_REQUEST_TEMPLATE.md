@@ -15,7 +15,7 @@
 
 ## Testing
 
-- [ ] `pnpm test` passes (1,196,395+ unit tests, 0 failures)
+- [ ] `pnpm test` passes (~1,220,715+ unit tests, 0 failures)
 - [ ] `pnpm typecheck` passes (0 TypeScript errors)
 - [ ] New/changed code has ≥1,000 tests per `.test.ts` file
 - [ ] Integration test added/updated in `scripts/test-<module>-modules.sh`

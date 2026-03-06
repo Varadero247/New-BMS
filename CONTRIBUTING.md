@@ -1,6 +1,6 @@
 # Contributing to IMS (Nexara)
 
-Monorepo: 43 API services, 45 web apps, 396 shared packages. Stack: Next.js 15, Express.js, PostgreSQL/Prisma 5.22.0, TypeScript 5, pnpm workspaces. 1,196,395 unit tests across 1,079 suites / 442 projects — all passing, 0 TS errors.
+Monorepo: 43 API services, 45 web apps, 396 shared packages. Stack: Next.js 15, Express.js, PostgreSQL/Prisma 5.22.0, TypeScript 5, pnpm workspaces. ~1,220,715 unit tests across 1,117 suites / 480 projects — all passing, 0 TS errors.
 
 ---
 
@@ -170,7 +170,7 @@ Follow the pattern of existing services (e.g., `apps/api-risk/`, `apps/api-train
 - **Integration tests**: follow the bash/curl pattern in `scripts/test-*-modules.sh`.
 - **Before submitting a PR**, run:
   ```bash
-  pnpm test          # All 1,196,395 tests must pass
+  pnpm test          # All ~1,220,715 tests must pass
   pnpm typecheck     # 0 TypeScript errors required
   ```
 - **`jest.clearAllMocks()` does not clear `mockResolvedValueOnce` queues.** Use `mockFn.mockReset()` in `beforeEach` when tests across `describe` blocks share a module-level mock.

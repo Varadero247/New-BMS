@@ -37,7 +37,7 @@ Use a **monorepo** managed with **pnpm workspaces** and **Turborepo** for task o
 
 **Negative:**
 - `pnpm install` on the full monorepo requires significant memory (~8 GB) and may hit file descriptor limits (fix: `ulimit -n 65536`)
-- All developers must check out the entire codebase (~590 tables, 1,196,395 tests)
+- All developers must check out the entire codebase (~590 tables, ~1,220,715 tests)
 - A faulty shared package can break many services simultaneously — requires disciplined versioning of internal packages
 
 **Mitigations:**
