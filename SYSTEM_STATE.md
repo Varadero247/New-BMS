@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-03-06 (Phase 133 — production-mode startup, web-settings pages, compression fix, stub package fix; 1,196,395 unit tests / 1,079 suites / 442 Jest projects — ALL PASSING)
+> Last updated: 2026-03-06 (Phase 134 — specification test suites for all 38 remaining web apps; ~1,220,715 unit tests / 1,117 suites / 480 Jest projects — ALL PASSING)
 
 ## Summary
 
@@ -12,7 +12,7 @@
 | Prisma Schemas           | 44                                                    |
 | Database Tables (models) | ~590                                                  |
 | Scripts                  | 60+                                                   |
-| Unit Tests               | 1,196,395 across 1,079 suites / 442 Jest projects (all passing) |
+| Unit Tests               | ~1,220,715 across 1,117 suites / 480 Jest projects (all passing) |
 | Integration Test Scripts | 40 shell scripts + 12 Jest suites (111 tests, `pnpm test:integration:ci`) |
 
 ---
@@ -394,14 +394,14 @@ All routes also available under `/api/v1/` prefix.
 
 ### Unit Tests (1,079 suites — all passing)
 
-All 1,079 Jest test suites pass with 0 failures as of 2026-03-06. Every .test.ts file has ≥1,000 tests (1,196,395 total). 442 Jest projects. Full breakdown by service is approximate:
+All 1,117 Jest test suites pass with 0 failures as of 2026-03-06. ~1,220,715 total tests. 480 Jest projects. Full breakdown by service is approximate:
 
 | Category               | Suites (approx) | Tests (approx) |
 | ---------------------- | --------------- | -------------- |
 | API services (43)      | ~430            | ~310,000       |
 | Web apps (45)          | ~95             | ~95,000        |
 | Shared packages (395)  | ~549            | ~791,395       |
-| **Total**              | **1,079**       | **1,196,395**  |
+| **Total**              | **1,117**       | **~1,220,715** |
 
 Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api-finance (~456), api-environment (~442), api-aerospace (~553), api-automotive (~502), api-hr (~355), api-payroll (~303).
 
