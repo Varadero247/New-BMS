@@ -737,6 +737,7 @@ module.exports = {
   forceExit: true,
   detectOpenHandles: false,
   maxWorkers: '66%',
+  workerIdleMemoryLimit: '1GB',
   testTimeout: 60000,
 
   // Coverage thresholds (enforced when --coverage is passed)
