@@ -3,7 +3,6 @@ import { DM_Sans, Syne, DM_Mono } from 'next/font/google';
 import './globals.css';
 import { I18nProvider } from '@ims/i18n';
 import { Sidebar } from '@/components/sidebar';
-import { ThemeSwitch } from '@ims/ui';
 import { ThemingProvider } from '@ims/theming';
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
 const syne = Syne({
@@ -48,7 +47,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </ThemingProvider>
         </I18nProvider>
-        <ThemeSwitch />
       </body>
     </html>
   );

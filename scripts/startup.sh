@@ -24,7 +24,7 @@ done
 sleep 3
 
 # Step 2: Start infrastructure containers only (postgres + redis)
-# App services run on the host via pnpm dev (see start-all-services.sh)
+# API services run on the host via start-all-services.sh; web apps via start-all-web.sh (production mode)
 echo "Starting infrastructure containers..."
 docker compose up -d postgres redis
 sleep 5
@@ -195,11 +195,12 @@ TABLE_COUNT=$(PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U postgres -d i
   "SELECT COUNT(*) FROM pg_tables WHERE schemaname='public';" 2>/dev/null | tr -d ' ')
 echo "Database ready: $TABLE_COUNT tables"
 
-# Step 6: Start all services
+# Step 6: Start all services (APIs only via start-all-services.sh, then web apps in production mode)
 echo "Starting all services..."
 ./scripts/stop-all-services.sh 2>/dev/null || true
 sleep 2
-./scripts/start-all-services.sh
+./scripts/start-all-services.sh   # starts all APIs, no web apps
+./scripts/start-all-web.sh        # starts all built web apps in production (next start)
 
 # Step 7: Wait for services to start
 echo "Waiting for services to start..."

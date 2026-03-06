@@ -28,6 +28,8 @@ import {
   Clock,
   ShieldAlert,
   Scale,
+  FileText,
+  Store,
 } from 'lucide-react';
 
 const navigation = [
@@ -39,6 +41,9 @@ const navigation = [
   { name: 'AI Configuration', href: '/ai-config', icon: Sparkles },
   { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Appearance', href: '/appearance', icon: Palette },
+  { name: 'Templates', href: '/templates', icon: FileText },
+  { name: 'System Status', href: '/system-status', icon: ActivityIcon },
+  { name: 'Marketplace', href: '/marketplace', icon: Store },
   { name: 'Integrations', href: '/integrations', icon: Plug },
   { name: 'API Keys', href: '/api-keys', icon: Key },
   { name: 'Certifications', href: '/certifications', icon: Award },

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Syne, DM_Mono } from 'next/font/google';
 import ChatbotWidget from '@/components/ChatbotWidget';
-import { ThemeSwitch, CookieConsent } from '@ims/ui';
+import { CookieConsent } from '@ims/ui';
 import { ThemingProvider } from '@ims/theming';
 import './globals.css';
 
@@ -61,7 +61,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </ThemingProvider>
         <ChatbotWidget />
         <CookieConsent />
-        <ThemeSwitch />
       </body>
     </html>
   );

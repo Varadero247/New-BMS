@@ -4,7 +4,6 @@ import './globals.css';
 import { Providers } from '@/components/providers';
 import { I18nProvider } from '@ims/i18n';
 import { Sidebar } from '@/components/sidebar';
-import { ThemeSwitch } from '@ims/ui';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
 const syne = Syne({
@@ -51,7 +50,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </Providers>
         </I18nProvider>
-        <ThemeSwitch />
       </body>
     </html>
   );

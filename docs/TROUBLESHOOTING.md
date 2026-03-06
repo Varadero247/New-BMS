@@ -10,7 +10,7 @@
 
 This guide covers the most common issues encountered when developing in the Nexara IMS monorepo. Every section follows **SYMPTOM / CAUSE / FIX** format with copy-paste-ready commands.
 
-**Stack:** pnpm workspaces + Turborepo, 43 Express.js APIs + api-search (ports 4000-4041, 4050), 45 Next.js 15 web apps (ports 3000-3046), 394 shared packages, PostgreSQL, Redis, Prisma v5.22.0, Node 20.
+**Stack:** pnpm workspaces + Turborepo, 43 Express.js APIs + api-search (ports 4000-4041, 4050), 45 Next.js 15 web apps (ports 3000-3046), 395 shared packages, PostgreSQL, Redis, Prisma v5.22.0, Node 20.
 
 ---
 
@@ -46,7 +46,7 @@ Processes crash shortly after starting `pnpm dev`, especially when running multi
 
 **Cause:**
 
-The default Linux `ulimit` for open files is 1024. This monorepo has 5000+ source files across 394 packages and 89 apps. File watchers (chokidar, Next.js, tsup) each hold file descriptors open, easily exhausting the limit.
+The default Linux `ulimit` for open files is 1024. This monorepo has 5000+ source files across 395 packages and 89 apps. File watchers (chokidar, Next.js, tsup) each hold file descriptors open, easily exhausting the limit.
 
 **Fix:**
 
@@ -137,7 +137,7 @@ Almost always a P2022 on the `users` table in the core schema. A column referenc
 
 ```bash
 # If running via Docker:
-DOCKER_API_VERSION=1.41 docker logs ims-api-gateway --tail 50
+DOCKER_API_VERSION=1.44 docker logs ims-api-gateway --tail 50
 
 # If running locally, check the terminal output for the gateway process
 ```
@@ -403,8 +403,8 @@ pnpm --filter @ims/api-health-safety dev
 4. If running in Docker:
 
 ```bash
-DOCKER_API_VERSION=1.41 docker ps | grep api-health-safety
-DOCKER_API_VERSION=1.41 docker logs ims-api-health-safety --tail 50
+DOCKER_API_VERSION=1.44 docker ps | grep api-health-safety
+DOCKER_API_VERSION=1.44 docker logs ims-api-health-safety --tail 50
 ```
 
 ---
@@ -452,14 +452,14 @@ The Docker CLI client (v1.53) is newer than the daemon (v1.41).
 Prefix every docker command:
 
 ```bash
-DOCKER_API_VERSION=1.41 docker exec ims-postgres psql -U postgres -d ims -c "SELECT 1"
-DOCKER_API_VERSION=1.41 docker logs ims-api-gateway --tail 50
+DOCKER_API_VERSION=1.44 docker exec ims-postgres psql -U postgres -d ims -c "SELECT 1"
+DOCKER_API_VERSION=1.44 docker logs ims-api-gateway --tail 50
 ```
 
 Make permanent:
 
 ```bash
-echo 'export DOCKER_API_VERSION=1.41' >> ~/.bashrc
+echo 'export DOCKER_API_VERSION=1.44' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -478,7 +478,7 @@ Rate limits are stored in Redis (`ims-redis:6379`), not in-memory. The auth limi
 **Fix:**
 
 ```bash
-DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli FLUSHALL
+DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli FLUSHALL
 ```
 
 ---
@@ -529,7 +529,7 @@ ss -tlnp | grep -E ':(3[0-9]{3}|4[0-9]{3})\b'
 PGPASSWORD=${POSTGRES_PASSWORD} psql -h localhost -U postgres -d ims -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public';"
 
 # Check Redis connectivity
-DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli PING
+DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli PING
 
 # Full system startup
 ./scripts/startup.sh

@@ -206,7 +206,7 @@ docker compose up -d
 **Container requirements:**
 
 - All Prisma schemas include `binaryTargets = ["native", "linux-musl-openssl-3.0.x"]` for Alpine
-- Docker API version: `DOCKER_API_VERSION=1.41` required for exec commands
+- Docker API version: `DOCKER_API_VERSION=1.44` required for exec commands
 - Individual Dockerfiles in `apps/api-*/Dockerfile` with `entrypoint.sh`
 
 ---

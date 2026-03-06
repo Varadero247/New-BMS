@@ -10,7 +10,7 @@
 ## Complete Technical & Operational Reference Manual
 
 **Document Version:** 2.0
-**Last Updated:** February 28, 2026 (Phase 125 — 394 packages, ~1,203,000 tests)
+**Last Updated:** March 6, 2026 (Phase 133 — 395 packages, 1,196,395 tests)
 **Classification:** Internal Use Only
 **Repository:** `/home/dyl/New-BMS`
 
@@ -52,8 +52,8 @@ Nexara is an **Integrated Management System (IMS)** built for regulated industri
 | Database Models | ~590 |
 | Database Enums | 781+ |
 | REST API Endpoints | 2,558+ |
-| Unit Test Files | ~1,085 suites |
-| Unit Test Cases | ~1,203,000 |
+| Unit Test Files | 1,079 suites / 442 projects |
+| Unit Test Cases | 1,196,395 |
 | Node.js Requirement | ≥ 20.0.0 |
 | Package Manager | pnpm ≥ 9.0.0 |
 | Code Evaluation Score | 100/100 |
@@ -1851,7 +1851,7 @@ cd apps/web-quality && pnpm dev &
 
 ```bash
 # Clear Redis rate limit state (if Redis conflicts)
-DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli -a <REDIS_PASSWORD> FLUSHALL
+DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli -a <REDIS_PASSWORD> FLUSHALL
 
 # Kill processes on specific port
 sudo fuser -k 4001/tcp
@@ -1913,7 +1913,7 @@ docker compose -f docker-compose.yml -f docker-compose.vault.yml up -d
 
 # Check logs
 docker compose logs -f postgres
-DOCKER_API_VERSION=1.41 docker exec ims-postgres psql -U postgres -d ims -c "\dt" | head -20
+DOCKER_API_VERSION=1.44 docker exec ims-postgres psql -U postgres -d ims -c "\dt" | head -20
 ```
 
 ---
@@ -2141,7 +2141,7 @@ grep "JWT_SECRET" apps/api-gateway/.env apps/api-quality/.env
 PGPASSWORD=ims_secure_password_2026 psql -h localhost -p 5432 -U postgres -d ims -c "SELECT 1"
 
 # Check Docker container
-DOCKER_API_VERSION=1.41 docker ps | grep postgres
+DOCKER_API_VERSION=1.44 docker ps | grep postgres
 
 # Common fixes:
 # - Stop host postgres: sudo systemctl stop postgresql
@@ -2153,10 +2153,10 @@ DOCKER_API_VERSION=1.41 docker ps | grep postgres
 
 ```bash
 # Clear all rate limit state
-DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli -a <REDIS_PASSWORD> FLUSHALL
+DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli -a <REDIS_PASSWORD> FLUSHALL
 
 # Inspect specific key
-DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli -a <REDIS_PASSWORD> KEYS "rate:*"
+DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli -a <REDIS_PASSWORD> KEYS "rate:*"
 ```
 
 ### 12.5 Frontend 401 / API Errors
@@ -2373,7 +2373,7 @@ pnpm test -- --testPathPattern="nonconformances"
 pnpm test --watch
 ```
 
-**Current Status:** ~1,203,000 tests / ~1,085 suites / 439 projects — ALL PASSING
+**Current Status:** 1,196,395 tests / 1,079 suites / 442 projects — ALL PASSING
 
 **Test Structure:**
 ```typescript
@@ -2562,8 +2562,8 @@ pnpm audit --audit-level=high
 ## APPENDIX D: DOCKER COMMANDS REFERENCE
 
 ```bash
-# All docker exec commands MUST use DOCKER_API_VERSION=1.41
-export DOCKER_API_VERSION=1.41
+# All docker exec commands MUST use DOCKER_API_VERSION=1.44
+export DOCKER_API_VERSION=1.44
 
 # PostgreSQL queries
 docker exec ims-postgres psql -U postgres -d ims -c "SELECT count(*) FROM pg_tables WHERE schemaname='public'"

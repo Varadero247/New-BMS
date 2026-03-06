@@ -8,6 +8,73 @@
 ---
 
 
+## Phase 133 — Production-mode Startup, web-settings Pages, Compression Fix (March 6, 2026)
+
+### Feature: All 45 web apps run in production mode
+
+**Context:** Running all 45 web apps in `next dev` mode consumed ~700 MB RAM each (~29 GB total), causing OOM crashes and load averages of 24 on an 8-core machine. Production mode (`next start`) uses ~80–120 MB per app (~5 GB total).
+
+**New scripts:**
+- `scripts/build-all-web.sh` — builds all 45 apps with `next build`; skips already-built apps; `--force` flag rebuilds everything
+- `scripts/start-all-web.sh` — starts all built apps with `next start` on their configured ports; reads `.next/BUILD_ID` to skip unbuilt apps
+- `scripts/start-web-app.sh <name>` — starts a single named app in dev mode (for active development)
+
+**`startup.sh` changes:** Step 6 now calls `start-all-services.sh` (APIs) then `start-all-web.sh` (production web) sequentially.
+
+**`start-all-services.sh` changes:**
+- API-only by default; pass `--web` to also start web apps
+- Uses `stdbuf -oL -eL` for line-buffered real-time log output
+- Log files no longer have dated suffix (`logs/api-gateway.log`, not `logs/api-gateway-2026-03-06-09-00-00.log`)
+
+### Fix: Compression middleware — `Content-Encoding` header timing + small-response bypass
+
+**Symptom:** Compressed responses had garbled/missing body in some clients; health-check endpoints (tiny responses) incurred unnecessary compression overhead.
+
+**Root cause 1:** `res.setHeader('Content-Encoding', encoding)` was called inside `res.end()` — headers were already flushed by then, so the encoding header never reached the client.
+
+**Fix:** Moved `res.setHeader('Content-Encoding', encoding)` and `res.removeHeader('Content-Length')` to `setupCompression()`, which is called before `originalWriteHead()` executes.
+
+**Root cause 2:** All responses — including tiny health-check JSON — were buffered and compressed regardless of size.
+
+**Fix:** Added upfront `Content-Length` check in `shouldCompress()`: if length is known and below the threshold, skip compression and all buffering entirely.
+
+**Root cause 3:** Stream-based compression (`pipeline()`) was complex and introduced ordering bugs.
+
+**Fix:** Rewrote to buffer raw chunks into `rawChunks[]`, then compress the complete buffer in `res.end()` using `createGzip()`/`createDeflate()` synchronously.
+
+### Fix: `generateStaticParams()` in `'use client'` pages (training portal)
+
+**Symptom:** Training portal build failed — Next.js does not allow `generateStaticParams()` to be exported from pages marked `'use client'`.
+
+**Affected files:**
+- `apps/web-training-portal/src/app/assessments/[type]/page.tsx`
+- `apps/web-training-portal/src/app/end-user/modules/[id]/page.tsx`
+- `apps/web-training-portal/src/app/module-owner/[group]/assessment/page.tsx`
+
+**Fix:** Removed `generateStaticParams()` export from all three files.
+
+### Feature: web-settings — Templates, System Status, Marketplace pages
+
+**Context:** Templates, System Status and Marketplace links were sitting in the Dashboard sidebar but belonged in Settings. Moved them and added the corresponding pages.
+
+**Changes:**
+- `apps/web-settings/src/components/sidebar.tsx` — added Templates (`/templates`), System Status (`/system-status`), Marketplace (`/marketplace`) nav links
+- `apps/web-settings/src/app/templates/` — Template library page (`page.tsx` + `client.tsx`); browses 192 built-in templates via gateway
+- `apps/web-settings/src/app/system-status/` — Real-time service health page polling all 43+ APIs
+- `apps/web-settings/src/app/marketplace/` — Plugin marketplace page; browses/installs marketplace plugins
+- `apps/web-settings/src/app/api/health-check/route.ts` — Internal health-check API route
+- `apps/web-settings/src/lib/gateway.ts` — Axios client for gateway API (`/api/v1`), Bearer token auth, 401 redirect
+
+**Dashboard sidebar cleanup (`apps/web-dashboard/src/components/sidebar.tsx`):** Removed Templates, Marketplace/Store links (now in Settings).
+
+### Fix: `ThemeSwitch` removed from all layout.tsx files
+
+**Symptom:** `ThemeSwitch` was imported and rendered in every web app's `layout.tsx`, but the component caused hydration mismatches and was not needed.
+
+**Fix:** Removed `ThemeSwitch` import and `<ThemeSwitch />` JSX from all 40+ `apps/web-*/src/app/layout.tsx` files.
+
+---
+
 ## Phase 127 — Production-grade Integration Test Suite (March 4, 2026)
 
 ### Feature: Jest integration test suite — 111 tests / 12 suites

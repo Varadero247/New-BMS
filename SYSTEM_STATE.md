@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-03-04 (Phase 132 — web-esg specification tests: 1,003 tests; 1,196,395 unit tests / 1,079 suites / 442 Jest projects — ALL PASSING)
+> Last updated: 2026-03-06 (Phase 133 — production-mode startup, web-settings pages, compression fix; 1,196,395 unit tests / 1,079 suites / 442 Jest projects — ALL PASSING)
 
 ## Summary
 
@@ -76,7 +76,7 @@
 | Health & Safety    | `apps/web-health-safety/`      | 3001 | ISO 45001                                                                                                                                                                                      |
 | Environment        | `apps/web-environment/`        | 3002 | ISO 14001                                                                                                                                                                                      |
 | Quality            | `apps/web-quality/`            | 3003 | ISO 9001                                                                                                                                                                                       |
-| Settings           | `apps/web-settings/`           | 3004 | Admin & RBAC                                                                                                                                                                                   |
+| Settings           | `apps/web-settings/`           | 3004 | Admin & RBAC; Templates library, System Status, Marketplace (plugin management) pages                                                                                                          |
 | Inventory          | `apps/web-inventory/`          | 3005 | Stock management                                                                                                                                                                               |
 | HR                 | `apps/web-hr/`                 | 3006 | Human Resources                                                                                                                                                                                |
 | Payroll            | `apps/web-payroll/`            | 3007 | Payroll                                                                                                                                                                                        |
@@ -323,8 +323,11 @@ All routes also available under `/api/v1/` prefix.
 
 | Script                              | Description                                                          |
 | ----------------------------------- | -------------------------------------------------------------------- |
-| `scripts/startup.sh`                | Full startup (kill ports, Docker up, seed DB, recreate tables)       |
-| `scripts/start-all-services.sh`     | Start all 89 services with staggered delays                          |
+| `scripts/startup.sh`                | Full startup (kill ports, Docker up, seed DB, recreate tables, start APIs + web apps in production mode) |
+| `scripts/start-all-services.sh`     | Start all API services (no web apps by default; pass `--web` to include them) |
+| `scripts/build-all-web.sh`          | Build all 45 web apps for production (`next build`); skips already-built; `--force` to redo all |
+| `scripts/start-all-web.sh`          | Start all built web apps in production mode (`next start`); ~80–120 MB/app |
+| `scripts/start-web-app.sh`          | Start a single web app in dev mode for editing (`./scripts/start-web-app.sh <name>`) |
 | `scripts/stop-all-services.sh`      | Stop all services (ports 4000-4041 + 3000-3046)                      |
 | `scripts/check-services.sh`         | Health check all 89 services                                         |
 | `scripts/create-databases.sh`       | Create per-service databases                                         |
@@ -336,7 +339,7 @@ All routes also available under `/api/v1/` prefix.
 | `scripts/check-secrets.sh`          | Verify all required secrets are present                              |
 | `scripts/provision-db-users.sh`     | Provision database users per service                                 |
 | `scripts/pre-launch-check.sh`       | 111-point launch readiness check (8 categories)                      |
-| `scripts/typecheck-all.sh`          | TypeScript check across all 43 APIs + api-search + 45 web apps + packages (438 Jest projects) |
+| `scripts/typecheck-all.sh`          | TypeScript check across all 43 APIs + api-search + 45 web apps + packages (442 Jest projects) |
 | `scripts/test-backup-restore.sh`    | Backup restore validation (7 steps, creates ims_restore_test DB)     |
 | `scripts/test-all-modules.sh`       | Master integration test runner — all 40 modules                      |
 | `scripts/test-hs-modules.sh`        | H&S integration tests (~70 assertions)                               |
@@ -389,16 +392,16 @@ All routes also available under `/api/v1/` prefix.
 
 ## Test Coverage
 
-### Unit Tests (804 suites — all passing)
+### Unit Tests (1,079 suites — all passing)
 
-All 804 Jest test suites pass with 0 failures as of 2026-02-24. Every .test.ts file has ≥1,000 tests (828,190 total). Full breakdown by service is approximate:
+All 1,079 Jest test suites pass with 0 failures as of 2026-03-06. Every .test.ts file has ≥1,000 tests (1,196,395 total). 442 Jest projects. Full breakdown by service is approximate:
 
 | Category               | Suites (approx) | Tests (approx) |
 | ---------------------- | --------------- | -------------- |
 | API services (43)      | ~430            | ~310,000       |
-| Web apps (44)          | ~90             | ~90,000        |
-| Shared packages (124)  | ~279            | ~423,153       |
-| **Total**              | **804**         | **828,190**    |
+| Web apps (45)          | ~95             | ~95,000        |
+| Shared packages (395)  | ~549            | ~791,395       |
+| **Total**              | **1,079**       | **1,196,395**  |
 
 Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api-finance (~456), api-environment (~442), api-aerospace (~553), api-automotive (~502), api-hr (~355), api-payroll (~303).
 
@@ -498,6 +501,7 @@ Key helpers: `packages/database/src/test-helpers.ts` (`resetTestDatabase`, `flus
 | Phase 128 (Mar 4) | Q1 2026 Packages — Comprehensive Test Suites | Added 8,466 new unit tests across 6 previously-untested Q1 2026 packages: `@ims/command-palette` (1,426 tests — fuzzyScore tiers, fuzzyFilter sorting, highlightMatches, recentCommands localStorage, keyboard handlers), `@ims/keyboard-shortcuts` (1,368 tests — registry CRUD, parseShortcut/matchesShortcut/formatShortcut/normalizeKey, DEFAULT_SHORTCUTS structure × 24 shortcuts), `@ims/bulk-actions` (1,375 tests — SelectionManager, chunkArray, mergeResults, BulkExecutor batching + confirmation), `@ims/inline-edit` (1,668 tests — all 10 validators, createInlineEditState full lifecycle, getState immutability), `@ims/deep-links` (1,294 tests — buildDeepLink, parseDeepLink, isDeepLink, registry CRUD, DEFAULT_DEEP_LINKS × 25, round-trips), `@ims/search` (1,335 tests — groupResultsByType, icons/colors, formatSearchResult, buildSearchUrl, parseSearchUrl, extractSnippet, debounce with fake timers, createSearchClient caching + deduplication). **1,192,384 unit tests / 1,075 suites — ALL PASSING.** |
 | Phase 129 (Mar 4) | Web App Analytics Tests — web-quality | First web app test suite for `@ims/web-quality`: 1,000 tests covering the two pure analytics factory functions. `createEmpty6MFishbone()` (160 tests) — return type, element structure, 6M category names/colors/causes, freshness/immutability, name/color pairs, hex format, findIndex sanity. `create8DFunnelData(capas[])` (840 tests) — return structure, empty/single/multi CAPA per phase (1/2/3/5 CAPAs × 8 phases = 8×8=64 per batch), unknown phases (12×8=96), two-phase combinations (28×8=224), three-phase combinations (8×8=64), all-8-phases, monotonicity invariant, large datasets, sum property, D1/D8 boundary behavior, business scenarios, helper consistency, non-negative/non-NaN invariants, phase label correctness. Created `apps/web-quality/jest.config.js` with JSX overrides (`react-jsx`, `module: commonjs`, `moduleResolution: node`) to work around Next.js `"jsx": "preserve"` tsconfig; added `web-quality` to root `jest.config.js` projects list (439th project). **1,193,384 unit tests / 1,076 suites / 439 Jest projects — ALL PASSING.** |
 | Phase 130 (Mar 4) | Web App AI Route Tests — web-health-safety | Test suite for `apps/web-health-safety` AI proxy routes: 1,005 tests covering all 5 Next.js route handlers (`risks/generate-controls`, `incidents/analyse`, `capa/analyse`, `legal/analyse`, `objectives/assist`). Pattern: `jest.mock('next/server')` + `global.fetch = jest.fn()` (no real HTTP). Tests cover: 503 on missing `ANTHROPIC_API_KEY` (5 routes × 2 assertions), 400 on invalid JSON (5 routes × 2), 400 on min-length validation failures (0–19 chars for 20-char routes, 0–4 chars for 5-char routes), 502 on AI non-ok response + empty content + unparseable JSON, 200 success with all result fields verified. Discovered `|| 3` falsy clamping behavior (value 0 → 3 not 1) and `undefined.length` JS quirk (number inputs pass string-length check). 13 parameterized blocks: optional field combos (8 combos × 4 routes = 96), clamping values 1–5 (30), out-of-range clamping (12), 15 varied inputs × 4 routes (240), correctiveActions/preventiveActions arrays (20), milestone shape (30). Created `apps/web-health-safety/jest.config.js`; added `web-health-safety` to root `jest.config.js` (440th project). **1,194,389 unit tests / 1,077 suites / 440 Jest projects — ALL PASSING.** |
+| Phase 133 (Mar 6) | Production-mode startup + web-settings pages + compression fix | All 45 web apps switched to production mode (`next start`). New scripts: `build-all-web.sh`, `start-all-web.sh`, `start-web-app.sh`. `startup.sh` calls `start-all-web.sh` after API startup. `start-all-services.sh` now API-only by default (add `--web` flag to include web apps); stdbuf line-buffered logs with no dated suffix. Compression middleware rewritten: `Content-Encoding` set before `originalWriteHead()`, upfront `Content-Length` check skips buffering for small responses. `ThemeSwitch` removed from all 40+ `layout.tsx` files. `web-settings` sidebar gains Templates, System Status, Marketplace links; three new pages added (`/templates`, `/system-status`, `/marketplace`) plus `/api/health-check` route and `src/lib/gateway.ts` API client. Dashboard sidebar: Templates/Marketplace/Store links removed (now in Settings). Training portal: removed `generateStaticParams()` from 3 `'use client'` pages; fixed smart-quote apostrophe in homepage copy. |
 | Phase 132 (Mar 4) | Web App ESG Specification Tests — web-esg | Specification test suite for `apps/web-esg`: 1,003 tests covering pure functions `pct(val,total)` and `fmt(val)` plus constants from 6 ESG pages. `pct()`: zero-total → numeric 0; non-zero → string toFixed(1); 35 exact pairs in initial block + 63 additional pairs × 4 assertions = 252 more; MOCK_DATA scope percentages; monotonicity 10 pairs; complement tests. `fmt()`: en-GB locale with minimumFractionDigits:1; 30 exact values initial + 40 more × 4 assertions = 160 more; 25 extra spot-checks. Constants: `scopeConfig` (3 scopes × label/color/bg/bar); `MOCK_DATA` (totals + 6 breakdown items + computed `grouped` subtotals); `categoryColors` (6 DEFRA categories × exact/bg-/text-/string); `CATEGORIES` (7 entries including 'All'); `MOCK_FACTORS` (6 DEFRA factors × 7 field assertions + factor-in-CATEGORIES); `STATUS_COLOURS` (5 entries, unique); `TYPE_COLOURS` (4 entries, matches SCENARIO_TYPES); `SCENARIO_TYPES`/`BASELINE_SCENARIOS`/`TIME_HORIZONS`/`STATUSES` arrays; `categoryBadge`/`metricStatusColors`/`scopeColors`/`emissionStatusColors`/`targetStatusColors`. Cross-constant: scope subtotal ↔ grandTotal, scope3>scope2>scope1, CATEGORIES(nonAll)↔categoryColors keys, dark-mode DRAFT variant, color-name per status. Created `apps/web-esg/jest.config.js`; added `web-esg` to root `jest.config.js` (442nd project). **1,196,395 unit tests / 1,079 suites / 442 Jest projects — ALL PASSING.** |
 | Phase 131 (Mar 4) | Web App Analytics Tests — web-risk | Specification test suite for `apps/web-risk`: 1,003 tests covering all pure functions and constants in `analytics/page.tsx` and `heat-map/page.tsx`. Functions recreated as specifications (not exported from source): `getCellColor(l,c)` → 4-tier bg class (bg-red-500/bg-orange-400/bg-yellow-400/bg-green-400); `getCellTextColor(l,c)` → text-white (score≥5) / text-gray-800 (score<4); `getHeatMapCellColor(l,c)` → combined bg+text class with gray-900 for medium tier. Constants: `LEVEL_COLORS` (5 entries), `LEVEL_TEXT` (5 dark-mode pairs), `CATEGORY_COLORS` (15 hex), `LIKELIHOOD_LABELS` (6 entries, index-aligned with L_SCORES), `CONSEQUENCE_LABELS` (6 entries), `L_SCORES` (5 likelihood→integer mappings), `C_SCORES` (5 consequence→integer mappings), `LIKELIHOODS`/`CONSEQUENCES` arrays. Test groups: exact values (25 cells × multiple assertions), tier classification, mirror symmetry (l,c)=(c,l), monotonicity (score non-decreasing in l,c), boundary scores (1,4,5,10,15,25), tier distribution counts, cross-product L_SCORES×C_SCORES, structural invariants (uniqueness, string type, length). Created `apps/web-risk/jest.config.js`; added `web-risk` to root `jest.config.js` (441st project). **1,195,392 unit tests / 1,078 suites / 441 Jest projects — ALL PASSING.** |
 

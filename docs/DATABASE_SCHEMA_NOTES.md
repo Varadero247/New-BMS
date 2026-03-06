@@ -52,7 +52,7 @@ This was added to:
 Use `prisma migrate diff` to generate SQL, then pipe it directly to psql in the postgres container:
 
 ```bash
-export DOCKER_API_VERSION=1.41
+export DOCKER_API_VERSION=1.44
 
 cd ~/New-BMS/packages/database
 HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/ims" \
@@ -133,7 +133,7 @@ hs_risks, hs_safety_inspections, hs_safety_metrics, hs_safety_permits
 Check how many hs\_\* tables exist:
 
 ```bash
-export DOCKER_API_VERSION=1.41
+export DOCKER_API_VERSION=1.44
 docker exec ims-postgres psql -U postgres -d ims -t -c \
   "SELECT COUNT(*) FROM pg_tables WHERE schemaname='public' AND tablename LIKE 'hs_%';"
 ```

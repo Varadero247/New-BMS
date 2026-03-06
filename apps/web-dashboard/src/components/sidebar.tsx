@@ -14,7 +14,6 @@ import {
   ChevronDown,
   Users,
   DollarSign,
-  FileText,
   Briefcase,
   GitBranch,
   FolderKanban,
@@ -43,12 +42,10 @@ import {
   Eye,
   Siren,
   BookCheck,
-  Activity,
   ClipboardList,
   FlaskConical,
   Flame,
   Handshake,
-  Store,
   HelpCircle } from 'lucide-react';
 import { LocaleSwitcher } from '@ims/i18n';
 
@@ -86,12 +83,6 @@ const internalLinks: NavItem[] = [
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-100' },
   {
-    name: 'Templates',
-    href: '/templates',
-    icon: FileText,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100' },
-  {
     name: 'Compliance Calendar',
     href: '/compliance-calendar',
     icon: CalendarCheck,
@@ -103,18 +94,6 @@ const internalLinks: NavItem[] = [
     icon: ClipboardList,
     color: 'text-amber-600',
     bgColor: 'bg-amber-100' },
-  {
-    name: 'System Status',
-    href: '/system-status',
-    icon: Activity,
-    color: 'text-green-600',
-    bgColor: 'bg-green-100' },
-  {
-    name: 'Marketplace',
-    href: '/marketplace',
-    icon: Store,
-    color: 'text-indigo-600',
-    bgColor: 'bg-indigo-100' },
 ];
 
 const sections: NavSection[] = [

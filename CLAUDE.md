@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Integrated Management System (IMS) monorepo with 43 API services, 45 web apps, and 395 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 44 Prisma schemas with ~590 database tables. ~1,184,000 unit tests across ~1,069 suites (all passing, every file ≥1,000 tests).
+Integrated Management System (IMS) monorepo with 43 API services, 45 web apps, and 395 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 44 Prisma schemas with ~590 database tables. ~1,196,395 unit tests across ~1,079 suites / 442 Jest projects (all passing, every file ≥1,000 tests).
 
 ## Known Issues & Fixes
 
@@ -100,7 +100,7 @@ All Prisma schema `generator` blocks MUST include `binaryTargets = ["native", "l
 
 ### 12. Docker API Version Mismatch
 
-All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or the env var set globally. The Docker client (1.53) is newer than the daemon (1.41).
+All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.44` or the env var set globally. The daemon minimum is 1.44 (daemon updated March 2026).
 
 ## Architecture Quick Reference
 
@@ -172,7 +172,7 @@ All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.41` or th
 ### Testing
 
 ```bash
-pnpm test                        # ~1,184,000 Jest unit tests (~1,069 suites / 438 projects)
+pnpm test                        # ~1,196,395 Jest unit tests (~1,079 suites / 442 projects)
 pnpm test:integration:ci         # 111 Jest integration tests (12 suites, real DB + Redis)
 ./scripts/test-all-modules.sh    # All integration tests (40 shell scripts, ~1,800+ assertions)
 ./scripts/test-hs-modules.sh     # H&S integration tests (~70)

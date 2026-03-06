@@ -3,7 +3,6 @@
 // Unauthorised copying, modification, or distribution is strictly prohibited.
 import type { Request, Response } from 'express';
 import { createGzip, createDeflate } from 'zlib';
-import { pipeline } from 'stream';
 
 /**
  * Minimal response compression middleware using Node.js built-in zlib.
@@ -40,7 +39,6 @@ export function compressionMiddleware(opts: CompressionOptions = {}) {
       return;
     }
 
-    // Track whether we've patched the response
     let compressionSetup = false;
     const originalWrite = res.write.bind(res);
     const originalEnd = res.end.bind(res);
@@ -49,16 +47,14 @@ export function compressionMiddleware(opts: CompressionOptions = {}) {
       const contentType = res.getHeader('content-type') as string | undefined;
       const contentEncoding = res.getHeader('content-encoding');
 
-      // Skip if already encoded
       if (contentEncoding) return false;
 
-      // Skip binary content types
-      if (
-        contentType &&
-        skipTypes.some((t) => contentType.includes(t))
-      ) {
-        return false;
-      }
+      if (contentType && skipTypes.some((t) => contentType.includes(t))) return false;
+
+      // If Content-Length is known and below threshold, skip compression entirely.
+      // This avoids buffering and lets the response stream through unmodified.
+      const contentLength = parseInt(String(res.getHeader('content-length') ?? '0'), 10);
+      if (contentLength > 0 && contentLength < threshold) return false;
 
       return true;
     }
@@ -69,20 +65,21 @@ export function compressionMiddleware(opts: CompressionOptions = {}) {
 
       if (!shouldCompress()) return;
 
+      // Announce encoding NOW — before originalWriteHead is called — so the header
+      // is included in the response headers sent to the client. Setting it inside
+      // res.end() is too late; headers will already have been flushed.
       const encoding = supportsGzip ? 'gzip' : 'deflate';
-      const stream = supportsGzip ? createGzip({ level }) : createDeflate({ level });
-
       res.setHeader('Content-Encoding', encoding);
       res.removeHeader('Content-Length'); // length changes after compression
 
-      const chunks: Buffer[] = [];
+      const rawChunks: Buffer[] = [];
 
-      // Monkey-patch write to buffer compressed data
       (res as unknown as { write: (...args: unknown[]) => boolean }).write = (
         chunk: unknown,
         ...rest: unknown[]
       ): boolean => {
-        stream.write(chunk instanceof Buffer ? chunk : Buffer.from(String(chunk)));
+        void rest;
+        rawChunks.push(chunk instanceof Buffer ? (chunk as Buffer) : Buffer.from(String(chunk)));
         return true;
       };
 
@@ -92,26 +89,36 @@ export function compressionMiddleware(opts: CompressionOptions = {}) {
       ): Response => {
         void rest;
         if (chunk != null) {
-          stream.write(chunk instanceof Buffer ? chunk : Buffer.from(String(chunk)));
+          rawChunks.push(chunk instanceof Buffer ? (chunk as Buffer) : Buffer.from(String(chunk)));
         }
 
-        stream.on('data', (data: Buffer) => {
-          chunks.push(data);
-        });
+        const rawBody = Buffer.concat(rawChunks);
 
-        stream.on('end', () => {
-          const compressed = Buffer.concat(chunks);
-          res.write = originalWrite;
-          res.end = originalEnd as typeof res.end;
-          originalEnd(compressed);
-        });
+        // Restore originals before sending so recursive calls are safe
+        res.write = originalWrite;
+        res.end = originalEnd as typeof res.end;
 
+        // If the actual body turned out to be below threshold, undo the encoding
+        // header and send uncompressed. We can still do this because we deferred
+        // the actual socket write — nothing has been written to the wire yet.
+        if (rawBody.length < threshold) {
+          res.removeHeader('Content-Encoding');
+          originalEnd(rawBody);
+          return res;
+        }
+
+        // Compress and send
+        const stream = supportsGzip ? createGzip({ level }) : createDeflate({ level });
+        const compressedChunks: Buffer[] = [];
+        stream.on('data', (data: Buffer) => compressedChunks.push(data));
+        stream.on('end', () => originalEnd(Buffer.concat(compressedChunks)));
+        stream.write(rawBody);
         stream.end();
         return res;
       };
     }
 
-    // Intercept header writes to decide once we know the content type
+    // Intercept header writes to set up compression before headers are flushed
     const originalWriteHead = res.writeHead.bind(res);
     res.writeHead = function (statusCode: number, ...args: unknown[]) {
       setupCompression();

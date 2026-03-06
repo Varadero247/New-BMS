@@ -47,12 +47,12 @@ Alert rules are evaluated every 15 seconds by Prometheus. Critical alerts route 
 
 2. Tail the service logs for stack traces:
    ```bash
-   DOCKER_API_VERSION=1.41 docker logs ims-<service-name> --tail 200 -f
+   DOCKER_API_VERSION=1.44 docker logs ims-<service-name> --tail 200 -f
    ```
 
 3. Check if the gateway is receiving errors (rules may fire on the gateway if it cannot reach downstream):
    ```bash
-   DOCKER_API_VERSION=1.41 docker logs ims-api-gateway --tail 100 -f
+   DOCKER_API_VERSION=1.44 docker logs ims-api-gateway --tail 100 -f
    ```
 
 4. Test the service health endpoint directly:
@@ -62,7 +62,7 @@ Alert rules are evaluated every 15 seconds by Prometheus. Critical alerts route 
 
 5. Check DB connectivity from inside the container:
    ```bash
-   DOCKER_API_VERSION=1.41 docker exec ims-<service-name> \
+   DOCKER_API_VERSION=1.44 docker exec ims-<service-name> \
      sh -c 'nc -zv $PGHOST 5432 && echo "DB reachable"'
    ```
 
@@ -99,7 +99,7 @@ Alert rules are evaluated every 15 seconds by Prometheus. Critical alerts route 
 3. Check host resource usage:
    ```bash
    # CPU and memory by container
-   DOCKER_API_VERSION=1.41 docker stats --no-stream
+   DOCKER_API_VERSION=1.44 docker stats --no-stream
    ```
 
 4. Look for lock contention in PostgreSQL:
@@ -136,17 +136,17 @@ Alert rules are evaluated every 15 seconds by Prometheus. Critical alerts route 
 
 1. Check container status:
    ```bash
-   DOCKER_API_VERSION=1.41 docker ps -a | grep ims-<service-name>
+   DOCKER_API_VERSION=1.44 docker ps -a | grep ims-<service-name>
    ```
 
 2. Read the last 50 lines of logs before the crash:
    ```bash
-   DOCKER_API_VERSION=1.41 docker logs ims-<service-name> --tail 50
+   DOCKER_API_VERSION=1.44 docker logs ims-<service-name> --tail 50
    ```
 
 3. Inspect exit code and restart count:
    ```bash
-   DOCKER_API_VERSION=1.41 docker inspect ims-<service-name> \
+   DOCKER_API_VERSION=1.44 docker inspect ims-<service-name> \
      --format '{{.State.ExitCode}} restarts={{.RestartCount}}'
    ```
 
@@ -230,13 +230,13 @@ Alert rules are evaluated every 15 seconds by Prometheus. Critical alerts route 
 
 1. Identify the high-memory container:
    ```bash
-   DOCKER_API_VERSION=1.41 docker stats --no-stream --format \
+   DOCKER_API_VERSION=1.44 docker stats --no-stream --format \
      "table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}"
    ```
 
 2. Check recent log output for OOM-related messages or heap warnings:
    ```bash
-   DOCKER_API_VERSION=1.41 docker logs ims-<service-name> --tail 100 | grep -i "heap\|memory\|oom"
+   DOCKER_API_VERSION=1.44 docker logs ims-<service-name> --tail 100 | grep -i "heap\|memory\|oom"
    ```
 
 3. If Node.js, check if `--max-old-space-size` is set in the service's Dockerfile or start command.
@@ -263,13 +263,13 @@ Alert rules are evaluated every 15 seconds by Prometheus. Critical alerts route 
 
 1. Check which IP or API key is triggering 429s in the gateway logs:
    ```bash
-   DOCKER_API_VERSION=1.41 docker logs ims-api-gateway --tail 200 | \
+   DOCKER_API_VERSION=1.44 docker logs ims-api-gateway --tail 200 | \
      jq 'select(.status==429) | {ip: .ip, path: .path, apiKey: .apiKey}'
    ```
 
 2. Check Redis key counts to confirm it is a real-traffic issue and not a Redis configuration bug:
    ```bash
-   DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli INFO keyspace
+   DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli INFO keyspace
    ```
 
 **Remediation:**
@@ -278,7 +278,7 @@ Alert rules are evaluated every 15 seconds by Prometheus. Critical alerts route 
 - If caused by a bot or abuse attempt, block the IP at the reverse proxy level.
 - To clear all rate-limit counters (use only if justified — this affects all clients):
   ```bash
-  DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli FLUSHALL
+  DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli FLUSHALL
   ```
   **Warning:** FLUSHALL clears all Redis data including session cache. Confirm with the team before running in production.
 
@@ -335,10 +335,10 @@ docker compose restart <service-name>
 
 ```bash
 # Last 100 lines, follow
-DOCKER_API_VERSION=1.41 docker logs ims-<service-name> --tail 100 -f
+DOCKER_API_VERSION=1.44 docker logs ims-<service-name> --tail 100 -f
 
 # Example — gateway
-DOCKER_API_VERSION=1.41 docker logs ims-api-gateway --tail 100 -f
+DOCKER_API_VERSION=1.44 docker logs ims-api-gateway --tail 100 -f
 ```
 
 ### 2.3 Database backup
@@ -360,7 +360,7 @@ This restores the most recent backup to a temporary database and runs integrity 
 ### 2.5 Clear rate limits
 
 ```bash
-DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli FLUSHALL
+DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli FLUSHALL
 ```
 
 Use only when confirmed abuse or a runaway job has filled the rate-limit counters. This affects all Redis-backed state.
@@ -416,7 +416,7 @@ Every inbound request through the gateway is assigned a `correlationId` that is 
 
 ```bash
 # Find all log lines for a given correlation ID across all containers
-DOCKER_API_VERSION=1.41 docker compose logs --no-log-prefix 2>/dev/null | \
+DOCKER_API_VERSION=1.44 docker compose logs --no-log-prefix 2>/dev/null | \
   jq -c 'select(.correlationId == "<YOUR-CORRELATION-ID>")'
 ```
 
@@ -424,19 +424,19 @@ DOCKER_API_VERSION=1.41 docker compose logs --no-log-prefix 2>/dev/null | \
 
 ```bash
 # All error-level logs from a service in the last run
-DOCKER_API_VERSION=1.41 docker logs ims-<service-name> 2>&1 | \
+DOCKER_API_VERSION=1.44 docker logs ims-<service-name> 2>&1 | \
   jq 'select(.level == "error")'
 
 # Requests slower than 1000ms
-DOCKER_API_VERSION=1.41 docker logs ims-api-gateway 2>&1 | \
+DOCKER_API_VERSION=1.44 docker logs ims-api-gateway 2>&1 | \
   jq 'select(.durationMs > 1000) | {path, durationMs, correlationId}'
 
 # Authentication failures
-DOCKER_API_VERSION=1.41 docker logs ims-api-gateway 2>&1 | \
+DOCKER_API_VERSION=1.44 docker logs ims-api-gateway 2>&1 | \
   jq 'select(.message | test("auth|token|unauthorized"; "i")) | {timestamp, ip, path, message}'
 
 # 5xx responses only
-DOCKER_API_VERSION=1.41 docker logs ims-api-gateway 2>&1 | \
+DOCKER_API_VERSION=1.44 docker logs ims-api-gateway 2>&1 | \
   jq 'select(.status >= 500) | {timestamp, status, path, correlationId}'
 ```
 
@@ -549,7 +549,7 @@ npx prisma@5.22.0 generate --schema=packages/database/prisma/schemas/<domain>.pr
    ```
 4. Check gateway logs first — it is the single entry point for all traffic:
    ```bash
-   DOCKER_API_VERSION=1.41 docker logs ims-api-gateway --tail 200
+   DOCKER_API_VERSION=1.44 docker logs ims-api-gateway --tail 200
    ```
 5. Attempt the fastest mitigation first (service restart, clear rate limits, full restart).
 6. Post a status update every 30 minutes (see template below).
@@ -665,12 +665,12 @@ If smoke tests fail or a critical alert fires immediately after deploy:
 | Task | Command |
 |------|---------|
 | Restart a service | `docker compose restart <service-name>` |
-| View logs | `DOCKER_API_VERSION=1.41 docker logs ims-<service> --tail 100 -f` |
+| View logs | `DOCKER_API_VERSION=1.44 docker logs ims-<service> --tail 100 -f` |
 | Full system restart | `./scripts/startup.sh` |
 | Health check all | `./scripts/check-services.sh` |
 | DB backup | `./scripts/backup-db.sh` |
 | DB connect | `PGPASSWORD=ims_secure_password_2026 psql -h localhost -U postgres -d ims` |
-| Clear rate limits | `DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli FLUSHALL` |
+| Clear rate limits | `DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli FLUSHALL` |
 | Rotate JWT secrets | `./scripts/rotate-secrets.sh --dry-run` then `./scripts/rotate-secrets.sh --apply` |
 | Jaeger traces | `http://localhost:16686` |
 | Prometheus | `http://localhost:9090` |

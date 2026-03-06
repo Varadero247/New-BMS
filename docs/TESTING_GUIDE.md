@@ -33,7 +33,7 @@ Comprehensive reference for all testing layers in the Nexara IMS monorepo.
 
 | Layer | Count | Tool | Command |
 |---|---|---|---|
-| Unit tests | ~1,203,000 tests / ~1,085 suites / 439 projects | Jest + Supertest | `pnpm test` |
+| Unit tests | 1,196,395 tests / 1,079 suites / 442 projects | Jest + Supertest | `pnpm test` |
 | Integration tests | 40 scripts | bash/curl | `./scripts/test-all-modules.sh` |
 | Mutation tests | 5 packages | Stryker | `pnpm test:mutation:all` |
 | Load tests | 7 scenarios | k6 | `pnpm run k6:baseline` |
@@ -50,7 +50,7 @@ All unit tests pass with 0 failures. Every `.test.ts` file has a minimum of 1,00
 ### Running tests
 
 ```bash
-# All ~1,085 suites / 439 projects from the repo root
+# All 1,079 suites / 442 projects from the repo root
 pnpm test
 
 # Single package
@@ -585,7 +585,7 @@ The CI pipeline runs in GitHub Actions (`.github/workflows/ci.yml` / `docs/ci-cd
 |---|---|---|
 | Lint | every push/PR | `pnpm lint` |
 | Type check | every push/PR | `pnpm typecheck` |
-| Unit tests + coverage | every push/PR | `pnpm test --coverage` — all ~1,085 suites / 439 projects |
+| Unit tests + coverage | every push/PR | `pnpm test --coverage` — all 1,079 suites / 442 projects |
 | Build | after lint + typecheck + tests pass | `pnpm build` |
 | Security scan | every push/PR | `pnpm audit --audit-level=high` + secret pattern grep |
 | Docker build | push to `main` only | builds and pushes images for all API services |

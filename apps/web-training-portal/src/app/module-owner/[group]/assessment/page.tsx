@@ -338,6 +338,3 @@ export default function ModuleOwnerAssessment() {
   );
 }
 
-export function generateStaticParams() {
-  return ['quality-nc', 'hse', 'hr-payroll', 'finance-contracts', 'advanced'].map((group) => ({ group }));
-}

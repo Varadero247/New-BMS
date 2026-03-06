@@ -1,17 +1,25 @@
 #!/bin/bash
 
 # IMS - Start All Services Script
+# By default starts API services only (no web apps).
+# Pass --web to also start all web apps (uses ~25GB extra RAM).
+# To start a single web app: ./scripts/start-web-app.sh <name>
 set -e
 
 PROJECT_DIR="/home/dyl/New-BMS"
 LOG_DIR="$PROJECT_DIR/logs"
-DATE=$(date +%Y-%m-%d-%H-%M-%S)
 
 cd "$PROJECT_DIR"
 mkdir -p "$LOG_DIR"
 
+START_WEB=false
+for arg in "$@"; do
+  [ "$arg" = "--web" ] && START_WEB=true
+done
+
 echo "Starting IMS Services..."
 echo "Logs will be saved to: $LOG_DIR"
+[ "$START_WEB" = "false" ] && echo "(Web apps skipped — run ./scripts/start-web-app.sh <name> to start one)"
 
 # Function to start a service in background
 start_service() {
@@ -20,8 +28,8 @@ start_service() {
     local service_name=$3
 
     echo "  Starting $service_name..."
-    pnpm --filter "$filter" dev > "$LOG_DIR/$log_file-$DATE.log" 2>&1 &
-    echo "    PID: $! (log: $log_file-$DATE.log)"
+    stdbuf -oL -eL pnpm --filter "$filter" dev >> "$LOG_DIR/$log_file.log" 2>&1 &
+    echo "    PID: $! (log: $log_file.log)"
 }
 
 # Start API Gateway first (required for all)
@@ -78,7 +86,8 @@ start_service "@ims/api-search" "api-search" "Global Search API"
 
 sleep 3  # Give APIs time to start
 
-# Start all Web services (with delays to avoid port conflicts)
+# Start all Web services — only if --web flag was passed
+if [ "$START_WEB" = "true" ]; then
 echo ""
 echo "Starting Web Applications..."
 start_service "@ims/web-dashboard" "web-dashboard" "Dashboard"
@@ -170,6 +179,7 @@ sleep 2
 start_service "@ims/web-marketing" "web-marketing" "Marketing Web"
 sleep 2
 start_service "@ims/web-training-portal" "web-training-portal" "Training Portal"
+fi # end --web block
 
 echo ""
 echo "All services starting..."

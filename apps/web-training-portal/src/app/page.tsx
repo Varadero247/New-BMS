@@ -63,7 +63,7 @@ const PROGRAMMES = [
     href: '/train-the-trainer',
     badge: 'Train-the-Trainer',
     title: 'Build Your Internal Training Capability',
-    desc: 'A two-day programme for designated internal trainers. Earn the "Nexara Certified Internal Trainer" credential and deliver End User and all five Module Owner programmes independently — using Nexara's editable source materials, facilitation guides, and assessment tools.',
+    desc: 'A two-day programme for designated internal trainers. Earn the "Nexara Certified Internal Trainer" credential and deliver End User and all five Module Owner programmes independently — using Nexara’s editable source materials, facilitation guides, and assessment tools.',
     stats: [
       { icon: Clock, label: '14 CPD hours' },
       { icon: BookOpen, label: 'Dual assessment' },

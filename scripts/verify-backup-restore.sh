@@ -27,7 +27,7 @@ SOURCE_DB="${SOURCE_DB:-ims}"
 DOCKER_CONTAINER="${DOCKER_CONTAINER:-ims-postgres}"
 TEST_DB="ims_restore_test_${TIMESTAMP}"
 BACKUP_FILE="$BACKUP_DIR/restore_test_${TIMESTAMP}.sql.gz"
-export DOCKER_API_VERSION="${DOCKER_API_VERSION:-1.41}"
+export DOCKER_API_VERSION="${DOCKER_API_VERSION:-1.44}"
 
 # ---------------------------------------------------------------------------
 # Helpers

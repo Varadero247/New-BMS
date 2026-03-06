@@ -383,6 +383,3 @@ export default function AssessmentPage() {
   );
 }
 
-export function generateStaticParams() {
-  return (['pre', 'day1', 'final'] as AssessmentType[]).map((type) => ({ type }));
-}

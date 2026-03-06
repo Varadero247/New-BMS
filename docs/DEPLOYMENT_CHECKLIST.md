@@ -49,7 +49,7 @@ Ensure `docker-compose.yml` has all services:
 
 - **Infrastructure**: `postgres`, `redis`
 - **APIs** (42): `api-gateway`, `api-health-safety`, `api-environment`, `api-quality`, `api-ai-analysis`, `api-inventory`, `api-hr`, `api-payroll`, `api-workflows`, `api-project-management`, `api-automotive`, `api-medical`, `api-aerospace`, `api-finance`, `api-crm`, `api-infosec`, `api-esg`, `api-cmms`, `api-portal`, `api-food-safety`, `api-energy`, `api-analytics`, `api-field-service`, `api-iso42001`, `api-iso37001`, `api-marketing`, `api-partners`, `api-risk`, `api-training`, `api-suppliers`, `api-assets`, `api-documents`, `api-complaints`, `api-contracts`, `api-ptw`, `api-reg-monitor`, `api-incidents`, `api-audits`, `api-mgmt-review`, `api-setup-wizard`, `api-chemicals`, `api-emergency`
-- **Web Apps** (44): `web-dashboard`, `web-health-safety`, `web-environment`, `web-quality`, `web-settings`, `web-inventory`, `web-hr`, `web-payroll`, `web-workflows`, `web-project-management`, `web-automotive`, `web-medical`, `web-aerospace`, `web-finance`, `web-crm`, `web-infosec`, `web-esg`, `web-cmms`, `web-customer-portal`, `web-supplier-portal`, `web-food-safety`, `web-energy`, `web-analytics`, `web-field-service`, `web-iso42001`, `web-iso37001`, `web-partners`, `web-admin`, `web-marketing`, `web-risk`, `web-training`, `web-suppliers`, `web-assets`, `web-documents`, `web-complaints`, `web-contracts`, `web-finance-compliance`, `web-ptw`, `web-reg-monitor`, `web-incidents`, `web-audits`, `web-mgmt-review`, `web-chemicals`, `web-emergency`
+- **Web Apps** (45): `web-dashboard`, `web-health-safety`, `web-environment`, `web-quality`, `web-settings`, `web-inventory`, `web-hr`, `web-payroll`, `web-workflows`, `web-project-management`, `web-automotive`, `web-medical`, `web-aerospace`, `web-finance`, `web-crm`, `web-infosec`, `web-esg`, `web-cmms`, `web-customer-portal`, `web-supplier-portal`, `web-food-safety`, `web-energy`, `web-analytics`, `web-field-service`, `web-iso42001`, `web-iso37001`, `web-partners`, `web-admin`, `web-marketing`, `web-risk`, `web-training`, `web-suppliers`, `web-assets`, `web-documents`, `web-complaints`, `web-contracts`, `web-finance-compliance`, `web-ptw`, `web-reg-monitor`, `web-incidents`, `web-audits`, `web-mgmt-review`, `web-chemicals`, `web-emergency`, `web-training-portal`
 
 ---
 
@@ -503,13 +503,15 @@ cd ~/New-BMS
 ./scripts/startup.sh
 ```
 
-This script handles all 5 known restart issues automatically:
+This script handles all known restart issues automatically:
 
 1. **Kills conflicting host services** — Stops host PostgreSQL/Redis and frees ports 3000-4008
 2. **Starts all Docker containers** — `docker compose up -d` with a 30s warm-up wait
 3. **Waits for PostgreSQL** — Polls until the database accepts connections
 4. **Seeds admin user** — Adds missing columns to users/sessions and ensures admin account exists
 5. **Recreates HS tables if missing** — Checks hs\_\* table count; if < 13, runs `prisma migrate diff` from the host and adds missing columns
+6. **Starts all API services** — via `scripts/start-all-services.sh` (APIs only, line-buffered logs)
+7. **Starts all web apps in production mode** — via `scripts/start-all-web.sh` (`next start`, ~80–120 MB/app)
 
 **Environment tables:** If env\_\* tables are missing after restart, recreate from host:
 
@@ -534,7 +536,7 @@ QUALITY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/
 ### Manual Restart (If Script Fails)
 
 ```bash
-export DOCKER_API_VERSION=1.41
+export DOCKER_API_VERSION=1.44
 
 # 1. Kill conflicting ports
 sudo systemctl stop postgresql 2>/dev/null || true
@@ -568,10 +570,10 @@ HEALTH_SAFETY_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@localhost
 
 ### Docker API Version Note
 
-If you see `client version 1.53 is too new`, prefix all docker commands with:
+If you see `client version is too new` or `minimum supported API version is 1.44`, prefix all docker commands with:
 
 ```bash
-export DOCKER_API_VERSION=1.41
+export DOCKER_API_VERSION=1.44
 ```
 
 ---

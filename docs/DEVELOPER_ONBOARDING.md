@@ -12,10 +12,10 @@ Welcome to the Integrated Management System (IMS) monorepo. This guide gets you 
 
 ## Project Overview
 
-IMS is a monorepo containing 43 API services, 45 web apps, and 394 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
+IMS is a monorepo containing 43 API services, 45 web apps, and 395 shared packages. It covers domains such as health & safety, environment, quality, HR, finance, CRM, infosec, and more.
 
 **Stack:** Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose, pnpm workspaces, TypeScript
-**Scale:** 44 Prisma schemas, ~590 database tables, ~1,203,000 unit tests across ~1,085 suites / 439 projects (all passing)
+**Scale:** 44 Prisma schemas, ~590 database tables, 1,196,395 unit tests across 1,079 suites / 442 projects (all passing)
 
 ## Prerequisites
 
@@ -26,10 +26,10 @@ Install these before cloning:
 - **Docker** + **Docker Compose**
 - **Git**
 
-One critical environment quirk: the Docker daemon on this machine is older than the client, so you must set `DOCKER_API_VERSION=1.41` before any `docker exec` command. Add it to your shell profile:
+One critical environment quirk: the Docker daemon on this machine is older than the client, so you must set `DOCKER_API_VERSION=1.44` before any `docker exec` command. Add it to your shell profile:
 
 ```bash
-export DOCKER_API_VERSION=1.41
+export DOCKER_API_VERSION=1.44
 ```
 
 ## Initial Setup (Day 1)
@@ -65,7 +65,7 @@ sudo fuser -k 5432/tcp 6379/tcp 2>/dev/null
 ./scripts/startup.sh
 ```
 
-This script handles port conflicts, starts Docker Compose, seeds the admin user, and recreates any missing database tables.
+This script handles port conflicts, starts Docker Compose, seeds the admin user, recreates missing database tables, starts all 43 API services, and starts all 45 web apps in production mode (`next start`). Web apps must be built first — run `./scripts/build-all-web.sh` on first use or after code changes.
 
 ### 5. Verify everything is running
 
@@ -73,7 +73,7 @@ This script handles port conflicts, starts Docker Compose, seeds the admin user,
 ./scripts/check-services.sh
 ```
 
-This checks all 89 services (43 APIs + api-search + 45 web apps) for health. Expect ~15 web apps to show warnings in dev mode since they require a running Next.js dev server.
+This checks all 89 services (43 APIs + api-search + 45 web apps) for health. Web apps run in production mode (`next start`) — all should return 200 if built and started. To edit a single web app, use `./scripts/start-web-app.sh <name>` to start it in dev mode.
 
 ### 6. Log in
 
@@ -200,7 +200,7 @@ jest.mock('@ims/database', () => ({ ... }));
 pnpm test
 ```
 
-Runs ~1,203,000 Jest tests across ~1,085 suites / 439 projects. All must pass. Every `.test.ts` file has at minimum 1,000 tests.
+Runs 1,196,395 Jest tests across 1,079 suites / 442 projects. All must pass. Every `.test.ts` file has at minimum 1,000 tests.
 
 ### Integration Tests
 
@@ -229,8 +229,8 @@ npx stryker run
 | Problem | Fix |
 |---|---|
 | Port 5432/6379 already in use | `sudo systemctl stop postgresql redis && sudo fuser -k 5432/tcp 6379/tcp` |
-| `docker exec` fails with API version error | Prefix with `DOCKER_API_VERSION=1.41` or export it |
-| Rate limiter blocking requests after restart | `DOCKER_API_VERSION=1.41 docker exec ims-redis redis-cli FLUSHALL` |
+| `docker exec` fails with API version error | Prefix with `DOCKER_API_VERSION=1.44` or export it |
+| Rate limiter blocking requests after restart | `DOCKER_API_VERSION=1.44 docker exec ims-redis redis-cli FLUSHALL` |
 | Prisma crash in Alpine container | Ensure `binaryTargets = ["native", "linux-musl-openssl-3.0.x"]` in the schema generator block |
 | `lsof -i :PORT` shows nothing | Use `ss -tlnp` instead — `lsof` is unreliable on this system |
 | Fresh PostgreSQL container loses all data | Run `./scripts/startup.sh` — it re-seeds the admin user and recreates missing tables |

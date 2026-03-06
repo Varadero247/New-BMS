@@ -11,11 +11,11 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/Redis-6+-DC382D?logo=redis)](https://redis.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/Tests-1%2C202%2C000%20passing-brightgreen)](docs/TESTING_GUIDE.md)
+[![Tests](https://img.shields.io/badge/Tests-1%2C196%2C395%20passing-brightgreen)](docs/TESTING_GUIDE.md)
 [![Code Score](https://img.shields.io/badge/Code%20Score-100%2F100-brightgreen)](docs/CODE_EVALUATION_REPORT.md)
 [![Mutation Score](https://img.shields.io/badge/Mutation-80.76%25-yellow)](docs/MUTATION_TESTING.md)
 
-Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 29 ISO standards · 43 APIs · 45 web apps · 394 packages · 6 verticals, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
+Nexara IMS is a unified compliance intelligence platform that brings 29 ISO standards, ESG reporting, and regulatory compliance into a single AI-powered management system. Built as a monorepo with 29 ISO standards · 43 APIs · 45 web apps · 395 packages · 6 verticals, it provides enterprise-grade tooling for health & safety, environmental management, quality assurance, finance, HR, CRM, and sector-specific compliance across automotive, aerospace, medical devices, food safety, and energy.
 
 ---
 
@@ -203,7 +203,7 @@ New-BMS/
 │   ├── email/                # Email templates + sending
 │   ├── event-bus/            # Cross-service event system
 │   ├── sdk/                  # @ims/sdk public SDK
-│   └── .../                  # 394 total shared packages
+│   └── .../                  # 395 total shared packages
 ├── scripts/
 │   ├── startup.sh            # Full system startup
 │   ├── start-all-services.sh # Start all 89 services
