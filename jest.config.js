@@ -556,40 +556,6 @@ module.exports = {
     // huffman package (added Feb 25, 2026)
     '<rootDir>/packages/huffman',
 
-    // time-series package (added Feb 25, 2026)
-    { displayName: 'time-series', testMatch: ['<rootDir>/packages/time-series/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // fft package (added Feb 25, 2026)
-    { displayName: 'fft', testMatch: ['<rootDir>/packages/fft/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // markov-chain package (added Feb 25, 2026)
-    { displayName: 'markov-chain', testMatch: ['<rootDir>/packages/markov-chain/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // neural-net package (added Feb 25, 2026)
-    { displayName: 'neural-net', testMatch: ['<rootDir>/packages/neural-net/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // treap package (added Feb 25, 2026)
-    { displayName: 'treap', testMatch: ['<rootDir>/packages/treap/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // b-tree package (added Feb 25, 2026)
-    { displayName: 'b-tree', testMatch: ['<rootDir>/packages/b-tree/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // b-plus-tree package (added Feb 25, 2026)
-    { displayName: 'b-plus-tree', testMatch: ['<rootDir>/packages/b-plus-tree/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // cache-replacement package (added Feb 25, 2026)
-    { displayName: 'cache-replacement', testMatch: ['<rootDir>/packages/cache-replacement/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // rope-structure package (added Feb 25, 2026)
-    { displayName: 'rope-structure', testMatch: ['<rootDir>/packages/rope-structure/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // persistent-ds package (added Feb 25, 2026)
-    { displayName: 'persistent-ds', testMatch: ['<rootDir>/packages/persistent-ds/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
-    // spatial-index package (added Feb 25, 2026)
-    { displayName: 'spatial-index', testMatch: ['<rootDir>/packages/spatial-index/src/__tests__/**/*.test.ts'], transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-    // finger-tree package (added Feb 25, 2026)
-    { displayName: 'finger-tree', testMatch: ['<rootDir>/packages/finger-tree/src/__tests__/**/*.test.ts'], transform: { '^.+\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
     // van-emde-boas package (added Feb 25, 2026)
     '<rootDir>/packages/van-emde-boas',
     // disjoint-set package (added Feb 25, 2026)
@@ -598,9 +564,6 @@ module.exports = {
     '<rootDir>/packages/cartesian-tree',
     // k-d-tree package (added Feb 25, 2026)
     '<rootDir>/packages/k-d-tree',
-    // i18n-utils package (added Feb 25, 2026)
-    { displayName: 'i18n-utils', testMatch: ['<rootDir>/packages/i18n-utils/src/__tests__/**/*.test.ts'], transform: { '^.+\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] }, testEnvironment: 'node' },
-
     // splay-tree package (added Feb 25, 2026)
     '<rootDir>/packages/splay-tree',
   '<rootDir>/packages/dependency-injection',

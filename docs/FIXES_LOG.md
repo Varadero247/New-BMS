@@ -8,6 +8,30 @@
 ---
 
 
+## Phase 156 — Remove 13 Duplicate Inline Jest Project Configs (March 8, 2026)
+
+**Root cause discovered:** Root `jest.config.js` had 13 algorithm packages registered twice:
+1. As **inline object configs** `{ displayName, testMatch, transform, testEnvironment }` — added in Phase 149 when they were "missing from root config"
+2. As **string path entries** `'<rootDir>/packages/XXX'` — already present from the phase when each package's own `jest.config.js` was created
+
+This caused every `pnpm test` run to execute those 13 packages' tests twice, inflating the reported count by 19,532 tests.
+
+**Affected packages (13):** `time-series`, `fft`, `markov-chain`, `neural-net`, `treap`, `b-tree`, `b-plus-tree`, `cache-replacement`, `rope-structure`, `persistent-ds`, `spatial-index`, `finger-tree`, `i18n-utils`
+
+**Fix:** Removed the 13 inline object configs (lines 559–602 of jest.config.js). The string path entries at lines 694–695 (`treap`) and 794–805 (the other 12) were retained.
+
+**Verification:**
+```
+Tests:       19532 passed, 19532 total
+```
+13 individual PASS lines — one per package, no duplicates.
+
+**Corrected counts:**
+- Project count: 502 → **489** (true unique projects)
+- Test count: ~1,240,502 − 19,532 = **~1,220,970** (true unique tests)
+
+---
+
 ## Phase 155 — Real-Implementation Unit Tests for Thin Packages (March 8, 2026)
 
 Added 3 new test files targeting genuine computation logic in packages that had only pre-existing spec-style tests:
