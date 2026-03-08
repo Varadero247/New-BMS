@@ -21,7 +21,9 @@ export function getMandatoryLegislation(config: RegionConfig): LegislationItem[]
 }
 
 export function getISOAdoptionStatus(config: RegionConfig, isoStandard: string) {
-  return config.isoContext.adoptedStandards.find((s) => s.standard === isoStandard);
+  return config.isoContext.adoptedStandards.find(
+    (s) => s.standard === isoStandard || s.standard.includes(isoStandard)
+  );
 }
 
 export function compareRegions(configs: RegionConfig[], isoStandard: string): {
