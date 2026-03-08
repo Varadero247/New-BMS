@@ -116,6 +116,37 @@ createServiceProxy('RegionConfig', SERVICES.regional, '/api/v1/region-config', '
 // rewrites /api/v1/region-config/SG → /api/region-config/SG on downstream
 ```
 
+### 14. Express Router — Named Routes Before Parametrised Routes
+
+In an Express router, named/fixed paths **must** be registered before `:param` paths, or the param handler fires first (treating the literal segment as a parameter value).
+
+```typescript
+// WRONG — /:code/compliance fires for /report/compliance with code='report'
+router.get('/:code/compliance', handler);
+router.get('/report/compliance', handler); // never reached
+
+// CORRECT — specific paths first
+router.get('/report/compliance', handler);
+router.get('/:code/compliance', handler);
+```
+
+### 15. Supertest with `isolatedModules` — Avoid Importing `src/index.ts`
+
+When `src/index.ts` calls init functions (e.g. `initTracing()`) before the corresponding import in source order, importing the whole app in tests causes a TDZ ReferenceError under `isolatedModules: true`. Mount only the router under test in a minimal `express()` app instead:
+
+```typescript
+// CORRECT — no TDZ, no external dep mocks needed
+import express from 'express';
+import myRouter from '../src/routes/my-route';
+const testApp = express();
+testApp.use(express.json());
+testApp.use('/api/prefix', myRouter);
+```
+
+### 16. `getRegionConfig` Returns `undefined`, Not `null`
+
+`allRegionConfigs.find(...)` returns `undefined` when no match. Use `!== undefined` or `Boolean(c)` as filter predicate — `c !== null` lets `undefined` pass through.
+
 ## Architecture Quick Reference
 
 ### Service Ports
