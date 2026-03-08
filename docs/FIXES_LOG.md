@@ -8,6 +8,26 @@
 ---
 
 
+## Phase 137 — Country Comparison, Tax/Compliance Reports, HTTP Route Tests (March 8, 2026)
+
+### New: 3 endpoints on `/api/region-config`
+- `GET /compare/countries?codes=SG,AU,MY` — structured side-by-side matrix of all tax, payroll, ISO, and business fields; `?codes=` optional, defaults to all 20
+- `GET /report/tax` — all 20 countries ranked by corp tax, GST, WHT dividends, ease of doing business; summary with lowest/highest
+- `GET /report/compliance` — per-country: mandatory laws count, ISO adoption, data protection authority, due diligence requirements, ESG
+
+### New: `packages/regional-data/src/utils/comparison.ts`
+`compareCountries(RegionConfig[]) → CountryComparisonRow[]` and `buildTaxLeagueTable()` functions. `CountryComparisonRow` covers 24 fields including all withholding rates, payroll scheme details, ease of business rank, corruption index, incorporation time.
+
+### Bug fixes (in this phase)
+- **Route ordering**: `/compare/*` and `/report/*` fixed paths must be registered BEFORE `/:code/*` parametrised routes — Express matches `/:code/compliance` before `/report/compliance` otherwise.
+- **`getRegionConfig` returns `undefined`, not `null`**: Filter `c !== null` passed `undefined` through into `compareCountries`, crashing with "Cannot read property 'countryCode' of undefined". Fixed to `c !== undefined`.
+- **`notFound` always returned as array**: Was conditionally `undefined` (omitted from JSON), now always present.
+
+### New: `apps/api-regional/__tests__/region-config-routes.spec.ts`
+74 supertest HTTP route tests covering all 12 endpoints. Uses a minimal `testApp = express()` approach to avoid the `initTracing` TDZ issue when importing `src/index.ts` under `isolatedModules` mode.
+
+---
+
 ## Phase 136 — Singapore Trade Region Localisation + Gateway Proxy Fix (March 8, 2026)
 
 ### Fix: Gateway proxy path for `/api/region-config` (this session)
