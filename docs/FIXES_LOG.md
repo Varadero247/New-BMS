@@ -8,6 +8,37 @@
 ---
 
 
+## Phase 136 — Singapore Trade Region Localisation (March 8, 2026)
+
+### New: Rich `RegionConfig` type system (`packages/regional-data/src/types/region-config.types.ts`)
+Full hierarchy: `RegionConfig`, `CurrencyConfig`, `NumberFormatConfig`, `LanguageConfig`, `TaxBand`, `FinanceConfig`, `LegislationItem`, `LegislationConfig`, `ISOAdoptionStatus`, `ISOContextConfig`, `ComplianceConfig`, `BusinessConfig`.
+
+### New: 20 rich region config files (`packages/regional-data/src/regions/`)
+Tier 1 ASEAN: `sg`, `my`, `id`, `th`, `vn`, `ph` | ANZ: `au`, `nz` | East Asia: `jp`, `kr`, `hk`, `tw`, `cn` | South Asia: `in_config` (India), `bd`, `lk` | Tier 2 ASEAN: `mm`, `kh`, `la`, `bn`. Each file has: real legislation titles + URLs, regulatory bodies, ISO adoption statuses (with local standard codes e.g. SS ISO 9001:2015), full finance config (corp tax, GST/VAT, withholding, payroll/CPF), compliance config, business environment.
+
+### New: 4 utility modules (`packages/regional-data/src/utils/`)
+- `currency-formatter.ts` — `formatCurrency`, `parseCurrency`, `convertCurrency`
+- `date-formatter.ts` — `formatDate`, `formatDateTime`, `getFinancialYearDates`
+- `tax-calculator.ts` — `calculateCorporateTax`, `calculateGST`, `calculateWithholdingTax`, `calculateCPF`
+- `legislation-matcher.ts` — `getLegislationByCategory`, `getLegislationForISOStandard`, `getMandatoryLegislation`, `getISOAdoptionStatus`, `compareRegions`
+
+### New: 4 UI components (`packages/ui/src/`)
+- `RegionFlag` — emoji flags for 28 country codes, 4 sizes, optional code label
+- `CurrencyDisplay` — formatted currency amounts using `RegionConfig`, optional colorization
+- `LegislationBadge` — category-coloured badge (13 categories) with ISO cross-reference
+- `TaxSummaryPanel` — collapsible tax panel with corporate tax calculator, GST example, filing deadlines
+
+### New: `apps/web-onboarding` (port 3047)
+4-step onboarding wizard:
+1. **Welcome** — org name input
+2. **Region Selection** — CountrySelector (primary + operating countries), live TaxSummaryPanel, LegislationBadge list, ISO adoption status table for selected country
+3. **ISO Standards** — checkboxes for 9 major ISO standards with descriptions
+4. **Review & Confirm** — summary card with flag, all selections, tax rates; POSTs to `/api/regional/onboarding/:orgId`
+
+54 passing unit tests; TypeScript clean; production Next.js build (56.1 kB step page). Added to `start-all-web.sh`, `check-services.sh`, root `jest.config.js`.
+
+---
+
 ## Phase 135 — APAC Regional Localisation + Fixes (March 8, 2026)
 
 ### New: APAC Regional Localisation System
