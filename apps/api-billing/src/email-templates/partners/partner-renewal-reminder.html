@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Renewal Reminder</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3f4f6;padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#1f2937;padding:32px 40px;text-align:center;">
+              <p style="margin:0;color:#f59e0b;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Nexara Partner Programme &middot; Action Required</p>
+              <h1 style="margin:8px 0 0;color:#ffffff;font-size:26px;font-weight:700;">Customer Renewal in 30 Days</h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px;">
+
+              <p style="margin:0 0 20px;color:#374151;font-size:16px;line-height:1.6;">Hi {{firstName}},</p>
+
+              <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.6;">
+                One of your customers is coming up for renewal. Now&rsquo;s the time to reach out, confirm they&rsquo;re happy, and secure the renewal &mdash; and your commission.
+              </p>
+
+              <!-- Customer renewal card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;background-color:#fffbeb;border:1px solid #fde68a;border-radius:8px;overflow:hidden;">
+                <tr>
+                  <td style="background-color:#f59e0b;padding:12px 20px;">
+                    <p style="margin:0;color:#ffffff;font-size:13px;font-weight:700;">&#9888;&nbsp; Renewal Due in 30 Days</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding:4px 0;color:#6b7280;font-size:14px;">Customer</td>
+                        <td align="right" style="padding:4px 0;color:#374151;font-size:14px;font-weight:600;">{{customerName}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;color:#6b7280;font-size:14px;">Renewal date</td>
+                        <td align="right" style="padding:4px 0;color:#dc2626;font-size:14px;font-weight:700;">{{renewalDate}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;color:#6b7280;font-size:14px;">Renewal value (ACV)</td>
+                        <td align="right" style="padding:4px 0;color:#374151;font-size:14px;font-weight:600;">{{renewalValue}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;color:#6b7280;font-size:14px;">Your commission on renewal</td>
+                        <td align="right" style="padding:4px 0;color:#10b981;font-size:14px;font-weight:700;">{{partnerCommission}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;color:#6b7280;font-size:14px;">Current tier</td>
+                        <td align="right" style="padding:4px 0;color:#374151;font-size:14px;font-weight:600;">{{currentTier}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Suggested actions -->
+              <p style="margin:0 0 12px;color:#1f2937;font-size:14px;font-weight:700;">Suggested actions this week:</p>
+              <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+                <tr><td style="padding:5px 0;color:#374151;font-size:14px;">&#10003;&nbsp; Call or email {{customerName}} to confirm satisfaction</td></tr>
+                <tr><td style="padding:5px 0;color:#374151;font-size:14px;">&#10003;&nbsp; Share their annual ROI report (available in Partner Portal)</td></tr>
+                <tr><td style="padding:5px 0;color:#374151;font-size:14px;">&#10003;&nbsp; Discuss expansion &mdash; are there additional users or modules to add?</td></tr>
+                <tr><td style="padding:5px 0;color:#374151;font-size:14px;">&#10003;&nbsp; Confirm PO / budget approval is in place for renewal</td></tr>
+              </table>
+
+              <!-- CTA -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <a href="https://partners.nexara.io/customers/{{customerId}}" style="display:inline-block;background-color:#10b981;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:8px;">View Customer Account &rarr;</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:28px 0 0;color:#6b7280;font-size:13px;line-height:1.6;">
+                Renewals managed through the Partner Portal qualify for your full commission rate. If the customer churns, notify us immediately so we can offer support.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f9fafb;padding:24px 40px;border-top:1px solid #e5e7eb;">
+              <p style="margin:0;color:#9ca3af;font-size:12px;text-align:center;line-height:1.6;">
+                Nexara DMCC &middot; Partner Programme &middot; <a href="https://nexara.io" style="color:#10b981;text-decoration:none;">nexara.io</a><br/>
+                &copy; 2026 Nexara DMCC.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -31,10 +31,12 @@ import {
   FileText,
   Store,
   Globe,
+  CreditCard,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Overview', href: '/', icon: LayoutDashboard },
+  { name: 'Billing & Subscription', href: '/billing', icon: CreditCard },
   { name: 'Users', href: '/users', icon: Users },
   { name: 'Roles & Permissions', href: '/roles', icon: Shield },
   { name: 'Access Log', href: '/access-log', icon: Activity },
