@@ -8,6 +8,24 @@
 ---
 
 
+## Phase 136 — Singapore Trade Region Localisation + Gateway Proxy Fix (March 8, 2026)
+
+### Fix: Gateway proxy path for `/api/region-config` (this session)
+`createServiceProxy` always rewrote incoming paths to `/api` (e.g. `/api/region-config/SG` → `/api/SG`). `api-regional` mounts `regionConfigRouter` at `/api/region-config`, so every request returned 404. Fixed by adding an optional `targetPath` param to `createServiceProxy` (default `'/api'` preserves all 40+ other service proxies). Both the v1 (`/api/v1/region-config`) and legacy (`/api/region-config`) proxies now pass `targetPath='/api/region-config'`.
+
+### Fix: ISO adoption lookup partial match (`packages/regional-data/src/utils/legislation-matcher.ts`)
+`getISOAdoptionStatus` used strict equality (`s.standard === query`). Data stores versioned strings like `'ISO 9001:2015'` so querying `'ISO 9001'` always returned `NOT_ADOPTED`. Changed to fall back to `s.standard.includes(isoStandard)` so short queries match versioned standard IDs.
+
+### Verified working: all `/api/region-config` endpoints via gateway
+- `GET /api/region-config` — 20 countries listed
+- `GET /api/region-config/:code` — full config per country
+- `GET /api/region-config/:code/finance|legislation|iso|compliance|business`
+- `POST /api/region-config/:code/tax-calculate` — corp tax / GST / withholding / CPF
+- `GET /api/region-config/compare/iso/:standard` — cross-country ISO adoption
+- `GET /api/v1/region-config/*` — v1 prefix also working
+
+---
+
 ## Phase 136 — Singapore Trade Region Localisation (March 8, 2026)
 
 ### New: Rich `RegionConfig` type system (`packages/regional-data/src/types/region-config.types.ts`)

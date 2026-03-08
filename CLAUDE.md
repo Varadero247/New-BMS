@@ -102,6 +102,20 @@ All Prisma schema `generator` blocks MUST include `binaryTargets = ["native", "l
 
 All `docker exec` commands must be prefixed with `DOCKER_API_VERSION=1.44` or the env var set globally. The daemon minimum is 1.44 (daemon updated March 2026).
 
+### 13. Gateway `createServiceProxy` — Downstream Must Mount at `/api/*`
+
+`createServiceProxy(name, target, basePath, errorMsg)` uses `pathRewrite: { ['^' + basePath]: '/api' }`. This strips the gateway prefix and replaces it with `/api`, so the downstream service MUST mount its routes at `/api/*` (not at `/api/<prefix>/*`).
+
+**Example (correct)**: Gateway mounts at `/api/health-safety`, downstream (`api-health-safety`) has `app.use('/api/risks', ...)`.
+
+**Example (wrong)**: Gateway mounts at `/api/region-config`, downstream has `app.use('/api/region-config', ...)` — the rewrite sends `/api/region-config/SG` → `/api/SG` which hits a 404 on the downstream.
+
+**Fix for services that need a non-`/api` target**: Pass an optional `targetPath` 5th arg to `createServiceProxy`:
+```typescript
+createServiceProxy('RegionConfig', SERVICES.regional, '/api/v1/region-config', 'error', '/api/region-config')
+// rewrites /api/v1/region-config/SG → /api/region-config/SG on downstream
+```
+
 ## Architecture Quick Reference
 
 ### Service Ports
