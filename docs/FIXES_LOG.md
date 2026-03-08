@@ -8,6 +8,35 @@
 ---
 
 
+## Phase 141 — `@ims/regional-data` Tests (March 8, 2026)
+
+### New: `packages/regional-data/jest.config.js` + `__tests__/regional-data.test.ts`
+160 tests covering all exported utilities from the APAC regional data package:
+
+**Data layer** (34 tests) — `allCountries` (24 entries, unique codes, required fields, 16 code presence checks), `getCountryByCode` (8 hits + 2 miss/case-sensitive), `allRegionConfigs` (20 entries, unique codes, tax rate ranges 0–1, isoContext/legislation fields present), `getRegionConfig` (10 hits + 2 miss).
+
+**Locale/format utilities** (31 tests) — `getLocaleForCountry` (15 explicit mappings + unknown fallback), `getDateFormat` (4 special + 3 default), `getCurrencySymbol` (16 currencies + unknown fallback).
+
+**Currency utilities** (9 tests) — `parseCurrency` (plain number, invalid string), `convertCurrency` (same currency, USD→SGD, SGD→AUD, JPY→USD, unknown from/to rates default to 1).
+
+**Financial year** (5 tests) — `getFinancialYearDates` for SG (Dec 31), AU (Jun 30), IN (Mar 31) with exact start/end month/date assertions; all configs: start < end.
+
+**Tax calculators** (23 tests) — `calculateCorporateTax` (SG 17%, AU 30%, zero income, all configs non-negative and ≤1); `calculateGST` (exclusive SG/AU/HK, inclusive round-trip inverse, all configs ≥0); `calculateWithholdingTax` (all 4 types, wht+net=gross, 0% WHT, rate ≤1).
+
+**Payroll** (5 tests) — `calculateCPF` (SG CPF, HK MPF, no-payroll→null, takeHome formula, salary at ceiling).
+
+**Legislation matchers** (18 tests) — `getLegislationByCategory` (DATA_PRIVACY, HSE, ENVIRONMENT, empty/invalid category, 5-config loop); `getLegislationForISOStandard` (ISO 45001:2018, ISO 14001:2015, unknown); `getLegislationForSector` ("all", sector filter); `getMandatoryLegislation` (SG, 5-config, count ≤ total).
+
+**ISO adoption** (5 tests) — `getISOAdoptionStatus` (SG ISO 9001 partial match, AU ISO 14001, unknown→undefined, certificationBodies array); `compareRegions` (count, fields, order, all-NOT_ADOPTED, empty).
+
+**Country comparison** (11 tests) — `compareCountries` (count, required fields, tax rates 0–1, null payroll name, incorporationTime string, isoStandardsCount ≥0, SG 17% corp rate, empty input).
+
+**Cross-package invariants** (5 tests) — region configs subset of country codes, getCountryByCode/getRegionConfig consistent, compareCountries row count, compareRegions/getISOAdoptionStatus agreement, SGD symbol + SG locale.
+
+Package added to root `jest.config.js` (483rd Jest project).
+
+---
+
 ## Phase 140 — `@ims/workflow-builder` Specification Tests (March 8, 2026)
 
 ### New: `packages/workflow-builder/src/__tests__/workflow-builder.test.ts`

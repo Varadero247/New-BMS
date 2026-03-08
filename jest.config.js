@@ -777,6 +777,8 @@ module.exports = {
   '<rootDir>/apps/web-regional-dashboard',
   // Mobile app — regional screens (added Mar 8, 2026 — Phase 139)
   '<rootDir>/apps/mobile',
+  // @ims/regional-data (added Mar 8, 2026 — Phase 141)
+  '<rootDir>/packages/regional-data',
   ],
 
 
