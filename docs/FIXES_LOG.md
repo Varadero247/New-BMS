@@ -8,6 +8,33 @@
 ---
 
 
+## Phase 158 — `@ims/rbac` Role-Integrity and Permission-Boundary Tests (March 8, 2026)
+
+Created `packages/rbac/__tests__/rbac-roles.test.ts` — 428 new tests covering the full PLATFORM_ROLES data and permission resolution:
+
+**Discovery:** PLATFORM_ROLES has 44 roles (not 39 as documented in CLAUDE.md), and 28 ImsModules (not 17). Fixed docs.
+
+**Parametric role integrity (44 × 5 = 220 tests):**
+For every role: id is kebab-case, name/description non-empty, isSystem=true, permissions non-empty, all module/level values valid.
+
+**resolvePermissions completeness (44 tests):**
+Every role's resolution covers all 28 ImsModules — no module is missing.
+
+**allModules roles per-module assertions (84 tests):**
+super-admin × 28 (all FULL), org-admin × 28 (all FULL), auditor × 28 (all VIEW).
+
+**Primary-permission assertion per role (44 tests):**
+Fixed: `ai-governance-manager` has FULL on `iso42001` (not `ai` — it's the ISO 42001 head, not the AI module admin).
+
+**hasPermission boundary matrix:**
+employee hr=CREATE (7 levels), hs-manager FULL (7 levels), viewer finance=NONE (4 levels), super-admin broad checks.
+
+**mergePermissions invariants:** symmetric, idempotent, merge with empty, roleId deduplication, most-permissive wins.
+
+**Result:** rbac package 3,000 → **3,428 tests**.
+
+---
+
 ## Phase 157 — `@ims/templates` Comprehensive Tests (March 8, 2026)
 
 Created `packages/templates/__tests__/templates-data.test.ts` — 1,204 new tests covering the full `@ims/templates` package:
