@@ -8,6 +8,25 @@
 ---
 
 
+## Phase 139 — Mobile APAC Regional Screens (March 8, 2026)
+
+### New: 3 APAC regional screens in `apps/mobile/src/screens/regional/`
+
+- **`RegionalInsights.tsx`** — Country snapshot types, adoption status helpers (`isAdopted`, `adoptionLabel`), tax formatters (`formatPct/CorpTax/Gst/Wht`), `filterCountries` (region/tier/search), `sortCountries`, cache TTL + staleness checks, `buildRegionalSummary`, `groupByRegion`
+- **`TaxComparison.tsx`** — `TaxProfile`, `TaxCalculation`, corporate tax calc, GST obligation checker (threshold-based), payroll calc (CPF/MPF/etc), WHT scenario (dividends/interest/royalties), `calculateTaxScenario` (full scenario), `rankByBurden` (multi-country tax burden ranking)
+- **`ComplianceChecker.tsx`** — `ComplianceProfile`, `OrgCompliance`, `assessComplianceGaps` (7 dimensions), `buildGapReport` (score 0-100, overallRisk, criticalGaps), `compareCompliance` (multi-country sorted by score), `penaltyRiskScore` (penalty × enforcement = 1-9), `riskLevelRank`, `highestRisk`
+
+### New: `apps/mobile/jest.config.js`
+Matches existing test pattern: `isolatedModules: true, diagnostics: false`, `testMatch: **/__tests__/**/*.spec.ts`
+
+### New: `apps/mobile/__tests__/regional-screens.spec.ts`
+119 tests covering all pure functions across all 3 new screens. Added mobile to root `jest.config.js` (482nd Jest project).
+
+### Also
+- `scripts/build-all-web.sh`: added `web-onboarding` and `web-regional-dashboard` to APPS array (were missing)
+
+---
+
 ## Phase 138 — web-regional-dashboard (APAC Intelligence Dashboard) (March 8, 2026)
 
 ### New web app: `apps/web-regional-dashboard` (port 3048)

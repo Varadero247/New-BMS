@@ -23,6 +23,7 @@ APPS=(
   web-project-management web-ptw web-quality web-reg-monitor web-risk
   web-settings web-supplier-portal web-suppliers web-training
   web-training-portal web-workflows
+  web-onboarding web-regional-dashboard
 )
 
 TOTAL=${#APPS[@]}

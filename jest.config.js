@@ -775,6 +775,8 @@ module.exports = {
   '<rootDir>/apps/web-onboarding',
   // Regional Dashboard (added Mar 8, 2026 — Phase 138)
   '<rootDir>/apps/web-regional-dashboard',
+  // Mobile app — regional screens (added Mar 8, 2026 — Phase 139)
+  '<rootDir>/apps/mobile',
   ],
 
 
