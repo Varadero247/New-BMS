@@ -8,6 +8,37 @@
 ---
 
 
+## Phase 159 — `@ims/standards-convergence` Data-Integrity and Computation Tests (March 8, 2026)
+
+Created `packages/standards-convergence/__tests__/convergence-data.test.ts` — 216 new tests.
+
+**Per-clause integrity (20 × 5 = 100 tests):**
+All 20 CLAUSE_STANDARD_MAP entries verified: valid AnnexSLClause key, non-empty title/description, standards non-empty with no duplicates, all standards valid ISOStandard values.
+
+**ANNEX_SL_COMMON_CLAUSES alignment (20 tests):**
+Every key in ANNEX_SL_COMMON_CLAUSES appears in CLAUSE_STANDARD_MAP.
+
+**getStandardsForClause / getClausesForStandard (32 tests):**
+All 20 valid clauses return non-empty arrays. 10 Annex SL standards return ≥1 clause. IATF_16949 and AS9100D correctly return [] (sector-specific, not Annex SL).
+
+**getSharedClauses (15 tests):**
+Single-standard = its own clauses; pair sharing; empty array = 20 (vacuously true); non-Annex pair = 0; monotone non-increase; clause 4.1 present in all Annex SL pairs.
+
+**calculateConvergenceScore (15 tests):**
+0 records = 0%; full coverage = 100%; duplicate clauses counted once; totalClauses matches getClausesForStandard; monotone; ISO_9001 covers all 20 clauses.
+
+**getConvergenceBenefit (12 tests):**
+Single = 0%; 10 Annex SL standards > 50% reduction; totalClausesIfSeparate invariant; reductionPercent 0-100; sharedClauses = getSharedClauses length.
+
+**createConvergentRecord (14 tests):**
+id/recordType stored; 4.1 → 10 standards; empty clauses → 0 standards; clauseRefs structure; no IATF leakage; all 8 RecordType values usable.
+
+**Edge case discovered:** `getConvergenceBenefit([])` returns `sharedClauses=20` because `getSharedClauses([])` returns all 20 clauses (vacuous universal quantification over empty array). Test updated to reflect actual behaviour.
+
+**Result:** standards-convergence package 1,000 → **1,216 tests**.
+
+---
+
 ## Phase 158 — `@ims/rbac` Role-Integrity and Permission-Boundary Tests (March 8, 2026)
 
 Created `packages/rbac/__tests__/rbac-roles.test.ts` — 428 new tests covering the full PLATFORM_ROLES data and permission resolution:
