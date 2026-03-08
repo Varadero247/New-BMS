@@ -35,8 +35,14 @@ function computeLeaveBalance(entitlement: number, taken: number): number {
 }
 
 function yearsOfService(hireDate: Date, today: Date): number {
-  const ms = today.getTime() - hireDate.getTime();
-  return Math.floor(ms / (365.25 * 86400000));
+  let years = today.getFullYear() - hireDate.getFullYear();
+  if (
+    today.getMonth() < hireDate.getMonth() ||
+    (today.getMonth() === hireDate.getMonth() && today.getDate() < hireDate.getDate())
+  ) {
+    years--;
+  }
+  return Math.max(0, years);
 }
 
 function isEligibleForLeave(employmentType: EmploymentType, yearsOfSvc: number): boolean {

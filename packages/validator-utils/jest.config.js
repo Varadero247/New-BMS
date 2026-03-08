@@ -2,16 +2,10 @@
 // This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
 // Unauthorised copying, modification, or distribution is strictly prohibited.
 
-/** @type {import('ts-jest').JestConfigWithTsJest} */
+/** @type {import('jest').Config} */
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
   rootDir: '.',
   testMatch: ['**/__tests__/**/*.test.ts'],
-  globals: {
-    'ts-jest': {
-      isolatedModules: true,
-      diagnostics: false,
-    },
-  },
+  transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] },
 };

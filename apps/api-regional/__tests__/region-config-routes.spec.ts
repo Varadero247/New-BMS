@@ -332,3 +332,365 @@ describe('404 handler', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+// ─── Parametric tests across all 20 APAC countries ───────────────────────────
+
+const ALL_CODES = ['SG','AU','MY','JP','KR','CN','HK','TW','TH','VN','ID','PH','IN','NZ','BD','LA','LK','MM','KH','BN'];
+
+describe('GET /api/region-config — all 20 countries present in listing', () => {
+  let allData: Array<{ countryCode: string }> = [];
+
+  beforeAll(async () => {
+    const res = await get('/api/region-config');
+    allData = res.body.data;
+  });
+
+  ALL_CODES.forEach(code => {
+    it(`listing includes ${code}`, () => {
+      expect(allData.some(r => r.countryCode === code)).toBe(true);
+    });
+  });
+
+  it('all countries have positive corporateTaxRate field', () => {
+    allData.forEach(r => {
+      expect(typeof (r as any).corporateTaxRate).toBe('number');
+    });
+  });
+
+  it('all countries have gstVatRate field', () => {
+    allData.forEach(r => {
+      expect((r as any)).toHaveProperty('gstVatRate');
+    });
+  });
+
+  it('all countries have legislationCount > 0', () => {
+    allData.forEach(r => {
+      expect((r as any).legislationCount).toBeGreaterThan(0);
+    });
+  });
+
+  it('all countries have isoStandardsCount > 0', () => {
+    allData.forEach(r => {
+      expect((r as any).isoStandardsCount).toBeGreaterThan(0);
+    });
+  });
+});
+
+describe('GET /api/region-config/:code — individual country data completeness', () => {
+  const SAMPLE_COUNTRIES = ['SG', 'AU', 'MY', 'JP', 'KR', 'IN', 'NZ', 'HK'];
+
+  SAMPLE_COUNTRIES.forEach(code => {
+    it(`${code} — returns 200 with full config`, async () => {
+      const res = await get(`/api/region-config/${code}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.countryCode).toBe(code);
+    });
+
+    it(`${code} — has finance, legislation, isoContext, compliance, business`, async () => {
+      const res = await get(`/api/region-config/${code}`);
+      const d = res.body.data;
+      expect(d).toHaveProperty('finance');
+      expect(d).toHaveProperty('legislation');
+      expect(d).toHaveProperty('isoContext');
+      expect(d).toHaveProperty('compliance');
+      expect(d).toHaveProperty('business');
+    });
+
+    it(`${code} — finance has corporateTaxRate and gstVatRate`, async () => {
+      const res = await get(`/api/region-config/${code}`);
+      const f = res.body.data.finance;
+      expect(typeof f.corporateTaxRate).toBe('number');
+      expect(typeof f.gstVatRate).toBe('number');
+    });
+  });
+
+  it('lowercase codes normalise to uppercase', async () => {
+    for (const code of ['sg', 'au', 'jp', 'kr']) {
+      const res = await get(`/api/region-config/${code}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.countryCode).toBe(code.toUpperCase());
+    }
+  });
+
+  const INVALID_CODES = ['XX', 'ZZ', 'QQ', 'AAA', '12'];
+  INVALID_CODES.forEach(code => {
+    it(`invalid code "${code}" → 404`, async () => {
+      const res = await get(`/api/region-config/${code}`);
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+    });
+  });
+});
+
+describe('GET /api/region-config/:code/finance — multiple countries', () => {
+  const COUNTRIES = ['SG', 'AU', 'MY', 'JP', 'KR', 'CN'];
+  COUNTRIES.forEach(code => {
+    it(`${code} finance — has gstVatName, filingDeadlines`, async () => {
+      const res = await get(`/api/region-config/${code}/finance`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.finance).toHaveProperty('gstVatName');
+      expect(res.body.data.finance).toHaveProperty('filingDeadlines');
+    });
+  });
+
+  it('404 for unknown finance code', async () => {
+    const res = await get('/api/region-config/ZZ/finance');
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('GET /api/region-config/:code/legislation — filter combinations', () => {
+  it('SG legislation: no filter returns all laws', async () => {
+    const all = await get('/api/region-config/SG/legislation');
+    const mandatory = await get('/api/region-config/SG/legislation?mandatory=true');
+    expect(all.body.data.legislation.length).toBeGreaterThanOrEqual(mandatory.body.data.legislation.length);
+  });
+
+  it('all laws in mandatory=true response have isMandatory === true', async () => {
+    const res = await get('/api/region-config/AU/legislation?mandatory=true');
+    res.body.data.legislation.forEach((l: any) => {
+      expect(l.isMandatory).toBe(true);
+    });
+  });
+
+  it('mandatory=false returns all laws for MY (filter only applies to "true")', async () => {
+    const all = await get('/api/region-config/MY/legislation');
+    const falseFilt = await get('/api/region-config/MY/legislation?mandatory=false');
+    // mandatory=false is not a supported filter (only "true" is); should return same as all
+    expect(falseFilt.status).toBe(200);
+    expect(falseFilt.body.data.legislation.length).toBe(all.body.data.legislation.length);
+  });
+
+  const CATEGORIES = ['employment', 'health_safety', 'environment', 'data_protection'];
+  CATEGORIES.forEach(cat => {
+    it(`JP legislation filtered by category=${cat} has correct category`, async () => {
+      const res = await get(`/api/region-config/JP/legislation?category=${cat}`);
+      expect(res.status).toBe(200);
+      res.body.data.legislation.forEach((l: any) => {
+        expect(l.category).toBe(cat);
+      });
+    });
+  });
+
+  it('legislation for unknown code → 404', async () => {
+    const res = await get('/api/region-config/ZZ/legislation');
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('GET /api/region-config/:code/iso — multi-country ISO lookup', () => {
+  const COUNTRIES_ISO = ['SG', 'AU', 'JP', 'KR', 'IN'];
+  COUNTRIES_ISO.forEach(code => {
+    it(`${code} /iso returns adoptedStandards array`, async () => {
+      const res = await get(`/api/region-config/${code}/iso`);
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data.adoptedStandards)).toBe(true);
+      expect(res.body.data.adoptedStandards.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('ISO filter for 9001 returns only matching standards for AU', async () => {
+    const res = await get('/api/region-config/AU/iso?standard=9001');
+    res.body.data.adoptedStandards.forEach((s: any) => {
+      expect(s.standard).toContain('9001');
+    });
+  });
+
+  it('ISO filter for 45001 returns only matching standards for JP', async () => {
+    const res = await get('/api/region-config/JP/iso?standard=45001');
+    res.body.data.adoptedStandards.forEach((s: any) => {
+      expect(s.standard).toContain('45001');
+    });
+  });
+
+  it('iso 404 for unknown code', async () => {
+    const res = await get('/api/region-config/ZZ/iso');
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('GET /api/region-config/:code/compliance — multiple countries', () => {
+  const COMPLIANCE_COUNTRIES = ['SG', 'AU', 'MY', 'JP', 'KR'];
+  COMPLIANCE_COUNTRIES.forEach(code => {
+    it(`${code} compliance returns 200 with compliance data`, async () => {
+      const res = await get(`/api/region-config/${code}/compliance`);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('compliance');
+    });
+  });
+  it('compliance 404 for unknown code', async () => {
+    const res = await get('/api/region-config/XX/compliance');
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('GET /api/region-config/:code/business — multiple countries', () => {
+  const BUSINESS_COUNTRIES = ['SG', 'AU', 'HK', 'JP'];
+  BUSINESS_COUNTRIES.forEach(code => {
+    it(`${code} business returns 200 with business data`, async () => {
+      const res = await get(`/api/region-config/${code}/business`);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('business');
+    });
+  });
+  it('business 404 for unknown code', async () => {
+    const res = await get('/api/region-config/XX/business');
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('POST /api/region-config/:code/tax-calculate — extended cases', () => {
+  const TAX_COUNTRIES = ['AU', 'MY', 'JP', 'KR', 'TH', 'IN'];
+
+  TAX_COUNTRIES.forEach(code => {
+    it(`${code} — corporate tax calculation returns taxAmount ≥ 0`, async () => {
+      const res = await post(`/api/region-config/${code}/tax-calculate`, { income: 1000000 });
+      expect(res.status).toBe(200);
+      expect(res.body.data.corporateTax.taxAmount).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  it('very small income → near-zero corporate tax for SG', async () => {
+    const res = await post('/api/region-config/SG/tax-calculate', { income: 1 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.corporateTax.taxAmount).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GST calculation: transactionAmount present → gst block included', async () => {
+    const res = await post('/api/region-config/AU/tax-calculate', {
+      income: 500000,
+      transactionAmount: 10000,
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('gst');
+    expect(res.body.data.gst.gstAmount).toBeGreaterThanOrEqual(0);
+  });
+
+  it('withholding: withholdingType given → withholding block included for MY', async () => {
+    const res = await post('/api/region-config/MY/tax-calculate', {
+      income: 1000000,
+      transactionAmount: 100000,
+      withholdingType: 'interest',
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('withholding');
+  });
+
+  it('tax-calculate 404 for unknown code', async () => {
+    const res = await post('/api/region-config/XX/tax-calculate', { income: 100000 });
+    expect(res.status).toBe(404);
+  });
+
+  it('tax-calculate 404 for lowercase invalid code', async () => {
+    const res = await post('/api/region-config/zz/tax-calculate', { income: 100000 });
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('GET /api/region-config/compare/iso/:standard — extended', () => {
+  const STANDARDS = ['ISO%209001', 'ISO%2014001', 'ISO%2045001'];
+
+  STANDARDS.forEach(std => {
+    it(`compare/iso/${std} — returns 20 countries`, async () => {
+      const res = await get(`/api/region-config/compare/iso/${std}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.totalCountries).toBe(20);
+    });
+
+    it(`compare/iso/${std} — each row has adoptionStatus and certificationBodies`, async () => {
+      const res = await get(`/api/region-config/compare/iso/${std}`);
+      res.body.data.comparison.forEach((row: any) => {
+        expect(row).toHaveProperty('adoptionStatus');
+        expect(row).toHaveProperty('certificationBodies');
+      });
+    });
+  });
+
+  it('adoptedCount is between 0 and 20', async () => {
+    const res = await get('/api/region-config/compare/iso/ISO%2027001');
+    expect(res.body.data.adoptedCount).toBeGreaterThanOrEqual(0);
+    expect(res.body.data.adoptedCount).toBeLessThanOrEqual(20);
+  });
+});
+
+describe('GET /api/region-config/compare/countries — extended', () => {
+  it('all rows have required comparison fields', async () => {
+    const res = await get('/api/region-config/compare/countries');
+    res.body.data.countries.forEach((row: any) => {
+      expect(row).toHaveProperty('countryCode');
+      expect(row).toHaveProperty('countryName');
+      expect(row).toHaveProperty('corporateTaxRate');
+      expect(row).toHaveProperty('gstVatRate');
+      expect(row).toHaveProperty('easeOfDoingBusinessRank');
+    });
+  });
+
+  it('three-country subset SG,JP,KR returns exactly 3 rows', async () => {
+    const res = await get('/api/region-config/compare/countries?codes=SG,JP,KR');
+    expect(res.body.meta.total).toBe(3);
+    expect(res.body.data.countries).toHaveLength(3);
+  });
+
+  it('empty codes param defaults to all 20', async () => {
+    const res = await get('/api/region-config/compare/countries?codes=');
+    expect(res.status).toBe(200);
+    // empty string treated as all
+    expect(res.body.data.countries.length).toBeGreaterThan(0);
+  });
+
+  it('all-invalid codes returns empty countries and full notFound list', async () => {
+    const res = await get('/api/region-config/compare/countries?codes=XX,YY,ZZ');
+    expect(res.status).toBe(200);
+    expect(res.body.data.countries).toHaveLength(0);
+    expect(res.body.data.notFound).toContain('XX');
+    expect(res.body.data.notFound).toContain('YY');
+    expect(res.body.data.notFound).toContain('ZZ');
+  });
+});
+
+describe('GET /api/region-config/report/tax — ranking invariants', () => {
+  it('rankedByGst is sorted ascending by gstVatRate', async () => {
+    const res = await get('/api/region-config/report/tax');
+    const ranked = res.body.data.rankedByGst;
+    for (let i = 1; i < ranked.length; i++) {
+      expect(ranked[i].gstVatRate).toBeGreaterThanOrEqual(ranked[i - 1].gstVatRate);
+    }
+  });
+
+  it('rankedByCorpTax has 20 entries', async () => {
+    const res = await get('/api/region-config/report/tax');
+    expect(res.body.data.rankedByCorpTax).toHaveLength(20);
+  });
+
+  it('summary.lowestCorpTax.corporateTaxRate <= all others', async () => {
+    const res = await get('/api/region-config/report/tax');
+    const lowest = res.body.data.summary.lowestCorpTax.corporateTaxRate;
+    res.body.data.rankedByCorpTax.forEach((r: any) => {
+      expect(r.corporateTaxRate).toBeGreaterThanOrEqual(lowest);
+    });
+  });
+});
+
+describe('GET /api/region-config/report/compliance — extended', () => {
+  it('all 20 compliance rows have boolean whistleblowerProtection', async () => {
+    const res = await get('/api/region-config/report/compliance');
+    res.body.data.forEach((row: any) => {
+      expect(typeof row.whistleblowerProtection).toBe('boolean');
+    });
+  });
+
+  it('all rows have mandatoryLawsCount >= 0', async () => {
+    const res = await get('/api/region-config/report/compliance');
+    res.body.data.forEach((row: any) => {
+      expect(row.mandatoryLawsCount).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  it('all rows have isoStandardsAdopted >= 0', async () => {
+    const res = await get('/api/region-config/report/compliance');
+    res.body.data.forEach((row: any) => {
+      expect(row.isoStandardsAdopted).toBeGreaterThanOrEqual(0);
+    });
+  });
+});

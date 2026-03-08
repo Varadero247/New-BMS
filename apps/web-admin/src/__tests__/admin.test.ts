@@ -44,7 +44,7 @@ function canManageRole(actor: UserRole, target: UserRole): boolean {
 
 function isExpiringSoon(expiryDate: Date, warnDays = 30): boolean {
   const diffMs = expiryDate.getTime() - Date.now();
-  return diffMs > 0 && diffMs < warnDays * 86400000;
+  return diffMs > 0 && diffMs <= warnDays * 86400000;
 }
 
 // ─── Tests ───────────────────────────────────────────────────────────────────

@@ -787,6 +787,22 @@ module.exports = {
   '<rootDir>/packages/end-user-training',
   // @ims/module-owner-training (added Mar 8, 2026 — Phase 143)
   '<rootDir>/packages/module-owner-training',
+  // @ims/train-the-trainer (added Mar 8, 2026 — Phase 146)
+  '<rootDir>/packages/train-the-trainer',
+
+  // 12 algorithm/utility packages (added Mar 8, 2026 — Phase 149)
+  '<rootDir>/packages/b-plus-tree',
+  '<rootDir>/packages/b-tree',
+  '<rootDir>/packages/cache-replacement',
+  '<rootDir>/packages/fft',
+  '<rootDir>/packages/finger-tree',
+  '<rootDir>/packages/i18n-utils',
+  '<rootDir>/packages/markov-chain',
+  '<rootDir>/packages/neural-net',
+  '<rootDir>/packages/persistent-ds',
+  '<rootDir>/packages/rope-structure',
+  '<rootDir>/packages/spatial-index',
+  '<rootDir>/packages/time-series',
   ],
 
 

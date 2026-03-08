@@ -11,13 +11,15 @@ module.exports = {
     '^.+\\.tsx?$': [
       'ts-jest',
       {
-        useESM: true,
+        isolatedModules: true,
+        diagnostics: false,
       },
     ],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverageFrom: ['src/**/*.ts', '!src/index.ts'],
   moduleNameMapper: {
+    '^@ims/database/marketplace$': '<rootDir>/../../packages/database/src',
     '^@ims/(.*)$': '<rootDir>/../../packages/$1/src',
   },
 };

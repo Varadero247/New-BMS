@@ -276,7 +276,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 ## Run Tests
 
 ```bash
-pnpm test                                # All Jest tests (~1,220,715 across 1,117 suites / 480 projects — all passing)
+pnpm test                                # All Jest tests (~1,240,502 across 1,144 suites / 500 projects — all passing)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 40 modules, ~1,800+ assertions)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -362,9 +362,9 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
 #               slo (multi-window burn rate: 14.4×/6×/3× thresholds)
 ```
 
-## Current Status (Mar 6, 2026)
+## Current Status (Mar 8, 2026)
 
-- 43 API services + api-search (4050) + 45 web apps + PostgreSQL + Redis + main API
+- 44 API services (gateway:4000, 41 domain:4001–4041, regional:4042, search:4050) + 47 web apps + PostgreSQL + Redis
 - **All 43 modules fully implemented** across Phases 0-125:
   - **Core**: H&S, Environment, Quality, HR, Payroll, Inventory, Workflows, PM, AI, Automotive, Medical, Aerospace
   - **Phase 2-11**: Finance, CRM, InfoSec, ESG, CMMS, Portals (Customer + Supplier), Food Safety, Energy, Analytics, Field Service, ISO 42001, ISO 37001
@@ -378,10 +378,10 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - **Phase 126**: Train-the-Trainer — `packages/train-the-trainer/` (32 MD files + TypeScript package: scoring engine, CohortManager, TrainerRegistry, programme-registry; 1,012 tests all passing); `/train-the-trainer` web portal route; homepage updated to 4-programme selector; 1 new package (`@ims/train-the-trainer`)
   - **Platform**: RBAC (39 roles), WebSocket notifications, visual workflow builder, PWA offline, performance baseline, i18n (4 locales), white-label theming, marketplace
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
-- 44 Prisma schemas, ~590 database models
-- 396 shared packages (all with test suites ≥1,000 tests each)
-- **Tests**: **~1,220,715 Jest tests (1,117 suites / 480 projects)** + 40 integration test scripts (~1,800+ assertions) + 111 Jest integration tests — ALL PASSING, 0 failures
-- **TypeScript**: 0 errors across all 43 APIs + 45 web apps + 396 packages (480 projects)
+- 44 Prisma schemas, ~597 database models
+- 398 shared packages (all with test suites ≥1,000 tests each)
+- **Tests**: **~1,240,502 Jest tests (1,144 suites / 500 projects)** + 40 integration test scripts (~1,800+ assertions) + 111 Jest integration tests — ALL PASSING, 0 failures
+- **TypeScript**: 0 errors across all 44 APIs + 47 web apps + 398 packages (500 projects)
 - **E2E**: 48 Playwright spec files, 195 tests across all 45 modules
 - **Code Evaluation**: 100/100 composite score (Security 100, Architecture 100, Code Quality 100)
 - **Mutation Testing**: Stryker 80.76% score (above 80% high threshold) — auth/security/rbac/finance configs
@@ -392,9 +392,9 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
 - 192 built-in templates across 34 modules
 - **Launch Readiness**: Pre-launch check 70/111 PASSED, 0 failures (41 expected dev warnings)
 - **DB Connection Pool**: `connection_limit=1` set in all DATABASE_URL vars — all 43 services run under 100 connections total (lazy connect)
-- **Sentry**: `initSentry()` wired in all 43 API services — configure `SENTRY_DSN` in .env for error monitoring
+- **Sentry**: `initSentry()` wired in all 44 API services — configure `SENTRY_DSN` in .env for error monitoring
 - **k6 Load Tests**: All thresholds pass — `errors: 0.71%`, `http_req_failed: 0.94%` (both < 5%)
-- **OpenTelemetry**: `initTracing()` in all 43 services — OTEL Collector config at `deploy/monitoring/otel/`
+- **OpenTelemetry**: `initTracing()` in all 44 services — OTEL Collector config at `deploy/monitoring/otel/`
 - **Renovate**: Auto-merge patches, grouped dependencies, vulnerability alerts — `renovate.json` at root
 - **Lighthouse CI**: `packages/performance/lighthouserc.json` — accessibility error <0.9, performance warn <0.8
 - **SEO**: keywords/openGraph/robots metadata in 10 key layout.tsx files

@@ -60,9 +60,9 @@ describe('Compliance status colors', () => {
 
 describe('computeSignificanceScore', () => {
   it('all zeros = 0', () => expect(computeSignificanceScore(0, 0, 0, 0, 0, 0, 0)).toBe(0));
-  it('all ones = 9', () => {
-    // 1*1.5 + 1*1.5 + 1 + 1 + 1 + 1 + 1 = 9
-    expect(computeSignificanceScore(1, 1, 1, 1, 1, 1, 1)).toBe(9);
+  it('all ones = 8', () => {
+    // 1*1.5 + 1*1.5 + 1 + 1 + 1 + 1 + 1 = 3 + 5 = 8
+    expect(computeSignificanceScore(1, 1, 1, 1, 1, 1, 1)).toBe(8);
   });
   it('high values make significant', () => {
     const score = computeSignificanceScore(5, 5, 3, 3, 3, 3, 3);

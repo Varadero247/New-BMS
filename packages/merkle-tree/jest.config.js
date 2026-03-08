@@ -1,6 +1,5 @@
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
   testMatch: ['**/*.test.part*.ts', '**/*.test.ts'],
-  globals: { 'ts-jest': { isolatedModules: true, diagnostics: false } },
+  transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] },
 };

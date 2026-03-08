@@ -124,4 +124,4 @@ check_service 3048 "Regional Dashboard"
 echo ""
 # Count running services using ss
 RUNNING=$(ss -tlnp 2>/dev/null | grep -cE ":(30[0-4][0-9]|3046|3047|3048|40([0-4][0-9]|50)) ")
-echo "Total services running: $RUNNING / 91"
+echo "Total services running: $RUNNING / 92"

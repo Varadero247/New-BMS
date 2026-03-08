@@ -11,7 +11,7 @@ module.exports = {
     '^.+\\.tsx?$': [
       'ts-jest',
       {
-        useESM: true,
+        isolatedModules: true,
         diagnostics: false,
       },
     ],

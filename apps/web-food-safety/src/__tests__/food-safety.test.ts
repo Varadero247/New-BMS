@@ -97,7 +97,7 @@ describe('requiresCorrectiveAction', () => {
 
 describe('computeHazardRisk', () => {
   it('1×1 = NEGLIGIBLE', () => expect(computeHazardRisk(1, 1)).toBe('NEGLIGIBLE'));
-  it('3×3 = MEDIUM', () => expect(computeHazardRisk(3, 3)).toBe('HIGH'));
+  it('3×3 = MEDIUM', () => expect(computeHazardRisk(3, 3)).toBe('MEDIUM'));
   it('5×5 = CRITICAL', () => expect(computeHazardRisk(5, 5)).toBe('CRITICAL'));
   for (let s = 1; s <= 5; s++) {
     for (let l = 1; l <= 5; l++) {

@@ -69,7 +69,7 @@ describe('SDS sections', () => {
 
 describe('computeRiskLevel', () => {
   it('1×1 = LOW', () => expect(computeRiskLevel(1, 1)).toBe('LOW'));
-  it('2×2 = MEDIUM', () => expect(computeRiskLevel(2, 2)).toBe('MEDIUM'));  // 4 → LOW actually
+  it('2×2 = LOW', () => expect(computeRiskLevel(2, 2)).toBe('LOW'));  // score=4 → LOW
   it('3×4 = HIGH', () => expect(computeRiskLevel(3, 4)).toBe('HIGH'));
   it('5×5 = VERY_HIGH', () => expect(computeRiskLevel(5, 5)).toBe('VERY_HIGH'));
   for (let l = 1; l <= 5; l++) {

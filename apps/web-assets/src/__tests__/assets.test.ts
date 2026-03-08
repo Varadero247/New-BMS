@@ -34,7 +34,14 @@ function decliningBalance(cost: number, rate: number, year: number): number {
 }
 
 function assetAge(purchaseDate: Date, now: Date): number {
-  return Math.floor((now.getTime() - purchaseDate.getTime()) / (365.25 * 86400000));
+  let years = now.getFullYear() - purchaseDate.getFullYear();
+  if (
+    now.getMonth() < purchaseDate.getMonth() ||
+    (now.getMonth() === purchaseDate.getMonth() && now.getDate() < purchaseDate.getDate())
+  ) {
+    years--;
+  }
+  return Math.max(0, years);
 }
 
 function maintenanceDue(lastMaintenance: Date, intervalDays: number, now: Date): boolean {

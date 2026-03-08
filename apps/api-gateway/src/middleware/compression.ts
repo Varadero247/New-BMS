@@ -44,13 +44,45 @@ export function compressionMiddleware(opts: CompressionOptions = {}) {
       return;
     }
 
+    const encoding = supportsGzip ? 'gzip' : 'deflate';
+
+    // Decide whether to compress based on content-type and existing encoding.
+    // Called from writeHead (before headers are flushed) and from end() if writeHead
+    // was not called directly. Returns true if compression was activated.
+    function setupCompression(): boolean {
+      const contentType = res.getHeader('content-type') as string | undefined;
+      const contentEncoding = res.getHeader('content-encoding');
+      if (contentEncoding || (contentType && skipTypes.some((t) => contentType.includes(t)))) {
+        return false;
+      }
+      res.setHeader('Content-Encoding', encoding);
+      res.removeHeader('Content-Length');
+      return true;
+    }
+
     const originalWrite = res.write.bind(res);
     const originalEnd = res.end.bind(res);
+    const resAny = res as unknown as Record<string, unknown>;
+    const originalWriteHead = typeof resAny['writeHead'] === 'function'
+      ? (resAny['writeHead'] as (...a: unknown[]) => unknown).bind(res)
+      : undefined;
 
     const rawChunks: Buffer[] = [];
     let intercepting = true;
+    let compressionDecided = false;
 
-    // Patch write NOW (before next()) so it's in place when the route handler runs.
+    // Patch writeHead: set Content-Encoding BEFORE headers are flushed to the wire.
+    if (originalWriteHead) {
+      resAny['writeHead'] = (statusCode: number, ...args: unknown[]): unknown => {
+        if (!compressionDecided) {
+          compressionDecided = true;
+          setupCompression();
+        }
+        return originalWriteHead(statusCode, ...args);
+      };
+    }
+
+    // Patch write to buffer body chunks.
     (res as unknown as { write: (...args: unknown[]) => boolean }).write = (
       chunk: unknown,
       ...rest: unknown[]
@@ -61,8 +93,7 @@ export function compressionMiddleware(opts: CompressionOptions = {}) {
       return true;
     };
 
-    // Patch end NOW. At call time headers are still mutable, so we can set
-    // Content-Encoding before anything hits the wire.
+    // Patch end: perform actual compression once the full body is available.
     (res as unknown as { end: (...args: unknown[]) => Response }).end = (
       chunk?: unknown,
       ...rest: unknown[]
@@ -76,30 +107,29 @@ export function compressionMiddleware(opts: CompressionOptions = {}) {
         rawChunks.push(chunk instanceof Buffer ? (chunk as Buffer) : Buffer.from(String(chunk)));
       }
 
-      // Restore originals so recursive calls are safe
+      // Restore originals so recursive calls are safe.
       res.write = originalWrite;
       res.end = originalEnd as typeof res.end;
+      if (originalWriteHead) resAny['writeHead'] = originalWriteHead;
 
       const rawBody = Buffer.concat(rawChunks);
 
-      // Decide whether to compress now that we have the full body and all headers
-      const contentType = res.getHeader('content-type') as string | undefined;
-      const contentEncoding = res.getHeader('content-encoding');
+      // If writeHead was never called, decide compression now.
+      if (!compressionDecided) {
+        compressionDecided = true;
+        setupCompression();
+      }
 
-      const shouldSkip =
-        !!contentEncoding ||
-        (contentType && skipTypes.some((t) => contentType.includes(t))) ||
-        rawBody.length < threshold;
-
-      if (shouldSkip) {
+      // Check if compression was activated and body meets size threshold.
+      const activeEncoding = res.getHeader('content-encoding') as string | undefined;
+      if (!activeEncoding || rawBody.length < threshold) {
+        if (activeEncoding && rawBody.length < threshold) {
+          // Body too small — undo the Content-Encoding set in writeHead.
+          res.removeHeader('Content-Encoding');
+        }
         originalEnd(rawBody);
         return res;
       }
-
-      // Headers not yet flushed — safe to set Content-Encoding here
-      const encoding = supportsGzip ? 'gzip' : 'deflate';
-      res.setHeader('Content-Encoding', encoding);
-      res.removeHeader('Content-Length');
 
       const stream = supportsGzip ? createGzip({ level }) : createDeflate({ level });
       const compressedChunks: Buffer[] = [];

@@ -3,7 +3,7 @@
 // Unauthorised copying, modification, or distribution is strictly prohibited.
 /** @type {import('jest').Config} */
 module.exports = {
-  preset: 'ts-jest',
+  transform: { '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }] },
   testEnvironment: 'node',
   testMatch: ['**/__tests__/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],

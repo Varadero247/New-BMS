@@ -14,6 +14,7 @@ jest.mock('@ims/database', () => ({
     },
     session: {
       create: jest.fn(),
+      upsert: jest.fn(),
       findFirst: jest.fn(),
       delete: jest.fn(),
       deleteMany: jest.fn(),
@@ -363,7 +364,7 @@ describe('Auth API Routes', () => {
 
     it('should refresh tokens successfully with valid refresh token', async () => {
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUser);
-      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.session.upsert as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .post('/api/auth/refresh')
@@ -442,17 +443,19 @@ describe('Auth API Routes', () => {
 
     it('should create a new session on successful refresh', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser);
-      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.session.upsert as jest.Mock).mockResolvedValueOnce({});
 
       await request(app).post('/api/auth/refresh').send({ refreshToken: 'valid-refresh-token' });
 
-      // FINDING-031: token stored as SHA-256 hash
-      expect(mockPrisma.session.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          userId: mockUser.id,
-          token: 'b3ca3f56ac8c98cd3b7cf59a1391c64462183f7c5fa4462805ada7c362919fd6',
+      // FINDING-031: access token stored as SHA-256 hash via session.upsert
+      expect(mockPrisma.session.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({
+            userId: mockUser.id,
+            token: 'b3ca3f56ac8c98cd3b7cf59a1391c64462183f7c5fa4462805ada7c362919fd6',
+          }),
         }),
-      });
+      );
     });
   });
 
