@@ -779,6 +779,8 @@ module.exports = {
   '<rootDir>/apps/mobile',
   // @ims/regional-data (added Mar 8, 2026 — Phase 141)
   '<rootDir>/packages/regional-data',
+  // @ims/chemical-register (added Mar 8, 2026 — Phase 142)
+  '<rootDir>/packages/chemical-register',
   ],
 
 

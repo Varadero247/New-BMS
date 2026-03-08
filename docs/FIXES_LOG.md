@@ -8,6 +8,60 @@
 ---
 
 
+## Phase 142 — `@ims/chemical-register` Source + Tests (March 8, 2026)
+
+### New: `packages/chemical-register/src/index.ts`
+The package had an empty `src/__tests__/` directory, a `tsconfig.json`, and a `package.json` with a "jest" key but **no source code**. Created full domain library with:
+- **Types**: `GhsPictogram` (9 variants), `SignalWord`, `PhysicalState` (8), `StorageClass` (10), `WasteClass` (5), `RiskLevel` (6), `WelStatus` (3), `MonitoringResult` (3), `DisposalRoute` (6)
+- **`GHS_PICTOGRAMS`** constant: 9 pictogram objects with code, label, hazardClass, minSignalWord
+- **`areStorageClassesIncompatible(a, b)`** — TRGS 510 simplified co-storage rules (symmetric)
+- **`calculateRiskScore(l, s)`** — COSHH 5×5 matrix (clamped to 1–5, rounded)
+- **`getRiskLevel(score)`** — maps 1–25 to VERY_LOW/LOW/MEDIUM/HIGH/VERY_HIGH/UNACCEPTABLE
+- **`riskLevelWeight(level)`** — numeric sort weight (1–6)
+- **`calculateWelPercentage(result, welLimit)`** — 1dp result, 0 when limit ≤ 0
+- **`getWelStatus(pct)`** — BELOW_WEL / AT_WEL (≥90%) / ABOVE_WEL (≥100%)
+- **`welStatusToMonitoringResult(status)`** — PASS/ADVISORY/FAIL
+- **`calculateSdsNextReviewDate(lifecycle)`** — adds reviewIntervalMonths (default 36) to revisionDate
+- **`isSdsNearingReview(lifecycle, daysAhead, now)`** — 0 ≤ diff ≤ daysAhead
+- **`isSdsOverdue(lifecycle, now)`** — next review date < now
+- **`isLowStock(item)`** — quantityOnHand ≤ minStockLevel (null → false)
+- **`isExpired(item, now)`** — expiryDate < now (null → false)
+- **`isExpiringWithin(item, daysAhead, now)`** — 0 ≤ diff ≤ daysAhead, excludes already-expired
+- **`generateChemRef/CoshhRef/SdsRef(year, seq)`** — CHEM-YYYY-NNN / COSHH-YYYY-NNN / SDS-YYYY-NNN
+- **`isValidCasNumber(cas)`** — CAS check-digit algorithm (stripped dashes, digit weighting)
+- **`recommendDisposalRoute(storageClass, wasteClass)`** — heuristic disposal route
+- **`calculateTwa(tasks[])`** — 8-hour TWA mg/m³ = Σ(h×c) / 8, rounded 3dp
+
+### New: `packages/chemical-register/src/__tests__/chemical-register.test.ts`
+117 tests:
+- `GHS_PICTOGRAMS`: all 9 codes have required fields, DANGER/WARNING signal-word split
+- `areStorageClassesIncompatible`: identity=false, 10 incompatible pairs (symmetric), NON_HAZARDOUS compatible with all
+- `calculateRiskScore`: multiply, clamping L<1/L>5/S<1/S>5, float rounding
+- `getRiskLevel`: all 12 boundary score cases
+- `riskLevelWeight`: monotonic ascending, VERY_LOW=1, UNACCEPTABLE=6
+- `calculateWelPercentage`: exact values, 1dp, zero/negative limit guard, result>WEL
+- `getWelStatus`: 6 boundary percentages
+- `welStatusToMonitoringResult`: all 3 statuses
+- `calculateSdsNextReviewDate`: 36-month default, custom 12-month, month overflow
+- `isSdsNearingReview`: within window, too far, already past, boundary day=0
+- `isSdsOverdue`: past/future review
+- `isLowStock`: null, equal, below, above
+- `isExpired`: null, past, future
+- `isExpiringWithin`: null, expired, within, beyond, boundary
+- `generateChemRef/CoshhRef/SdsRef`: format + padding
+- `isValidCasNumber`: 8 valid CAS numbers, 6 invalid cases (fixed: removed `0000-00-0` — technically passes check digit)
+- `recommendDisposalRoute`: 10 disposal routing rules
+- `calculateTwa`: empty, single task, multi-task, full 8h, 3dp rounding, zero concentration
+- Type contract invariants: all RiskLevel/WelStatus values covered, getRiskLevel range 1–25, pipeline consistency
+
+### Fix: Removed "jest" key from `package.json`
+Having both `jest.config.js` and a "jest" key in `package.json` causes "multiple configuration files" error. Removed the inline key; the new `jest.config.js` with `displayName: 'chemical-register'` takes over.
+
+### Added to root `jest.config.js`
+484th Jest project. **~1,221,376 unit tests / 1,122 suites / 484 Jest projects — ALL PASSING.**
+
+---
+
 ## Phase 141 — `@ims/regional-data` Tests (March 8, 2026)
 
 ### New: `packages/regional-data/jest.config.js` + `__tests__/regional-data.test.ts`
