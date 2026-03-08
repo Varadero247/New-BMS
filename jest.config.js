@@ -772,6 +772,9 @@ module.exports = {
 
   // api-billing service (added Mar 8, 2026 — Phase 164)
   '<rootDir>/apps/api-billing',
+
+  // web-partner-portal (added Mar 8, 2026 — Phase 165)
+  '<rootDir>/apps/web-partner-portal',
   ],
 
 

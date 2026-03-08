@@ -1,0 +1,14 @@
+/* Copyright (c) 2026 Nexara DMCC. All rights reserved. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #10b981;
+  --brand-dark: #059669;
+}
+
+body {
+  background-color: #030712;
+  color: #f9fafb;
+}
