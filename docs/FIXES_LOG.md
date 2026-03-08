@@ -8,6 +8,37 @@
 ---
 
 
+## Phase 157 — `@ims/templates` Comprehensive Tests (March 8, 2026)
+
+Created `packages/templates/__tests__/templates-data.test.ts` — 1,204 new tests covering the full `@ims/templates` package:
+
+**Parametric template integrity (192 × 6 = 1,152 tests):**
+Each of the 192 templates in `allTemplates` is tested for:
+- Code matches `TPL-XXX-NNN` pattern
+- Name and description non-empty strings
+- Module is a valid `TemplateModule` union value
+- Category is a valid `TemplateCategory` union value
+- Tags array with all non-empty strings
+- Field IDs globally unique within template, all field types valid
+
+**Cross-template invariants (9 tests):**
+- Total count = 192; all codes globally unique; every module represented; every template has ≥1 non-section field; no empty id/label; select/radio/multiselect have options; table fields have columns; all option values/labels non-empty; width values constrained to `full | half | third`
+
+**Renderer — table field type (8 tests):**
+- Column headers from `columns` definition; `field-table` class; 3-blank-row fallback when no data (`6` blank `<td>&nbsp;</td>`); actual data rows rendered; no blank rows when data present; HTML escaping in cell values; helpText; missing cell → empty string not "undefined"
+
+**Renderer — date/datetime (3 tests):**
+- `date` field formats as `en-GB` locale (DD/MM/YYYY); `datetime` includes date component; no "undefined" for empty values
+
+**Renderer — passthrough types (14 tests):**
+7 types × 2: `textarea`, `number`, `email`, `url`, `tel`, `signature`, `file` — renders value correctly; no "undefined" without value
+
+**Exporter — JSON format (9 tests), HTML format (5 tests), slug generation (4 tests)**
+
+**Result:** templates package 1,000 → **2,204 tests**.
+
+---
+
 ## Phase 156 — Remove 13 Duplicate Inline Jest Project Configs (March 8, 2026)
 
 **Root cause discovered:** Root `jest.config.js` had 13 algorithm packages registered twice:

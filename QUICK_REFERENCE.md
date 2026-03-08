@@ -276,7 +276,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 ## Run Tests
 
 ```bash
-pnpm test                                # All Jest tests (~1,220,970 across 1,144 suites / 489 projects — all passing)
+pnpm test                                # All Jest tests (~1,222,174 across 1,145 suites / 489 projects — all passing)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 40 modules, ~1,800+ assertions)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -380,7 +380,7 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
 - 44 Prisma schemas, ~597 database models
 - 398 shared packages (all with test suites ≥1,000 tests each)
-- **Tests**: **~1,220,970 Jest tests (1,144 suites / 489 projects)** + 40 integration test scripts (~1,800+ assertions) + 111 Jest integration tests — ALL PASSING, 0 failures
+- **Tests**: **~1,222,174 Jest tests (1,145 suites / 489 projects)** + 40 integration test scripts (~1,800+ assertions) + 111 Jest integration tests — ALL PASSING, 0 failures
 - **TypeScript**: 0 errors across all 44 APIs + 47 web apps + 398 packages (489 projects)
 - **E2E**: 48 Playwright spec files, 195 tests across all 45 modules
 - **Code Evaluation**: 100/100 composite score (Security 100, Architecture 100, Code Quality 100)

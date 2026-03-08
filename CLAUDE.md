@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Integrated Management System (IMS) monorepo with 44 API services, 47 web apps, and 398 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 44 Prisma schemas with ~597 database tables. ~1,220,970 unit tests across ~1,144 suites / 489 Jest projects (all passing).
+Integrated Management System (IMS) monorepo with 44 API services, 47 web apps, and 398 shared packages. Built with Next.js 15, Express.js, PostgreSQL/Prisma, Docker Compose. 44 Prisma schemas with ~597 database tables. ~1,222,174 unit tests across ~1,145 suites / 489 Jest projects (all passing).
 
 ## Known Issues & Fixes
 
@@ -218,7 +218,7 @@ testApp.use('/api/prefix', myRouter);
 ### Testing
 
 ```bash
-pnpm test                        # ~1,220,970 Jest unit tests (~1,144 suites / 489 projects)
+pnpm test                        # ~1,222,174 Jest unit tests (~1,145 suites / 489 projects)
 pnpm test:integration:ci         # 111 Jest integration tests (12 suites, real DB + Redis)
 ./scripts/test-all-modules.sh    # All integration tests (40 shell scripts, ~1,800+ assertions)
 ./scripts/test-hs-modules.sh     # H&S integration tests (~70)
