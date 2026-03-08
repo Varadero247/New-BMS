@@ -8,6 +8,35 @@
 ---
 
 
+## Phase 140 — `@ims/workflow-builder` Specification Tests (March 8, 2026)
+
+### New: `packages/workflow-builder/src/__tests__/workflow-builder.test.ts`
+193 new spec tests covering every exported function from `condition-evaluator.ts` and `workflow-validator.ts`:
+
+**`getFieldValue`** (17 tests) — flat fields, dot-notation nested paths (3 levels), missing fields, path through null/scalar, empty key.
+
+**`compareValues`** (72 tests) — all 11 operators: `equals`(9), `not_equals`(4), `contains`(6), `not_contains`(5), `greater_than`(4), `less_than`(3), `is_null`/`is_not_null`(10 × 2), `in`(3), `not_in`(3), `between`(8), unknown operator(1).
+
+**`evaluateCondition`** (6 tests) — flat/nested field evaluation, false condition, null field, missing field, array contains.
+
+**`evaluateConditions`** (13 tests) — empty array, single, AND chain, OR chain, default AND, 3-condition chain, OR short-circuit, nested context.
+
+**`validateTrigger`** (13+5 = 18 tests) — all 13 valid trigger types, missing type, unknown type, missing/null config, empty object.
+
+**`validateAction`** (14+12 = 26 tests) — all 14 valid action types, missing id/type, unknown type, missing config, delay/retryCount bounds, all 3 onError values, invalid onError.
+
+**`validateStep`** (7 tests) — valid step, missing id/name, empty actions, invalid action propagation, nextStepId, conditions.
+
+**`detectCircularDeps`** (8 tests) — linear, single, empty, self-reference, 2-step cycle, 3-step cycle, dangling nextStepId, diamond.
+
+**`validateWorkflow`** (25+ tests) — valid cases (4), required field errors (5), version validation (3), step error propagation (2), circular dep detection (3), complex multi-step (5).
+
+**Type constants + Integration scenarios** (18 tests) — TriggerType/ActionType/ConditionOperator uniqueness and counts; NCR escalation, risk auto-escalate, training overdue, CAPA deadline, audit due.
+
+Total package tests: 2,926 (2,733 pre-existing + 193 new). All passing.
+
+---
+
 ## Phase 139 — Mobile APAC Regional Screens (March 8, 2026)
 
 ### New: 3 APAC regional screens in `apps/mobile/src/screens/regional/`
