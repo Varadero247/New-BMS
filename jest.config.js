@@ -773,6 +773,8 @@ module.exports = {
   '<rootDir>/apps/web-training-portal',
   // Onboarding web app (added Mar 8, 2026 — Phase 135)
   '<rootDir>/apps/web-onboarding',
+  // Regional Dashboard (added Mar 8, 2026 — Phase 138)
+  '<rootDir>/apps/web-regional-dashboard',
   ],
 
 

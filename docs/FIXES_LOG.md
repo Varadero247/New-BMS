@@ -8,6 +8,27 @@
 ---
 
 
+## Phase 138 — web-regional-dashboard (APAC Intelligence Dashboard) (March 8, 2026)
+
+### New web app: `apps/web-regional-dashboard` (port 3048)
+Next.js 15 standalone dashboard for APAC regional intelligence — tax, ISO adoption, compliance, and country comparison data from `api-regional` (port 4055).
+
+**5 pages:**
+- `/` — Server component overview: summary KPI cards + region-grouped country tables
+- `/countries` — Client, sortable/filterable table with region chips and text search
+- `/taxes` — Client, 4-tab bar chart league table (Corp Tax, GST/VAT, WHT Dividends, Ease of Business)
+- `/iso` — Client, ISO standard search with popular-standard chips, adoption breakdown
+- `/compliance` — Client, regulatory matrix with per-dimension coverage %, clickable highlight columns
+
+**Infrastructure:**
+- Added `[web-regional-dashboard]=3048` to `scripts/start-all-web.sh`
+- Added `check_service 3048 "Regional Dashboard"` to `scripts/check-services.sh`
+- Added `apps/web-regional-dashboard` to root `jest.config.js`
+- 72 unit spec tests (`src/__tests__/regional-dashboard.spec.ts`) — all passing
+- Build: `pnpm build` produces standalone output with all 5 routes
+
+---
+
 ## Phase 137 — Country Comparison, Tax/Compliance Reports, HTTP Route Tests (March 8, 2026)
 
 ### New: 3 endpoints on `/api/region-config`
