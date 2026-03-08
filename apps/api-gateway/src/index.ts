@@ -537,7 +537,8 @@ const createServiceProxy = (
   serviceName: string,
   target: string,
   basePath: string,
-  errorMessage: string
+  errorMessage: string,
+  targetPath?: string
 ) => {
   const cb = createProxyCircuitBreaker({ name: serviceName });
 
@@ -546,7 +547,7 @@ const createServiceProxy = (
     changeOrigin: true,
     proxyTimeout: 30000,
     timeout: 30000,
-    pathRewrite: { [`^${basePath}`]: '/api' },
+    pathRewrite: { [`^${basePath}`]: targetPath ?? '/api' },
     onProxyReq: (proxyReq, req) => {
       addServiceToken(proxyReq);
       // Forward correlation ID to downstream services
@@ -950,6 +951,17 @@ app.use(
     'Regional Localisation service unavailable'
   )
 );
+app.use(
+  '/api/v1/region-config',
+  addVersionHeader('v1'),
+  createServiceProxy(
+    'RegionConfig',
+    SERVICES.regional,
+    '/api/v1/region-config',
+    'Regional Config service unavailable',
+    '/api/region-config'
+  )
+);
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -1293,6 +1305,17 @@ app.use(
     SERVICES.regional,
     '/api/regional',
     'Regional Localisation service unavailable'
+  )
+);
+app.use(
+  '/api/region-config',
+  deprecatedRoute('/api/v1/region-config'),
+  createServiceProxy(
+    'RegionConfig',
+    SERVICES.regional,
+    '/api/region-config',
+    'Regional Config service unavailable',
+    '/api/region-config'
   )
 );
 

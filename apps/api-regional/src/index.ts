@@ -44,6 +44,7 @@ import tradeAgreementsRouter from './routes/trade-agreements';
 import isoMappingsRouter from './routes/iso-mappings';
 import onboardingRouter from './routes/onboarding';
 import taxSummaryRouter from './routes/tax-summary';
+import regionConfigRouter from './routes/region-config';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4042;
@@ -81,6 +82,7 @@ app.use('/api/trade-agreements', tradeAgreementsRouter);
 app.use('/api/iso-mappings', isoMappingsRouter);
 app.use('/api/onboarding', onboardingRouter);
 app.use('/api/tax-summary', taxSummaryRouter);
+app.use('/api/region-config', regionConfigRouter);
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
