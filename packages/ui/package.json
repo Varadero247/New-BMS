@@ -31,6 +31,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@ims/regional-data": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "tailwind-merge": "^2.2.0"

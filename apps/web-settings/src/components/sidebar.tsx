@@ -30,6 +30,7 @@ import {
   Scale,
   FileText,
   Store,
+  Globe,
 } from 'lucide-react';
 
 const navigation = [
@@ -60,6 +61,7 @@ const navigation = [
   { name: 'Privacy (DSAR)', href: '/privacy', icon: ShieldAlert },
   { name: 'Legal (DPA)', href: '/legal', icon: Scale },
   { name: 'Audit Log', href: '/audit-log', icon: Shield },
+  { name: 'Regional & Compliance', href: '/regional', icon: Globe },
   { name: 'System Settings', href: '/system', icon: SettingsIcon },
 ];
 

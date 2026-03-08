@@ -7912,3 +7912,197 @@ model CustomRole {
   @@unique([name])
   @@map("custom_roles")
 }
+
+// ── REGIONAL LOCALISATION MODELS ──────────────────────────────────────────
+
+model ApacRegion {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  countries   ApacCountry[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model ApacCountry {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  name            String
+  region          ApacRegion @relation(fields: [regionId], references: [id])
+  regionId        String
+  currency        String
+  currencySymbol  String
+  locale          String
+  dateFormat      String
+  timezone        String
+  gstRate         Decimal?
+  taxSystem       String?
+  phonePrefix     String
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  legislation         ApacLegislation[]
+  financialRules      ApacFinancialRule[]
+  tradeAgreements     ApacCountryTradeAgreement[]
+  isoMappings         ApacIsoLegislationMapping[]
+  onboardingData      ApacOnboardingData[]
+
+  @@index([code])
+  @@index([regionId])
+}
+
+model ApacLegislation {
+  id              String    @id @default(cuid())
+  country         ApacCountry @relation(fields: [countryCode], references: [code])
+  countryCode     String
+  title           String
+  shortCode       String
+  category        ApacLegislationCategory
+  description     String    @db.Text
+  effectiveDate   DateTime?
+  lastAmended     DateTime?
+  governingBody   String
+  officialUrl     String?
+  relevantIsoStds String[]
+  isMandatory     Boolean   @default(false)
+  penaltyInfo     String?   @db.Text
+  complianceNotes String?   @db.Text
+  thresholdAmount Decimal?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  isoMappings     ApacIsoLegislationMapping[]
+
+  @@index([countryCode])
+  @@index([category])
+}
+
+enum ApacLegislationCategory {
+  WORKPLACE_SAFETY
+  ENVIRONMENTAL
+  DATA_PRIVACY
+  EMPLOYMENT
+  ANTI_CORRUPTION
+  FINANCIAL_REPORTING
+  CONSUMER_PROTECTION
+  IMPORT_EXPORT
+  QUALITY_STANDARDS
+  INFORMATION_SECURITY
+  FOOD_SAFETY
+  MEDICAL_DEVICES
+  ENERGY
+  ANTI_MONEY_LAUNDERING
+  OTHER
+}
+
+model ApacFinancialRule {
+  id                String    @id @default(cuid())
+  country           ApacCountry @relation(fields: [countryCode], references: [code])
+  countryCode       String
+  ruleType          ApacFinancialRuleType
+  name              String
+  rate              Decimal?
+  description       String    @db.Text
+  governingBody     String
+  filingFrequency   String?
+  filingDeadline    String?
+  thresholdAmount   Decimal?
+  thresholdCurrency String?
+  officialUrl       String?
+  isActive          Boolean   @default(true)
+  effectiveFrom     DateTime?
+  effectiveTo       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([countryCode])
+  @@index([ruleType])
+}
+
+enum ApacFinancialRuleType {
+  GST
+  VAT
+  SST
+  CORPORATE_TAX
+  WITHHOLDING_TAX
+  PAYROLL_TAX
+  STAMP_DUTY
+  CUSTOMS_DUTY
+  TRANSFER_PRICING
+  FINANCIAL_REPORTING
+  AUDIT_REQUIREMENT
+  OTHER
+}
+
+model ApacTradeAgreement {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  shortCode     String    @unique
+  description   String    @db.Text
+  effectiveDate DateTime?
+  officialUrl   String?
+  benefits      String[]
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  countries     ApacCountryTradeAgreement[]
+}
+
+model ApacCountryTradeAgreement {
+  country           ApacCountry        @relation(fields: [countryCode], references: [code])
+  countryCode       String
+  tradeAgreement    ApacTradeAgreement @relation(fields: [tradeAgreementId], references: [id])
+  tradeAgreementId  String
+  memberSince       DateTime?
+  notes             String?
+
+  @@id([countryCode, tradeAgreementId])
+}
+
+model ApacIsoLegislationMapping {
+  id              String          @id @default(cuid())
+  country         ApacCountry     @relation(fields: [countryCode], references: [code])
+  countryCode     String
+  legislation     ApacLegislation @relation(fields: [legislationId], references: [id])
+  legislationId   String
+  isoStandard     String
+  isoClause       String?
+  mappingNotes    String?         @db.Text
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([countryCode])
+  @@index([isoStandard])
+}
+
+model ApacOnboardingData {
+  id                  String      @id @default(cuid())
+  organisationId      String      @unique
+  primaryCountry      ApacCountry @relation(fields: [primaryCountryCode], references: [code])
+  primaryCountryCode  String
+  operatingCountries  String[]
+  selectedRegions     String[]
+  industryCode        String?
+  businessSize        ApacBusinessSize
+  annualRevenue       Decimal?
+  revenueCurrency     String?
+  preferredCurrency   String
+  preferredLocale     String
+  displayCurrency     String
+  taxRegistrationNo   String?
+  vatGstNumber        String?
+  completedAt         DateTime?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+}
+
+enum ApacBusinessSize {
+  MICRO
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}

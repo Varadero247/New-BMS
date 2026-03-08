@@ -8,6 +8,32 @@
 ---
 
 
+## Phase 135 — APAC Regional Localisation + Fixes (March 8, 2026)
+
+### New: APAC Regional Localisation System
+Complete, purely-additive APAC localisation across 24 countries.
+
+**`apps/api-regional` (port 4042):** Countries, regions, legislation, financial rules, trade agreements, ISO mappings, onboarding, tax summary routes. Seed: 5 regions, 24 countries, 86 legislation records, 57 financial rules, 14 trade agreements, 48 ISO mappings. Added to `start-all-services.sh`, `check-services.sh`, root `jest.config.js`, gateway routing, `.env`. 43 passing unit tests.
+
+**`packages/regional-data`:** 24 country data files (SG AU NZ MY ID TH PH VN BN MM KH LA CN JP KR HK TW IN BD LK FJ PG AE SA), trade agreements, ISO mappings, currency/locale/date utilities.
+
+**Prisma models (Apac-prefixed in schema.prisma):** `ApacRegion`, `ApacCountry`, `ApacLegislation`, `ApacFinancialRule`, `ApacTradeAgreement`, `ApacCountryTradeAgreement`, `ApacIsoLegislationMapping`, `ApacOnboardingData`.
+
+**UI components (`packages/ui/src/`):** `CountrySelector` (accessible combobox, flag emojis, region grouping), `LegislationCard`, `FinancialRuleCard`.
+
+**Settings Regional page (`apps/web-settings/src/app/regional/`):** Primary/operating countries, display currency, notification toggles. Sidebar "Regional & Compliance" with Globe icon.
+
+### Fix: Compression middleware — `apps/api-gateway/src/middleware/compression.ts`
+Old `res.writeHead`-hook approach fired mid-execution of `res.end()`, causing `Content-Encoding: gzip` with 0-byte body. Fix: patch `res.write`/`res.end` BEFORE `next()`, defer compression decision to inside patched `end()`. Result: 831 KB → 158 KB (81%), all 192 templates load.
+
+### Fix: Partners API route ordering — `apps/api-partners/src/index.ts`
+`writeRoleGuard` mounted before auth router blocked `/api/auth/login`. Fixed by moving auth router first.
+
+### Fix: Partners Portal crash — `apps/web-partners/src/app/page.tsx`
+`/api/deals` returns `{ data: { deals: [], summary: {} } }`. Code called `.filter()` on the object, crashing with "t.filter is not a function". Fixed: `data.data?.deals || []`, `data.data?.summary`, `payouts.availableBalance`.
+
+---
+
 ## Phase 134 — Specification Tests for All 38 Remaining Web Apps (March 6, 2026)
 
 Created `jest.config.js` + domain-specific `src/__tests__/*.test.ts` for every web app that previously had no test coverage. Each test file defines domain types, constants, and pure functions inline (no external imports), with for-loop driven `describe`/`it` blocks.

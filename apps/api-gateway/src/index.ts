@@ -149,6 +149,7 @@ const SERVICES = {
   emergency:
     process.env.SERVICE_EMERGENCY_URL || process.env.EMERGENCY_URL || 'http://localhost:4041',
   search: process.env.SERVICE_SEARCH_URL || process.env.SEARCH_URL || 'http://localhost:4050',
+  regional: process.env.SERVICE_REGIONAL_URL || process.env.REGIONAL_URL || 'http://localhost:4042',
 };
 
 // FINDING-027: Warn in production when service URLs fall back to localhost defaults
@@ -939,6 +940,16 @@ app.use(
   addVersionHeader('v1'),
   createServiceProxy('Search', SERVICES.search, '/api/v1/search', 'Global Search service unavailable')
 );
+app.use(
+  '/api/v1/regional',
+  addVersionHeader('v1'),
+  createServiceProxy(
+    'Regional',
+    SERVICES.regional,
+    '/api/v1/regional',
+    'Regional Localisation service unavailable'
+  )
+);
 
 // ============================================
 // Legacy Proxy Routes (deprecated)
@@ -1273,6 +1284,16 @@ app.use(
   '/api/search',
   deprecatedRoute('/api/v1/search'),
   createServiceProxy('Search', SERVICES.search, '/api/search', 'Global Search service unavailable')
+);
+app.use(
+  '/api/regional',
+  deprecatedRoute('/api/v1/regional'),
+  createServiceProxy(
+    'Regional',
+    SERVICES.regional,
+    '/api/regional',
+    'Regional Localisation service unavailable'
+  )
 );
 
 // Favourites (bookmarks)

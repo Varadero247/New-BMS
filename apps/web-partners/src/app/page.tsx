@@ -35,13 +35,14 @@ export default function DashboardPage() { const router = useRouter();
           api.get('/api/payouts'),
         ]);
 
-        if (dealsRes.status === 'fulfilled') { const dealsData = dealsRes.value.data.data || [];
+        if (dealsRes.status === 'fulfilled') { const dealsData = dealsRes.value.data.data?.deals || [];
           setDeals(dealsData); }
 
-        if (payoutsRes.status === 'fulfilled') { const payoutData = payoutsRes.value.data.data || {};
+        if (payoutsRes.status === 'fulfilled') { const payoutData = dealsRes.status === 'fulfilled' ? dealsRes.value.data.data?.summary || {} : {};
+          const payouts = payoutsRes.value.data.data || {};
           setPayoutSummary({ totalCommission: payoutData.totalCommission || 0,
             pendingCommission: payoutData.pendingCommission || 0,
-            availablePayout: payoutData.availablePayout || 0 }); }
+            availablePayout: payouts.availableBalance || 0 }); }
 
         setReferralLink(`${window.location.origin}/register?ref=${token.slice(-8)}`); } catch { /* Silently handle errors */ } finally { setLoading(false); } };
 

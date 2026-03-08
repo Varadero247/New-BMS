@@ -83,6 +83,7 @@ start_service "@ims/api-setup-wizard" "api-setup-wizard" "Setup Wizard API"
 start_service "@ims/api-chemicals" "api-chemicals" "Chemicals API"
 start_service "@ims/api-emergency" "api-emergency" "Emergency API"
 start_service "@ims/api-search" "api-search" "Global Search API"
+start_service "@ims/api-regional" "api-regional" "Regional & APAC API"
 
 sleep 3  # Give APIs time to start
 

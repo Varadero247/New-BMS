@@ -69,6 +69,7 @@ check_service 4039 "Setup Wizard API"
 check_service 4040 "Chemicals API"
 check_service 4041 "Emergency API"
 check_service 4050 "Global Search API"
+check_service 4042 "Regional & APAC API"
 
 echo ""
 echo "Web Applications:"

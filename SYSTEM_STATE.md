@@ -1,23 +1,23 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-03-06 (Phase 134 — specification test suites for all 38 remaining web apps; ~1,220,715 unit tests / 1,117 suites / 480 Jest projects — ALL PASSING)
+> Last updated: 2026-03-08 (Phase 135 — APAC Regional Localisation: api-regional:4042, packages/regional-data, 24 countries, 86 legislation records, 57 financial rules, 14 trade agreements, 48 ISO mappings; compression fix; partners portal fixes)
 
 ## Summary
 
 | Category                 | Count                                  |
 | ------------------------ | -------------------------------------- |
-| API Services             | 43 total (gateway:4000, 41 domain:4001–4041, search:4050) |
+| API Services             | 44 total (gateway:4000, 42 domain:4001–4042, search:4050) |
 | Web Applications         | 45                                                    |
-| Shared Packages          | 396                                                   |
+| Shared Packages          | 397 (incl. @ims/regional-data)                        |
 | Prisma Schemas           | 44                                                    |
-| Database Tables (models) | ~590                                                  |
+| Database Tables (models) | ~597 (+8 Apac-prefixed models in schema.prisma)       |
 | Scripts                  | 60+                                                   |
 | Unit Tests               | ~1,220,715 across 1,117 suites / 480 Jest projects (all passing) |
 | Integration Test Scripts | 40 shell scripts + 12 Jest suites (111 tests, `pnpm test:integration:ci`) |
 
 ---
 
-## API Services (43 + 1)
+## API Services (44 + 1)
 
 | Service            | Directory                      | Port | Standard/Domain                                      | Prisma Schema               |
 | ------------------ | ------------------------------ | ---- | ---------------------------------------------------- | --------------------------- |
@@ -64,6 +64,7 @@
 | Setup Wizard       | `apps/api-setup-wizard/`       | 4039 | Guided setup wizard                                  | `wizard.prisma`             |
 | Chemicals          | `apps/api-chemicals/`          | 4040 | ISO 11014, COSHH, GHS/CLP, REACH                     | `chemicals.prisma`          |
 | Emergency          | `apps/api-emergency/`          | 4041 | ISO 22320, ISO 22301, FSO 2005, BSA 2022             | `emergency.prisma`          |
+| Regional / APAC    | `apps/api-regional/`           | 4042 | APAC localisation: 24 countries, legislation, tax, trade agreements, ISO mappings | `schema.prisma` (Apac* models) |
 | Search             | `apps/api-search/`             | 4050 | Global Search microservice (cross-domain full-text)  | —                           |
 
 ---

@@ -74,9 +74,9 @@ app.get('/ready', async (_req, res) => {
 });
 app.get('/metrics', metricsHandler);
 
-// Public routes
-app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
+// Public routes (auth must come before the role guard)
 app.use('/api/auth', authRouter);
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 
 // Protected routes
 app.use('/api/profile', authenticatePartner, profileRouter);

@@ -209,6 +209,8 @@ module.exports = {
     '<rootDir>/packages/cyber-security',
     // Global Search microservice
     '<rootDir>/apps/api-search',
+    // APAC Regional Localisation service
+    '<rootDir>/apps/api-regional',
     // Q2–Q4 new packages (batch 3) — AI/form/vision/chain
     '<rootDir>/packages/ai-autofill',
     '<rootDir>/packages/form-builder',
