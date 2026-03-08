@@ -11,6 +11,8 @@ import {
   getMandatoryLegislation,
   getISOAdoptionStatus,
   compareRegions,
+  compareCountries,
+  buildTaxLeagueTable,
   calculateCorporateTax,
   calculateGST,
   calculateWithholdingTax,
@@ -19,6 +21,8 @@ import {
 } from '@ims/regional-data';
 
 const router = express.Router();
+
+// ─── Fixed paths FIRST — must precede all /:code* routes ─────────────────────
 
 // GET /api/region-config — list all region configs (summary, no legislation array)
 router.get('/', (_req, res) => {
@@ -40,6 +44,94 @@ router.get('/', (_req, res) => {
   }));
   res.json({ success: true, data: summary, meta: { total: summary.length } });
 });
+
+// GET /api/region-config/compare/iso/:standard — compare ISO adoption across all countries
+router.get('/compare/iso/:standard', (req, res) => {
+  const standard = decodeURIComponent(req.params.standard);
+  const comparison = compareRegions(allRegionConfigs, standard);
+  const adopted = comparison.filter((c) => c.adoptionStatus !== 'NOT_ADOPTED');
+  return res.json({
+    success: true,
+    data: {
+      isoStandard: standard,
+      comparison,
+      adoptedCount: adopted.length,
+      totalCountries: comparison.length,
+    },
+    meta: { total: comparison.length },
+  });
+});
+
+// GET /api/region-config/compare/countries?codes=SG,AU,MY — side-by-side country comparison
+router.get('/compare/countries', (req, res) => {
+  const raw = (req.query.codes as string) || '';
+  const requestedCodes = raw
+    .split(',')
+    .map((c) => c.trim().toUpperCase())
+    .filter(Boolean);
+
+  const configs =
+    requestedCodes.length > 0
+      ? requestedCodes.map((code) => getRegionConfig(code)).filter((c): c is NonNullable<typeof c> => c !== undefined)
+      : allRegionConfigs;
+
+  const notFound = requestedCodes.filter((code) => getRegionConfig(code) === undefined);
+
+  return res.json({
+    success: true,
+    data: {
+      countries: compareCountries(configs),
+      notFound, // always present; empty array when all codes found
+    },
+    meta: { total: configs.length },
+  });
+});
+
+// GET /api/region-config/report/tax — ranked tax comparison across all 20 countries
+router.get('/report/tax', (_req, res) => {
+  const table = buildTaxLeagueTable(allRegionConfigs);
+  return res.json({
+    success: true,
+    data: {
+      rankedByCorpTax: table.byCorpTax.map((r, i) => ({ rank: i + 1, ...r })),
+      rankedByGst: table.byGst.map((r, i) => ({ rank: i + 1, ...r })),
+      rankedByWithholdingDividends: table.byWithholdingDividends.map((r, i) => ({ rank: i + 1, ...r })),
+      rankedByEaseOfBusiness: table.byEaseOfBusiness.map((r, i) => ({ rank: i + 1, ...r })),
+      summary: table.summary,
+    },
+    meta: { total: allRegionConfigs.length },
+  });
+});
+
+// GET /api/region-config/report/compliance — compliance requirements across all countries
+router.get('/report/compliance', (_req, res) => {
+  const rows = allRegionConfigs.map((c) => ({
+    countryCode: c.countryCode,
+    countryName: c.countryName,
+    tier: c.tier,
+    region: c.region,
+    regulatoryBodiesCount: c.legislation.regulatoryBodies.length,
+    reportingRequirements: c.legislation.reportingRequirements,
+    auditRequirements: c.legislation.auditRequirements,
+    mandatoryLawsCount: c.legislation.primaryLaws.filter((l) => l.isMandatory).length,
+    totalLawsCount: c.legislation.primaryLaws.length,
+    isoStandardsAdopted: c.isoContext.adoptedStandards.length,
+    accreditationBody: c.isoContext.accreditationBody,
+    dataProtectionAuthority: c.compliance.dataProtectionAuthority,
+    dataRetentionYears: c.compliance.dataRetentionYears,
+    dueDiligenceRequirements: c.compliance.dueDiligenceRequirements,
+    whistleblowerProtection: c.compliance.whistleblowerProtection,
+    modernSlaveryAct: c.compliance.modernSlaveryAct,
+    esgRequirements: c.compliance.esgRequirements,
+  }));
+  return res.json({
+    success: true,
+    data: rows,
+    meta: { total: rows.length },
+  });
+});
+
+// ─── Parameterised routes — after all fixed paths ─────────────────────────────
 
 // GET /api/region-config/:code — full config for a country code
 router.get('/:code', (req, res) => {
@@ -203,27 +295,11 @@ router.post('/:code/tax-calculate', (req, res) => {
   }
 
   if (typeof salaryAmount === 'number' && salaryAmount > 0) {
-    result.payrollTax = calculateCPF(salaryAmount, config);
+    const cpf = calculateCPF(salaryAmount, config);
+    if (cpf !== null) result.payrollTax = cpf;
   }
 
   return res.json({ success: true, data: result });
-});
-
-// GET /api/region-config/compare/iso/:standard — compare ISO adoption across all countries
-router.get('/compare/iso/:standard', (req, res) => {
-  const standard = decodeURIComponent(req.params.standard);
-  const comparison = compareRegions(allRegionConfigs, standard);
-  const adopted = comparison.filter((c) => c.adoptionStatus !== 'NOT_ADOPTED');
-  return res.json({
-    success: true,
-    data: {
-      isoStandard: standard,
-      comparison,
-      adoptedCount: adopted.length,
-      totalCountries: comparison.length,
-    },
-    meta: { total: comparison.length },
-  });
 });
 
 export default router;

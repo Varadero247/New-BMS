@@ -104,6 +104,7 @@ export { formatCurrency as formatRegionCurrency } from './utils/currency-formatt
 export * from './utils/date-formatter';
 export * from './utils/tax-calculator';
 export * from './utils/legislation-matcher';
+export * from './utils/comparison';
 
 // ─── Aggregate array and lookup ───────────────────────────────────────────────
 import { sg } from './regions/sg';
