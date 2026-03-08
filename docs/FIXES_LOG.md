@@ -8,6 +8,34 @@
 ---
 
 
+## Phase 160 — `@ims/regulatory-feed` Source-Integrity, Relevance-Scoring, and Service Tests (March 8, 2026)
+
+Created `packages/regulatory-feed/__tests__/regulatory-feed-data.test.ts` — 117 new tests.
+
+**Per-source integrity (8 × 6 = 48 tests):**
+All 8 REGULATORY_SOURCES verified: id matches key, non-empty name/description, https:// URL, valid Jurisdiction value, valid updateFrequency (daily|weekly|monthly), non-empty categories array.
+
+**calculateRelevance scoring (29 tests):**
+Jurisdiction (30 pts): exact pair match, GLOBAL org always matches, EU regulation counts for UK org, no-match = 0.
+Standards (25 pts proportional): proportional to overlap count, title/description word matching, no-match = 0.
+Category (20 pts proportional): full overlap = 20, partial proportional, no overlap = 0.
+Industry (15 pts): keyword match, description word match, no match = 0.
+Recency bonus: 0d=10, 30d=10, 60d=5, 90d=5, 200d=2, 365d=2, 400d=0.
+Score bounds: non-negative integer, max 100 achievable, min 0 achievable, always ≤ 100.
+
+**filterRelevant (6 tests):**
+Empty input → empty output; descending sort; default threshold = 30; threshold = 0 includes all; threshold = 100 max-score only; all results ≥ threshold.
+
+**RegulatoryFeedService (16 tests):**
+getById undefined for unknown; addRegulation roundtrip; addRegulations + getAll; getLatest throws for unknown source, empty-source result, newest-first sort, limit, default limit = 10; searchRegulations single term, multi-term AND logic, all-match; importToLegalRegister fail (unknown), success (known); getCountBySource.
+
+**getSourcesByJurisdiction / getSourcesByCategory (11 tests):**
+UK → 3 sources (uk_hse, uk_ea, uk_mhra); US → 2 (us_osha, us_epa); UAE → 2 (uae_mohre, uae_dm); EU → 1 (eu_oj); unknown → []. health-safety ≥ 4 sources; environment ≥ 2; medical-devices = uk_mhra; unknown → []; returned sources all include requested category.
+
+**Result:** regulatory-feed: 1,000 → 1,117 tests. **~1,222,935 unit tests / 1,148 suites / 489 Jest projects — ALL PASSING.**
+
+---
+
 ## Phase 159 — `@ims/standards-convergence` Data-Integrity and Computation Tests (March 8, 2026)
 
 Created `packages/standards-convergence/__tests__/convergence-data.test.ts` — 216 new tests.
