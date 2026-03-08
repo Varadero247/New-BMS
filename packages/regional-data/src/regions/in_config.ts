@@ -1,0 +1,122 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+import type { RegionConfig } from '../types/region-config.types';
+
+// Note: exported as `india` because `in` is a reserved word in JavaScript/TypeScript
+export const india: RegionConfig = {
+  countryCode: 'IN',
+  countryName: 'India',
+  region: 'SOUTH_ASIA',
+  tier: 2,
+  currency: { code: 'INR', symbol: '₹', name: 'Indian Rupee', decimals: 2, symbolPosition: 'before', thousandsSeparator: ',', decimalSeparator: '.' },
+  dateFormat: 'DD/MM/YYYY',
+  numberFormat: { thousandsSeparator: ',', decimalSeparator: '.', grouping: 2 },
+  timezone: ['Asia/Kolkata'],
+  languages: [
+    { code: 'hi', name: 'Hindi', isOfficial: true, isPrimary: true, script: 'Deva' },
+    { code: 'en-IN', name: 'English', isOfficial: true, isPrimary: false, script: 'Latn' },
+    { code: 'ta', name: 'Tamil', isOfficial: false, isPrimary: false, script: 'Taml' },
+    { code: 'te', name: 'Telugu', isOfficial: false, isPrimary: false, script: 'Telu' },
+    { code: 'kn', name: 'Kannada', isOfficial: false, isPrimary: false, script: 'Knda' },
+  ],
+  finance: {
+    corporateTaxRate: 0.22,
+    gstVatRate: 0.18,
+    gstVatName: 'GST',
+    gstVatRegistrationThreshold: 2000000,
+    witholdingTaxRates: { dividends: 0.10, interest: 0.10, royalties: 0.10, services: 0.10 },
+    payrollTax: { employeeRate: 0.12, employerRate: 0.135, name: 'PF/EPF & ESI', ceiling: 15000 },
+    transferPricingRules: true,
+    thinCapitalisationRules: true,
+    taxTreatyNetwork: ['SG', 'AU', 'NZ', 'JP', 'CN', 'KR', 'MY', 'TH', 'PH', 'ID', 'VN', 'GB', 'US', 'DE', 'FR', 'CA'],
+    fiscalYearEnd: 'Mar 31',
+    filingDeadlines: { corporateTax: 'Oct 31 (audit required); Jul 31 (no audit)', gstVat: 'Monthly (20th GSTR-3B); Annual GSTR-9', employeeTax: 'Jun 30 (Form 16 by May 31)' },
+  },
+  legislation: {
+    primaryLaws: [
+      {
+        shortCode: 'CW19-IN', title: 'Code on Wages, 2019', jurisdiction: 'India', category: 'EMPLOYMENT',
+        summary: 'Consolidates minimum wages, payment of wages, payment of bonus, and equal remuneration laws.',
+        keyRequirements: ['Minimum wage compliance', 'Timely wage payment', 'Equal remuneration', 'Overtime at double rate', 'Annual bonus (8.33% of wages)'],
+        effectiveDate: '2021-01-01', lastAmended: '2021-01-01',
+        officialUrl: 'https://labour.gov.in',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'DPDPA23-IN', title: 'Digital Personal Data Protection Act, 2023', jurisdiction: 'India', category: 'DATA_PRIVACY',
+        summary: 'Comprehensive personal data protection legislation; rules under development.',
+        keyRequirements: ['Lawful basis for processing', 'Consent management', 'Data fiduciary obligations', 'Cross-border transfer to approved countries', 'Breach notification (72 hours)', 'Data Principal rights'],
+        effectiveDate: '2023-08-11', lastAmended: '2023-08-11',
+        officialUrl: 'https://meity.gov.in',
+        relatedISOStandards: ['ISO 27001:2022'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'FACA-IN', title: 'Factories Act, 1948', jurisdiction: 'India', category: 'HSE',
+        summary: 'Regulates working conditions in factories, including safety, health, and welfare.',
+        keyRequirements: ['Factory licensing', 'Safety officer appointment', 'Health and safety committee', 'Incident reporting to Chief Inspector', 'Health provisions for workers'],
+        effectiveDate: '1948-09-23', lastAmended: '2022-01-01',
+        officialUrl: 'https://labour.gov.in',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['manufacturing'] ,
+      },
+      {
+        shortCode: 'EPA86-IN', title: 'Environment (Protection) Act, 1986', jurisdiction: 'India', category: 'ENVIRONMENT',
+        summary: 'Framework legislation for environmental protection and pollution control.',
+        keyRequirements: ['EIA for development projects', 'Consent to establish and operate (NOC)', 'Effluent and emission standards', 'Hazardous waste management'],
+        effectiveDate: '1986-11-19', lastAmended: '2022-01-01',
+        officialUrl: 'https://moef.gov.in',
+        relatedISOStandards: ['ISO 14001:2015'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'PCA-IN', title: 'Prevention of Corruption Act, 1988', jurisdiction: 'India', category: 'ANTI_CORRUPTION',
+        summary: 'Criminalises bribery of public servants and corruption in public life.',
+        keyRequirements: ['Anti-corruption policy', 'Gifts and hospitality controls', 'Third-party due diligence', 'Whistleblower mechanisms'],
+        officialUrl: 'https://cbi.gov.in',
+        relatedISOStandards: ['ISO 37001:2016'], isMandatory: false, applicableTo: ['all'],
+      },
+    ],
+    regulatoryBodies: [
+      { name: 'Ministry of Labour and Employment', acronym: 'MoLE', website: 'https://labour.gov.in', jurisdiction: ['EMPLOYMENT', 'HSE'] },
+      { name: 'Ministry of Electronics and Information Technology', acronym: 'MeitY', website: 'https://meity.gov.in', jurisdiction: ['DATA_PRIVACY', 'INFORMATION_SECURITY'] },
+      { name: 'Ministry of Environment, Forest and Climate Change', acronym: 'MoEFCC', website: 'https://moef.gov.in', jurisdiction: ['ENVIRONMENT'] },
+      { name: 'Securities and Exchange Board of India', acronym: 'SEBI', website: 'https://www.sebi.gov.in', jurisdiction: ['FINANCIAL', 'CORPORATE'] },
+    ],
+    reportingRequirements: ['MCA annual return', 'Income Tax return', 'GST returns (GSTR-1, 3B, 9)', 'SEBI disclosures (listed)', 'EPFO/ESIC monthly filings', 'State Pollution Control Board returns'],
+    auditRequirements: 'Mandatory for companies with paid-up capital >INR 10M or turnover >INR 100M',
+  },
+  isoContext: {
+    adoptedStandards: [
+      { standard: 'ISO 9001:2015', localStandard: 'IS/ISO 9001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV India', 'BSI India', 'DNV India'], notes: 'Large number of certifications; common in IT/ITES, automotive, and pharma sectors' },
+      { standard: 'ISO 14001:2015', localStandard: 'IS/ISO 14001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV India', 'BSI'], notes: 'Growing adoption especially in manufacturing and pharma exports' },
+      { standard: 'ISO 45001:2018', localStandard: 'IS/ISO 45001:2019', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV India', 'BSI'], notes: 'Growing in IT, construction, and manufacturing' },
+      { standard: 'ISO 27001:2022', adoptionStatus: 'ADOPTED', certificationBodies: ['BSI India', 'Bureau Veritas', 'TÜV India'], mandatoryForSectors: ['financial'], notes: 'RBI and SEBI cybersecurity frameworks align with ISO 27001' },
+    ],
+    certificationBodies: ['Bureau Veritas India', 'SGS India', 'TÜV India', 'BSI India', 'DNV India', 'Lloyd\'s Register India'],
+    accreditationBody: 'National Accreditation Board for Certification Bodies (NABCB)',
+    notes: 'India uses IS (Indian Standards) which adopt ISO. NABCB is the national accreditation body under QCI.',
+  },
+  compliance: {
+    mandatoryReporting: ['MCA annual return', 'ITD income tax return', 'SEBI quarterly and annual filings (listed)', 'RBI regulatory reports (banks)', 'GST returns', 'EPFO/ESIC contributions'],
+    esgRequirements: 'SEBI requires top 1,000 listed companies to publish Business Responsibility and Sustainability Report (BRSR). India has mandatory CSR spending (2% of net profit) for qualifying companies.',
+    sustainabilityFrameworks: ['GRI Standards', 'SEBI BRSR', 'TCFD', 'National Voluntary Guidelines (NVGs)', 'SDGs'],
+    dataProtectionAuthority: 'Data Protection Board of India (under MeitY)',
+    dataRetentionYears: 7,
+    crossBorderDataTransfer: 'Permitted to approved countries (whitelist approach under DPDPA 2023)',
+    whistleblowerProtection: true,
+    modernSlaveryAct: false,
+    dueDiligenceRequirements: 'No mandatory human rights due diligence; SEBI BRSR supply chain ESG disclosure requirements for listed companies',
+  },
+  business: {
+    companyTypes: ['Private Limited Company (Pvt Ltd)', 'Public Limited Company (Ltd)', 'One Person Company (OPC)', 'LLP', 'Sole Proprietorship', 'Branch Office', 'Liaison Office', 'Project Office'],
+    minShareCapital: 100000,
+    incorporationTime: '3-7 business days',
+    businessRegistrationBody: 'Ministry of Corporate Affairs (MCA) — Registrar of Companies',
+    easeOfDoingBusinessRank: 63,
+    freeTradeZones: ['SEEPZ (Mumbai)', 'Noida SEZ', 'Kandla SEZ', 'Cochin SEZ', 'GIFT City (Gandhinagar)', 'Multiple State SEZs'],
+    importDutyFramework: 'Varied tariff rates (average 13.8%). India-ASEAN FTA, India-CECA (Singapore) apply. Significant reduction for FTZ/SEZ importers.',
+    exportControls: ['SCOMET list (Special Chemicals, Organisms, Materials, Equipment, Technologies)', 'DGFT export licensing'],
+    ipProtectionRating: 'Moderate — IPAB protection; enforcement improving',
+    corruptionPerceptionsIndex: 40,
+  },
+};

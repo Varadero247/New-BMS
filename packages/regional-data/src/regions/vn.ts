@@ -1,0 +1,115 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+import type { RegionConfig } from '../types/region-config.types';
+
+export const vn: RegionConfig = {
+  countryCode: 'VN',
+  countryName: 'Vietnam',
+  region: 'ASEAN',
+  tier: 1,
+  currency: { code: 'VND', symbol: '₫', name: 'Vietnamese Dong', decimals: 0, symbolPosition: 'after', thousandsSeparator: '.', decimalSeparator: ',' },
+  dateFormat: 'DD/MM/YYYY',
+  numberFormat: { thousandsSeparator: '.', decimalSeparator: ',', grouping: 3 },
+  timezone: ['Asia/Ho_Chi_Minh'],
+  languages: [
+    { code: 'vi', name: 'Vietnamese', isOfficial: true, isPrimary: true, script: 'Latn' },
+  ],
+  finance: {
+    corporateTaxRate: 0.20,
+    gstVatRate: 0.10,
+    gstVatName: 'VAT',
+    gstVatRegistrationThreshold: 0,
+    witholdingTaxRates: { dividends: 0.05, interest: 0.05, royalties: 0.10, services: 0.05 },
+    payrollTax: { employeeRate: 0.105, employerRate: 0.215, name: 'Social Insurance', ceiling: undefined },
+    transferPricingRules: true,
+    thinCapitalisationRules: true,
+    taxTreatyNetwork: ['SG', 'AU', 'NZ', 'JP', 'CN', 'KR', 'IN', 'MY', 'TH', 'PH', 'ID', 'GB', 'US', 'DE', 'FR'],
+    fiscalYearEnd: 'Dec 31',
+    filingDeadlines: { corporateTax: 'Mar 31 (final); 30 days after quarter end', gstVat: 'Monthly/Quarterly', employeeTax: 'Mar 31' },
+  },
+  legislation: {
+    primaryLaws: [
+      {
+        shortCode: 'LC19-VN', title: 'Labour Code 2019 (Law No. 45/2019/QH14)', jurisdiction: 'Vietnam', category: 'EMPLOYMENT',
+        summary: 'Comprehensive labour law governing employment relationships, working conditions, and collective bargaining.',
+        keyRequirements: ['Labour contracts', 'Working hours (48/week)', 'Annual leave (12 days minimum)', 'Probation periods', 'Trade union rights'],
+        effectiveDate: '2021-01-01', lastAmended: '2021-01-01',
+        officialUrl: 'https://www.molisa.gov.vn',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'CSL22-VN', title: 'Cybersecurity Law (Law No. 24/2018/QH14)', jurisdiction: 'Vietnam', category: 'INFORMATION_SECURITY',
+        summary: 'Regulates cybersecurity activities, data localisation, and online content.',
+        keyRequirements: ['Data localisation for certain sectors', 'Cybersecurity incident reporting', 'User data protection', 'Content moderation obligations'],
+        effectiveDate: '2019-01-01', lastAmended: '2019-01-01',
+        officialUrl: 'https://www.mic.gov.vn',
+        relatedISOStandards: ['ISO 27001:2022'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'OSH15-VN', title: 'Law on Occupational Safety and Health (Law No. 84/2015/QH13)', jurisdiction: 'Vietnam', category: 'HSE',
+        summary: 'Framework for workplace safety and health management.',
+        keyRequirements: ['Risk assessment', 'Safety training', 'Incident reporting to MOLISA', 'Medical examination', 'OSH council (>300 employees)'],
+        effectiveDate: '2016-07-01', lastAmended: '2020-01-01',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'EP20-VN', title: 'Law on Environmental Protection (Law No. 72/2020/QH14)', jurisdiction: 'Vietnam', category: 'ENVIRONMENT',
+        summary: 'Comprehensive environmental protection legislation effective January 2022.',
+        keyRequirements: ['Environmental Impact Assessment', 'Environmental licence', 'Waste management plan', 'GHG emission inventory', 'Carbon market participation'],
+        effectiveDate: '2022-01-01', lastAmended: '2022-01-01',
+        relatedISOStandards: ['ISO 14001:2015'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'ACL18-VN', title: 'Anti-Corruption Law (Law No. 36/2018/QH14)', jurisdiction: 'Vietnam', category: 'ANTI_CORRUPTION',
+        summary: 'Strengthened anti-corruption framework extending to private sector.',
+        keyRequirements: ['Anti-corruption management system', 'Declaration of assets', 'Code of conduct', 'Gift policies'],
+        effectiveDate: '2019-07-01', lastAmended: '2019-07-01',
+        relatedISOStandards: ['ISO 37001:2016'], isMandatory: true, applicableTo: ['all'],
+      },
+    ],
+    regulatoryBodies: [
+      { name: 'Ministry of Labour, Invalids and Social Affairs', acronym: 'MOLISA', website: 'https://www.molisa.gov.vn', jurisdiction: ['EMPLOYMENT', 'HSE'] },
+      { name: 'Ministry of Information and Communications', acronym: 'MIC', website: 'https://www.mic.gov.vn', jurisdiction: ['INFORMATION_SECURITY', 'DATA_PRIVACY'] },
+      { name: 'Ministry of Natural Resources and Environment', acronym: 'MONRE', website: 'https://www.monre.gov.vn', jurisdiction: ['ENVIRONMENT'] },
+      { name: 'Government Inspectorate', acronym: 'TTCP', website: 'https://www.thanhtra.gov.vn', jurisdiction: ['ANTI_CORRUPTION'] },
+    ],
+    reportingRequirements: ['DPI business registration renewal', 'GDT tax filings', 'MOF financial reporting (large enterprises)', 'SSC disclosure (listed)', 'MOLISA labour reports'],
+    auditRequirements: 'Mandatory for foreign-invested enterprises and state-owned enterprises; optional for local enterprises above certain thresholds',
+  },
+  isoContext: {
+    adoptedStandards: [
+      { standard: 'ISO 9001:2015', localStandard: 'TCVN ISO 9001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV Rheinland', 'Intertek'], notes: 'Required for export markets and government procurement' },
+      { standard: 'ISO 14001:2015', localStandard: 'TCVN ISO 14001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV Rheinland'], notes: 'Growing in manufacturing sector' },
+      { standard: 'ISO 45001:2018', localStandard: 'TCVN ISO 45001:2019', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV Rheinland'], notes: 'Aligned with OSH Law 2015' },
+      { standard: 'ISO 27001:2022', adoptionStatus: 'ADOPTED', certificationBodies: ['BSI', 'Bureau Veritas'], notes: 'Growing adoption in banking and tech sectors' },
+    ],
+    certificationBodies: ['Bureau Veritas Vietnam', 'SGS Vietnam', 'TÜV Rheinland Vietnam', 'Intertek Vietnam', 'BSI'],
+    accreditationBody: 'Bureau of Accreditation (BoA) — Ministry of Science and Technology',
+    notes: 'Vietnam uses TCVN standards which adopt ISO standards. BoA is the national accreditation body.',
+  },
+  compliance: {
+    mandatoryReporting: ['DPI annual business report', 'GDT tax returns', 'MOLISA labour utilisation reports', 'SSC quarterly reports (listed)', 'SBV reporting (banking)'],
+    esgRequirements: 'HoSE and HNX require sustainability reporting for listed companies. Vietnam National Green Growth Strategy drives ESG adoption.',
+    sustainabilityFrameworks: ['GRI Standards', 'Vietnam National Green Growth Strategy', 'TCFD', 'SDGs'],
+    dataProtectionAuthority: 'Ministry of Information and Communications (MIC)',
+    dataRetentionYears: 5,
+    crossBorderDataTransfer: 'Restricted for certain sensitive data; cybersecurity law requires data localisation for specific categories',
+    whistleblowerProtection: true,
+    modernSlaveryAct: false,
+    dueDiligenceRequirements: 'No mandatory human rights due diligence; voluntary frameworks encouraged for export-oriented industries',
+  },
+  business: {
+    companyTypes: ['Limited Liability Company (LLC)', 'Joint-Stock Company (JSC)', 'Sole Proprietorship', 'Partnership', 'Branch Office', 'Representative Office'],
+    minShareCapital: 0,
+    incorporationTime: '3-5 business days',
+    businessRegistrationBody: 'Department of Planning and Investment (DPI)',
+    easeOfDoingBusinessRank: 70,
+    freeTradeZones: ['Binh Duong Smart City', 'Long An Industrial Parks', 'Chu Lai Open Economic Zone', 'Da Nang Hi-Tech Park'],
+    importDutyFramework: 'Varied tariff rates. AFTA, EVFTA, CPTPP provide preferential rates. Import duties reduced under FTAs.',
+    exportControls: ['Decree on Export/Import Management', 'Strategic goods licensing'],
+    ipProtectionRating: 'Moderate — enforcement improving',
+    corruptionPerceptionsIndex: 41,
+  },
+};

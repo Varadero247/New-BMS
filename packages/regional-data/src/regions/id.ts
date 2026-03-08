@@ -1,0 +1,116 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+import type { RegionConfig } from '../types/region-config.types';
+
+export const id: RegionConfig = {
+  countryCode: 'ID',
+  countryName: 'Indonesia',
+  region: 'ASEAN',
+  tier: 1,
+  currency: { code: 'IDR', symbol: 'Rp', name: 'Indonesian Rupiah', decimals: 0, symbolPosition: 'before', thousandsSeparator: '.', decimalSeparator: ',' },
+  dateFormat: 'DD/MM/YYYY',
+  numberFormat: { thousandsSeparator: '.', decimalSeparator: ',', grouping: 3 },
+  timezone: ['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'],
+  languages: [
+    { code: 'id', name: 'Bahasa Indonesia', isOfficial: true, isPrimary: true, script: 'Latn' },
+  ],
+  finance: {
+    corporateTaxRate: 0.22,
+    gstVatRate: 0.11,
+    gstVatName: 'PPN (VAT)',
+    gstVatRegistrationThreshold: 4800000000,
+    witholdingTaxRates: { dividends: 0.10, interest: 0.15, royalties: 0.15, services: 0.02 },
+    payrollTax: { employeeRate: 0.02, employerRate: 0.04, name: 'BPJS Ketenagakerjaan', ceiling: undefined },
+    transferPricingRules: true,
+    thinCapitalisationRules: true,
+    taxTreatyNetwork: ['SG', 'AU', 'NZ', 'JP', 'CN', 'KR', 'IN', 'MY', 'TH', 'PH', 'VN', 'GB', 'US', 'NL'],
+    fiscalYearEnd: 'Dec 31',
+    filingDeadlines: { corporateTax: 'Apr 30', gstVat: 'Monthly (last day)', employeeTax: 'Mar 31' },
+  },
+  legislation: {
+    primaryLaws: [
+      {
+        shortCode: 'MNL-ID', title: 'Manpower Law (Law No. 13/2003)', jurisdiction: 'Indonesia', category: 'EMPLOYMENT',
+        summary: 'Primary employment law covering employment relationships, wages, working hours, and termination.',
+        keyRequirements: ['Employment agreements', 'Minimum wage compliance', 'Working hours and overtime', 'Severance pay formula', 'Bipartite cooperation institution'],
+        effectiveDate: '2003-03-25', lastAmended: '2023-01-01',
+        officialUrl: 'https://www.kemenperin.go.id',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'PDP22-ID', title: 'Personal Data Protection Law (Law No. 27/2022)', jurisdiction: 'Indonesia', category: 'DATA_PRIVACY',
+        summary: 'Comprehensive personal data protection legislation effective November 2024.',
+        keyRequirements: ['Data subject rights', 'Controller and processor obligations', 'Data protection officer', 'Data breach notification (14 days)', 'Cross-border data transfer controls'],
+        effectiveDate: '2022-10-17', lastAmended: '2022-10-17',
+        officialUrl: 'https://jdih.kominfo.go.id',
+        relatedISOStandards: ['ISO 27001:2022'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'K3-ID', title: 'Occupational Safety and Health Law (Law No. 1/1970)', jurisdiction: 'Indonesia', category: 'HSE',
+        summary: 'Foundational workplace safety law requiring safety measures and reporting.',
+        keyRequirements: ['Safety committee (>100 employees)', 'Workplace hazard identification', 'Incident reporting to Disnaker', 'Safety officer certification', 'SMK3 system'],
+        effectiveDate: '1970-01-12', lastAmended: '2012-01-01',
+        officialUrl: 'https://www.kemnaker.go.id',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'PPLH09-ID', title: 'Environmental Protection and Management Law (Law No. 32/2009)', jurisdiction: 'Indonesia', category: 'ENVIRONMENT',
+        summary: 'Framework for environmental protection, pollution control, and EIA requirements.',
+        keyRequirements: ['AMDAL (Environmental Impact Assessment)', 'Environmental permit', 'Pollution monitoring and reporting', 'Waste management'],
+        effectiveDate: '2009-10-03', lastAmended: '2022-01-01',
+        relatedISOStandards: ['ISO 14001:2015'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'TIPIKOR-ID', title: 'Anti-Corruption Law (Law No. 20/2001)', jurisdiction: 'Indonesia', category: 'ANTI_CORRUPTION',
+        summary: 'Criminalises corruption in public and private sectors. Enforced by KPK.',
+        keyRequirements: ['Anti-gratification policy', 'Reporting obligations', 'Anti-corruption training'],
+        officialUrl: 'https://www.kpk.go.id',
+        relatedISOStandards: ['ISO 37001:2016'], isMandatory: true, applicableTo: ['all'],
+      },
+    ],
+    regulatoryBodies: [
+      { name: 'Ministry of Manpower (Kemnaker)', acronym: 'Disnaker', website: 'https://www.kemnaker.go.id', jurisdiction: ['EMPLOYMENT', 'HSE'] },
+      { name: 'Ministry of Communication and Information Technology', acronym: 'Kominfo', website: 'https://www.kominfo.go.id', jurisdiction: ['DATA_PRIVACY'] },
+      { name: 'Ministry of Environment and Forestry', acronym: 'KLHK', website: 'https://www.menlhk.go.id', jurisdiction: ['ENVIRONMENT'] },
+      { name: 'Corruption Eradication Commission', acronym: 'KPK', website: 'https://www.kpk.go.id', jurisdiction: ['ANTI_CORRUPTION'] },
+    ],
+    reportingRequirements: ['AHU annual return', 'DJP tax filings', 'Kemnaker incident reports', 'OJK financial sector reporting', 'BEI disclosure (listed)'],
+    auditRequirements: 'Mandatory for public companies, state-owned enterprises, and companies above certain revenue thresholds',
+  },
+  isoContext: {
+    adoptedStandards: [
+      { standard: 'ISO 9001:2015', localStandard: 'SNI ISO 9001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['SGS', 'Bureau Veritas', 'TÜV Rheinland', 'Lloyd\'s Register'], notes: 'Common for government tenders and export markets' },
+      { standard: 'ISO 14001:2015', localStandard: 'SNI ISO 14001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['SGS', 'Bureau Veritas', 'TÜV Rheinland'], notes: 'Growing adoption in mining, manufacturing, and palm oil sectors' },
+      { standard: 'ISO 45001:2018', localStandard: 'SNI ISO 45001:2018', adoptionStatus: 'ADOPTED', certificationBodies: ['SGS', 'Bureau Veritas', 'TÜV Rheinland'], mandatoryForSectors: ['construction', 'manufacturing'], notes: 'PP50/2012 SMK3 regulation aligns with ISO 45001' },
+      { standard: 'ISO 27001:2022', adoptionStatus: 'ADOPTED', certificationBodies: ['BSI', 'Bureau Veritas', 'SGS'], notes: 'Growing adoption; aligned with PDP Law 2022' },
+    ],
+    certificationBodies: ['SGS Indonesia', 'Bureau Veritas Indonesia', 'TÜV Rheinland Indonesia', 'Lloyd\'s Register', 'BSI'],
+    accreditationBody: 'National Accreditation Committee (KAN)',
+    notes: 'Indonesia uses SNI (Standar Nasional Indonesia) standards. KAN is the national accreditation body.',
+  },
+  compliance: {
+    mandatoryReporting: ['AHU company annual filing', 'DJP/OJK tax returns', 'IDX continuous disclosure (listed)', 'BAPEPAM-LK financial sector', 'Kemnaker accident notifications'],
+    esgRequirements: 'IDX requires listed companies to publish sustainability reports. Government pushing green economy agenda.',
+    sustainabilityFrameworks: ['GRI Standards', 'IDX Sustainability Reporting Guidance', 'TCFD', 'SDGs'],
+    dataProtectionAuthority: 'Ministry of Communication and Information Technology (Kominfo)',
+    dataRetentionYears: 5,
+    crossBorderDataTransfer: 'Restricted; requires adequate level of protection in recipient country',
+    whistleblowerProtection: true,
+    modernSlaveryAct: false,
+    dueDiligenceRequirements: 'No mandatory human rights due diligence; OJK sustainable finance roadmap encourages ESG due diligence',
+  },
+  business: {
+    companyTypes: ['PT (Perseroan Terbatas)', 'CV (Commanditaire Vennootschap)', 'Firma', 'Branch Office (KP3A)', 'Representative Office (KPPA)'],
+    minShareCapital: 50000000,
+    incorporationTime: '3-7 business days',
+    businessRegistrationBody: 'Directorate General of General Legal Administration (AHU), Ministry of Law',
+    easeOfDoingBusinessRank: 73,
+    freeTradeZones: ['Batam FTZ', 'Bintan FTZ', 'Karimun FTZ', 'Sabang FTZ'],
+    importDutyFramework: 'Varied tariff rates (0-150%). ASEAN ATIGA preferential rates apply. Specific import procedures for restricted goods.',
+    exportControls: ['Government Regulation No. 29/2021 on trade', 'Ministerial export licensing requirements'],
+    ipProtectionRating: 'Moderate — improving enforcement',
+    corruptionPerceptionsIndex: 34,
+  },
+};

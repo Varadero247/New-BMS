@@ -2,6 +2,7 @@
 // This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
 // Unauthorised copying, modification, or distribution is strictly prohibited.
 
+// Existing exports — kept intact
 export * from './types/region.types';
 export * from './types/trade.types';
 export * from './utils/currency';
@@ -68,4 +69,70 @@ export const allCountries: CountryData[] = [
 
 export function getCountryByCode(code: string): CountryData | undefined {
   return allCountries.find((c) => c.code === code);
+}
+
+// ─── Rich Region Config types ────────────────────────────────────────────────
+export * from './types/region-config.types';
+
+// ─── Rich Region Config data (20 countries) ──────────────────────────────────
+export { sg } from './regions/sg';
+export { au as auConfig } from './regions/au';
+export { nz } from './regions/nz';
+export { my } from './regions/my';
+export { id as idConfig } from './regions/id';
+export { th } from './regions/th';
+export { vn } from './regions/vn';
+export { ph } from './regions/ph';
+export { jp } from './regions/jp';
+export { kr } from './regions/kr';
+export { hk } from './regions/hk';
+export { tw } from './regions/tw';
+export { cn } from './regions/cn';
+export { india } from './regions/in_config';
+export { bd } from './regions/bd';
+export { lk } from './regions/lk';
+export { mm } from './regions/mm';
+export { kh } from './regions/kh';
+export { la } from './regions/la';
+export { bn } from './regions/bn';
+
+// ─── Utility functions ────────────────────────────────────────────────────────
+// Note: formatCurrency from currency-formatter is exported as formatRegionCurrency
+// to avoid conflict with the existing formatCurrency from ./utils/currency
+export { parseCurrency, convertCurrency } from './utils/currency-formatter';
+export { formatCurrency as formatRegionCurrency } from './utils/currency-formatter';
+export * from './utils/date-formatter';
+export * from './utils/tax-calculator';
+export * from './utils/legislation-matcher';
+
+// ─── Aggregate array and lookup ───────────────────────────────────────────────
+import { sg } from './regions/sg';
+import { au as auConfig } from './regions/au';
+import { nz } from './regions/nz';
+import { my } from './regions/my';
+import { id as idConfig } from './regions/id';
+import { th } from './regions/th';
+import { vn } from './regions/vn';
+import { ph } from './regions/ph';
+import { jp } from './regions/jp';
+import { kr } from './regions/kr';
+import { hk } from './regions/hk';
+import { tw } from './regions/tw';
+import { cn } from './regions/cn';
+import { india } from './regions/in_config';
+import { bd } from './regions/bd';
+import { lk } from './regions/lk';
+import { mm } from './regions/mm';
+import { kh } from './regions/kh';
+import { la } from './regions/la';
+import { bn } from './regions/bn';
+import type { RegionConfig } from './types/region-config.types';
+
+export const allRegionConfigs: RegionConfig[] = [
+  sg, auConfig, nz, my, idConfig, th, vn, ph, jp, kr,
+  hk, tw, cn, india, bd, lk, mm, kh, la, bn,
+];
+
+export function getRegionConfig(countryCode: string): RegionConfig | undefined {
+  return allRegionConfigs.find((r) => r.countryCode === countryCode);
 }

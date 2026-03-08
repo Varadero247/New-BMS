@@ -771,6 +771,8 @@ module.exports = {
   '<rootDir>/packages/energy-monitoring',
   // Training Portal web app (added Feb 28, 2026)
   '<rootDir>/apps/web-training-portal',
+  // Onboarding web app (added Mar 8, 2026 — Phase 135)
+  '<rootDir>/apps/web-onboarding',
   ],
 
 

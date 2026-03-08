@@ -55,6 +55,7 @@ declare -A APP_PORTS=(
   [web-chemicals]=3044
   [web-emergency]=3045
   [web-training-portal]=3046
+  [web-onboarding]=3047
 )
 
 # Stop any existing web processes on those ports

@@ -338,3 +338,9 @@ export {
 
 // APAC Regional — Financial Rule Card
 export { FinancialRuleCard, type FinancialRuleCardProps } from './financial-rule-card';
+
+// APAC Regional — Rich Region Config UI components
+export { RegionFlag, type RegionFlagProps } from './region-flag';
+export { CurrencyDisplay, type CurrencyDisplayProps } from './currency-display';
+export { LegislationBadge, type LegislationBadgeProps } from './legislation-badge';
+export { TaxSummaryPanel, type TaxSummaryPanelProps } from './tax-summary-panel';

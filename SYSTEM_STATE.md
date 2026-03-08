@@ -1,13 +1,13 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-03-08 (Phase 135 — APAC Regional Localisation: api-regional:4042, packages/regional-data, 24 countries, 86 legislation records, 57 financial rules, 14 trade agreements, 48 ISO mappings; compression fix; partners portal fixes)
+> Last updated: 2026-03-08 (Phase 136 — Singapore Trade Region localisation: 20 rich RegionConfig files, 4 utility modules, 4 new UI components, web-onboarding:3047, 54 tests)
 
 ## Summary
 
 | Category                 | Count                                  |
 | ------------------------ | -------------------------------------- |
 | API Services             | 44 total (gateway:4000, 42 domain:4001–4042, search:4050) |
-| Web Applications         | 45                                                    |
+| Web Applications         | 46 (incl. web-onboarding:3047)                        |
 | Shared Packages          | 397 (incl. @ims/regional-data)                        |
 | Prisma Schemas           | 44                                                    |
 | Database Tables (models) | ~597 (+8 Apac-prefixed models in schema.prisma)       |
@@ -69,7 +69,7 @@
 
 ---
 
-## Web Applications (45)
+## Web Applications (46)
 
 | Application        | Directory                      | Port | Domain                                                                                                                                                                                         |
 | ------------------ | ------------------------------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -118,6 +118,7 @@
 | Chemicals          | `apps/web-chemicals/`          | 3044 | Chemical management (12 pages: dashboard, register, register/[id], coshh, coshh/new, coshh/[id], sds, inventory, monitoring, incidents, disposal, login)                                       |
 | Emergency          | `apps/web-emergency/`          | 3045 | Fire, Emergency & Disaster Management (13 pages: dashboard, premises, premises/[id], fra, fra/new, incidents, incidents/declare, incidents/[id], bcp, bcp/new, peep, drills, equipment, login) |
 | Training Portal    | `apps/web-training-portal/`    | 3046 | Administrator, Module Owner & End User Training (activation-key gated; 3 programme tracks, 9 new routes, 1,325 middleware + assessment tests) |
+| Onboarding         | `apps/web-onboarding/`         | 3047 | 4-step organisation onboarding wizard: welcome, region/country selection (20 APAC countries, TaxSummaryPanel, LegislationBadge, ISO adoption table), ISO standards selector, review & confirm |
 
 ---
 

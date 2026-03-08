@@ -1,0 +1,118 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+import type { RegionConfig } from '../types/region-config.types';
+
+export const tw: RegionConfig = {
+  countryCode: 'TW',
+  countryName: 'Taiwan',
+  region: 'EAST_ASIA',
+  tier: 2,
+  currency: { code: 'TWD', symbol: 'NT$', name: 'New Taiwan Dollar', decimals: 2, symbolPosition: 'before', thousandsSeparator: ',', decimalSeparator: '.' },
+  dateFormat: 'YYYY/MM/DD',
+  numberFormat: { thousandsSeparator: ',', decimalSeparator: '.', grouping: 3 },
+  timezone: ['Asia/Taipei'],
+  languages: [
+    { code: 'zh-TW', name: 'Mandarin Chinese (Traditional)', isOfficial: true, isPrimary: true, script: 'Hant' },
+    { code: 'nan-TW', name: 'Taiwanese (Hokkien)', isOfficial: false, isPrimary: false, script: 'Latn' },
+  ],
+  finance: {
+    corporateTaxRate: 0.20,
+    gstVatRate: 0.05,
+    gstVatName: 'VAT (Business Tax)',
+    gstVatRegistrationThreshold: 4800000,
+    witholdingTaxRates: { dividends: 0.21, interest: 0.15, royalties: 0.15, services: 0.10 },
+    payrollTax: { employeeRate: 0.13, employerRate: 0.145, name: 'Labor Insurance & NHI', ceiling: undefined },
+    transferPricingRules: true,
+    thinCapitalisationRules: false,
+    taxTreatyNetwork: ['SG', 'AU', 'NZ', 'JP', 'IN', 'MY', 'TH', 'PH', 'ID', 'VN', 'GB'],
+    fiscalYearEnd: 'Dec 31',
+    filingDeadlines: { corporateTax: 'May 31', gstVat: 'Bi-monthly (25th)', employeeTax: 'Jan 31' },
+  },
+  legislation: {
+    primaryLaws: [
+      {
+        shortCode: 'LSA-TW', title: 'Labor Standards Act (勞動基準法)', jurisdiction: 'Taiwan', category: 'EMPLOYMENT',
+        summary: 'Core employment law establishing minimum labour standards.',
+        keyRequirements: ['Written employment contracts', '40-hour work week', 'Overtime provisions', 'Annual leave entitlements', 'Severance pay'],
+        effectiveDate: '1984-08-01', lastAmended: '2023-06-01',
+        officialUrl: 'https://www.mol.gov.tw',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'PDPA-TW', title: 'Personal Data Protection Act (個人資料保護法)', jurisdiction: 'Taiwan', category: 'DATA_PRIVACY',
+        summary: 'Governs collection, processing, and use of personal data by government and private entities.',
+        keyRequirements: ['Specific purpose for collection', 'Data subject notification', 'Security safeguards', 'Cross-border transfer restrictions', 'Data breach notification'],
+        effectiveDate: '2012-10-01', lastAmended: '2023-06-01',
+        officialUrl: 'https://pipa.moj.gov.tw',
+        relatedISOStandards: ['ISO 27001:2022'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'OSHA-TW', title: 'Occupational Safety and Health Act (職業安全衛生法)', jurisdiction: 'Taiwan', category: 'HSE',
+        summary: 'Primary legislation for occupational safety and health management.',
+        keyRequirements: ['Safety and health management plan', 'Risk assessment', 'Safety officer appointment', 'Incident reporting to OSHA (MOL)', 'Regular medical examinations'],
+        effectiveDate: '1974-04-16', lastAmended: '2019-05-15',
+        officialUrl: 'https://www.osha.gov.tw',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'EPA-TW', title: 'Environmental Basic Act (環境基本法)', jurisdiction: 'Taiwan', category: 'ENVIRONMENT',
+        summary: 'Framework for environmental protection and sustainable development.',
+        keyRequirements: ['Environmental impact assessment', 'Pollution prevention', 'GHG reduction targets', 'Environmental information disclosure'],
+        effectiveDate: '2002-12-11', lastAmended: '2022-01-01',
+        officialUrl: 'https://www.epa.gov.tw',
+        relatedISOStandards: ['ISO 14001:2015'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'ACA-TW', title: 'Anti-Corruption Act (貪污治罪條例)', jurisdiction: 'Taiwan', category: 'ANTI_CORRUPTION',
+        summary: 'Criminalises corruption by public officials and private sector parties.',
+        keyRequirements: ['Anti-corruption measures', 'Asset disclosure for officials', 'Prohibition of improper benefits'],
+        officialUrl: 'https://mojlaw.moj.gov.tw',
+        relatedISOStandards: ['ISO 37001:2016'], isMandatory: false, applicableTo: ['all'],
+      },
+    ],
+    regulatoryBodies: [
+      { name: 'Ministry of Labor', acronym: 'MOL', website: 'https://www.mol.gov.tw', jurisdiction: ['EMPLOYMENT', 'HSE'] },
+      { name: 'Ministry of Justice', acronym: 'MOJ', website: 'https://www.moj.gov.tw', jurisdiction: ['DATA_PRIVACY', 'ANTI_CORRUPTION'] },
+      { name: 'Environmental Protection Administration', acronym: 'EPA-TW', website: 'https://www.epa.gov.tw', jurisdiction: ['ENVIRONMENT'] },
+      { name: 'Financial Supervisory Commission', acronym: 'FSC', website: 'https://www.fsc.gov.tw', jurisdiction: ['FINANCIAL', 'CORPORATE'] },
+    ],
+    reportingRequirements: ['MOCS company annual report', 'MoF tax returns', 'TWSE/TPEX disclosure (listed)', 'FSC financial sector reports', 'MOL accident reports'],
+    auditRequirements: 'Mandatory for public companies and large enterprises (>NT$30M capital or listed)',
+  },
+  isoContext: {
+    adoptedStandards: [
+      { standard: 'ISO 9001:2015', localStandard: 'CNS 12680', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV Rheinland', 'BSI'], notes: 'Strong adoption in semiconductor and electronics sectors' },
+      { standard: 'ISO 14001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV Rheinland'], notes: 'Growing adoption in manufacturing and supply chain' },
+      { standard: 'ISO 45001:2018', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'BSI'], notes: 'Aligned with OSHA requirements' },
+      { standard: 'ISO 27001:2022', adoptionStatus: 'ADOPTED', certificationBodies: ['BSI', 'Bureau Veritas', 'TÜV Rheinland'], mandatoryForSectors: ['financial'], notes: 'FSC cybersecurity regulations align with ISO 27001' },
+    ],
+    certificationBodies: ['Bureau Veritas Taiwan', 'SGS Taiwan', 'TÜV Rheinland Taiwan', 'BSI Taiwan', 'Intertek Taiwan'],
+    accreditationBody: 'Taiwan Accreditation Foundation (TAF)',
+    notes: 'Taiwan uses CNS (Chinese National Standards) which adopt ISO standards. TAF is the national accreditation body.',
+  },
+  compliance: {
+    mandatoryReporting: ['MOCS annual return', 'MoF tax filings', 'TWSE/TPEX annual and quarterly reports (listed)', 'FSC financial institution reports', 'MOL occupational accident reports'],
+    esgRequirements: 'TWSE requires listed companies to publish CSR/sustainability reports. Taiwan 2050 Net Zero Pathway drives GHG reporting.',
+    sustainabilityFrameworks: ['GRI Standards', 'TWSE Sustainability Report Guidelines', 'TCFD', 'Taiwan 2050 Net Zero Pathway'],
+    dataProtectionAuthority: 'Ministry of Justice (MOJ) — Personal Data Protection Office',
+    dataRetentionYears: 5,
+    crossBorderDataTransfer: 'Requires adequate protection in recipient country; approval for sensitive data categories',
+    whistleblowerProtection: true,
+    modernSlaveryAct: false,
+    dueDiligenceRequirements: 'No mandatory human rights due diligence; FSC sustainable finance guidance encourages supply chain ESG',
+  },
+  business: {
+    companyTypes: ['Company Limited by Shares (股份有限公司)', 'Limited Company (有限公司)', 'Unlimited Company', 'Branch Office', 'Representative Office'],
+    minShareCapital: 1,
+    incorporationTime: '5-10 business days',
+    businessRegistrationBody: 'Ministry of Economic Affairs (MOEA) — Department of Commerce',
+    easeOfDoingBusinessRank: 15,
+    freeTradeZones: ['Kaohsiung Export Processing Zone', 'Nanzih Export Processing Zone', 'Hsinchu Science Park', 'Taichung Port FTZ'],
+    importDutyFramework: 'Varied tariff rates (average 6.2%). FTA-preferential rates with limited partners. No GST on imports below NT$2,000.',
+    exportControls: ['Foreign Trade Act', 'Strategic High-Tech Commodities Management Act'],
+    ipProtectionRating: 'Very High — strong IP protection; TIPO provides protection',
+    corruptionPerceptionsIndex: 68,
+  },
+};

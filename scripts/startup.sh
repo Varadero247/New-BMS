@@ -195,6 +195,12 @@ TABLE_COUNT=$(PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U postgres -d i
   "SELECT COUNT(*) FROM pg_tables WHERE schemaname='public';" 2>/dev/null | tr -d ' ')
 echo "Database ready: $TABLE_COUNT tables"
 
+# Step 5c: Seed APAC regional data (idempotent upserts — safe to re-run)
+echo "Seeding APAC regional data..."
+cd "$PROJECT_DIR/apps/api-regional"
+npx tsx src/seed/regional-seed.ts 2>/dev/null && echo "APAC seed: OK" || echo "WARNING: APAC seed failed (non-fatal)"
+cd "$PROJECT_DIR"
+
 # Step 6: Start all services (APIs only via start-all-services.sh, then web apps in production mode)
 echo "Starting all services..."
 ./scripts/stop-all-services.sh 2>/dev/null || true

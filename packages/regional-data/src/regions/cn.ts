@@ -1,0 +1,116 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+import type { RegionConfig } from '../types/region-config.types';
+
+export const cn: RegionConfig = {
+  countryCode: 'CN',
+  countryName: 'China',
+  region: 'EAST_ASIA',
+  tier: 2,
+  currency: { code: 'CNY', symbol: '¥', name: 'Chinese Yuan Renminbi', decimals: 2, symbolPosition: 'before', thousandsSeparator: ',', decimalSeparator: '.' },
+  dateFormat: 'YYYY/MM/DD',
+  numberFormat: { thousandsSeparator: ',', decimalSeparator: '.', grouping: 3 },
+  timezone: ['Asia/Shanghai'],
+  languages: [
+    { code: 'zh-CN', name: 'Mandarin Chinese (Simplified)', isOfficial: true, isPrimary: true, script: 'Hans' },
+  ],
+  finance: {
+    corporateTaxRate: 0.25,
+    gstVatRate: 0.13,
+    gstVatName: 'VAT (增值税)',
+    gstVatRegistrationThreshold: 500000,
+    witholdingTaxRates: { dividends: 0.10, interest: 0.10, royalties: 0.10, services: 0.10 },
+    payrollTax: { employeeRate: 0.11, employerRate: 0.28, name: '社保 (Social Security)', ceiling: undefined },
+    transferPricingRules: true,
+    thinCapitalisationRules: true,
+    taxTreatyNetwork: ['SG', 'AU', 'NZ', 'JP', 'KR', 'IN', 'MY', 'TH', 'PH', 'ID', 'VN', 'GB', 'US', 'DE', 'FR', 'CA'],
+    fiscalYearEnd: 'Dec 31',
+    filingDeadlines: { corporateTax: 'May 31 (annual); 15th of month after quarter', gstVat: 'Monthly (15th) or quarterly', employeeTax: 'Monthly (15th)' },
+  },
+  legislation: {
+    primaryLaws: [
+      {
+        shortCode: 'LL-CN', title: 'Labor Law of the PRC (中华人民共和国劳动法)', jurisdiction: 'China', category: 'EMPLOYMENT',
+        summary: 'Foundational labour legislation establishing employment rights and obligations.',
+        keyRequirements: ['Written labour contracts', '8-hour workday/44-hour week', 'Minimum wage', 'Social insurance contributions', 'Rest and leave entitlements'],
+        effectiveDate: '1995-01-01', lastAmended: '2018-12-29',
+        officialUrl: 'https://www.gov.cn',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'PIPL-CN', title: 'Personal Information Protection Law (个人信息保护法)', jurisdiction: 'China', category: 'DATA_PRIVACY',
+        summary: 'Comprehensive personal information protection law effective November 2021, among the strictest globally.',
+        keyRequirements: ['Lawful basis for processing', 'Purpose limitation', 'Data minimisation', 'PIPC oversight', 'Data localisation (certain sectors)', 'Cross-border transfer restrictions', 'Breach notification (72 hours)'],
+        effectiveDate: '2021-11-01', lastAmended: '2021-11-01',
+        officialUrl: 'https://www.cac.gov.cn',
+        relatedISOStandards: ['ISO 27001:2022'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'CSL-CN', title: 'Cybersecurity Law (网络安全法)', jurisdiction: 'China', category: 'INFORMATION_SECURITY',
+        summary: 'Establishes cybersecurity requirements and data localisation obligations.',
+        keyRequirements: ['Network security graded protection (等保)', 'Data localisation for critical information infrastructure', 'Security assessment for cross-border data transfers', 'Real-name registration'],
+        effectiveDate: '2017-06-01', lastAmended: '2022-09-01',
+        officialUrl: 'https://www.cac.gov.cn',
+        relatedISOStandards: ['ISO 27001:2022'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'EPL-CN', title: 'Environmental Protection Law (环境保护法)', jurisdiction: 'China', category: 'ENVIRONMENT',
+        summary: 'Framework law for environmental protection and pollution control.',
+        keyRequirements: ['Environmental impact assessment', 'Three simultaneous system (三同时)', 'Discharge permit', 'Real-time emission monitoring', 'Carbon trading (ETS participants)'],
+        effectiveDate: '2015-01-01', lastAmended: '2022-01-01',
+        officialUrl: 'https://www.mee.gov.cn',
+        relatedISOStandards: ['ISO 14001:2015'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'ABA-CN', title: 'Anti-Bribery Amendment to Criminal Law (刑法修正案)', jurisdiction: 'China', category: 'ANTI_CORRUPTION',
+        summary: 'Criminalises bribery of foreign public officials and private sector bribery.',
+        keyRequirements: ['Anti-corruption management system', 'Third-party due diligence', 'Gifts and hospitality policy', 'Employee training'],
+        relatedISOStandards: ['ISO 37001:2016'], isMandatory: true, applicableTo: ['all'],
+      },
+    ],
+    regulatoryBodies: [
+      { name: 'Ministry of Human Resources and Social Security', acronym: 'MOHRSS', website: 'https://www.mohrss.gov.cn', jurisdiction: ['EMPLOYMENT', 'HSE'] },
+      { name: 'Cyberspace Administration of China', acronym: 'CAC', website: 'https://www.cac.gov.cn', jurisdiction: ['DATA_PRIVACY', 'INFORMATION_SECURITY'] },
+      { name: 'Ministry of Ecology and Environment', acronym: 'MEE', website: 'https://www.mee.gov.cn', jurisdiction: ['ENVIRONMENT'] },
+      { name: 'State Administration for Market Regulation', acronym: 'SAMR', website: 'https://www.samr.gov.cn', jurisdiction: ['CORPORATE', 'CONSUMER'] },
+    ],
+    reportingRequirements: ['SAMR annual report', 'SAT tax filings', 'CSRC disclosure (listed)', 'CBIRC financial sector', 'MEE pollution discharge reports', 'Social insurance authority monthly filings'],
+    auditRequirements: 'Mandatory for large enterprises, foreign-invested enterprises, and listed companies',
+  },
+  isoContext: {
+    adoptedStandards: [
+      { standard: 'ISO 9001:2015', localStandard: 'GB/T 19001-2016', adoptionStatus: 'ADOPTED', certificationBodies: ['CCIC', 'Bureau Veritas', 'SGS', 'TÜV Rheinland', 'Intertek'], notes: 'China has the world\'s largest number of ISO 9001 certificates; required for many government contracts' },
+      { standard: 'ISO 14001:2015', localStandard: 'GB/T 24001-2016', adoptionStatus: 'ADOPTED', certificationBodies: ['CCIC', 'Bureau Veritas', 'SGS', 'TÜV Rheinland'], notes: 'Growing driven by environmental regulation and export requirements' },
+      { standard: 'ISO 45001:2018', localStandard: 'GB/T 45001-2020', adoptionStatus: 'ADOPTED', certificationBodies: ['CCIC', 'Bureau Veritas', 'SGS'], notes: 'Aligned with Occupational Disease Prevention Law and Safety Production Law' },
+      { standard: 'ISO 27001:2022', localStandard: 'GB/T 22080-2016', adoptionStatus: 'ADOPTED', certificationBodies: ['CCIC', 'BSI', 'Bureau Veritas'], notes: 'Increasingly required alongside Graded Protection (等保 2.0) for network operators' },
+    ],
+    certificationBodies: ['CCIC (China Certification & Inspection Group)', 'Bureau Veritas China', 'SGS China', 'TÜV Rheinland China', 'Intertek China', 'BSI China'],
+    accreditationBody: 'China National Accreditation Service (CNAS)',
+    notes: 'China uses GB/T national standards which adopt ISO. CNAS is the national accreditation body. China leads the world in total ISO certifications.',
+  },
+  compliance: {
+    mandatoryReporting: ['SAMR annual inspection', 'SAT enterprise tax returns', 'CSRC quarterly and annual reports (listed)', 'MEE emission reports', 'CBIRC insurance and bank reporting', 'Social security monthly filings'],
+    esgRequirements: 'CSRC requires large listed companies to disclose ESG information. China Carbon ETS for power sector; expanding. China Green Bond market maturing.',
+    sustainabilityFrameworks: ['GRI Standards', 'CSRC ESG Reporting Guidelines', 'TCFD', 'China Green Bond Principles', "China's Dual Carbon Goals"],
+    dataProtectionAuthority: 'Cyberspace Administration of China (CAC)',
+    dataRetentionYears: 3,
+    crossBorderDataTransfer: 'Strictly regulated; requires security assessment (CAC), standard contracts, or certification; data localisation for CII operators',
+    whistleblowerProtection: true,
+    modernSlaveryAct: false,
+    dueDiligenceRequirements: 'MEE and MOFCOM due diligence guidance for overseas investment; no mandatory law yet; supply chain ESG increasingly expected',
+  },
+  business: {
+    companyTypes: ['Wholly Foreign-Owned Enterprise (WFOE)', 'Sino-Foreign Joint Venture (JV)', 'Representative Office', 'Branch Office', 'Variable Interest Entity (VIE)'],
+    minShareCapital: 30000,
+    incorporationTime: '15-30 business days',
+    businessRegistrationBody: 'State Administration for Market Regulation (SAMR) / Local AMRs',
+    easeOfDoingBusinessRank: 31,
+    freeTradeZones: ['Shanghai FTZ', 'Guangdong FTZ', 'Tianjin FTZ', 'Fujian FTZ', 'Hainan FTP', 'Beijing FTZ'],
+    importDutyFramework: 'Varied tariff schedule (average 7.5%). ASEAN-China FTA, RCEP apply. FTZ companies get preferential treatment.',
+    exportControls: ['Export Control Law', 'Dual-use export licensing', 'Unreliable Entity List'],
+    ipProtectionRating: 'Moderate-High — CNIPA improving enforcement; WTO compliance increasing',
+    corruptionPerceptionsIndex: 42,
+  },
+};

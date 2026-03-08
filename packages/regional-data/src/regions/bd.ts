@@ -1,0 +1,117 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+import type { RegionConfig } from '../types/region-config.types';
+
+export const bd: RegionConfig = {
+  countryCode: 'BD',
+  countryName: 'Bangladesh',
+  region: 'SOUTH_ASIA',
+  tier: 2,
+  currency: { code: 'BDT', symbol: '৳', name: 'Bangladeshi Taka', decimals: 2, symbolPosition: 'before', thousandsSeparator: ',', decimalSeparator: '.' },
+  dateFormat: 'DD/MM/YYYY',
+  numberFormat: { thousandsSeparator: ',', decimalSeparator: '.', grouping: 2 },
+  timezone: ['Asia/Dhaka'],
+  languages: [
+    { code: 'bn', name: 'Bengali (Bangla)', isOfficial: true, isPrimary: true, script: 'Beng' },
+    { code: 'en-BD', name: 'English', isOfficial: false, isPrimary: false, script: 'Latn' },
+  ],
+  finance: {
+    corporateTaxRate: 0.225,
+    gstVatRate: 0.15,
+    gstVatName: 'VAT',
+    gstVatRegistrationThreshold: 5000000,
+    witholdingTaxRates: { dividends: 0.20, interest: 0.10, royalties: 0.10, services: 0.10 },
+    payrollTax: { employeeRate: 0.08, employerRate: 0.05, name: 'Provident Fund', ceiling: undefined },
+    transferPricingRules: true,
+    thinCapitalisationRules: false,
+    taxTreatyNetwork: ['SG', 'IN', 'MY', 'TH', 'PH', 'ID', 'VN', 'CN', 'JP', 'KR', 'GB', 'US', 'DE'],
+    fiscalYearEnd: 'Jun 30',
+    filingDeadlines: { corporateTax: 'Nov 30 (5 months after FY end)', gstVat: 'Monthly (15th)', employeeTax: 'Nov 30' },
+  },
+  legislation: {
+    primaryLaws: [
+      {
+        shortCode: 'LA06-BD', title: 'Bangladesh Labour Act, 2006', jurisdiction: 'Bangladesh', category: 'EMPLOYMENT',
+        summary: 'Comprehensive labour legislation covering employment conditions, wages, leave, and industrial relations.',
+        keyRequirements: ['Written appointment letters', 'Provident fund (>100 employees)', 'Maternity leave', 'Annual and casual leave', 'Trade union rights', 'Workers welfare fund'],
+        effectiveDate: '2006-10-11', lastAmended: '2018-01-01',
+        officialUrl: 'https://www.dol.gov.bd',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'BDITA-22-BD', title: 'Bangladesh Digital Security Act, 2018', jurisdiction: 'Bangladesh', category: 'INFORMATION_SECURITY',
+        summary: 'Cybersecurity and digital crime legislation with data protection provisions.',
+        keyRequirements: ['Critical information infrastructure protection', 'Digital crime prohibition', 'Data breach reporting to CIRT'],
+        effectiveDate: '2018-10-08', lastAmended: '2023-09-01',
+        officialUrl: 'https://bcc.gov.bd',
+        relatedISOStandards: ['ISO 27001:2022'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'OHS-BD', title: 'Occupational Health and Safety Provisions (Bangladesh Labour Act 2006, Part V)', jurisdiction: 'Bangladesh', category: 'HSE',
+        summary: 'OSH provisions within the Labour Act covering factories and establishments.',
+        keyRequirements: ['Factory cleanliness and hygiene', 'Ventilation and lighting standards', 'Machinery safety guards', 'Accident notification to Inspector of Factories', 'Safety committee (>50 employees)'],
+        effectiveDate: '2006-10-11', lastAmended: '2018-01-01',
+        officialUrl: 'https://www.dol.gov.bd',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['manufacturing', 'construction'],
+      },
+      {
+        shortCode: 'EPA-BD', title: 'Environment Conservation Act, 1995', jurisdiction: 'Bangladesh', category: 'ENVIRONMENT',
+        summary: 'Primary environmental legislation for conservation and pollution control.',
+        keyRequirements: ['Environmental clearance certificate', 'IEE/EIA for industrial projects', 'Effluent treatment plant (ETP)', 'Environmental compliance certificate'],
+        effectiveDate: '1995-08-15', lastAmended: '2010-01-01',
+        officialUrl: 'https://www.doe.gov.bd',
+        relatedISOStandards: ['ISO 14001:2015'], isMandatory: true, applicableTo: ['manufacturing', 'construction'],
+      },
+      {
+        shortCode: 'ACA-BD', title: 'Anti-Corruption Commission Act, 2004', jurisdiction: 'Bangladesh', category: 'ANTI_CORRUPTION',
+        summary: 'Establishes ACC and anti-corruption framework.',
+        keyRequirements: ['Anti-corruption policy', 'Asset disclosure', 'Prohibition of bribery and misappropriation'],
+        officialUrl: 'https://www.acc.org.bd',
+        relatedISOStandards: ['ISO 37001:2016'], isMandatory: false, applicableTo: ['all'],
+      },
+    ],
+    regulatoryBodies: [
+      { name: 'Department of Labour', acronym: 'DOL', website: 'https://www.dol.gov.bd', jurisdiction: ['EMPLOYMENT', 'HSE'] },
+      { name: 'Department of Environment', acronym: 'DOE', website: 'https://www.doe.gov.bd', jurisdiction: ['ENVIRONMENT'] },
+      { name: 'Bangladesh Securities and Exchange Commission', acronym: 'BSEC', website: 'https://www.sec.gov.bd', jurisdiction: ['FINANCIAL', 'CORPORATE'] },
+      { name: 'Bangladesh Bank', acronym: 'BB', website: 'https://www.bb.org.bd', jurisdiction: ['FINANCIAL'] },
+    ],
+    reportingRequirements: ['RJSC annual return', 'NBR tax returns', 'BSEC disclosures (listed)', 'Bangladesh Bank reporting (banks)', 'DOE environmental compliance reports'],
+    auditRequirements: 'Mandatory for all public limited companies and companies with paid-up capital >BDT 30M',
+  },
+  isoContext: {
+    adoptedStandards: [
+      { standard: 'ISO 9001:2015', localStandard: 'BDS ISO 9001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'Intertek', 'TÜV Rheinland'], notes: 'Required for export-oriented industries especially garments' },
+      { standard: 'ISO 14001:2015', localStandard: 'BDS ISO 14001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'Intertek'], notes: 'Growing in textile and leather sectors' },
+      { standard: 'ISO 45001:2018', localStandard: 'BDS ISO 45001:2019', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'Intertek'], mandatoryForSectors: ['manufacturing'], notes: 'Critical for garment industry buyers (WRAP, ACCORD/Alliance successor)' },
+    ],
+    certificationBodies: ['Bureau Veritas Bangladesh', 'SGS Bangladesh', 'Intertek Bangladesh', 'TÜV Rheinland Bangladesh'],
+    accreditationBody: 'Bangladesh Accreditation Board (BAB)',
+    notes: 'Bangladesh uses BDS (Bangladesh Standards) which adopt ISO. BAB is the national accreditation body. ISO adoption critical for RMG export compliance.',
+  },
+  compliance: {
+    mandatoryReporting: ['RJSC annual return', 'NBR income tax return', 'BSEC quarterly reports (listed)', 'Bangladesh Bank reports (financial)', 'BGMEA compliance reporting (garment)'],
+    esgRequirements: 'BSEC encourages sustainability reporting for listed companies. Bangladesh National Sustainability Reporting Framework under development.',
+    sustainabilityFrameworks: ['GRI Standards', 'SDGs', 'Bangladesh Climate Change Strategy and Action Plan (BCCSAP)'],
+    dataProtectionAuthority: 'Bangladesh Computer Council (BCC) / ICT Division',
+    dataRetentionYears: 5,
+    crossBorderDataTransfer: 'No specific framework; governed by contract and sector regulations',
+    whistleblowerProtection: true,
+    modernSlaveryAct: false,
+    dueDiligenceRequirements: 'No mandatory law; major international buyers require ethical sourcing and social compliance audits in RMG sector',
+  },
+  business: {
+    companyTypes: ['Private Limited Company', 'Public Limited Company', 'Sole Proprietorship', 'Partnership', 'Branch Office', 'Liaison Office'],
+    minShareCapital: 100000,
+    incorporationTime: '5-10 business days',
+    businessRegistrationBody: 'Registrar of Joint Stock Companies and Firms (RJSC)',
+    easeOfDoingBusinessRank: 168,
+    freeTradeZones: ['Chittagong EPZ', 'Dhaka EPZ', 'Comilla EPZ', 'Mongla EPZ', 'Sylhet EPZ', 'Karnaphuli EPZ'],
+    importDutyFramework: 'Varied tariff rates (average 14.7%). SAFTA preferential rates. EPZ companies enjoy duty-free imports.',
+    exportControls: ['Export Policy Order', 'Import Policy Order provisions'],
+    ipProtectionRating: 'Low-Moderate — DPDT improving enforcement',
+    corruptionPerceptionsIndex: 25,
+  },
+};

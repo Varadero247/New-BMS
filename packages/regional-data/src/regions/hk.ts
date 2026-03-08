@@ -1,0 +1,123 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+import type { RegionConfig } from '../types/region-config.types';
+
+export const hk: RegionConfig = {
+  countryCode: 'HK',
+  countryName: 'Hong Kong',
+  region: 'EAST_ASIA',
+  tier: 2,
+  currency: { code: 'HKD', symbol: 'HK$', name: 'Hong Kong Dollar', decimals: 2, symbolPosition: 'before', thousandsSeparator: ',', decimalSeparator: '.' },
+  dateFormat: 'DD/MM/YYYY',
+  numberFormat: { thousandsSeparator: ',', decimalSeparator: '.', grouping: 3 },
+  timezone: ['Asia/Hong_Kong'],
+  languages: [
+    { code: 'zh-HK', name: 'Cantonese', isOfficial: true, isPrimary: true, script: 'Hant' },
+    { code: 'en-HK', name: 'English', isOfficial: true, isPrimary: false, script: 'Latn' },
+    { code: 'zh-CN', name: 'Mandarin Chinese', isOfficial: false, isPrimary: false, script: 'Hans' },
+  ],
+  finance: {
+    corporateTaxRate: 0.165,
+    corporateTaxBands: [
+      { min: 0, max: 2000000, rate: 0.0825, label: 'First HK$2M' },
+      { min: 2000000, rate: 0.165, label: 'Above HK$2M' },
+    ],
+    gstVatRate: 0,
+    gstVatName: 'No GST/VAT',
+    witholdingTaxRates: { dividends: 0, interest: 0, royalties: 0.045, services: 0 },
+    payrollTax: { employeeRate: 0.05, employerRate: 0.05, name: 'MPF (Mandatory Provident Fund)', ceiling: 30000 },
+    transferPricingRules: true,
+    thinCapitalisationRules: false,
+    taxTreatyNetwork: ['SG', 'AU', 'NZ', 'JP', 'CN', 'KR', 'IN', 'MY', 'TH', 'PH', 'ID', 'VN', 'GB', 'US', 'DE', 'FR'],
+    fiscalYearEnd: 'Mar 31',
+    filingDeadlines: { corporateTax: '1 month after assessment (usually Nov)', gstVat: 'N/A', employeeTax: 'Apr 30' },
+  },
+  legislation: {
+    primaryLaws: [
+      {
+        shortCode: 'EO-HK', title: 'Employment Ordinance (Cap. 57)', jurisdiction: 'Hong Kong', category: 'EMPLOYMENT',
+        summary: 'Core employment legislation setting minimum standards for employment conditions in Hong Kong.',
+        keyRequirements: ['Written employment contracts', 'Rest days and annual leave', 'Severance/long service payment', 'Maternity/paternity leave', 'MPF contributions'],
+        effectiveDate: '1968-01-01', lastAmended: '2023-01-01',
+        officialUrl: 'https://www.labour.gov.hk',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'PDPO-HK', title: 'Personal Data (Privacy) Ordinance (Cap. 486)', jurisdiction: 'Hong Kong', category: 'DATA_PRIVACY',
+        summary: 'Regulates collection, holding, processing, and use of personal data.',
+        keyRequirements: ['6 Data Protection Principles', 'Data access and correction rights', 'Direct marketing restrictions', 'PCPD registration', 'Mandatory breach notification (from 2021)'],
+        effectiveDate: '1996-12-20', lastAmended: '2021-10-05',
+        officialUrl: 'https://www.pcpd.org.hk',
+        relatedISOStandards: ['ISO 27001:2022'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'OSHО-HK', title: 'Occupational Safety and Health Ordinance (Cap. 509)', jurisdiction: 'Hong Kong', category: 'HSE',
+        summary: 'Provides a framework for workplace safety and health.',
+        keyRequirements: ['Risk assessment', 'Safety management system (>100 employees construction/industry)', 'Incident reporting to Labour Department', 'Safety officer appointment'],
+        effectiveDate: '1997-05-08', lastAmended: '2022-01-01',
+        officialUrl: 'https://www.labour.gov.hk',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'EIAO-HK', title: 'Environmental Impact Assessment Ordinance (Cap. 499)', jurisdiction: 'Hong Kong', category: 'ENVIRONMENT',
+        summary: 'Requires EIA for designated projects.',
+        keyRequirements: ['EIA study brief', 'Environmental permit', 'Environmental monitoring and audit (EM&A)', 'Public consultation'],
+        effectiveDate: '1998-04-01', lastAmended: '2022-01-01',
+        officialUrl: 'https://www.epd.gov.hk',
+        relatedISOStandards: ['ISO 14001:2015'], isMandatory: false, applicableTo: ['construction', 'manufacturing'],
+      },
+      {
+        shortCode: 'PBO-HK', title: 'Prevention of Bribery Ordinance (Cap. 201)', jurisdiction: 'Hong Kong', category: 'ANTI_CORRUPTION',
+        summary: 'Criminalises bribery in both public and private sectors.',
+        keyRequirements: ['Anti-corruption policy', 'Zero tolerance for gifts', 'ICAC reporting obligations', 'Training and awareness'],
+        officialUrl: 'https://www.icac.org.hk',
+        relatedISOStandards: ['ISO 37001:2016'], isMandatory: true, applicableTo: ['all'],
+      },
+    ],
+    regulatoryBodies: [
+      { name: 'Labour Department', acronym: 'LD', website: 'https://www.labour.gov.hk', jurisdiction: ['EMPLOYMENT', 'HSE'] },
+      { name: 'Privacy Commissioner for Personal Data', acronym: 'PCPD', website: 'https://www.pcpd.org.hk', jurisdiction: ['DATA_PRIVACY'] },
+      { name: 'Environmental Protection Department', acronym: 'EPD', website: 'https://www.epd.gov.hk', jurisdiction: ['ENVIRONMENT'] },
+      { name: 'Independent Commission Against Corruption', acronym: 'ICAC', website: 'https://www.icac.org.hk', jurisdiction: ['ANTI_CORRUPTION'] },
+    ],
+    reportingRequirements: ['Companies Registry annual return', 'IRD profits tax return', 'HKEX disclosures (listed)', 'HKMA reporting (banks)', 'Labour Department accident reports'],
+    auditRequirements: 'Mandatory for all limited companies unless dormant',
+  },
+  isoContext: {
+    adoptedStandards: [
+      { standard: 'ISO 9001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['HKQAA', 'Bureau Veritas', 'SGS', 'TÜV Rheinland', 'BSI'], notes: 'Widely adopted; HKQAA is the main certification body' },
+      { standard: 'ISO 14001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['HKQAA', 'Bureau Veritas', 'SGS'], notes: 'Growing adoption driven by HKEX ESG reporting' },
+      { standard: 'ISO 45001:2018', adoptionStatus: 'ADOPTED', certificationBodies: ['HKQAA', 'Bureau Veritas', 'BSI'], notes: 'Aligned with OSHO requirements' },
+      { standard: 'ISO 27001:2022', adoptionStatus: 'ADOPTED', certificationBodies: ['HKQAA', 'BSI', 'Bureau Veritas'], mandatoryForSectors: ['financial'], notes: 'HKMA guidelines align with ISO 27001 controls' },
+      { standard: 'ISO 37001:2016', adoptionStatus: 'ADOPTED', certificationBodies: ['HKQAA', 'BSI'], notes: 'Aligned with Prevention of Bribery Ordinance' },
+    ],
+    certificationBodies: ['HKQAA (Hong Kong Quality Assurance Agency)', 'Bureau Veritas HK', 'SGS HK', 'TÜV Rheinland HK', 'BSI HK'],
+    accreditationBody: 'Hong Kong Accreditation Service (HKAS)',
+    notes: 'Hong Kong has a well-developed accreditation system. HKAS is part of the Innovation and Technology Commission. HKQAA is the principal national quality assurance body.',
+  },
+  compliance: {
+    mandatoryReporting: ['Companies Registry annual return', 'IRD profits tax and employer returns', 'HKEX ESG and corporate governance report (listed)', 'HKMA reporting (authorised institutions)', 'SFC reporting (regulated firms)'],
+    esgRequirements: 'HKEX requires all listed companies to publish ESG reports. Climate-related disclosures aligned with TCFD becoming mandatory from 2025 for major sectors.',
+    sustainabilityFrameworks: ['GRI Standards', 'HKEX ESG Reporting Guide', 'TCFD', 'SDGs'],
+    dataProtectionAuthority: 'Privacy Commissioner for Personal Data (PCPD)',
+    dataRetentionYears: 6,
+    crossBorderDataTransfer: 'Permitted with adequate protection; transfer to Mainland China subject to PIPL',
+    whistleblowerProtection: true,
+    modernSlaveryAct: false,
+    dueDiligenceRequirements: 'HKEX ESG guide requires supply chain due diligence disclosures; no mandatory human rights law',
+  },
+  business: {
+    companyTypes: ['Private Limited Company', 'Public Limited Company', 'Unlimited Company', 'Sole Proprietorship', 'Partnership', 'Branch Office'],
+    minShareCapital: 1,
+    incorporationTime: '1 business day (online)',
+    businessRegistrationBody: 'Companies Registry',
+    easeOfDoingBusinessRank: 3,
+    freeTradeZones: [],
+    importDutyFramework: 'Free port with very few tariffs (mainly tobacco, alcohol, hydrocarbons). No GST/VAT. Simplest import regime in Asia.',
+    exportControls: ['Import and Export Ordinance (Cap. 60)', 'Strategic Commodities (Ordinance Cap. 562)'],
+    ipProtectionRating: 'Very High — IPDHK provides strong protection',
+    corruptionPerceptionsIndex: 75,
+  },
+};

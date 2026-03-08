@@ -1,0 +1,117 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+import type { RegionConfig } from '../types/region-config.types';
+
+export const th: RegionConfig = {
+  countryCode: 'TH',
+  countryName: 'Thailand',
+  region: 'ASEAN',
+  tier: 1,
+  currency: { code: 'THB', symbol: '฿', name: 'Thai Baht', decimals: 2, symbolPosition: 'before', thousandsSeparator: ',', decimalSeparator: '.' },
+  dateFormat: 'DD/MM/YYYY',
+  numberFormat: { thousandsSeparator: ',', decimalSeparator: '.', grouping: 3 },
+  timezone: ['Asia/Bangkok'],
+  languages: [
+    { code: 'th', name: 'Thai', isOfficial: true, isPrimary: true, script: 'Thai' },
+    { code: 'en-TH', name: 'English', isOfficial: false, isPrimary: false, script: 'Latn' },
+  ],
+  finance: {
+    corporateTaxRate: 0.20,
+    gstVatRate: 0.07,
+    gstVatName: 'VAT',
+    gstVatRegistrationThreshold: 1800000,
+    witholdingTaxRates: { dividends: 0.10, interest: 0.15, royalties: 0.15, services: 0.03 },
+    payrollTax: { employeeRate: 0.05, employerRate: 0.05, name: 'Social Security Fund', ceiling: 15000 },
+    transferPricingRules: true,
+    thinCapitalisationRules: false,
+    taxTreatyNetwork: ['SG', 'AU', 'NZ', 'JP', 'CN', 'KR', 'IN', 'MY', 'PH', 'ID', 'VN', 'GB', 'US', 'DE', 'FR'],
+    fiscalYearEnd: 'Dec 31',
+    filingDeadlines: { corporateTax: 'May 31 (annual); Aug 31 (half-year)', gstVat: 'Monthly (15th)', employeeTax: 'Mar 31' },
+  },
+  legislation: {
+    primaryLaws: [
+      {
+        shortCode: 'LPA-TH', title: 'Labor Protection Act B.E. 2541 (1998)', jurisdiction: 'Thailand', category: 'EMPLOYMENT',
+        summary: 'Primary labour law setting minimum standards for employment conditions in Thailand.',
+        keyRequirements: ['Minimum wage compliance', 'Working hours (8/day, 48/week)', 'Annual and sick leave', 'Severance pay', 'Workplace welfare committee'],
+        effectiveDate: '1998-01-01', lastAmended: '2019-06-01',
+        officialUrl: 'https://www.labour.go.th',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'PDPA19-TH', title: 'Personal Data Protection Act B.E. 2562 (2019)', jurisdiction: 'Thailand', category: 'DATA_PRIVACY',
+        summary: 'Comprehensive personal data protection law aligned with GDPR principles.',
+        keyRequirements: ['Lawful basis for processing', 'Data subject rights', 'DPO appointment (certain cases)', 'Breach notification (72 hours)', 'Cross-border transfer restrictions'],
+        effectiveDate: '2022-06-01', lastAmended: '2022-06-01',
+        officialUrl: 'https://www.pdpc.or.th',
+        relatedISOStandards: ['ISO 27001:2022'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'OSHA-TH', title: 'Occupational Safety, Health and Environment Act B.E. 2554 (2011)', jurisdiction: 'Thailand', category: 'HSE',
+        summary: 'Comprehensive OSH legislation covering workplace safety obligations.',
+        keyRequirements: ['Safety officer appointment', 'Safety committee (>50 employees)', 'Incident reporting to DOSH', 'Risk assessment', 'Medical surveillance'],
+        effectiveDate: '2011-07-16', lastAmended: '2022-01-01',
+        officialUrl: 'https://www.ohs.dol.go.th',
+        relatedISOStandards: ['ISO 45001:2018'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'EPA75-TH', title: 'Enhancement and Conservation of the National Environmental Quality Act B.E. 2518 (1975)', jurisdiction: 'Thailand', category: 'ENVIRONMENT',
+        summary: 'Framework for environmental conservation and pollution control.',
+        keyRequirements: ['EIA for large projects', 'Pollution emission standards', 'Hazardous waste management', 'Environmental quality monitoring'],
+        effectiveDate: '1975-02-26', lastAmended: '2018-01-01',
+        relatedISOStandards: ['ISO 14001:2015'], isMandatory: true, applicableTo: ['all'],
+      },
+      {
+        shortCode: 'ACA-TH', title: 'Anti-Corruption Act B.E. 2561 (2018)', jurisdiction: 'Thailand', category: 'ANTI_CORRUPTION',
+        summary: 'Strengthened anti-corruption framework covering public and private sector corruption.',
+        keyRequirements: ['Anti-corruption policy', 'Declaration of interests', 'Asset disclosure for officials', 'Corporate anti-bribery measures'],
+        effectiveDate: '2018-07-13', lastAmended: '2018-07-13',
+        relatedISOStandards: ['ISO 37001:2016'], isMandatory: true, applicableTo: ['all'],
+      },
+    ],
+    regulatoryBodies: [
+      { name: 'Department of Labor Protection and Welfare', acronym: 'DLPW', website: 'https://www.labour.go.th', jurisdiction: ['EMPLOYMENT'] },
+      { name: 'Personal Data Protection Committee', acronym: 'PDPC-TH', website: 'https://www.pdpc.or.th', jurisdiction: ['DATA_PRIVACY'] },
+      { name: 'Department of Labor Protection and Welfare (OSH Division)', acronym: 'DOSH-TH', website: 'https://www.ohs.dol.go.th', jurisdiction: ['HSE'] },
+      { name: 'Pollution Control Department', acronym: 'PCD', website: 'https://www.pcd.go.th', jurisdiction: ['ENVIRONMENT'] },
+    ],
+    reportingRequirements: ['DBD annual return', 'Revenue Department tax filings', 'Social Security Office contributions', 'SET disclosure (listed)', 'BOI reporting (BOI-promoted companies)'],
+    auditRequirements: 'Mandatory for limited companies and public companies annually',
+  },
+  isoContext: {
+    adoptedStandards: [
+      { standard: 'ISO 9001:2015', localStandard: 'TIS/ISO 9001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV Rheinland', 'Lloyd\'s Register'], notes: 'Required for government procurement; strong adoption in automotive and electronics' },
+      { standard: 'ISO 14001:2015', localStandard: 'TIS/ISO 14001:2015', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV Rheinland'], notes: 'Growing in manufacturing and tourism sectors' },
+      { standard: 'ISO 45001:2018', localStandard: 'TIS/ISO 45001:2019', adoptionStatus: 'ADOPTED', certificationBodies: ['Bureau Veritas', 'SGS', 'TÜV Rheinland'], notes: 'Aligns with Thai OSH Act 2011' },
+      { standard: 'ISO 27001:2022', adoptionStatus: 'ADOPTED', certificationBodies: ['BSI', 'Bureau Veritas', 'SGS'], notes: 'Growing adoption in financial and technology sectors' },
+    ],
+    certificationBodies: ['Bureau Veritas Thailand', 'SGS Thailand', 'TÜV Rheinland Thailand', 'BSI Thailand', 'Lloyd\'s Register'],
+    accreditationBody: 'National Accreditation Council of Thailand (NACT)',
+    notes: 'Thailand uses TIS (Thai Industrial Standards) which adopt ISO standards. NACT is the accreditation body under TIS Institute.',
+  },
+  compliance: {
+    mandatoryReporting: ['DBD annual audited accounts', 'Revenue Department tax returns', 'SEC annual report (listed)', 'BOT reporting (financial)', 'SSO social security filings'],
+    esgRequirements: 'SET-listed companies encouraged to disclose ESG through SET One Report. Thailand Sustainable Development Goals framework.',
+    sustainabilityFrameworks: ['GRI Standards', 'Thailand Sustainability Investment (THSI)', 'TCFD', 'SDGs'],
+    dataProtectionAuthority: 'Personal Data Protection Committee (PDPC)',
+    dataRetentionYears: 5,
+    crossBorderDataTransfer: 'Permitted to countries with adequate protection; standard contractual clauses available',
+    whistleblowerProtection: true,
+    modernSlaveryAct: false,
+    dueDiligenceRequirements: 'No mandatory human rights due diligence; BOI encourages ESG practices for promoted companies',
+  },
+  business: {
+    companyTypes: ['Limited Company (บริษัทจำกัด)', 'Public Limited Company (บริษัทมหาชน)', 'Registered Partnership', 'Branch Office', 'Representative Office', 'BOI-promoted company'],
+    minShareCapital: 1000000,
+    incorporationTime: '3-5 business days',
+    businessRegistrationBody: 'Department of Business Development (DBD)',
+    easeOfDoingBusinessRank: 21,
+    freeTradeZones: ['Eastern Economic Corridor (EEC)', 'Export Processing Zones', 'Industrial Estates'],
+    importDutyFramework: 'Varied tariff rates. ASEAN ATIGA, AFTA preferential rates. BOI-promoted companies may get tariff exemptions.',
+    exportControls: ['Strategic Goods and Related Services Act', 'Customs Act provisions'],
+    ipProtectionRating: 'Moderate — IP protection improving',
+    corruptionPerceptionsIndex: 35,
+  },
+};
