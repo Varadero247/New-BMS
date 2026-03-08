@@ -8,6 +8,28 @@
 ---
 
 
+## Phase 163 — `@ims/tax-engine` Jurisdiction Payroll Computation Tests (March 8, 2026)
+
+Created `packages/tax-engine/__tests__/tax-engine-data.test.ts` — 169 new tests.
+
+**UK (calculateUKIncomeTax — 40 tests):** 7 annual income cases × 5 (gross preserved, income tax matches bracket formula, NI matches formula, netPay=gross−tax−NI, all finite); period-scaling (monthly×12=annual, weekly×52≈annual); tax-free threshold invariant (≤£12570 → 0 tax + 0 NI); progressive effective-rate invariant.
+
+**UAE (calculateUAEPayroll — 33 tests):** 7 gratuity cases × 2 (gratuity=(gross/30)×days formula, tax=0 always) — years 0/1/3/5/6/10/15; 9 nationality cases × 2 (GCC 5% SS, non-GCC 0%, netPay=gross−SS) — UAE/SA/KW/BH/OM/QA all GCC; UK/IN/OTHER non-GCC; case-insensitive nationality test.
+
+**AU (calculateAUPayroll — 32 tests):** 6 income cases × 5 (gross, incomeTax matches formula, super=11.5%, medicare=2%, netPay=gross−tax−medicare); super-employer-contribution invariant (not deducted from net); period-scaling.
+
+**US (calculateUSFederal — 27 tests):** 4 single-income cases × 5 (gross, federalTax, SS=6.2% capped at $168,600, medicare=1.45% uncapped, netPay); married < single at $80K; married bracket formula at $150K; SS cap (income $200K = $168.6K SS); medicare doubles for double income.
+
+**CA (calculateCAFederal — 28 tests):** 5 income cases × 5 (gross, federalTax BPA-adjusted, cpp=5.95% with exemption/cap, ei=1.66% capped, netPay); CPP cap at $68,500; EI cap at $63,200; income=BPA → 0 federal tax.
+
+**calculateTax dispatcher (10 tests):** Routes UK/UAE/AU/US/CA by field presence; all return grossPay; all return positive netPay; UAE ignores period; US respects filingStatus; unsupported jurisdiction throws.
+
+**Cross-jurisdiction invariants (3 tests):** UAE has lowest deduction rate (0% tax); all jurisdictions netPay<gross for taxable income; deductions increase monotonically with income for UK/AU/US/CA.
+
+**Result:** tax-engine: 1,000 → 1,169 tests. **~1,223,595 unit tests / 1,151 suites / 489 Jest projects — ALL PASSING.**
+
+---
+
 ## Phase 162 — `@ims/finance-calculations` Computation and Invariant Tests (March 8, 2026)
 
 Created `packages/finance-calculations/__tests__/finance-calculations-data.test.ts` — 143 new tests.
