@@ -1,0 +1,86 @@
+<!--
+  Copyright (c) 2026 Nexara DMCC. All rights reserved.
+  This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+  Unauthorised copying, modification, or distribution is strictly prohibited.
+
+  Template: partners/partner-welcome-referral.html
+  Subject:  Welcome to the Nexara Referral Partner Programme
+  Variables: {{firstName}}, {{companyName}}, {{partnerPortalUrl}}, {{commissionPct}},
+             {{referralLinkCode}}, {{partnerManagerName}}, {{partnerManagerEmail}}
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to the Nexara Referral Partner Programme</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F4F6F9;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F4F6F9;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+        <tr>
+          <td style="background-color:#0B1E38;border-radius:12px 12px 0 0;padding:32px 40px;text-align:center;">
+            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;"><tr>
+              <td style="background-color:#B8860B;border-radius:8px;width:36px;height:36px;text-align:center;vertical-align:middle;"><span style="font-size:18px;font-weight:700;color:#ffffff;">N</span></td>
+              <td style="padding-left:12px;vertical-align:middle;"><span style="font-size:18px;font-weight:700;color:#ffffff;font-family:Georgia,serif;">Nexara IMS</span></td>
+            </tr></table>
+            <p style="margin:16px 0 0;font-size:22px;font-weight:700;color:#ffffff;">Welcome to the Referral Partner Programme</p>
+            <p style="margin:8px 0 0;font-size:14px;color:#94A3B8;">{{companyName}}</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#ffffff;padding:40px;">
+            <p style="margin:0 0 16px;font-size:16px;color:#1E293B;">Hi {{firstName}},</p>
+            <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.7;">
+              Welcome to the Nexara Referral Partner Programme. We&rsquo;re delighted to have <strong style="color:#1E293B;">{{companyName}}</strong> on board. For every customer you refer who signs a paid subscription, you earn <strong style="color:#B8860B;">{{commissionPct}}% of their first-year ACV</strong>.
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FFF8E6;border:1px solid #B8860B;border-radius:8px;margin:0 0 24px;">
+              <tr><td style="padding:20px 24px;">
+                <p style="margin:0 0 12px;font-size:14px;font-weight:700;color:#92400E;">Your Referral Details</p>
+                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td style="font-size:13px;color:#78350F;padding:4px 0;">Commission rate</td>
+                    <td style="font-size:13px;font-weight:700;color:#B8860B;text-align:right;">{{commissionPct}}% of Year 1 ACV</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:13px;color:#78350F;padding:4px 0;">Commission window</td>
+                    <td style="font-size:13px;font-weight:600;color:#1E293B;text-align:right;">12 months</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:13px;color:#78350F;padding:4px 0;">Deal protection</td>
+                    <td style="font-size:13px;font-weight:600;color:#1E293B;text-align:right;">90 days</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:13px;color:#78350F;padding:4px 0;">Your referral code</td>
+                    <td style="font-size:14px;font-weight:700;color:#B8860B;text-align:right;font-family:monospace;">{{referralLinkCode}}</td>
+                  </tr>
+                </table>
+              </td></tr>
+            </table>
+            <ul style="margin:0 0 24px;padding-left:20px;color:#475569;font-size:15px;line-height:2;">
+              <li>Share your referral link: nexara.io/ref/{{referralLinkCode}}</li>
+              <li>Register deals in the partner portal to protect your pipeline</li>
+              <li>Track commissions and conversion status in real time</li>
+            </ul>
+            <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 16px;display:block;text-align:center;">
+              <tr><td style="background-color:#B8860B;border-radius:8px;text-align:center;">
+                <a href="{{partnerPortalUrl}}" style="display:inline-block;padding:14px 40px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:8px;">Access Partner Portal &rarr;</a>
+              </td></tr>
+            </table>
+            <p style="margin:16px 0 0;font-size:13px;color:#94A3B8;text-align:center;">
+              Your partner manager: <a href="mailto:{{partnerManagerEmail}}" style="color:#B8860B;text-decoration:underline;">{{partnerManagerName}}</a>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 12px 12px;padding:24px 40px;text-align:center;">
+            <p style="margin:0 0 8px;font-size:12px;color:#94A3B8;">Nexara DMCC &bull; Office 2501, JBC3, JLT, Dubai, UAE</p>
+            <p style="margin:0;font-size:12px;color:#CBD5E1;">&copy; 2026 Nexara DMCC. All rights reserved. &bull; <a href="{{unsubscribeUrl}}" style="color:#94A3B8;text-decoration:underline;">Unsubscribe</a></p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

@@ -84,6 +84,7 @@ start_service "@ims/api-chemicals" "api-chemicals" "Chemicals API"
 start_service "@ims/api-emergency" "api-emergency" "Emergency API"
 start_service "@ims/api-search" "api-search" "Global Search API"
 start_service "@ims/api-regional" "api-regional" "Regional & APAC API"
+start_service "@ims/api-billing" "api-billing" "Billing API"
 
 sleep 3  # Give APIs time to start
 
@@ -233,7 +234,9 @@ echo "  Setup Wizard:       API: 4039"
 echo "  Chemicals:          http://localhost:3044 (API: 4040)"
 echo "  Emergency:          http://localhost:3045 (API: 4041)"
 echo "  Global Search:      API: 4050"
+echo "  Billing:            API: 4043"
 echo "  Training Portal:    http://localhost:3046"
+echo "  Partner Portal:     http://localhost:3049"
 echo ""
 echo "View logs: ls -la $LOG_DIR"
 echo "Check status: ./scripts/check-services.sh"

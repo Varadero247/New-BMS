@@ -1,0 +1,103 @@
+<!--
+  Copyright (c) 2026 Nexara DMCC. All rights reserved.
+  This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+  Unauthorised copying, modification, or distribution is strictly prohibited.
+
+  Template: partners/partner-qbr-reminder.html
+  Subject:  Quarterly Business Review — {{qbrDate}} — {{companyName}}
+  Variables: {{firstName}}, {{companyName}}, {{qbrDate}}, {{qbrTime}}, {{qbrLocation}},
+             {{partnerManagerName}}, {{partnerManagerEmail}}, {{calendarUrl}},
+             {{dealsClosedQtr}}, {{acvClosedQtr}}, {{pipelineACV}}, {{targetACV}}
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quarterly Business Review — {{companyName}}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F4F6F9;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F4F6F9;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+        <tr>
+          <td style="background-color:#0B1E38;border-radius:12px 12px 0 0;padding:32px 40px;text-align:center;">
+            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;"><tr>
+              <td style="background-color:#B8860B;border-radius:8px;width:36px;height:36px;text-align:center;vertical-align:middle;"><span style="font-size:18px;font-weight:700;color:#ffffff;">N</span></td>
+              <td style="padding-left:12px;vertical-align:middle;"><span style="font-size:18px;font-weight:700;color:#ffffff;font-family:Georgia,serif;">Nexara IMS</span></td>
+            </tr></table>
+            <p style="margin:16px 0 0;font-size:22px;font-weight:700;color:#ffffff;">Quarterly Business Review</p>
+            <p style="margin:8px 0 0;font-size:14px;color:#94A3B8;">{{companyName}} &bull; {{qbrDate}}</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#ffffff;padding:40px;">
+            <p style="margin:0 0 16px;font-size:16px;color:#1E293B;">Hi {{firstName}},</p>
+            <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.7;">
+              This is a reminder that your Nexara Quarterly Business Review is coming up. We&rsquo;ll review your pipeline, celebrate wins, align on upcoming opportunities, and plan the next quarter together.
+            </p>
+            <!-- QBR details -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;margin:0 0 24px;">
+              <tr><td style="padding:20px 24px;">
+                <p style="margin:0 0 12px;font-size:14px;font-weight:700;color:#1E293B;">QBR Details</p>
+                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td style="font-size:13px;color:#64748B;padding:4px 0;">Date</td>
+                    <td style="font-size:13px;font-weight:600;color:#1E293B;text-align:right;">{{qbrDate}}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:13px;color:#64748B;padding:4px 0;">Time</td>
+                    <td style="font-size:13px;font-weight:600;color:#1E293B;text-align:right;">{{qbrTime}}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:13px;color:#64748B;padding:4px 0;">Location</td>
+                    <td style="font-size:13px;font-weight:600;color:#1E293B;text-align:right;">{{qbrLocation}}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:13px;color:#64748B;padding:4px 0;">Host</td>
+                    <td style="font-size:13px;font-weight:600;color:#1E293B;text-align:right;">{{partnerManagerName}}</td>
+                  </tr>
+                </table>
+              </td></tr>
+            </table>
+            <!-- Performance snapshot -->
+            <p style="margin:0 0 12px;font-size:14px;font-weight:700;color:#1E293B;">Quarter Performance Snapshot</p>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
+              <tr>
+                <td width="31%" style="background-color:#F0FDF4;border:1px solid #16A34A;border-radius:8px;padding:16px;text-align:center;vertical-align:top;">
+                  <p style="margin:0;font-size:24px;font-weight:700;color:#15803D;">{{dealsClosedQtr}}</p>
+                  <p style="margin:4px 0 0;font-size:11px;color:#166534;font-weight:600;">DEALS CLOSED</p>
+                </td>
+                <td width="4%"></td>
+                <td width="31%" style="background-color:#FFF8E6;border:1px solid #B8860B;border-radius:8px;padding:16px;text-align:center;vertical-align:top;">
+                  <p style="margin:0;font-size:24px;font-weight:700;color:#B8860B;">£{{acvClosedQtr}}</p>
+                  <p style="margin:4px 0 0;font-size:11px;color:#92400E;font-weight:600;">ACV CLOSED</p>
+                </td>
+                <td width="4%"></td>
+                <td width="30%" style="background-color:#EFF6FF;border:1px solid #2563EB;border-radius:8px;padding:16px;text-align:center;vertical-align:top;">
+                  <p style="margin:0;font-size:24px;font-weight:700;color:#1D4ED8;">£{{pipelineACV}}</p>
+                  <p style="margin:4px 0 0;font-size:11px;color:#1E40AF;font-weight:600;">PIPELINE ACV</p>
+                </td>
+              </tr>
+            </table>
+            <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;display:block;text-align:center;">
+              <tr><td style="background-color:#B8860B;border-radius:8px;text-align:center;">
+                <a href="{{calendarUrl}}" style="display:inline-block;padding:14px 40px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:8px;">Confirm Attendance &rarr;</a>
+              </td></tr>
+            </table>
+            <p style="margin:16px 0 0;font-size:13px;color:#94A3B8;text-align:center;">
+              Questions? <a href="mailto:{{partnerManagerEmail}}" style="color:#B8860B;text-decoration:underline;">{{partnerManagerName}}</a>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 12px 12px;padding:24px 40px;text-align:center;">
+            <p style="margin:0 0 8px;font-size:12px;color:#94A3B8;">Nexara DMCC &bull; Office 2501, JBC3, JLT, Dubai, UAE</p>
+            <p style="margin:0;font-size:12px;color:#CBD5E1;">&copy; 2026 Nexara DMCC. All rights reserved.</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
