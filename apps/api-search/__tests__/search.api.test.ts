@@ -6,7 +6,7 @@ import request from 'supertest';
 
 const mockAuthUser = { id: 'user-001', email: 'test@ims.local', organisationId: 'org-1', role: 'ADMIN' };
 jest.mock('@ims/auth', () => ({
-  authenticateToken: jest.fn((req: any, _res: any, next: any) => { req.user = mockAuthUser; next(); }),
+  authenticate: jest.fn((req: any, _res: any, next: any) => { req.user = mockAuthUser; next(); }),
 }));
 jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),

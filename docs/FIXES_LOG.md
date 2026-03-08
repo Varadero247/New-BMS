@@ -8,6 +8,25 @@
 ---
 
 
+## Phase 144 — Fix `api-search` Mock: 1,070 Tests Unblocked (March 8, 2026)
+
+### Bug: wrong export name in `@ims/auth` mock
+
+`apps/api-search/__tests__/search.api.test.ts` mocked `@ims/auth` as:
+```js
+jest.mock('@ims/auth', () => ({
+  authenticateToken: jest.fn(...),
+}));
+```
+But `src/index.ts` imports `authenticate` (not `authenticateToken`). Express received `undefined` as the route handler and threw `"Route.get() requires a callback function but got a [object Undefined]"` at module load time, causing the **entire test suite** to fail to run (0 tests counted from 1,070 written).
+
+### Fix
+Renamed `authenticateToken` → `authenticate` in the mock. One character change; 1,070 tests immediately pass.
+
+**~1,222,560 unit tests / 1,126 suites / 487 Jest projects — ALL PASSING.**
+
+---
+
 ## Phase 143 — Training Programme Specification Tests (March 8, 2026)
 
 ### New: spec tests for `@ims/administrator-training`, `@ims/end-user-training`, `@ims/module-owner-training`
