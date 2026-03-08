@@ -8,6 +8,38 @@
 ---
 
 
+## Phase 161 — `@ims/emission-factors` Factor-Integrity, Computation, and Unit-Conversion Tests (March 8, 2026)
+
+Created `packages/emission-factors/__tests__/emission-factors-data.test.ts` — 348 new tests.
+
+**Per-factor integrity — DEFRA (19 × 5 = 95 tests):**
+All 19 DEFRA_FACTORS verified: source=DEFRA, factor≥0 finite, co2eUnit=kgCO2e, valid EmissionScope, valid FuelType.
+
+**Per-factor integrity — EPA (14 × 5 = 70 tests):**
+All 14 EPA_FACTORS verified: same pattern, source=EPA. (EPA omits biodiesel, bioethanol, water_supply, water_treatment, business_travel_rail.)
+
+**Per-grid-factor integrity — IEA (20 × 5 = 100 tests):**
+All 20 IEA_GRID_FACTORS verified: 2-letter uppercase countryCode, non-empty country, factor>0, unit=kgCO2e/kWh, year=2024.
+
+**getEmissionFactor (12 tests):**
+Default factorSet=DEFRA; exact factor assertions: DEFRA natural_gas=2.02/m3, EPA natural_gas=1.885, DEFRA coal=2.88/kg, DEFRA renewable=0, DEFRA waste_landfill=467.05/tonne, EPA waste_landfill=520, DEFRA rail=0.035; IEA→undefined (grid-specific); EPA rail/water→undefined; DEFRA biodiesel=0.17.
+
+**getGridFactor (10 tests):**
+GB=0.207 (case-insensitive: gb, Gb), US=0.371, NO=0.008, ZA=0.928, AE=0.404, FR=0.052, unknown→undefined, empty→undefined.
+
+**convertUnits (20 tests):**
+Identity (litre, kWh, km); volume (gallon↔litre round-trip, m3→1000L, ft3→28.3L); mass (tonne↔kg, lb→0.454kg, ton_us→907kg); energy (MWh→1000kWh, GJ→277.8kWh, therm→29.3kWh); distance (mile↔km, m→km); incompatible (litre→km, kg→kWh) and unknown units throw.
+
+**calculateEmission (20 tests):**
+DEFRA exact: diesel=2.68, natural_gas=2.02, grid_electricity=0.207, renewable=0, waste_landfill=467.05, coal×2=5.76, car×100km=17.1, rail×100km=3.5. EPA exact: diesel=2.697, grid=0.371, waste=520. Unit conversions: gallon→litre path, MWh→kWh path, mile→km path. Field shape: quantity/unit preserved, fuelType correct, co2e ≤3dp. Errors: EPA missing fuel type throws, incompatible unit throws.
+
+**Cross-data invariants (20 tests):**
+Counts: DEFRA=19, EPA=14, IEA=20. No duplicate FuelTypes in DEFRA/EPA, no duplicate countryCodes in IEA. All entries year=2024. DEFRA scope distribution: 8+2+9=19. Biofuels < fossil equivalents. renewable_electricity=0 in both DEFRA and EPA. Coal has highest scope1 DEFRA factor. Rail < car < air_domestic per km. IEA Norway=lowest (0.008), IEA South Africa=highest (0.928). IEA GB == DEFRA grid (0.207). IEA US == EPA grid (0.371).
+
+**Result:** emission-factors: 1,000 → 1,348 tests. **~1,223,283 unit tests / 1,149 suites / 489 Jest projects — ALL PASSING.**
+
+---
+
 ## Phase 160 — `@ims/regulatory-feed` Source-Integrity, Relevance-Scoring, and Service Tests (March 8, 2026)
 
 Created `packages/regulatory-feed/__tests__/regulatory-feed-data.test.ts` — 117 new tests.
