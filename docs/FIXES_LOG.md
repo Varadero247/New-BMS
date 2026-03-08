@@ -8,6 +8,38 @@
 ---
 
 
+## Phase 162 — `@ims/finance-calculations` Computation and Invariant Tests (March 8, 2026)
+
+Created `packages/finance-calculations/__tests__/finance-calculations-data.test.ts` — 143 new tests.
+
+**simpleInterest (22 tests):** 8 cases × 2 (exact result + finite/non-negative), 3 proportionality invariants (double principal/rate/periods doubles output), 3 error cases (negative P/r/t).
+
+**compoundInterest (19 tests):** 6 cases × 2 parametric, frequency invariants (daily>monthly>annual, CI>SI for multiple periods), 5 error cases (negative P/r/t, n=0, n<0).
+
+**npv (11 tests):** Exact: single flow at t=0 unmodified, two-flow exact, break-even=0, 4-period exact, rate=0 = sum, all-negative, large t=0. Monotone: higher rate → lower NPV. Errors: empty array, rate≤-1.
+
+**irr (7 tests):** [-100,110]=0.10 exact; [-100,50,50,50]≈23.38%; positive IRR; npv(irr)≈0 invariant; custom guess matches default; fewer-than-2 throws; empty throws.
+
+**straightLine (19 tests):** 7 cases × 2 (exact + total=cost−salvage); 5 error cases (life≤0, negative life, negative cost, negative salvage, salvage>cost).
+
+**reducingBalance (11 tests):** Year ordering (y1>y3>y5); total over life ≈ cost−salvage for two assets; exact year-1 using rate formula; all 5 years positive; 4 error cases.
+
+**sumOfDigits (13 tests):** 3 exact values (year 1/3/5); front-loading invariant; 2 total-over-life tests; 4 error cases.
+
+**unitsOfProduction (9 tests):** 5 cases × 1; proportionality (double units = double depreciation); 3 error cases.
+
+**convertCurrency (11 tests):** 7 exact values (identity, USD→GBP, GBP→USD, double-rate, round-trip, fromRate=toRate); 4 error cases.
+
+**calculateFxGainLoss (8 tests):** Gain/loss/zero, formula verification, negative originalAmount; 3 error cases.
+
+**roundToDecimal (11 tests):** 6 standard (1.234, 1.236, 1.235 half-up, integer, 0, large dp); 4 banker's rounding (0.5→0, 1.5→2, 2.5→2, 3.5→4); 1 error case.
+
+**Cross-function invariants (7 tests):** SL < SYD year-1; SL > SYD year-5; all 3 depreciation methods total cost−salvage; IRR = discount rate at break-even; NPV straddles zero at IRR; zero-periods CI = principal; convertCurrency round-trip.
+
+**Result:** finance-calculations: 1,083 → 1,226 tests. **~1,223,426 unit tests / 1,150 suites / 489 Jest projects — ALL PASSING.**
+
+---
+
 ## Phase 161 — `@ims/emission-factors` Factor-Integrity, Computation, and Unit-Conversion Tests (March 8, 2026)
 
 Created `packages/emission-factors/__tests__/emission-factors-data.test.ts` — 348 new tests.
