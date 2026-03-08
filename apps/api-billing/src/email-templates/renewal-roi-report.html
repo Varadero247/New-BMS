@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Nexara IMS Annual ROI Report</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3f4f6;padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#1f2937;padding:32px 40px;text-align:center;">
+              <p style="margin:0;color:#10b981;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Annual Review &middot; {{year}}</p>
+              <h1 style="margin:8px 0 0;color:#ffffff;font-size:26px;font-weight:700;">Your Nexara IMS ROI Report</h1>
+              <p style="margin:8px 0 0;color:#9ca3af;font-size:14px;">{{orgName}}</p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px;">
+
+              <p style="margin:0 0 20px;color:#374151;font-size:16px;line-height:1.6;">Hi {{firstName}},</p>
+
+              <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.6;">
+                Another year of better compliance, safer operations, and measurable ROI. Here&rsquo;s a summary of what Nexara IMS delivered for {{orgName}} in {{year}}.
+              </p>
+
+              <!-- Usage stats grid -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+                <tr>
+                  <td width="50%" style="padding:0 8px 0 0;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:16px;">
+                      <tr><td style="padding:20px;text-align:center;">
+                        <p style="margin:0;color:#10b981;font-size:32px;font-weight:700;">&#10003;</p>
+                        <p style="margin:4px 0 0;color:#374151;font-size:14px;font-weight:600;">Modules Active</p>
+                        <p style="margin:4px 0 0;color:#6b7280;font-size:12px;">All IMS modules in use</p>
+                      </td></tr>
+                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
+                      <tr><td style="padding:20px;text-align:center;">
+                        <p style="margin:0;color:#10b981;font-size:32px;font-weight:700;">&#128202;</p>
+                        <p style="margin:4px 0 0;color:#374151;font-size:14px;font-weight:600;">Compliance Score</p>
+                        <p style="margin:4px 0 0;color:#6b7280;font-size:12px;">Tracked across all frameworks</p>
+                      </td></tr>
+                    </table>
+                  </td>
+                  <td width="50%" style="padding:0 0 0 8px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;margin-bottom:16px;">
+                      <tr><td style="padding:20px;text-align:center;">
+                        <p style="margin:0;color:#3b82f6;font-size:32px;font-weight:700;">&#128196;</p>
+                        <p style="margin:4px 0 0;color:#374151;font-size:14px;font-weight:600;">Audits Completed</p>
+                        <p style="margin:4px 0 0;color:#6b7280;font-size:12px;">Internal + external</p>
+                      </td></tr>
+                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;">
+                      <tr><td style="padding:20px;text-align:center;">
+                        <p style="margin:0;color:#3b82f6;font-size:32px;font-weight:700;">&#128680;</p>
+                        <p style="margin:4px 0 0;color:#374151;font-size:14px;font-weight:600;">Incidents Tracked</p>
+                        <p style="margin:4px 0 0;color:#6b7280;font-size:12px;">Full audit trail retained</p>
+                      </td></tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Savings highlight -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;background-color:#1f2937;border-radius:8px;">
+                <tr>
+                  <td style="padding:24px;text-align:center;">
+                    <p style="margin:0 0 4px;color:#10b981;font-size:13px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Estimated Saving vs Previous Stack</p>
+                    <p style="margin:0;color:#ffffff;font-size:40px;font-weight:700;">{{totalSaving}}</p>
+                    <p style="margin:4px 0 0;color:#9ca3af;font-size:13px;">per year (based on your Stack Calculator session)</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Renewal details -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+                <tr>
+                  <td style="background-color:#f9fafb;padding:12px 20px;border-bottom:1px solid #e5e7eb;">
+                    <p style="margin:0;color:#374151;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Renewal Details</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding:4px 0;color:#6b7280;font-size:14px;">Renewal amount</td>
+                        <td align="right" style="padding:4px 0;color:#374151;font-size:14px;font-weight:600;">{{renewalAmount}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;color:#6b7280;font-size:14px;">Renewal date</td>
+                        <td align="right" style="padding:4px 0;color:#374151;font-size:14px;font-weight:600;">{{renewalDate}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <a href="https://app.nexara.io/billing" style="display:inline-block;background-color:#10b981;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:8px;">View Full Report &rarr;</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:28px 0 0;color:#6b7280;font-size:13px;line-height:1.6;">
+                Thank you for another year with Nexara IMS. Your renewal will process automatically. If you&rsquo;d like to discuss your plan or explore upgrading, reply to this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f9fafb;padding:24px 40px;border-top:1px solid #e5e7eb;">
+              <p style="margin:0;color:#9ca3af;font-size:12px;text-align:center;line-height:1.6;">
+                Nexara DMCC &middot; Dubai, UAE &middot; <a href="https://nexara.io" style="color:#10b981;text-decoration:none;">nexara.io</a><br/>
+                &copy; 2026 Nexara DMCC.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

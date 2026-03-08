@@ -151,7 +151,7 @@ testApp.use('/api/prefix', myRouter);
 
 ### Service Ports
 
-- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows), 4009 (PM), 4010 (Automotive), 4011 (Medical), 4012 (Aerospace), 4013 (Finance), 4014 (CRM), 4015 (InfoSec), 4016 (ESG), 4017 (CMMS), 4018 (Portal), 4019 (Food Safety), 4020 (Energy), 4021 (Analytics), 4022 (Field Service), 4023 (ISO 42001), 4024 (ISO 37001), 4025 (Marketing), 4026 (Partners), 4027 (Risk), 4028 (Training), 4029 (Suppliers), 4030 (Assets), 4031 (Documents), 4032 (Complaints), 4033 (Contracts), 4034 (PTW), 4035 (Reg Monitor), 4036 (Incidents), 4037 (Audits), 4038 (Mgmt Review), 4040 (Chemicals), 4041 (Emergency), 4042 (Regional/APAC), 4050 (Search)
+- APIs: 4000 (Gateway), 4001 (H&S), 4002 (Env), 4003 (Quality), 4004 (AI), 4005 (Inventory), 4006 (HR), 4007 (Payroll), 4008 (Workflows), 4009 (PM), 4010 (Automotive), 4011 (Medical), 4012 (Aerospace), 4013 (Finance), 4014 (CRM), 4015 (InfoSec), 4016 (ESG), 4017 (CMMS), 4018 (Portal), 4019 (Food Safety), 4020 (Energy), 4021 (Analytics), 4022 (Field Service), 4023 (ISO 42001), 4024 (ISO 37001), 4025 (Marketing), 4026 (Partners), 4027 (Risk), 4028 (Training), 4029 (Suppliers), 4030 (Assets), 4031 (Documents), 4032 (Complaints), 4033 (Contracts), 4034 (PTW), 4035 (Reg Monitor), 4036 (Incidents), 4037 (Audits), 4038 (Mgmt Review), 4040 (Chemicals), 4041 (Emergency), 4042 (Regional/APAC), 4043 (Billing), 4050 (Search)
 - Web: 3000 (Dashboard), 3001 (H&S), 3002 (Env), 3003 (Quality), 3004 (Settings), 3005 (Inventory), 3006 (HR), 3007 (Payroll), 3008 (Workflows), 3009 (PM), 3010 (Automotive), 3011 (Medical), 3012 (Aerospace), 3013 (Finance), 3014 (CRM), 3015 (InfoSec), 3016 (ESG), 3017 (CMMS), 3018 (Customer Portal), 3019 (Supplier Portal), 3020 (Food Safety), 3021 (Energy), 3022 (Analytics), 3023 (Field Service), 3024 (ISO 42001), 3025 (ISO 37001), 3026 (Partners Portal), 3027 (Admin Dashboard), 3030 (Marketing), 3031 (Risk), 3032 (Training), 3033 (Suppliers), 3034 (Assets), 3035 (Documents), 3036 (Complaints), 3037 (Contracts), 3038 (Fin Compliance), 3039 (PTW), 3040 (Reg Monitor), 3041 (Incidents), 3042 (Audits), 3043 (Mgmt Review), 3044 (Chemicals), 3045 (Emergency), 3046 (Training Portal), 3047 (Onboarding)
 
 ### Gateway Routing
@@ -199,6 +199,7 @@ testApp.use('/api/prefix', myRouter);
 - `/api/chemicals/*` → api-chemicals:4040
 - `/api/emergency/*` → api-emergency:4041
 - `/api/search/*` → api-search:4050 (Global Search microservice)
+- `/api/billing/*` → api-billing:4043 (Billing, subscriptions, trials, partners)
 - `/api/regional/*` → api-regional:4042 (APAC Regional Localisation service)
 - All routes also available under `/api/v1/` prefix
 
@@ -303,6 +304,16 @@ See `SYSTEM_STATE.md` for the complete list. Key packages:
 
 ### New API Service (port 4050)
 - `apps/api-search` — Global Search microservice (port 4050, proxied at `/api/search/*`)
+
+### New API Service (port 4043) — Phase 164
+- `apps/api-billing` — Billing, subscriptions, trials, design partners, stack calculator, partner programme (port 4043, proxied at `/api/billing/*`)
+- `packages/config` — `@ims/config` — canonical pricing source of truth (`packages/config/src/pricing.config.ts`); 240 tests
+- `packages/database/prisma/schemas/billing.prisma` — 13 billing models targeting `BILLING_DATABASE_URL`
+- **Pricing**: PRICING constant in `packages/config/src/pricing.config.ts` — SINGLE SOURCE OF TRUTH. Never hardcode prices in JSX.
+- **Stripe sync**: `apps/api-billing/src/stripe/sync-stripe-products.ts` — run after price changes
+- **Seeds**: `apps/api-billing/src/seed/pricing-seed.ts`, `volume-bands-seed.ts`
+- **Email templates**: `apps/api-billing/src/email-templates/` — 14 HTML templates (trial + partner sequences)
+- **CRM integration**: `apps/api-crm/src/routes/pricing-integration.ts` — syncPricingToOpportunity, createROIReport, flagDesignPartner, logStackCalculatorResult
 
 ## Documentation
 

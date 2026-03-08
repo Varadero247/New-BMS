@@ -149,6 +149,7 @@ const SERVICES = {
   emergency:
     process.env.SERVICE_EMERGENCY_URL || process.env.EMERGENCY_URL || 'http://localhost:4041',
   search: process.env.SERVICE_SEARCH_URL || process.env.SEARCH_URL || 'http://localhost:4050',
+  billing: process.env.SERVICE_BILLING_URL || process.env.BILLING_URL || 'http://localhost:4043',
   regional: process.env.SERVICE_REGIONAL_URL || process.env.REGIONAL_URL || 'http://localhost:4042',
 };
 
@@ -942,6 +943,11 @@ app.use(
   createServiceProxy('Search', SERVICES.search, '/api/v1/search', 'Global Search service unavailable')
 );
 app.use(
+  '/api/v1/billing',
+  addVersionHeader('v1'),
+  createServiceProxy('Billing', SERVICES.billing, '/api/v1/billing', 'Billing service unavailable', '/api/billing')
+);
+app.use(
   '/api/v1/regional',
   addVersionHeader('v1'),
   createServiceProxy(
@@ -1296,6 +1302,11 @@ app.use(
   '/api/search',
   deprecatedRoute('/api/v1/search'),
   createServiceProxy('Search', SERVICES.search, '/api/search', 'Global Search service unavailable')
+);
+app.use(
+  '/api/billing',
+  deprecatedRoute('/api/v1/billing'),
+  createServiceProxy('Billing', SERVICES.billing, '/api/billing', 'Billing service unavailable', '/api/billing')
 );
 app.use(
   '/api/regional',

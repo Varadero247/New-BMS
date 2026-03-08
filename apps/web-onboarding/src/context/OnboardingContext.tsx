@@ -10,6 +10,9 @@ export interface OnboardingState {
   operatingCountries: string[];
   selectedISOs: string[];
   step: number;
+  selectedPlan: string;
+  billingCycle: 'monthly' | 'annual';
+  userCount: number;
 }
 
 interface OnboardingContextValue extends OnboardingState {
@@ -18,6 +21,9 @@ interface OnboardingContextValue extends OnboardingState {
   setOperatingCountries: (codes: string[]) => void;
   toggleISO: (standard: string) => void;
   setStep: (step: number) => void;
+  setSelectedPlan: (plan: string) => void;
+  setBillingCycle: (cycle: 'monthly' | 'annual') => void;
+  setUserCount: (count: number) => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
@@ -28,6 +34,9 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   const [operatingCountries, setOperatingCountries] = useState<string[]>([]);
   const [selectedISOs, setSelectedISOs] = useState<string[]>(['ISO 9001:2015']);
   const [step, setStep] = useState(1);
+  const [selectedPlan, setSelectedPlan] = useState('professional');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
+  const [userCount, setUserCount] = useState(10);
 
   const toggleISO = (standard: string) => {
     setSelectedISOs((prev) =>
@@ -38,7 +47,9 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   return (
     <OnboardingContext.Provider value={{
       orgName, primaryCountry, operatingCountries, selectedISOs, step,
+      selectedPlan, billingCycle, userCount,
       setOrgName, setPrimaryCountry, setOperatingCountries, toggleISO, setStep,
+      setSelectedPlan, setBillingCycle, setUserCount,
     }}>
       {children}
     </OnboardingContext.Provider>

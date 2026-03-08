@@ -1,0 +1,231 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+// Mock prisma so we can test service methods without a DB
+jest.mock('../prisma', () => ({
+  prisma: {
+    subscription: {
+      update: jest.fn().mockResolvedValue({ id: 'sub-1', platformFeeAnnual: 5000 }),
+    },
+    verticalAddOn: {
+      create: jest.fn().mockResolvedValue({ id: 'addon-1', subscriptionId: 'sub-1' }),
+    },
+    designPartnerStatus: {
+      upsert: jest.fn().mockResolvedValue({ id: 'dp-1', organisationId: 'org-1', lockedPriceMonthly: 22 }),
+    },
+    dealRegistration: {
+      findFirst: jest.fn().mockResolvedValue(null),
+    },
+  },
+}));
+
+import { BillingService } from '../billing/billing.service';
+import { PartnerPricingService } from '../partners/partner-pricing.service';
+import { calculateVolumePrice, calculateACV, PRICING } from '@ims/config';
+
+const billing = new BillingService();
+const partnerSvc = new PartnerPricingService();
+
+// ─── BillingService.calculateVolumePrice ─────────────────────────────────────
+
+describe('BillingService.calculateVolumePrice', () => {
+  it('delegates to @ims/config calculateVolumePrice', () => {
+    expect(billing.calculateVolumePrice(25, 1)).toBe(calculateVolumePrice(25, 1));
+  });
+
+  it('25 users 1yr → £22', () => expect(billing.calculateVolumePrice(25, 1)).toBe(22));
+  it('49 users 1yr → £22', () => expect(billing.calculateVolumePrice(49, 1)).toBe(22));
+  it('50 users 1yr → £22', () => expect(billing.calculateVolumePrice(50, 1)).toBe(22));
+  it('100 users 1yr → £20', () => expect(billing.calculateVolumePrice(100, 1)).toBe(20));
+  it('200 users 1yr → £18', () => expect(billing.calculateVolumePrice(200, 1)).toBe(18));
+  it('500 users 1yr → null (custom)', () => expect(billing.calculateVolumePrice(500, 1)).toBeNull());
+
+  it('25 users 2yr → £20', () => expect(billing.calculateVolumePrice(25, 2)).toBe(20));
+  it('50 users 2yr → £19', () => expect(billing.calculateVolumePrice(50, 2)).toBe(19));
+  it('100 users 2yr → £18', () => expect(billing.calculateVolumePrice(100, 2)).toBe(18));
+  it('200 users 2yr → £16', () => expect(billing.calculateVolumePrice(200, 2)).toBe(16));
+  it('500 users 2yr → null', () => expect(billing.calculateVolumePrice(500, 2)).toBeNull());
+
+  it('defaults to 1yr', () => {
+    expect(billing.calculateVolumePrice(30)).toBe(billing.calculateVolumePrice(30, 1));
+  });
+});
+
+// ─── BillingService.generateROIReport ────────────────────────────────────────
+
+describe('BillingService.generateROIReport', () => {
+  it('returns an object with the expected shape', async () => {
+    const report = await billing.generateROIReport('org-test');
+    expect(report).toHaveProperty('organisationId', 'org-test');
+    expect(report).toHaveProperty('benchmarks');
+    expect(report).toHaveProperty('projections');
+    expect(report).toHaveProperty('incumbentSavingLow');
+    expect(report).toHaveProperty('incumbentSavingHigh');
+    expect(report).toHaveProperty('generatedAt');
+  });
+
+  it('incumbentSavingLow matches PRICING config', async () => {
+    const report = await billing.generateROIReport('org-x');
+    expect(report.incumbentSavingLow).toBe(PRICING.competitorBenchmarks.nexaraSavingVsIncumbentLow);
+  });
+
+  it('incumbentSavingHigh matches PRICING config', async () => {
+    const report = await billing.generateROIReport('org-x');
+    expect(report.incumbentSavingHigh).toBe(PRICING.competitorBenchmarks.nexaraSavingVsIncumbentHigh);
+  });
+
+  it('generatedAt is a valid ISO date string', async () => {
+    const report = await billing.generateROIReport('org-x');
+    expect(new Date(report.generatedAt).toString()).not.toBe('Invalid Date');
+  });
+});
+
+// ─── PartnerPricingService.calculateResellerBuyPrice ─────────────────────────
+
+describe('PartnerPricingService.calculateResellerBuyPrice', () => {
+  it('RESELLER gets 20% off Starter £49 → £39.20', () => {
+    expect(partnerSvc.calculateResellerBuyPrice('STARTER', 49, 'RESELLER')).toBeCloseTo(39.20, 2);
+  });
+
+  it('RESELLER gets 20% off Professional £39 → £31.20', () => {
+    expect(partnerSvc.calculateResellerBuyPrice('PROFESSIONAL', 39, 'RESELLER')).toBeCloseTo(31.20, 2);
+  });
+
+  it('RESELLER gets 20% off Enterprise £28 → £22.40', () => {
+    expect(partnerSvc.calculateResellerBuyPrice('ENTERPRISE', 28, 'RESELLER')).toBeCloseTo(22.40, 2);
+  });
+
+  it('STRATEGIC gets 30% off Starter £49 → £34.30', () => {
+    expect(partnerSvc.calculateResellerBuyPrice('STARTER', 49, 'STRATEGIC')).toBeCloseTo(34.30, 2);
+  });
+
+  it('STRATEGIC gets 30% off Professional £39 → £27.30', () => {
+    expect(partnerSvc.calculateResellerBuyPrice('PROFESSIONAL', 39, 'STRATEGIC')).toBeCloseTo(27.30, 2);
+  });
+
+  it('STRATEGIC gets 30% off Enterprise £28 → £19.60', () => {
+    expect(partnerSvc.calculateResellerBuyPrice('ENTERPRISE', 28, 'STRATEGIC')).toBeCloseTo(19.60, 2);
+  });
+
+  it('WHITE_LABEL gets 35% off Professional £39 → £25.35', () => {
+    expect(partnerSvc.calculateResellerBuyPrice('PROFESSIONAL', 39, 'WHITE_LABEL')).toBeCloseTo(25.35, 2);
+  });
+
+  it('REFERRAL gets 0% off (no reseller discount)', () => {
+    expect(partnerSvc.calculateResellerBuyPrice('PROFESSIONAL', 39, 'REFERRAL')).toBeCloseTo(39.00, 2);
+  });
+
+  it('buy price is always less than or equal to list price for RESELLER', () => {
+    const buy = partnerSvc.calculateResellerBuyPrice('PROFESSIONAL', 39, 'RESELLER');
+    expect(buy).toBeLessThanOrEqual(39);
+  });
+
+  it('STRATEGIC buy price < RESELLER buy price for same tier', () => {
+    const resellerBuy = partnerSvc.calculateResellerBuyPrice('ENTERPRISE', 28, 'RESELLER');
+    const strategicBuy = partnerSvc.calculateResellerBuyPrice('ENTERPRISE', 28, 'STRATEGIC');
+    expect(strategicBuy).toBeLessThan(resellerBuy);
+  });
+});
+
+// ─── PartnerPricingService.calculateReferralCommission ───────────────────────
+
+describe('PartnerPricingService.calculateReferralCommission', () => {
+  it('REFERRAL: 15% of £14,880 = £2,232', () => {
+    const { commissionPct, commissionAmount } = partnerSvc.calculateReferralCommission(14880, 'REFERRAL');
+    expect(commissionPct).toBe(15);
+    expect(commissionAmount).toBeCloseTo(2232, 2);
+  });
+
+  it('REFERRAL: 15% of £26,400 = £3,960', () => {
+    const { commissionAmount } = partnerSvc.calculateReferralCommission(26400, 'REFERRAL');
+    expect(commissionAmount).toBeCloseTo(3960, 2);
+  });
+
+  it('RESELLER: 0% commission (earns margin, not commission)', () => {
+    const { commissionPct, commissionAmount } = partnerSvc.calculateReferralCommission(14880, 'RESELLER');
+    expect(commissionPct).toBe(0);
+    expect(commissionAmount).toBe(0);
+  });
+
+  it('commission amount scales linearly with dealACV', () => {
+    const { commissionAmount: c1 } = partnerSvc.calculateReferralCommission(10000, 'REFERRAL');
+    const { commissionAmount: c2 } = partnerSvc.calculateReferralCommission(20000, 'REFERRAL');
+    expect(c2).toBeCloseTo(c1 * 2, 1);
+  });
+});
+
+// ─── PartnerPricingService.generatePartnerQuote ───────────────────────────────
+
+describe('PartnerPricingService.generatePartnerQuote', () => {
+  it('returns expected shape', () => {
+    const quote = partnerSvc.generatePartnerQuote('RESELLER', 40, 'PROFESSIONAL');
+    expect(quote).toHaveProperty('partnerTier', 'RESELLER');
+    expect(quote).toHaveProperty('tier', 'PROFESSIONAL');
+    expect(quote).toHaveProperty('userCount', 40);
+    expect(quote).toHaveProperty('endCustomerACVGBP');
+    expect(quote).toHaveProperty('buyPriceACVGBP');
+    expect(quote).toHaveProperty('marginGBP');
+    expect(quote).toHaveProperty('marginPct');
+    expect(quote).toHaveProperty('currency', 'GBP');
+  });
+
+  it('RESELLER 40 Professional: endCustomerACV = £14,880', () => {
+    const quote = partnerSvc.generatePartnerQuote('RESELLER', 40, 'PROFESSIONAL');
+    expect(quote.endCustomerACVGBP).toBe(calculateACV('PROFESSIONAL', 40, 'annual'));
+  });
+
+  it('RESELLER 40 Professional: marginPct ≈ 20%', () => {
+    const quote = partnerSvc.generatePartnerQuote('RESELLER', 40, 'PROFESSIONAL');
+    expect(quote.marginPct).toBeCloseTo(20, 0);
+  });
+
+  it('RESELLER 40 Professional: buyPrice = endCustomer × 0.80', () => {
+    const quote = partnerSvc.generatePartnerQuote('RESELLER', 40, 'PROFESSIONAL');
+    expect(quote.buyPriceACVGBP).toBeCloseTo(quote.endCustomerACVGBP * 0.80, 0);
+  });
+
+  it('STRATEGIC 100 Enterprise: marginPct ≈ 30%', () => {
+    const quote = partnerSvc.generatePartnerQuote('STRATEGIC', 100, 'ENTERPRISE');
+    expect(quote.marginPct).toBeCloseTo(30, 0);
+  });
+
+  it('STRATEGIC margin > RESELLER margin for same deal', () => {
+    const r = partnerSvc.generatePartnerQuote('RESELLER', 100, 'ENTERPRISE');
+    const s = partnerSvc.generatePartnerQuote('STRATEGIC', 100, 'ENTERPRISE');
+    expect(s.marginGBP).toBeGreaterThan(r.marginGBP);
+  });
+
+  it('WHITE_LABEL marginPct ≈ 35%', () => {
+    const quote = partnerSvc.generatePartnerQuote('WHITE_LABEL', 50, 'PROFESSIONAL');
+    expect(quote.marginPct).toBeCloseTo(35, 0);
+  });
+
+  it('REFERRAL quote has 0% margin (earns commission separately)', () => {
+    const quote = partnerSvc.generatePartnerQuote('REFERRAL', 40, 'PROFESSIONAL');
+    expect(quote.marginPct).toBeCloseTo(0, 0);
+  });
+
+  it('endCustomerACVGBP > buyPriceACVGBP for RESELLER', () => {
+    const quote = partnerSvc.generatePartnerQuote('RESELLER', 40, 'PROFESSIONAL');
+    expect(quote.endCustomerACVGBP).toBeGreaterThan(quote.buyPriceACVGBP);
+  });
+
+  it('STARTER tier quote returns valid ACV', () => {
+    const quote = partnerSvc.generatePartnerQuote('RESELLER', 10, 'STARTER');
+    expect(quote.endCustomerACVGBP).toBe(calculateACV('STARTER', 10, 'annual'));
+    expect(quote.endCustomerACVGBP).toBeGreaterThan(0);
+  });
+
+  it('perUserMonthlyListPrice is null for ENTERPRISE_PLUS (custom pricing)', () => {
+    const quote = partnerSvc.generatePartnerQuote('STRATEGIC', 600, 'ENTERPRISE_PLUS');
+    // 600 users exceeds band 4 (500+), so volume price = null
+    expect(quote.perUserMonthlyListPrice).toBeNull();
+  });
+
+  it('commitmentYears defaults to 1', () => {
+    const q1 = partnerSvc.generatePartnerQuote('RESELLER', 40, 'PROFESSIONAL', 1);
+    const qd = partnerSvc.generatePartnerQuote('RESELLER', 40, 'PROFESSIONAL');
+    expect(qd.endCustomerACVGBP).toBe(q1.endCustomerACVGBP);
+  });
+});

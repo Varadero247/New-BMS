@@ -7,13 +7,15 @@ import { useRouter } from 'next/navigation';
 import { Step1Welcome } from '@/steps/Step1Welcome';
 import { Step2RegionSelection } from '@/steps/Step2RegionSelection';
 import { Step3ISOStandards } from '@/steps/Step3ISOStandards';
+import { PlanSelectionStep } from '@/steps/PlanSelectionStep';
 import { Step4ReviewConfirm } from '@/steps/Step4ReviewConfirm';
 
 const STEPS = [
   { label: 'Welcome', num: 1 },
   { label: 'Region', num: 2 },
   { label: 'Standards', num: 3 },
-  { label: 'Confirm', num: 4 },
+  { label: 'Plan', num: 4 },
+  { label: 'Confirm', num: 5 },
 ];
 
 interface OnboardingShellProps {
@@ -67,7 +69,8 @@ export function OnboardingShell({ currentStep }: OnboardingShellProps) {
         {currentStep === 1 && <Step1Welcome onNext={goNext} />}
         {currentStep === 2 && <Step2RegionSelection onNext={goNext} onBack={goBack} />}
         {currentStep === 3 && <Step3ISOStandards onNext={goNext} onBack={goBack} />}
-        {currentStep === 4 && <Step4ReviewConfirm onBack={goBack} />}
+        {currentStep === 4 && <PlanSelectionStep onNext={goNext} onBack={goBack} />}
+        {currentStep === 5 && <Step4ReviewConfirm onBack={goBack} />}
       </main>
 
       {/* Footer */}

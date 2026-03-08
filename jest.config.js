@@ -766,6 +766,12 @@ module.exports = {
   '<rootDir>/packages/rope-structure',
   '<rootDir>/packages/spatial-index',
   '<rootDir>/packages/time-series',
+
+  // @ims/config — pricing config package (added Mar 8, 2026 — Phase 164)
+  '<rootDir>/packages/config',
+
+  // api-billing service (added Mar 8, 2026 — Phase 164)
+  '<rootDir>/apps/api-billing',
   ],
 
 

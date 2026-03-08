@@ -10,7 +10,7 @@ interface StepPageProps {
 export default async function StepPage({ params }: StepPageProps) {
   const { step } = await params;
   const stepNum = parseInt(step, 10);
-  if (isNaN(stepNum) || stepNum < 1 || stepNum > 4) {
+  if (isNaN(stepNum) || stepNum < 1 || stepNum > 5) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

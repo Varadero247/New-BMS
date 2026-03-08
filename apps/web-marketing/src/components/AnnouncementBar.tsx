@@ -27,14 +27,13 @@ export default function AnnouncementBar() {
       <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
         <div className="flex-1 text-center font-body">
           <span className="font-medium">
-            🎉 Nexara IMS v3.0 — AI-powered risk controls, 29 ISO frameworks &amp; real-time
-            dashboards.
+            From £28/user/month (Enterprise) · 14-day free trial — no commitment · Save £100,000–£400,000/year vs your incumbent stack.
           </span>{' '}
           <a
-            href="/blog/v3-announcement"
+            href="/pricing"
             className="underline underline-offset-2 hover:text-white/80 transition-colors font-semibold whitespace-nowrap"
           >
-            Read the announcement →
+            See pricing →
           </a>
         </div>
         <button

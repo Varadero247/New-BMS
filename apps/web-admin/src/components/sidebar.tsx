@@ -22,6 +22,7 @@ import {
   CalendarClock,
   RotateCcw,
   BookOpen,
+  PoundSterling,
 } from 'lucide-react';
 
 const navItems = [
@@ -41,6 +42,8 @@ const navItems = [
   { href: '/winback', label: 'Win-back', icon: RotateCcw },
   { href: '/onboarding', label: 'Onboarding', icon: Rocket },
   { href: '/partner-onboarding', label: 'Partner Onboarding', icon: Handshake },
+  { href: '/pricing', label: 'Pricing & Billing', icon: PoundSterling },
+  { href: '/partners', label: 'Partners', icon: Handshake },
   { href: '/digest', label: 'Digest', icon: Newspaper },
   { href: '/knowledge-base', label: 'Knowledge Base', icon: BookOpen },
   { href: '/chat', label: 'AI Assistant', icon: MessageSquare },

@@ -1,0 +1,379 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+// Billing & Subscription Schema
+// Database: ims_billing
+// Additive only — does NOT modify any existing schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../../generated/billing"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("BILLING_DATABASE_URL")
+}
+
+// ─── Pricing Tier Config ──────────────────────────────────────────────────────
+
+model PricingTierConfig {
+  id                  String    @id @default(cuid())
+  tierId              String    @unique
+  name                String
+  listPriceMonthly    Decimal?
+  annualMonthlyRate   Decimal?
+  trialConvertRate    Decimal?
+  platformFeeAnnual   Decimal?
+  verticalAddOnPPUM   Decimal?
+  minUsers            Int?
+  maxUsers            Int?
+  minCommitmentMonths Int
+  isActive            Boolean   @default(true)
+  isCustomPricing     Boolean   @default(false)
+  trialEnabled        Boolean   @default(false)
+  trialDays           Int?
+  trialMaxUsers       Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("pricing_tier_configs")
+}
+
+// ─── Volume Discount Bands ────────────────────────────────────────────────────
+
+model VolumeDiscountBand {
+  id                  String    @id @default(cuid())
+  minUsers            Int
+  maxUsers            Int?
+  listMonthly         Decimal?
+  annualMonthly       Decimal?
+  twoYearMonthly      Decimal?
+  illustrativeACVMin  Int?
+  illustrativeACVMax  Int?
+  notes               String?
+  isActive            Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("volume_discount_bands")
+}
+
+// ─── Subscriptions ────────────────────────────────────────────────────────────
+
+model Subscription {
+  id                  String             @id @default(cuid())
+  organisationId      String
+  tierId              String
+  billingCycle        BillingCycle       @default(ANNUAL)
+  status              SubscriptionStatus @default(ACTIVE)
+  userCount           Int
+  perUserMonthlyRate  Decimal
+  platformFeeAnnual   Decimal?
+  stripeSubscriptionId String?           @unique
+  stripeCustomerId    String?
+  currentPeriodStart  DateTime
+  currentPeriodEnd    DateTime
+  cancelAtPeriodEnd   Boolean            @default(false)
+  cancelledAt         DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  trialSession        TrialSession?
+  verticalAddOns      VerticalAddOn[]
+  designPartner       DesignPartnerStatus?
+  partnerCommissions  PartnerCommission[]
+
+  @@index([organisationId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+enum BillingCycle {
+  MONTHLY
+  ANNUAL
+  TWO_YEAR
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  PAUSED
+}
+
+// ─── Trial Sessions ───────────────────────────────────────────────────────────
+
+model TrialSession {
+  id                  String        @id @default(cuid())
+  organisationId      String
+  email               String
+  stripeCustomerId    String?
+  subscriptionId      String?       @unique
+  startedAt           DateTime      @default(now())
+  expiresAt           DateTime
+  convertedAt         DateTime?
+  cancelledAt         DateTime?
+  notificationSentAt  DateTime?
+  userCount           Int           @default(1)
+  maxUsers            Int           @default(5)
+  appliedDiscountPct  Decimal       @default(15)
+  status              TrialStatus   @default(ACTIVE)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  subscription        Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@index([organisationId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("trial_sessions")
+}
+
+enum TrialStatus {
+  ACTIVE
+  CONVERTED
+  EXPIRED
+  CANCELLED
+}
+
+// ─── Design Partner Status ────────────────────────────────────────────────────
+
+model DesignPartnerStatus {
+  id                    String        @id @default(cuid())
+  organisationId        String        @unique
+  subscriptionId        String?       @unique
+  isDesignPartner       Boolean       @default(false)
+  lockedPriceMonthly    Decimal?
+  lockedUntil           DateTime?
+  notifyAtDate          DateTime?
+  noticeSentAt          DateTime?
+  renewalRateMonthly    Decimal?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  subscription          Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@index([isDesignPartner])
+  @@map("design_partner_statuses")
+}
+
+// ─── Vertical Add-Ons ─────────────────────────────────────────────────────────
+
+model VerticalAddOn {
+  id                String        @id @default(cuid())
+  subscriptionId    String
+  verticalId        String
+  verticalName      String
+  billingMode       AddOnBillingMode
+  perUserMonthly    Decimal?
+  annualFlatRate    Decimal?
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  subscription      Subscription  @relation(fields: [subscriptionId], references: [id])
+
+  @@index([subscriptionId])
+  @@map("vertical_add_ons")
+}
+
+enum AddOnBillingMode {
+  PER_USER
+  FLAT
+}
+
+// ─── Stack Calculator Sessions ───────────────────────────────────────────────
+
+model StackCalculatorSession {
+  id                  String    @id @default(cuid())
+  sessionToken        String    @unique
+  tools               Json
+  totalMonthly        Decimal
+  totalAnnual         Decimal
+  nexaraSaving        Decimal
+  userCount           Int
+  selectedTier        String?
+  convertedToTrial    Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+
+  @@index([createdAt])
+  @@map("stack_calculator_sessions")
+}
+
+// ─── Partner Organisations ────────────────────────────────────────────────────
+
+model PartnerOrganisation {
+  id                      String        @id @default(cuid())
+  organisationId          String        @unique
+  partnerTier             PartnerTier
+  status                  PartnerStatus @default(PENDING)
+  resellerDiscountPct     Decimal?
+  contractedACVTarget     Decimal?
+  actualACVYTD            Decimal       @default(0)
+  coMarketingBudgetGBP    Decimal?
+  coMarketingSpentGBP     Decimal       @default(0)
+  nfrLicencesAllowed      Int           @default(0)
+  channelManagerId        String?
+  certificationStatus     CertStatus    @default(NOT_STARTED)
+  certificationExpiresAt  DateTime?
+  contractSignedAt        DateTime?
+  contractExpiresAt       DateTime?
+  apacRegion              String?
+  isMasterReseller        Boolean       @default(false)
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  dealRegistrations       DealRegistration[]
+  partnerCommissions      PartnerCommission[]
+  nfrSubscriptions        NfrSubscription[]
+  whiteLabelContracts     WhiteLabelContract[]
+
+  @@index([partnerTier])
+  @@index([status])
+  @@map("partner_organisations")
+}
+
+enum PartnerTier {
+  REFERRAL
+  RESELLER
+  STRATEGIC
+  WHITE_LABEL
+}
+
+enum PartnerStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  CHURNED
+}
+
+enum CertStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  CERTIFIED
+  EXPIRED
+}
+
+// ─── Deal Registrations ───────────────────────────────────────────────────────
+
+model DealRegistration {
+  id                  String              @id @default(cuid())
+  partnerId           String
+  prospectName        String
+  prospectEmail       String?
+  prospectCompany     String
+  estimatedUsers      Int
+  estimatedTier       String
+  estimatedACV        Decimal
+  protectedUntil      DateTime
+  status              DealRegStatus       @default(REGISTERED)
+  wonAt               DateTime?
+  lostAt              DateTime?
+  lostReason          String?
+  commissionPaid      Boolean             @default(false)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  partner             PartnerOrganisation @relation(fields: [partnerId], references: [id])
+  commissions         PartnerCommission[]
+
+  @@index([partnerId])
+  @@index([status])
+  @@index([protectedUntil])
+  @@map("deal_registrations")
+}
+
+enum DealRegStatus {
+  REGISTERED
+  IN_PROGRESS
+  WON
+  LOST
+  EXPIRED
+}
+
+// ─── Partner Commissions ─────────────────────────────────────────────────────
+
+model PartnerCommission {
+  id                    String              @id @default(cuid())
+  partnerId             String
+  dealRegistrationId    String?
+  subscriptionId        String?
+  commissionType        CommissionType
+  dealACV               Decimal
+  commissionPct         Decimal
+  commissionAmount      Decimal
+  periodStart           DateTime
+  periodEnd             DateTime
+  paidAt                DateTime?
+  status                CommissionStatus    @default(PENDING)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  partner               PartnerOrganisation @relation(fields: [partnerId], references: [id])
+  dealRegistration      DealRegistration?   @relation(fields: [dealRegistrationId], references: [id])
+  subscription          Subscription?       @relation(fields: [subscriptionId], references: [id])
+
+  @@index([partnerId])
+  @@index([status])
+  @@map("partner_commissions")
+}
+
+enum CommissionType {
+  REFERRAL_FIRST_YEAR
+  RESELLER_MARGIN
+  STRATEGIC_MARGIN
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  DISPUTED
+}
+
+// ─── NFR Subscriptions ────────────────────────────────────────────────────────
+
+model NfrSubscription {
+  id              String              @id @default(cuid())
+  partnerId       String
+  tier            String              @default("PROFESSIONAL")
+  maxUsers        Int
+  activeUsers     Int                 @default(0)
+  purpose         String              @default("Internal use / demonstration")
+  expiresAt       DateTime?
+  isActive        Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  partner         PartnerOrganisation @relation(fields: [partnerId], references: [id])
+
+  @@index([partnerId])
+  @@map("nfr_subscriptions")
+}
+
+// ─── White Label Contracts ────────────────────────────────────────────────────
+
+model WhiteLabelContract {
+  id                    String              @id @default(cuid())
+  partnerId             String
+  brandName             String
+  primaryColour         String?
+  logoUrl               String?
+  customDomain          String?
+  annualLicenceFeeGBP   Decimal             @default(24000)
+  activeEndCustomers    Int                 @default(0)
+  minEndCustomers       Int                 @default(3)
+  contractStart         DateTime
+  contractEnd           DateTime
+  isActive              Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  partner               PartnerOrganisation @relation(fields: [partnerId], references: [id])
+
+  @@index([partnerId])
+  @@map("white_label_contracts")
+}

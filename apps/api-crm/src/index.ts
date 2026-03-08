@@ -41,6 +41,7 @@ import quotesRouter from './routes/quotes';
 import leadsRouter from './routes/leads';
 import campaignsRouter, { emailSequenceRouter } from './routes/campaigns';
 import partnersRouter from './routes/partners';
+import pricingIntegrationRouter from './routes/pricing-integration';
 import reportsRouter from './routes/reports';
 import forecastRouter from './routes/forecast';
 import { writeRoleGuard } from '@ims/auth';
@@ -86,6 +87,7 @@ app.use('/api/campaigns', campaignsRouter);
 app.use('/api/email-sequences', emailSequenceRouter);
 app.use('/api/sequences', emailSequenceRouter); // alias — web app calls /sequences
 app.use('/api/partners', partnersRouter);
+app.use('/api/pricing-integration', pricingIntegrationRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/forecast', forecastRouter);
 
