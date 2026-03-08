@@ -4,5 +4,7 @@
   "private": true,
   "description": "Nexara IMS — End User Training Programme (4-hour programme, editable source materials)",
   "keywords": ["training", "end-user", "ims", "nexara", "operational"],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "scripts": { "test": "jest" },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
 }

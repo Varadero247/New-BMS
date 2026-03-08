@@ -4,5 +4,7 @@
   "private": true,
   "description": "Nexara IMS — Role-Based Administrator Training Programme (editable source materials)",
   "keywords": ["training", "administrator", "ims", "nexara"],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "scripts": { "test": "jest" },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
 }

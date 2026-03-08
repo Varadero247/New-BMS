@@ -4,5 +4,7 @@
   "private": true,
   "description": "Nexara IMS — Module Owner Training Programme (5 one-day programmes, editable source materials)",
   "keywords": ["training", "module-owner", "ims", "nexara", "compliance"],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "scripts": { "test": "jest" },
+  "devDependencies": { "ts-jest": "*", "jest": "*", "@types/jest": "*", "typescript": "*" }
 }

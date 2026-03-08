@@ -781,6 +781,12 @@ module.exports = {
   '<rootDir>/packages/regional-data',
   // @ims/chemical-register (added Mar 8, 2026 — Phase 142)
   '<rootDir>/packages/chemical-register',
+  // @ims/administrator-training (added Mar 8, 2026 — Phase 143)
+  '<rootDir>/packages/administrator-training',
+  // @ims/end-user-training (added Mar 8, 2026 — Phase 143)
+  '<rootDir>/packages/end-user-training',
+  // @ims/module-owner-training (added Mar 8, 2026 — Phase 143)
+  '<rootDir>/packages/module-owner-training',
   ],
 
 

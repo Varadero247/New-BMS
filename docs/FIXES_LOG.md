@@ -8,6 +8,25 @@
 ---
 
 
+## Phase 143 — Training Programme Specification Tests (March 8, 2026)
+
+### New: spec tests for `@ims/administrator-training`, `@ims/end-user-training`, `@ims/module-owner-training`
+All three packages were content-only (Markdown source materials) with no TypeScript source or test infrastructure. Following the Phase 134 web-app pattern, added jest.config.js + inline spec tests to each.
+
+**`@ims/administrator-training`** (`__tests__/administrator-training.spec.ts`, 38 tests):
+Programme constants (code=NEXARA-ATP-001, 14 CPD, 2 days, cohort 4–16, ILT format, certificate title); module count/numbering (7 modules, sequential, unique, Day1=4, Day2=3); schedule invariants (08:30–17:00 both days, no overlap, positive durations, break counts, assessment counts); summative assessment (40 MCQ + 3 scenarios, 75% pass = 30/40, 60 min); RBAC constants (39 roles × 17 modules × 7 permission levels = 273 combos); CPD recognition (4 schemes incl. CQI/IRCA, IOSH).
+
+**`@ims/end-user-training`** (`__tests__/end-user-training.spec.ts`, 37 tests):
+Programme constants (4 CPD = 4 hrs, 2 formats: virtual-ilt/elearning, certificate title, no prerequisites); 6 modules (sequential, positive durations, unique titles, total content 195 min, safety-critical modules 2+4); assessment (20 MCQ, 80% pass = 16/20, virtual timed 20 min, e-learning untimed, higher than Module Owner because safety-critical); 6 learning outcomes (unique, non-empty, outcomes 3+4 reference incidents/PTW); 5 target audience groups; virtual schedule invariants (09:00–13:00 = 240 min, no overlap, 2 breaks).
+
+**`@ims/module-owner-training`** (`__tests__/module-owner-training.spec.ts`, 39 tests):
+5 programmes (unique slugs/labels/certificates, Day A–E coverage, Day B HSE has most modules=5); certificate titles (all start with "Nexara Certified Module Owner", unique, HSE+Audits mentioned); CPD (7 per day × 5 = 35 total, 5 CPD bodies including IOSH/CQI); daily schedule (08:30–17:00, no overlap, 3 breaks, 3 content blocks, 1 lab=75 min, assessment last at 16:30); assessment (20 MCQ, 30 min, 75% = 15/20, lower than End User, no Part B); co-branding rules (2 permitted, 3 prohibited, client logo OK, competitor/question bank modification prohibited).
+
+Added `jest.config.js` + `tsconfig.json` + updated `package.json` (added scripts + devDependencies) for each package.
+Added all 3 to root jest.config.js (485th, 486th, 487th projects). **~1,221,490 unit tests / 1,125 suites / 487 Jest projects — ALL PASSING.**
+
+---
+
 ## Phase 142 — `@ims/chemical-register` Source + Tests (March 8, 2026)
 
 ### New: `packages/chemical-register/src/index.ts`

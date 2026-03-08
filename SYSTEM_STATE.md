@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-03-08 (Phase 142 — @ims/chemical-register src + tests: 117 tests, 484th Jest project)
+> Last updated: 2026-03-08 (Phase 143 — training packages: 114 tests across 3 packages, 485–487th Jest projects)
 
 ## Summary
 
@@ -12,7 +12,7 @@
 | Prisma Schemas           | 44                                                    |
 | Database Tables (models) | ~597 (+8 Apac-prefixed models in schema.prisma)       |
 | Scripts                  | 60+                                                   |
-| Unit Tests               | ~1,221,376 across 1,122 suites / 484 Jest projects (all passing) |
+| Unit Tests               | ~1,221,490 across 1,125 suites / 487 Jest projects (all passing) |
 | Integration Test Scripts | 40 shell scripts + 12 Jest suites (111 tests, `pnpm test:integration:ci`) |
 
 ---
