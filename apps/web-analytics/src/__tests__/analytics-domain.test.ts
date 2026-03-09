@@ -527,3 +527,121 @@ describe('kpiTrendLabel helper', () => {
     });
   }
 });
+
+// ─── Phase 216 parametric additions ──────────────────────────────────────────
+
+describe('KPI_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'ON_TARGET'],
+    [1, 'NEAR_TARGET'],
+    [2, 'OFF_TARGET'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`KPI_STATUSES[${idx}] === '${val}'`, () => {
+      expect(KPI_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('KPI_TRENDS — positional index parametric', () => {
+  const expected = [
+    [0, 'UP'],
+    [1, 'DOWN'],
+    [2, 'STABLE'],
+    [3, 'IMPROVING'],
+    [4, 'DECLINING'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`KPI_TRENDS[${idx}] === '${val}'`, () => {
+      expect(KPI_TRENDS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DASHBOARD_VISIBILITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'PUBLIC'],
+    [1, 'PRIVATE'],
+    [2, 'RESTRICTED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DASHBOARD_VISIBILITIES[${idx}] === '${val}'`, () => {
+      expect(DASHBOARD_VISIBILITIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('KPI_CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'H&S'],
+    [1, 'Quality'],
+    [2, 'Operations'],
+    [3, 'ESG'],
+    [4, 'HR'],
+    [5, 'Supply Chain'],
+    [6, 'Finance'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`KPI_CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(KPI_CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DATE_RANGES — positional index parametric', () => {
+  const expected = [
+    [0, '7D'],
+    [1, '30D'],
+    [2, '90D'],
+    [3, '1Y'],
+    [4, 'ALL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DATE_RANGES[${idx}] === '${val}'`, () => {
+      expect(DATE_RANGES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('CHART_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'BAR'],
+    [1, 'LINE'],
+    [2, 'PIE'],
+    [3, 'SCATTER'],
+    [4, 'HEATMAP'],
+    [5, 'AREA'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CHART_TYPES[${idx}] === '${val}'`, () => {
+      expect(CHART_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('REPORT_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'PUBLISHED'],
+    [2, 'ARCHIVED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`REPORT_STATUSES[${idx}] === '${val}'`, () => {
+      expect(REPORT_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('FINDING_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'MAJOR_NC'],
+    [1, 'MINOR_NC'],
+    [2, 'OBSERVATION'],
+    [3, 'CLEAR'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`FINDING_TYPES[${idx}] === '${val}'`, () => {
+      expect(FINDING_TYPES[idx]).toBe(val);
+    });
+  }
+});
