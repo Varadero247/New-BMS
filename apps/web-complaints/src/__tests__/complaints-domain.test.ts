@@ -750,3 +750,143 @@ describe('Mock Action data shapes', () => {
     }
   });
 });
+
+// ─── Parametric: CHANNELS positional index ───────────────────────────────────
+
+describe('CHANNELS — positional index parametric', () => {
+  const cases: [ComplaintChannel, number][] = [
+    ['EMAIL', 0],
+    ['PHONE', 1],
+    ['WEB_FORM', 2],
+    ['SOCIAL_MEDIA', 3],
+    ['IN_PERSON', 4],
+    ['LETTER', 5],
+  ];
+  for (const [channel, idx] of cases) {
+    it(`${channel} is at index ${idx}`, () => {
+      expect(CHANNELS[idx]).toBe(channel);
+    });
+  }
+});
+
+// ─── Parametric: STATUSES positional index ───────────────────────────────────
+
+describe('STATUSES — positional index parametric', () => {
+  const cases: [ComplaintStatus, number][] = [
+    ['NEW', 0],
+    ['ACKNOWLEDGED', 1],
+    ['INVESTIGATING', 2],
+    ['RESOLVED', 3],
+    ['CLOSED', 4],
+    ['ESCALATED', 5],
+  ];
+  for (const [status, idx] of cases) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: isComplaintOpen per-status ──────────────────────────────────
+
+describe('isComplaintOpen — per-status parametric', () => {
+  const cases: [ComplaintStatus, boolean][] = [
+    ['NEW', true],
+    ['ACKNOWLEDGED', true],
+    ['INVESTIGATING', true],
+    ['ESCALATED', true],
+    ['RESOLVED', false],
+    ['CLOSED', false],
+  ];
+  for (const [status, expected] of cases) {
+    it(`${status} → isComplaintOpen=${expected}`, () => {
+      expect(isComplaintOpen(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: isComplaintResolved per-status ──────────────────────────────
+
+describe('isComplaintResolved — per-status parametric', () => {
+  const cases: [ComplaintStatus, boolean][] = [
+    ['RESOLVED', true],
+    ['CLOSED', true],
+    ['NEW', false],
+    ['ACKNOWLEDGED', false],
+    ['INVESTIGATING', false],
+    ['ESCALATED', false],
+  ];
+  for (const [status, expected] of cases) {
+    it(`${status} → isComplaintResolved=${expected}`, () => {
+      expect(isComplaintResolved(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: isRegulatoryCategory per-category ───────────────────────────
+
+describe('isRegulatoryCategory — per-category exact parametric', () => {
+  const cases: [ComplaintCategory, boolean][] = [
+    ['REGULATORY', true],
+    ['SAFETY', true],
+    ['PRODUCT', false],
+    ['SERVICE', false],
+    ['DELIVERY', false],
+    ['BILLING', false],
+    ['ENVIRONMENTAL', false],
+    ['OTHER', false],
+  ];
+  for (const [category, expected] of cases) {
+    it(`${category} → isRegulatoryCategory=${expected}`, () => {
+      expect(isRegulatoryCategory(category)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: slaTargetHours ratio invariants ─────────────────────────────
+
+describe('slaTargetHours — ratio invariants parametric', () => {
+  it('HIGH is 2× CRITICAL', () => {
+    expect(slaTargetHours['HIGH']).toBe(slaTargetHours['CRITICAL'] * 2);
+  });
+  it('MEDIUM is 3× HIGH', () => {
+    expect(slaTargetHours['MEDIUM']).toBe(slaTargetHours['HIGH'] * 3);
+  });
+  it('LOW is 3× MEDIUM', () => {
+    expect(slaTargetHours['LOW']).toBe(slaTargetHours['MEDIUM'] * 3);
+  });
+});
+
+// ─── Parametric: getPriorityColor text- family ───────────────────────────────
+
+describe('getPriorityColor — text- family per-priority parametric', () => {
+  const cases: [ComplaintPriority, string][] = [
+    ['CRITICAL', 'red'],
+    ['HIGH', 'orange'],
+    ['MEDIUM', 'yellow'],
+    ['LOW', 'green'],
+  ];
+  for (const [priority, color] of cases) {
+    it(`${priority} color contains text-${color}`, () => {
+      expect(getPriorityColor(priority)).toContain(`text-${color}`);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_COMPLAINTS per-complaint exact fields ──────────────────
+
+describe('MOCK_COMPLAINTS — per-complaint exact priority+status+channel parametric', () => {
+  const cases: [string, ComplaintPriority, ComplaintStatus, ComplaintChannel][] = [
+    ['cmp-001', 'HIGH', 'INVESTIGATING', 'EMAIL'],
+    ['cmp-002', 'CRITICAL', 'ESCALATED', 'PHONE'],
+    ['cmp-003', 'MEDIUM', 'RESOLVED', 'WEB_FORM'],
+  ];
+  for (const [id, priority, status, channel] of cases) {
+    it(`${id} has priority=${priority}, status=${status}, channel=${channel}`, () => {
+      const c = MOCK_COMPLAINTS.find((x) => x.id === id)!;
+      expect(c.priority).toBe(priority);
+      expect(c.status).toBe(status);
+      expect(c.channel).toBe(channel);
+    });
+  }
+});

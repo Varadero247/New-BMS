@@ -505,3 +505,87 @@ describe('SEVERITY_COLOR map completeness', () => {
     expect(new Set(colors).size).toBe(colors.length);
   });
 });
+
+// ── Parametric: TYPES positional index (positions 1–6) ───────────────────────
+
+describe('TYPES — positional index parametric', () => {
+  const cases: [string, number][] = [
+    ['NEAR_MISS', 1],
+    ['ENVIRONMENTAL', 2],
+    ['PROPERTY_DAMAGE', 3],
+    ['SECURITY', 4],
+    ['QUALITY', 5],
+    ['VEHICLE', 6],
+  ];
+  for (const [type, idx] of cases) {
+    it(`${type} is at index ${idx}`, () => {
+      expect(TYPES[idx]).toBe(type);
+    });
+  }
+});
+
+// ── Parametric: STATUSES positional index (positions 1–6) ────────────────────
+
+describe('STATUSES — positional index parametric', () => {
+  const cases: [string, number][] = [
+    ['ACKNOWLEDGED', 1],
+    ['INVESTIGATING', 2],
+    ['ROOT_CAUSE_ANALYSIS', 3],
+    ['CORRECTIVE_ACTION', 4],
+    ['CLOSED', 5],
+    ['REOPENED', 6],
+  ];
+  for (const [status, idx] of cases) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ── Parametric: isActiveInvestigation per-status exact ───────────────────────
+
+describe('isActiveInvestigation — per-status exact parametric', () => {
+  const cases: [string, boolean][] = [
+    ['REPORTED', true],
+    ['ACKNOWLEDGED', true],
+    ['INVESTIGATING', true],
+    ['ROOT_CAUSE_ANALYSIS', true],
+    ['CORRECTIVE_ACTION', false],
+    ['CLOSED', false],
+    ['REOPENED', false],
+  ];
+  for (const [status, expected] of cases) {
+    it(`${status} → isActiveInvestigation=${expected}`, () => {
+      expect(isActiveInvestigation(status)).toBe(expected);
+    });
+  }
+});
+
+// ── Parametric: MOCK_INCIDENTS per-incident exact type+severity+status ────────
+
+describe('MOCK_INCIDENTS — per-incident exact type+severity+status parametric', () => {
+  const cases: [string, string, string, string][] = [
+    ['inc-001', 'INJURY', 'MODERATE', 'INVESTIGATING'],
+    ['inc-002', 'ENVIRONMENTAL', 'MAJOR', 'ROOT_CAUSE_ANALYSIS'],
+    ['inc-003', 'NEAR_MISS', 'CRITICAL', 'CORRECTIVE_ACTION'],
+    ['inc-004', 'PROPERTY_DAMAGE', 'MINOR', 'CLOSED'],
+    ['inc-005', 'INJURY', 'CATASTROPHIC', 'REPORTED'],
+  ];
+  for (const [id, type, severity, status] of cases) {
+    it(`${id}: type=${type}, severity=${severity}, status=${status}`, () => {
+      const inc = MOCK_INCIDENTS.find((i) => i.id === id)!;
+      expect(inc.type).toBe(type);
+      expect(inc.severity).toBe(severity);
+      expect(inc.status).toBe(status);
+    });
+  }
+});
+
+// ── Parametric: MOCK_INCIDENTS daysLost aggregate ────────────────────────────
+
+describe('MOCK_INCIDENTS — daysLost aggregate', () => {
+  it('total daysLost across all incidents is 123', () => {
+    const total = MOCK_INCIDENTS.reduce((sum, i) => sum + i.daysLost, 0);
+    expect(total).toBe(123);
+  });
+});

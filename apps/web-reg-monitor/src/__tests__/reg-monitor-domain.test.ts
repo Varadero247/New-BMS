@@ -541,6 +541,131 @@ describe('mock legal items data shapes', () => {
   }
 });
 
+// ─── Parametric: SOURCES positional index ────────────────────────────────────
+
+describe('SOURCES — positional index parametric', () => {
+  const cases: [Source, number][] = [
+    ['GOVERNMENT', 0],
+    ['REGULATOR', 1],
+    ['STANDARDS_BODY', 2],
+    ['INDUSTRY', 3],
+    ['EU_UK', 4],
+    ['OTHER', 5],
+  ];
+  for (const [source, idx] of cases) {
+    it(`${source} is at index ${idx}`, () => {
+      expect(SOURCES[idx]).toBe(source);
+    });
+  }
+});
+
+// ─── Parametric: CHANGE_STATUSES positional index ────────────────────────────
+
+describe('CHANGE_STATUSES — positional index parametric', () => {
+  const cases: [ChangeStatus, number][] = [
+    ['NEW', 0],
+    ['UNDER_REVIEW', 1],
+    ['ASSESSED', 2],
+    ['IMPLEMENTED', 3],
+    ['NOT_APPLICABLE', 4],
+    ['MONITORING', 5],
+  ];
+  for (const [status, idx] of cases) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(CHANGE_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: FREQUENCIES positional index ────────────────────────────────
+
+describe('FREQUENCIES — positional index parametric', () => {
+  const cases: [Frequency, number][] = [
+    ['ONE_OFF', 0],
+    ['DAILY', 1],
+    ['WEEKLY', 2],
+    ['MONTHLY', 3],
+    ['QUARTERLY', 4],
+    ['SEMI_ANNUAL', 5],
+    ['ANNUAL', 6],
+    ['BIENNIAL', 7],
+  ];
+  for (const [freq, idx] of cases) {
+    it(`${freq} is at index ${idx}`, () => {
+      expect(FREQUENCIES[idx]).toBe(freq);
+    });
+  }
+});
+
+// ─── Parametric: mockChanges per-change exact source+status+impact ────────────
+
+describe('mockChanges — per-change exact source+status+impact parametric', () => {
+  const cases: [string, Source, ChangeStatus, Impact][] = [
+    ['c-001', 'REGULATOR', 'NEW', 'HIGH'],
+    ['c-002', 'STANDARDS_BODY', 'UNDER_REVIEW', 'MEDIUM'],
+    ['c-003', 'GOVERNMENT', 'IMPLEMENTED', 'CRITICAL'],
+  ];
+  for (const [id, source, status, impact] of cases) {
+    it(`${id}: source=${source}, status=${status}, impact=${impact}`, () => {
+      const c = mockChanges.find((x) => x.id === id)!;
+      expect(c.source).toBe(source);
+      expect(c.status).toBe(status);
+      expect(c.impact).toBe(impact);
+    });
+  }
+});
+
+// ─── Parametric: mockObligations per-obligation exact frequency+status ─────────
+
+describe('mockObligations — per-obligation exact frequency+status parametric', () => {
+  const cases: [string, Frequency, ObligationStatus][] = [
+    ['o-001', 'ANNUAL', 'OPEN'],
+    ['o-002', 'QUARTERLY', 'IN_PROGRESS'],
+    ['o-003', 'SEMI_ANNUAL', 'OVERDUE'],
+  ];
+  for (const [id, frequency, status] of cases) {
+    it(`${id}: frequency=${frequency}, status=${status}`, () => {
+      const o = mockObligations.find((x) => x.id === id)!;
+      expect(o.frequency).toBe(frequency);
+      expect(o.status).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: mockLegalItems per-item exact complianceStatus+jurisdiction ──
+
+describe('mockLegalItems — per-item exact complianceStatus+jurisdiction parametric', () => {
+  const cases: [string, ComplianceStatus, string][] = [
+    ['l-001', 'COMPLIANT', 'UK'],
+    ['l-002', 'PARTIALLY_COMPLIANT', 'EU'],
+    ['l-003', 'NON_COMPLIANT', 'UK'],
+  ];
+  for (const [id, complianceStatus, jurisdiction] of cases) {
+    it(`${id}: complianceStatus=${complianceStatus}, jurisdiction=${jurisdiction}`, () => {
+      const item = mockLegalItems.find((x) => x.id === id)!;
+      expect(item.complianceStatus).toBe(complianceStatus);
+      expect(item.jurisdiction).toBe(jurisdiction);
+    });
+  }
+});
+
+// ─── Parametric: complianceScore additional exact values ─────────────────────
+
+describe('complianceScore — additional exact values parametric', () => {
+  const cases: [number, number, number][] = [
+    [4, 3, 75],
+    [10, 7, 70],
+    [3, 2, 67],
+    [4, 1, 25],
+    [10, 9, 90],
+  ];
+  for (const [total, compliant, expected] of cases) {
+    it(`${compliant}/${total} → ${expected}`, () => {
+      expect(complianceScore(total, compliant)).toBe(expected);
+    });
+  }
+});
+
 describe('dashboard aggregate logic (inlined)', () => {
   it('high/critical count is correct', () => {
     const count = mockChanges.filter((c) => isHighImpact(c.impact)).length;
