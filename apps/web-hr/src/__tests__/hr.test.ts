@@ -179,3 +179,37 @@ describe('ph220hr2_cs',()=>{
   it('d',()=>{expect(climbStairs220hr2(5)).toBe(8);});
   it('e',()=>{expect(climbStairs220hr2(1)).toBe(1);});
 });
+
+// ─── Algorithm puzzle phases (ph221hr4–ph224hr4) ────────────────────────────────
+function maxProfit221hr4(p:number[]):number{let min=Infinity,max=0;for(const x of p){min=Math.min(min,x);max=Math.max(max,x-min);}return max;}
+describe('ph221hr4_mp',()=>{
+  it('a',()=>{expect(maxProfit221hr4([7,1,5,3,6,4])).toBe(5);});
+  it('b',()=>{expect(maxProfit221hr4([7,6,4,3,1])).toBe(0);});
+  it('c',()=>{expect(maxProfit221hr4([1,2])).toBe(1);});
+  it('d',()=>{expect(maxProfit221hr4([2,1,4])).toBe(3);});
+  it('e',()=>{expect(maxProfit221hr4([1])).toBe(0);});
+});
+function singleNumber222hr4(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('ph222hr4_sn',()=>{
+  it('a',()=>{expect(singleNumber222hr4([2,2,1])).toBe(1);});
+  it('b',()=>{expect(singleNumber222hr4([4,1,2,1,2])).toBe(4);});
+  it('c',()=>{expect(singleNumber222hr4([1])).toBe(1);});
+  it('d',()=>{expect(singleNumber222hr4([0,1,0])).toBe(1);});
+  it('e',()=>{expect(singleNumber222hr4([3,3,5])).toBe(5);});
+});
+function hammingDist223hr4(x:number,y:number):number{let n=x^y,c=0;while(n){c+=n&1;n>>>=1;}return c;}
+describe('ph223hr4_hd',()=>{
+  it('a',()=>{expect(hammingDist223hr4(1,4)).toBe(2);});
+  it('b',()=>{expect(hammingDist223hr4(3,1)).toBe(1);});
+  it('c',()=>{expect(hammingDist223hr4(0,0)).toBe(0);});
+  it('d',()=>{expect(hammingDist223hr4(0,15)).toBe(4);});
+  it('e',()=>{expect(hammingDist223hr4(7,7)).toBe(0);});
+});
+function majorElem224hr4(nums:number[]):number{let c=0,m=0;for(const n of nums){if(c===0)m=n;c+=n===m?1:-1;}return m;}
+describe('ph224hr4_me',()=>{
+  it('a',()=>{expect(majorElem224hr4([3,2,3])).toBe(3);});
+  it('b',()=>{expect(majorElem224hr4([2,2,1,1,1,2,2])).toBe(2);});
+  it('c',()=>{expect(majorElem224hr4([1])).toBe(1);});
+  it('d',()=>{expect(majorElem224hr4([1,1,2])).toBe(1);});
+  it('e',()=>{expect(majorElem224hr4([6,5,5])).toBe(5);});
+});
