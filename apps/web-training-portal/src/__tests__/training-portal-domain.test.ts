@@ -729,3 +729,157 @@ describe('Cross-constant invariants — training portal domain', () => {
     expect(SUMMATIVE_TOTAL_MARKS).toBeGreaterThan(MODULE_OWNER_ASSESSMENT_QUESTIONS);
   });
 });
+
+// ─── Parametric: per-programme CPD hours ──────────────────────────────────────
+
+describe('PROGRAMME_CPD_HOURS — per-programme parametric', () => {
+  const cases: [ProgrammeName, number][] = [
+    ['Administrator Training', 14],
+    ['Module Owner Training',   7],
+    ['End User Training',       4],
+    ['Train-the-Trainer',      14],
+  ];
+  for (const [name, cpd] of cases) {
+    it(`${name} → ${cpd} CPD hours`, () => {
+      expect(PROGRAMME_CPD_HOURS[name]).toBe(cpd);
+    });
+  }
+});
+
+// ─── Parametric: per-programme pass thresholds ────────────────────────────────
+
+describe('PASS_THRESHOLDS — per-programme parametric', () => {
+  const cases: [ProgrammeName, number][] = [
+    ['Administrator Training', 75],
+    ['Module Owner Training',  75],
+    ['End User Training',      80],
+    ['Train-the-Trainer',      75],
+  ];
+  for (const [name, threshold] of cases) {
+    it(`${name} pass threshold = ${threshold}%`, () => {
+      expect(PASS_THRESHOLDS[name]).toBe(threshold);
+    });
+  }
+});
+
+// ─── Parametric: computeGrade boundary matrix ─────────────────────────────────
+
+describe('computeGrade — boundary matrix parametric', () => {
+  const cases: [number, number, 'DISTINCTION' | 'PASS' | 'FAIL'][] = [
+    [55, 55, 'DISTINCTION'],
+    [50, 55, 'DISTINCTION'],
+    [49, 55, 'PASS'],
+    [42, 55, 'PASS'],
+    [41, 55, 'FAIL'],
+    [0,  55, 'FAIL'],
+    [10, 10, 'DISTINCTION'],  // 100% → distinction
+    [7,  10, 'PASS'],          // 70% → just pass (>= 75 needed so actually FAIL?)
+  ];
+  // Note: 70% < 75% pass threshold → FAIL
+  const correctedCases: [number, number, 'DISTINCTION' | 'PASS' | 'FAIL'][] = [
+    [55, 55, 'DISTINCTION'],
+    [50, 55, 'DISTINCTION'],
+    [49, 55, 'PASS'],
+    [42, 55, 'PASS'],
+    [41, 55, 'FAIL'],
+    [0,  55, 'FAIL'],
+    [10, 10, 'DISTINCTION'],  // 100%
+    [8,  10, 'PASS'],          // 80% >= 75%
+  ];
+  for (const [score, total, expected] of correctedCases) {
+    it(`computeGrade(${score}, ${total}) = "${expected}"`, () => {
+      expect(computeGrade(score, total)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: per-admin-module day ─────────────────────────────────────────
+
+describe('ADMIN_MODULES — per-module day parametric', () => {
+  const cases: [number, 1 | 2][] = [
+    [1, 1], [2, 1], [3, 1], [4, 1],
+    [5, 2], [6, 2], [7, 2],
+  ];
+  for (const [id, day] of cases) {
+    it(`module ${id} is on Day ${day}`, () => {
+      const mod = ADMIN_MODULES.find((m) => m.id === id);
+      expect(mod?.day).toBe(day);
+    });
+  }
+});
+
+// ─── Parametric: per-end-user-module duration ─────────────────────────────────
+
+describe('END_USER_MODULES — per-module duration exact parametric', () => {
+  const cases: [number, string][] = [
+    [1, '30 min'],
+    [2, '40 min'],
+    [3, '30 min'],
+    [4, '40 min'],
+    [5, '30 min'],
+    [6, '25 min'],
+  ];
+  for (const [id, duration] of cases) {
+    it(`module ${id} duration = "${duration}"`, () => {
+      const mod = END_USER_MODULES.find((m) => m.id === id);
+      expect(mod?.duration).toBe(duration);
+    });
+  }
+});
+
+// ─── Parametric: per-assessment data ─────────────────────────────────────────
+
+describe('ASSESSMENTS — per-assessment parametric', () => {
+  const cases: [string, number, string, boolean][] = [
+    ['pre',         20, '15 min', false],
+    ['day1',        15, '15 min', true],
+    ['final',       40, '45 min', true],
+    ['final-partb',  3, '15 min', true],
+  ];
+  for (const [id, questions, duration, scored] of cases) {
+    it(`${id}: questions=${questions}, duration="${duration}", scored=${scored}`, () => {
+      const a = ASSESSMENTS.find((x) => x.id === id);
+      expect(a?.questions).toBe(questions);
+      expect(a?.duration).toBe(duration);
+      expect(a?.scored).toBe(scored);
+    });
+  }
+});
+
+// ─── Parametric: per-module-owner-group slug/title ───────────────────────────
+
+describe('MODULE_OWNER_GROUPS — per-group parametric', () => {
+  const cases: [string, string][] = [
+    ['quality-nc',        'Quality & Non-Conformance'],
+    ['hse',               'Health, Safety & Environment'],
+    ['hr-payroll',        'HR & Payroll'],
+    ['finance-contracts', 'Finance & Contracts'],
+    ['advanced',          'Audits, CAPA & Management Review'],
+  ];
+  for (const [slug, title] of cases) {
+    it(`slug="${slug}" → title="${title}"`, () => {
+      const group = MODULE_OWNER_GROUPS.find((g) => g.slug === slug);
+      expect(group?.title).toBe(title);
+    });
+  }
+});
+
+// ─── Parametric: TTT_SESSION_COLOURS per-type ─────────────────────────────────
+
+describe('TTT_SESSION_COLOURS — per-type colour parametric', () => {
+  const cases: [TttSessionType, string][] = [
+    ['opening',    'purple'],
+    ['module',     'slate'],
+    ['break',      'slate'],
+    ['lab',        'blue'],
+    ['debrief',    'slate'],
+    ['assessment', 'amber'],
+    ['assessed',   'red'],
+    ['ceremony',   'purple'],
+  ];
+  for (const [type, colorKeyword] of cases) {
+    it(`${type} colour contains "${colorKeyword}"`, () => {
+      expect(TTT_SESSION_COLOURS[type]).toContain(colorKeyword);
+    });
+  }
+});

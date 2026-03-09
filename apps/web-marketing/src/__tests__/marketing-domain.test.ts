@@ -452,3 +452,95 @@ describe('cross-constant invariants — marketing domain', () => {
     }
   });
 });
+
+// ─── Parametric: per-article data ────────────────────────────────────────────
+
+describe('ARTICLES — per-article parametric', () => {
+  const expected: [number, ArticleCategory, string][] = [
+    [0, 'Standards',   'ISO 42001'],
+    [1, 'Product',     'risk register'],
+    [2, 'Engineering', 'AI'],
+    [3, 'Standards',   'ESG'],
+    [4, 'Standards',   'ISO 27001'],
+  ];
+  for (const [idx, category, titleFragment] of expected) {
+    it(`article[${idx}]: category=${category}, title contains "${titleFragment}"`, () => {
+      expect(ARTICLES[idx].category).toBe(category);
+      expect(ARTICLES[idx].title.toLowerCase()).toContain(titleFragment.toLowerCase());
+    });
+  }
+  for (const [idx] of expected) {
+    it(`article[${idx}] has a valid readTime (N min read)`, () => {
+      expect(ARTICLES[idx].readTime).toMatch(/^\d+ min read$/);
+    });
+  }
+});
+
+// ─── Parametric: per-testimonial data ────────────────────────────────────────
+
+describe('TESTIMONIALS — per-testimonial parametric', () => {
+  const expected: [number, string, string][] = [
+    [0, 'Michael Torres',   'Meridian Aerospace'],
+    [1, 'Dr. Priya Sharma', 'BioNova Pharma'],
+    [2, 'Lars Eriksson',    'NordIC Manufacturing'],
+  ];
+  for (const [idx, name, roleFragment] of expected) {
+    it(`testimonial[${idx}]: name="${name}", role contains "${roleFragment}"`, () => {
+      expect(TESTIMONIALS[idx].name).toBe(name);
+      expect(TESTIMONIALS[idx].role).toContain(roleFragment);
+    });
+  }
+  for (const [idx] of expected) {
+    it(`testimonial[${idx}] quote contains a number`, () => {
+      expect(TESTIMONIALS[idx].quote).toMatch(/\d/);
+    });
+  }
+});
+
+// ─── Parametric: getDisplayPrice ─────────────────────────────────────────────
+
+describe('getDisplayPrice — parametric', () => {
+  const cases: [number | null, number | null, 'monthly' | 'annual', number | null][] = [
+    [49, 39, 'monthly',  49],
+    [49, 39, 'annual',   39],
+    [39, 31, 'monthly',  39],
+    [39, 31, 'annual',   31],
+    [null, null, 'annual', null],
+  ];
+  for (const [list, annual, cycle, expected] of cases) {
+    it(`getDisplayPrice(${list}, ${annual}, "${cycle}") = ${expected}`, () => {
+      expect(getDisplayPrice(list, annual, cycle)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: priceDiff ────────────────────────────────────────────────────
+
+describe('priceDiff — parametric', () => {
+  const cases: [number, number, number][] = [
+    [65, 28, 37],
+    [28, 28,  0],
+    [20, 28, -8],
+    [100, 49, 51],
+    [0,  10, -10],
+  ];
+  for (const [theirs, ours, diff] of cases) {
+    it(`priceDiff(${theirs}, ${ours}) = ${diff}`, () => {
+      expect(priceDiff(theirs, ours)).toBe(diff);
+    });
+  }
+});
+
+// ─── Parametric: TIER_IDS ─────────────────────────────────────────────────────
+
+describe('TIER_IDS — per-tier parametric', () => {
+  const expected = ['starter', 'professional', 'enterprise', 'enterprise_plus'];
+  for (const id of expected) {
+    it(`includes "${id}"`, () => {
+      expect(TIER_IDS).toContain(id);
+    });
+  }
+  it('has exactly 4 tier IDs', () => {
+    expect(TIER_IDS).toHaveLength(4);
+  });
+});
