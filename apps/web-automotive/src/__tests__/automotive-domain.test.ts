@@ -723,3 +723,113 @@ describe('MOCK 8D data shapes', () => {
     }
   });
 });
+
+// ─── Phase 215 parametric additions ──────────────────────────────────────────
+
+describe('APQP_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'PLANNING'],
+    [2, 'IN_PROGRESS'],
+    [3, 'ACTIVE'],
+    [4, 'ON_HOLD'],
+    [5, 'COMPLETED'],
+    [6, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`APQP_STATUSES[${idx}] === '${val}'`, () => {
+      expect(APQP_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('PPAP_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'IN_PROGRESS'],
+    [2, 'SUBMITTED'],
+    [3, 'APPROVED'],
+    [4, 'REJECTED'],
+    [5, 'ON_HOLD'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PPAP_STATUSES[${idx}] === '${val}'`, () => {
+      expect(PPAP_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('PPAP_ELEMENT_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'NOT_STARTED'],
+    [1, 'IN_PROGRESS'],
+    [2, 'COMPLETED'],
+    [3, 'NOT_APPLICABLE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PPAP_ELEMENT_STATUSES[${idx}] === '${val}'`, () => {
+      expect(PPAP_ELEMENT_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('CONTROL_PLAN_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'ACTIVE'],
+    [2, 'APPROVED'],
+    [3, 'SUPERSEDED'],
+    [4, 'ARCHIVED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CONTROL_PLAN_STATUSES[${idx}] === '${val}'`, () => {
+      expect(CONTROL_PLAN_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('FMEA_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'open'],
+    [1, 'in-progress'],
+    [2, 'completed'],
+    [3, 'verified'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`FMEA_STATUSES[${idx}] === '${val}'`, () => {
+      expect(FMEA_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('MSA_STUDY_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'GAUGE_RR'],
+    [1, 'LINEARITY'],
+    [2, 'BIAS'],
+    [3, 'STABILITY'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`MSA_STUDY_TYPES[${idx}] === '${val}'`, () => {
+      expect(MSA_STUDY_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('EIGHT_D_DISCIPLINES — positional index parametric', () => {
+  const expected = [
+    [0, 'D1 — Team Formation'],
+    [1, 'D2 — Problem Description'],
+    [2, 'D3 — Interim Containment'],
+    [3, 'D4 — Root Cause Analysis'],
+    [4, 'D5 — Corrective Actions'],
+    [5, 'D6 — Implementation'],
+    [6, 'D7 — Prevention'],
+    [7, 'D8 — Congratulations'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`EIGHT_D_DISCIPLINES[${idx}] === '${val}'`, () => {
+      expect(EIGHT_D_DISCIPLINES[idx]).toBe(val);
+    });
+  }
+});

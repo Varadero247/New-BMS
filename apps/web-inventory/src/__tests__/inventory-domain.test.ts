@@ -666,3 +666,70 @@ describe('isTransfer', () => {
     it(`isTransfer(${t}) returns boolean`, () => expect(typeof isTransfer(t)).toBe('boolean'));
   }
 });
+
+// ─── Phase 215 parametric additions ──────────────────────────────────────────
+
+describe('SUPPLIER_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'approved'],
+    [1, 'conditional'],
+    [2, 'under-review'],
+    [3, 'blocked'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SUPPLIER_STATUSES[${idx}] === '${val}'`, () => {
+      expect(SUPPLIER_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('RATINGS — positional index parametric', () => {
+  const expected = [
+    [0, 'A'],
+    [1, 'B'],
+    [2, 'C'],
+    [3, 'D'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RATINGS[${idx}] === '${val}'`, () => {
+      expect(RATINGS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('ADJUSTMENT_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'ADJUSTMENT_IN'],
+    [1, 'ADJUSTMENT_OUT'],
+    [2, 'CYCLE_COUNT'],
+    [3, 'TRANSFER'],
+    [4, 'RECEIVE'],
+    [5, 'ISSUE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`ADJUSTMENT_TYPES[${idx}] === '${val}'`, () => {
+      expect(ADJUSTMENT_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('TRANSACTION_TYPES — positional index parametric', () => {
+  const expected = [
+    [0,  'RECEIPT'],
+    [1,  'ISSUE'],
+    [2,  'ADJUSTMENT_IN'],
+    [3,  'ADJUSTMENT_OUT'],
+    [4,  'TRANSFER_IN'],
+    [5,  'TRANSFER_OUT'],
+    [6,  'CYCLE_COUNT'],
+    [7,  'RETURN'],
+    [8,  'DAMAGE'],
+    [9,  'EXPIRED'],
+    [10, 'INITIAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TRANSACTION_TYPES[${idx}] === '${val}'`, () => {
+      expect(TRANSACTION_TYPES[idx]).toBe(val);
+    });
+  }
+});
