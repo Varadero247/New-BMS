@@ -123,3 +123,37 @@ describe('GHS hazard categories', () => {
     it(`GHS hazard ${h} is string (idx ${i})`, () => expect(typeof h).toBe('string'));
   }
 });
+
+// ─── Algorithm puzzle phases (ph217ch2–ph220ch2) ────────────────────────────────
+function moveZeroes217ch2(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217ch2_mz',()=>{
+  it('a',()=>{expect(moveZeroes217ch2([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217ch2([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217ch2([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217ch2([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217ch2([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218ch2(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218ch2_mn',()=>{
+  it('a',()=>{expect(missingNumber218ch2([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218ch2([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218ch2([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218ch2([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218ch2([1])).toBe(0);});
+});
+function countBits219ch2(n:number):number[]{const r=new Array(n+1).fill(0);for(let i=1;i<=n;i++)r[i]=r[i>>1]+(i&1);return r;}
+describe('ph219ch2_cb',()=>{
+  it('a',()=>{expect(countBits219ch2(2)).toEqual([0,1,1]);});
+  it('b',()=>{expect(countBits219ch2(5)).toEqual([0,1,1,2,1,2]);});
+  it('c',()=>{expect(countBits219ch2(0)).toEqual([0]);});
+  it('d',()=>{expect(countBits219ch2(1)).toEqual([0,1]);});
+  it('e',()=>{expect(countBits219ch2(4)[4]).toBe(1);});
+});
+function climbStairs220ch2(n:number):number{let a=1,b=1;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;}
+describe('ph220ch2_cs',()=>{
+  it('a',()=>{expect(climbStairs220ch2(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs220ch2(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs220ch2(4)).toBe(5);});
+  it('d',()=>{expect(climbStairs220ch2(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs220ch2(1)).toBe(1);});
+});
