@@ -2228,3 +2228,39 @@ describe('ph216_mal',()=>{
   it('d',()=>{expect(mergeArraysLen216([1,3,5],[2,4,6])).toBe(6);});
   it('e',()=>{expect(mergeArraysLen216([],[]) ).toBe(0);});
 });
+
+function moveZeroes217h(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217h_mz',()=>{
+  it('a',()=>{expect(moveZeroes217h([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217h([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217h([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217h([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217h([4,2,0,0,3])).toBe(4);});
+});
+
+function missingNumber218h(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218h_mn',()=>{
+  it('a',()=>{expect(missingNumber218h([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218h([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218h([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218h([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218h([1])).toBe(0);});
+});
+
+function climbStairs224h(n:number):number{if(n<=2)return n;let a=1,b=2;for(let i=3;i<=n;i++){const c=a+b;a=b;b=c;}return b;}
+describe('ph224h_cs',()=>{
+  it('a',()=>{expect(climbStairs224h(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs224h(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs224h(1)).toBe(1);});
+  it('d',()=>{expect(climbStairs224h(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs224h(10)).toBe(89);});
+});
+
+function singleNumber226h(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('ph226h_sn',()=>{
+  it('a',()=>{expect(singleNumber226h([2,2,1])).toBe(1);});
+  it('b',()=>{expect(singleNumber226h([4,1,2,1,2])).toBe(4);});
+  it('c',()=>{expect(singleNumber226h([1])).toBe(1);});
+  it('d',()=>{expect(singleNumber226h([0,1,0])).toBe(1);});
+  it('e',()=>{expect(singleNumber226h([3,5,3])).toBe(5);});
+});

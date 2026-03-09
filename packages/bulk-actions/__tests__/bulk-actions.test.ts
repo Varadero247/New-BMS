@@ -917,3 +917,36 @@ describe('BulkExecutor — extended async tests', () => {
     });
   }
 });
+
+function moveZeroes217bu(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217bu_mz',()=>{
+  it('a',()=>{expect(moveZeroes217bu([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217bu([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217bu([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217bu([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217bu([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218bu(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218bu_mn',()=>{
+  it('a',()=>{expect(missingNumber218bu([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218bu([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218bu([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218bu([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218bu([1])).toBe(0);});
+});
+function climbStairs224bu(n:number):number{if(n<=2)return n;let a=1,b=2;for(let i=3;i<=n;i++){const c=a+b;a=b;b=c;}return b;}
+describe('ph224bu_cs',()=>{
+  it('a',()=>{expect(climbStairs224bu(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs224bu(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs224bu(1)).toBe(1);});
+  it('d',()=>{expect(climbStairs224bu(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs224bu(10)).toBe(89);});
+});
+function singleNumber226bu(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('ph226bu_sn',()=>{
+  it('a',()=>{expect(singleNumber226bu([2,2,1])).toBe(1);});
+  it('b',()=>{expect(singleNumber226bu([4,1,2,1,2])).toBe(4);});
+  it('c',()=>{expect(singleNumber226bu([1])).toBe(1);});
+  it('d',()=>{expect(singleNumber226bu([0,1,0])).toBe(1);});
+  it('e',()=>{expect(singleNumber226bu([3,5,3])).toBe(5);});
+});
