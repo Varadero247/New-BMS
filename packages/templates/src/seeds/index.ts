@@ -37,6 +37,7 @@ import { incidentsTemplates } from './incidents';
 import { auditsTemplates } from './audits';
 import { managementReviewTemplates } from './management-review';
 import { chemicalsTemplates } from './chemicals';
+import { templatesV2 } from './templates-v2';
 
 export const allTemplates: TemplateDefinition[] = [
   ...healthSafetyTemplates,
@@ -73,4 +74,6 @@ export const allTemplates: TemplateDefinition[] = [
   ...auditsTemplates,
   ...managementReviewTemplates,
   ...chemicalsTemplates,
+  // Phase 135 — 150 new templates across 12 modules
+  ...templatesV2,
 ];

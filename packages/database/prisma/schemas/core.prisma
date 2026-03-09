@@ -659,6 +659,8 @@ enum TemplateModule {
   AUDITS
   MANAGEMENT_REVIEW
   CHEMICALS
+  // Phase 135 additions
+  BUSINESS_CONTINUITY
 }
 
 enum TemplateCategory {
@@ -679,6 +681,19 @@ enum TemplateCategory {
   REPORTING
   GENERAL
   CERTIFICATION
+  // Phase 135 additions
+  POLICY
+  PROCEDURE
+  FORM
+  REGISTER
+  PLAN
+  REPORT
+  CHECKLIST
+  MATRIX
+  SCHEDULE
+  RECORD
+  ASSESSMENT
+  MANUAL
 }
 
 enum TemplateStatus {
@@ -706,6 +721,16 @@ model Template {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   deletedAt      DateTime?
+  // Phase 135 — template library expansion fields
+  isoStandards   String[]         // e.g. ["ISO 9001:2015", "ISO 14001:2015"]
+  isoClauses     String[]         // e.g. ["6.1", "8.1", "9.1.2"]
+  isMandatory    Boolean          @default(false)  // mandatory per the standard
+  industryVertical String[]       // e.g. ["automotive", "medical", "all"]
+  region         String[]         // e.g. ["global", "UK", "AU", "SG"]
+  fileType       String?          // WORD_DOCX | EXCEL_XLSX | PDF | INTERACTIVE_FORM | SPREADSHEET
+  tierRequired   String?          // null=all tiers; "PROFESSIONAL"; "ENTERPRISE"
+  partnerVisible Boolean          @default(true)
+  trialVisible   Boolean          @default(true)
 
   versions  TemplateVersion[]
   instances TemplateInstance[]

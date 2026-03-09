@@ -4,7 +4,7 @@
 /**
  * Phase 157 — Comprehensive data-integrity and renderer tests for @ims/templates.
  *
- * 192 templates × 6 parametric it() each = 1,152 integrity tests.
+ * 342 templates × 6 parametric it() each = 2,052 integrity tests (192 Phase 157 + 150 Phase 135).
  * Additional renderer coverage for table, date/datetime, passthrough field types.
  * Additional exporter coverage for JSON format and slug generation.
  */
@@ -22,6 +22,8 @@ const VALID_MODULES: TemplateModule[] = [
   'ESG', 'CMMS', 'FOOD_SAFETY', 'ENERGY', 'FIELD_SERVICE', 'ANALYTICS',
   'RISK', 'TRAINING', 'SUPPLIERS', 'ASSETS', 'DOCUMENTS', 'COMPLAINTS',
   'CONTRACTS', 'PTW', 'INCIDENTS', 'AUDITS', 'MANAGEMENT_REVIEW', 'CHEMICALS',
+  // Phase 135 additions
+  'BUSINESS_CONTINUITY',
 ];
 
 const VALID_CATEGORIES: TemplateCategory[] = [
@@ -29,6 +31,9 @@ const VALID_CATEGORIES: TemplateCategory[] = [
   'CAPA', 'COMPLIANCE', 'INSPECTION', 'TRAINING', 'DESIGN_DEVELOPMENT',
   'PROCESS_CONTROL', 'SUPPLIER', 'CUSTOMER', 'REGULATORY', 'PLANNING',
   'REPORTING', 'GENERAL', 'CERTIFICATION',
+  // Phase 135 additions
+  'POLICY', 'PROCEDURE', 'FORM', 'REGISTER', 'PLAN', 'REPORT',
+  'CHECKLIST', 'MATRIX', 'SCHEDULE', 'RECORD', 'ASSESSMENT', 'MANUAL',
 ];
 
 const VALID_FIELD_TYPES: FieldType[] = [
@@ -37,7 +42,7 @@ const VALID_FIELD_TYPES: FieldType[] = [
   'section', 'table', 'rating',
 ];
 
-// ── Per-template parametric integrity tests (192 × 6 = 1,152 it() blocks) ─────
+// ── Per-template parametric integrity tests (342 × 6 = 2,052 it() blocks) ─────
 
 for (const t of allTemplates) {
   describe(`template ${t.code}`, () => {
@@ -81,8 +86,8 @@ for (const t of allTemplates) {
 // ── Cross-template invariants ─────────────────────────────────────────────────
 
 describe('allTemplates — cross-template invariants', () => {
-  it('total count is 192', () => {
-    expect(allTemplates).toHaveLength(192);
+  it('total count is 342', () => {
+    expect(allTemplates).toHaveLength(342);
   });
 
   it('all codes are globally unique', () => {

@@ -77,7 +77,9 @@ export type TemplateModule =
   | 'INCIDENTS'
   | 'AUDITS'
   | 'MANAGEMENT_REVIEW'
-  | 'CHEMICALS';
+  | 'CHEMICALS'
+  // Phase 135 additions
+  | 'BUSINESS_CONTINUITY';
 
 export type TemplateCategory =
   | 'RISK_ASSESSMENT'
@@ -96,7 +98,27 @@ export type TemplateCategory =
   | 'PLANNING'
   | 'REPORTING'
   | 'GENERAL'
-  | 'CERTIFICATION';
+  | 'CERTIFICATION'
+  // Phase 135 additions
+  | 'POLICY'
+  | 'PROCEDURE'
+  | 'FORM'
+  | 'REGISTER'
+  | 'PLAN'
+  | 'REPORT'
+  | 'CHECKLIST'
+  | 'MATRIX'
+  | 'SCHEDULE'
+  | 'RECORD'
+  | 'ASSESSMENT'
+  | 'MANUAL';
+
+export type TemplateFileType =
+  | 'WORD_DOCX'
+  | 'EXCEL_XLSX'
+  | 'PDF'
+  | 'INTERACTIVE_FORM'
+  | 'SPREADSHEET';
 
 /** Complete template definition used in seed files */
 export interface TemplateDefinition {
@@ -108,5 +130,15 @@ export interface TemplateDefinition {
   tags: string[];
   fields: FieldDefinition[];
   defaultContent?: Record<string, unknown>;
-  isoClause?: string; // e.g. "6.1.2" — for audit doc reference
+  isoClause?: string; // e.g. "6.1.2" — single clause (legacy)
+  // Phase 135 expansion fields
+  isoStandards?: string[];    // e.g. ["ISO 9001:2015", "ISO 14001:2015"]
+  isoClauses?: string[];      // e.g. ["6.1", "8.1", "9.1.2"]
+  isMandatory?: boolean;      // mandatory per the standard
+  industryVertical?: string[]; // e.g. ["automotive", "medical", "all"]
+  region?: string[];          // e.g. ["global", "UK", "AU", "SG"]
+  fileType?: TemplateFileType;
+  tierRequired?: string | null; // null = all tiers; "PROFESSIONAL"; "ENTERPRISE"
+  partnerVisible?: boolean;
+  trialVisible?: boolean;
 }
