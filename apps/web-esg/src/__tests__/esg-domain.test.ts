@@ -647,3 +647,117 @@ describe('Cross-domain invariants', () => {
     }
   });
 });
+
+// ─── Phase 212 parametric additions ──────────────────────────────────────────
+
+describe('PILLARS — positional index parametric', () => {
+  const expected = [
+    [0, 'environmental'],
+    [1, 'social'],
+    [2, 'governance'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PILLARS[${idx}] === '${val}'`, () => {
+      expect(PILLARS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('INITIATIVE_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'planned'],
+    [1, 'in-progress'],
+    [2, 'completed'],
+    [3, 'on-hold'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`INITIATIVE_STATUSES[${idx}] === '${val}'`, () => {
+      expect(INITIATIVE_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('PRIORITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'critical'],
+    [1, 'high'],
+    [2, 'medium'],
+    [3, 'low'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PRIORITIES[${idx}] === '${val}'`, () => {
+      expect(PRIORITIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('METRIC_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'on-track'],
+    [1, 'at-risk'],
+    [2, 'off-track'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`METRIC_STATUSES[${idx}] === '${val}'`, () => {
+      expect(METRIC_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('TRENDS — positional index parametric', () => {
+  const expected = [
+    [0, 'up'],
+    [1, 'down'],
+    [2, 'stable'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TRENDS[${idx}] === '${val}'`, () => {
+      expect(TRENDS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('GOVERNANCE_CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'BOARD'],
+    [1, 'RISK'],
+    [2, 'ETHICS'],
+    [3, 'TRANSPARENCY'],
+    [4, 'EXECUTIVE_PAY'],
+    [5, 'ANTI_CORRUPTION'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`GOVERNANCE_CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(GOVERNANCE_CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('FRAMEWORK_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'ACTIVE'],
+    [1, 'INACTIVE'],
+    [2, 'PLANNED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`FRAMEWORK_STATUSES[${idx}] === '${val}'`, () => {
+      expect(FRAMEWORK_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('FRAMEWORKS — per-framework name parametric', () => {
+  const expected: [number, string][] = [
+    [0, 'GRI Standards'],
+    [1, 'TCFD'],
+    [2, 'SASB'],
+    [3, 'CDP'],
+    [4, 'CSRD'],
+    [5, 'SFDR'],
+  ];
+  for (const [idx, name] of expected) {
+    it(`FRAMEWORKS[${idx}].name === '${name}'`, () => {
+      expect(FRAMEWORKS[idx].name).toBe(name);
+    });
+  }
+});

@@ -740,3 +740,100 @@ describe('DEAL_STATUSES — per-status parametric', () => {
     });
   }
 });
+
+// ─── Phase 212 parametric additions ──────────────────────────────────────────
+
+describe('CONTACT_SOURCES — positional index parametric', () => {
+  const expected = [
+    [0, 'WEBSITE'],
+    [1, 'REFERRAL'],
+    [2, 'LINKEDIN'],
+    [3, 'COLD_CALL'],
+    [4, 'TRADE_SHOW'],
+    [5, 'INBOUND'],
+    [6, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CONTACT_SOURCES[${idx}] === '${val}'`, () => {
+      expect(CONTACT_SOURCES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('LEAD_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'NEW'],
+    [1, 'CONTACTED'],
+    [2, 'QUALIFIED'],
+    [3, 'DISQUALIFIED'],
+    [4, 'CONVERTED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`LEAD_STATUSES[${idx}] === '${val}'`, () => {
+      expect(LEAD_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DEAL_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'OPEN'],
+    [1, 'WON'],
+    [2, 'LOST'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DEAL_STATUSES[${idx}] === '${val}'`, () => {
+      expect(DEAL_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('STAGES — per-stage key+label parametric', () => {
+  const expected: [number, string, string][] = [
+    [0, 'PROSPECTING',   'Prospecting'],
+    [1, 'QUALIFICATION', 'Qualification'],
+    [2, 'PROPOSAL',      'Proposal'],
+    [3, 'NEGOTIATION',   'Negotiation'],
+    [4, 'CLOSED_WON',    'Closed Won'],
+    [5, 'CLOSED_LOST',   'Closed Lost'],
+  ];
+  for (const [idx, key, label] of expected) {
+    it(`STAGES[${idx}]: key=${key}, label=${label}`, () => {
+      expect(STAGES[idx].key).toBe(key);
+      expect(STAGES[idx].label).toBe(label);
+    });
+  }
+});
+
+describe('STAGE_LABELS — per-stage exact label parametric', () => {
+  const expected: [string, string][] = [
+    ['PROSPECTING',   'Prospecting'],
+    ['QUALIFICATION', 'Qualification'],
+    ['PROPOSAL',      'Proposal'],
+    ['NEGOTIATION',   'Negotiation'],
+    ['CLOSED_WON',    'Closed Won'],
+    ['CLOSED_LOST',   'Closed Lost'],
+  ];
+  for (const [key, label] of expected) {
+    it(`STAGE_LABELS['${key}'] === '${label}'`, () => {
+      expect(STAGE_LABELS[key]).toBe(label);
+    });
+  }
+});
+
+describe('KPI_CARDS — positional href parametric', () => {
+  const expected: [number, string, string][] = [
+    [0, 'Total Contacts',  '/contacts'],
+    [1, 'Total Accounts',  '/accounts'],
+    [2, 'Open Deals',      '/deals'],
+    [3, 'Pipeline Value',  '/pipeline'],
+    [4, 'Won This Month',  '/deals'],
+    [5, 'Conversion Rate', '/reports'],
+  ];
+  for (const [idx, title, href] of expected) {
+    it(`KPI_CARDS[${idx}]: title="${title}", href="${href}"`, () => {
+      expect(KPI_CARDS[idx].title).toBe(title);
+      expect(KPI_CARDS[idx].href).toBe(href);
+    });
+  }
+});
