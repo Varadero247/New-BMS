@@ -954,3 +954,9 @@ describe('ph220med_cs',()=>{
   it('d',()=>{expect(climbStairs220med(5)).toBe(8);});
   it('e',()=>{expect(climbStairs220med(1)).toBe(1);});
 });
+function hd258med2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph258med2_hd',()=>{it('a',()=>{expect(hd258med2(1,4)).toBe(2);});it('b',()=>{expect(hd258med2(3,1)).toBe(1);});it('c',()=>{expect(hd258med2(0,0)).toBe(0);});it('d',()=>{expect(hd258med2(93,73)).toBe(2);});it('e',()=>{expect(hd258med2(15,0)).toBe(4);});});
+function hd259med2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph259med2_hd',()=>{it('a',()=>{expect(hd259med2(1,4)).toBe(2);});it('b',()=>{expect(hd259med2(3,1)).toBe(1);});it('c',()=>{expect(hd259med2(0,0)).toBe(0);});it('d',()=>{expect(hd259med2(93,73)).toBe(2);});it('e',()=>{expect(hd259med2(15,0)).toBe(4);});});
+function hd260med2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph260med2_hd',()=>{it('a',()=>{expect(hd260med2(1,4)).toBe(2);});it('b',()=>{expect(hd260med2(3,1)).toBe(1);});it('c',()=>{expect(hd260med2(0,0)).toBe(0);});it('d',()=>{expect(hd260med2(93,73)).toBe(2);});it('e',()=>{expect(hd260med2(15,0)).toBe(4);});});

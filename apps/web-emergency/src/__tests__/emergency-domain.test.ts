@@ -881,3 +881,9 @@ describe('BCP_STATUSES — positional index parametric', () => {
     });
   }
 });
+function hd258emd(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph258emd_hd',()=>{it('a',()=>{expect(hd258emd(1,4)).toBe(2);});it('b',()=>{expect(hd258emd(3,1)).toBe(1);});it('c',()=>{expect(hd258emd(0,0)).toBe(0);});it('d',()=>{expect(hd258emd(93,73)).toBe(2);});it('e',()=>{expect(hd258emd(15,0)).toBe(4);});});
+function hd259emd(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph259emd_hd',()=>{it('a',()=>{expect(hd259emd(1,4)).toBe(2);});it('b',()=>{expect(hd259emd(3,1)).toBe(1);});it('c',()=>{expect(hd259emd(0,0)).toBe(0);});it('d',()=>{expect(hd259emd(93,73)).toBe(2);});it('e',()=>{expect(hd259emd(15,0)).toBe(4);});});
+function hd260emd(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph260emd_hd',()=>{it('a',()=>{expect(hd260emd(1,4)).toBe(2);});it('b',()=>{expect(hd260emd(3,1)).toBe(1);});it('c',()=>{expect(hd260emd(0,0)).toBe(0);});it('d',()=>{expect(hd260emd(93,73)).toBe(2);});it('e',()=>{expect(hd260emd(15,0)).toBe(4);});});
