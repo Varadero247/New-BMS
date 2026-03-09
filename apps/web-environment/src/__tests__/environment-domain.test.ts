@@ -1103,3 +1103,79 @@ describe('MOCK_ASPECTS data shapes', () => {
     }
   });
 });
+
+// ─── LIFECYCLE_PHASES — positional index parametric ──────────────────────────
+
+describe('LIFECYCLE_PHASES — positional index parametric', () => {
+  const expected = [
+    [0, 'RAW_MATERIALS'],
+    [1, 'DESIGN'],
+    [2, 'PRODUCTION'],
+    [3, 'TRANSPORT'],
+    [4, 'USE'],
+    [5, 'END_OF_LIFE'],
+    [6, 'DISPOSAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`LIFECYCLE_PHASES[${idx}] === '${val}'`, () => {
+      expect(LIFECYCLE_PHASES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── OPERATING_CONDITIONS — positional index parametric ──────────────────────
+
+describe('OPERATING_CONDITIONS — positional index parametric', () => {
+  const expected = [
+    [0, 'NORMAL'],
+    [1, 'ABNORMAL'],
+    [2, 'EMERGENCY'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`OPERATING_CONDITIONS[${idx}] === '${val}'`, () => {
+      expect(OPERATING_CONDITIONS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── SCALE_OF_IMPACT — positional index parametric ───────────────────────────
+
+describe('SCALE_OF_IMPACT — positional index parametric', () => {
+  const expected = [
+    [0, 'LOCAL'],
+    [1, 'REGIONAL'],
+    [2, 'NATIONAL'],
+    [3, 'TRANSBOUNDARY'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SCALE_OF_IMPACT[${idx}] === '${val}'`, () => {
+      expect(SCALE_OF_IMPACT[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── ACTIVITY_CATEGORIES — per-value label parametric ────────────────────────
+
+describe('ACTIVITY_CATEGORIES — per-value label parametric', () => {
+  const cases: [string, string][] = [
+    ['ENERGY_USE',          'Energy Use'],
+    ['WATER_USE',           'Water Use'],
+    ['WASTE_GENERATION',    'Waste Generation'],
+    ['EMISSIONS_TO_AIR',    'Emissions to Air'],
+    ['DISCHARGES_TO_WATER', 'Discharges to Water'],
+    ['LAND_CONTAMINATION',  'Land Contamination'],
+    ['RESOURCE_USE',        'Resource Use'],
+    ['NOISE_VIBRATION',     'Noise & Vibration'],
+    ['BIODIVERSITY',        'Biodiversity'],
+    ['TRANSPORT',           'Transport'],
+    ['PROCUREMENT',         'Procurement'],
+    ['PRODUCT_DESIGN',      'Product Design'],
+    ['OTHER',               'Other'],
+  ];
+  for (const [value, label] of cases) {
+    it(`ACTIVITY_CATEGORIES[${value}].label === '${label}'`, () => {
+      const cat = ACTIVITY_CATEGORIES.find(c => c.value === value)!;
+      expect(cat.label).toBe(label);
+    });
+  }
+});
