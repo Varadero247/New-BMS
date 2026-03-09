@@ -833,3 +833,37 @@ describe('EIGHT_D_DISCIPLINES — positional index parametric', () => {
     });
   }
 });
+
+// ─── Algorithm puzzle phases (ph217aut–ph220aut) ────────────────────────────────
+function moveZeroes217aut(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217aut_mz',()=>{
+  it('a',()=>{expect(moveZeroes217aut([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217aut([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217aut([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217aut([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217aut([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218aut(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218aut_mn',()=>{
+  it('a',()=>{expect(missingNumber218aut([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218aut([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218aut([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218aut([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218aut([1])).toBe(0);});
+});
+function countBits219aut(n:number):number[]{const r=new Array(n+1).fill(0);for(let i=1;i<=n;i++)r[i]=r[i>>1]+(i&1);return r;}
+describe('ph219aut_cb',()=>{
+  it('a',()=>{expect(countBits219aut(2)).toEqual([0,1,1]);});
+  it('b',()=>{expect(countBits219aut(5)).toEqual([0,1,1,2,1,2]);});
+  it('c',()=>{expect(countBits219aut(0)).toEqual([0]);});
+  it('d',()=>{expect(countBits219aut(1)).toEqual([0,1]);});
+  it('e',()=>{expect(countBits219aut(4)[4]).toBe(1);});
+});
+function climbStairs220aut(n:number):number{let a=1,b=1;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;}
+describe('ph220aut_cs',()=>{
+  it('a',()=>{expect(climbStairs220aut(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs220aut(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs220aut(4)).toBe(5);});
+  it('d',()=>{expect(climbStairs220aut(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs220aut(1)).toBe(1);});
+});
