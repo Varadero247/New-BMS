@@ -793,3 +793,107 @@ describe('Cross-domain invariants', () => {
     }
   });
 });
+
+// ─── Parametric: DOCUMENT_STATUSES positional index ───────────────────────────
+
+describe('DOCUMENT_STATUSES — positional index parametric', () => {
+  const expected: [DocumentStatus, number][] = [
+    ['DRAFT',          0],
+    ['PENDING_REVIEW', 1],
+    ['APPROVED',       2],
+    ['PUBLISHED',      3],
+    ['ARCHIVED',       4],
+    ['OBSOLETE',       5],
+  ];
+  for (const [status, idx] of expected) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(DOCUMENT_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: documentStatusColor exact bg+text family ────────────────────
+
+describe('documentStatusColor — exact bg+text color family parametric', () => {
+  const cases: [DocumentStatus, string][] = [
+    ['PUBLISHED',      'green'],
+    ['APPROVED',       'blue'],
+    ['PENDING_REVIEW', 'amber'],
+    ['DRAFT',          'gray'],
+    ['ARCHIVED',       'purple'],
+    ['OBSOLETE',       'red'],
+  ];
+  for (const [status, color] of cases) {
+    it(`${status} contains bg-${color} and text-${color}`, () => {
+      const cls = documentStatusColor[status];
+      expect(cls).toContain(`bg-${color}`);
+      expect(cls).toContain(`text-${color}`);
+    });
+  }
+});
+
+// ─── Parametric: isDocumentLive per-status ────────────────────────────────────
+
+describe('isDocumentLive — per-status parametric', () => {
+  const cases: [DocumentStatus, boolean][] = [
+    ['DRAFT',          false],
+    ['PENDING_REVIEW', false],
+    ['APPROVED',       true],
+    ['PUBLISHED',      true],
+    ['ARCHIVED',       false],
+    ['OBSOLETE',       false],
+  ];
+  for (const [status, expected] of cases) {
+    it(`isDocumentLive("${status}") = ${expected}`, () => {
+      expect(isDocumentLive(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: isDocumentRetired per-status ─────────────────────────────────
+
+describe('isDocumentRetired — per-status parametric', () => {
+  const cases: [DocumentStatus, boolean][] = [
+    ['DRAFT',          false],
+    ['PENDING_REVIEW', false],
+    ['APPROVED',       false],
+    ['PUBLISHED',      false],
+    ['ARCHIVED',       true],
+    ['OBSOLETE',       true],
+  ];
+  for (const [status, expected] of cases) {
+    it(`isDocumentRetired("${status}") = ${expected}`, () => {
+      expect(isDocumentRetired(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── formatFileSizeBytes additional exact values ──────────────────────────────
+
+describe('formatFileSizeBytes — additional exact values parametric', () => {
+  const cases: [number, string][] = [
+    [1,         '1 B'],
+    [512,       '512 B'],
+    [10240,     '10.0 KB'],     // 10 * 1024
+    [512000,    '500.0 KB'],    // 500 * 1024
+    [1572864,   '1.5 MB'],      // 1.5 * 1024 * 1024
+    [5242880,   '5.0 MB'],      // 5 * 1024 * 1024
+  ];
+  for (const [bytes, expected] of cases) {
+    it(`${bytes} bytes → "${expected}"`, () => {
+      expect(formatFileSizeBytes(bytes)).toBe(expected);
+    });
+  }
+});
+
+// ─── mockDocument specific field values ──────────────────────────────────────
+
+describe('mockDocument — specific field values', () => {
+  it('referenceNumber = DOC-2026-0001', () =>
+    expect(mockDocument.referenceNumber).toBe('DOC-2026-0001'));
+  it('currentVersion = 3', () => expect(mockDocument.currentVersion).toBe(3));
+  it('tags.length = 3', () => expect(mockDocument.tags).toHaveLength(3));
+  it('tags includes "iso9001"', () => expect(mockDocument.tags).toContain('iso9001'));
+  it('mockVersion.version = 3 matches currentVersion', () =>
+    expect(mockVersion.version).toBe(mockDocument.currentVersion));
+});

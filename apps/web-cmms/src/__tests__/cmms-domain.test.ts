@@ -669,3 +669,115 @@ describe('workloadPercent', () => {
     expect(workloadPercent(31)).toBeGreaterThan(75);
   });
 });
+
+// ─── Parametric: computeOEE exact values ──────────────────────────────────────
+
+describe('computeOEE — exact values parametric', () => {
+  // formula: (a/100) * (p/100) * (q/100) * 100
+  const cases: [number, number, number, number][] = [
+    [50,  80,  90,  36],       // 0.5 * 0.8 * 0.9 * 100 = 36
+    [100, 100, 100, 100],      // perfect
+    [0,   100, 100, 0],        // zero availability
+    [80,  80,  80,  51.2],     // 0.8^3 * 100 = 51.2
+  ];
+  for (const [a, p, q, expected] of cases) {
+    it(`computeOEE(${a}, ${p}, ${q}) = ${expected}`, () => {
+      expect(computeOEE(a, p, q)).toBeCloseTo(expected, 1);
+    });
+  }
+});
+
+// ─── Parametric: lifePercent exact values ─────────────────────────────────────
+
+describe('lifePercent — exact values parametric', () => {
+  const cases: [number, number, number][] = [
+    [8,  20, 40],          // PRESS-002
+    [12, 15, 80],          // COMP-001
+    [4,  20, 20],          // HVAC-001
+    [10, 12, 83.33],       // ROB-001
+    [2,  25, 8],           // GEN-001
+  ];
+  for (const [age, life, expected] of cases) {
+    it(`lifePercent(${age}, ${life}) ≈ ${expected}%`, () => {
+      expect(lifePercent(age, life)).toBeCloseTo(expected, 1);
+    });
+  }
+});
+
+// ─── Parametric: technicianWorkload exact hours ────────────────────────────────
+
+describe('technicianWorkload — exact hours parametric', () => {
+  // J. Martinez: WO-001(2)+WO-004(8)+WO-009(1)+WO-013(3)=14
+  // R. Thompson: WO-002(1.5)+WO-005(4)+WO-010(6)+WO-014(5)=16.5
+  // M. Chen: WO-003(6)+WO-007(2)+WO-012(4)=12
+  // A. Singh: WO-006(3)+WO-008(2)+WO-011(3)=8
+  const cases: [string, number][] = [
+    ['J. Martinez', 14],
+    ['R. Thompson', 16.5],
+    ['M. Chen',     12],
+    ['A. Singh',     8],
+  ];
+  for (const [tech, expected] of cases) {
+    it(`${tech} total hours = ${expected}`, () => {
+      expect(technicianWorkload(MOCK_WORK_ORDERS, tech)).toBeCloseTo(expected, 1);
+    });
+  }
+});
+
+// ─── Parametric: DAYS_IN_MONTH per-month ──────────────────────────────────────
+
+describe('DAYS_IN_MONTH — per-month exact values parametric', () => {
+  const cases: [number, number, string][] = [
+    [0,  31, 'January'],
+    [1,  28, 'February (non-leap)'],
+    [2,  31, 'March'],
+    [3,  30, 'April'],
+    [4,  31, 'May'],
+    [5,  30, 'June'],
+    [6,  31, 'July'],
+    [7,  31, 'August'],
+    [8,  30, 'September'],
+    [9,  31, 'October'],
+    [10, 30, 'November'],
+    [11, 31, 'December'],
+  ];
+  for (const [idx, days, name] of cases) {
+    it(`${name} = ${days} days`, () => {
+      expect(DAYS_IN_MONTH[idx]).toBe(days);
+    });
+  }
+});
+
+// ─── Parametric: isLeapYear additional years ─────────────────────────────────
+
+describe('isLeapYear — additional years parametric', () => {
+  const cases: [number, boolean][] = [
+    [2025, false],
+    [2028, true],
+    [1800, false],
+    [1600, true],
+  ];
+  for (const [year, expected] of cases) {
+    it(`${year} isLeapYear = ${expected}`, () => {
+      expect(isLeapYear(year)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: workloadPercent exact values ─────────────────────────────────
+
+describe('workloadPercent — additional exact values parametric', () => {
+  const cases: [number, number | undefined, number][] = [
+    [10, undefined, 25],   // 10/40*100 = 25
+    [30, undefined, 75],   // 30/40*100 = 75
+    [12, 24,        50],   // 12/24*100 = 50 (custom capacity)
+    [24, 24,        100],  // at-capacity with custom
+  ];
+  for (const [hours, capacity, expected] of cases) {
+    const label = capacity !== undefined ? `workloadPercent(${hours}, ${capacity})` : `workloadPercent(${hours})`;
+    it(`${label} = ${expected}%`, () => {
+      const result = capacity !== undefined ? workloadPercent(hours, capacity) : workloadPercent(hours);
+      expect(result).toBe(expected);
+    });
+  }
+});
