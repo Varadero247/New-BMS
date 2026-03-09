@@ -631,3 +631,72 @@ describe('totalEstimatedHours — exact sum for MOCK_JOBS', () => {
     expect(totalEstimatedHours(MOCK_JOBS)).toBe(23);
   });
 });
+
+// ─── JOB_STATUSES — positional index parametric ──────────────────────────────
+
+describe('JOB_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'SCHEDULED'],
+    [1, 'IN_PROGRESS'],
+    [2, 'COMPLETED'],
+    [3, 'PENDING'],
+    [4, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`JOB_STATUSES[${idx}] === '${val}'`, () => {
+      expect(JOB_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── TECHNICIAN_STATUSES — positional index parametric ───────────────────────
+
+describe('TECHNICIAN_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'AVAILABLE'],
+    [1, 'ON_JOB'],
+    [2, 'EN_ROUTE'],
+    [3, 'OFF_DUTY'],
+    [4, 'ON_LEAVE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TECHNICIAN_STATUSES[${idx}] === '${val}'`, () => {
+      expect(TECHNICIAN_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── SCHEDULE_TYPES — positional index parametric ────────────────────────────
+
+describe('SCHEDULE_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'PREVENTIVE'],
+    [1, 'REACTIVE'],
+    [2, 'INSPECTION'],
+    [3, 'INSTALLATION'],
+    [4, 'EMERGENCY'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SCHEDULE_TYPES[${idx}] === '${val}'`, () => {
+      expect(SCHEDULE_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── RECURRENCES — positional index parametric ───────────────────────────────
+
+describe('RECURRENCES — positional index parametric', () => {
+  const expected = [
+    [0, 'NONE'],
+    [1, 'DAILY'],
+    [2, 'WEEKLY'],
+    [3, 'MONTHLY'],
+    [4, 'QUARTERLY'],
+    [5, 'ANNUALLY'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RECURRENCES[${idx}] === '${val}'`, () => {
+      expect(RECURRENCES[idx]).toBe(val);
+    });
+  }
+});

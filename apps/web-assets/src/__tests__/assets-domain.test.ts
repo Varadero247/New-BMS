@@ -941,3 +941,72 @@ describe('Depreciation percent — mock asset spot checks', () => {
     });
   }
 });
+
+// ─── ASSET_STATUSES — positional index parametric ────────────────────────────
+
+describe('ASSET_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'ACTIVE'],
+    [1, 'IN_SERVICE'],
+    [2, 'OUT_OF_SERVICE'],
+    [3, 'MAINTENANCE'],
+    [4, 'DECOMMISSIONED'],
+    [5, 'DISPOSED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`ASSET_STATUSES[${idx}] === '${val}'`, () => {
+      expect(ASSET_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── ASSET_CONDITIONS — positional index parametric ──────────────────────────
+
+describe('ASSET_CONDITIONS — positional index parametric', () => {
+  const expected = [
+    [0, 'EXCELLENT'],
+    [1, 'GOOD'],
+    [2, 'FAIR'],
+    [3, 'POOR'],
+    [4, 'CRITICAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`ASSET_CONDITIONS[${idx}] === '${val}'`, () => {
+      expect(ASSET_CONDITIONS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── WORK_ORDER_PRIORITIES — positional index parametric ─────────────────────
+
+describe('WORK_ORDER_PRIORITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'EMERGENCY'],
+    [1, 'HIGH'],
+    [2, 'MEDIUM'],
+    [3, 'LOW'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`WORK_ORDER_PRIORITIES[${idx}] === '${val}'`, () => {
+      expect(WORK_ORDER_PRIORITIES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── WORK_ORDER_STATUSES — positional index parametric ───────────────────────
+
+describe('WORK_ORDER_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'OPEN'],
+    [1, 'ASSIGNED'],
+    [2, 'IN_PROGRESS'],
+    [3, 'ON_HOLD'],
+    [4, 'COMPLETED'],
+    [5, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`WORK_ORDER_STATUSES[${idx}] === '${val}'`, () => {
+      expect(WORK_ORDER_STATUSES[idx]).toBe(val);
+    });
+  }
+});
