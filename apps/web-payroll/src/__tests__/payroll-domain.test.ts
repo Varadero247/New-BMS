@@ -633,6 +633,152 @@ describe('budgetVariance', () => {
   it('on budget = 0', () => expect(budgetVariance(50000, 50000)).toBe(0));
 });
 
+// ─── Tests: MOCK_PAYROLL_RUN exact field values ───────────────────────────────
+
+describe('MOCK_PAYROLL_RUN exact field values', () => {
+  it('employeeCount = 120', () => expect(MOCK_PAYROLL_RUN.employeeCount).toBe(120));
+  it('totalGross = 600000', () => expect(MOCK_PAYROLL_RUN.totalGross).toBe(600000));
+  it('totalNet = 450000', () => expect(MOCK_PAYROLL_RUN.totalNet).toBe(450000));
+  it('totalDeductions = 150000', () => expect(MOCK_PAYROLL_RUN.totalDeductions).toBe(150000));
+  it('payPeriodType = MONTHLY', () => expect(MOCK_PAYROLL_RUN.payPeriodType).toBe('MONTHLY'));
+  it('status = COMPLETED', () => expect(MOCK_PAYROLL_RUN.status).toBe('COMPLETED'));
+});
+
+// ─── Tests: MOCK_PAYSLIPS per-slip exact values ───────────────────────────────
+
+describe('MOCK_PAYSLIPS per-slip exact gross/net parametric', () => {
+  const cases: [string, number, number][] = [
+    ['PS-2026-001', 5000, 3750],
+    ['PS-2026-002', 7500, 5250],
+    ['PS-2026-003', 4200, 3150],
+  ];
+  for (const [num, expectedGross, expectedNet] of cases) {
+    it(`${num} grossEarnings = ${expectedGross}`, () => {
+      const slip = MOCK_PAYSLIPS.find((s) => s.payslipNumber === num);
+      expect(slip!.grossEarnings).toBe(expectedGross);
+    });
+    it(`${num} netPay = ${expectedNet}`, () => {
+      const slip = MOCK_PAYSLIPS.find((s) => s.payslipNumber === num);
+      expect(slip!.netPay).toBe(expectedNet);
+    });
+  }
+});
+
+// ─── Tests: calculateIncomeTaxBanded exact values parametric ──────────────────
+
+describe('calculateIncomeTaxBanded exact values parametric', () => {
+  // Band 1: 0–12570 @0%; Band 2: 12571–50270 @20%; Band 3: 50271–125140 @40%; Band 4: 125141+ @45%
+  // 30000: (30000-12571)*0.20=3485.80; 50000: (50000-12571)*0.20=7485.80
+  // 60000: basic (50270-12571)*0.20=7539.80 + higher (60000-50271)*0.40=3891.60 = 11431.40
+  const exactCases: [number, number][] = [
+    [15000, 485.8],
+    [20000, 1485.8],
+    [30000, 3485.8],
+    [50000, 7485.8],
+    [60000, 11431.4],
+  ];
+  for (const [salary, expected] of exactCases) {
+    it(`salary £${salary} → tax £${expected}`, () => {
+      expect(calculateIncomeTaxBanded(salary, UK_TAX_BANDS)).toBeCloseTo(expected, 1);
+    });
+  }
+});
+
+// ─── Tests: calculateNI exact values parametric ───────────────────────────────
+
+describe('calculateNI exact values parametric', () => {
+  const { niThreshold, niRate } = UK_CONFIG;
+  const cases: [number, number][] = [
+    [20000, (20000 - 12570) * 8 / 100],  // 594.4
+    [30000, (30000 - 12570) * 8 / 100],  // 1394.4
+    [50000, (50000 - 12570) * 8 / 100],  // 2994.4
+  ];
+  for (const [salary, expected] of cases) {
+    it(`NI at £${salary} = £${expected.toFixed(2)}`, () => {
+      expect(calculateNI(salary, niThreshold, niRate)).toBeCloseTo(expected, 2);
+    });
+  }
+});
+
+// ─── Tests: calculateStudentLoan exact values parametric ─────────────────────
+
+describe('calculateStudentLoan exact values parametric', () => {
+  const { studentLoanThreshold, studentLoanRate } = UK_CONFIG;
+  const cases: [number, number][] = [
+    [30000, (30000 - 27295) * 9 / 100],  // 243.45
+    [40000, (40000 - 27295) * 9 / 100],  // 1143.45
+  ];
+  for (const [salary, expected] of cases) {
+    it(`student loan at £${salary} = £${expected.toFixed(2)}`, () => {
+      expect(calculateStudentLoan(salary, studentLoanThreshold, studentLoanRate)).toBeCloseTo(expected, 2);
+    });
+  }
+});
+
+// ─── Tests: calculatePension exact values parametric ─────────────────────────
+
+describe('calculatePension exact values parametric', () => {
+  const cases: [number, number, number][] = [
+    [50000, 5, 2500],
+    [90000, 3, 2700],
+    [100000, 8, 8000],
+    [48000, 5, 2400],
+  ];
+  for (const [salary, rate, expected] of cases) {
+    it(`pension(${salary}, ${rate}%) = ${expected}`, () => {
+      expect(calculatePension(salary, rate)).toBeCloseTo(expected, 2);
+    });
+  }
+});
+
+// ─── Tests: annualToMonthly additional exact values parametric ────────────────
+
+describe('annualToMonthly additional exact values parametric', () => {
+  const cases: [number, number][] = [
+    [36000, 3000],
+    [90000, 7500],
+    [48000, 4000],
+    [120000, 10000],
+  ];
+  for (const [annual, expected] of cases) {
+    it(`annualToMonthly(${annual}) = ${expected}`, () => {
+      expect(annualToMonthly(annual)).toBeCloseTo(expected, 5);
+    });
+  }
+});
+
+// ─── Tests: loanInstallment zero-rate exact values parametric ─────────────────
+
+describe('loanInstallment zero-rate exact values parametric', () => {
+  it('loanInstallment(12000, 0, 24) = 500', () => expect(loanInstallment(12000, 0, 24)).toBeCloseTo(500, 2));
+  it('loanInstallment(6000, 0, 12) = 500', () => expect(loanInstallment(6000, 0, 12)).toBeCloseTo(500, 2));
+  it('loanInstallment(24000, 0, 48) = 500', () => expect(loanInstallment(24000, 0, 48)).toBeCloseTo(500, 2));
+});
+
+// ─── Tests: cross-payroll invariants ─────────────────────────────────────────
+
+describe('cross-payroll invariants', () => {
+  it('sum of MOCK_PAYSLIPS grossEarnings = 16700', () => {
+    const total = MOCK_PAYSLIPS.reduce((s, p) => s + p.grossEarnings, 0);
+    expect(total).toBe(16700);
+  });
+  it('sum of MOCK_PAYSLIPS netPay = 12150', () => {
+    const total = MOCK_PAYSLIPS.reduce((s, p) => s + p.netPay, 0);
+    expect(total).toBe(12150);
+  });
+  it('MOCK_PAYROLL_RUN takeHomePercent = 75%', () => {
+    expect(takeHomePercent(MOCK_PAYROLL_RUN.totalNet, MOCK_PAYROLL_RUN.totalGross)).toBeCloseTo(75, 5);
+  });
+  it('all MOCK_PAYSLIPS have netPay < grossEarnings', () => {
+    for (const slip of MOCK_PAYSLIPS) {
+      expect(slip.netPay).toBeLessThan(slip.grossEarnings);
+    }
+  });
+  it('MOCK_PAYROLL_RUN.totalDeductions = totalGross - totalNet', () => {
+    expect(MOCK_PAYROLL_RUN.totalDeductions).toBe(MOCK_PAYROLL_RUN.totalGross - MOCK_PAYROLL_RUN.totalNet);
+  });
+});
+
 // ─── Tests: Domain Array Completeness ────────────────────────────────────────
 
 describe('domain array completeness', () => {

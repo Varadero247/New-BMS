@@ -888,6 +888,118 @@ describe('totalCourseCost — exact value', () => {
   });
 });
 
+// ─── Parametric: per-course cost exact ───────────────────────────────────────
+
+describe('MOCK_COURSES — per-course cost parametric', () => {
+  const cases: [string, number][] = [
+    ['c1', 150],
+    ['c2', 1800],
+    ['c3', 0],
+    ['c4', 45],
+    ['c5', 600],
+    ['c6', 30],
+  ];
+  for (const [id, expected] of cases) {
+    it(`${id}: cost = ${expected}`, () => {
+      const course = MOCK_COURSES.find((c) => c.id === id);
+      expect(course!.cost).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: per-course duration exact ────────────────────────────────────
+
+describe('MOCK_COURSES — per-course duration (hours) parametric', () => {
+  const cases: [string, number][] = [
+    ['c1', 4],
+    ['c2', 40],
+    ['c3', 8],
+    ['c4', 2],
+    ['c5', 16],
+    ['c6', 1],
+  ];
+  for (const [id, expected] of cases) {
+    it(`${id}: duration = ${expected} hours`, () => {
+      const course = MOCK_COURSES.find((c) => c.id === id);
+      expect(course!.duration).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: per-course validityMonths exact ──────────────────────────────
+
+describe('MOCK_COURSES — per-course validityMonths parametric', () => {
+  const cases: [string, number][] = [
+    ['c1', 12],
+    ['c2', 36],
+    ['c3', 0],
+    ['c4', 24],
+    ['c5', 0],
+    ['c6', 12],
+  ];
+  for (const [id, expected] of cases) {
+    it(`${id}: validityMonths = ${expected}`, () => {
+      const course = MOCK_COURSES.find((c) => c.id === id);
+      expect(course!.validityMonths).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: per-record score values ─────────────────────────────────────
+
+describe('MOCK_RECORDS — per-record score parametric', () => {
+  const cases: [string, number | null][] = [
+    ['r1', 88],
+    ['r2', null],
+    ['r3', null],
+    ['r4', 75],
+    ['r5', null],
+    ['r6', 92],
+  ];
+  for (const [id, expected] of cases) {
+    it(`${id}: score = ${expected}`, () => {
+      const record = MOCK_RECORDS.find((r) => r.id === id);
+      expect(record!.score).toBe(expected);
+    });
+  }
+});
+
+// ─── completionRate with single-record arrays ─────────────────────────────────
+
+describe('completionRate — single-record parametric', () => {
+  const cases: [RecordStatus, number][] = [
+    ['COMPLETED',   100],
+    ['IN_PROGRESS', 0],
+    ['SCHEDULED',   0],
+    ['EXPIRED',     0],
+    ['CANCELLED',   0],
+  ];
+  for (const [status, expected] of cases) {
+    it(`single ${status} record → ${expected}%`, () => {
+      const record = [{ ...MOCK_RECORDS[0], status }];
+      expect(completionRate(record)).toBe(expected);
+    });
+  }
+});
+
+// ─── avgScore with specific subsets ──────────────────────────────────────────
+
+describe('avgScore — specific subset parametric', () => {
+  it('avg of r1(88) only = 88', () => {
+    expect(avgScore([MOCK_RECORDS[0]])).toBeCloseTo(88, 5);
+  });
+  it('avg of r6(92) only = 92', () => {
+    expect(avgScore([MOCK_RECORDS[5]])).toBeCloseTo(92, 5);
+  });
+  it('avg of r1(88)+r6(92) = 90', () => {
+    expect(avgScore([MOCK_RECORDS[0], MOCK_RECORDS[5]])).toBeCloseTo(90, 5);
+  });
+  it('r4(75) contributes when status=COMPLETED', () => {
+    const r4Completed = { ...MOCK_RECORDS[3], status: 'COMPLETED' as RecordStatus };
+    expect(avgScore([r4Completed])).toBeCloseTo(75, 5);
+  });
+});
+
 describe('cross-domain invariants', () => {
   it('every MOCK_RECORD courseId matches a MOCK_COURSE id', () => {
     const courseIds = new Set(MOCK_COURSES.map((c) => c.id));
