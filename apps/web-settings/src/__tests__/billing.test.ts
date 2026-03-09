@@ -336,3 +336,39 @@ describe('Cross-constant invariants', () => {
     expect(b.totalAnnual).toBeGreaterThanOrEqual(b.annualUserCost);
   });
 });
+
+// ─── INVOICES — positional index parametric ──────────────────────────────────
+
+describe('INVOICES — positional index parametric', () => {
+  const expected = [
+    [0, 'INV-2026-003', 'Pending'],
+    [1, 'INV-2026-002', 'Paid'],
+    [2, 'INV-2026-001', 'Paid'],
+    [3, 'INV-2025-012', 'Paid'],
+    [4, 'INV-2025-011', 'Paid'],
+  ] as const;
+  for (const [idx, id, status] of expected) {
+    it(`INVOICES[${idx}]: id='${id}', status='${status}'`, () => {
+      expect(INVOICES[idx].id).toBe(id);
+      expect(INVOICES[idx].status).toBe(status);
+    });
+  }
+});
+
+// ─── VERTICAL_ADDONS — positional index parametric ───────────────────────────
+
+describe('VERTICAL_ADDONS — positional index parametric', () => {
+  const expected = [
+    [0, 'automotive',  8],
+    [1, 'medical',     8],
+    [2, 'aerospace',   8],
+    [3, 'food_safety', 6],
+    [4, 'ai_mgmt',     6],
+  ] as const;
+  for (const [idx, id, price] of expected) {
+    it(`VERTICAL_ADDONS[${idx}]: id='${id}', priceMonthly=${price}`, () => {
+      expect(VERTICAL_ADDONS[idx].id).toBe(id);
+      expect(VERTICAL_ADDONS[idx].priceMonthly).toBe(price);
+    });
+  }
+});
