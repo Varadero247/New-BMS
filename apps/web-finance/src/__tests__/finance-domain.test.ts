@@ -895,3 +895,58 @@ describe('cross-domain invariants — finance', () => {
     }
   });
 });
+
+// ─── Phase 209 parametric additions ──────────────────────────────────────────
+
+describe('MOCK_RULES — per-rule conflictType+isActive parametric', () => {
+  const expected: [string, string, boolean][] = [
+    ['1', 'FINANCIAL',   true],
+    ['2', 'PAYROLL',     true],
+    ['3', 'ACCESS',      true],
+    ['4', 'PROCUREMENT', true],
+    ['5', 'CASH',        false],
+  ];
+  for (const [id, conflictType, isActive] of expected) {
+    it(`rule ${id}: conflictType=${conflictType}, isActive=${isActive}`, () => {
+      const r = MOCK_RULES.find((x) => x.id === id);
+      expect(r?.conflictType).toBe(conflictType);
+      expect(r?.isActive).toBe(isActive);
+    });
+  }
+});
+
+describe('MOCK_CONTROLS — per-control status+testResult parametric', () => {
+  const expected: [string, ControlStatus, string | undefined][] = [
+    ['1', 'ACTIVE',       'PASS'],
+    ['2', 'ACTIVE',       'PASS'],
+    ['3', 'UNDER_REVIEW', undefined],
+    ['4', 'ACTIVE',       'PASS'],
+    ['5', 'REMEDIATION',  'FAIL'],
+  ];
+  for (const [id, status, testResult] of expected) {
+    it(`control ${id}: status=${status}, testResult=${testResult}`, () => {
+      const c = MOCK_CONTROLS.find((x) => x.id === id);
+      expect(c?.status).toBe(status);
+      expect(c?.testResult).toBe(testResult);
+    });
+  }
+});
+
+describe('MONTHLY_DATA — per-month budget exact parametric', () => {
+  const expected: [string, number][] = [
+    ['Jul', 185000],
+    ['Aug', 185000],
+    ['Sep', 190000],
+    ['Oct', 195000],
+    ['Nov', 200000],
+    ['Dec', 210000],
+    ['Jan', 195000],
+    ['Feb', 195000],
+  ];
+  for (const [month, budget] of expected) {
+    it(`${month}: budget = ${budget}`, () => {
+      const m = MONTHLY_DATA.find((d) => d.month === month)!;
+      expect(m.budget).toBe(budget);
+    });
+  }
+});

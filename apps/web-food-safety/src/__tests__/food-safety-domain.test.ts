@@ -587,3 +587,133 @@ describe('Cross-domain invariants', () => {
     }
   });
 });
+
+// ─── Phase 209 parametric additions ──────────────────────────────────────────
+
+describe('HAZARD_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'BIOLOGICAL'],
+    [1, 'CHEMICAL'],
+    [2, 'PHYSICAL'],
+    [3, 'ALLERGENIC'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`HAZARD_TYPES[${idx}] === '${val}'`, () => {
+      expect(HAZARD_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('HAZARD_SEVERITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'LOW'],
+    [1, 'MEDIUM'],
+    [2, 'HIGH'],
+    [3, 'CRITICAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`HAZARD_SEVERITIES[${idx}] === '${val}'`, () => {
+      expect(HAZARD_SEVERITIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('HAZARD_LIKELIHOODS — positional index parametric', () => {
+  const expected = [
+    [0, 'RARE'],
+    [1, 'UNLIKELY'],
+    [2, 'POSSIBLE'],
+    [3, 'LIKELY'],
+    [4, 'ALMOST_CERTAIN'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`HAZARD_LIKELIHOODS[${idx}] === '${val}'`, () => {
+      expect(HAZARD_LIKELIHOODS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('HAZARD_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'IDENTIFIED'],
+    [1, 'UNDER_REVIEW'],
+    [2, 'CONTROLLED'],
+    [3, 'CLOSED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`HAZARD_STATUSES[${idx}] === '${val}'`, () => {
+      expect(HAZARD_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('CCP_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'ACTIVE'],
+    [1, 'IN_CONTROL'],
+    [2, 'DEVIATION'],
+    [3, 'INACTIVE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CCP_STATUSES[${idx}] === '${val}'`, () => {
+      expect(CCP_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('MONITORING_FREQUENCIES — positional index parametric', () => {
+  const expected = [
+    [0, 'CONTINUOUS'],
+    [1, 'EVERY_BATCH'],
+    [2, 'HOURLY'],
+    [3, 'DAILY'],
+    [4, 'WEEKLY'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`MONITORING_FREQUENCIES[${idx}] === '${val}'`, () => {
+      expect(MONITORING_FREQUENCIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('HACCP_STEP_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'receive'],
+    [1, 'storage'],
+    [2, 'preparation'],
+    [3, 'processing'],
+    [4, 'cooling'],
+    [5, 'packaging'],
+    [6, 'dispatch'],
+    [7, 'ccp'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`HACCP_STEP_TYPES[${idx}] === '${val}'`, () => {
+      expect(HACCP_STEP_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('EU_ALLERGENS — positional index parametric', () => {
+  const expected = [
+    [0,  'CELERY'],
+    [1,  'CEREALS_GLUTEN'],
+    [2,  'CRUSTACEANS'],
+    [3,  'EGGS'],
+    [4,  'FISH'],
+    [5,  'LUPIN'],
+    [6,  'MILK'],
+    [7,  'MOLLUSCS'],
+    [8,  'MUSTARD'],
+    [9,  'PEANUTS'],
+    [10, 'SESAME'],
+    [11, 'SOY'],
+    [12, 'SULPHITES'],
+    [13, 'TREE_NUTS'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`EU_ALLERGENS[${idx}] === '${val}'`, () => {
+      expect(EU_ALLERGENS[idx]).toBe(val);
+    });
+  }
+});

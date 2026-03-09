@@ -931,3 +931,66 @@ describe('mockReview — specific field values', () => {
     expect(reviewDurationDays(mockReview.scheduledDate, mockReview.conductedDate)).toBe(0);
   });
 });
+
+// ─── Phase 209 parametric additions ──────────────────────────────────────────
+
+describe('REVIEW_INPUT_CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'riskSummary'],
+    [1, 'auditSummary'],
+    [2, 'incidentSummary'],
+    [3, 'capaSummary'],
+    [4, 'kpiSummary'],
+    [5, 'customerFeedback'],
+    [6, 'supplierPerformance'],
+    [7, 'trainingStatus'],
+    [8, 'complianceStatus'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`REVIEW_INPUT_CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(REVIEW_INPUT_CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('REVIEW_OUTPUT_CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'decisions'],
+    [1, 'actions'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`REVIEW_OUTPUT_CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(REVIEW_OUTPUT_CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('mockAgenda — per-item exact string parametric', () => {
+  const expected = [
+    [0, '1. Opening and attendance'],
+    [1, '2. Previous action review'],
+    [2, '3. Risk register update'],
+    [3, '4. KPI review'],
+    [4, '5. AOB'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`items[${idx}] === '${val}'`, () => {
+      expect(mockAgenda.items[idx]).toBe(val);
+    });
+  }
+});
+
+describe('reviewStatusTileColor — per-status exact color keyword parametric', () => {
+  const cases: [ReviewStatus, string][] = [
+    ['DRAFT',       'gray'],
+    ['SCHEDULED',   'blue'],
+    ['IN_PROGRESS', 'amber'],
+    ['COMPLETED',   'green'],
+    ['CANCELLED',   'red'],
+  ];
+  for (const [status, color] of cases) {
+    it(`${status} tileColor contains "${color}"`, () => {
+      expect(reviewStatusTileColor[status]).toContain(color);
+    });
+  }
+});
