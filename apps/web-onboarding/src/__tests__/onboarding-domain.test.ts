@@ -662,3 +662,194 @@ describe('Cross-domain invariants', () => {
     }
   });
 });
+
+// ─── Parametric: per-country region membership ────────────────────────────────
+
+describe('APAC_COUNTRIES — per-country region membership (parametric)', () => {
+  const expected: [string, Region][] = [
+    ['SG', 'ASEAN'], ['MY', 'ASEAN'], ['ID', 'ASEAN'], ['TH', 'ASEAN'],
+    ['VN', 'ASEAN'], ['PH', 'ASEAN'], ['MM', 'ASEAN'], ['KH', 'ASEAN'],
+    ['LA', 'ASEAN'], ['BN', 'ASEAN'],
+    ['AU', 'ANZ'],   ['NZ', 'ANZ'],
+    ['JP', 'EAST_ASIA'], ['KR', 'EAST_ASIA'], ['HK', 'EAST_ASIA'],
+    ['TW', 'EAST_ASIA'], ['CN', 'EAST_ASIA'],
+    ['IN', 'SOUTH_ASIA'], ['BD', 'SOUTH_ASIA'], ['LK', 'SOUTH_ASIA'],
+  ];
+  for (const [code, region] of expected) {
+    it(`${code} is in ${region}`, () => {
+      const country = APAC_COUNTRIES.find((c) => c.countryCode === code);
+      expect(country?.region).toBe(region);
+    });
+  }
+});
+
+// ─── Parametric: isoPublicationYear for all 9 standards ──────────────────────
+
+describe('isoPublicationYear — all 9 catalogue standards (parametric)', () => {
+  const cases: [string, number][] = [
+    ['ISO 9001:2015', 2015], ['ISO 14001:2015', 2015], ['ISO 45001:2018', 2018],
+    ['ISO 27001:2022', 2022], ['ISO 37001:2016', 2016], ['ISO 50001:2018', 2018],
+    ['ISO 22000:2018', 2018], ['ISO 13485:2016', 2016], ['ISO 42001:2023', 2023],
+  ];
+  for (const [std, year] of cases) {
+    it(`${std} → ${year}`, () => {
+      expect(isoPublicationYear(std)).toBe(year);
+    });
+  }
+});
+
+// ─── Parametric: isOutOfRange boundary matrix ─────────────────────────────────
+
+describe('isOutOfRange — comprehensive boundary matrix (parametric)', () => {
+  const starter      = TIERS.find((t) => t.id === 'starter')!;
+  const professional = TIERS.find((t) => t.id === 'professional')!;
+  const enterprise   = TIERS.find((t) => t.id === 'enterprise')!;
+  const ep           = TIERS.find((t) => t.id === 'enterprise_plus')!;
+
+  const cases: [typeof starter, number, boolean][] = [
+    // Starter: 5–25
+    [starter, 4,   true],  [starter, 5, false], [starter, 15, false],
+    [starter, 25,  false], [starter, 26, true],
+    // Professional: 10–100
+    [professional, 9,   true],  [professional, 10, false],
+    [professional, 50,  false], [professional, 100, false], [professional, 101, true],
+    // Enterprise: 25+ (no max)
+    [enterprise, 24, true],  [enterprise, 25, false],
+    [enterprise, 999, false],
+    // Enterprise+: 100+ (no max)
+    [ep, 99, true], [ep, 100, false], [ep, 1000, false],
+  ];
+
+  for (const [tier, users, expected] of cases) {
+    it(`${tier.name} — ${users} users → out-of-range=${expected}`, () => {
+      expect(isOutOfRange(tier, users)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: estimatedAnnualCost ─────────────────────────────────────────
+
+describe('estimatedAnnualCost — parametric cases', () => {
+  const starter      = TIERS.find((t) => t.id === 'starter')!;
+  const professional = TIERS.find((t) => t.id === 'professional')!;
+  const enterprise   = TIERS.find((t) => t.id === 'enterprise')!;
+  const ep           = TIERS.find((t) => t.id === 'enterprise_plus')!;
+
+  const cases: [typeof starter, number, 'monthly' | 'annual', number | null][] = [
+    [starter,      5,  'annual',  39 * 5 * 12],            // £2,340
+    [starter,     25,  'annual',  39 * 25 * 12],           // £11,700
+    [starter,     10,  'monthly', 49 * 10 * 12],           // £5,880
+    [professional, 50, 'annual',  31 * 50 * 12],           // £18,600
+    [professional, 10, 'monthly', 39 * 10 * 12],           // £4,680
+    [enterprise,   25, 'annual',  22 * 25 * 12 + 5000],    // £11,600
+    [enterprise,  100, 'annual',  22 * 100 * 12 + 5000],   // £31,400
+    [ep,          200, 'annual',  null],                    // custom
+    [ep,          500, 'monthly', null],                    // custom
+  ];
+
+  for (const [tier, users, cycle, expected] of cases) {
+    const label = expected === null ? 'null' : `£${expected.toLocaleString()}`;
+    it(`${tier.name} ${users} users ${cycle} → ${label}`, () => {
+      expect(estimatedAnnualCost(tier, users, cycle)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: annualSavingPercent ─────────────────────────────────────────
+
+describe('annualSavingPercent — all tiers (parametric)', () => {
+  const cases: [number, number, number][] = [
+    [49, 39, 20],   // Starter
+    [39, 31, 21],   // Professional (Math.round(8/39*100)=21)
+    [28, 22, 21],   // Enterprise (Math.round(6/28*100)=21)
+    [100, 80, 20],
+    [100, 75, 25],
+    [50, 40, 20],
+  ];
+  for (const [list, annual, expected] of cases) {
+    it(`annualSavingPercent(${list}, ${annual}) = ${expected}%`, () => {
+      expect(annualSavingPercent(list, annual)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: per-WIZARD_STEP metadata ─────────────────────────────────────
+
+describe('WIZARD_STEPS — per-step parametric', () => {
+  const expected: [number, string, boolean][] = [
+    [1, 'Welcome',   true],
+    [2, 'Region',    true],
+    [3, 'Standards', true],
+    [4, 'Plan',      false],
+    [5, 'Confirm',   false],
+  ];
+  for (const [num, label, required] of expected) {
+    it(`step ${num} label = "${label}" and isRequired=${required}`, () => {
+      const step = WIZARD_STEPS.find((s) => s.number === num)!;
+      expect(step.label).toBe(label);
+      expect(step.isRequired).toBe(required);
+    });
+  }
+});
+
+// ─── Tier pricing ordering ────────────────────────────────────────────────────
+
+describe('Tier pricing ordering and structure', () => {
+  it('listMonthly decreases across STARTER→PROFESSIONAL→ENTERPRISE', () => {
+    const [s, p, e] = ['starter', 'professional', 'enterprise'].map(
+      (id) => TIERS.find((t) => t.id === id)!
+    );
+    expect(s.listMonthly!).toBeGreaterThan(p.listMonthly!);
+    expect(p.listMonthly!).toBeGreaterThan(e.listMonthly!);
+  });
+
+  it('annualMonthly follows same order as listMonthly', () => {
+    const [s, p, e] = ['starter', 'professional', 'enterprise'].map(
+      (id) => TIERS.find((t) => t.id === id)!
+    );
+    expect(s.annualMonthly!).toBeGreaterThan(p.annualMonthly!);
+    expect(p.annualMonthly!).toBeGreaterThan(e.annualMonthly!);
+  });
+
+  it('Enterprise+ has null listMonthly and annualMonthly (custom pricing)', () => {
+    const ep = TIERS.find((t) => t.id === 'enterprise_plus')!;
+    expect(ep.listMonthly).toBeNull();
+    expect(ep.annualMonthly).toBeNull();
+  });
+
+  it('Platform fee is null for Starter and Professional', () => {
+    expect(TIERS.find((t) => t.id === 'starter')!.platformFee).toBeNull();
+    expect(TIERS.find((t) => t.id === 'professional')!.platformFee).toBeNull();
+  });
+
+  it('Enterprise platform fee is £5,000', () => {
+    expect(TIERS.find((t) => t.id === 'enterprise')!.platformFee).toBe(5000);
+  });
+
+  it('Enterprise+ platform fee is £12,000', () => {
+    expect(TIERS.find((t) => t.id === 'enterprise_plus')!.platformFee).toBe(12000);
+  });
+
+  it('minUsers increases across all 4 tiers', () => {
+    const mins = TIERS.map((t) => t.minUsers);
+    for (let i = 1; i < mins.length; i++) {
+      expect(mins[i]).toBeGreaterThan(mins[i - 1]);
+    }
+  });
+
+  it('Starter has 14-day trial disabled', () => {
+    expect(TIERS.find((t) => t.id === 'starter')!.trialEnabled).toBe(false);
+  });
+
+  it('Professional has 14-day trial enabled', () => {
+    const pro = TIERS.find((t) => t.id === 'professional')!;
+    expect(pro.trialEnabled).toBe(true);
+    expect(pro.trialDays).toBe(14);
+  });
+
+  it('only Professional is not custom pricing', () => {
+    const customTiers = TIERS.filter((t) => t.custom);
+    expect(customTiers).toHaveLength(1);
+    expect(customTiers[0].id).toBe('enterprise_plus');
+  });
+});
