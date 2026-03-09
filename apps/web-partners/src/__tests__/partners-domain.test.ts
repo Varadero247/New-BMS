@@ -773,3 +773,107 @@ describe('buildReferralLink — suffix parametric', () => {
     });
   }
 });
+
+// ─── DEAL_STATUSES — positional index parametric ──────────────────────────────
+
+describe('DEAL_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'NEW'],
+    [1, 'IN_PROGRESS'],
+    [2, 'NEGOTIATION'],
+    [3, 'CLOSED_WON'],
+    [4, 'CLOSED_LOST'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DEAL_STATUSES[${idx}] === '${val}'`, () => {
+      expect(DEAL_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── NEXARA_PARTNER_TIERS — positional index parametric ──────────────────────
+
+describe('NEXARA_PARTNER_TIERS — positional index parametric', () => {
+  const expected = [
+    [0, 'REFERRAL'],
+    [1, 'RESELLER'],
+    [2, 'STRATEGIC'],
+    [3, 'WHITE_LABEL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`NEXARA_PARTNER_TIERS[${idx}] === '${val}'`, () => {
+      expect(NEXARA_PARTNER_TIERS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── DASHBOARD_CARD_LABELS — positional index parametric ─────────────────────
+
+describe('DASHBOARD_CARD_LABELS — positional index parametric', () => {
+  const expected = [
+    [0, 'Total Deals'],
+    [1, 'In Progress'],
+    [2, 'Closed Won'],
+    [3, 'Total Commission'],
+    [4, 'Pending Commission'],
+    [5, 'Available Payout'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DASHBOARD_CARD_LABELS[${idx}] === '${val}'`, () => {
+      expect(DASHBOARD_CARD_LABELS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── COMMISSION_TABLE_COLUMNS — positional index parametric ──────────────────
+
+describe('COMMISSION_TABLE_COLUMNS — positional index parametric', () => {
+  const expected = [
+    [0, 'Company'],
+    [1, 'Deal Value'],
+    [2, 'Rate'],
+    [3, 'Commission'],
+    [4, 'Status'],
+    [5, 'Closed'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`COMMISSION_TABLE_COLUMNS[${idx}] === '${val}'`, () => {
+      expect(COMMISSION_TABLE_COLUMNS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── NFR_LICENCES — per-tier exact values ────────────────────────────────────
+
+describe('NFR_LICENCES — per-tier exact values', () => {
+  const cases: [NexaraPartnerTier, number][] = [
+    ['REFERRAL',    0],
+    ['RESELLER',    5],
+    ['STRATEGIC',   15],
+    ['WHITE_LABEL', 20],
+  ];
+  for (const [tier, expected] of cases) {
+    it(`NFR_LICENCES[${tier}] === ${expected}`, () => {
+      expect(NFR_LICENCES[tier]).toBe(expected);
+    });
+  }
+});
+
+// ─── PARTNER_ONBOARDING_STEPS — per-step exact values ───────────────────────
+
+describe('PARTNER_ONBOARDING_STEPS — per-step exact values', () => {
+  const cases: [number, string][] = [
+    [0, 'Apply'],
+    [1, 'Approved in 5 days'],
+    [2, 'Onboarding call'],
+    [3, 'Start selling'],
+  ];
+  for (const [idx, title] of cases) {
+    it(`step[${idx}].title === '${title}'`, () => {
+      expect(PARTNER_ONBOARDING_STEPS[idx].title).toBe(title);
+    });
+  }
+  it('steps are numbered 1-4', () => {
+    expect(PARTNER_ONBOARDING_STEPS.map(s => s.step)).toEqual([1, 2, 3, 4]);
+  });
+});

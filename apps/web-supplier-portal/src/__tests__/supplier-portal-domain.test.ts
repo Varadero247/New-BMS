@@ -742,3 +742,97 @@ describe('GRADE_CONFIG — per-grade color parametric', () => {
     });
   }
 });
+
+// ─── PO_STATUSES — positional index parametric ───────────────────────────────
+
+describe('PO_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'PENDING'],
+    [1, 'CONFIRMED'],
+    [2, 'IN_TRANSIT'],
+    [3, 'COMPLETED'],
+    [4, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PO_STATUSES[${idx}] === '${val}'`, () => {
+      expect(PO_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── NCR_SEVERITIES — positional index parametric ────────────────────────────
+
+describe('NCR_SEVERITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'CRITICAL'],
+    [1, 'MAJOR'],
+    [2, 'MINOR'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`NCR_SEVERITIES[${idx}] === '${val}'`, () => {
+      expect(NCR_SEVERITIES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── NCR_STATUSES — positional index parametric ──────────────────────────────
+
+describe('NCR_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'OPEN'],
+    [1, 'IN_PROGRESS'],
+    [2, 'CLOSED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`NCR_STATUSES[${idx}] === '${val}'`, () => {
+      expect(NCR_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── SUPPLIER_GRADES — positional index parametric ───────────────────────────
+
+describe('SUPPLIER_GRADES — positional index parametric', () => {
+  const expected = [
+    [0, 'A'],
+    [1, 'B'],
+    [2, 'C'],
+    [3, 'D'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SUPPLIER_GRADES[${idx}] === '${val}'`, () => {
+      expect(SUPPLIER_GRADES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── SUPPLIER_TIERS — positional index parametric ────────────────────────────
+
+describe('SUPPLIER_TIERS — positional index parametric', () => {
+  const expected = [
+    [0, 'Strategic'],
+    [1, 'Preferred'],
+    [2, 'Approved'],
+    [3, 'Conditional'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SUPPLIER_TIERS[${idx}] === '${val}'`, () => {
+      expect(SUPPLIER_TIERS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── RISK_LEVELS — positional index parametric ───────────────────────────────
+
+describe('RISK_LEVELS — positional index parametric', () => {
+  const expected = [
+    [0, 'Low'],
+    [1, 'Medium'],
+    [2, 'High'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RISK_LEVELS[${idx}] === '${val}'`, () => {
+      expect(RISK_LEVELS[idx]).toBe(val);
+    });
+  }
+});

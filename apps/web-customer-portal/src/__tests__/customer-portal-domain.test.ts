@@ -750,3 +750,85 @@ describe('TICKET_CATEGORIES — per-category parametric', () => {
     expect(new Set(TICKET_CATEGORIES).size).toBe(TICKET_CATEGORIES.length);
   });
 });
+
+// ─── ORDER_STATUSES — positional index parametric ────────────────────────────
+
+describe('ORDER_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'PENDING'],
+    [1, 'PROCESSING'],
+    [2, 'SHIPPED'],
+    [3, 'DELIVERED'],
+    [4, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`ORDER_STATUSES[${idx}] === '${val}'`, () => {
+      expect(ORDER_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── TICKET_STATUSES — positional index parametric ───────────────────────────
+
+describe('TICKET_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'open'],
+    [1, 'in-progress'],
+    [2, 'resolved'],
+    [3, 'closed'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TICKET_STATUSES[${idx}] === '${val}'`, () => {
+      expect(TICKET_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── TICKET_PRIORITIES — positional index parametric ─────────────────────────
+
+describe('TICKET_PRIORITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'high'],
+    [1, 'medium'],
+    [2, 'low'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TICKET_PRIORITIES[${idx}] === '${val}'`, () => {
+      expect(TICKET_PRIORITIES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── SELF_SERVICE_ORDER_STATUSES — positional index parametric ───────────────
+
+describe('SELF_SERVICE_ORDER_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'pending'],
+    [1, 'confirmed'],
+    [2, 'in-production'],
+    [3, 'shipped'],
+    [4, 'delivered'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SELF_SERVICE_ORDER_STATUSES[${idx}] === '${val}'`, () => {
+      expect(SELF_SERVICE_ORDER_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── DOCUMENT_TYPES — positional index parametric ────────────────────────────
+
+describe('DOCUMENT_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'Certificate'],
+    [1, 'Specification'],
+    [2, 'Financial'],
+    [3, 'Safety'],
+    [4, 'Legal'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DOCUMENT_TYPES[${idx}] === '${val}'`, () => {
+      expect(DOCUMENT_TYPES[idx]).toBe(val);
+    });
+  }
+});
