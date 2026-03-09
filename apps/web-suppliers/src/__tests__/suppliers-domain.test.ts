@@ -772,3 +772,119 @@ describe('Mock scorecard data integrity', () => {
     expect(draft?.overallScore).toBe(0);
   });
 });
+
+// ─── Parametric: SUPPLIER_STATUSES positional index ───────────────────────────
+
+describe('SUPPLIER_STATUSES — positional index parametric', () => {
+  const expected: [SupplierStatus, number][] = [
+    ['PROSPECTIVE', 0],
+    ['APPROVED',    1],
+    ['CONDITIONAL', 2],
+    ['SUSPENDED',   3],
+    ['BLACKLISTED', 4],
+    ['INACTIVE',    5],
+  ];
+  for (const [status, idx] of expected) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(SUPPLIER_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: getStatusColor text- checks ─────────────────────────────────
+
+describe('getStatusColor — text- check per-status parametric', () => {
+  const cases: [string, string][] = [
+    ['APPROVED',    'green'],
+    ['CONDITIONAL', 'yellow'],
+    ['SUSPENDED',   'orange'],
+    ['BLACKLISTED', 'red'],
+    ['INACTIVE',    'gray'],
+    ['PROSPECTIVE', 'blue'],
+  ];
+  for (const [status, color] of cases) {
+    it(`${status} color contains text-${color}`, () => {
+      expect(getStatusColor(status)).toContain(`text-${color}`);
+    });
+  }
+});
+
+// ─── Parametric: getTierColor text- checks ────────────────────────────────────
+
+describe('getTierColor — text- check per-tier parametric', () => {
+  const cases: [SupplierTier, string][] = [
+    ['CRITICAL', 'red'],
+    ['HIGH',     'orange'],
+    ['MEDIUM',   'yellow'],
+    ['LOW',      'green'],
+  ];
+  for (const [tier, color] of cases) {
+    it(`${tier} color contains text-${color}`, () => {
+      expect(getTierColor(tier)).toContain(`text-${color}`);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_SUPPLIERS per-supplier annualSpend ─────────────────────
+
+describe('MOCK_SUPPLIERS — per-supplier annualSpend parametric', () => {
+  const cases: [string, number][] = [
+    ['sup-001', 750000],
+    ['sup-002', 120000],
+    ['sup-003', 55000],
+    ['sup-004', 200000],
+    ['sup-005', 0],
+  ];
+  for (const [id, expected] of cases) {
+    it(`${id}: annualSpend = ${expected}`, () => {
+      const supplier = MOCK_SUPPLIERS.find((s) => s.id === id);
+      expect(supplier!.annualSpend).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: formatAnnualSpend additional exact values ────────────────────
+
+describe('formatAnnualSpend — additional exact values parametric', () => {
+  const cases: [number, string][] = [
+    [120000,    '£120K'],
+    [200000,    '£200K'],
+    [55000,     '£55K'],
+    [1_200_000, '£1.2M'],
+  ];
+  for (const [spend, expected] of cases) {
+    it(`formatAnnualSpend(${spend}) → "${expected}"`, () => {
+      expect(formatAnnualSpend(spend)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: spendRiskBand using MOCK_SUPPLIERS data ─────────────────────
+
+describe('spendRiskBand — MOCK_SUPPLIERS data parametric', () => {
+  const cases: [string, number, SupplierTier, 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'][] = [
+    ['sup-001', 750000,  'CRITICAL', 'CRITICAL'], // CRITICAL tier
+    ['sup-002', 120000,  'HIGH',     'HIGH'],      // HIGH tier
+    ['sup-003', 55000,   'MEDIUM',   'MEDIUM'],    // MEDIUM tier, spend < 100K
+    ['sup-004', 200000,  'HIGH',     'HIGH'],      // HIGH tier
+    ['sup-005', 0,       'LOW',      'LOW'],       // LOW tier, zero spend
+  ];
+  for (const [id, spend, tier, expected] of cases) {
+    it(`${id} (${tier}, £${spend}) → "${expected}"`, () => {
+      expect(spendRiskBand(spend, tier)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: calcOverall sc-002 exact verification ───────────────────────
+
+describe('calcOverall — sc-002 exact verification', () => {
+  it('sc-002 (70,65,72,68,74) calcOverall = 70', () => {
+    // (70+65+72+68+74)/5 = 349/5 = 69.8 → Math.round = 70
+    expect(calcOverall({ quality: 70, delivery: 65, cost: 72, responsiveness: 68, compliance: 74 })).toBe(70);
+  });
+  it('sc-001 calcOverall ≈ 88', () => {
+    // (90+85+80+88+95)/5 = 438/5 = 87.6 → Math.round = 88
+    expect(calcOverall({ quality: 90, delivery: 85, cost: 80, responsiveness: 88, compliance: 95 })).toBe(88);
+  });
+});
