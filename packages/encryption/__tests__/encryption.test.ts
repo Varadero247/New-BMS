@@ -2193,3 +2193,21 @@ describe('ph216_swd',()=>{
   it('d',()=>{expect(shortestWordDist216(["a","b","c","a"],"a","c")).toBe(1);});
   it('e',()=>{expect(shortestWordDist216(["x","y","z","x","y"],"x","y")).toBe(1);});
 });
+
+// ─── Algorithm puzzle phases (ph217enx–ph218enx) ──────────────────────────────
+function moveZeroes217enx(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217enx_mz',()=>{
+  it('a',()=>{expect(moveZeroes217enx([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217enx([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217enx([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217enx([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217enx([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218enx(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218enx_mn',()=>{
+  it('a',()=>{expect(missingNumber218enx([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218enx([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218enx([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218enx([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218enx([1])).toBe(0);});
+});

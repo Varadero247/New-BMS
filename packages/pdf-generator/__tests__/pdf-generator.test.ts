@@ -2344,3 +2344,21 @@ describe('ph216_me',()=>{
   it('d',()=>{expect(majorityElement216([4,4,4,4,2,2,2])).toBe(4);});
   it('e',()=>{expect(majorityElement216([5,5,5,5,5])).toBe(5);});
 });
+
+// ─── Algorithm puzzle phases (ph217pdx–ph218pdx) ──────────────────────────────
+function moveZeroes217pdx(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217pdx_mz',()=>{
+  it('a',()=>{expect(moveZeroes217pdx([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217pdx([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217pdx([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217pdx([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217pdx([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218pdx(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218pdx_mn',()=>{
+  it('a',()=>{expect(missingNumber218pdx([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218pdx([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218pdx([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218pdx([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218pdx([1])).toBe(0);});
+});

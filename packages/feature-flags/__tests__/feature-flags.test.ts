@@ -2427,3 +2427,21 @@ describe('ph216_lmtn',()=>{
   it('d',()=>{expect(longestMountain216([1,3,1,3,1])).toBe(3);});
   it('e',()=>{expect(longestMountain216([0,2,0,2,0])).toBe(3);});
 });
+
+// ─── Algorithm puzzle phases (ph217fex–ph218fex) ──────────────────────────────
+function moveZeroes217fex(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217fex_mz',()=>{
+  it('a',()=>{expect(moveZeroes217fex([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217fex([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217fex([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217fex([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217fex([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218fex(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218fex_mn',()=>{
+  it('a',()=>{expect(missingNumber218fex([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218fex([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218fex([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218fex([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218fex([1])).toBe(0);});
+});
