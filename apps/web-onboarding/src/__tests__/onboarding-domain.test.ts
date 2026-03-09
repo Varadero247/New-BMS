@@ -853,3 +853,75 @@ describe('Tier pricing ordering and structure', () => {
     expect(customTiers[0].id).toBe('enterprise_plus');
   });
 });
+
+// ─── WIZARD_STEPS — positional index parametric ──────────────────────────────
+
+describe('WIZARD_STEPS — positional index parametric', () => {
+  const expected = [
+    [0, 'Welcome',   true],
+    [1, 'Region',    true],
+    [2, 'Standards', true],
+    [3, 'Plan',      false],
+    [4, 'Confirm',   false],
+  ] as const;
+  for (const [idx, label, isRequired] of expected) {
+    it(`step[${idx}].label === '${label}', isRequired === ${isRequired}`, () => {
+      expect(WIZARD_STEPS[idx].label).toBe(label);
+      expect(WIZARD_STEPS[idx].isRequired).toBe(isRequired);
+    });
+  }
+  it('steps are numbered 1-5', () => {
+    expect(WIZARD_STEPS.map(s => s.number)).toEqual([1, 2, 3, 4, 5]);
+  });
+});
+
+// ─── ISO_CATALOGUE — positional index parametric ─────────────────────────────
+
+describe('ISO_CATALOGUE — positional index parametric', () => {
+  const expected = [
+    [0, 'ISO 9001:2015',  'Quality Management'],
+    [1, 'ISO 14001:2015', 'Environmental Management'],
+    [2, 'ISO 45001:2018', 'Occupational Health & Safety'],
+    [3, 'ISO 27001:2022', 'Information Security'],
+    [4, 'ISO 37001:2016', 'Anti-Bribery'],
+    [5, 'ISO 50001:2018', 'Energy Management'],
+    [6, 'ISO 22000:2018', 'Food Safety'],
+    [7, 'ISO 13485:2016', 'Medical Devices'],
+    [8, 'ISO 42001:2023', 'AI Management'],
+  ] as const;
+  for (const [idx, standard, name] of expected) {
+    it(`ISO_CATALOGUE[${idx}]: standard='${standard}', name='${name}'`, () => {
+      expect(ISO_CATALOGUE[idx].standard).toBe(standard);
+      expect(ISO_CATALOGUE[idx].name).toBe(name);
+    });
+  }
+});
+
+// ─── APAC_COUNTRIES — region grouping parametric ─────────────────────────────
+
+describe('APAC_COUNTRIES — region grouping parametric', () => {
+  const aseanCodes = ['SG', 'MY', 'ID', 'TH', 'VN', 'PH', 'MM', 'KH', 'LA', 'BN'];
+  for (const code of aseanCodes) {
+    it(`${code} is in ASEAN region`, () => {
+      expect(APAC_COUNTRIES.find(c => c.countryCode === code)?.region).toBe('ASEAN');
+    });
+  }
+  const anzCodes = ['AU', 'NZ'];
+  for (const code of anzCodes) {
+    it(`${code} is in ANZ region`, () => {
+      expect(APAC_COUNTRIES.find(c => c.countryCode === code)?.region).toBe('ANZ');
+    });
+  }
+  const eastAsiaCodes = ['JP', 'KR', 'HK', 'TW', 'CN'];
+  for (const code of eastAsiaCodes) {
+    it(`${code} is in EAST_ASIA region`, () => {
+      expect(APAC_COUNTRIES.find(c => c.countryCode === code)?.region).toBe('EAST_ASIA');
+    });
+  }
+  const southAsiaCodes = ['IN', 'BD', 'LK'];
+  for (const code of southAsiaCodes) {
+    it(`${code} is in SOUTH_ASIA region`, () => {
+      expect(APAC_COUNTRIES.find(c => c.countryCode === code)?.region).toBe('SOUTH_ASIA');
+    });
+  }
+});
