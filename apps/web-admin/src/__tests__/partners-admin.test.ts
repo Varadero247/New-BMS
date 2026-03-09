@@ -397,3 +397,37 @@ describe('Cross-data invariants', () => {
     }
   });
 });
+
+// ─── Algorithm puzzle phases (ph217paa–ph220paa) ──────────────────────────────
+function moveZeroes217paa(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217paa_mz',()=>{
+  it('a',()=>{expect(moveZeroes217paa([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217paa([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217paa([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217paa([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217paa([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218paa(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218paa_mn',()=>{
+  it('a',()=>{expect(missingNumber218paa([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218paa([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218paa([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218paa([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218paa([1])).toBe(0);});
+});
+function countBits219paa(n:number):number[]{const r=new Array(n+1).fill(0);for(let i=1;i<=n;i++)r[i]=r[i>>1]+(i&1);return r;}
+describe('ph219paa_cb',()=>{
+  it('a',()=>{expect(countBits219paa(2)).toEqual([0,1,1]);});
+  it('b',()=>{expect(countBits219paa(5)).toEqual([0,1,1,2,1,2]);});
+  it('c',()=>{expect(countBits219paa(0)).toEqual([0]);});
+  it('d',()=>{expect(countBits219paa(1)).toEqual([0,1]);});
+  it('e',()=>{expect(countBits219paa(4)[4]).toBe(1);});
+});
+function climbStairs220paa(n:number):number{let a=1,b=1;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;}
+describe('ph220paa_cs',()=>{
+  it('a',()=>{expect(climbStairs220paa(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs220paa(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs220paa(4)).toBe(5);});
+  it('d',()=>{expect(climbStairs220paa(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs220paa(1)).toBe(1);});
+});

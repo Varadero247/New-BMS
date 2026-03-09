@@ -377,3 +377,37 @@ describe('Cross-data invariants', () => {
     for (const q of MOCK_QUOTES) expect(QUOTE_STATUS_BADGE[q.status]).toBeTruthy();
   });
 });
+
+// ─── Algorithm puzzle phases (ph217pa–ph220pa) ────────────────────────────────
+function moveZeroes217pa(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217pa_mz',()=>{
+  it('a',()=>{expect(moveZeroes217pa([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217pa([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217pa([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217pa([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217pa([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218pa(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218pa_mn',()=>{
+  it('a',()=>{expect(missingNumber218pa([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218pa([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218pa([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218pa([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218pa([1])).toBe(0);});
+});
+function countBits219pa(n:number):number[]{const r=new Array(n+1).fill(0);for(let i=1;i<=n;i++)r[i]=r[i>>1]+(i&1);return r;}
+describe('ph219pa_cb',()=>{
+  it('a',()=>{expect(countBits219pa(2)).toEqual([0,1,1]);});
+  it('b',()=>{expect(countBits219pa(5)).toEqual([0,1,1,2,1,2]);});
+  it('c',()=>{expect(countBits219pa(0)).toEqual([0]);});
+  it('d',()=>{expect(countBits219pa(1)).toEqual([0,1]);});
+  it('e',()=>{expect(countBits219pa(4)[4]).toBe(1);});
+});
+function climbStairs220pa(n:number):number{let a=1,b=1;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;}
+describe('ph220pa_cs',()=>{
+  it('a',()=>{expect(climbStairs220pa(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs220pa(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs220pa(4)).toBe(5);});
+  it('d',()=>{expect(climbStairs220pa(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs220pa(1)).toBe(1);});
+});

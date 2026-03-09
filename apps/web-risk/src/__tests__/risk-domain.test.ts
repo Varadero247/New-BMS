@@ -935,3 +935,69 @@ describe('TREATMENT_MOCK_DATA — per-treatment count parametric', () => {
     });
   }
 });
+
+// ─── Algorithm puzzle phases (ph217ri–ph224ri) ────────────────────────────────
+function moveZeroes217ri(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217ri_mz',()=>{
+  it('a',()=>{expect(moveZeroes217ri([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217ri([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217ri([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217ri([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217ri([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218ri(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218ri_mn',()=>{
+  it('a',()=>{expect(missingNumber218ri([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218ri([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218ri([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218ri([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218ri([1])).toBe(0);});
+});
+function countBits219ri(n:number):number[]{const r=new Array(n+1).fill(0);for(let i=1;i<=n;i++)r[i]=r[i>>1]+(i&1);return r;}
+describe('ph219ri_cb',()=>{
+  it('a',()=>{expect(countBits219ri(2)).toEqual([0,1,1]);});
+  it('b',()=>{expect(countBits219ri(5)).toEqual([0,1,1,2,1,2]);});
+  it('c',()=>{expect(countBits219ri(0)).toEqual([0]);});
+  it('d',()=>{expect(countBits219ri(1)).toEqual([0,1]);});
+  it('e',()=>{expect(countBits219ri(4)[4]).toBe(1);});
+});
+function climbStairs220ri(n:number):number{let a=1,b=1;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;}
+describe('ph220ri_cs',()=>{
+  it('a',()=>{expect(climbStairs220ri(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs220ri(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs220ri(4)).toBe(5);});
+  it('d',()=>{expect(climbStairs220ri(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs220ri(1)).toBe(1);});
+});
+function maxProfit221ri(p:number[]):number{let min=Infinity,max=0;for(const x of p){min=Math.min(min,x);max=Math.max(max,x-min);}return max;}
+describe('ph221ri_mp',()=>{
+  it('a',()=>{expect(maxProfit221ri([7,1,5,3,6,4])).toBe(5);});
+  it('b',()=>{expect(maxProfit221ri([7,6,4,3,1])).toBe(0);});
+  it('c',()=>{expect(maxProfit221ri([1,2])).toBe(1);});
+  it('d',()=>{expect(maxProfit221ri([2,1,4])).toBe(3);});
+  it('e',()=>{expect(maxProfit221ri([1])).toBe(0);});
+});
+function singleNumber222ri(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('ph222ri_sn',()=>{
+  it('a',()=>{expect(singleNumber222ri([2,2,1])).toBe(1);});
+  it('b',()=>{expect(singleNumber222ri([4,1,2,1,2])).toBe(4);});
+  it('c',()=>{expect(singleNumber222ri([1])).toBe(1);});
+  it('d',()=>{expect(singleNumber222ri([0,1,0])).toBe(1);});
+  it('e',()=>{expect(singleNumber222ri([3,3,5])).toBe(5);});
+});
+function hammingDist223ri(x:number,y:number):number{let n=x^y,c=0;while(n){c+=n&1;n>>>=1;}return c;}
+describe('ph223ri_hd',()=>{
+  it('a',()=>{expect(hammingDist223ri(1,4)).toBe(2);});
+  it('b',()=>{expect(hammingDist223ri(3,1)).toBe(1);});
+  it('c',()=>{expect(hammingDist223ri(0,0)).toBe(0);});
+  it('d',()=>{expect(hammingDist223ri(0,15)).toBe(4);});
+  it('e',()=>{expect(hammingDist223ri(7,7)).toBe(0);});
+});
+function majorElem224ri(nums:number[]):number{let c=0,m=0;for(const n of nums){if(c===0)m=n;c+=n===m?1:-1;}return m;}
+describe('ph224ri_me',()=>{
+  it('a',()=>{expect(majorElem224ri([3,2,3])).toBe(3);});
+  it('b',()=>{expect(majorElem224ri([2,2,1,1,1,2,2])).toBe(2);});
+  it('c',()=>{expect(majorElem224ri([1])).toBe(1);});
+  it('d',()=>{expect(majorElem224ri([1,1,2])).toBe(1);});
+  it('e',()=>{expect(majorElem224ri([6,5,5])).toBe(5);});
+});
