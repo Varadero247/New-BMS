@@ -671,3 +671,93 @@ describe('getDefaultSubType', () => {
     });
   }
 });
+
+// ─── Phase 213 parametric additions ──────────────────────────────────────────
+
+describe('RULE_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'active'],
+    [1, 'paused'],
+    [2, 'draft'],
+    [3, 'error'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RULE_STATUSES[${idx}] === '${val}'`, () => {
+      expect(RULE_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('TRIGGER_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'event'],
+    [1, 'schedule'],
+    [2, 'condition'],
+    [3, 'webhook'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TRIGGER_TYPES[${idx}] === '${val}'`, () => {
+      expect(TRIGGER_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('NODE_CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'trigger'],
+    [1, 'condition'],
+    [2, 'action'],
+    [3, 'notification'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`NODE_CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(NODE_CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DEFINITION_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'ACTIVE'],
+    [2, 'DEPRECATED'],
+    [3, 'ARCHIVED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DEFINITION_STATUSES[${idx}] === '${val}'`, () => {
+      expect(DEFINITION_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DEFINITION_CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'APPROVAL'],
+    [1, 'REVIEW'],
+    [2, 'CHANGE_MANAGEMENT'],
+    [3, 'INCIDENT'],
+    [4, 'REQUEST'],
+    [5, 'ONBOARDING'],
+    [6, 'OFFBOARDING'],
+    [7, 'CUSTOM'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DEFINITION_CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(DEFINITION_CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('triggerLabels — per-type exact label parametric', () => {
+  const expected: [TriggerType, string][] = [
+    ['event',     'Event-based'],
+    ['schedule',  'Scheduled'],
+    ['condition', 'Condition-based'],
+    ['webhook',   'Webhook'],
+  ];
+  for (const [type, label] of expected) {
+    it(`${type}: label = "${label}"`, () => {
+      expect(triggerLabels[type]).toBe(label);
+    });
+  }
+});

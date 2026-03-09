@@ -887,3 +887,114 @@ describe('ir35InsideRate — additional parametric cases', () => {
     expect(ir35InsideRate(a)).toBe(0);
   });
 });
+
+// ─── Phase 213 parametric additions ──────────────────────────────────────────
+
+describe('CONTROL_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'ACTIVE'],
+    [1, 'INACTIVE'],
+    [2, 'UNDER_REVIEW'],
+    [3, 'REMEDIATION'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CONTROL_STATUSES[${idx}] === '${val}'`, () => {
+      expect(CONTROL_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('CONTROL_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'Preventive'],
+    [1, 'Detective'],
+    [2, 'Corrective'],
+    [3, 'Directive'],
+    [4, 'Compensating'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CONTROL_TYPES[${idx}] === '${val}'`, () => {
+      expect(CONTROL_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('RISK_AREAS — positional index parametric', () => {
+  const expected = [
+    [0, 'Financial Reporting'],
+    [1, 'Tax Compliance'],
+    [2, 'Anti-Money Laundering'],
+    [3, 'Fraud Prevention'],
+    [4, 'Data Protection'],
+    [5, 'Regulatory'],
+    [6, 'Operational'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RISK_AREAS[${idx}] === '${val}'`, () => {
+      expect(RISK_AREAS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('CONFLICT_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'Authorization'],
+    [1, 'Custody'],
+    [2, 'Reconciliation'],
+    [3, 'Recording'],
+    [4, 'Approval'],
+    [5, 'Execution'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CONFLICT_TYPES[${idx}] === '${val}'`, () => {
+      expect(CONFLICT_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('IR35_DETERMINATIONS — positional index parametric', () => {
+  const expected = [
+    [0, 'PENDING'],
+    [1, 'INSIDE'],
+    [2, 'OUTSIDE'],
+    [3, 'UNKNOWN'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`IR35_DETERMINATIONS[${idx}] === '${val}'`, () => {
+      expect(IR35_DETERMINATIONS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('HMRC_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'PENDING'],
+    [1, 'SUBMITTED'],
+    [2, 'OVERDUE'],
+    [3, 'EXTENSION_REQUESTED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`HMRC_STATUSES[${idx}] === '${val}'`, () => {
+      expect(HMRC_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DEADLINE_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'Corporation Tax'],
+    [1, 'VAT Return'],
+    [2, 'PAYE'],
+    [3, 'Self Assessment'],
+    [4, 'CIS Return'],
+    [5, 'P11D'],
+    [6, 'Annual Accounts'],
+    [7, 'Confirmation Statement'],
+    [8, 'Other'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DEADLINE_TYPES[${idx}] === '${val}'`, () => {
+      expect(DEADLINE_TYPES[idx]).toBe(val);
+    });
+  }
+});
