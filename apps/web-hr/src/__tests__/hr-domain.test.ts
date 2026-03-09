@@ -849,3 +849,155 @@ describe('totalApplicantsForJobs and avgApplicantsPerJob', () => {
   it('average is positive for MOCK_JOBS', () =>
     expect(avgApplicantsPerJob(MOCK_JOBS)).toBeGreaterThan(0));
 });
+
+// ─── Parametric: statusColors per-status ──────────────────────────────────────
+
+describe('statusColors — per-status color keyword parametric', () => {
+  const cases: [EmploymentStatus, string][] = [
+    ['ACTIVE',        'green'],
+    ['ON_LEAVE',      'yellow'],
+    ['PROBATION',     'blue'],
+    ['NOTICE_PERIOD', 'orange'],
+    ['SUSPENDED',     'red'],
+    ['TERMINATED',    'gray'],
+  ];
+  for (const [status, color] of cases) {
+    it(`${status} badge contains "${color}"`, () => {
+      expect(statusColors[status]).toContain(color);
+    });
+  }
+});
+
+// ─── Parametric: leaveStatusColors per-status ─────────────────────────────────
+
+describe('leaveStatusColors — per-status color keyword parametric', () => {
+  const cases: [LeaveRequestStatus, string][] = [
+    ['PENDING',   'yellow'],
+    ['APPROVED',  'green'],
+    ['REJECTED',  'red'],
+    ['CANCELLED', 'gray'],
+  ];
+  for (const [status, color] of cases) {
+    it(`${status} badge contains "${color}"`, () => {
+      expect(leaveStatusColors[status]).toContain(color);
+    });
+  }
+});
+
+// ─── Parametric: stageConfig per-stage step ───────────────────────────────────
+
+describe('stageConfig — per-stage step+label parametric', () => {
+  const cases: [ApplicantStage, number, string][] = [
+    ['applied',     1, 'Applied'],
+    ['screening',   2, 'Screening'],
+    ['interview-1', 3, 'Interview 1'],
+    ['interview-2', 4, 'Interview 2'],
+    ['offer',       5, 'Offer'],
+    ['hired',       6, 'Hired'],
+    ['rejected',    0, 'Rejected'],
+  ];
+  for (const [stage, step, label] of cases) {
+    it(`${stage}: step=${step}, label="${label}"`, () => {
+      expect(stageConfig[stage].step).toBe(step);
+      expect(stageConfig[stage].label).toBe(label);
+    });
+  }
+});
+
+// ─── Parametric: per-applicant stage+rating ───────────────────────────────────
+
+describe('MOCK_APPLICANTS — per-applicant stage+rating parametric', () => {
+  const expected: [string, ApplicantStage, number][] = [
+    ['1', 'interview-2', 4],
+    ['2', 'offer',       5],
+    ['3', 'interview-1', 4],
+    ['4', 'screening',   3],
+    ['5', 'rejected',    2],
+    ['6', 'applied',     0],
+    ['7', 'interview-2', 5],
+    ['8', 'hired',       4],
+  ];
+  for (const [id, stage, rating] of expected) {
+    it(`applicant ${id}: stage=${stage}, rating=${rating}`, () => {
+      const a = MOCK_APPLICANTS.find((x) => x.id === id);
+      expect(a?.stage).toBe(stage);
+      expect(a?.rating).toBe(rating);
+    });
+  }
+});
+
+// ─── Parametric: per-job status+type+applicants ───────────────────────────────
+
+describe('MOCK_JOBS — per-job status+type+applicants parametric', () => {
+  const expected: [string, JobStatus, JobType, number][] = [
+    ['1', 'open',    'full-time',  18],
+    ['2', 'open',    'full-time',  12],
+    ['3', 'open',    'full-time',  34],
+    ['4', 'on-hold', 'full-time',  22],
+    ['5', 'open',    'internship',  8],
+    ['6', 'closed',  'full-time',  15],
+  ];
+  for (const [id, status, type, applicants] of expected) {
+    it(`job ${id}: status=${status}, type=${type}, applicants=${applicants}`, () => {
+      const job = MOCK_JOBS.find((j) => j.id === id);
+      expect(job?.status).toBe(status);
+      expect(job?.type).toBe(type);
+      expect(job?.applicants).toBe(applicants);
+    });
+  }
+});
+
+// ─── Parametric: yearsOfService boundary ─────────────────────────────────────
+
+describe('yearsOfService — exact boundary parametric', () => {
+  const today = new Date('2026-03-09');
+  const cases: [string, number][] = [
+    ['2026-03-09', 0],
+    ['2025-03-09', 1],
+    ['2021-01-01', 5],
+    ['2020-06-15', 5],   // day before anniversary → N-1
+    ['2016-01-01', 10],
+  ];
+  for (const [hire, expected] of cases) {
+    it(`hire=${hire} → ${expected} years`, () => {
+      expect(yearsOfService(new Date(hire), today)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: isActiveEmployee per-status ──────────────────────────────────
+
+describe('isActiveEmployee — per-status parametric', () => {
+  const cases: [EmploymentStatus, boolean][] = [
+    ['ACTIVE',        true],
+    ['PROBATION',     true],
+    ['ON_LEAVE',      false],
+    ['NOTICE_PERIOD', false],
+    ['SUSPENDED',     false],
+    ['TERMINATED',    false],
+  ];
+  for (const [status, expected] of cases) {
+    it(`isActiveEmployee("${status}") = ${expected}`, () => {
+      expect(isActiveEmployee(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: isPipelineStage per-stage ────────────────────────────────────
+
+describe('isPipelineStage — per-stage parametric', () => {
+  const cases: [ApplicantStage, boolean][] = [
+    ['applied',     true],
+    ['screening',   true],
+    ['interview-1', true],
+    ['interview-2', true],
+    ['offer',       true],
+    ['hired',       false],
+    ['rejected',    false],
+  ];
+  for (const [stage, expected] of cases) {
+    it(`isPipelineStage("${stage}") = ${expected}`, () => {
+      expect(isPipelineStage(stage)).toBe(expected);
+    });
+  }
+});

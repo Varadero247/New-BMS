@@ -755,6 +755,139 @@ describe('isTerminalStatus', () => {
   });
 });
 
+// ─── Parametric: courseTypeColor per-type ────────────────────────────────────
+
+describe('courseTypeColor — per-type color keyword parametric', () => {
+  const cases: [string, string][] = [
+    ['MANDATORY',    'red'],
+    ['CERTIFICATION','purple'],
+    ['INDUCTION',    'blue'],
+    ['REFRESHER',    'amber'],
+    ['OPTIONAL',     'gray'],
+    ['COMPETENCY',   'gray'],
+  ];
+  for (const [type, color] of cases) {
+    it(`${type} badge contains "${color}"`, () => {
+      expect(courseTypeColor[type]).toContain(color);
+    });
+  }
+});
+
+// ─── Parametric: competencyLevelColor per-level ───────────────────────────────
+
+describe('competencyLevelColor — per-level color keyword parametric', () => {
+  const cases: [string, string][] = [
+    ['EXPERT',      'purple'],
+    ['COMPETENT',   'green'],
+    ['DEVELOPING',  'amber'],
+    ['EXPIRED',     'red'],
+    ['NOT_STARTED', 'gray'],
+  ];
+  for (const [level, color] of cases) {
+    it(`${level} badge contains "${color}"`, () => {
+      expect(competencyLevelColor[level]).toContain(color);
+    });
+  }
+});
+
+// ─── Parametric: tnaPriorityColor per-priority ────────────────────────────────
+
+describe('tnaPriorityColor — per-priority color keyword parametric', () => {
+  const cases: [TnaPriority, string][] = [
+    ['CRITICAL', 'red'],
+    ['HIGH',     'orange'],
+    ['MEDIUM',   'amber'],
+    ['LOW',      'green'],
+  ];
+  for (const [priority, color] of cases) {
+    it(`${priority} badge contains "${color}"`, () => {
+      expect(tnaPriorityColor[priority]).toContain(color);
+    });
+  }
+});
+
+// ─── Parametric: getStatusVariant per-status ──────────────────────────────────
+
+describe('getStatusVariant — per-status parametric', () => {
+  const cases: [string, BadgeVariant][] = [
+    ['COMPLETED',   'secondary'],
+    ['IN_PROGRESS', 'default'],
+    ['SCHEDULED',   'outline'],
+    ['EXPIRED',     'outline'],
+    ['CANCELLED',   'outline'],
+  ];
+  for (const [status, variant] of cases) {
+    it(`${status} → "${variant}"`, () => {
+      expect(getStatusVariant(status)).toBe(variant);
+    });
+  }
+});
+
+// ─── Parametric: isTerminalStatus per-status ──────────────────────────────────
+
+describe('isTerminalStatus — per-status parametric', () => {
+  const cases: [RecordStatus, boolean][] = [
+    ['COMPLETED',   true],
+    ['EXPIRED',     true],
+    ['CANCELLED',   true],
+    ['SCHEDULED',   false],
+    ['IN_PROGRESS', false],
+  ];
+  for (const [status, expected] of cases) {
+    it(`isTerminalStatus("${status}") = ${expected}`, () => {
+      expect(isTerminalStatus(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: per-course type+delivery ─────────────────────────────────────
+
+describe('MOCK_COURSES — per-course type+delivery parametric', () => {
+  const expected: [string, CourseType, DeliveryMode][] = [
+    ['c1', 'MANDATORY',    'CLASSROOM'],
+    ['c2', 'CERTIFICATION','BLENDED'],
+    ['c3', 'INDUCTION',    'CLASSROOM'],
+    ['c4', 'MANDATORY',    'ONLINE'],
+    ['c5', 'OPTIONAL',     'WORKSHOP'],
+    ['c6', 'REFRESHER',    'ONLINE'],
+  ];
+  for (const [id, type, delivery] of expected) {
+    it(`${id}: type=${type}, delivery=${delivery}`, () => {
+      const course = MOCK_COURSES.find((c) => c.id === id);
+      expect(course?.type).toBe(type);
+      expect(course?.delivery).toBe(delivery);
+    });
+  }
+});
+
+// ─── Parametric: per-record status+passed parametric ─────────────────────────
+
+describe('MOCK_RECORDS — per-record status+passed parametric', () => {
+  const expected: [string, RecordStatus, boolean][] = [
+    ['r1', 'COMPLETED',   true],
+    ['r2', 'IN_PROGRESS', false],
+    ['r3', 'SCHEDULED',   false],
+    ['r4', 'EXPIRED',     true],
+    ['r5', 'CANCELLED',   false],
+    ['r6', 'COMPLETED',   true],
+  ];
+  for (const [id, status, passed] of expected) {
+    it(`${id}: status=${status}, passed=${passed}`, () => {
+      const record = MOCK_RECORDS.find((r) => r.id === id);
+      expect(record?.status).toBe(status);
+      expect(record?.passed).toBe(passed);
+    });
+  }
+});
+
+// ─── Parametric: totalCourseCost exact ───────────────────────────────────────
+
+describe('totalCourseCost — exact value', () => {
+  it('sums to 150+1800+0+45+600+30 = 2625', () => {
+    expect(totalCourseCost(MOCK_COURSES)).toBe(150 + 1800 + 0 + 45 + 600 + 30);
+  });
+});
+
 describe('cross-domain invariants', () => {
   it('every MOCK_RECORD courseId matches a MOCK_COURSE id', () => {
     const courseIds = new Set(MOCK_COURSES.map((c) => c.id));
