@@ -263,3 +263,53 @@ describe('ph220bs_cs',()=>{
   it('d',()=>{expect(climbStairs220bs(5)).toBe(8);});
   it('e',()=>{expect(climbStairs220bs(1)).toBe(1);});
 });
+
+// ─── Algorithm puzzle phases (ph221bs–ph226bs) ────────────────────────────────
+function maxProfit221bs(p:number[]):number{let min=Infinity,max=0;for(const x of p){min=Math.min(min,x);max=Math.max(max,x-min);}return max;}
+describe('ph221bs_mp',()=>{
+  it('a',()=>{expect(maxProfit221bs([7,1,5,3,6,4])).toBe(5);});
+  it('b',()=>{expect(maxProfit221bs([7,6,4,3,1])).toBe(0);});
+  it('c',()=>{expect(maxProfit221bs([1,2])).toBe(1);});
+  it('d',()=>{expect(maxProfit221bs([2,1,4])).toBe(3);});
+  it('e',()=>{expect(maxProfit221bs([1])).toBe(0);});
+});
+function singleNumber222bs(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('ph222bs_sn',()=>{
+  it('a',()=>{expect(singleNumber222bs([2,2,1])).toBe(1);});
+  it('b',()=>{expect(singleNumber222bs([4,1,2,1,2])).toBe(4);});
+  it('c',()=>{expect(singleNumber222bs([1])).toBe(1);});
+  it('d',()=>{expect(singleNumber222bs([0,1,0])).toBe(1);});
+  it('e',()=>{expect(singleNumber222bs([3,3,5])).toBe(5);});
+});
+function hammingDist223bs(x:number,y:number):number{let n=x^y,c=0;while(n){c+=n&1;n>>>=1;}return c;}
+describe('ph223bs_hd',()=>{
+  it('a',()=>{expect(hammingDist223bs(1,4)).toBe(2);});
+  it('b',()=>{expect(hammingDist223bs(3,1)).toBe(1);});
+  it('c',()=>{expect(hammingDist223bs(0,0)).toBe(0);});
+  it('d',()=>{expect(hammingDist223bs(0,15)).toBe(4);});
+  it('e',()=>{expect(hammingDist223bs(7,7)).toBe(0);});
+});
+function majorElem224bs(nums:number[]):number{let c=0,m=0;for(const n of nums){if(c===0)m=n;c+=n===m?1:-1;}return m;}
+describe('ph224bs_me',()=>{
+  it('a',()=>{expect(majorElem224bs([3,2,3])).toBe(3);});
+  it('b',()=>{expect(majorElem224bs([2,2,1,1,1,2,2])).toBe(2);});
+  it('c',()=>{expect(majorElem224bs([1])).toBe(1);});
+  it('d',()=>{expect(majorElem224bs([1,1,2])).toBe(1);});
+  it('e',()=>{expect(majorElem224bs([6,5,5])).toBe(5);});
+});
+function climbStairs225bs(n:number):number{let a=1,b=1;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;}
+describe('ph225bs_cs2',()=>{
+  it('a',()=>{expect(climbStairs225bs(6)).toBe(13);});
+  it('b',()=>{expect(climbStairs225bs(7)).toBe(21);});
+  it('c',()=>{expect(climbStairs225bs(8)).toBe(34);});
+  it('d',()=>{expect(climbStairs225bs(9)).toBe(55);});
+  it('e',()=>{expect(climbStairs225bs(10)).toBe(89);});
+});
+function missingNum226bs(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph226bs_mn2',()=>{
+  it('a',()=>{expect(missingNum226bs([0,2,3,4])).toBe(1);});
+  it('b',()=>{expect(missingNum226bs([1,2,3,4])).toBe(0);});
+  it('c',()=>{expect(missingNum226bs([0,1,2,4])).toBe(3);});
+  it('d',()=>{expect(missingNum226bs([0,1,3,4])).toBe(2);});
+  it('e',()=>{expect(missingNum226bs([0,1,2,3])).toBe(4);});
+});
