@@ -77,8 +77,8 @@ const SUMMATIVE_ASSESSMENT = {
   durationMinutes: 60,
 };
 
-// RBAC constants (from Module 2 content)
-const RBAC = { roles: 39, modules: 17, permissionLevels: 7 } as const;
+// RBAC constants (from Module 2 content) — updated to reflect current platform state
+const RBAC = { roles: 44, modules: 28, permissionLevels: 7 } as const;
 
 // CPD schemes that recognise this programme
 const CPD_SCHEMES = ['CQI/IRCA', 'IOSH', 'BCS', 'ISO Management System Lead Auditor'];
@@ -91,6 +91,10 @@ function toMinutes(time: string): number {
   return h * 60 + m;
 }
 
+function sessionDuration(s: DaySession): number {
+  return toMinutes(s.timeEnd) - toMinutes(s.timeStart);
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -98,6 +102,10 @@ function toMinutes(time: string): number {
 describe('Programme constants', () => {
   it('programme code matches NEXARA-ATP-001', () => {
     expect(PROGRAMME.code).toBe('NEXARA-ATP-001');
+  });
+
+  it('programme code follows NEXARA-ATP-NNN format', () => {
+    expect(PROGRAMME.code).toMatch(/^NEXARA-ATP-\d{3}$/);
   });
 
   it('CPD hours = 14 (2 full days)', () => {
@@ -120,12 +128,24 @@ describe('Programme constants', () => {
     expect(PROGRAMME.minCohortSize).toBeLessThan(PROGRAMME.maxCohortSize);
   });
 
+  it('cohort range spans at least 10 participants', () => {
+    expect(PROGRAMME.maxCohortSize - PROGRAMME.minCohortSize).toBeGreaterThanOrEqual(10);
+  });
+
   it('certificate title correct', () => {
     expect(PROGRAMME.certificateTitle).toBe('Nexara Certified Platform Administrator');
   });
 
+  it('certificate title starts with Nexara Certified', () => {
+    expect(PROGRAMME.certificateTitle.startsWith('Nexara Certified')).toBe(true);
+  });
+
   it('format is ILT', () => {
     expect(PROGRAMME.format).toBe('ILT');
+  });
+
+  it('version is a semver-compatible string', () => {
+    expect(PROGRAMME.version).toMatch(/^\d+\.\d+$/);
   });
 });
 
@@ -172,6 +192,26 @@ describe('Module count and numbering', () => {
   });
 });
 
+// Parametric: verify each module title individually
+const EXPECTED_TITLES: [number, string][] = [
+  [1, 'User Management & SCIM Provisioning'],
+  [2, 'Role & Permission Configuration'],
+  [3, 'Module Activation & Configuration'],
+  [4, 'Integration Management'],
+  [5, 'Audit Log Review'],
+  [6, 'Backup & Restore Procedures'],
+  [7, 'Platform Update Management'],
+];
+
+describe('Module titles (parametric)', () => {
+  for (const [num, title] of EXPECTED_TITLES) {
+    it(`Module ${num} title = "${title}"`, () => {
+      const mod = MODULES.find((m) => m.number === num);
+      expect(mod?.title).toBe(title);
+    });
+  }
+});
+
 describe('Schedule invariants', () => {
   it('Day 1 starts at 08:30', () => {
     expect(DAY_1_SESSIONS[0].timeStart).toBe('08:30');
@@ -207,7 +247,7 @@ describe('Schedule invariants', () => {
 
   it('each session has non-zero duration', () => {
     for (const s of [...DAY_1_SESSIONS, ...DAY_2_SESSIONS]) {
-      const duration = toMinutes(s.timeEnd) - toMinutes(s.timeStart);
+      const duration = sessionDuration(s);
       expect(duration).toBeGreaterThan(0);
     }
   });
@@ -230,6 +270,52 @@ describe('Schedule invariants', () => {
   it('Day 2 has exactly 1 assessment session (summative)', () => {
     const assessments = DAY_2_SESSIONS.filter((s) => s.type === 'assessment');
     expect(assessments).toHaveLength(1);
+  });
+
+  it('Day 1 total span is 8.5 hours (510 minutes)', () => {
+    const total = toMinutes(DAY_1_SESSIONS[DAY_1_SESSIONS.length - 1].timeEnd)
+      - toMinutes(DAY_1_SESSIONS[0].timeStart);
+    expect(total).toBe(510);
+  });
+
+  it('Day 2 total span is 8.5 hours (510 minutes)', () => {
+    const total = toMinutes(DAY_2_SESSIONS[DAY_2_SESSIONS.length - 1].timeEnd)
+      - toMinutes(DAY_2_SESSIONS[0].timeStart);
+    expect(total).toBe(510);
+  });
+
+  it('Day 1 module time = 360 minutes (4 × 90 min)', () => {
+    const total = DAY_1_SESSIONS.filter((s) => s.type === 'module').reduce((sum, s) => sum + sessionDuration(s), 0);
+    expect(total).toBe(360);
+  });
+
+  it('Day 2 module time = 240 minutes (3 modules: 90+90+60)', () => {
+    const total = DAY_2_SESSIONS.filter((s) => s.type === 'module').reduce((sum, s) => sum + sessionDuration(s), 0);
+    expect(total).toBe(240);
+  });
+
+  it('all time strings match HH:MM format', () => {
+    const timeRegex = /^\d{2}:\d{2}$/;
+    for (const s of [...DAY_1_SESSIONS, ...DAY_2_SESSIONS]) {
+      expect(s.timeStart).toMatch(timeRegex);
+      expect(s.timeEnd).toMatch(timeRegex);
+    }
+  });
+
+  it('Day 2 summative assessment is 60 minutes', () => {
+    const summative = DAY_2_SESSIONS.find((s) => s.type === 'assessment')!;
+    expect(sessionDuration(summative)).toBe(60);
+  });
+
+  it('Day 1 formative assessment is 30 minutes', () => {
+    const formative = DAY_1_SESSIONS.find((s) => s.type === 'assessment')!;
+    expect(sessionDuration(formative)).toBe(30);
+  });
+
+  it('Day 2 has more admin sessions than Day 1 (certificate ceremony, debrief etc.)', () => {
+    const d1Admin = DAY_1_SESSIONS.filter((s) => s.type === 'admin').length;
+    const d2Admin = DAY_2_SESSIONS.filter((s) => s.type === 'admin').length;
+    expect(d2Admin).toBeGreaterThan(d1Admin);
   });
 });
 
@@ -254,23 +340,45 @@ describe('Assessment specification', () => {
   it('summative duration is 60 minutes', () => {
     expect(SUMMATIVE_ASSESSMENT.durationMinutes).toBe(60);
   });
+
+  it('summative duration matches schedule session duration', () => {
+    const summativeSession = DAY_2_SESSIONS.find((s) => s.type === 'assessment')!;
+    expect(sessionDuration(summativeSession)).toBe(SUMMATIVE_ASSESSMENT.durationMinutes);
+  });
+
+  it('fail threshold requires fewer than 30 correct (29 or less = fail)', () => {
+    const required = Math.ceil(SUMMATIVE_ASSESSMENT.mcqCount * SUMMATIVE_ASSESSMENT.passThresholdPct / 100);
+    expect(required - 1).toBe(29);
+  });
+
+  it('scenario count is less than MCQ count', () => {
+    expect(SUMMATIVE_ASSESSMENT.scenarioCount).toBeLessThan(SUMMATIVE_ASSESSMENT.mcqCount);
+  });
 });
 
 describe('RBAC framework constants', () => {
-  it('39 predefined roles', () => {
-    expect(RBAC.roles).toBe(39);
+  it('44 predefined roles', () => {
+    expect(RBAC.roles).toBe(44);
   });
 
-  it('17 modules in RBAC matrix', () => {
-    expect(RBAC.modules).toBe(17);
+  it('28 modules in RBAC matrix', () => {
+    expect(RBAC.modules).toBe(28);
   });
 
   it('7 permission levels', () => {
     expect(RBAC.permissionLevels).toBe(7);
   });
 
-  it('total role×permission combinations = 273', () => {
-    expect(RBAC.roles * RBAC.permissionLevels).toBe(273);
+  it('total role×permission combinations = 308', () => {
+    expect(RBAC.roles * RBAC.permissionLevels).toBe(308);
+  });
+
+  it('total module×permission combinations = 196', () => {
+    expect(RBAC.modules * RBAC.permissionLevels).toBe(196);
+  });
+
+  it('roles > modules (many roles per module)', () => {
+    expect(RBAC.roles).toBeGreaterThan(RBAC.modules);
   });
 });
 
@@ -290,5 +398,69 @@ describe('CPD recognition', () => {
   it('includes CQI/IRCA and IOSH', () => {
     expect(CPD_SCHEMES).toContain('CQI/IRCA');
     expect(CPD_SCHEMES).toContain('IOSH');
+  });
+
+  it('includes BCS', () => {
+    expect(CPD_SCHEMES).toContain('BCS');
+  });
+
+  it('all CPD scheme names are non-empty strings', () => {
+    for (const scheme of CPD_SCHEMES) {
+      expect(typeof scheme).toBe('string');
+      expect(scheme.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('CPD scheme names are unique', () => {
+    expect(new Set(CPD_SCHEMES).size).toBe(CPD_SCHEMES.length);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Parametric: per-session duration checks on Day 1
+// ---------------------------------------------------------------------------
+describe('Day 1 session durations (parametric)', () => {
+  const expectedDurations: [string, number][] = [
+    ['Welcome & pre-assessment', 30],
+    ['Module 1: User Management & SCIM Provisioning', 90],
+    ['Break', 15],
+    ['Module 2: Role & Permission Configuration', 90],
+    ['Lunch', 45],
+    ['Module 3: Module Activation & Configuration', 90],
+    ['Break', 15],
+    ['Module 4: Integration Management', 90],
+    ['Day 1 formative assessment + review', 30],
+    ['Wrap-up and Day 2 preview', 15],
+  ];
+
+  expectedDurations.forEach(([name, mins], idx) => {
+    it(`Day 1[${idx}] "${name}" = ${mins} min`, () => {
+      const s = DAY_1_SESSIONS[idx];
+      expect(sessionDuration(s)).toBe(mins);
+    });
+  });
+});
+
+describe('Day 2 session durations (parametric)', () => {
+  const expectedDurations: [string, number][] = [
+    ['Day 1 recap, Day 2 objectives', 30],
+    ['Module 5: Audit Log Review', 90],
+    ['Break', 15],
+    ['Module 6: Backup & Restore Procedures', 90],
+    ['Lunch', 45],
+    ['Module 7: Platform Update Management', 60],
+    ['Break', 15],
+    ['Summative Assessment (40 MCQ + 3 scenarios)', 60],
+    ['Assessment debrief', 30],
+    ['Action planning and Q&A', 30],
+    ['Certificate ceremony', 15],
+    ['Close and networking', 30],
+  ];
+
+  expectedDurations.forEach(([name, mins], idx) => {
+    it(`Day 2[${idx}] "${name}" = ${mins} min`, () => {
+      const s = DAY_2_SESSIONS[idx];
+      expect(sessionDuration(s)).toBe(mins);
+    });
   });
 });

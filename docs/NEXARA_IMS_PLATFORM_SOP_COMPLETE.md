@@ -901,7 +901,7 @@ const total = response.data.pagination?.total;
 | `@ims/database` | 1.0.0 | Prisma client re-exports (44 domain schemas) |
 | `@ims/monitoring` | 1.0.0 | Winston logger, Prometheus metrics, health checks, OpenTelemetry tracing |
 | `@ims/shared` | 1.0.0 | Error handler middleware, pagination, graceful shutdown, ID validation |
-| `@ims/rbac` | 1.0.0 | Role-based access control (39 roles, 17 modules, 7 permission levels) |
+| `@ims/rbac` | 1.0.0 | Role-based access control (44 roles, 28 modules, 7 permission levels) |
 | `@ims/security` | 1.0.0 | RASP middleware (injection detection), behavioral analytics, SIEM engine, envelope encryption |
 | `@ims/resilience` | 1.0.0 | Circuit breaker (opossum), adaptive timeouts (p95-based) |
 | `@ims/validation` | 1.0.0 | Zod schemas, sanitization, property-based tests |

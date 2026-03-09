@@ -224,6 +224,6 @@ Rate limits persist across gateway restarts (stored in Redis).
 
 `@ims/rbac` provides role-based access control:
 
-- 39 roles across 17 modules with 7 permission levels
+- 44 roles across 28 modules with 7 permission levels
 - `attachPermissions()` middleware on every API route
 - Permission levels: `none`, `view`, `create`, `edit`, `delete`, `approve`, `admin`

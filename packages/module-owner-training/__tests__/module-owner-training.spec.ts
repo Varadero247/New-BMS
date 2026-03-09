@@ -97,6 +97,10 @@ function toMinutes(time: string): number {
   return h * 60 + m;
 }
 
+function sessionDuration(s: DaySession): number {
+  return toMinutes(s.timeEnd) - toMinutes(s.timeStart);
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -149,6 +153,53 @@ describe('Programme structure', () => {
     const maxModules = Math.max(...PROGRAMMES.map((p) => p.modulesCount));
     expect(hse?.modulesCount).toBe(maxModules);
   });
+
+  it('all other days cover exactly 4 modules', () => {
+    const nonHSE = PROGRAMMES.filter((p) => p.slug !== 'hse');
+    for (const p of nonHSE) {
+      expect(p.modulesCount).toBe(4);
+    }
+  });
+
+  it('total modules across all days = 21', () => {
+    const total = PROGRAMMES.reduce((sum, p) => sum + p.modulesCount, 0);
+    expect(total).toBe(21);
+  });
+
+  it('all slugs are lowercase kebab-case', () => {
+    for (const p of PROGRAMMES) {
+      expect(p.slug).toMatch(/^[a-z]+(-[a-z]+)*$/);
+    }
+  });
+
+  it('Day A label starts with "Day A"', () => {
+    expect(PROGRAMMES[0].label.startsWith('Day A')).toBe(true);
+  });
+
+  it('Day E label starts with "Day E"', () => {
+    expect(PROGRAMMES[4].label.startsWith('Day E')).toBe(true);
+  });
+});
+
+// Parametric: each programme's slug, label prefix, modulesCount, certificate prefix
+describe('Per-programme properties (parametric)', () => {
+  const expected: [string, string, number, string][] = [
+    ['quality-nc', 'Day A', 4, 'Quality & Non-Conformance'],
+    ['hse', 'Day B', 5, 'Health, Safety & Environment'],
+    ['hr-payroll', 'Day C', 4, 'HR & Payroll'],
+    ['finance-contracts', 'Day D', 4, 'Finance & Contracts'],
+    ['advanced', 'Day E', 4, 'Audits, CAPA & Management Review'],
+  ];
+
+  for (const [slug, dayPrefix, modCount, certSuffix] of expected) {
+    it(`${slug}: label starts with "${dayPrefix}", ${modCount} modules, cert contains "${certSuffix}"`, () => {
+      const prog = PROGRAMMES.find((p) => p.slug === slug)!;
+      expect(prog).toBeDefined();
+      expect(prog.label.startsWith(dayPrefix)).toBe(true);
+      expect(prog.modulesCount).toBe(modCount);
+      expect(prog.certificateTitle).toContain(certSuffix);
+    });
+  }
 });
 
 describe('Certificate titles', () => {
@@ -172,6 +223,21 @@ describe('Certificate titles', () => {
     const advanced = PROGRAMMES.find((p) => p.slug === 'advanced');
     expect(advanced?.certificateTitle).toContain('Audits');
   });
+
+  it('Day A certificate mentions Quality', () => {
+    const qa = PROGRAMMES.find((p) => p.slug === 'quality-nc');
+    expect(qa?.certificateTitle).toContain('Quality');
+  });
+
+  it('Day C certificate mentions HR', () => {
+    const hr = PROGRAMMES.find((p) => p.slug === 'hr-payroll');
+    expect(hr?.certificateTitle).toContain('HR');
+  });
+
+  it('Day D certificate mentions Finance', () => {
+    const fin = PROGRAMMES.find((p) => p.slug === 'finance-contracts');
+    expect(fin?.certificateTitle).toContain('Finance');
+  });
 });
 
 describe('CPD hours', () => {
@@ -190,6 +256,32 @@ describe('CPD hours', () => {
   it('IOSH and CQI/IRCA are in CPD body list', () => {
     expect(CPD_BODIES).toContain('IOSH');
     expect(CPD_BODIES).toContain('CQI/IRCA');
+  });
+
+  it('CIPD is in CPD body list (relevant for Day C HR)', () => {
+    expect(CPD_BODIES).toContain('CIPD');
+  });
+
+  it('CIMA / ICAEW is in CPD body list (relevant for Day D Finance)', () => {
+    expect(CPD_BODIES).toContain('CIMA / ICAEW');
+  });
+
+  it('IIA is in CPD body list (relevant for Day E Audits)', () => {
+    expect(CPD_BODIES).toContain('IIA');
+  });
+
+  it('all CPD body names are unique', () => {
+    expect(new Set(CPD_BODIES).size).toBe(CPD_BODIES.length);
+  });
+
+  it('7 CPD/day is more than End User (4 CPD total)', () => {
+    const endUserCpd = 4;
+    expect(PROGRAMME.cpdHoursPerDay).toBeGreaterThan(endUserCpd);
+  });
+
+  it('7 CPD/day is half of Administrator programme (14 CPD total, 2 days)', () => {
+    const adminCpdTotal = 14;
+    expect(PROGRAMME.cpdHoursPerDay).toBe(adminCpdTotal / 2);
   });
 });
 
@@ -212,7 +304,7 @@ describe('Daily schedule invariants', () => {
 
   it('each session has positive duration', () => {
     for (const s of DAILY_SCHEDULE) {
-      expect(toMinutes(s.timeEnd) - toMinutes(s.timeStart)).toBeGreaterThan(0);
+      expect(sessionDuration(s)).toBeGreaterThan(0);
     }
   });
 
@@ -233,8 +325,17 @@ describe('Daily schedule invariants', () => {
 
   it('lab is 75 minutes', () => {
     const lab = DAILY_SCHEDULE.find((s) => s.type === 'lab')!;
-    const duration = toMinutes(lab.timeEnd) - toMinutes(lab.timeStart);
-    expect(duration).toBe(75);
+    expect(sessionDuration(lab)).toBe(75);
+  });
+
+  it('has exactly 1 KPI session', () => {
+    const kpi = DAILY_SCHEDULE.filter((s) => s.type === 'kpi');
+    expect(kpi).toHaveLength(1);
+  });
+
+  it('KPI session is 45 minutes', () => {
+    const kpi = DAILY_SCHEDULE.find((s) => s.type === 'kpi')!;
+    expect(sessionDuration(kpi)).toBe(45);
   });
 
   it('assessment session is the last on the day', () => {
@@ -245,6 +346,54 @@ describe('Daily schedule invariants', () => {
   it('assessment starts at 16:30', () => {
     const assessment = DAILY_SCHEDULE.find((s) => s.type === 'assessment')!;
     expect(assessment.timeStart).toBe('16:30');
+  });
+
+  it('all time strings match HH:MM format', () => {
+    const timeRegex = /^\d{2}:\d{2}$/;
+    for (const s of DAILY_SCHEDULE) {
+      expect(s.timeStart).toMatch(timeRegex);
+      expect(s.timeEnd).toMatch(timeRegex);
+    }
+  });
+
+  it('total span is 8.5 hours (510 minutes)', () => {
+    const total = toMinutes(DAILY_SCHEDULE[DAILY_SCHEDULE.length - 1].timeEnd)
+      - toMinutes(DAILY_SCHEDULE[0].timeStart);
+    expect(total).toBe(510);
+  });
+
+  it('content blocks total 225 minutes (90+90+75... wait, 90+90+75=255)... actually 90+90+75=255 — but Block 3 is 75', () => {
+    // Block 1: 09:00–10:30 = 90 min, Block 2: 10:45–12:15 = 90 min, Block 3: 13:00–14:15 = 75 min → total 255
+    const total = DAILY_SCHEDULE.filter((s) => s.type === 'content').reduce((sum, s) => sum + sessionDuration(s), 0);
+    expect(total).toBe(255);
+  });
+
+  it('has 10 schedule slots total', () => {
+    expect(DAILY_SCHEDULE).toHaveLength(10);
+  });
+});
+
+// Parametric: per-session duration checks on daily schedule
+describe('Daily schedule session durations (parametric)', () => {
+  const expectedDurations: [string, string, number][] = [
+    ['admin', 'Welcome, group introductions, day objectives', 30],
+    ['content', 'Content Block 1 — First module deep-dive', 90],
+    ['break', 'Break (morning)', 15],
+    ['content', 'Content Block 2 — Second module deep-dive', 90],
+    ['break', 'Lunch', 45],
+    ['content', 'Content Block 3 — Third module or deep-dive extension', 75],
+    ['break', 'Break (afternoon)', 15],
+    ['lab', 'Lab — Hands-on scenario walkthrough in Nexara sandbox', 75],
+    ['kpi', 'KPI dashboards, report configuration, export', 45],
+    ['assessment', 'Assessment (20 MCQ, 30 min) + Certificate ceremony', 30],
+  ];
+
+  expectedDurations.forEach(([type, _label, mins], idx) => {
+    it(`Schedule[${idx}] type="${type}" = ${mins} min`, () => {
+      const s = DAILY_SCHEDULE[idx];
+      expect(s.type).toBe(type);
+      expect(sessionDuration(s)).toBe(mins);
+    });
   });
 });
 
@@ -277,6 +426,16 @@ describe('Assessment specification', () => {
     const hasPartB = false; // structural fact
     expect(hasPartB).toBe(false);
   });
+
+  it('fail threshold = 14 correct or fewer', () => {
+    const required = Math.ceil(PROGRAMME.assessmentMcqCount * PROGRAMME.passThresholdPct / 100);
+    expect(required - 1).toBe(14);
+  });
+
+  it('assessment duration matches schedule slot (30 min)', () => {
+    const assessmentSlot = DAILY_SCHEDULE.find((s) => s.type === 'assessment')!;
+    expect(sessionDuration(assessmentSlot)).toBe(PROGRAMME.assessmentDurationMinutes);
+  });
 });
 
 describe('Co-branding rules', () => {
@@ -301,5 +460,31 @@ describe('Co-branding rules', () => {
   it('modifying question banks is prohibited', () => {
     const prohibited = CO_BRAND_PROHIBITED.some((r) => r.toLowerCase().includes('question bank'));
     expect(prohibited).toBe(true);
+  });
+
+  it('removing or resizing Nexara logo is prohibited', () => {
+    const prohibited = CO_BRAND_PROHIBITED.some((r) => r.toLowerCase().includes('nexara logo'));
+    expect(prohibited).toBe(true);
+  });
+
+  it('organisation name on certificates is permitted', () => {
+    const permitted = CO_BRAND_PERMITTED.some((r) => r.toLowerCase().includes('organisation name'));
+    expect(permitted).toBe(true);
+  });
+
+  it('all permitted items are non-empty strings', () => {
+    for (const item of CO_BRAND_PERMITTED) {
+      expect(item.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('all prohibited items are non-empty strings', () => {
+    for (const item of CO_BRAND_PROHIBITED) {
+      expect(item.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('more prohibited than permitted items', () => {
+    expect(CO_BRAND_PROHIBITED.length).toBeGreaterThan(CO_BRAND_PERMITTED.length);
   });
 });

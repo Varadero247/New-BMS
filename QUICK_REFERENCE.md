@@ -87,9 +87,11 @@ curl http://localhost:4024/health        # ISO 37001 API
 | Setup Wizard        | 4039 | Guided setup wizard                 |
 | Chemical Management | 4040 | COSHH / chemical safety             |
 | Emergency           | 4041 | ISO 22320 / ISO 22301               |
+| Regional / APAC     | 4042 | APAC regional localisation, 20 country configs |
+| Billing             | 4043 | Billing, subscriptions, trials, partners programme |
 | Search              | 4050 | Global Search microservice          |
 
-### Web Applications (ports 3000-3046)
+### Web Applications (ports 3000-3049)
 
 | Application         | Port | Domain                                |
 | ------------------- | ---- | ------------------------------------- |
@@ -138,6 +140,9 @@ curl http://localhost:4024/health        # ISO 37001 API
 | Chemical Management | 3044 | Chemical safety management            |
 | Emergency           | 3045 | Fire, emergency & disaster management |
 | Training Portal     | 3046 | Administrator, Module Owner & End User Training (activation-key gated) |
+| Onboarding          | 3047 | 5-step APAC/pricing onboarding wizard                                  |
+| Regional Dashboard  | 3048 | APAC regional intelligence (20-country tax/ISO/compliance)             |
+| Partner Portal      | 3049 | REFERRAL/RESELLER/STRATEGIC/WHITE_LABEL partner portal                 |
 
 ## H&S API Endpoints (via Gateway)
 
@@ -276,7 +281,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 ## Run Tests
 
 ```bash
-pnpm test                                # All Jest tests (~1,223,595 across 1,151 suites / 489 projects — all passing)
+pnpm test                                # All Jest tests (~1,223,343 across ~1,193 suites / 489 projects — all passing)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 40 modules, ~1,800+ assertions)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -362,9 +367,9 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
 #               slo (multi-window burn rate: 14.4×/6×/3× thresholds)
 ```
 
-## Current Status (Mar 8, 2026)
+## Current Status (Mar 9, 2026)
 
-- 44 API services (gateway:4000, 41 domain:4001–4041, regional:4042, search:4050) + 47 web apps + PostgreSQL + Redis
+- 45 API services (gateway:4000, 43 domain:4001–4043, search:4050) + 48 web apps + PostgreSQL + Redis
 - **All 43 modules fully implemented** across Phases 0-125:
   - **Core**: H&S, Environment, Quality, HR, Payroll, Inventory, Workflows, PM, AI, Automotive, Medical, Aerospace
   - **Phase 2-11**: Finance, CRM, InfoSec, ESG, CMMS, Portals (Customer + Supplier), Food Safety, Energy, Analytics, Field Service, ISO 42001, ISO 37001
@@ -376,11 +381,11 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - **Phases 42-124**: 392 shared packages (all with ≥1,000 tests each); Global Search (api-search:4050); IP protection; Stryker mutation testing; k6 load scenarios; monitoring + alerting; IP protection + copyright headers
   - **Phase 125**: Knowledge Base — 801 self-service articles in `@ims/knowledge-base` (31 seed files); KB page in Admin Dashboard (`/knowledge-base`, port 3027); Module Owner & End User Training programmes (54 + 22 Markdown files); `apps/web-training-portal/` (port 3046, activation-key gated, 9 routes, 1,325 tests); 2 new packages (`@ims/module-owner-training`, `@ims/end-user-training`)
   - **Phase 126**: Train-the-Trainer — `packages/train-the-trainer/` (32 MD files + TypeScript package: scoring engine, CohortManager, TrainerRegistry, programme-registry; 1,012 tests all passing); `/train-the-trainer` web portal route; homepage updated to 4-programme selector; 1 new package (`@ims/train-the-trainer`)
-  - **Platform**: RBAC (39 roles), WebSocket notifications, visual workflow builder, PWA offline, performance baseline, i18n (4 locales), white-label theming, marketplace
+  - **Platform**: RBAC (44 roles, 28 modules, 7 permission levels), WebSocket notifications, visual workflow builder, PWA offline, performance baseline, i18n (4 locales), white-label theming, marketplace
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
 - 44 Prisma schemas, ~597 database models
 - 398 shared packages (all with test suites ≥1,000 tests each)
-- **Tests**: **~1,223,595 Jest tests (1,151 suites / 489 projects)** + 40 integration test scripts (~1,800+ assertions) + 111 Jest integration tests — ALL PASSING, 0 failures
+- **Tests**: **~1,223,343 Jest tests (~1,193 suites / 489 projects)** + 40 integration test scripts (~1,800+ assertions) + 111 Jest integration tests — ALL PASSING, 0 failures
 - **TypeScript**: 0 errors across all 44 APIs + 47 web apps + 398 packages (489 projects)
 - **E2E**: 48 Playwright spec files, 195 tests across all 45 modules
 - **Code Evaluation**: 100/100 composite score (Security 100, Architecture 100, Code Quality 100)

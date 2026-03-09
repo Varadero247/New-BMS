@@ -31,7 +31,7 @@
 
 | Package            | Purpose                                          | Key Exports                           |
 | ------------------ | ------------------------------------------------ | ------------------------------------- |
-| `@ims/rbac`        | Role-based access control (39 roles, 17 modules) | `attachPermissions`, role definitions |
+| `@ims/rbac`        | Role-based access control (44 roles, 28 modules, 7 permission levels) | `attachPermissions`, role definitions |
 | `@ims/portal-auth` | Portal authentication (customer/supplier)        | Portal auth middleware                |
 | `@ims/dpa`         | Data Processing Agreements                       | DPA management                        |
 | `@ims/dsar`        | Data Subject Access Requests (GDPR)              | DSAR handling                         |

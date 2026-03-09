@@ -409,7 +409,7 @@ Total services running: 52 / 52
 | `@ims/charts`                | Chart components                                    |
 | `@ims/monitoring`            | Logging, metrics, health checks                     |
 | `@ims/calculations`          | Business logic utilities                            |
-| `@ims/rbac`                  | Role-based access control (39 roles, 17 modules)    |
+| `@ims/rbac`                  | Role-based access control (44 roles, 28 modules, 7 permission levels) |
 | `@ims/notifications`         | WebSocket notifications & notification bell         |
 | `@ims/pwa`                   | Progressive web app (service worker, offline cache) |
 | `@ims/performance`           | k6 load tests, Lighthouse CI, WCAG 2.2 AA           |

@@ -90,7 +90,7 @@ across 1,117 suites / 480 projects. 396 shared packages as of Mar 6, 2026. See `
 | @ims/sdk            | @ims/sdk NPM package                                    | -     |
 | @ims/testing        | Test utilities                                          | -     |
 
-| @ims/rbac | Role-based access control (39 roles, 17 modules) | 65 |
+| @ims/rbac | Role-based access control (44 roles, 28 modules, 7 permission levels) | 65 |
 | @ims/notifications | WebSocket notifications + bell component | 31 |
 | @ims/pwa | PWA offline support (service worker, sync queue) | 33 |
 | @ims/performance | Load tests, Lighthouse CI, WCAG 2.2 AA | 10 |
