@@ -1707,3 +1707,35 @@ describe('collab-exp',()=>{
   it('EX832',()=>{const c=getColorForUser('u832');expect(c).toBe(getColorForUser('u832'));});
   it('EX833',()=>{const op=makeOp({type:'delete',field:'f'});const ag=makeOp({type:'insert',field:'f',value:'AB',userId:'u2'});expect(transformOperation(op,ag)).not.toBe(op);});
 });
+function moveZeroes217cl(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217cl_mz',()=>{
+  it('a',()=>{expect(moveZeroes217cl([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217cl([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217cl([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217cl([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217cl([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218cl(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218cl_mn',()=>{
+  it('a',()=>{expect(missingNumber218cl([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218cl([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218cl([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218cl([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218cl([1])).toBe(0);});
+});
+function climbStairs224cl(n:number):number{if(n<=2)return n;let a=1,b=2;for(let i=3;i<=n;i++){const c=a+b;a=b;b=c;}return b;}
+describe('ph224cl_cs',()=>{
+  it('a',()=>{expect(climbStairs224cl(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs224cl(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs224cl(1)).toBe(1);});
+  it('d',()=>{expect(climbStairs224cl(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs224cl(10)).toBe(89);});
+});
+function singleNumber226cl(nums:number[]):number{return nums.reduce((a,b)=>a^b,0);}
+describe('ph226cl_sn',()=>{
+  it('a',()=>{expect(singleNumber226cl([2,2,1])).toBe(1);});
+  it('b',()=>{expect(singleNumber226cl([4,1,2,1,2])).toBe(4);});
+  it('c',()=>{expect(singleNumber226cl([1])).toBe(1);});
+  it('d',()=>{expect(singleNumber226cl([0,1,0])).toBe(1);});
+  it('e',()=>{expect(singleNumber226cl([3,5,3])).toBe(5);});
+});
