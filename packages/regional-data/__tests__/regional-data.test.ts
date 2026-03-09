@@ -804,3 +804,37 @@ describe('Cross-package invariants', () => {
     expect(getLocaleForCountry('SG')).toBe('en-SG');
   });
 });
+
+// ─── Algorithm puzzle phases (ph217rd–ph220rd) ────────────────────────────────
+function moveZeroes217rd(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217rd_mz',()=>{
+  it('a',()=>{expect(moveZeroes217rd([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217rd([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217rd([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217rd([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217rd([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218rd(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218rd_mn',()=>{
+  it('a',()=>{expect(missingNumber218rd([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218rd([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218rd([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218rd([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218rd([1])).toBe(0);});
+});
+function countBits219rd(n:number):number[]{const r=new Array(n+1).fill(0);for(let i=1;i<=n;i++)r[i]=r[i>>1]+(i&1);return r;}
+describe('ph219rd_cb',()=>{
+  it('a',()=>{expect(countBits219rd(2)).toEqual([0,1,1]);});
+  it('b',()=>{expect(countBits219rd(5)).toEqual([0,1,1,2,1,2]);});
+  it('c',()=>{expect(countBits219rd(0)).toEqual([0]);});
+  it('d',()=>{expect(countBits219rd(1)).toEqual([0,1]);});
+  it('e',()=>{expect(countBits219rd(4)[4]).toBe(1);});
+});
+function climbStairs220rd(n:number):number{let a=1,b=1;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;}
+describe('ph220rd_cs',()=>{
+  it('a',()=>{expect(climbStairs220rd(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs220rd(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs220rd(4)).toBe(5);});
+  it('d',()=>{expect(climbStairs220rd(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs220rd(1)).toBe(1);});
+});
