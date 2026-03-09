@@ -706,3 +706,106 @@ describe('TREATMENT_META integrity', () => {
     expect(TREATMENT_META.ESCALATE.description.toLowerCase()).toContain('management');
   });
 });
+
+// ─── Parametric expansions ─────────────────────────────────────────────────
+
+describe('CATEGORY_MOCK_DATA — per-category count parametric', () => {
+  const cases: [string, number][] = [
+    ['STRATEGIC',           8],
+    ['OPERATIONAL',        15],
+    ['FINANCIAL',           6],
+    ['COMPLIANCE',          4],
+    ['REPUTATIONAL',        3],
+    ['ENVIRONMENTAL',       5],
+    ['HEALTH_SAFETY',       7],
+    ['INFORMATION_SECURITY',9],
+    ['QUALITY',            11],
+    ['SUPPLY_CHAIN',        6],
+  ];
+  for (const [category, count] of cases) {
+    it(`${category}: count = ${count}`, () => {
+      const entry = CATEGORY_MOCK_DATA.find((d) => d.category === category)!;
+      expect(entry.count).toBe(count);
+    });
+  }
+});
+
+describe('LIKELIHOOD_SCORES — per-likelihood value parametric', () => {
+  const cases: [string, number][] = [
+    ['RARE',          1],
+    ['UNLIKELY',      2],
+    ['POSSIBLE',      3],
+    ['LIKELY',        4],
+    ['ALMOST_CERTAIN',5],
+  ];
+  for (const [likelihood, score] of cases) {
+    it(`${likelihood} = ${score}`, () => {
+      expect(LIKELIHOOD_SCORES[likelihood]).toBe(score);
+    });
+  }
+});
+
+describe('CONSEQUENCE_SCORES — per-consequence value parametric', () => {
+  const cases: [string, number][] = [
+    ['INSIGNIFICANT', 1],
+    ['MINOR',         2],
+    ['MODERATE',      3],
+    ['MAJOR',         4],
+    ['CATASTROPHIC',  5],
+  ];
+  for (const [consequence, score] of cases) {
+    it(`${consequence} = ${score}`, () => {
+      expect(CONSEQUENCE_SCORES[consequence]).toBe(score);
+    });
+  }
+});
+
+describe('CATEGORY_COLORS — per-category color keyword parametric', () => {
+  const cases: [string, string][] = [
+    ['STRATEGIC',           'purple'],
+    ['OPERATIONAL',         'blue'],
+    ['FINANCIAL',           'green'],
+    ['COMPLIANCE',          'yellow'],
+    ['REPUTATIONAL',        'pink'],
+    ['ENVIRONMENTAL',       'teal'],
+    ['HEALTH_SAFETY',       'orange'],
+    ['INFORMATION_SECURITY','red'],
+    ['QUALITY',             'indigo'],
+    ['SUPPLY_CHAIN',        'cyan'],
+  ];
+  for (const [category, color] of cases) {
+    it(`${category} color contains "${color}"`, () => {
+      expect(CATEGORY_COLORS[category]).toContain(color);
+    });
+  }
+});
+
+describe('formatCategory — remaining categories parametric', () => {
+  const cases: [string, string][] = [
+    ['OPERATIONAL',  'Operational'],
+    ['FINANCIAL',    'Financial'],
+    ['COMPLIANCE',   'Compliance'],
+    ['REPUTATIONAL', 'Reputational'],
+    ['ENVIRONMENTAL','Environmental'],
+  ];
+  for (const [input, expected] of cases) {
+    it(`formatCategory("${input}") = "${expected}"`, () => {
+      expect(formatCategory(input)).toBe(expected);
+    });
+  }
+});
+
+describe('calcInherentScore — additional exact values parametric', () => {
+  const cases: [string, string, number][] = [
+    ['UNLIKELY',      'MINOR',        4],  // 2 × 2
+    ['POSSIBLE',      'MAJOR',       12],  // 3 × 4
+    ['LIKELY',        'MODERATE',    12],  // 4 × 3
+    ['ALMOST_CERTAIN','MAJOR',       20],  // 5 × 4
+    ['RARE',          'CATASTROPHIC', 5],  // 1 × 5
+  ];
+  for (const [likelihood, consequence, expected] of cases) {
+    it(`${likelihood} × ${consequence} = ${expected}`, () => {
+      expect(calcInherentScore(likelihood, consequence)).toBe(expected);
+    });
+  }
+});
