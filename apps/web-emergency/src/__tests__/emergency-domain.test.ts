@@ -743,3 +743,141 @@ describe('dashboard aggregate logic (inlined)', () => {
     expect(requiresEvacuation(outage!.type)).toBe(false);
   });
 });
+
+// ─── INCIDENT_TYPES — positional index parametric ────────────────────────────
+
+describe('INCIDENT_TYPES — positional index parametric', () => {
+  const expected = [
+    [0,  'FIRE'],
+    [1,  'FLOOD'],
+    [2,  'GAS_LEAK'],
+    [3,  'CHEMICAL_SPILL'],
+    [4,  'STRUCTURAL_FAILURE'],
+    [5,  'POWER_OUTAGE'],
+    [6,  'BOMB_THREAT'],
+    [7,  'MEDICAL_EMERGENCY'],
+    [8,  'CIVIL_UNREST'],
+    [9,  'CYBER_ATTACK'],
+    [10, 'PANDEMIC'],
+    [11, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`INCIDENT_TYPES[${idx}] === '${val}'`, () => {
+      expect(INCIDENT_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── SEVERITY_LEVELS — positional index parametric ───────────────────────────
+
+describe('SEVERITY_LEVELS — positional index parametric', () => {
+  const expected = [
+    [0, 'LOW'],
+    [1, 'MEDIUM'],
+    [2, 'HIGH'],
+    [3, 'CRITICAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SEVERITY_LEVELS[${idx}] === '${val}'`, () => {
+      expect(SEVERITY_LEVELS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── INCIDENT_STATUSES — positional index parametric ─────────────────────────
+
+describe('INCIDENT_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'ACTIVE'],
+    [1, 'CONTROLLED'],
+    [2, 'STANDBY'],
+    [3, 'CLOSED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`INCIDENT_STATUSES[${idx}] === '${val}'`, () => {
+      expect(INCIDENT_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── DRILL_TYPES — positional index parametric ───────────────────────────────
+
+describe('DRILL_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'FULL_EVACUATION'],
+    [1, 'PARTIAL_EVACUATION'],
+    [2, 'DESKTOP_EXERCISE'],
+    [3, 'FIRE_WARDEN_EXERCISE'],
+    [4, 'LOCKDOWN_DRILL'],
+    [5, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DRILL_TYPES[${idx}] === '${val}'`, () => {
+      expect(DRILL_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── DRILL_OUTCOMES — positional index parametric ────────────────────────────
+
+describe('DRILL_OUTCOMES — positional index parametric', () => {
+  const expected = [
+    [0, 'PASS'],
+    [1, 'FAIL'],
+    [2, 'PARTIAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DRILL_OUTCOMES[${idx}] === '${val}'`, () => {
+      expect(DRILL_OUTCOMES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── FRA_RISK_RATINGS — positional index parametric ──────────────────────────
+
+describe('FRA_RISK_RATINGS — positional index parametric', () => {
+  const expected = [
+    [0, 'LOW'],
+    [1, 'MEDIUM'],
+    [2, 'HIGH'],
+    [3, 'VERY_HIGH'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`FRA_RISK_RATINGS[${idx}] === '${val}'`, () => {
+      expect(FRA_RISK_RATINGS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── FRA_STATUSES — positional index parametric ──────────────────────────────
+
+describe('FRA_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'CURRENT'],
+    [1, 'ACTION_REQUIRED'],
+    [2, 'OVERDUE'],
+    [3, 'NOT_COMPLETED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`FRA_STATUSES[${idx}] === '${val}'`, () => {
+      expect(FRA_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── BCP_STATUSES — positional index parametric ──────────────────────────────
+
+describe('BCP_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'APPROVED'],
+    [2, 'ACTIVE'],
+    [3, 'UNDER_REVIEW'],
+    [4, 'ARCHIVED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`BCP_STATUSES[${idx}] === '${val}'`, () => {
+      expect(BCP_STATUSES[idx]).toBe(val);
+    });
+  }
+});

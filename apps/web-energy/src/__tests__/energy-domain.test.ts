@@ -955,3 +955,88 @@ describe('ENERGY_SOURCES — per-source cost exact parametric', () => {
     });
   }
 });
+
+// ─── STATUS_OPTIONS — positional index parametric ────────────────────────────
+
+describe('STATUS_OPTIONS — positional index parametric', () => {
+  const expected = [
+    [0, 'PENDING'],
+    [1, 'VERIFIED'],
+    [2, 'FLAGGED'],
+    [3, 'REJECTED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`STATUS_OPTIONS[${idx}] === '${val}'`, () => {
+      expect(STATUS_OPTIONS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── READING_TYPES — positional index parametric ─────────────────────────────
+
+describe('READING_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'MANUAL'],
+    [1, 'AUTOMATIC'],
+    [2, 'ESTIMATED'],
+    [3, 'INVOICE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`READING_TYPES[${idx}] === '${val}'`, () => {
+      expect(READING_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── SEU_STATUSES — positional index parametric ──────────────────────────────
+
+describe('SEU_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'optimized'],
+    [1, 'monitoring'],
+    [2, 'action-needed'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SEU_STATUSES[${idx}] === '${val}'`, () => {
+      expect(SEU_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── MONTHLY_DATA — per-month total exact parametric ─────────────────────────
+
+describe('MONTHLY_DATA — per-month total exact parametric', () => {
+  const cases: [string, number][] = [
+    ['Sep', 36500],
+    ['Oct', 37100],
+    ['Nov', 37800],
+    ['Dec', 38200],
+    ['Jan', 38500],
+    ['Feb', 38500],
+  ];
+  for (const [month, total] of cases) {
+    it(`${month}: total = ${total}`, () => {
+      const row = MONTHLY_DATA.find(d => d.month === month)!;
+      expect(row.total).toBe(total);
+    });
+  }
+});
+
+// ─── ENERGY_SOURCES — per-source scope/share parametric ──────────────────────
+
+describe('ENERGY_SOURCES — per-source scope+share parametric', () => {
+  const cases: [string, number, number][] = [
+    ['Grid Electricity',    2, 42],
+    ['Natural Gas',         1, 28],
+    ['Solar PV (On-site)',  2, 15],
+    ['Diesel (Generators)', 1, 8],
+    ['Wind (PPA)',          2, 7],
+  ];
+  for (const [name, scope, share] of cases) {
+    it(`${name}: scope=${scope}, share=${share}`, () => {
+      const src = ENERGY_SOURCES.find(e => e.name === name)!;
+      expect(src.scope).toBe(scope);
+      expect(src.share).toBe(share);
+    });
+  }
+});

@@ -589,3 +589,74 @@ describe('MOCK_INCIDENTS — daysLost aggregate', () => {
     expect(total).toBe(123);
   });
 });
+
+// ─── TYPES — positional index parametric ─────────────────────────────────────
+
+describe('TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'INJURY'],
+    [1, 'NEAR_MISS'],
+    [2, 'ENVIRONMENTAL'],
+    [3, 'PROPERTY_DAMAGE'],
+    [4, 'SECURITY'],
+    [5, 'QUALITY'],
+    [6, 'VEHICLE'],
+    [7, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TYPES[${idx}] === '${val}'`, () => {
+      expect(TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── SEVERITIES — positional index parametric ────────────────────────────────
+
+describe('SEVERITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'MINOR'],
+    [1, 'MODERATE'],
+    [2, 'MAJOR'],
+    [3, 'CRITICAL'],
+    [4, 'CATASTROPHIC'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SEVERITIES[${idx}] === '${val}'`, () => {
+      expect(SEVERITIES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── STATUSES — positional index parametric ──────────────────────────────────
+
+describe('STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'REPORTED'],
+    [1, 'ACKNOWLEDGED'],
+    [2, 'INVESTIGATING'],
+    [3, 'ROOT_CAUSE_ANALYSIS'],
+    [4, 'CORRECTIVE_ACTION'],
+    [5, 'CLOSED'],
+    [6, 'REOPENED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`STATUSES[${idx}] === '${val}'`, () => {
+      expect(STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── RIDDOR_OPTIONS — positional index parametric ────────────────────────────
+
+describe('RIDDOR_OPTIONS — positional index parametric', () => {
+  const expected = [
+    [0, 'YES'],
+    [1, 'NO'],
+    [2, 'PENDING_ASSESSMENT'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RIDDOR_OPTIONS[${idx}] === '${val}'`, () => {
+      expect(RIDDOR_OPTIONS[idx]).toBe(val);
+    });
+  }
+});
