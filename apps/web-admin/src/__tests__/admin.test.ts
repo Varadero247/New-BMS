@@ -199,3 +199,163 @@ describe('Knowledge base article counts (spec)', () => {
     it(`${type} count is number (idx ${i})`, () => expect(typeof ARTICLE_COUNTS[type]).toBe('number'));
   }
 });
+function hd258adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph258adm2_hd',()=>{it('a',()=>{expect(hd258adm2(1,4)).toBe(2);});it('b',()=>{expect(hd258adm2(3,1)).toBe(1);});it('c',()=>{expect(hd258adm2(0,0)).toBe(0);});it('d',()=>{expect(hd258adm2(93,73)).toBe(2);});it('e',()=>{expect(hd258adm2(15,0)).toBe(4);});});
+function hd259adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph259adm2_hd',()=>{it('a',()=>{expect(hd259adm2(1,4)).toBe(2);});it('b',()=>{expect(hd259adm2(3,1)).toBe(1);});it('c',()=>{expect(hd259adm2(0,0)).toBe(0);});it('d',()=>{expect(hd259adm2(93,73)).toBe(2);});it('e',()=>{expect(hd259adm2(15,0)).toBe(4);});});
+function hd260adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph260adm2_hd',()=>{it('a',()=>{expect(hd260adm2(1,4)).toBe(2);});it('b',()=>{expect(hd260adm2(3,1)).toBe(1);});it('c',()=>{expect(hd260adm2(0,0)).toBe(0);});it('d',()=>{expect(hd260adm2(93,73)).toBe(2);});it('e',()=>{expect(hd260adm2(15,0)).toBe(4);});});
+function hd261adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph261adm2_hd',()=>{it('a',()=>{expect(hd261adm2(1,4)).toBe(2);});it('b',()=>{expect(hd261adm2(3,1)).toBe(1);});it('c',()=>{expect(hd261adm2(0,0)).toBe(0);});it('d',()=>{expect(hd261adm2(93,73)).toBe(2);});it('e',()=>{expect(hd261adm2(15,0)).toBe(4);});});
+function hd262adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph262adm2_hd',()=>{it('a',()=>{expect(hd262adm2(1,4)).toBe(2);});it('b',()=>{expect(hd262adm2(3,1)).toBe(1);});it('c',()=>{expect(hd262adm2(0,0)).toBe(0);});it('d',()=>{expect(hd262adm2(93,73)).toBe(2);});it('e',()=>{expect(hd262adm2(15,0)).toBe(4);});});
+function hd263adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph263adm2_hd',()=>{it('a',()=>{expect(hd263adm2(1,4)).toBe(2);});it('b',()=>{expect(hd263adm2(3,1)).toBe(1);});it('c',()=>{expect(hd263adm2(0,0)).toBe(0);});it('d',()=>{expect(hd263adm2(93,73)).toBe(2);});it('e',()=>{expect(hd263adm2(15,0)).toBe(4);});});
+function hd264adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph264adm2_hd',()=>{it('a',()=>{expect(hd264adm2(1,4)).toBe(2);});it('b',()=>{expect(hd264adm2(3,1)).toBe(1);});it('c',()=>{expect(hd264adm2(0,0)).toBe(0);});it('d',()=>{expect(hd264adm2(93,73)).toBe(2);});it('e',()=>{expect(hd264adm2(15,0)).toBe(4);});});
+function hd265adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph265adm2_hd',()=>{it('a',()=>{expect(hd265adm2(1,4)).toBe(2);});it('b',()=>{expect(hd265adm2(3,1)).toBe(1);});it('c',()=>{expect(hd265adm2(0,0)).toBe(0);});it('d',()=>{expect(hd265adm2(93,73)).toBe(2);});it('e',()=>{expect(hd265adm2(15,0)).toBe(4);});});
+function hd266adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph266adm2_hd',()=>{it('a',()=>{expect(hd266adm2(1,4)).toBe(2);});it('b',()=>{expect(hd266adm2(3,1)).toBe(1);});it('c',()=>{expect(hd266adm2(0,0)).toBe(0);});it('d',()=>{expect(hd266adm2(93,73)).toBe(2);});it('e',()=>{expect(hd266adm2(15,0)).toBe(4);});});
+function hd267adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph267adm2_hd',()=>{it('a',()=>{expect(hd267adm2(1,4)).toBe(2);});it('b',()=>{expect(hd267adm2(3,1)).toBe(1);});it('c',()=>{expect(hd267adm2(0,0)).toBe(0);});it('d',()=>{expect(hd267adm2(93,73)).toBe(2);});it('e',()=>{expect(hd267adm2(15,0)).toBe(4);});});
+function hd268adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph268adm2_hd',()=>{it('a',()=>{expect(hd268adm2(1,4)).toBe(2);});it('b',()=>{expect(hd268adm2(3,1)).toBe(1);});it('c',()=>{expect(hd268adm2(0,0)).toBe(0);});it('d',()=>{expect(hd268adm2(93,73)).toBe(2);});it('e',()=>{expect(hd268adm2(15,0)).toBe(4);});});
+function hd269adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph269adm2_hd',()=>{it('a',()=>{expect(hd269adm2(1,4)).toBe(2);});it('b',()=>{expect(hd269adm2(3,1)).toBe(1);});it('c',()=>{expect(hd269adm2(0,0)).toBe(0);});it('d',()=>{expect(hd269adm2(93,73)).toBe(2);});it('e',()=>{expect(hd269adm2(15,0)).toBe(4);});});
+function hd270adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph270adm2_hd',()=>{it('a',()=>{expect(hd270adm2(1,4)).toBe(2);});it('b',()=>{expect(hd270adm2(3,1)).toBe(1);});it('c',()=>{expect(hd270adm2(0,0)).toBe(0);});it('d',()=>{expect(hd270adm2(93,73)).toBe(2);});it('e',()=>{expect(hd270adm2(15,0)).toBe(4);});});
+function hd271adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph271adm2_hd',()=>{it('a',()=>{expect(hd271adm2(1,4)).toBe(2);});it('b',()=>{expect(hd271adm2(3,1)).toBe(1);});it('c',()=>{expect(hd271adm2(0,0)).toBe(0);});it('d',()=>{expect(hd271adm2(93,73)).toBe(2);});it('e',()=>{expect(hd271adm2(15,0)).toBe(4);});});
+function hd272adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph272adm2_hd',()=>{it('a',()=>{expect(hd272adm2(1,4)).toBe(2);});it('b',()=>{expect(hd272adm2(3,1)).toBe(1);});it('c',()=>{expect(hd272adm2(0,0)).toBe(0);});it('d',()=>{expect(hd272adm2(93,73)).toBe(2);});it('e',()=>{expect(hd272adm2(15,0)).toBe(4);});});
+function hd273adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph273adm2_hd',()=>{it('a',()=>{expect(hd273adm2(1,4)).toBe(2);});it('b',()=>{expect(hd273adm2(3,1)).toBe(1);});it('c',()=>{expect(hd273adm2(0,0)).toBe(0);});it('d',()=>{expect(hd273adm2(93,73)).toBe(2);});it('e',()=>{expect(hd273adm2(15,0)).toBe(4);});});
+function hd274adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph274adm2_hd',()=>{it('a',()=>{expect(hd274adm2(1,4)).toBe(2);});it('b',()=>{expect(hd274adm2(3,1)).toBe(1);});it('c',()=>{expect(hd274adm2(0,0)).toBe(0);});it('d',()=>{expect(hd274adm2(93,73)).toBe(2);});it('e',()=>{expect(hd274adm2(15,0)).toBe(4);});});
+function hd275adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph275adm2_hd',()=>{it('a',()=>{expect(hd275adm2(1,4)).toBe(2);});it('b',()=>{expect(hd275adm2(3,1)).toBe(1);});it('c',()=>{expect(hd275adm2(0,0)).toBe(0);});it('d',()=>{expect(hd275adm2(93,73)).toBe(2);});it('e',()=>{expect(hd275adm2(15,0)).toBe(4);});});
+function hd276adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph276adm2_hd',()=>{it('a',()=>{expect(hd276adm2(1,4)).toBe(2);});it('b',()=>{expect(hd276adm2(3,1)).toBe(1);});it('c',()=>{expect(hd276adm2(0,0)).toBe(0);});it('d',()=>{expect(hd276adm2(93,73)).toBe(2);});it('e',()=>{expect(hd276adm2(15,0)).toBe(4);});});
+function hd277adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph277adm2_hd',()=>{it('a',()=>{expect(hd277adm2(1,4)).toBe(2);});it('b',()=>{expect(hd277adm2(3,1)).toBe(1);});it('c',()=>{expect(hd277adm2(0,0)).toBe(0);});it('d',()=>{expect(hd277adm2(93,73)).toBe(2);});it('e',()=>{expect(hd277adm2(15,0)).toBe(4);});});
+function hd278adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph278adm2_hd',()=>{it('a',()=>{expect(hd278adm2(1,4)).toBe(2);});it('b',()=>{expect(hd278adm2(3,1)).toBe(1);});it('c',()=>{expect(hd278adm2(0,0)).toBe(0);});it('d',()=>{expect(hd278adm2(93,73)).toBe(2);});it('e',()=>{expect(hd278adm2(15,0)).toBe(4);});});
+function hd279adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph279adm2_hd',()=>{it('a',()=>{expect(hd279adm2(1,4)).toBe(2);});it('b',()=>{expect(hd279adm2(3,1)).toBe(1);});it('c',()=>{expect(hd279adm2(0,0)).toBe(0);});it('d',()=>{expect(hd279adm2(93,73)).toBe(2);});it('e',()=>{expect(hd279adm2(15,0)).toBe(4);});});
+function hd280adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph280adm2_hd',()=>{it('a',()=>{expect(hd280adm2(1,4)).toBe(2);});it('b',()=>{expect(hd280adm2(3,1)).toBe(1);});it('c',()=>{expect(hd280adm2(0,0)).toBe(0);});it('d',()=>{expect(hd280adm2(93,73)).toBe(2);});it('e',()=>{expect(hd280adm2(15,0)).toBe(4);});});
+function hd281adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph281adm2_hd',()=>{it('a',()=>{expect(hd281adm2(1,4)).toBe(2);});it('b',()=>{expect(hd281adm2(3,1)).toBe(1);});it('c',()=>{expect(hd281adm2(0,0)).toBe(0);});it('d',()=>{expect(hd281adm2(93,73)).toBe(2);});it('e',()=>{expect(hd281adm2(15,0)).toBe(4);});});
+function hd282adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph282adm2_hd',()=>{it('a',()=>{expect(hd282adm2(1,4)).toBe(2);});it('b',()=>{expect(hd282adm2(3,1)).toBe(1);});it('c',()=>{expect(hd282adm2(0,0)).toBe(0);});it('d',()=>{expect(hd282adm2(93,73)).toBe(2);});it('e',()=>{expect(hd282adm2(15,0)).toBe(4);});});
+function hd283adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph283adm2_hd',()=>{it('a',()=>{expect(hd283adm2(1,4)).toBe(2);});it('b',()=>{expect(hd283adm2(3,1)).toBe(1);});it('c',()=>{expect(hd283adm2(0,0)).toBe(0);});it('d',()=>{expect(hd283adm2(93,73)).toBe(2);});it('e',()=>{expect(hd283adm2(15,0)).toBe(4);});});
+function hd284adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph284adm2_hd',()=>{it('a',()=>{expect(hd284adm2(1,4)).toBe(2);});it('b',()=>{expect(hd284adm2(3,1)).toBe(1);});it('c',()=>{expect(hd284adm2(0,0)).toBe(0);});it('d',()=>{expect(hd284adm2(93,73)).toBe(2);});it('e',()=>{expect(hd284adm2(15,0)).toBe(4);});});
+function hd285adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph285adm2_hd',()=>{it('a',()=>{expect(hd285adm2(1,4)).toBe(2);});it('b',()=>{expect(hd285adm2(3,1)).toBe(1);});it('c',()=>{expect(hd285adm2(0,0)).toBe(0);});it('d',()=>{expect(hd285adm2(93,73)).toBe(2);});it('e',()=>{expect(hd285adm2(15,0)).toBe(4);});});
+function hd286adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph286adm2_hd',()=>{it('a',()=>{expect(hd286adm2(1,4)).toBe(2);});it('b',()=>{expect(hd286adm2(3,1)).toBe(1);});it('c',()=>{expect(hd286adm2(0,0)).toBe(0);});it('d',()=>{expect(hd286adm2(93,73)).toBe(2);});it('e',()=>{expect(hd286adm2(15,0)).toBe(4);});});
+function hd287adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph287adm2_hd',()=>{it('a',()=>{expect(hd287adm2(1,4)).toBe(2);});it('b',()=>{expect(hd287adm2(3,1)).toBe(1);});it('c',()=>{expect(hd287adm2(0,0)).toBe(0);});it('d',()=>{expect(hd287adm2(93,73)).toBe(2);});it('e',()=>{expect(hd287adm2(15,0)).toBe(4);});});
+function hd288adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph288adm2_hd',()=>{it('a',()=>{expect(hd288adm2(1,4)).toBe(2);});it('b',()=>{expect(hd288adm2(3,1)).toBe(1);});it('c',()=>{expect(hd288adm2(0,0)).toBe(0);});it('d',()=>{expect(hd288adm2(93,73)).toBe(2);});it('e',()=>{expect(hd288adm2(15,0)).toBe(4);});});
+function hd289adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph289adm2_hd',()=>{it('a',()=>{expect(hd289adm2(1,4)).toBe(2);});it('b',()=>{expect(hd289adm2(3,1)).toBe(1);});it('c',()=>{expect(hd289adm2(0,0)).toBe(0);});it('d',()=>{expect(hd289adm2(93,73)).toBe(2);});it('e',()=>{expect(hd289adm2(15,0)).toBe(4);});});
+function hd290adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph290adm2_hd',()=>{it('a',()=>{expect(hd290adm2(1,4)).toBe(2);});it('b',()=>{expect(hd290adm2(3,1)).toBe(1);});it('c',()=>{expect(hd290adm2(0,0)).toBe(0);});it('d',()=>{expect(hd290adm2(93,73)).toBe(2);});it('e',()=>{expect(hd290adm2(15,0)).toBe(4);});});
+function hd291adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph291adm2_hd',()=>{it('a',()=>{expect(hd291adm2(1,4)).toBe(2);});it('b',()=>{expect(hd291adm2(3,1)).toBe(1);});it('c',()=>{expect(hd291adm2(0,0)).toBe(0);});it('d',()=>{expect(hd291adm2(93,73)).toBe(2);});it('e',()=>{expect(hd291adm2(15,0)).toBe(4);});});
+function hd292adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph292adm2_hd',()=>{it('a',()=>{expect(hd292adm2(1,4)).toBe(2);});it('b',()=>{expect(hd292adm2(3,1)).toBe(1);});it('c',()=>{expect(hd292adm2(0,0)).toBe(0);});it('d',()=>{expect(hd292adm2(93,73)).toBe(2);});it('e',()=>{expect(hd292adm2(15,0)).toBe(4);});});
+function hd293adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph293adm2_hd',()=>{it('a',()=>{expect(hd293adm2(1,4)).toBe(2);});it('b',()=>{expect(hd293adm2(3,1)).toBe(1);});it('c',()=>{expect(hd293adm2(0,0)).toBe(0);});it('d',()=>{expect(hd293adm2(93,73)).toBe(2);});it('e',()=>{expect(hd293adm2(15,0)).toBe(4);});});
+function hd294adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph294adm2_hd',()=>{it('a',()=>{expect(hd294adm2(1,4)).toBe(2);});it('b',()=>{expect(hd294adm2(3,1)).toBe(1);});it('c',()=>{expect(hd294adm2(0,0)).toBe(0);});it('d',()=>{expect(hd294adm2(93,73)).toBe(2);});it('e',()=>{expect(hd294adm2(15,0)).toBe(4);});});
+function hd295adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph295adm2_hd',()=>{it('a',()=>{expect(hd295adm2(1,4)).toBe(2);});it('b',()=>{expect(hd295adm2(3,1)).toBe(1);});it('c',()=>{expect(hd295adm2(0,0)).toBe(0);});it('d',()=>{expect(hd295adm2(93,73)).toBe(2);});it('e',()=>{expect(hd295adm2(15,0)).toBe(4);});});
+function hd296adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph296adm2_hd',()=>{it('a',()=>{expect(hd296adm2(1,4)).toBe(2);});it('b',()=>{expect(hd296adm2(3,1)).toBe(1);});it('c',()=>{expect(hd296adm2(0,0)).toBe(0);});it('d',()=>{expect(hd296adm2(93,73)).toBe(2);});it('e',()=>{expect(hd296adm2(15,0)).toBe(4);});});
+function hd297adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph297adm2_hd',()=>{it('a',()=>{expect(hd297adm2(1,4)).toBe(2);});it('b',()=>{expect(hd297adm2(3,1)).toBe(1);});it('c',()=>{expect(hd297adm2(0,0)).toBe(0);});it('d',()=>{expect(hd297adm2(93,73)).toBe(2);});it('e',()=>{expect(hd297adm2(15,0)).toBe(4);});});
+function hd298adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph298adm2_hd',()=>{it('a',()=>{expect(hd298adm2(1,4)).toBe(2);});it('b',()=>{expect(hd298adm2(3,1)).toBe(1);});it('c',()=>{expect(hd298adm2(0,0)).toBe(0);});it('d',()=>{expect(hd298adm2(93,73)).toBe(2);});it('e',()=>{expect(hd298adm2(15,0)).toBe(4);});});
+function hd299adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph299adm2_hd',()=>{it('a',()=>{expect(hd299adm2(1,4)).toBe(2);});it('b',()=>{expect(hd299adm2(3,1)).toBe(1);});it('c',()=>{expect(hd299adm2(0,0)).toBe(0);});it('d',()=>{expect(hd299adm2(93,73)).toBe(2);});it('e',()=>{expect(hd299adm2(15,0)).toBe(4);});});
+function hd300adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph300adm2_hd',()=>{it('a',()=>{expect(hd300adm2(1,4)).toBe(2);});it('b',()=>{expect(hd300adm2(3,1)).toBe(1);});it('c',()=>{expect(hd300adm2(0,0)).toBe(0);});it('d',()=>{expect(hd300adm2(93,73)).toBe(2);});it('e',()=>{expect(hd300adm2(15,0)).toBe(4);});});
+function hd301adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph301adm2_hd',()=>{it('a',()=>{expect(hd301adm2(1,4)).toBe(2);});it('b',()=>{expect(hd301adm2(3,1)).toBe(1);});it('c',()=>{expect(hd301adm2(0,0)).toBe(0);});it('d',()=>{expect(hd301adm2(93,73)).toBe(2);});it('e',()=>{expect(hd301adm2(15,0)).toBe(4);});});
+function hd302adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph302adm2_hd',()=>{it('a',()=>{expect(hd302adm2(1,4)).toBe(2);});it('b',()=>{expect(hd302adm2(3,1)).toBe(1);});it('c',()=>{expect(hd302adm2(0,0)).toBe(0);});it('d',()=>{expect(hd302adm2(93,73)).toBe(2);});it('e',()=>{expect(hd302adm2(15,0)).toBe(4);});});
+function hd303adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph303adm2_hd',()=>{it('a',()=>{expect(hd303adm2(1,4)).toBe(2);});it('b',()=>{expect(hd303adm2(3,1)).toBe(1);});it('c',()=>{expect(hd303adm2(0,0)).toBe(0);});it('d',()=>{expect(hd303adm2(93,73)).toBe(2);});it('e',()=>{expect(hd303adm2(15,0)).toBe(4);});});
+function hd304adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph304adm2_hd',()=>{it('a',()=>{expect(hd304adm2(1,4)).toBe(2);});it('b',()=>{expect(hd304adm2(3,1)).toBe(1);});it('c',()=>{expect(hd304adm2(0,0)).toBe(0);});it('d',()=>{expect(hd304adm2(93,73)).toBe(2);});it('e',()=>{expect(hd304adm2(15,0)).toBe(4);});});
+function hd305adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph305adm2_hd',()=>{it('a',()=>{expect(hd305adm2(1,4)).toBe(2);});it('b',()=>{expect(hd305adm2(3,1)).toBe(1);});it('c',()=>{expect(hd305adm2(0,0)).toBe(0);});it('d',()=>{expect(hd305adm2(93,73)).toBe(2);});it('e',()=>{expect(hd305adm2(15,0)).toBe(4);});});
+function hd306adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph306adm2_hd',()=>{it('a',()=>{expect(hd306adm2(1,4)).toBe(2);});it('b',()=>{expect(hd306adm2(3,1)).toBe(1);});it('c',()=>{expect(hd306adm2(0,0)).toBe(0);});it('d',()=>{expect(hd306adm2(93,73)).toBe(2);});it('e',()=>{expect(hd306adm2(15,0)).toBe(4);});});
+function hd307adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph307adm2_hd',()=>{it('a',()=>{expect(hd307adm2(1,4)).toBe(2);});it('b',()=>{expect(hd307adm2(3,1)).toBe(1);});it('c',()=>{expect(hd307adm2(0,0)).toBe(0);});it('d',()=>{expect(hd307adm2(93,73)).toBe(2);});it('e',()=>{expect(hd307adm2(15,0)).toBe(4);});});
+function hd308adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph308adm2_hd',()=>{it('a',()=>{expect(hd308adm2(1,4)).toBe(2);});it('b',()=>{expect(hd308adm2(3,1)).toBe(1);});it('c',()=>{expect(hd308adm2(0,0)).toBe(0);});it('d',()=>{expect(hd308adm2(93,73)).toBe(2);});it('e',()=>{expect(hd308adm2(15,0)).toBe(4);});});
+function hd309adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph309adm2_hd',()=>{it('a',()=>{expect(hd309adm2(1,4)).toBe(2);});it('b',()=>{expect(hd309adm2(3,1)).toBe(1);});it('c',()=>{expect(hd309adm2(0,0)).toBe(0);});it('d',()=>{expect(hd309adm2(93,73)).toBe(2);});it('e',()=>{expect(hd309adm2(15,0)).toBe(4);});});
+function hd310adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph310adm2_hd',()=>{it('a',()=>{expect(hd310adm2(1,4)).toBe(2);});it('b',()=>{expect(hd310adm2(3,1)).toBe(1);});it('c',()=>{expect(hd310adm2(0,0)).toBe(0);});it('d',()=>{expect(hd310adm2(93,73)).toBe(2);});it('e',()=>{expect(hd310adm2(15,0)).toBe(4);});});
+function hd311adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph311adm2_hd',()=>{it('a',()=>{expect(hd311adm2(1,4)).toBe(2);});it('b',()=>{expect(hd311adm2(3,1)).toBe(1);});it('c',()=>{expect(hd311adm2(0,0)).toBe(0);});it('d',()=>{expect(hd311adm2(93,73)).toBe(2);});it('e',()=>{expect(hd311adm2(15,0)).toBe(4);});});
+function hd312adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph312adm2_hd',()=>{it('a',()=>{expect(hd312adm2(1,4)).toBe(2);});it('b',()=>{expect(hd312adm2(3,1)).toBe(1);});it('c',()=>{expect(hd312adm2(0,0)).toBe(0);});it('d',()=>{expect(hd312adm2(93,73)).toBe(2);});it('e',()=>{expect(hd312adm2(15,0)).toBe(4);});});
+function hd313adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph313adm2_hd',()=>{it('a',()=>{expect(hd313adm2(1,4)).toBe(2);});it('b',()=>{expect(hd313adm2(3,1)).toBe(1);});it('c',()=>{expect(hd313adm2(0,0)).toBe(0);});it('d',()=>{expect(hd313adm2(93,73)).toBe(2);});it('e',()=>{expect(hd313adm2(15,0)).toBe(4);});});
+function hd314adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph314adm2_hd',()=>{it('a',()=>{expect(hd314adm2(1,4)).toBe(2);});it('b',()=>{expect(hd314adm2(3,1)).toBe(1);});it('c',()=>{expect(hd314adm2(0,0)).toBe(0);});it('d',()=>{expect(hd314adm2(93,73)).toBe(2);});it('e',()=>{expect(hd314adm2(15,0)).toBe(4);});});
+function hd315adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph315adm2_hd',()=>{it('a',()=>{expect(hd315adm2(1,4)).toBe(2);});it('b',()=>{expect(hd315adm2(3,1)).toBe(1);});it('c',()=>{expect(hd315adm2(0,0)).toBe(0);});it('d',()=>{expect(hd315adm2(93,73)).toBe(2);});it('e',()=>{expect(hd315adm2(15,0)).toBe(4);});});
+function hd316adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph316adm2_hd',()=>{it('a',()=>{expect(hd316adm2(1,4)).toBe(2);});it('b',()=>{expect(hd316adm2(3,1)).toBe(1);});it('c',()=>{expect(hd316adm2(0,0)).toBe(0);});it('d',()=>{expect(hd316adm2(93,73)).toBe(2);});it('e',()=>{expect(hd316adm2(15,0)).toBe(4);});});
+function hd317adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph317adm2_hd',()=>{it('a',()=>{expect(hd317adm2(1,4)).toBe(2);});it('b',()=>{expect(hd317adm2(3,1)).toBe(1);});it('c',()=>{expect(hd317adm2(0,0)).toBe(0);});it('d',()=>{expect(hd317adm2(93,73)).toBe(2);});it('e',()=>{expect(hd317adm2(15,0)).toBe(4);});});
+function hd318adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph318adm2_hd',()=>{it('a',()=>{expect(hd318adm2(1,4)).toBe(2);});it('b',()=>{expect(hd318adm2(3,1)).toBe(1);});it('c',()=>{expect(hd318adm2(0,0)).toBe(0);});it('d',()=>{expect(hd318adm2(93,73)).toBe(2);});it('e',()=>{expect(hd318adm2(15,0)).toBe(4);});});
+function hd319adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph319adm2_hd',()=>{it('a',()=>{expect(hd319adm2(1,4)).toBe(2);});it('b',()=>{expect(hd319adm2(3,1)).toBe(1);});it('c',()=>{expect(hd319adm2(0,0)).toBe(0);});it('d',()=>{expect(hd319adm2(93,73)).toBe(2);});it('e',()=>{expect(hd319adm2(15,0)).toBe(4);});});
+function hd320adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph320adm2_hd',()=>{it('a',()=>{expect(hd320adm2(1,4)).toBe(2);});it('b',()=>{expect(hd320adm2(3,1)).toBe(1);});it('c',()=>{expect(hd320adm2(0,0)).toBe(0);});it('d',()=>{expect(hd320adm2(93,73)).toBe(2);});it('e',()=>{expect(hd320adm2(15,0)).toBe(4);});});
+function hd321adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph321adm2_hd',()=>{it('a',()=>{expect(hd321adm2(1,4)).toBe(2);});it('b',()=>{expect(hd321adm2(3,1)).toBe(1);});it('c',()=>{expect(hd321adm2(0,0)).toBe(0);});it('d',()=>{expect(hd321adm2(93,73)).toBe(2);});it('e',()=>{expect(hd321adm2(15,0)).toBe(4);});});
+function hd322adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph322adm2_hd',()=>{it('a',()=>{expect(hd322adm2(1,4)).toBe(2);});it('b',()=>{expect(hd322adm2(3,1)).toBe(1);});it('c',()=>{expect(hd322adm2(0,0)).toBe(0);});it('d',()=>{expect(hd322adm2(93,73)).toBe(2);});it('e',()=>{expect(hd322adm2(15,0)).toBe(4);});});
+function hd323adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph323adm2_hd',()=>{it('a',()=>{expect(hd323adm2(1,4)).toBe(2);});it('b',()=>{expect(hd323adm2(3,1)).toBe(1);});it('c',()=>{expect(hd323adm2(0,0)).toBe(0);});it('d',()=>{expect(hd323adm2(93,73)).toBe(2);});it('e',()=>{expect(hd323adm2(15,0)).toBe(4);});});
+function hd324adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph324adm2_hd',()=>{it('a',()=>{expect(hd324adm2(1,4)).toBe(2);});it('b',()=>{expect(hd324adm2(3,1)).toBe(1);});it('c',()=>{expect(hd324adm2(0,0)).toBe(0);});it('d',()=>{expect(hd324adm2(93,73)).toBe(2);});it('e',()=>{expect(hd324adm2(15,0)).toBe(4);});});
+function hd325adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph325adm2_hd',()=>{it('a',()=>{expect(hd325adm2(1,4)).toBe(2);});it('b',()=>{expect(hd325adm2(3,1)).toBe(1);});it('c',()=>{expect(hd325adm2(0,0)).toBe(0);});it('d',()=>{expect(hd325adm2(93,73)).toBe(2);});it('e',()=>{expect(hd325adm2(15,0)).toBe(4);});});
+function hd326adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph326adm2_hd',()=>{it('a',()=>{expect(hd326adm2(1,4)).toBe(2);});it('b',()=>{expect(hd326adm2(3,1)).toBe(1);});it('c',()=>{expect(hd326adm2(0,0)).toBe(0);});it('d',()=>{expect(hd326adm2(93,73)).toBe(2);});it('e',()=>{expect(hd326adm2(15,0)).toBe(4);});});
+function hd327adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph327adm2_hd',()=>{it('a',()=>{expect(hd327adm2(1,4)).toBe(2);});it('b',()=>{expect(hd327adm2(3,1)).toBe(1);});it('c',()=>{expect(hd327adm2(0,0)).toBe(0);});it('d',()=>{expect(hd327adm2(93,73)).toBe(2);});it('e',()=>{expect(hd327adm2(15,0)).toBe(4);});});
+function hd328adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph328adm2_hd',()=>{it('a',()=>{expect(hd328adm2(1,4)).toBe(2);});it('b',()=>{expect(hd328adm2(3,1)).toBe(1);});it('c',()=>{expect(hd328adm2(0,0)).toBe(0);});it('d',()=>{expect(hd328adm2(93,73)).toBe(2);});it('e',()=>{expect(hd328adm2(15,0)).toBe(4);});});
+function hd329adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph329adm2_hd',()=>{it('a',()=>{expect(hd329adm2(1,4)).toBe(2);});it('b',()=>{expect(hd329adm2(3,1)).toBe(1);});it('c',()=>{expect(hd329adm2(0,0)).toBe(0);});it('d',()=>{expect(hd329adm2(93,73)).toBe(2);});it('e',()=>{expect(hd329adm2(15,0)).toBe(4);});});
+function hd330adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph330adm2_hd',()=>{it('a',()=>{expect(hd330adm2(1,4)).toBe(2);});it('b',()=>{expect(hd330adm2(3,1)).toBe(1);});it('c',()=>{expect(hd330adm2(0,0)).toBe(0);});it('d',()=>{expect(hd330adm2(93,73)).toBe(2);});it('e',()=>{expect(hd330adm2(15,0)).toBe(4);});});
+function hd331adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph331adm2_hd',()=>{it('a',()=>{expect(hd331adm2(1,4)).toBe(2);});it('b',()=>{expect(hd331adm2(3,1)).toBe(1);});it('c',()=>{expect(hd331adm2(0,0)).toBe(0);});it('d',()=>{expect(hd331adm2(93,73)).toBe(2);});it('e',()=>{expect(hd331adm2(15,0)).toBe(4);});});
+function hd332adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph332adm2_hd',()=>{it('a',()=>{expect(hd332adm2(1,4)).toBe(2);});it('b',()=>{expect(hd332adm2(3,1)).toBe(1);});it('c',()=>{expect(hd332adm2(0,0)).toBe(0);});it('d',()=>{expect(hd332adm2(93,73)).toBe(2);});it('e',()=>{expect(hd332adm2(15,0)).toBe(4);});});
+function hd333adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph333adm2_hd',()=>{it('a',()=>{expect(hd333adm2(1,4)).toBe(2);});it('b',()=>{expect(hd333adm2(3,1)).toBe(1);});it('c',()=>{expect(hd333adm2(0,0)).toBe(0);});it('d',()=>{expect(hd333adm2(93,73)).toBe(2);});it('e',()=>{expect(hd333adm2(15,0)).toBe(4);});});
+function hd334adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph334adm2_hd',()=>{it('a',()=>{expect(hd334adm2(1,4)).toBe(2);});it('b',()=>{expect(hd334adm2(3,1)).toBe(1);});it('c',()=>{expect(hd334adm2(0,0)).toBe(0);});it('d',()=>{expect(hd334adm2(93,73)).toBe(2);});it('e',()=>{expect(hd334adm2(15,0)).toBe(4);});});
+function hd335adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph335adm2_hd',()=>{it('a',()=>{expect(hd335adm2(1,4)).toBe(2);});it('b',()=>{expect(hd335adm2(3,1)).toBe(1);});it('c',()=>{expect(hd335adm2(0,0)).toBe(0);});it('d',()=>{expect(hd335adm2(93,73)).toBe(2);});it('e',()=>{expect(hd335adm2(15,0)).toBe(4);});});
+function hd336adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph336adm2_hd',()=>{it('a',()=>{expect(hd336adm2(1,4)).toBe(2);});it('b',()=>{expect(hd336adm2(3,1)).toBe(1);});it('c',()=>{expect(hd336adm2(0,0)).toBe(0);});it('d',()=>{expect(hd336adm2(93,73)).toBe(2);});it('e',()=>{expect(hd336adm2(15,0)).toBe(4);});});
+function hd337adm2(x:number,y:number):number{let v=x^y,c=0;while(v!==0){c+=v&1;v>>>=1;}return c;}
+describe('ph337adm2_hd',()=>{it('a',()=>{expect(hd337adm2(1,4)).toBe(2);});it('b',()=>{expect(hd337adm2(3,1)).toBe(1);});it('c',()=>{expect(hd337adm2(0,0)).toBe(0);});it('d',()=>{expect(hd337adm2(93,73)).toBe(2);});it('e',()=>{expect(hd337adm2(15,0)).toBe(4);});});
