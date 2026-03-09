@@ -817,3 +817,94 @@ describe('mockAISystems — per-system exact category+riskTier+status parametric
     });
   }
 });
+
+// ─── aiSystemCategories — positional index parametric ────────────────────────
+
+describe('aiSystemCategories — positional index parametric', () => {
+  const expected = [
+    [0, 'MACHINE_LEARNING'],
+    [1, 'DEEP_LEARNING'],
+    [2, 'NLP'],
+    [3, 'COMPUTER_VISION'],
+    [4, 'GENERATIVE_AI'],
+    [5, 'ROBOTICS'],
+    [6, 'RECOMMENDATION'],
+    [7, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`aiSystemCategories[${idx}] === '${val}'`, () => {
+      expect(aiSystemCategories[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── aiRiskTiers — positional index parametric ───────────────────────────────
+
+describe('aiRiskTiers — positional index parametric', () => {
+  const expected = [
+    [0, 'UNACCEPTABLE'],
+    [1, 'HIGH'],
+    [2, 'LIMITED'],
+    [3, 'MINIMAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`aiRiskTiers[${idx}] === '${val}'`, () => {
+      expect(aiRiskTiers[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── aiSystemStatuses — positional index parametric ──────────────────────────
+
+describe('aiSystemStatuses — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'ACTIVE'],
+    [2, 'UNDER_REVIEW'],
+    [3, 'DECOMMISSIONED'],
+    [4, 'SUSPENDED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`aiSystemStatuses[${idx}] === '${val}'`, () => {
+      expect(aiSystemStatuses[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── riskAssessmentCategories — positional index parametric ──────────────────
+
+describe('riskAssessmentCategories — positional index parametric', () => {
+  const expected = [
+    [0, 'BIAS_DISCRIMINATION'],
+    [1, 'PRIVACY'],
+    [2, 'SECURITY'],
+    [3, 'TRANSPARENCY'],
+    [4, 'ACCOUNTABILITY'],
+    [5, 'SAFETY'],
+    [6, 'HUMAN_OVERSIGHT'],
+    [7, 'DATA_GOVERNANCE'],
+    [8, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`riskAssessmentCategories[${idx}] === '${val}'`, () => {
+      expect(riskAssessmentCategories[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── impactLevelOptions — positional index parametric ────────────────────────
+
+describe('impactLevelOptions — positional index parametric', () => {
+  const expected = [
+    [0, 'NEGLIGIBLE'],
+    [1, 'LOW'],
+    [2, 'MODERATE'],
+    [3, 'HIGH'],
+    [4, 'VERY_HIGH'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`impactLevelOptions[${idx}] === '${val}'`, () => {
+      expect(impactLevelOptions[idx]).toBe(val);
+    });
+  }
+});

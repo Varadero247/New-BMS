@@ -823,3 +823,59 @@ describe('MOCK_PERMITS — per-permit exact type+status+priority parametric', ()
     });
   }
 });
+
+// ─── PERMIT_TYPES — positional index parametric ──────────────────────────────
+
+describe('PERMIT_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'HOT_WORK'],
+    [1, 'CONFINED_SPACE'],
+    [2, 'WORKING_AT_HEIGHT'],
+    [3, 'ELECTRICAL'],
+    [4, 'EXCAVATION'],
+    [5, 'CHEMICAL'],
+    [6, 'RADIATION'],
+    [7, 'GENERAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PERMIT_TYPES[${idx}] === '${val}'`, () => {
+      expect(PERMIT_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── PERMIT_STATUSES — positional index parametric ───────────────────────────
+
+describe('PERMIT_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'REQUESTED'],
+    [2, 'APPROVED'],
+    [3, 'ACTIVE'],
+    [4, 'SUSPENDED'],
+    [5, 'CLOSED'],
+    [6, 'CANCELLED'],
+    [7, 'EXPIRED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PERMIT_STATUSES[${idx}] === '${val}'`, () => {
+      expect(PERMIT_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── PERMIT_PRIORITIES — positional index parametric ─────────────────────────
+
+describe('PERMIT_PRIORITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'CRITICAL'],
+    [1, 'HIGH'],
+    [2, 'MEDIUM'],
+    [3, 'LOW'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PERMIT_PRIORITIES[${idx}] === '${val}'`, () => {
+      expect(PERMIT_PRIORITIES[idx]).toBe(val);
+    });
+  }
+});

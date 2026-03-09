@@ -778,3 +778,77 @@ describe('avgCompletionRate — exact for mockTraining parametric', () => {
     expect(avgCompletionRate(rates)).toBe(53);
   });
 });
+
+// ─── riskAssessmentCategories — positional index parametric ──────────────────
+
+describe('riskAssessmentCategories — positional index parametric', () => {
+  const expected = [
+    [0,  'BRIBERY_OF_PUBLIC_OFFICIALS'],
+    [1,  'COMMERCIAL_BRIBERY'],
+    [2,  'FACILITATION_PAYMENTS'],
+    [3,  'GIFTS_HOSPITALITY'],
+    [4,  'POLITICAL_CONTRIBUTIONS'],
+    [5,  'CHARITABLE_DONATIONS'],
+    [6,  'SPONSORSHIPS'],
+    [7,  'THIRD_PARTY'],
+    [8,  'PROCUREMENT'],
+    [9,  'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`riskAssessmentCategories[${idx}] === '${val}'`, () => {
+      expect(riskAssessmentCategories[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── dueDiligenceThirdPartyTypes — positional index parametric ───────────────
+
+describe('dueDiligenceThirdPartyTypes — positional index parametric', () => {
+  const expected = [
+    [0, 'SUPPLIER'],
+    [1, 'AGENT'],
+    [2, 'PARTNER'],
+    [3, 'CONSULTANT'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`dueDiligenceThirdPartyTypes[${idx}] === '${val}'`, () => {
+      expect(dueDiligenceThirdPartyTypes[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── giftTypes — positional index parametric ─────────────────────────────────
+
+describe('giftTypes — positional index parametric', () => {
+  const expected = [
+    [0, 'GIFT'],
+    [1, 'HOSPITALITY'],
+    [2, 'ENTERTAINMENT'],
+    [3, 'TRAVEL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`giftTypes[${idx}] === '${val}'`, () => {
+      expect(giftTypes[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── commonCurrencies — positional index parametric ──────────────────────────
+
+describe('commonCurrencies — positional index parametric', () => {
+  const expected = [
+    [0, 'USD'],
+    [1, 'EUR'],
+    [2, 'GBP'],
+    [3, 'CAD'],
+    [4, 'AUD'],
+    [5, 'JPY'],
+    [6, 'CNY'],
+    [7, 'CHF'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`commonCurrencies[${idx}] === '${val}'`, () => {
+      expect(commonCurrencies[idx]).toBe(val);
+    });
+  }
+});

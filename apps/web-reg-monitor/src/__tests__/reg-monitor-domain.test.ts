@@ -704,3 +704,76 @@ describe('dashboard aggregate logic (inlined)', () => {
     expect(score).toBe(33); // 1/3 → 33
   });
 });
+
+// ─── SOURCES — positional index parametric ───────────────────────────────────
+
+describe('SOURCES — positional index parametric', () => {
+  const expected = [
+    [0, 'GOVERNMENT'],
+    [1, 'REGULATOR'],
+    [2, 'STANDARDS_BODY'],
+    [3, 'INDUSTRY'],
+    [4, 'EU_UK'],
+    [5, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SOURCES[${idx}] === '${val}'`, () => {
+      expect(SOURCES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── CHANGE_STATUSES — positional index parametric ───────────────────────────
+
+describe('CHANGE_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'NEW'],
+    [1, 'UNDER_REVIEW'],
+    [2, 'ASSESSED'],
+    [3, 'IMPLEMENTED'],
+    [4, 'NOT_APPLICABLE'],
+    [5, 'MONITORING'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CHANGE_STATUSES[${idx}] === '${val}'`, () => {
+      expect(CHANGE_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── FREQUENCIES — positional index parametric ───────────────────────────────
+
+describe('FREQUENCIES — positional index parametric', () => {
+  const expected = [
+    [0, 'ONE_OFF'],
+    [1, 'DAILY'],
+    [2, 'WEEKLY'],
+    [3, 'MONTHLY'],
+    [4, 'QUARTERLY'],
+    [5, 'SEMI_ANNUAL'],
+    [6, 'ANNUAL'],
+    [7, 'BIENNIAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`FREQUENCIES[${idx}] === '${val}'`, () => {
+      expect(FREQUENCIES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── COMPLIANCE_STATUSES — positional index parametric ───────────────────────
+
+describe('COMPLIANCE_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'COMPLIANT'],
+    [1, 'PARTIALLY_COMPLIANT'],
+    [2, 'NON_COMPLIANT'],
+    [3, 'NOT_ASSESSED'],
+    [4, 'NOT_APPLICABLE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`COMPLIANCE_STATUSES[${idx}] === '${val}'`, () => {
+      expect(COMPLIANCE_STATUSES[idx]).toBe(val);
+    });
+  }
+});
