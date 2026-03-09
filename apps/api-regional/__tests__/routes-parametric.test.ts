@@ -1,0 +1,344 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+//
+// Phase 181 — api-regional parametric route tests for all 20 APAC country codes.
+// Tests: uppercase normalization, WHERE filters, 404 paths, empty-result handling.
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    apacCountry: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+    },
+    apacRegion: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+    },
+    apacLegislation: {
+      findMany: jest.fn(),
+    },
+    apacFinancialRule: {
+      findMany: jest.fn(),
+    },
+    apacIsoLegislationMapping: {
+      findMany: jest.fn(),
+    },
+    apacTradeAgreement: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+    },
+    apacCountryTradeAgreement: {
+      findMany: jest.fn(),
+    },
+    apacOnboardingData: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      upsert: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: (req: any, _res: any, next: any) => {
+    req.user = { id: 'u1', email: 'admin@ims.local', role: 'ADMIN', organisationId: 'org-1' };
+    next();
+  },
+  requireRole: () => (_req: any, _res: any, next: any) => next(),
+}));
+
+import express from 'express';
+import request from 'supertest';
+import { prisma } from '../src/prisma';
+import countriesRouter from '../src/routes/countries';
+import legislationRouter from '../src/routes/legislation';
+import financialRulesRouter from '../src/routes/financial-rules';
+import isoMappingsRouter from '../src/routes/iso-mappings';
+import taxSummaryRouter from '../src/routes/tax-summary';
+import tradeAgreementsRouter from '../src/routes/trade-agreements';
+
+const mp = prisma as jest.Mocked<typeof prisma>;
+
+function makeApp(path: string, router: express.Router) {
+  const app = express();
+  app.use(express.json());
+  app.use(path, router);
+  return app;
+}
+
+const countriesApp   = makeApp('/api/countries', countriesRouter);
+const legislationApp = makeApp('/api/legislation', legislationRouter);
+const financialApp   = makeApp('/api/financial-rules', financialRulesRouter);
+const isoApp         = makeApp('/api/iso-mappings', isoMappingsRouter);
+const taxApp         = makeApp('/api/tax-summary', taxSummaryRouter);
+const tradeApp       = makeApp('/api/trade-agreements', tradeAgreementsRouter);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+// ─── 20 APAC Country Codes ────────────────────────────────────────────────────
+
+const APAC_CODES = ['SG', 'AU', 'MY', 'TH', 'ID', 'PH', 'VN', 'KH', 'LA', 'MM',
+                    'BN', 'JP', 'KR', 'CN', 'HK', 'TW', 'IN', 'PK', 'BD', 'LK'];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/countries/:code — all 20 APAC codes
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('GET /api/countries/:code — 20 APAC codes', () => {
+  for (const code of APAC_CODES) {
+    it(`${code}: lookups with uppercase code`, async () => {
+      const stub = { id: `c-${code}`, code, name: `Country ${code}`, isActive: true,
+        region: { id: 'r1', name: 'APAC' },
+        legislation: [], financialRules: [], tradeAgreements: [], isoMappings: [] };
+      (mp.apacCountry.findUnique as jest.Mock).mockResolvedValueOnce(stub);
+      await request(countriesApp).get(`/api/countries/${code.toLowerCase()}`);
+      expect(mp.apacCountry.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { code: code.toUpperCase() } })
+      );
+    });
+
+    it(`${code}: returns 404 when not found`, async () => {
+      (mp.apacCountry.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      const res = await request(countriesApp).get(`/api/countries/${code}`);
+      expect(res.status).toBe(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/legislation/:countryCode — all 20 APAC codes
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('GET /api/legislation/:countryCode — 20 APAC codes', () => {
+  for (const code of APAC_CODES) {
+    it(`${code}: returns legislation, isActive filter applied`, async () => {
+      const stub = [
+        { id: `l-${code}-1`, countryCode: code, title: `Act 1`, category: 'EMPLOYMENT', isActive: true, country: { code } },
+      ];
+      (mp.apacLegislation.findMany as jest.Mock).mockResolvedValueOnce(stub);
+      const res = await request(legislationApp).get(`/api/legislation/${code}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(mp.apacLegislation.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ countryCode: code, isActive: true }) })
+      );
+    });
+
+    it(`${code}: lowercase input is uppercased`, async () => {
+      (mp.apacLegislation.findMany as jest.Mock).mockResolvedValueOnce([]);
+      await request(legislationApp).get(`/api/legislation/${code.toLowerCase()}`);
+      expect(mp.apacLegislation.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ countryCode: code.toUpperCase() }) })
+      );
+    });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/financial-rules/:countryCode — all 20 APAC codes
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('GET /api/financial-rules/:countryCode — 20 APAC codes', () => {
+  for (const code of APAC_CODES) {
+    it(`${code}: returns rules with countryCode + isActive filter`, async () => {
+      const stub = [
+        { id: `f-${code}-1`, countryCode: code, name: 'GST', ruleType: 'GST', rate: 10, isActive: true, country: { code } },
+      ];
+      (mp.apacFinancialRule.findMany as jest.Mock).mockResolvedValueOnce(stub);
+      const res = await request(financialApp).get(`/api/financial-rules/${code}`);
+      expect(res.status).toBe(200);
+      expect(mp.apacFinancialRule.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ countryCode: code, isActive: true }) })
+      );
+    });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/iso-mappings/:countryCode/:isoStandard — selected codes × standards
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ISO_STANDARDS = ['ISO 9001', 'ISO 14001', 'ISO 45001', 'ISO 27001', 'ISO 50001'];
+const ISO_SAMPLE_CODES = ['SG', 'AU', 'JP', 'IN', 'KR'];
+
+describe('GET /api/iso-mappings/:countryCode/:isoStandard — parametric', () => {
+  for (const code of ISO_SAMPLE_CODES) {
+    for (const std of ISO_STANDARDS) {
+      it(`${code}/${std}: uppercases country code, returns data array`, async () => {
+        const stub = [{ id: `m-${code}`, countryCode: code, isoStandard: std, isoClause: '4.1',
+          legislation: { title: 'Act' }, country: { code, name: `Country ${code}`, currency: 'USD' } }];
+        (mp.apacIsoLegislationMapping.findMany as jest.Mock).mockResolvedValueOnce(stub);
+        const encodedStd = encodeURIComponent(std);
+        const res = await request(isoApp).get(`/api/iso-mappings/${code.toLowerCase()}/${encodedStd}`);
+        expect(res.status).toBe(200);
+        expect(mp.apacIsoLegislationMapping.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({ where: expect.objectContaining({ countryCode: code.toUpperCase() }) })
+        );
+      });
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/tax-summary/:countryCode — all 20 APAC codes
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('GET /api/tax-summary/:countryCode — 20 APAC codes', () => {
+  for (const code of APAC_CODES) {
+    it(`${code}: returns 200 with summary shape`, async () => {
+      const countryStub = { code, name: `Country ${code}`, currency: 'USD', currencySymbol: '$',
+        gstRate: 10, taxSystem: 'GST', locale: 'en-US' };
+      (mp.apacCountry.findUnique as jest.Mock).mockResolvedValueOnce(countryStub);
+      (mp.apacFinancialRule.findMany as jest.Mock).mockResolvedValueOnce([]);
+      const res = await request(taxApp).get(`/api/tax-summary/${code}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('country');
+      expect(res.body.data).toHaveProperty('totalTaxObligations');
+      expect(res.body.data).toHaveProperty('taxSystemNote');
+      expect(res.body.data).toHaveProperty('generatedAt');
+    });
+
+    it(`${code}: 404 when country not in DB`, async () => {
+      (mp.apacCountry.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      const res = await request(taxApp).get(`/api/tax-summary/${code}`);
+      expect(res.status).toBe(404);
+    });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/trade-agreements/country/:code — selected codes
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TRADE_SAMPLE_CODES = ['SG', 'AU', 'JP', 'IN', 'TH'];
+
+describe('GET /api/trade-agreements/country/:code — parametric', () => {
+  for (const code of TRADE_SAMPLE_CODES) {
+    it(`${code}: uppercases country code, returns agreements`, async () => {
+      const stub = [
+        { tradeAgreement: { id: 'ta1', shortCode: 'RCEP', name: 'RCEP', isActive: true, _count: { countries: 15 } } },
+      ];
+      (mp.apacCountryTradeAgreement.findMany as jest.Mock).mockResolvedValueOnce(stub);
+      await request(tradeApp).get(`/api/trade-agreements/country/${code.toLowerCase()}`);
+      expect(mp.apacCountryTradeAgreement.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { countryCode: code.toUpperCase() } })
+      );
+    });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Edge cases: empty results, null fields
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Edge cases — empty results', () => {
+  it('GET /api/legislation/LA returns empty array (no legislation)', async () => {
+    (mp.apacLegislation.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(legislationApp).get('/api/legislation/LA');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/financial-rules/BN returns empty array', async () => {
+    (mp.apacFinancialRule.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(financialApp).get('/api/financial-rules/BN');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/iso-mappings/KH/ISO%2045001 returns empty array', async () => {
+    (mp.apacIsoLegislationMapping.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(isoApp).get('/api/iso-mappings/KH/ISO%2045001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/trade-agreements/country/MM returns empty array', async () => {
+    (mp.apacCountryTradeAgreement.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await request(tradeApp).get('/api/trade-agreements/country/MM');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+});
+
+describe('Edge cases — tax system variants', () => {
+  const variants = [
+    { taxSystem: 'GST', gstRate: 9, noteContains: 'GST' },
+    { taxSystem: 'VAT', gstRate: 12, noteContains: 'VAT' },
+    { taxSystem: 'SST', gstRate: 6, noteContains: 'SST' },
+    { taxSystem: 'None', gstRate: null, noteContains: 'does not levy' },
+    { taxSystem: null, gstRate: null, noteContains: 'N/A' },
+  ];
+
+  for (const { taxSystem, gstRate, noteContains } of variants) {
+    it(`taxSystem="${taxSystem}" → taxSystemNote includes "${noteContains}"`, async () => {
+      (mp.apacCountry.findUnique as jest.Mock).mockResolvedValueOnce({
+        code: 'SG', name: 'Singapore', currency: 'SGD', currencySymbol: '$',
+        gstRate, taxSystem, locale: 'en-SG',
+      });
+      (mp.apacFinancialRule.findMany as jest.Mock).mockResolvedValueOnce([]);
+      const res = await request(taxApp).get('/api/tax-summary/SG');
+      expect(res.status).toBe(200);
+      expect(res.body.data.taxSystemNote).toContain(noteContains);
+    });
+  }
+});
+
+describe('Edge cases — legislation category validation', () => {
+  const validCategories = [
+    'WORKPLACE_SAFETY', 'ENVIRONMENTAL', 'DATA_PRIVACY', 'EMPLOYMENT',
+    'ANTI_CORRUPTION', 'FINANCIAL_REPORTING', 'CONSUMER_PROTECTION',
+    'IMPORT_EXPORT', 'QUALITY_STANDARDS', 'INFORMATION_SECURITY',
+    'FOOD_SAFETY', 'MEDICAL_DEVICES', 'ENERGY', 'ANTI_MONEY_LAUNDERING', 'OTHER',
+  ];
+
+  // Note: lowercase inputs get toUpperCase()'d, so 'workplace_safety' → 'WORKPLACE_SAFETY' (valid).
+  // Empty strings don't match /:category path segment (no route match → 404, not tested here).
+  const invalidInputs = ['INVALID', 'GDPR', 'ESG', 'PERSONAL_DATA'];
+
+  for (const cat of validCategories) {
+    it(`valid category ${cat} returns 200`, async () => {
+      (mp.apacLegislation.findMany as jest.Mock).mockResolvedValueOnce([]);
+      const res = await request(legislationApp).get(`/api/legislation/SG/${cat}`);
+      expect(res.status).toBe(200);
+    });
+  }
+
+  for (const bad of invalidInputs) {
+    it(`invalid category "${bad}" returns 400`, async () => {
+      const res = await request(legislationApp).get(`/api/legislation/SG/${bad}`);
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+  }
+});
+
+describe('Edge cases — financial-rules type validation', () => {
+  const validTypes = [
+    'GST', 'VAT', 'SST', 'CORPORATE_TAX', 'WITHHOLDING_TAX', 'PAYROLL_TAX',
+    'STAMP_DUTY', 'CUSTOMS_DUTY', 'TRANSFER_PRICING', 'FINANCIAL_REPORTING',
+    'AUDIT_REQUIREMENT', 'OTHER',
+  ];
+
+  // Note: lowercase 'gst' → toUpperCase() → 'GST' (valid). Empty strings don't match route.
+  const invalidTypes = ['INVALID', 'VAT_RATE', 'INCOME_TAX', 'WITHHOLDING', 'PERSONAL_INCOME_TAX'];
+
+  for (const t of validTypes) {
+    it(`valid type ${t} returns 200`, async () => {
+      (mp.apacFinancialRule.findMany as jest.Mock).mockResolvedValueOnce([]);
+      const res = await request(financialApp).get(`/api/financial-rules/SG/${t}`);
+      expect(res.status).toBe(200);
+    });
+  }
+
+  for (const bad of invalidTypes) {
+    it(`invalid type "${bad}" returns 400`, async () => {
+      const res = await request(financialApp).get(`/api/financial-rules/SG/${bad}`);
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+  }
+});
