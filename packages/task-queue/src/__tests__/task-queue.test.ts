@@ -1026,3 +1026,21 @@ describe('task-queue', () => {
     it('pq extra 99: toArray', () => { const q = new PriorityQueue<number>(); q.enqueue('t99',99,0); expect(q.toArray()).toHaveLength(1); });
   });
 });
+
+// ─── Algorithm puzzle phases (ph217tq–ph218tq) ────────────────────────────────
+function moveZeroes217tq(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217tq_mz',()=>{
+  it('a',()=>{expect(moveZeroes217tq([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217tq([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217tq([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217tq([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217tq([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218tq(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218tq_mn',()=>{
+  it('a',()=>{expect(missingNumber218tq([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218tq([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218tq([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218tq([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218tq([1])).toBe(0);});
+});
