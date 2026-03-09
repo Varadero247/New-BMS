@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-03-09 (Phase 189 — web-finance +41, web-energy +44, web-infosec +33, web-finance-compliance +30; Phase 188 — web-training +38, web-hr +49; Phase 187 — web-training-portal +46, web-marketing +31; Phase 186 — web-audits +58, web-customer-portal +41, web-partners +47, web-supplier-portal +45; Phase 185 — web-onboarding domain +75; Phase 184 — web-regional-dashboard +179, web-partner-portal-domain +83; Phase 183 — @ims/config pricing.config.test.ts +45 tests; Phases 180–182 — api-billing route tests +107, api-regional parametric +215, training/chemical-register expansion +225; Phase 179 — all 48 web app domain tests complete +41,514)
+> Last updated: 2026-03-09 (Phase 190 — web-admin +33, web-crm +29; Phase 189 — web-finance +41, web-energy +44, web-infosec +33, web-finance-compliance +30; Phase 188 — web-training +38, web-hr +49; Phase 187 — web-training-portal +46, web-marketing +31; Phase 186 — web-audits +58, web-customer-portal +41, web-partners +47, web-supplier-portal +45; Phase 185 — web-onboarding domain +75; Phase 184 — web-regional-dashboard +179, web-partner-portal-domain +83; Phase 183 — @ims/config pricing.config.test.ts +45 tests; Phases 180–182 — api-billing route tests +107, api-regional parametric +215, training/chemical-register expansion +225; Phase 179 — all 48 web app domain tests complete +41,514)
 
 ## Summary
 
@@ -12,7 +12,7 @@
 | Prisma Schemas           | 45 (incl. billing.prisma)                             |
 | Database Tables (models) | ~610 (+13 billing models)                             |
 | Scripts                  | 60+                                                   |
-| Unit Tests               | ~1,224,228 across ~1,193 suites / ~489 Jest projects (all passing) |
+| Unit Tests               | ~1,224,290 across ~1,193 suites / ~489 Jest projects (all passing) |
 | Integration Test Scripts | 40 shell scripts + 12 Jest suites (111 tests, `pnpm test:integration:ci`) |
 
 ---

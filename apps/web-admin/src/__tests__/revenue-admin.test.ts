@@ -474,3 +474,110 @@ describe('cross-data invariants', () => {
     expect(total).toBe(110400);
   });
 });
+
+// ─── Parametric expansions ─────────────────────────────────────────────────
+
+describe('LEAD_MOCK — per-lead source parametric', () => {
+  const cases: [string, LeadSource][] = [
+    ['1', 'LINKEDIN'],
+    ['2', 'INBOUND'],
+    ['3', 'REFERRAL'],
+    ['4', 'WEBSITE'],
+    ['5', 'COLD'],
+  ];
+  for (const [id, source] of cases) {
+    it(`lead ${id}: source = "${source}"`, () => {
+      const lead = LEAD_MOCK.find((l) => l.id === id)!;
+      expect(lead.source).toBe(source);
+    });
+  }
+});
+
+describe('LEAD_MOCK — per-lead status parametric', () => {
+  const cases: [string, LeadStatus][] = [
+    ['1', 'QUALIFIED'],
+    ['2', 'PROPOSAL'],
+    ['3', 'NEGOTIATION'],
+    ['4', 'NEW'],
+    ['5', 'CONTACTED'],
+  ];
+  for (const [id, status] of cases) {
+    it(`lead ${id}: status = "${status}"`, () => {
+      const lead = LEAD_MOCK.find((l) => l.id === id)!;
+      expect(lead.status).toBe(status);
+    });
+  }
+});
+
+describe('RENEWAL_MOCK — per-renewal status+riskLevel parametric', () => {
+  const cases: [string, RenewalStatus, RiskLevel][] = [
+    ['1', 'AT_RISK',  'HIGH'],
+    ['2', 'ON_TRACK', 'LOW'],
+    ['3', 'AT_RISK',  'MEDIUM'],
+    ['4', 'ON_TRACK', 'LOW'],
+    ['5', 'RENEWED',  'LOW'],
+  ];
+  for (const [id, status, riskLevel] of cases) {
+    it(`renewal ${id}: status="${status}", riskLevel="${riskLevel}"`, () => {
+      const r = RENEWAL_MOCK.find((r) => r.id === id)!;
+      expect(r.status).toBe(status);
+      expect(r.riskLevel).toBe(riskLevel);
+    });
+  }
+});
+
+describe('RENEWAL_MOCK — per-renewal mrr exact parametric', () => {
+  const cases: [string, number][] = [
+    ['1',  900],
+    ['2',  600],
+    ['3', 3000],
+    ['4', 1200],
+    ['5', 2400],
+  ];
+  for (const [id, mrr] of cases) {
+    it(`renewal ${id}: mrr = ${mrr}`, () => {
+      const r = RENEWAL_MOCK.find((r) => r.id === id)!;
+      expect(r.mrr).toBe(mrr);
+    });
+  }
+});
+
+describe('WINBACK_MOCK — per-winback mrrLost exact parametric', () => {
+  const cases: [string, number][] = [
+    ['1', 1800],
+    ['2',  600],
+    ['3', 3600],
+    ['4',  900],
+    ['5', 2400],
+  ];
+  for (const [id, mrrLost] of cases) {
+    it(`winback ${id}: mrrLost = ${mrrLost}`, () => {
+      const w = WINBACK_MOCK.find((w) => w.id === id)!;
+      expect(w.mrrLost).toBe(mrrLost);
+    });
+  }
+});
+
+describe('urgencyRowBg — boundary matrix parametric', () => {
+  const cases: [number, RenewalStatus, string | ''][] = [
+    [0,   'ON_TRACK', 'red'],   // days = 0, non-CHURNED → red
+    [30,  'ON_TRACK', 'red'],   // days = 30 → red
+    [31,  'ON_TRACK', 'amber'], // days = 31 → amber
+    [60,  'ON_TRACK', 'amber'], // days = 60 → amber
+    [61,  'ON_TRACK', ''],      // days = 61 → empty
+    [100, 'CHURNED',  'red'],   // CHURNED always red
+    [61,  'CHURNED',  'red'],   // CHURNED overrides days > 60
+    [0,   'CHURNED',  'red'],   // CHURNED at 0 days → red
+  ];
+  for (const [days, status, expected] of cases) {
+    if (expected === '') {
+      it(`urgencyRowBg(${days}, "${status}") = ""`, () => {
+        expect(urgencyRowBg(days, status)).toBe('');
+      });
+    } else {
+      it(`urgencyRowBg(${days}, "${status}") contains "${expected}"`, () => {
+        expect(urgencyRowBg(days, status)).toContain(expected);
+      });
+    }
+  }
+});

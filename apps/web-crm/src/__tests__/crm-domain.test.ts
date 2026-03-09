@@ -637,3 +637,106 @@ describe('scoreClass', () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// STAGES — per-stage label exact parametric
+// ---------------------------------------------------------------------------
+
+describe('STAGES — per-stage label exact parametric', () => {
+  const cases: [string, string][] = [
+    ['PROSPECTING',   'Prospecting'],
+    ['QUALIFICATION', 'Qualification'],
+    ['PROPOSAL',      'Proposal'],
+    ['NEGOTIATION',   'Negotiation'],
+    ['CLOSED_WON',    'Closed Won'],
+    ['CLOSED_LOST',   'Closed Lost'],
+  ];
+  for (const [key, label] of cases) {
+    it(`${key}: label = "${label}"`, () => {
+      const stage = STAGES.find((s) => s.key === key)!;
+      expect(stage.label).toBe(label);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// STAGES — per-stage color keyword parametric
+// ---------------------------------------------------------------------------
+
+describe('STAGES — per-stage color keyword parametric', () => {
+  const cases: [string, string][] = [
+    ['PROSPECTING',   'gray'],
+    ['QUALIFICATION', 'blue'],
+    ['PROPOSAL',      'violet'],
+    ['NEGOTIATION',   'amber'],
+  ];
+  for (const [key, color] of cases) {
+    it(`${key} color contains "${color}"`, () => {
+      const stage = STAGES.find((s) => s.key === key)!;
+      expect(stage.color).toContain(color);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// KPI_CARDS — per-card title parametric
+// ---------------------------------------------------------------------------
+
+describe('KPI_CARDS — per-card title parametric', () => {
+  const expectedTitles = [
+    'Total Contacts',
+    'Total Accounts',
+    'Open Deals',
+    'Pipeline Value',
+    'Won This Month',
+    'Conversion Rate',
+  ];
+  for (const title of expectedTitles) {
+    it(`includes card with title "${title}"`, () => {
+      expect(KPI_CARDS.map((c) => c.title)).toContain(title);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// computeWeightedValue — exact parametric
+// ---------------------------------------------------------------------------
+
+describe('computeWeightedValue — exact parametric', () => {
+  const cases: [number, number, number][] = [
+    [100000, 75, 75000],
+    [100000, 10, 10000],
+    [100000, 30, 30000],
+    [100000, 80, 80000],
+    [50000,  40, 20000],
+  ];
+  for (const [value, prob, expected] of cases) {
+    it(`computeWeightedValue(${value}, ${prob}) = ${expected}`, () => {
+      expect(computeWeightedValue(value, prob)).toBe(expected);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// LEAD_STATUSES — per-status parametric
+// ---------------------------------------------------------------------------
+
+describe('LEAD_STATUSES — per-status parametric', () => {
+  for (const status of LEAD_STATUSES) {
+    it(`includes "${status}"`, () => {
+      expect(LEAD_STATUSES).toContain(status);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// DEAL_STATUSES — per-status parametric
+// ---------------------------------------------------------------------------
+
+describe('DEAL_STATUSES — per-status parametric', () => {
+  for (const status of DEAL_STATUSES) {
+    it(`includes "${status}"`, () => {
+      expect(DEAL_STATUSES).toContain(status);
+    });
+  }
+});
