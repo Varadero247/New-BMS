@@ -617,6 +617,104 @@ describe('completionPercent — exact values parametric', () => {
   }
 });
 
+// ─── Tests: AUDIT_TYPES positional index parametric ──────────────────────────
+
+describe('AUDIT_TYPES — positional index parametric', () => {
+  const expected: [AuditType, number][] = [
+    ['INTERNAL',      0],
+    ['EXTERNAL',      1],
+    ['SUPPLIER',      2],
+    ['CERTIFICATION', 3],
+    ['SURVEILLANCE',  4],
+    ['PROCESS',       5],
+  ];
+  for (const [type, idx] of expected) {
+    it(`${type} is at index ${idx}`, () => {
+      expect(AUDIT_TYPES[idx]).toBe(type);
+    });
+  }
+});
+
+// ─── Tests: AUDIT_STATUSES positional index parametric ───────────────────────
+
+describe('AUDIT_STATUSES — positional index parametric', () => {
+  const expected: [AuditStatus, number][] = [
+    ['PLANNED',     0],
+    ['SCHEDULED',   1],
+    ['IN_PROGRESS', 2],
+    ['COMPLETED',   3],
+    ['CANCELLED',   4],
+  ];
+  for (const [status, idx] of expected) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(AUDIT_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Tests: FINDING_SEVERITIES ordering parametric ───────────────────────────
+
+describe('FINDING_SEVERITIES — ordering parametric', () => {
+  it('MAJOR_NC(0) < MINOR_NC(1) < OBSERVATION(2) < OPPORTUNITY(3) < POSITIVE(4)', () => {
+    for (let i = 1; i < FINDING_SEVERITIES.length; i++) {
+      expect(FINDING_SEVERITIES.indexOf(FINDING_SEVERITIES[i])).toBeGreaterThan(
+        FINDING_SEVERITIES.indexOf(FINDING_SEVERITIES[i - 1]),
+      );
+    }
+  });
+  const positional: [FindingSeverity, number][] = [
+    ['MAJOR_NC',    0],
+    ['MINOR_NC',    1],
+    ['OBSERVATION', 2],
+    ['OPPORTUNITY', 3],
+    ['POSITIVE',    4],
+  ];
+  for (const [sev, idx] of positional) {
+    it(`${sev} is at index ${idx}`, () => expect(FINDING_SEVERITIES[idx]).toBe(sev));
+  }
+});
+
+// ─── Tests: completionPercent additional exact values ────────────────────────
+
+describe('completionPercent — additional exact values parametric', () => {
+  const cases: [number, number, number][] = [
+    [4,  9,  44],  // Math.round(44.44) = 44
+    [3,  8,  38],  // Math.round(37.5) = 38
+    [7,  12, 58],  // Math.round(58.33) = 58
+    [1,  9,  11],  // Math.round(11.11) = 11
+    [8,  9,  89],  // Math.round(88.88) = 89
+    [5,  6,  83],  // Math.round(83.33) = 83
+    [6,  7,  86],  // Math.round(85.71) = 86
+    [11, 12, 92],  // Math.round(91.67) = 92
+    [9,  10, 90],
+    [1,  8,  13],  // Math.round(12.5) = 13
+  ];
+  for (const [completed, total, expected] of cases) {
+    it(`completionPercent(${completed}, ${total}) = ${expected}`, () => {
+      expect(completionPercent(completed, total)).toBe(expected);
+    });
+  }
+});
+
+// ─── Tests: severityColor bg-/text- color family consistency ─────────────────
+
+describe('severityColor — bg and text same color family parametric', () => {
+  const cases: [string, string][] = [
+    ['MAJOR_NC',    'red'],
+    ['MINOR_NC',    'orange'],
+    ['OBSERVATION', 'yellow'],
+    ['OPPORTUNITY', 'blue'],
+    ['POSITIVE',    'green'],
+  ];
+  for (const [sev, color] of cases) {
+    it(`${sev} bg-${color} and text-${color} both present`, () => {
+      const cls = severityColor(sev);
+      expect(cls).toContain(`bg-${color}`);
+      expect(cls).toContain(`text-${color}`);
+    });
+  }
+});
+
 // ─── Tests: FINDING_EMPTY_FORM keys ──────────────────────────────────────────
 
 describe('FINDING_EMPTY_FORM — all required keys present', () => {

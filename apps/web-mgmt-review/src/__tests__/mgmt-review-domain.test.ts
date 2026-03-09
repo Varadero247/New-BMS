@@ -805,3 +805,129 @@ describe('Cross-domain invariants', () => {
     expect(REVIEW_INPUT_CATEGORIES.length + REVIEW_OUTPUT_CATEGORIES.length).toBe(11);
   });
 });
+
+// ─── Parametric: REVIEW_STATUSES positional index ────────────────────────────
+
+describe('REVIEW_STATUSES — positional index parametric', () => {
+  const expected: [ReviewStatus, number][] = [
+    ['DRAFT',       0],
+    ['SCHEDULED',   1],
+    ['IN_PROGRESS', 2],
+    ['COMPLETED',   3],
+    ['CANCELLED',   4],
+  ];
+  for (const [status, idx] of expected) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(REVIEW_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: isReviewActive per-status ────────────────────────────────────
+
+describe('isReviewActive — per-status parametric', () => {
+  const cases: [ReviewStatus, boolean][] = [
+    ['DRAFT',       false],
+    ['SCHEDULED',   true],
+    ['IN_PROGRESS', true],
+    ['COMPLETED',   false],
+    ['CANCELLED',   false],
+  ];
+  for (const [status, expected] of cases) {
+    it(`isReviewActive("${status}") = ${expected}`, () => {
+      expect(isReviewActive(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: isReviewTerminal per-status ──────────────────────────────────
+
+describe('isReviewTerminal — per-status parametric', () => {
+  const cases: [ReviewStatus, boolean][] = [
+    ['DRAFT',       false],
+    ['SCHEDULED',   false],
+    ['IN_PROGRESS', false],
+    ['COMPLETED',   true],
+    ['CANCELLED',   true],
+  ];
+  for (const [status, expected] of cases) {
+    it(`isReviewTerminal("${status}") = ${expected}`, () => {
+      expect(isReviewTerminal(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: isReviewEditable per-status ─────────────────────────────────
+
+describe('isReviewEditable — per-status parametric', () => {
+  const cases: [ReviewStatus, boolean][] = [
+    ['DRAFT',       true],
+    ['SCHEDULED',   true],
+    ['IN_PROGRESS', false],
+    ['COMPLETED',   false],
+    ['CANCELLED',   false],
+  ];
+  for (const [status, expected] of cases) {
+    it(`isReviewEditable("${status}") = ${expected}`, () => {
+      expect(isReviewEditable(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: reviewStatusBadgeVariant per-status exact ───────────────────
+
+describe('reviewStatusBadgeVariant — per-status exact parametric', () => {
+  const cases: [ReviewStatus, BadgeVariant][] = [
+    ['DRAFT',       'outline'],
+    ['SCHEDULED',   'outline'],
+    ['IN_PROGRESS', 'default'],
+    ['COMPLETED',   'secondary'],
+    ['CANCELLED',   'destructive'],
+  ];
+  for (const [status, expected] of cases) {
+    it(`${status} → "${expected}"`, () => {
+      expect(reviewStatusBadgeVariant[status]).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: reviewCompletionRate exact fractions ────────────────────────
+
+describe('reviewCompletionRate — exact fraction parametric', () => {
+  const total = 5;
+  const cases: [number, number][] = [
+    [0,  0],
+    [1,  20],
+    [2,  40],
+    [3,  60],
+    [4,  80],
+    [5,  100],
+  ];
+  for (const [completedCount, expectedRate] of cases) {
+    it(`${completedCount}/${total} completed → ${expectedRate}%`, () => {
+      const reviews = [
+        ...Array(completedCount).fill({ status: 'COMPLETED' as ReviewStatus }),
+        ...Array(total - completedCount).fill({ status: 'DRAFT' as ReviewStatus }),
+      ];
+      expect(reviewCompletionRate(reviews)).toBeCloseTo(expectedRate, 5);
+    });
+  }
+});
+
+// ─── mockReview specific field values ────────────────────────────────────────
+
+describe('mockReview — specific field values', () => {
+  it('referenceNumber = MR-2026-0001', () =>
+    expect(mockReview.referenceNumber).toBe('MR-2026-0001'));
+  it('attendees count = 4', () => expect(mockReview.attendees).toHaveLength(4));
+  it('standards count = 2', () => expect(mockReview.standards).toHaveLength(2));
+  it('standards contains ISO 9001:2015', () =>
+    expect(mockReview.standards).toContain('ISO 9001:2015'));
+  it('aiGeneratedAgenda items count = 5', () => {
+    const parsed = JSON.parse(mockReview.aiGeneratedAgenda as string);
+    expect(parsed.items).toHaveLength(5);
+  });
+  it('reviewDurationDays(scheduled, conducted) = 0 (same day)', () => {
+    expect(reviewDurationDays(mockReview.scheduledDate, mockReview.conductedDate)).toBe(0);
+  });
+});
