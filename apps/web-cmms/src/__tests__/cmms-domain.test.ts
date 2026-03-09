@@ -781,3 +781,127 @@ describe('workloadPercent — additional exact values parametric', () => {
     });
   }
 });
+
+// ─── Phase 209 parametric additions ──────────────────────────────────────────
+
+describe('WO_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'OPEN'],
+    [1, 'IN_PROGRESS'],
+    [2, 'COMPLETED'],
+    [3, 'ON_HOLD'],
+    [4, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`WO_STATUSES[${idx}] === '${val}'`, () => {
+      expect(WO_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('WO_PRIORITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'CRITICAL'],
+    [1, 'HIGH'],
+    [2, 'MEDIUM'],
+    [3, 'LOW'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`WO_PRIORITIES[${idx}] === '${val}'`, () => {
+      expect(WO_PRIORITIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('WO_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'CORRECTIVE'],
+    [1, 'PREVENTIVE'],
+    [2, 'INSPECTION'],
+    [3, 'EMERGENCY'],
+    [4, 'PROJECT'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`WO_TYPES[${idx}] === '${val}'`, () => {
+      expect(WO_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('SCHEDULER_PRIORITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'Emergency'],
+    [1, 'High'],
+    [2, 'Medium'],
+    [3, 'Low'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SCHEDULER_PRIORITIES[${idx}] === '${val}'`, () => {
+      expect(SCHEDULER_PRIORITIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('SCHEDULER_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'Scheduled'],
+    [1, 'In Progress'],
+    [2, 'On Hold'],
+    [3, 'Completed'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SCHEDULER_STATUSES[${idx}] === '${val}'`, () => {
+      expect(SCHEDULER_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('SCHEDULER_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'Preventive'],
+    [1, 'Corrective'],
+    [2, 'Inspection'],
+    [3, 'Emergency'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SCHEDULER_TYPES[${idx}] === '${val}'`, () => {
+      expect(SCHEDULER_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DAY_NAMES — positional index parametric', () => {
+  const expected = [
+    [0, 'Sun'],
+    [1, 'Mon'],
+    [2, 'Tue'],
+    [3, 'Wed'],
+    [4, 'Thu'],
+    [5, 'Fri'],
+    [6, 'Sat'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DAY_NAMES[${idx}] === '${val}'`, () => {
+      expect(DAY_NAMES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('MOCK_WORK_ORDERS — per-order priority+status+type parametric', () => {
+  const expected: [string, SchedulerPriority, SchedulerStatus, SchedulerType][] = [
+    ['WO-2026-001', 'Medium',    'Scheduled',   'Preventive'],
+    ['WO-2026-003', 'High',      'In Progress', 'Corrective'],
+    ['WO-2026-004', 'High',      'Scheduled',   'Inspection'],
+    ['WO-2026-005', 'Emergency', 'In Progress', 'Emergency'],
+    ['WO-2026-008', 'Low',       'Completed',   'Preventive'],
+    ['WO-2026-011', 'Medium',    'On Hold',     'Preventive'],
+  ];
+  for (const [id, priority, status, type] of expected) {
+    it(`${id}: priority=${priority}, status=${status}, type=${type}`, () => {
+      const wo = MOCK_WORK_ORDERS.find((w) => w.id === id);
+      expect(wo?.priority).toBe(priority);
+      expect(wo?.status).toBe(status);
+      expect(wo?.type).toBe(type);
+    });
+  }
+});

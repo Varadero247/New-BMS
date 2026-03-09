@@ -767,3 +767,48 @@ describe('AUDIT_EMPTY_FORM — all required keys present', () => {
     }
   });
 });
+
+// ─── Phase 209 parametric additions ──────────────────────────────────────────
+
+describe('FINDING_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'OPEN'],
+    [1, 'IN_PROGRESS'],
+    [2, 'CLOSED'],
+    [3, 'VERIFIED'],
+    [4, 'OVERDUE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`FINDING_STATUSES[${idx}] === '${val}'`, () => {
+      expect(FINDING_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('FINDING_EMPTY_FORM — exact default values parametric', () => {
+  const cases: [string, string][] = [
+    ['severity', 'MINOR_NC'],
+    ['status',   'OPEN'],
+    ['auditId',  ''],
+    ['title',    ''],
+  ];
+  for (const [key, val] of cases) {
+    it(`${key} defaults to "${val}"`, () => {
+      expect((FINDING_EMPTY_FORM as Record<string, string>)[key]).toBe(val);
+    });
+  }
+});
+
+describe('AUDIT_EMPTY_FORM — exact default values parametric', () => {
+  const cases: [string, string][] = [
+    ['type',   'INTERNAL'],
+    ['status', 'PLANNED'],
+    ['title',  ''],
+    ['scope',  ''],
+  ];
+  for (const [key, val] of cases) {
+    it(`${key} defaults to "${val}"`, () => {
+      expect((AUDIT_EMPTY_FORM as Record<string, string>)[key]).toBe(val);
+    });
+  }
+});
