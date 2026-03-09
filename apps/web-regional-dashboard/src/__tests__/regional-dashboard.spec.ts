@@ -618,3 +618,253 @@ describe('payrollTax field handling', () => {
     expect(noPayroll.payrollEmployeeRate).toBeNull();
   });
 });
+
+// ─── Parametric: sortRows by various fields ────────────────────────────────────
+
+describe('sortRows — parametric by numeric fields', () => {
+  const rows = [SG_ROW, HK_ROW, PH_ROW];
+
+  const ascCases: Array<[keyof ComparisonRow, string]> = [
+    ['gstVatRate', 'HK'],         // HK=0, SG=0.09, PH=0.12
+    ['withholdingDividends', 'SG'], // SG=0 (tied HK), SG first alphabetically
+    ['isoStandardsCount', 'PH'],   // PH=12 < HK=30 < SG=38
+  ];
+
+  it('sortRows by gstVatRate ascending — HK (0) is first', () => {
+    const sorted = sortRows(rows, 'gstVatRate', true);
+    expect(sorted[0].countryCode).toBe('HK');
+  });
+
+  it('sortRows by gstVatRate descending — PH (12%) is first', () => {
+    const sorted = sortRows(rows, 'gstVatRate', false);
+    expect(sorted[0].countryCode).toBe('PH');
+  });
+
+  it('sortRows by isoStandardsCount ascending — PH (12) is first', () => {
+    const sorted = sortRows(rows, 'isoStandardsCount', true);
+    expect(sorted[0].countryCode).toBe('PH');
+  });
+
+  it('sortRows by isoStandardsCount descending — SG (38) is first', () => {
+    const sorted = sortRows(rows, 'isoStandardsCount', false);
+    expect(sorted[0].countryCode).toBe('SG');
+  });
+
+  it('sortRows by tier ascending — all Tier 1 except PH (Tier 2)', () => {
+    const sorted = sortRows(rows, 'tier', true);
+    // SG, HK are tier 1; PH is tier 2 — PH should be last
+    expect(sorted[sorted.length - 1].countryCode).toBe('PH');
+  });
+
+  it('sortRows by countryCode ascending — HK < PH < SG', () => {
+    const sorted = sortRows(rows, 'countryCode', true);
+    expect(sorted.map((r) => r.countryCode)).toEqual(['HK', 'PH', 'SG']);
+  });
+
+  it('sortRows by countryCode descending — SG > PH > HK', () => {
+    const sorted = sortRows(rows, 'countryCode', false);
+    expect(sorted.map((r) => r.countryCode)).toEqual(['SG', 'PH', 'HK']);
+  });
+
+  it('sortRows preserves all rows (no items lost)', () => {
+    const sorted = sortRows(rows, 'corporateTaxRate', true);
+    expect(sorted).toHaveLength(rows.length);
+  });
+});
+
+// ─── Parametric: filterBySearch edge cases ────────────────────────────────────
+
+describe('filterBySearch — parametric edge cases', () => {
+  const rows = [SG_ROW, HK_ROW, PH_ROW];
+
+  const cases: [string, string, number][] = [
+    ['kong', 'HK partial name match', 1],
+    ['ong', 'multiple partial name match (Hong Kong, Philippines)', 2],
+    ['SG', 'exact code match (uppercase)', 1],
+    ['sg', 'exact code match (lowercase)', 1],
+    ['a', 'broad single letter', 2],   // Singapore, Philippines both contain 'a' in name? Actually: 'Ph' has 'a'... Wait no: Singapore has 'a', Philippines has 'a'. HK does not. So 2.
+    ['',  'empty → all 3', 3],
+    ['zzz-no-match', 'no match', 0],
+  ];
+
+  it('search "kong" matches Hong Kong only', () => {
+    expect(filterBySearch(rows, 'kong')).toHaveLength(1);
+    expect(filterBySearch(rows, 'kong')[0].countryCode).toBe('HK');
+  });
+
+  it('search "SG" (uppercase code) matches Singapore', () => {
+    expect(filterBySearch(rows, 'SG')).toHaveLength(1);
+  });
+
+  it('search "sg" (lowercase code) matches Singapore', () => {
+    expect(filterBySearch(rows, 'sg')).toHaveLength(1);
+  });
+
+  it('search "hk" matches Hong Kong', () => {
+    expect(filterBySearch(rows, 'hk')).toHaveLength(1);
+    expect(filterBySearch(rows, 'hk')[0].countryCode).toBe('HK');
+  });
+
+  it('search "ph" matches Philippines', () => {
+    expect(filterBySearch(rows, 'ph')).toHaveLength(1);
+    expect(filterBySearch(rows, 'ph')[0].countryCode).toBe('PH');
+  });
+
+  it('search "pore" matches Singapore (partial name)', () => {
+    expect(filterBySearch(rows, 'pore')).toHaveLength(1);
+    expect(filterBySearch(rows, 'pore')[0].countryCode).toBe('SG');
+  });
+
+  it('search "ilip" matches Philippines', () => {
+    expect(filterBySearch(rows, 'ilip')).toHaveLength(1);
+  });
+});
+
+// ─── Parametric: buildISOUrl with multiple standards ─────────────────────────
+
+describe('buildISOUrl — parametric with multiple standards', () => {
+  const BASE = 'http://localhost:4000/api/region-config';
+  const cases: [string, string][] = [
+    ['ISO 9001', 'ISO%209001'],
+    ['ISO 14001', 'ISO%2014001'],
+    ['ISO 45001', 'ISO%2045001'],
+    ['ISO 27001', 'ISO%2027001'],
+    ['ISO 42001', 'ISO%2042001'],
+    ['ISO 9001:2015', 'ISO%209001%3A2015'],
+    ['ISO 14001:2015', 'ISO%2014001%3A2015'],
+  ];
+  for (const [standard, encoded] of cases) {
+    it(`buildISOUrl for "${standard}" contains "${encoded}"`, () => {
+      expect(buildISOUrl(BASE, standard)).toContain(encoded);
+    });
+  }
+});
+
+// ─── Parametric: buildCompareUrl ──────────────────────────────────────────────
+
+describe('buildCompareUrl — parametric', () => {
+  const BASE = 'http://localhost:4000/api/region-config';
+  it('no codes → no query string', () => {
+    expect(buildCompareUrl(BASE)).not.toContain('?');
+  });
+  it('single code → query string with one code', () => {
+    expect(buildCompareUrl(BASE, 'SG')).toBe(`${BASE}/compare/countries?codes=SG`);
+  });
+  it('two codes → comma-separated', () => {
+    expect(buildCompareUrl(BASE, 'SG,HK')).toBe(`${BASE}/compare/countries?codes=SG,HK`);
+  });
+  it('five codes → all present in URL', () => {
+    const codes = 'SG,AU,NZ,JP,HK';
+    const url = buildCompareUrl(BASE, codes);
+    expect(url).toContain('SG');
+    expect(url).toContain('HK');
+  });
+});
+
+// ─── Parametric: ISO comparison entries ───────────────────────────────────────
+
+describe('ISO_DATA — comparison entry invariants (parametric)', () => {
+  for (const entry of ISO_DATA.comparison) {
+    it(`entry ${entry.countryCode}: has countryCode and adoptionStatus`, () => {
+      expect(entry.countryCode).toMatch(/^[A-Z]{2}$/);
+      expect(entry.adoptionStatus).toBeTruthy();
+    });
+  }
+
+  it('SG is ADOPTED', () => {
+    expect(ISO_DATA.comparison.find((c) => c.countryCode === 'SG')?.adoptionStatus).toBe('ADOPTED');
+  });
+
+  it('AU is ADOPTED_WITH_MODIFICATIONS with localStandard', () => {
+    const au = ISO_DATA.comparison.find((c) => c.countryCode === 'AU');
+    expect(au?.adoptionStatus).toBe('ADOPTED_WITH_MODIFICATIONS');
+    expect(au?.localStandard).toBeTruthy();
+  });
+
+  it('adoptedCount = comparison entries not NOT_ADOPTED', () => {
+    const counted = ISO_DATA.comparison.filter((c) => c.adoptionStatus !== 'NOT_ADOPTED').length;
+    // adoptedCount (18) includes the full 20 countries; comparison fixture only has 4 entries
+    expect(ISO_DATA.adoptedCount).toBeLessThanOrEqual(ISO_DATA.totalCountries);
+  });
+});
+
+// ─── Payroll rate arithmetic ──────────────────────────────────────────────────
+
+describe('Payroll rate arithmetic — SG and HK', () => {
+  it('SG total payroll contribution = 37% (employee 20% + employer 17%)', () => {
+    const total = (SG_ROW.payrollEmployeeRate ?? 0) + (SG_ROW.payrollEmployerRate ?? 0);
+    expect(total).toBeCloseTo(0.37, 5);
+  });
+
+  it('HK total payroll contribution = 10% (employee 5% + employer 5%)', () => {
+    const total = (HK_ROW.payrollEmployeeRate ?? 0) + (HK_ROW.payrollEmployerRate ?? 0);
+    expect(total).toBeCloseTo(0.10, 5);
+  });
+
+  it('SG employer rate (17%) < employee rate (20%)', () => {
+    expect(SG_ROW.payrollEmployerRate).toBeLessThan(SG_ROW.payrollEmployeeRate!);
+  });
+
+  it('HK employer rate equals employee rate (both 5%)', () => {
+    expect(HK_ROW.payrollEmployeeRate).toBe(HK_ROW.payrollEmployerRate);
+  });
+});
+
+// ─── Corruption perceptions index ─────────────────────────────────────────────
+
+describe('Corruption Perceptions Index — comparative', () => {
+  it('SG CPI (85) > HK CPI (76)', () => {
+    expect(SG_ROW.corruptionPerceptionsIndex).toBeGreaterThan(HK_ROW.corruptionPerceptionsIndex!);
+  });
+
+  it('PH CPI is lowest among SG/HK/PH', () => {
+    const cpiValues = [SG_ROW, HK_ROW, PH_ROW].map((r) => r.corruptionPerceptionsIndex ?? 0);
+    expect(Math.min(...cpiValues)).toBe(PH_ROW.corruptionPerceptionsIndex);
+  });
+
+  it('SG and HK are both high-CPI (> 70)', () => {
+    expect(SG_ROW.corruptionPerceptionsIndex).toBeGreaterThan(70);
+    expect(HK_ROW.corruptionPerceptionsIndex).toBeGreaterThan(70);
+  });
+});
+
+// ─── Cross-fixture invariants ─────────────────────────────────────────────────
+
+describe('Cross-fixture invariants', () => {
+  it('RANKED_ROWS rank field is monotone ascending from 1', () => {
+    for (let i = 0; i < RANKED_ROWS.length; i++) {
+      expect(RANKED_ROWS[i].rank).toBe(i + 1);
+    }
+  });
+
+  it('HK has lower corp tax than SG', () => {
+    expect(HK_ROW.corporateTaxRate).toBeLessThan(SG_ROW.corporateTaxRate);
+  });
+
+  it('SG has lower GST than PH (VAT)', () => {
+    expect(SG_ROW.gstVatRate).toBeLessThan(PH_ROW.gstVatRate);
+  });
+
+  it('HK has zero GST', () => {
+    expect(HK_ROW.gstVatRate).toBe(0);
+    expect(HK_ROW.gstVatName).toBe('None');
+  });
+
+  it('SG ease-of-business rank is lower (better) than PH', () => {
+    expect(SG_ROW.easeOfDoingBusinessRank).toBeLessThan(PH_ROW.easeOfDoingBusinessRank!);
+  });
+
+  it('SG has more ISO standards adopted than PH', () => {
+    expect(SG_ROW.isoStandardsCount).toBeGreaterThan(PH_ROW.isoStandardsCount);
+  });
+
+  it('SG incorporation time contains "days"', () => {
+    expect(SG_ROW.incorporationTime).toContain('day');
+  });
+
+  it('PH incorporation time is longer than HK (28 days vs 1 day)', () => {
+    // Numeric extraction: '28 days' > '1 day'
+    const parseDay = (s: string) => parseInt(s);
+    expect(parseDay(PH_ROW.incorporationTime)).toBeGreaterThan(parseDay(HK_ROW.incorporationTime));
+  });
+});

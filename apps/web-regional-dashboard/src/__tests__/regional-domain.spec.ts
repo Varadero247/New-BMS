@@ -521,6 +521,231 @@ describe('Compliance row boolean fields', () => {
   });
 });
 
+// ─── Parametric: per-country name verification ────────────────────────────────
+
+describe('APAC_COUNTRY_NAMES — per-country verification (parametric)', () => {
+  const expected: [string, string][] = [
+    ['SG', 'Singapore'], ['AU', 'Australia'],   ['NZ', 'New Zealand'],
+    ['JP', 'Japan'],     ['HK', 'Hong Kong'],   ['MY', 'Malaysia'],
+    ['TH', 'Thailand'],  ['ID', 'Indonesia'],   ['PH', 'Philippines'],
+    ['VN', 'Vietnam'],   ['KR', 'South Korea'], ['TW', 'Taiwan'],
+    ['IN', 'India'],     ['BD', 'Bangladesh'],  ['LK', 'Sri Lanka'],
+    ['PK', 'Pakistan'],  ['MN', 'Mongolia'],    ['KH', 'Cambodia'],
+    ['MM', 'Myanmar'],   ['BN', 'Brunei'],
+  ];
+  for (const [code, name] of expected) {
+    it(`${code} → "${name}"`, () => {
+      expect(APAC_COUNTRY_NAMES[code]).toBe(name);
+    });
+  }
+});
+
+// ─── Parametric: GST/VAT rates ─────────────────────────────────────────────────
+
+describe('GST_VAT_RATES — per-country rates (parametric)', () => {
+  const expected: [string, number][] = [
+    ['SG', 0.09], ['AU', 0.10], ['NZ', 0.15],
+    ['MY', 0.06], ['IN', 0.18], ['TH', 0.07],
+    ['PH', 0.12], ['KH', 0.10], ['KR', 0.10],
+    ['TW', 0.05], ['ID', 0.11], ['VN', 0.10],
+    ['JP', 0.10], ['HK', 0],    ['MN', 0],
+  ];
+  for (const [code, rate] of expected) {
+    it(`${code} GST/VAT rate = ${(rate * 100).toFixed(0)}%`, () => {
+      expect(GST_VAT_RATES[code]).toBeCloseTo(rate, 5);
+    });
+  }
+});
+
+// ─── Parametric: corporate tax rates ─────────────────────────────────────────
+
+describe('CORP_TAX_RATES — per-country rates (parametric)', () => {
+  const expected: [string, number][] = [
+    ['SG', 0.17], ['HK', 0.165], ['AU', 0.30], ['NZ', 0.28], ['JP', 0.2374],
+    ['MY', 0.24], ['TH', 0.20],  ['KR', 0.22], ['TW', 0.20], ['IN', 0.22],
+    ['PH', 0.25], ['VN', 0.20],  ['ID', 0.22], ['BD', 0.275], ['LK', 0.30],
+  ];
+  for (const [code, rate] of expected) {
+    it(`${code} corp tax = ${(rate * 100).toFixed(1)}%`, () => {
+      expect(CORP_TAX_RATES[code]).toBeCloseTo(rate, 4);
+    });
+  }
+});
+
+// ─── Parametric: WHT rates ────────────────────────────────────────────────────
+
+describe('WHT_DIVIDENDS — per-country rates (parametric)', () => {
+  const expected: [string, number][] = [
+    ['SG', 0], ['HK', 0], ['AU', 0.30], ['NZ', 0.30],
+    ['JP', 0.20], ['MY', 0], ['TH', 0.10], ['IN', 0.20],
+    ['PH', 0.15], ['KR', 0.20],
+  ];
+  for (const [code, rate] of expected) {
+    it(`${code} WHT dividends = ${(rate * 100).toFixed(0)}%`, () => {
+      expect(WHT_DIVIDENDS[code]).toBeCloseTo(rate, 5);
+    });
+  }
+});
+
+// ─── Parametric: filterByTier for all 3 tiers ─────────────────────────────────
+
+describe('filterByTier — all three tiers (parametric)', () => {
+  const cases: [number, string[]][] = [
+    [1, ['SG', 'AU', 'NZ', 'JP', 'HK']],
+    [2, ['MY', 'TH', 'KR', 'TW', 'IN']],
+    [3, ['ID', 'PH', 'VN', 'BD', 'LK', 'PK', 'MN', 'KH', 'MM', 'BN']],
+  ];
+  for (const [tier, expected] of cases) {
+    it(`filterByTier(all, ${tier}) returns ${expected.length} countries`, () => {
+      const result = filterByTier(APAC_COUNTRY_CODES, tier as Tier);
+      expect(result.sort()).toEqual([...expected].sort());
+    });
+  }
+});
+
+// ─── Parametric: adoptionRate ─────────────────────────────────────────────────
+
+describe('adoptionRate — parametric boundary cases', () => {
+  const cases: [number, number, number][] = [
+    [0, 20, 0],
+    [1, 20, 5],
+    [10, 20, 50],
+    [18, 20, 90],
+    [19, 20, 95],
+    [20, 20, 100],
+  ];
+  for (const [adopted, total, expected] of cases) {
+    it(`adoptionRate(${adopted}, ${total}) = ${expected}%`, () => {
+      expect(adoptionRate(adopted, total)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: barPct ───────────────────────────────────────────────────────
+
+describe('barPct — parametric cases', () => {
+  const cases: [number, number, number][] = [
+    [50, 100, 50],
+    [25, 100, 25],
+    [100, 100, 100],
+    [0, 100, 2],         // barPct floors at 2 even for zero when max > 0
+    [0, 0, 0],           // only returns 0 when max = 0
+    [0.01, 100, 2],      // tiny non-zero → floor at 2
+    [2, 100, 2],
+    [3, 100, 3],
+  ];
+  for (const [v, max, expected] of cases) {
+    it(`barPct(${v}, ${max}) = ${expected}`, () => {
+      expect(barPct(v, max)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: formatCorpTax ────────────────────────────────────────────────
+
+describe('formatCorpTax — parametric', () => {
+  const cases: [number, string][] = [
+    [0.165, '16.5%'],
+    [0.17, '17.0%'],
+    [0.20, '20.0%'],
+    [0.22, '22.0%'],
+    [0.275, '27.5%'],
+    [0.28, '28.0%'],
+    [0.30, '30.0%'],
+    [0.2374, '23.7%'],
+  ];
+  for (const [rate, expected] of cases) {
+    it(`formatCorpTax(${rate}) = "${expected}"`, () => {
+      expect(formatCorpTax(rate)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: formatWht ────────────────────────────────────────────────────
+
+describe('formatWht — parametric', () => {
+  const cases: [number, string][] = [
+    [0, '0%'], [0.10, '10%'], [0.15, '15%'],
+    [0.20, '20%'], [0.30, '30%'],
+  ];
+  for (const [rate, expected] of cases) {
+    it(`formatWht(${rate}) = "${expected}"`, () => {
+      expect(formatWht(rate)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: payroll tax countries ───────────────────────────────────────
+
+describe('PAYROLL_TAX_COUNTRIES — presence parametric', () => {
+  const expected = ['SG', 'AU', 'NZ', 'MY', 'HK', 'JP', 'KR', 'TW', 'IN', 'TH', 'PH', 'ID', 'VN'];
+  for (const code of expected) {
+    it(`${code} has payroll tax`, () => {
+      expect(PAYROLL_TAX_COUNTRIES).toContain(code);
+    });
+  }
+  it('PK, BD, LK are NOT in payroll tax list', () => {
+    expect(PAYROLL_TAX_COUNTRIES).not.toContain('PK');
+    expect(PAYROLL_TAX_COUNTRIES).not.toContain('BD');
+    expect(PAYROLL_TAX_COUNTRIES).not.toContain('LK');
+  });
+});
+
+// ─── Parametric: ISO adoption status color classes ───────────────────────────
+
+describe('getStatusColor — parametric per-status', () => {
+  const cases: [string, string][] = [
+    ['ADOPTED', 'green'],
+    ['ADOPTED_WITH_MODIFICATIONS', 'blue'],
+    ['EQUIVALENT_STANDARD', 'purple'],
+    ['PARTIALLY_ADOPTED', 'yellow'],
+    ['UNDER_CONSIDERATION', 'orange'],
+    ['NOT_ADOPTED', 'gray'],
+  ];
+  for (const [status, color] of cases) {
+    it(`${status} color class contains "${color}"`, () => {
+      expect(getStatusColor(status)).toContain(color);
+    });
+  }
+  it('all 6 color classes are distinct strings', () => {
+    const colors = cases.map(([status]) => getStatusColor(status));
+    expect(new Set(colors).size).toBe(6);
+  });
+});
+
+// ─── Parametric: tracked ISO standards individually ───────────────────────────
+
+describe('TRACKED_ISO_STANDARDS — individual presence (parametric)', () => {
+  const expected = ['ISO 9001', 'ISO 14001', 'ISO 45001', 'ISO 27001', 'ISO 42001', 'ISO 37001', 'ISO 50001', 'ISO 22000'];
+  for (const std of expected) {
+    it(`"${std}" is in tracked standards`, () => {
+      expect(TRACKED_ISO_STANDARDS).toContain(std);
+    });
+  }
+});
+
+// ─── Parametric: tax system categorisation ────────────────────────────────────
+
+describe('Tax system categorisation — parametric', () => {
+  const gstCodes = ['SG', 'AU', 'NZ', 'MY', 'IN'];
+  const vatCodes = ['TH', 'PH', 'ID', 'VN', 'KR'];
+  for (const code of gstCodes) {
+    it(`${code} is in GST_COUNTRIES`, () => expect(GST_COUNTRIES).toContain(code));
+  }
+  for (const code of vatCodes) {
+    it(`${code} is in VAT_COUNTRIES`, () => expect(VAT_COUNTRIES).toContain(code));
+  }
+  it('GST and VAT countries do not overlap', () => {
+    const gstSet = new Set(GST_COUNTRIES);
+    for (const code of VAT_COUNTRIES) {
+      expect(gstSet.has(code)).toBe(false);
+    }
+  });
+  it('CT_COUNTRIES only contains JP', () => {
+    expect(CT_COUNTRIES).toEqual(['JP']);
+  });
+});
+
 describe('Region filtering', () => {
   const rows = [
     { region: 'ASEAN', code: 'SG' },

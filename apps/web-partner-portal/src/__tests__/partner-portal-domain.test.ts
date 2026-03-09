@@ -597,3 +597,167 @@ describe('Partner Portal — Domain: Mock Commission Statements Data Integrity',
     expect(ytd).toBe(8400 + 5200 + 3600 + 11200);
   });
 });
+
+// ─── Parametric: individual deal integrity ────────────────────────────────────
+
+describe('Partner Portal — Domain: Mock Deals — per-deal parametric', () => {
+  for (const deal of MOCK_DEALS) {
+    test(`deal ${deal.id}: id starts with "deal-"`, () => {
+      expect(deal.id.startsWith('deal-')).toBe(true);
+    });
+    test(`deal ${deal.id}: value is a positive number`, () => {
+      expect(typeof deal.value).toBe('number');
+      expect(deal.value).toBeGreaterThan(0);
+    });
+    test(`deal ${deal.id}: customer is a non-empty string`, () => {
+      expect(typeof deal.customer).toBe('string');
+      expect(deal.customer.length).toBeGreaterThan(0);
+    });
+    test(`deal ${deal.id}: protectionExpires matches YYYY-MM-DD format`, () => {
+      expect(deal.protectionExpires).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+  }
+});
+
+// ─── Parametric: per-statement integrity ─────────────────────────────────────
+
+describe('Partner Portal — Domain: Mock Statements — per-statement parametric', () => {
+  for (const stmt of MOCK_STATEMENTS) {
+    test(`${stmt.month}: commission > 0`, () => {
+      expect(stmt.commission).toBeGreaterThan(0);
+    });
+    test(`${stmt.month}: deals > 0`, () => {
+      expect(stmt.deals).toBeGreaterThan(0);
+    });
+    test(`${stmt.month}: status is valid`, () => {
+      expect(COMMISSION_STATUSES).toContain(stmt.status);
+    });
+    test(`${stmt.month}: month is a non-empty string`, () => {
+      expect(stmt.month.length).toBeGreaterThan(0);
+    });
+  }
+});
+
+// ─── Parametric: canExtend boundary matrix ────────────────────────────────────
+
+describe('Partner Portal — Domain: canExtend — parametric boundary matrix', () => {
+  const cases: [PartnerTierKey, number, string, boolean][] = [
+    ['STRATEGIC', 0,  'Active', true],
+    ['STRATEGIC', 1,  'Active', true],
+    ['STRATEGIC', 29, 'Active', true],
+    ['STRATEGIC', 30, 'Active', false],   // exactly 30 days — cannot extend
+    ['STRATEGIC', 31, 'Active', false],
+    ['STRATEGIC', 29, 'Won',    false],   // wrong stage
+    ['STRATEGIC', 29, 'Lost',   false],
+    ['STRATEGIC', 29, 'Expired',false],
+    ['REFERRAL',  5,  'Active', false],   // wrong tier
+    ['RESELLER',  5,  'Active', false],
+    ['WHITE_LABEL',5, 'Active', false],
+  ];
+  for (const [tier, days, stage, expected] of cases) {
+    test(`canExtend(${tier}, ${days}, ${stage}) = ${expected}`, () => {
+      expect(canExtend(tier, days, stage)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: protectionBadgeColour boundary ───────────────────────────────
+
+describe('Partner Portal — Domain: protectionBadgeColour — parametric', () => {
+  const cases: [number, string][] = [
+    [0,   'red'],
+    [5,   'red'],
+    [9,   'red'],
+    [10,  'amber'],
+    [15,  'amber'],
+    [29,  'amber'],
+    [30,  'amber'],
+    [31,  'emerald'],
+    [60,  'emerald'],
+    [90,  'emerald'],
+  ];
+  for (const [days, expected] of cases) {
+    test(`protectionBadgeColour(${days}) contains "${expected}"`, () => {
+      expect(protectionBadgeColour(days)).toContain(expected);
+    });
+  }
+});
+
+// ─── Parametric: tier colour fields complete ──────────────────────────────────
+
+describe('Partner Portal — Domain: TIER_COLOURS — per-tier parametric', () => {
+  const toneMap: Record<PartnerTierKey, string> = {
+    REFERRAL: 'blue', RESELLER: 'emerald', STRATEGIC: 'amber', WHITE_LABEL: 'purple',
+  };
+  for (const key of TIER_ORDER) {
+    test(`${key}: bg contains "${toneMap[key]}"`, () => {
+      expect(TIER_COLOURS[key].bg).toContain(toneMap[key]);
+    });
+    test(`${key}: border contains "${toneMap[key]}"`, () => {
+      expect(TIER_COLOURS[key].border).toContain(toneMap[key]);
+    });
+    test(`${key}: badge contains "${toneMap[key]}"`, () => {
+      expect(TIER_COLOURS[key].badge).toContain(toneMap[key]);
+    });
+    test(`${key}: badge includes "text-white"`, () => {
+      expect(TIER_COLOURS[key].badge).toContain('text-white');
+    });
+  }
+});
+
+// ─── Cross-domain invariants ──────────────────────────────────────────────────
+
+describe('Partner Portal — Domain: Cross-domain invariants', () => {
+  test('total mock deal portfolio value is > 200,000', () => {
+    const total = MOCK_DEALS.reduce((s, d) => s + d.value, 0);
+    expect(total).toBeGreaterThan(200000);
+  });
+
+  test('highest-value deal is AeroPrecision UK (£120,000)', () => {
+    const max = MOCK_DEALS.reduce((best, d) => d.value > best.value ? d : best);
+    expect(max.customer).toBe('AeroPrecision UK');
+    expect(max.value).toBe(120000);
+  });
+
+  test('lowest-value deal is MedDevice Partners (£15,000)', () => {
+    const min = MOCK_DEALS.reduce((best, d) => d.value < best.value ? d : best);
+    expect(min.customer).toBe('MedDevice Partners');
+    expect(min.value).toBe(15000);
+  });
+
+  test('April 2026 statement has the highest commission amount', () => {
+    const max = MOCK_STATEMENTS.reduce((best, s) => s.commission > best.commission ? s : best);
+    expect(max.month).toBe('April 2026');
+    expect(max.commission).toBe(11200);
+  });
+
+  test('January 2026 statement has the most deals (3)', () => {
+    const jan = MOCK_STATEMENTS.find((s) => s.month === 'January 2026');
+    expect(jan?.deals).toBe(3);
+  });
+
+  test('2 statements are in Paid status', () => {
+    expect(MOCK_STATEMENTS.filter((s) => s.status === 'Paid')).toHaveLength(2);
+  });
+
+  test('1 statement is Processing and 1 is Pending', () => {
+    expect(MOCK_STATEMENTS.filter((s) => s.status === 'Processing')).toHaveLength(1);
+    expect(MOCK_STATEMENTS.filter((s) => s.status === 'Pending')).toHaveLength(1);
+  });
+
+  test('Paid invoiceRefs are unique', () => {
+    const refs = MOCK_STATEMENTS.filter((s) => s.invoiceRef).map((s) => s.invoiceRef);
+    expect(new Set(refs).size).toBe(refs.length);
+  });
+
+  test('all TIER_COLOURS bg values use /10 opacity pattern', () => {
+    for (const key of TIER_ORDER) {
+      expect(TIER_COLOURS[key].bg).toContain('/10');
+    }
+  });
+
+  test('nfrSeats total across all tiers = 0+5+10+25 = 40', () => {
+    const total = TIER_ORDER.reduce((s, k) => s + PARTNER_TIERS[k].nfrSeats, 0);
+    expect(total).toBe(40);
+  });
+});
