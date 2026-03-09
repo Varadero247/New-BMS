@@ -698,3 +698,83 @@ describe('ISO 37001 — mock training data shapes', () => {
     expect(avg).toBeLessThanOrEqual(100);
   });
 });
+
+// ─── Parametric: dueDiligenceRiskLevels positional index ─────────────────────
+
+describe('dueDiligenceRiskLevels — positional index parametric', () => {
+  const cases: [string, number][] = [
+    ['LOW', 0],
+    ['MEDIUM', 1],
+    ['HIGH', 2],
+    ['CRITICAL', 3],
+  ];
+  for (const [level, idx] of cases) {
+    it(`${level} is at index ${idx}`, () => {
+      expect(dueDiligenceRiskLevels[idx]).toBe(level);
+    });
+  }
+});
+
+// ─── Parametric: commonCurrencies positional index ────────────────────────────
+
+describe('commonCurrencies — positional index parametric', () => {
+  const cases: [string, number][] = [
+    ['USD', 0],
+    ['EUR', 1],
+    ['GBP', 2],
+    ['CAD', 3],
+    ['AUD', 4],
+    ['JPY', 5],
+    ['CNY', 6],
+    ['CHF', 7],
+  ];
+  for (const [currency, idx] of cases) {
+    it(`${currency} is at index ${idx}`, () => {
+      expect(commonCurrencies[idx]).toBe(currency);
+    });
+  }
+});
+
+// ─── Parametric: mockRiskAssessments per-record exact riskScore ───────────────
+
+describe('mockRiskAssessments — per-record exact riskScore parametric', () => {
+  const cases: [string, number][] = [
+    ['r1', 15],
+    ['r2', 16],
+    ['r3', 6],
+    ['r4', 2],
+  ];
+  for (const [id, expectedScore] of cases) {
+    it(`${id} riskScore is ${expectedScore}`, () => {
+      const ra = mockRiskAssessments.find((x) => x.id === id)!;
+      expect(ra.riskScore).toBe(expectedScore);
+    });
+  }
+});
+
+// ─── Parametric: mockGifts per-gift exact type+approvalStatus ────────────────
+
+describe('mockGifts — per-gift exact type+approvalStatus parametric', () => {
+  const cases: [string, string, string][] = [
+    ['g1', 'HOSPITALITY', 'APPROVED'],
+    ['g2', 'TRAVEL', 'PENDING'],
+    ['g3', 'GIFT', 'REJECTED'],
+    ['g4', 'ENTERTAINMENT', 'APPROVED'],
+  ];
+  for (const [id, type, approvalStatus] of cases) {
+    it(`${id}: type=${type}, approvalStatus=${approvalStatus}`, () => {
+      const g = mockGifts.find((x) => x.id === id)!;
+      expect(g.type).toBe(type);
+      expect(g.approvalStatus).toBe(approvalStatus);
+    });
+  }
+});
+
+// ─── avgCompletionRate exact for mock training data ───────────────────────────
+
+describe('avgCompletionRate — exact for mockTraining parametric', () => {
+  it('(100+60+0)/3 rounds to 53', () => {
+    const rates = mockTraining.map((t) => t.completionRate);
+    expect(avgCompletionRate(rates)).toBe(53);
+  });
+});

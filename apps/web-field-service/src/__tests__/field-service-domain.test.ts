@@ -517,3 +517,117 @@ describe('Mock KPI data shape', () => {
     expect(MOCK_KPIS.some((k) => k.category === 'FINANCIAL')).toBe(true);
   });
 });
+
+// ─── Parametric: JOB_STATUSES positional index ────────────────────────────────
+
+describe('JOB_STATUSES — positional index parametric', () => {
+  const cases: [JobStatus, number][] = [
+    ['SCHEDULED', 0],
+    ['IN_PROGRESS', 1],
+    ['COMPLETED', 2],
+    ['PENDING', 3],
+    ['CANCELLED', 4],
+  ];
+  for (const [status, idx] of cases) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(JOB_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: JOB_PRIORITIES positional index ──────────────────────────────
+
+describe('JOB_PRIORITIES — positional index parametric', () => {
+  const cases: [JobPriority, number][] = [
+    ['URGENT', 0],
+    ['HIGH', 1],
+    ['MEDIUM', 2],
+    ['LOW', 3],
+  ];
+  for (const [priority, idx] of cases) {
+    it(`${priority} is at index ${idx}`, () => {
+      expect(JOB_PRIORITIES[idx]).toBe(priority);
+    });
+  }
+});
+
+// ─── Parametric: TECHNICIAN_STATUSES positional index ────────────────────────
+
+describe('TECHNICIAN_STATUSES — positional index parametric', () => {
+  const cases: [TechnicianStatus, number][] = [
+    ['AVAILABLE', 0],
+    ['ON_JOB', 1],
+    ['EN_ROUTE', 2],
+    ['OFF_DUTY', 3],
+    ['ON_LEAVE', 4],
+  ];
+  for (const [status, idx] of cases) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(TECHNICIAN_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: SCHEDULE_TYPES positional index ──────────────────────────────
+
+describe('SCHEDULE_TYPES — positional index parametric', () => {
+  const cases: [ScheduleType, number][] = [
+    ['PREVENTIVE', 0],
+    ['REACTIVE', 1],
+    ['INSPECTION', 2],
+    ['INSTALLATION', 3],
+    ['EMERGENCY', 4],
+  ];
+  for (const [type, idx] of cases) {
+    it(`${type} is at index ${idx}`, () => {
+      expect(SCHEDULE_TYPES[idx]).toBe(type);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_JOBS per-job exact priority+status+estimatedHours ───────
+
+describe('MOCK_JOBS — per-job exact priority+status+estimatedHours parametric', () => {
+  const cases: [string, JobPriority, JobStatus, number][] = [
+    ['j1', 'HIGH', 'SCHEDULED', 4],
+    ['j2', 'URGENT', 'IN_PROGRESS', 6],
+    ['j3', 'MEDIUM', 'COMPLETED', 3],
+    ['j4', 'LOW', 'PENDING', 2],
+    ['j5', 'HIGH', 'CANCELLED', 8],
+  ];
+  for (const [id, priority, status, estimatedHours] of cases) {
+    it(`${id}: priority=${priority}, status=${status}, estimatedHours=${estimatedHours}`, () => {
+      const j = MOCK_JOBS.find((x) => x.id === id)!;
+      expect(j.priority).toBe(priority);
+      expect(j.status).toBe(status);
+      expect(j.estimatedHours).toBe(estimatedHours);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_TECHNICIANS per-technician exact status+activeJobs ──────
+
+describe('MOCK_TECHNICIANS — per-technician exact status+activeJobs parametric', () => {
+  const cases: [string, TechnicianStatus, number][] = [
+    ['t1', 'AVAILABLE', 0],
+    ['t2', 'ON_JOB', 1],
+    ['t3', 'EN_ROUTE', 1],
+    ['t4', 'OFF_DUTY', 0],
+    ['t5', 'ON_LEAVE', 0],
+  ];
+  for (const [id, status, activeJobs] of cases) {
+    it(`${id}: status=${status}, activeJobs=${activeJobs}`, () => {
+      const t = MOCK_TECHNICIANS.find((x) => x.id === id)!;
+      expect(t.status).toBe(status);
+      expect(t.activeJobs).toBe(activeJobs);
+    });
+  }
+});
+
+// ─── totalEstimatedHours exact sum ────────────────────────────────────────────
+
+describe('totalEstimatedHours — exact sum for MOCK_JOBS', () => {
+  it('total is 23 hours (4+6+3+2+8)', () => {
+    expect(totalEstimatedHours(MOCK_JOBS)).toBe(23);
+  });
+});

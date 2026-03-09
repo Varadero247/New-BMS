@@ -746,3 +746,74 @@ describe('ISO 42001 — mock impact assessment data shapes', () => {
     );
   });
 });
+
+// ─── Parametric: aiSystemCategories positional index ─────────────────────────
+
+describe('aiSystemCategories — positional index parametric', () => {
+  const cases: [string, number][] = [
+    ['MACHINE_LEARNING', 0],
+    ['DEEP_LEARNING', 1],
+    ['NLP', 2],
+    ['COMPUTER_VISION', 3],
+    ['GENERATIVE_AI', 4],
+    ['ROBOTICS', 5],
+    ['RECOMMENDATION', 6],
+    ['OTHER', 7],
+  ];
+  for (const [cat, idx] of cases) {
+    it(`${cat} is at index ${idx}`, () => {
+      expect(aiSystemCategories[idx]).toBe(cat);
+    });
+  }
+});
+
+// ─── Parametric: aiRiskTiers positional index ─────────────────────────────────
+
+describe('aiRiskTiers — positional index parametric', () => {
+  const cases: [string, number][] = [
+    ['UNACCEPTABLE', 0],
+    ['HIGH', 1],
+    ['LIMITED', 2],
+    ['MINIMAL', 3],
+  ];
+  for (const [tier, idx] of cases) {
+    it(`${tier} is at index ${idx}`, () => {
+      expect(aiRiskTiers[idx]).toBe(tier);
+    });
+  }
+});
+
+// ─── Parametric: impactLevelRank mid-values ───────────────────────────────────
+
+describe('impactLevelRank — mid-level exact values parametric', () => {
+  const cases: [string, number][] = [
+    ['LOW', 1],
+    ['MODERATE', 2],
+    ['HIGH', 3],
+  ];
+  for (const [level, expected] of cases) {
+    it(`${level} → rank ${expected}`, () => {
+      expect(impactLevelRank(level)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: mockAISystems per-system exact category+riskTier+status ──────
+
+describe('mockAISystems — per-system exact category+riskTier+status parametric', () => {
+  const cases: [string, string, string, string][] = [
+    ['sys1', 'MACHINE_LEARNING', 'HIGH', 'ACTIVE'],
+    ['sys2', 'NLP', 'HIGH', 'UNDER_REVIEW'],
+    ['sys3', 'RECOMMENDATION', 'MINIMAL', 'ACTIVE'],
+    ['sys4', 'COMPUTER_VISION', 'UNACCEPTABLE', 'SUSPENDED'],
+    ['sys5', 'GENERATIVE_AI', 'LIMITED', 'DRAFT'],
+  ];
+  for (const [id, category, riskTier, status] of cases) {
+    it(`${id}: category=${category}, riskTier=${riskTier}, status=${status}`, () => {
+      const sys = mockAISystems.find((x) => x.id === id)!;
+      expect(sys.category).toBe(category);
+      expect(sys.riskTier).toBe(riskTier);
+      expect(sys.status).toBe(status);
+    });
+  }
+});
