@@ -803,6 +803,112 @@ describe('Mock work order data integrity', () => {
   });
 });
 
+// ─── Parametric: ASSET_STATUSES positional index ──────────────────────────────
+
+describe('ASSET_STATUSES — positional index parametric', () => {
+  const cases: [AssetStatus, number][] = [
+    ['ACTIVE', 0],
+    ['IN_SERVICE', 1],
+    ['OUT_OF_SERVICE', 2],
+    ['MAINTENANCE', 3],
+    ['DECOMMISSIONED', 4],
+    ['DISPOSED', 5],
+  ];
+  for (const [status, idx] of cases) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(ASSET_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: ASSET_CONDITIONS positional index ────────────────────────────
+
+describe('ASSET_CONDITIONS — positional index parametric', () => {
+  const cases: [AssetCondition, number][] = [
+    ['EXCELLENT', 0],
+    ['GOOD', 1],
+    ['FAIR', 2],
+    ['POOR', 3],
+    ['CRITICAL', 4],
+  ];
+  for (const [cond, idx] of cases) {
+    it(`${cond} is at index ${idx}`, () => {
+      expect(ASSET_CONDITIONS[idx]).toBe(cond);
+    });
+  }
+});
+
+// ─── Parametric: WORK_ORDER_PRIORITIES positional index ───────────────────────
+
+describe('WORK_ORDER_PRIORITIES — positional index parametric', () => {
+  const cases: [WorkOrderPriority, number][] = [
+    ['EMERGENCY', 0],
+    ['HIGH', 1],
+    ['MEDIUM', 2],
+    ['LOW', 3],
+  ];
+  for (const [priority, idx] of cases) {
+    it(`${priority} is at index ${idx}`, () => {
+      expect(WORK_ORDER_PRIORITIES[idx]).toBe(priority);
+    });
+  }
+});
+
+// ─── Parametric: WORK_ORDER_STATUSES positional index ────────────────────────
+
+describe('WORK_ORDER_STATUSES — positional index parametric', () => {
+  const cases: [WorkOrderStatus, number][] = [
+    ['OPEN', 0],
+    ['ASSIGNED', 1],
+    ['IN_PROGRESS', 2],
+    ['ON_HOLD', 3],
+    ['COMPLETED', 4],
+    ['CANCELLED', 5],
+  ];
+  for (const [status, idx] of cases) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(WORK_ORDER_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_ASSETS per-asset exact status+condition+purchaseCost ────
+
+describe('MOCK_ASSETS — per-asset exact status+condition+purchaseCost parametric', () => {
+  const cases: [string, AssetStatus, AssetCondition, number][] = [
+    ['ast-001', 'ACTIVE', 'EXCELLENT', 12000],
+    ['ast-002', 'MAINTENANCE', 'FAIR', 35000],
+    ['ast-003', 'OUT_OF_SERVICE', 'POOR', 8500],
+    ['ast-004', 'IN_SERVICE', 'GOOD', 28000],
+    ['ast-005', 'DECOMMISSIONED', 'CRITICAL', 95000],
+  ];
+  for (const [id, status, condition, purchaseCost] of cases) {
+    it(`${id}: status=${status}, condition=${condition}, purchaseCost=${purchaseCost}`, () => {
+      const a = MOCK_ASSETS.find((x) => x.id === id)!;
+      expect(a.status).toBe(status);
+      expect(a.condition).toBe(condition);
+      expect(a.purchaseCost).toBe(purchaseCost);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_WORK_ORDERS per-order exact priority+status ─────────────
+
+describe('MOCK_WORK_ORDERS — per-order exact priority+status parametric', () => {
+  const cases: [string, WorkOrderPriority, WorkOrderStatus][] = [
+    ['wo-001', 'MEDIUM', 'IN_PROGRESS'],
+    ['wo-002', 'EMERGENCY', 'OPEN'],
+    ['wo-003', 'LOW', 'COMPLETED'],
+  ];
+  for (const [id, priority, status] of cases) {
+    it(`${id}: priority=${priority}, status=${status}`, () => {
+      const wo = MOCK_WORK_ORDERS.find((x) => x.id === id)!;
+      expect(wo.priority).toBe(priority);
+      expect(wo.status).toBe(status);
+    });
+  }
+});
+
 describe('Depreciation percent — mock asset spot checks', () => {
   it('ast-005 (fully depreciated) → ~100%', () => {
     const asset = MOCK_ASSETS.find((a) => a.id === 'ast-005')!;

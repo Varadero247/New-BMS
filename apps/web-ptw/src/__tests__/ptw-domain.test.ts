@@ -729,3 +729,97 @@ describe('mock conflict data shapes', () => {
     expect(crit).toBeDefined();
   });
 });
+
+// ─── Parametric: PERMIT_TYPES positional index ───────────────────────────────
+
+describe('PERMIT_TYPES — positional index parametric', () => {
+  const cases: [PermitType, number][] = [
+    ['HOT_WORK', 0],
+    ['CONFINED_SPACE', 1],
+    ['WORKING_AT_HEIGHT', 2],
+    ['ELECTRICAL', 3],
+    ['EXCAVATION', 4],
+    ['CHEMICAL', 5],
+    ['RADIATION', 6],
+    ['GENERAL', 7],
+  ];
+  for (const [type, idx] of cases) {
+    it(`${type} is at index ${idx}`, () => {
+      expect(PERMIT_TYPES[idx]).toBe(type);
+    });
+  }
+});
+
+// ─── Parametric: PERMIT_STATUSES positional index ────────────────────────────
+
+describe('PERMIT_STATUSES — positional index parametric', () => {
+  const cases: [PermitStatus, number][] = [
+    ['DRAFT', 0],
+    ['REQUESTED', 1],
+    ['APPROVED', 2],
+    ['ACTIVE', 3],
+    ['SUSPENDED', 4],
+    ['CLOSED', 5],
+    ['CANCELLED', 6],
+    ['EXPIRED', 7],
+  ];
+  for (const [status, idx] of cases) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(PERMIT_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: priorityScore exact values ───────────────────────────────────
+
+describe('priorityScore — exact values parametric', () => {
+  const cases: [PermitPriority, number][] = [
+    ['CRITICAL', 4],
+    ['HIGH', 3],
+    ['MEDIUM', 2],
+    ['LOW', 1],
+  ];
+  for (const [priority, expected] of cases) {
+    it(`${priority} → score ${expected}`, () => {
+      expect(priorityScore(priority)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: permitTypeLabel exact values ─────────────────────────────────
+
+describe('permitTypeLabel — exact values parametric', () => {
+  const cases: [PermitType, string][] = [
+    ['HOT_WORK', 'Hot Work'],
+    ['CONFINED_SPACE', 'Confined Space'],
+    ['WORKING_AT_HEIGHT', 'Working at Height'],
+    ['ELECTRICAL', 'Electrical'],
+    ['EXCAVATION', 'Excavation'],
+    ['CHEMICAL', 'Chemical'],
+    ['RADIATION', 'Radiation'],
+    ['GENERAL', 'General'],
+  ];
+  for (const [type, label] of cases) {
+    it(`${type} label is "${label}"`, () => {
+      expect(permitTypeLabel[type]).toBe(label);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_PERMITS per-permit exact type+status+priority ───────────
+
+describe('MOCK_PERMITS — per-permit exact type+status+priority parametric', () => {
+  const cases: [string, PermitType, PermitStatus, PermitPriority][] = [
+    ['ptw-001', 'HOT_WORK', 'ACTIVE', 'HIGH'],
+    ['ptw-002', 'CONFINED_SPACE', 'APPROVED', 'CRITICAL'],
+    ['ptw-003', 'ELECTRICAL', 'DRAFT', 'MEDIUM'],
+  ];
+  for (const [id, type, status, priority] of cases) {
+    it(`${id}: type=${type}, status=${status}, priority=${priority}`, () => {
+      const p = MOCK_PERMITS.find((x) => x.id === id)!;
+      expect(p.type).toBe(type);
+      expect(p.status).toBe(status);
+      expect(p.priority).toBe(priority);
+    });
+  }
+});
