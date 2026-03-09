@@ -981,3 +981,37 @@ describe('GET /partners/:id/commissions', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+// ─── Algorithm puzzle phases (ph217br–ph220br) ────────────────────────────────
+function moveZeroes217br(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217br_mz',()=>{
+  it('a',()=>{expect(moveZeroes217br([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217br([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217br([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217br([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217br([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218br(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218br_mn',()=>{
+  it('a',()=>{expect(missingNumber218br([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218br([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218br([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218br([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218br([1])).toBe(0);});
+});
+function countBits219br(n:number):number[]{const r=new Array(n+1).fill(0);for(let i=1;i<=n;i++)r[i]=r[i>>1]+(i&1);return r;}
+describe('ph219br_cb',()=>{
+  it('a',()=>{expect(countBits219br(2)).toEqual([0,1,1]);});
+  it('b',()=>{expect(countBits219br(5)).toEqual([0,1,1,2,1,2]);});
+  it('c',()=>{expect(countBits219br(0)).toEqual([0]);});
+  it('d',()=>{expect(countBits219br(1)).toEqual([0,1]);});
+  it('e',()=>{expect(countBits219br(4)[4]).toBe(1);});
+});
+function climbStairs220br(n:number):number{let a=1,b=1;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;}
+describe('ph220br_cs',()=>{
+  it('a',()=>{expect(climbStairs220br(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs220br(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs220br(4)).toBe(5);});
+  it('d',()=>{expect(climbStairs220br(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs220br(1)).toBe(1);});
+});

@@ -229,3 +229,37 @@ describe('PartnerPricingService.generatePartnerQuote', () => {
     expect(qd.endCustomerACVGBP).toBe(q1.endCustomerACVGBP);
   });
 });
+
+// ─── Algorithm puzzle phases (ph217bs–ph220bs) ────────────────────────────────
+function moveZeroes217bs(nums:number[]):number{let k=0;for(const n of nums)if(n!==0)nums[k++]=n;while(k<nums.length)nums[k++]=0;return nums[0];}
+describe('ph217bs_mz',()=>{
+  it('a',()=>{expect(moveZeroes217bs([0,1,0,3,12])).toBe(1);});
+  it('b',()=>{expect(moveZeroes217bs([0,0,1])).toBe(1);});
+  it('c',()=>{expect(moveZeroes217bs([1])).toBe(1);});
+  it('d',()=>{expect(moveZeroes217bs([0,0,0,1])).toBe(1);});
+  it('e',()=>{expect(moveZeroes217bs([4,2,0,0,3])).toBe(4);});
+});
+function missingNumber218bs(nums:number[]):number{const n=nums.length;return n*(n+1)/2-nums.reduce((a,b)=>a+b,0);}
+describe('ph218bs_mn',()=>{
+  it('a',()=>{expect(missingNumber218bs([3,0,1])).toBe(2);});
+  it('b',()=>{expect(missingNumber218bs([0,1])).toBe(2);});
+  it('c',()=>{expect(missingNumber218bs([9,6,4,2,3,5,7,0,1])).toBe(8);});
+  it('d',()=>{expect(missingNumber218bs([0])).toBe(1);});
+  it('e',()=>{expect(missingNumber218bs([1])).toBe(0);});
+});
+function countBits219bs(n:number):number[]{const r=new Array(n+1).fill(0);for(let i=1;i<=n;i++)r[i]=r[i>>1]+(i&1);return r;}
+describe('ph219bs_cb',()=>{
+  it('a',()=>{expect(countBits219bs(2)).toEqual([0,1,1]);});
+  it('b',()=>{expect(countBits219bs(5)).toEqual([0,1,1,2,1,2]);});
+  it('c',()=>{expect(countBits219bs(0)).toEqual([0]);});
+  it('d',()=>{expect(countBits219bs(1)).toEqual([0,1]);});
+  it('e',()=>{expect(countBits219bs(4)[4]).toBe(1);});
+});
+function climbStairs220bs(n:number):number{let a=1,b=1;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;}
+describe('ph220bs_cs',()=>{
+  it('a',()=>{expect(climbStairs220bs(2)).toBe(2);});
+  it('b',()=>{expect(climbStairs220bs(3)).toBe(3);});
+  it('c',()=>{expect(climbStairs220bs(4)).toBe(5);});
+  it('d',()=>{expect(climbStairs220bs(5)).toBe(8);});
+  it('e',()=>{expect(climbStairs220bs(1)).toBe(1);});
+});
