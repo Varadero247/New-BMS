@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-03-09 (Phase 173 — domain spec tests for 6 web apps +1,141 tests; Phase 135 — 150-template library expansion)
+> Last updated: 2026-03-09 (Phases 173–179 — domain spec tests for all 48 web apps +41,514 tests; Phase 135 — 150-template library expansion +4,331 template tests)
 
 ## Summary
 
@@ -12,7 +12,7 @@
 | Prisma Schemas           | 45 (incl. billing.prisma)                             |
 | Database Tables (models) | ~610 (+13 billing models)                             |
 | Scripts                  | 60+                                                   |
-| Unit Tests               | ~1,222,369 across ~1,127 suites / ~483 Jest projects (all passing) |
+| Unit Tests               | ~1,222,796 across ~1,193 suites / ~489 Jest projects (all passing) |
 | Integration Test Scripts | 40 shell scripts + 12 Jest suites (111 tests, `pnpm test:integration:ci`) |
 
 ---
