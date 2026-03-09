@@ -795,3 +795,99 @@ describe('MOCK_ASSETS data shapes', () => {
     }
   });
 });
+
+describe('MOCK_SCANS — per-scan scanner parametric', () => {
+  const cases: [string, string][] = [
+    ['1', 'Nessus'],
+    ['2', 'Qualys'],
+    ['3', 'OpenVAS'],
+    ['4', 'Nessus'],
+    ['5', 'Qualys'],
+    ['6', 'OpenVAS'],
+  ];
+  for (const [id, scanner] of cases) {
+    it(`scan id="${id}": scanner = "${scanner}"`, () => {
+      const scan = MOCK_SCANS.find((s) => s.id === id)!;
+      expect(scan.scanner).toBe(scanner);
+    });
+  }
+});
+
+describe('MOCK_SCANS — per-scan status parametric', () => {
+  const cases: [string, ScanStatus][] = [
+    ['1', 'completed'],
+    ['2', 'completed'],
+    ['3', 'completed'],
+    ['4', 'running'],
+    ['5', 'completed'],
+    ['6', 'scheduled'],
+  ];
+  for (const [id, status] of cases) {
+    it(`scan id="${id}": status = "${status}"`, () => {
+      const scan = MOCK_SCANS.find((s) => s.id === id)!;
+      expect(scan.status).toBe(status);
+    });
+  }
+});
+
+describe('ISO27001_DOMAINS — per-domain controlCount parametric', () => {
+  const cases: [string, number][] = [
+    ['A5', 8],
+    ['A6', 8],
+    ['A7', 8],
+    ['A8', 16],
+  ];
+  for (const [id, count] of cases) {
+    it(`${id}: controlCount = ${count}`, () => {
+      const domain = ISO27001_DOMAINS.find((d) => d.id === id)!;
+      expect(domain.controlCount).toBe(count);
+    });
+  }
+});
+
+describe('effectivenessColor — boundary matrix parametric', () => {
+  const cases: [number, string][] = [
+    [100, 'green'],
+    [95,  'green'],
+    [80,  'green'],  // boundary: >= 80
+    [79,  'yellow'], // just below green threshold
+    [60,  'yellow'], // boundary: >= 60
+    [59,  'red'],    // just below yellow threshold
+    [1,   'red'],    // > 0
+    [0,   'gray'],   // exactly 0
+  ];
+  for (const [value, color] of cases) {
+    it(`effectivenessColor(${value}) contains "${color}"`, () => {
+      expect(effectivenessColor(value)).toContain(color);
+    });
+  }
+});
+
+describe('domainAvgEffectiveness — parametric', () => {
+  const cases: [number[], number][] = [
+    [[],             0],
+    [[0, 0, 0],      0],
+    [[80],           80],
+    [[80, 90],       85],
+    [[100, 0, 0],    100], // zeros excluded
+  ];
+  for (const [values, expected] of cases) {
+    it(`domainAvgEffectiveness([${values.join(', ')}]) = ${expected}`, () => {
+      expect(domainAvgEffectiveness(values)).toBe(expected);
+    });
+  }
+});
+
+describe('scanStatusConfig — per-status label exact parametric', () => {
+  const cases: [ScanStatus, string][] = [
+    ['completed', 'Completed'],
+    ['running',   'Running'],
+    ['scheduled', 'Scheduled'],
+    ['failed',    'Failed'],
+  ];
+  for (const [status, label] of cases) {
+    it(`${status}: label = "${label}"`, () => {
+      expect(scanStatusConfig[status].label).toBe(label);
+    });
+  }
+});

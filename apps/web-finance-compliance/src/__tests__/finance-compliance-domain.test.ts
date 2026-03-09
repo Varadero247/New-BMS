@@ -805,3 +805,85 @@ describe('Cross-domain invariants', () => {
     }
   });
 });
+
+describe('ROLE_OPTIONS — remaining roles parametric', () => {
+  const remaining = [
+    'Accounts Payable Clerk',
+    'Accounts Receivable Clerk',
+    'Bank Reconciliation',
+    'Budget Approver',
+    'Cash Handler',
+    'Credit Manager',
+    'Financial Analyst',
+    'General Ledger',
+    'Inventory Manager',
+    'IT Administrator',
+    'Journal Entry Creator',
+    'Procurement Officer',
+    'Purchase Order Approver',
+    'Tax Analyst',
+    'Vendor Master Editor',
+  ];
+  for (const role of remaining) {
+    it(`includes "${role}"`, () => {
+      expect(ROLE_OPTIONS).toContain(role);
+    });
+  }
+});
+
+describe('DEADLINE_TYPES — includes CIS Return', () => {
+  it('includes "CIS Return"', () => {
+    expect(DEADLINE_TYPES).toContain('CIS Return');
+  });
+});
+
+describe('hmrcStatusColors — bg- and text- prefix parametric', () => {
+  for (const s of HMRC_STATUSES) {
+    it(`${s} color contains "bg-"`, () => {
+      expect(hmrcStatusColors[s]).toContain('bg-');
+    });
+    it(`${s} color contains "text-"`, () => {
+      expect(hmrcStatusColors[s]).toContain('text-');
+    });
+  }
+});
+
+describe('upcomingDeadlines — 7-day window parametric', () => {
+  const now = new Date('2026-03-09T12:00:00Z');
+  const deadlines = [
+    { dueDate: '2026-03-10T00:00:00Z', status: 'PENDING' as HmrcStatus }, // 1 day
+    { dueDate: '2026-03-16T00:00:00Z', status: 'PENDING' as HmrcStatus }, // 7 days
+    { dueDate: '2026-03-17T00:00:00Z', status: 'PENDING' as HmrcStatus }, // 8 days — outside 7d window
+    { dueDate: '2026-03-10T00:00:00Z', status: 'SUBMITTED' as HmrcStatus }, // submitted — excluded
+  ];
+
+  it('7-day window includes only first 2 pending deadlines', () => {
+    expect(upcomingDeadlines(deadlines, now, 7)).toBe(2);
+  });
+  it('1-day window includes only the earliest', () => {
+    expect(upcomingDeadlines(deadlines, now, 1)).toBe(1);
+  });
+  it('0-day window includes nothing (no deadlines due today)', () => {
+    expect(upcomingDeadlines(deadlines, now, 0)).toBe(0);
+  });
+});
+
+describe('ir35InsideRate — additional parametric cases', () => {
+  it('1 of 4 INSIDE = 0.25', () => {
+    const a = [
+      { determination: 'INSIDE' }, { determination: 'OUTSIDE' },
+      { determination: 'OUTSIDE' }, { determination: 'PENDING' },
+    ];
+    expect(ir35InsideRate(a)).toBeCloseTo(0.25);
+  });
+  it('3 of 3 INSIDE = 1.0', () => {
+    const a = [
+      { determination: 'INSIDE' }, { determination: 'INSIDE' }, { determination: 'INSIDE' },
+    ];
+    expect(ir35InsideRate(a)).toBe(1);
+  });
+  it('UNKNOWN is not counted as INSIDE', () => {
+    const a = [{ determination: 'UNKNOWN' }, { determination: 'PENDING' }];
+    expect(ir35InsideRate(a)).toBe(0);
+  });
+});

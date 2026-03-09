@@ -759,3 +759,139 @@ describe('formatCurrencyGBP', () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// BUDGET_LINES — per-line budgetStatus parametric
+// ---------------------------------------------------------------------------
+
+describe('BUDGET_LINES — per-line budgetStatus parametric', () => {
+  const cases: [string, 'Under' | 'Over' | 'Alert'][] = [
+    ['1',  'Under'], // variance 15000 >= 0
+    ['2',  'Over'],  // variance -32000, variancePct -5.0, abs 5.0 ≤ 10
+    ['3',  'Under'], // variance 5000 >= 0
+    ['4',  'Under'], // variance 6000 >= 0
+    ['5',  'Alert'], // variance -2500, variancePct -10.4, abs 10.4 > 10
+    ['6',  'Under'], // variance 8000 >= 0
+    ['7',  'Alert'], // variance -15000, variancePct -18.8, abs 18.8 > 10
+    ['8',  'Under'], // variance 8000 >= 0
+    ['9',  'Under'], // variance 2000 >= 0
+    ['10', 'Alert'], // variance -7000, variancePct -10.9, abs 10.9 > 10
+    ['11', 'Under'], // variance 4000 >= 0
+    ['12', 'Under'], // variance 6000 >= 0
+  ];
+  for (const [id, expected] of cases) {
+    it(`id="${id}": budgetStatus = "${expected}"`, () => {
+      const line = BUDGET_LINES.find((b) => b.id === id) as BudgetLine;
+      expect(budgetStatus(line)).toBe(expected);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// BUDGET_LINES — department counts parametric
+// ---------------------------------------------------------------------------
+
+describe('BUDGET_LINES — department counts parametric', () => {
+  const deptCounts: [string, number][] = [
+    ['Production',     3],
+    ['Quality',        2],
+    ['Engineering',    2],
+    ['Administration', 2],
+    ['Sales',          2],
+    ['HR',             1],
+  ];
+  for (const [dept, count] of deptCounts) {
+    it(`${dept} has ${count} budget line(s)`, () => {
+      expect(BUDGET_LINES.filter((b) => b.department === dept)).toHaveLength(count);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// budgetUtilization — per BUDGET_LINE exact parametric
+// ---------------------------------------------------------------------------
+
+describe('budgetUtilization — per BUDGET_LINE exact parametric', () => {
+  const cases: [string, number][] = [
+    ['1',  97],  // Math.round(465000/480000*100) = Math.round(96.875) = 97
+    ['2',  105], // Math.round(672000/640000*100) = 105
+    ['6',  95],  // Math.round(152000/160000*100) = 95
+    ['7',  119], // Math.round(95000/80000*100) = Math.round(118.75) = 119
+    ['12', 88],  // Math.round(42000/48000*100) = Math.round(87.5) = 88
+  ];
+  for (const [id, expected] of cases) {
+    it(`id="${id}": budgetUtilization = ${expected}%`, () => {
+      const line = BUDGET_LINES.find((b) => b.id === id) as BudgetLine;
+      expect(budgetUtilization(line.ytdActual, line.ytdBudget)).toBe(expected);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// budgetVariance — per BUDGET_LINE exact parametric
+// ---------------------------------------------------------------------------
+
+describe('budgetVariance — per BUDGET_LINE exact parametric', () => {
+  const cases: [string, number][] = [
+    ['1',  15000],
+    ['2',  -32000],
+    ['5',  -2500],
+    ['7',  -15000],
+    ['11', 4000],
+  ];
+  for (const [id, expectedVariance] of cases) {
+    it(`id="${id}": budgetVariance = ${expectedVariance}`, () => {
+      const line = BUDGET_LINES.find((b) => b.id === id) as BudgetLine;
+      expect(budgetVariance(line.ytdBudget, line.ytdActual)).toBe(expectedVariance);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// MONTHLY_DATA — per-month actual exact parametric
+// ---------------------------------------------------------------------------
+
+describe('MONTHLY_DATA — per-month actual exact parametric', () => {
+  const cases: [string, number][] = [
+    ['Jul', 178000],
+    ['Aug', 192000],
+    ['Sep', 187000],
+    ['Oct', 201000],
+    ['Nov', 195000],
+    ['Dec', 218000],
+    ['Jan', 190000],
+    ['Feb', 0],
+  ];
+  for (const [month, actual] of cases) {
+    it(`${month}: actual = ${actual}`, () => {
+      const m = MONTHLY_DATA.find((d) => d.month === month)!;
+      expect(m.actual).toBe(actual);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// cross-domain invariants — finance
+// ---------------------------------------------------------------------------
+
+describe('cross-domain invariants — finance', () => {
+  it('budgetStatus "Under" count is 8', () => {
+    expect(BUDGET_LINES.filter((b) => budgetStatus(b) === 'Under')).toHaveLength(8);
+  });
+  it('budgetStatus "Alert" count is 3', () => {
+    expect(BUDGET_LINES.filter((b) => budgetStatus(b) === 'Alert')).toHaveLength(3);
+  });
+  it('budgetStatus "Over" count is 1', () => {
+    expect(BUDGET_LINES.filter((b) => budgetStatus(b) === 'Over')).toHaveLength(1);
+  });
+  it('Under lines all have non-negative variance', () => {
+    for (const line of BUDGET_LINES.filter((b) => budgetStatus(b) === 'Under')) {
+      expect(line.variance).toBeGreaterThanOrEqual(0);
+    }
+  });
+  it('Alert lines all have variancePct < -10', () => {
+    for (const line of BUDGET_LINES.filter((b) => budgetStatus(b) === 'Alert')) {
+      expect(line.variancePct).toBeLessThan(-10);
+    }
+  });
+});

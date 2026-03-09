@@ -707,3 +707,165 @@ describe('percentageSaving', () => {
     });
   }
 });
+
+// ─── 18. ENPIS — per-EnPI unit parametric ────────────────────────────────
+
+describe('ENPIS — per-EnPI unit parametric', () => {
+  const cases: [string, string][] = [
+    ['Energy Intensity',   'kWh/unit'],
+    ['Electricity per m²', 'kWh/m²'],
+    ['Gas Consumption',    'therms/month'],
+    ['Energy Cost Ratio',  '£/unit'],
+    ['Renewable %',        '%'],
+    ['Peak Demand',        'kVA'],
+  ];
+  for (const [name, unit] of cases) {
+    it(`${name} has unit "${unit}"`, () => {
+      const enpi = ENPIS.find((e) => e.name === name)!;
+      expect(enpi.unit).toBe(unit);
+    });
+  }
+});
+
+// ─── 19. ENPIS — per-EnPI improvement sign parametric ────────────────────
+
+describe('ENPIS — per-EnPI improvement sign parametric', () => {
+  const cases: [string, 'positive' | 'negative'][] = [
+    ['Energy Intensity',   'positive'], // 15.0 → 12.3 reduction
+    ['Electricity per m²', 'positive'], // 165 → 142 reduction
+    ['Gas Consumption',    'positive'], // 5100 → 4200 reduction
+    ['Energy Cost Ratio',  'positive'], // 0.95 → 0.82 reduction
+    ['Renewable %',        'negative'], // 22 → 38 increase (formula treats higher as "worse")
+    ['Peak Demand',        'positive'], // 540 → 485 reduction
+  ];
+  for (const [name, sign] of cases) {
+    it(`${name} improvement is ${sign}`, () => {
+      const e = ENPIS.find((enpi) => enpi.name === name)!;
+      const imp = enpiImprovement(e.baseline, e.current);
+      if (sign === 'positive') {
+        expect(imp).toBeGreaterThan(0);
+      } else {
+        expect(imp).toBeLessThan(0);
+      }
+    });
+  }
+});
+
+// ─── 20. ENERGY_SOURCES — per-source scope parametric ────────────────────
+
+describe('ENERGY_SOURCES — per-source scope parametric', () => {
+  const cases: [string, EnergyScope][] = [
+    ['Grid Electricity',    2],
+    ['Natural Gas',         1],
+    ['Solar PV (On-site)',  2],
+    ['Diesel (Generators)', 1],
+    ['Wind (PPA)',          2],
+  ];
+  for (const [name, scope] of cases) {
+    it(`${name} is scope ${scope}`, () => {
+      const src = ENERGY_SOURCES.find((e) => e.name === name)!;
+      expect(src.scope).toBe(scope);
+    });
+  }
+});
+
+// ─── 21. ENERGY_SOURCES — per-source share exact parametric ──────────────
+
+describe('ENERGY_SOURCES — per-source share exact parametric', () => {
+  const cases: [string, number][] = [
+    ['Grid Electricity',    42],
+    ['Natural Gas',         28],
+    ['Solar PV (On-site)',  15],
+    ['Diesel (Generators)',  8],
+    ['Wind (PPA)',           7],
+  ];
+  for (const [name, share] of cases) {
+    it(`${name}: share = ${share}%`, () => {
+      const src = ENERGY_SOURCES.find((e) => e.name === name)!;
+      expect(src.share).toBe(share);
+    });
+  }
+});
+
+// ─── 22. isOnTrack — parametric ──────────────────────────────────────────
+
+describe('isOnTrack — parametric', () => {
+  const cases: [number, number, boolean, boolean][] = [
+    [85, 90, false, true],  // current(85) <= target(90), lowerIsBetter → on track
+    [95, 90, false, false], // current(95) > target(90), lowerIsBetter → off track
+    [50, 50, true,  true],  // current === target, higherIsBetter → on track
+    [40, 50, true,  false], // current < target, higherIsBetter → off track
+    [60, 50, true,  true],  // current > target, higherIsBetter → on track
+  ];
+  for (const [current, target, higherIsBetter, expected] of cases) {
+    it(`isOnTrack(${current}, ${target}, higherIsBetter=${higherIsBetter}) = ${expected}`, () => {
+      expect(isOnTrack(current, target, higherIsBetter)).toBe(expected);
+    });
+  }
+});
+
+// ─── 23. MONTHLY_DATA — per-month total exact parametric ─────────────────
+
+describe('MONTHLY_DATA — per-month total exact parametric', () => {
+  const cases: [string, number][] = [
+    ['Sep', 36500],
+    ['Oct', 37100],
+    ['Nov', 37800],
+    ['Dec', 38200],
+    ['Jan', 38500],
+    ['Feb', 38500],
+  ];
+  for (const [month, total] of cases) {
+    it(`${month}: total = ${total}`, () => {
+      const m = MONTHLY_DATA.find((d) => d.month === month)!;
+      expect(m.total).toBe(total);
+    });
+  }
+});
+
+// ─── 24. SEUS — per-SEU share exact parametric ───────────────────────────
+
+describe('SEUS — per-SEU share exact parametric', () => {
+  const cases: [string, number][] = [
+    ['HVAC System',        32],
+    ['Production Line 1',  24],
+    ['Compressed Air',     15],
+    ['Lighting',           11],
+    ['IT Infrastructure',   9],
+    ['Other',               9],
+  ];
+  for (const [name, share] of cases) {
+    it(`${name}: share = ${share}%`, () => {
+      const seu = SEUS.find((s) => s.name === name)!;
+      expect(seu.share).toBe(share);
+    });
+  }
+});
+
+// ─── 25. cross-domain invariants — energy ────────────────────────────────
+
+describe('cross-domain invariants — energy', () => {
+  it('enpiImprovement and percentageSaving agree for reducing-intensity EnPIs', () => {
+    for (const e of ENPIS.filter((enpi) => enpi.trend < 0)) {
+      expect(enpiImprovement(e.baseline, e.current)).toBeCloseTo(
+        percentageSaving(e.baseline, e.current), 5
+      );
+    }
+  });
+  it('all reducing-intensity EnPIs have target < baseline', () => {
+    for (const e of ENPIS.filter((enpi) => enpi.trend < 0)) {
+      expect(e.target).toBeLessThan(e.baseline);
+    }
+  });
+  it('Renewable % EnPI has target > baseline (increasing goal)', () => {
+    const r = ENPIS.find((e) => e.name === 'Renewable %')!;
+    expect(r.target).toBeGreaterThan(r.baseline);
+  });
+  it('kwhToGJ(0) = 0 and kwhToCO2e(0, 0.233) = 0', () => {
+    expect(kwhToGJ(0)).toBe(0);
+    expect(kwhToCO2e(0, 0.233)).toBe(0);
+  });
+  it('ENERGY_SOURCES shares sum to 100%', () => {
+    expect(ENERGY_SOURCES.reduce((s, e) => s + e.share, 0)).toBe(100);
+  });
+});
