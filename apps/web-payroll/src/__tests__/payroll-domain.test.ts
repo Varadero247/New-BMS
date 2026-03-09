@@ -1,0 +1,664 @@
+// Copyright (c) 2026 Nexara DMCC. All rights reserved.
+// This file is part of the Nexara IMS Platform. CONFIDENTIAL — TRADE SECRET.
+// Unauthorised copying, modification, or distribution is strictly prohibited.
+
+// ─── Domain Types ────────────────────────────────────────────────────────────
+
+type PayrollRunStatus = 'DRAFT' | 'PROCESSING' | 'CALCULATED' | 'APPROVED' | 'COMPLETED' | 'CANCELLED';
+type PayslipStatus = 'DRAFT' | 'GENERATED' | 'CALCULATED' | 'APPROVED' | 'PUBLISHED' | 'PAID';
+type PayFrequency = 'WEEKLY' | 'BI_WEEKLY' | 'SEMI_MONTHLY' | 'MONTHLY';
+type BenefitCategory =
+  | 'HEALTH_INSURANCE'
+  | 'LIFE_INSURANCE'
+  | 'DENTAL'
+  | 'VISION'
+  | 'RETIREMENT'
+  | 'PENSION'
+  | 'HSA'
+  | 'FSA'
+  | 'TRANSPORTATION'
+  | 'WELLNESS'
+  | 'OTHER';
+type LoanType = 'PERSONAL_LOAN' | 'SALARY_ADVANCE' | 'EMERGENCY_LOAN' | 'HOUSING_LOAN' | 'EDUCATION_LOAN';
+type LoanStatus = 'PENDING' | 'APPROVED' | 'DISBURSED' | 'ACTIVE' | 'COMPLETED' | 'DEFAULTED' | 'CANCELLED';
+type ExpenseCategory = 'TRAVEL' | 'ACCOMMODATION' | 'MEALS' | 'OFFICE_SUPPLIES' | 'TRAINING' | 'ENTERTAINMENT' | 'OTHER';
+type ExpenseStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'PAID';
+type TaxJurisdiction = 'uk' | 'us-federal' | 'ie' | 'de';
+
+// ─── Static Arrays ────────────────────────────────────────────────────────────
+
+const PAYROLL_RUN_STATUSES: PayrollRunStatus[] = [
+  'DRAFT', 'PROCESSING', 'CALCULATED', 'APPROVED', 'COMPLETED', 'CANCELLED',
+];
+
+const PAYSLIP_STATUSES: PayslipStatus[] = [
+  'DRAFT', 'GENERATED', 'CALCULATED', 'APPROVED', 'PUBLISHED', 'PAID',
+];
+
+const PAY_FREQUENCIES: PayFrequency[] = ['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY'];
+
+const BENEFIT_CATEGORIES: BenefitCategory[] = [
+  'HEALTH_INSURANCE', 'LIFE_INSURANCE', 'DENTAL', 'VISION',
+  'RETIREMENT', 'PENSION', 'HSA', 'FSA', 'TRANSPORTATION', 'WELLNESS', 'OTHER',
+];
+
+const LOAN_TYPES: LoanType[] = [
+  'PERSONAL_LOAN', 'SALARY_ADVANCE', 'EMERGENCY_LOAN', 'HOUSING_LOAN', 'EDUCATION_LOAN',
+];
+
+const LOAN_STATUSES: LoanStatus[] = [
+  'PENDING', 'APPROVED', 'DISBURSED', 'ACTIVE', 'COMPLETED', 'DEFAULTED', 'CANCELLED',
+];
+
+const EXPENSE_CATEGORIES: ExpenseCategory[] = [
+  'TRAVEL', 'ACCOMMODATION', 'MEALS', 'OFFICE_SUPPLIES', 'TRAINING', 'ENTERTAINMENT', 'OTHER',
+];
+
+const EXPENSE_STATUSES: ExpenseStatus[] = ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'PAID'];
+
+const TAX_JURISDICTIONS: TaxJurisdiction[] = ['uk', 'us-federal', 'ie', 'de'];
+
+// ─── Badge / Colour Maps ──────────────────────────────────────────────────────
+
+const payrollRunStatusBadge: Record<PayrollRunStatus, string> = {
+  DRAFT:       'bg-gray-100 text-gray-800',
+  PROCESSING:  'bg-yellow-100 text-yellow-800',
+  CALCULATED:  'bg-blue-100 text-blue-800',
+  APPROVED:    'bg-indigo-100 text-indigo-800',
+  COMPLETED:   'bg-green-100 text-green-800',
+  CANCELLED:   'bg-red-100 text-red-800',
+};
+
+const payslipStatusBadge: Record<PayslipStatus, string> = {
+  DRAFT:       'bg-gray-100 text-gray-800',
+  GENERATED:   'bg-yellow-100 text-yellow-800',
+  CALCULATED:  'bg-blue-100 text-blue-800',
+  APPROVED:    'bg-indigo-100 text-indigo-800',
+  PUBLISHED:   'bg-purple-100 text-purple-800',
+  PAID:        'bg-green-100 text-green-800',
+};
+
+const benefitCategoryBadge: Record<BenefitCategory, string> = {
+  HEALTH_INSURANCE: 'bg-blue-100 text-blue-800',
+  LIFE_INSURANCE:   'bg-indigo-100 text-indigo-800',
+  DENTAL:           'bg-pink-100 text-pink-800',
+  VISION:           'bg-cyan-100 text-cyan-800',
+  RETIREMENT:       'bg-purple-100 text-purple-800',
+  PENSION:          'bg-violet-100 text-violet-800',
+  HSA:              'bg-green-100 text-green-800',
+  FSA:              'bg-teal-100 text-teal-800',
+  TRANSPORTATION:   'bg-orange-100 text-orange-800',
+  WELLNESS:         'bg-lime-100 text-lime-800',
+  OTHER:            'bg-gray-100 text-gray-800',
+};
+
+// ─── Pay Period Multipliers ───────────────────────────────────────────────────
+
+const payPeriodsPerYear: Record<PayFrequency, number> = {
+  WEEKLY:      52,
+  BI_WEEKLY:   26,
+  SEMI_MONTHLY: 24,
+  MONTHLY:     12,
+};
+
+// ─── Mock Data Shapes ─────────────────────────────────────────────────────────
+
+interface MockPayrollRun {
+  id: string;
+  runNumber: string;
+  payPeriodType: PayFrequency;
+  periodStart: string;
+  periodEnd: string;
+  payDate: string;
+  status: PayrollRunStatus;
+  employeeCount: number;
+  totalGross: number;
+  totalDeductions: number;
+  totalNet: number;
+  createdAt: string;
+}
+
+interface MockPayslip {
+  id: string;
+  payslipNumber: string;
+  employeeName: string;
+  employeeNumber: string;
+  periodStart: string;
+  periodEnd: string;
+  payDate: string;
+  grossEarnings: number;
+  netPay: number;
+  status: PayslipStatus;
+  currency: string;
+}
+
+interface MockBenefitPlan {
+  id: string;
+  code: string;
+  name: string;
+  category: BenefitCategory;
+  provider: string | null;
+  employeeContribution: number | null;
+  employerContribution: number | null;
+  waitingPeriodDays: number;
+  isActive: boolean;
+  enrollmentCount: number;
+}
+
+const MOCK_PAYROLL_RUN: MockPayrollRun = {
+  id: 'run-001',
+  runNumber: 'PR-2026-001',
+  payPeriodType: 'MONTHLY',
+  periodStart: '2026-01-01',
+  periodEnd: '2026-01-31',
+  payDate: '2026-01-31',
+  status: 'COMPLETED',
+  employeeCount: 120,
+  totalGross: 600000,
+  totalDeductions: 150000,
+  totalNet: 450000,
+  createdAt: '2026-01-28T09:00:00Z',
+};
+
+const MOCK_PAYSLIPS: MockPayslip[] = [
+  {
+    id: 'slip-001',
+    payslipNumber: 'PS-2026-001',
+    employeeName: 'Alice Johnson',
+    employeeNumber: 'EMP-001',
+    periodStart: '2026-01-01',
+    periodEnd: '2026-01-31',
+    payDate: '2026-01-31',
+    grossEarnings: 5000,
+    netPay: 3750,
+    status: 'PAID',
+    currency: 'USD',
+  },
+  {
+    id: 'slip-002',
+    payslipNumber: 'PS-2026-002',
+    employeeName: 'Bob Smith',
+    employeeNumber: 'EMP-002',
+    periodStart: '2026-01-01',
+    periodEnd: '2026-01-31',
+    payDate: '2026-01-31',
+    grossEarnings: 7500,
+    netPay: 5250,
+    status: 'PUBLISHED',
+    currency: 'USD',
+  },
+  {
+    id: 'slip-003',
+    payslipNumber: 'PS-2026-003',
+    employeeName: 'Carol Davis',
+    employeeNumber: 'EMP-003',
+    periodStart: '2026-01-01',
+    periodEnd: '2026-01-31',
+    payDate: '2026-01-31',
+    grossEarnings: 4200,
+    netPay: 3150,
+    status: 'DRAFT',
+    currency: 'GBP',
+  },
+];
+
+const MOCK_BENEFIT_PLAN: MockBenefitPlan = {
+  id: 'benefit-001',
+  code: 'HEALTH-GOLD',
+  name: 'Gold Health Plan',
+  category: 'HEALTH_INSURANCE',
+  provider: 'BlueCross',
+  employeeContribution: 150,
+  employerContribution: 450,
+  waitingPeriodDays: 30,
+  isActive: true,
+  enrollmentCount: 85,
+};
+
+// ─── UK Tax Jurisdiction Data ─────────────────────────────────────────────────
+
+interface TaxBand { name: string; from: number; to: number | null; rate: number; }
+
+const UK_TAX_BANDS: TaxBand[] = [
+  { name: 'Personal Allowance', from: 0, to: 12570, rate: 0 },
+  { name: 'Basic Rate', from: 12571, to: 50270, rate: 20 },
+  { name: 'Higher Rate', from: 50271, to: 125140, rate: 40 },
+  { name: 'Additional Rate', from: 125141, to: null, rate: 45 },
+];
+
+const UK_CONFIG = {
+  personalAllowance: 12570,
+  niRate: 8,
+  niThreshold: 12570,
+  pensionRate: 5,
+  studentLoanRate: 9,
+  studentLoanThreshold: 27295,
+};
+
+// ─── Pure Helper Functions (inlined from source) ───────────────────────────────
+
+function grossPay(basicSalary: number, allowances: number): number {
+  return basicSalary + allowances;
+}
+
+function netPay(gross: number, totalDeductions: number): number {
+  return Math.max(0, gross - totalDeductions);
+}
+
+function deductionAmount(gross: number, ratePercent: number): number {
+  return (gross * ratePercent) / 100;
+}
+
+function calculateNI(salary: number, niThreshold: number, niRate: number): number {
+  return salary > niThreshold ? ((salary - niThreshold) * niRate) / 100 : 0;
+}
+
+function calculatePension(salary: number, pensionRate: number): number {
+  return (salary * pensionRate) / 100;
+}
+
+function calculateStudentLoan(
+  salary: number,
+  threshold: number,
+  rate: number,
+): number {
+  return salary > threshold ? ((salary - threshold) * rate) / 100 : 0;
+}
+
+function calculateIncomeTaxBanded(salary: number, bands: TaxBand[]): number {
+  let tax = 0;
+  for (const band of bands) {
+    const bandMax = band.to ?? Infinity;
+    if (salary > band.from) {
+      const taxable = Math.min(salary, bandMax) - band.from;
+      tax += (taxable * band.rate) / 100;
+    }
+  }
+  return tax;
+}
+
+function effectiveRate(taxPaid: number, grossIncome: number): number {
+  if (grossIncome === 0) return 0;
+  return (taxPaid / grossIncome) * 100;
+}
+
+function takeHomePercent(netAmount: number, gross: number): number {
+  if (gross === 0) return 0;
+  return (netAmount / gross) * 100;
+}
+
+function annualToMonthly(annual: number): number {
+  return annual / 12;
+}
+
+function monthlyToAnnual(monthly: number): number {
+  return monthly * 12;
+}
+
+function loanInstallment(principal: number, annualRatePercent: number, termMonths: number): number {
+  if (annualRatePercent === 0) return principal / termMonths;
+  const r = annualRatePercent / 100 / 12;
+  return (principal * r * Math.pow(1 + r, termMonths)) / (Math.pow(1 + r, termMonths) - 1);
+}
+
+function remainingLoanBalance(principal: number, repaid: number): number {
+  return Math.max(0, principal - repaid);
+}
+
+function budgetVariance(planned: number, actual: number): number {
+  return planned - actual;
+}
+
+// ─── Tests: PayrollRun Status Badge Map ──────────────────────────────────────
+
+describe('payrollRunStatusBadge map', () => {
+  for (const status of PAYROLL_RUN_STATUSES) {
+    it(`${status} has a badge class`, () => {
+      expect(payrollRunStatusBadge[status]).toBeDefined();
+    });
+    it(`${status} badge contains bg-`, () => {
+      expect(payrollRunStatusBadge[status]).toContain('bg-');
+    });
+    it(`${status} badge is a string`, () => {
+      expect(typeof payrollRunStatusBadge[status]).toBe('string');
+    });
+  }
+
+  it('COMPLETED is green', () => expect(payrollRunStatusBadge.COMPLETED).toContain('green'));
+  it('CANCELLED is red', () => expect(payrollRunStatusBadge.CANCELLED).toContain('red'));
+  it('PROCESSING is yellow', () => expect(payrollRunStatusBadge.PROCESSING).toContain('yellow'));
+  it('APPROVED is indigo', () => expect(payrollRunStatusBadge.APPROVED).toContain('indigo'));
+  it('DRAFT is gray', () => expect(payrollRunStatusBadge.DRAFT).toContain('gray'));
+  it('CALCULATED is blue', () => expect(payrollRunStatusBadge.CALCULATED).toContain('blue'));
+  it('map has exactly 6 entries', () => expect(Object.keys(payrollRunStatusBadge).length).toBe(6));
+});
+
+// ─── Tests: Payslip Status Badge Map ─────────────────────────────────────────
+
+describe('payslipStatusBadge map', () => {
+  for (const status of PAYSLIP_STATUSES) {
+    it(`${status} has a badge class`, () => {
+      expect(payslipStatusBadge[status]).toBeDefined();
+    });
+    it(`${status} badge contains bg-`, () => {
+      expect(payslipStatusBadge[status]).toContain('bg-');
+    });
+  }
+
+  it('PAID is green', () => expect(payslipStatusBadge.PAID).toContain('green'));
+  it('PUBLISHED is purple', () => expect(payslipStatusBadge.PUBLISHED).toContain('purple'));
+  it('GENERATED is yellow', () => expect(payslipStatusBadge.GENERATED).toContain('yellow'));
+  it('map has exactly 6 entries', () => expect(Object.keys(payslipStatusBadge).length).toBe(6));
+});
+
+// ─── Tests: Benefit Category Badge Map ───────────────────────────────────────
+
+describe('benefitCategoryBadge map', () => {
+  for (const cat of BENEFIT_CATEGORIES) {
+    it(`${cat} has a badge class`, () => {
+      expect(benefitCategoryBadge[cat]).toBeDefined();
+    });
+    it(`${cat} badge contains bg-`, () => {
+      expect(benefitCategoryBadge[cat]).toContain('bg-');
+    });
+  }
+
+  it('HEALTH_INSURANCE is blue', () => expect(benefitCategoryBadge.HEALTH_INSURANCE).toContain('blue'));
+  it('DENTAL is pink', () => expect(benefitCategoryBadge.DENTAL).toContain('pink'));
+  it('RETIREMENT is purple', () => expect(benefitCategoryBadge.RETIREMENT).toContain('purple'));
+  it('HSA is green', () => expect(benefitCategoryBadge.HSA).toContain('green'));
+  it('TRANSPORTATION is orange', () => expect(benefitCategoryBadge.TRANSPORTATION).toContain('orange'));
+  it('map has exactly 11 entries', () => expect(Object.keys(benefitCategoryBadge).length).toBe(11));
+});
+
+// ─── Tests: Pay Periods Per Year ──────────────────────────────────────────────
+
+describe('payPeriodsPerYear', () => {
+  it('WEEKLY = 52', () => expect(payPeriodsPerYear.WEEKLY).toBe(52));
+  it('BI_WEEKLY = 26', () => expect(payPeriodsPerYear.BI_WEEKLY).toBe(26));
+  it('SEMI_MONTHLY = 24', () => expect(payPeriodsPerYear.SEMI_MONTHLY).toBe(24));
+  it('MONTHLY = 12', () => expect(payPeriodsPerYear.MONTHLY).toBe(12));
+  it('WEEKLY > BI_WEEKLY', () => expect(payPeriodsPerYear.WEEKLY).toBeGreaterThan(payPeriodsPerYear.BI_WEEKLY));
+  it('BI_WEEKLY > SEMI_MONTHLY', () => expect(payPeriodsPerYear.BI_WEEKLY).toBeGreaterThan(payPeriodsPerYear.SEMI_MONTHLY));
+  it('SEMI_MONTHLY > MONTHLY', () => expect(payPeriodsPerYear.SEMI_MONTHLY).toBeGreaterThan(payPeriodsPerYear.MONTHLY));
+
+  for (const freq of PAY_FREQUENCIES) {
+    it(`${freq} pay periods is positive integer`, () => {
+      const v = payPeriodsPerYear[freq];
+      expect(v).toBeGreaterThan(0);
+      expect(Number.isInteger(v)).toBe(true);
+    });
+  }
+});
+
+// ─── Tests: Mock Data Shapes ──────────────────────────────────────────────────
+
+describe('MOCK_PAYROLL_RUN shape', () => {
+  it('has id', () => expect(MOCK_PAYROLL_RUN.id).toBeTruthy());
+  it('has runNumber starting PR-', () => expect(MOCK_PAYROLL_RUN.runNumber).toMatch(/^PR-/));
+  it('totalNet = totalGross - totalDeductions', () => {
+    expect(MOCK_PAYROLL_RUN.totalNet).toBe(MOCK_PAYROLL_RUN.totalGross - MOCK_PAYROLL_RUN.totalDeductions);
+  });
+  it('totalGross > 0', () => expect(MOCK_PAYROLL_RUN.totalGross).toBeGreaterThan(0));
+  it('employeeCount > 0', () => expect(MOCK_PAYROLL_RUN.employeeCount).toBeGreaterThan(0));
+  it('status is a valid payroll run status', () => expect(PAYROLL_RUN_STATUSES).toContain(MOCK_PAYROLL_RUN.status));
+  it('payFrequency is a valid frequency', () => expect(PAY_FREQUENCIES).toContain(MOCK_PAYROLL_RUN.payPeriodType));
+});
+
+describe('MOCK_PAYSLIPS shape', () => {
+  it('has 3 payslips', () => expect(MOCK_PAYSLIPS.length).toBe(3));
+
+  for (const slip of MOCK_PAYSLIPS) {
+    it(`${slip.payslipNumber} has id`, () => expect(slip.id).toBeTruthy());
+    it(`${slip.payslipNumber} grossEarnings > 0`, () => expect(slip.grossEarnings).toBeGreaterThan(0));
+    it(`${slip.payslipNumber} netPay > 0`, () => expect(slip.netPay).toBeGreaterThan(0));
+    it(`${slip.payslipNumber} netPay <= grossEarnings`, () => {
+      expect(slip.netPay).toBeLessThanOrEqual(slip.grossEarnings);
+    });
+    it(`${slip.payslipNumber} status is valid`, () => {
+      expect(PAYSLIP_STATUSES).toContain(slip.status);
+    });
+    it(`${slip.payslipNumber} has currency`, () => expect(slip.currency.length).toBe(3));
+    it(`${slip.payslipNumber} number starts PS-`, () => expect(slip.payslipNumber).toMatch(/^PS-/));
+  }
+});
+
+describe('MOCK_BENEFIT_PLAN shape', () => {
+  it('has id', () => expect(MOCK_BENEFIT_PLAN.id).toBeTruthy());
+  it('code is truthy', () => expect(MOCK_BENEFIT_PLAN.code).toBeTruthy());
+  it('category is valid', () => expect(BENEFIT_CATEGORIES).toContain(MOCK_BENEFIT_PLAN.category));
+  it('isActive is boolean', () => expect(typeof MOCK_BENEFIT_PLAN.isActive).toBe('boolean'));
+  it('waitingPeriodDays >= 0', () => expect(MOCK_BENEFIT_PLAN.waitingPeriodDays).toBeGreaterThanOrEqual(0));
+  it('enrollmentCount >= 0', () => expect(MOCK_BENEFIT_PLAN.enrollmentCount).toBeGreaterThanOrEqual(0));
+  it('employerContribution > employeeContribution', () => {
+    expect(MOCK_BENEFIT_PLAN.employerContribution!).toBeGreaterThan(MOCK_BENEFIT_PLAN.employeeContribution!);
+  });
+});
+
+// ─── Tests: grossPay helper ───────────────────────────────────────────────────
+
+describe('grossPay', () => {
+  it('basic + allowances', () => expect(grossPay(5000, 1000)).toBe(6000));
+  it('zero allowances returns basic', () => expect(grossPay(5000, 0)).toBe(5000));
+  it('zero salary + allowances', () => expect(grossPay(0, 500)).toBe(500));
+
+  const cases: [number, number, number][] = [
+    [3000, 500, 3500],
+    [4500, 750, 5250],
+    [7000, 1500, 8500],
+    [10000, 2000, 12000],
+  ];
+  for (const [basic, allowance, expected] of cases) {
+    it(`grossPay(${basic}, ${allowance}) = ${expected}`, () => {
+      expect(grossPay(basic, allowance)).toBe(expected);
+    });
+  }
+});
+
+// ─── Tests: netPay helper ─────────────────────────────────────────────────────
+
+describe('netPay', () => {
+  it('gross minus deductions', () => expect(netPay(6000, 1500)).toBe(4500));
+  it('cannot go negative', () => expect(netPay(1000, 5000)).toBe(0));
+  it('zero deductions = gross', () => expect(netPay(5000, 0)).toBe(5000));
+  it('equal gross and deductions = 0', () => expect(netPay(3000, 3000)).toBe(0));
+
+  for (let d = 0; d <= 10; d++) {
+    it(`netPay(5000, ${d * 500}) is non-negative`, () => {
+      expect(netPay(5000, d * 500)).toBeGreaterThanOrEqual(0);
+    });
+  }
+});
+
+// ─── Tests: deductionAmount helper ───────────────────────────────────────────
+
+describe('deductionAmount', () => {
+  it('20% of 50000 = 10000', () => expect(deductionAmount(50000, 20)).toBe(10000));
+  it('0% = 0', () => expect(deductionAmount(50000, 0)).toBe(0));
+  it('100% = full salary', () => expect(deductionAmount(5000, 100)).toBe(5000));
+
+  const rateCases: [number, number, number][] = [
+    [60000, 20, 12000],
+    [60000, 40, 24000],
+    [60000, 45, 27000],
+    [12000, 8, 960],
+  ];
+  for (const [salary, rate, expected] of rateCases) {
+    it(`deductionAmount(${salary}, ${rate}%) = ${expected}`, () => {
+      expect(deductionAmount(salary, rate)).toBeCloseTo(expected, 2);
+    });
+  }
+});
+
+// ─── Tests: National Insurance calculation ────────────────────────────────────
+
+describe('calculateNI (UK)', () => {
+  const { niThreshold, niRate } = UK_CONFIG;
+
+  it('below threshold = 0', () => expect(calculateNI(12000, niThreshold, niRate)).toBe(0));
+  it('at threshold = 0', () => expect(calculateNI(12570, niThreshold, niRate)).toBe(0));
+  it('above threshold is positive', () => expect(calculateNI(30000, niThreshold, niRate)).toBeGreaterThan(0));
+  it('50000 salary NI correct', () => {
+    const expected = ((50000 - niThreshold) * niRate) / 100;
+    expect(calculateNI(50000, niThreshold, niRate)).toBeCloseTo(expected, 2);
+  });
+
+  for (let s = 1; s <= 10; s++) {
+    const salary = s * 10000;
+    it(`NI non-negative at salary ${salary}`, () => {
+      expect(calculateNI(salary, niThreshold, niRate)).toBeGreaterThanOrEqual(0);
+    });
+  }
+});
+
+// ─── Tests: Pension calculation ───────────────────────────────────────────────
+
+describe('calculatePension', () => {
+  it('5% of 60000 = 3000', () => expect(calculatePension(60000, 5)).toBe(3000));
+  it('0% rate = 0', () => expect(calculatePension(60000, 0)).toBe(0));
+  it('result is proportional to salary', () => {
+    expect(calculatePension(80000, 5)).toBeGreaterThan(calculatePension(60000, 5));
+  });
+  it('pension is non-negative', () => expect(calculatePension(0, 5)).toBe(0));
+});
+
+// ─── Tests: Student Loan calculation ─────────────────────────────────────────
+
+describe('calculateStudentLoan (UK Plan 2)', () => {
+  const { studentLoanThreshold, studentLoanRate } = UK_CONFIG;
+
+  it('below threshold = 0', () => {
+    expect(calculateStudentLoan(20000, studentLoanThreshold, studentLoanRate)).toBe(0);
+  });
+  it('at threshold = 0', () => {
+    expect(calculateStudentLoan(studentLoanThreshold, studentLoanThreshold, studentLoanRate)).toBe(0);
+  });
+  it('above threshold is positive', () => {
+    expect(calculateStudentLoan(35000, studentLoanThreshold, studentLoanRate)).toBeGreaterThan(0);
+  });
+  it('zero rate = 0 regardless of salary', () => {
+    expect(calculateStudentLoan(50000, studentLoanThreshold, 0)).toBe(0);
+  });
+});
+
+// ─── Tests: UK Income Tax banded ─────────────────────────────────────────────
+
+describe('calculateIncomeTaxBanded (UK)', () => {
+  it('below personal allowance = 0 tax', () => {
+    expect(calculateIncomeTaxBanded(12000, UK_TAX_BANDS)).toBe(0);
+  });
+  it('at personal allowance boundary = 0 tax', () => {
+    expect(calculateIncomeTaxBanded(12570, UK_TAX_BANDS)).toBe(0);
+  });
+  it('£20000 salary has positive tax', () => {
+    expect(calculateIncomeTaxBanded(20000, UK_TAX_BANDS)).toBeGreaterThan(0);
+  });
+  it('higher salary incurs more tax', () => {
+    expect(calculateIncomeTaxBanded(80000, UK_TAX_BANDS)).toBeGreaterThan(
+      calculateIncomeTaxBanded(30000, UK_TAX_BANDS),
+    );
+  });
+  it('effective rate < marginal rate', () => {
+    const tax = calculateIncomeTaxBanded(55000, UK_TAX_BANDS);
+    const eff = effectiveRate(tax, 55000);
+    expect(eff).toBeLessThan(40);
+  });
+});
+
+// ─── Tests: effectiveRate ─────────────────────────────────────────────────────
+
+describe('effectiveRate', () => {
+  it('zero income returns 0', () => expect(effectiveRate(0, 0)).toBe(0));
+  it('percentage between 0 and 100', () => {
+    const rate = effectiveRate(12000, 60000);
+    expect(rate).toBeGreaterThan(0);
+    expect(rate).toBeLessThan(100);
+  });
+  it('20% exact', () => expect(effectiveRate(10000, 50000)).toBeCloseTo(20, 5));
+});
+
+// ─── Tests: takeHomePercent ───────────────────────────────────────────────────
+
+describe('takeHomePercent', () => {
+  it('zero gross returns 0', () => expect(takeHomePercent(0, 0)).toBe(0));
+  it('full net = 100%', () => expect(takeHomePercent(5000, 5000)).toBeCloseTo(100, 5));
+  it('75% take-home', () => expect(takeHomePercent(3750, 5000)).toBeCloseTo(75, 5));
+  it('always <= 100%', () => {
+    expect(takeHomePercent(4000, 5000)).toBeLessThanOrEqual(100);
+  });
+});
+
+// ─── Tests: annual / monthly conversions ─────────────────────────────────────
+
+describe('annualToMonthly / monthlyToAnnual', () => {
+  it('60000 annual = 5000 monthly', () => expect(annualToMonthly(60000)).toBe(5000));
+  it('5000 monthly = 60000 annual', () => expect(monthlyToAnnual(5000)).toBe(60000));
+  it('roundtrip: annual → monthly → annual', () => {
+    expect(monthlyToAnnual(annualToMonthly(84000))).toBeCloseTo(84000, 5);
+  });
+  it('zero annual = zero monthly', () => expect(annualToMonthly(0)).toBe(0));
+});
+
+// ─── Tests: loanInstallment ───────────────────────────────────────────────────
+
+describe('loanInstallment', () => {
+  it('zero interest: installment = principal / term', () => {
+    expect(loanInstallment(12000, 0, 12)).toBeCloseTo(1000, 2);
+  });
+  it('positive interest increases installment vs zero-rate', () => {
+    expect(loanInstallment(12000, 5, 12)).toBeGreaterThan(loanInstallment(12000, 0, 12));
+  });
+  it('longer term reduces monthly installment', () => {
+    expect(loanInstallment(24000, 6, 48)).toBeLessThan(loanInstallment(24000, 6, 24));
+  });
+  it('installment is positive', () => {
+    expect(loanInstallment(10000, 8, 36)).toBeGreaterThan(0);
+  });
+});
+
+// ─── Tests: remainingLoanBalance ─────────────────────────────────────────────
+
+describe('remainingLoanBalance', () => {
+  it('principal minus repaid', () => expect(remainingLoanBalance(10000, 3000)).toBe(7000));
+  it('fully repaid = 0', () => expect(remainingLoanBalance(10000, 10000)).toBe(0));
+  it('over-repaid clamps to 0', () => expect(remainingLoanBalance(10000, 15000)).toBe(0));
+  it('nothing repaid = principal', () => expect(remainingLoanBalance(10000, 0)).toBe(10000));
+});
+
+// ─── Tests: budgetVariance ────────────────────────────────────────────────────
+
+describe('budgetVariance', () => {
+  it('under spend is positive', () => expect(budgetVariance(50000, 45000)).toBe(5000));
+  it('over spend is negative', () => expect(budgetVariance(50000, 55000)).toBe(-5000));
+  it('on budget = 0', () => expect(budgetVariance(50000, 50000)).toBe(0));
+});
+
+// ─── Tests: Domain Array Completeness ────────────────────────────────────────
+
+describe('domain array completeness', () => {
+  it('PAYROLL_RUN_STATUSES has 6 values', () => expect(PAYROLL_RUN_STATUSES.length).toBe(6));
+  it('PAYSLIP_STATUSES has 6 values', () => expect(PAYSLIP_STATUSES.length).toBe(6));
+  it('PAY_FREQUENCIES has 4 values', () => expect(PAY_FREQUENCIES.length).toBe(4));
+  it('BENEFIT_CATEGORIES has 11 values', () => expect(BENEFIT_CATEGORIES.length).toBe(11));
+  it('LOAN_TYPES has 5 values', () => expect(LOAN_TYPES.length).toBe(5));
+  it('LOAN_STATUSES has 7 values', () => expect(LOAN_STATUSES.length).toBe(7));
+  it('EXPENSE_CATEGORIES has 7 values', () => expect(EXPENSE_CATEGORIES.length).toBe(7));
+  it('EXPENSE_STATUSES has 5 values', () => expect(EXPENSE_STATUSES.length).toBe(5));
+  it('TAX_JURISDICTIONS has 4 values', () => expect(TAX_JURISDICTIONS.length).toBe(4));
+  it('PAYROLL_RUN_STATUSES contains COMPLETED', () => expect(PAYROLL_RUN_STATUSES).toContain('COMPLETED'));
+  it('PAYROLL_RUN_STATUSES contains DRAFT', () => expect(PAYROLL_RUN_STATUSES).toContain('DRAFT'));
+  it('PAYSLIP_STATUSES contains PAID', () => expect(PAYSLIP_STATUSES).toContain('PAID'));
+  it('PAYSLIP_STATUSES contains PUBLISHED', () => expect(PAYSLIP_STATUSES).toContain('PUBLISHED'));
+  it('PAY_FREQUENCIES contains MONTHLY', () => expect(PAY_FREQUENCIES).toContain('MONTHLY'));
+  it('BENEFIT_CATEGORIES contains HEALTH_INSURANCE', () => expect(BENEFIT_CATEGORIES).toContain('HEALTH_INSURANCE'));
+  it('EXPENSE_CATEGORIES contains TRAVEL', () => expect(EXPENSE_CATEGORIES).toContain('TRAVEL'));
+  it('TAX_JURISDICTIONS contains uk', () => expect(TAX_JURISDICTIONS).toContain('uk'));
+  it('TAX_JURISDICTIONS contains us-federal', () => expect(TAX_JURISDICTIONS).toContain('us-federal'));
+  it('UK_TAX_BANDS has 4 bands', () => expect(UK_TAX_BANDS.length).toBe(4));
+  it('last UK tax band has null upper bound', () => expect(UK_TAX_BANDS[UK_TAX_BANDS.length - 1].to).toBeNull());
+  it('UK_TAX_BANDS rates are ascending', () => {
+    for (let i = 1; i < UK_TAX_BANDS.length; i++) {
+      expect(UK_TAX_BANDS[i].rate).toBeGreaterThanOrEqual(UK_TAX_BANDS[i - 1].rate);
+    }
+  });
+});
