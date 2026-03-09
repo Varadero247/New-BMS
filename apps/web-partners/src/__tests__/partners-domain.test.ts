@@ -597,3 +597,179 @@ describe('Cross-constant invariants — partners domain', () => {
     expect(DEAL_STATUSES.length).toBeGreaterThan(NEXARA_PARTNER_TIERS.length);
   });
 });
+
+// ─── Parametric: per-tier revenue model ──────────────────────────────────────
+
+describe('REVENUE_MODEL — per-tier parametric', () => {
+  const cases: [NexaraPartnerTier, string, string][] = [
+    ['REFERRAL',    '15', 'commission'],
+    ['RESELLER',    '20', 'discount'],
+    ['STRATEGIC',   '30', 'discount'],
+    ['WHITE_LABEL', '35', 'discount'],
+  ];
+  for (const [tier, pct, model] of cases) {
+    it(`${tier}: ${pct}% ${model}`, () => {
+      expect(REVENUE_MODEL[tier]).toContain(pct);
+      expect(REVENUE_MODEL[tier]).toContain(model);
+    });
+  }
+});
+
+// ─── Parametric: per-tier NFR licences ───────────────────────────────────────
+
+describe('NFR_LICENCES — per-tier parametric', () => {
+  const cases: [NexaraPartnerTier, number][] = [
+    ['REFERRAL',    0],
+    ['RESELLER',    5],
+    ['STRATEGIC',   15],
+    ['WHITE_LABEL', 20],
+  ];
+  for (const [tier, count] of cases) {
+    it(`${tier} has ${count} NFR licences`, () => {
+      expect(NFR_LICENCES[tier]).toBe(count);
+    });
+  }
+});
+
+// ─── Parametric: per-tier commission/discount rates ───────────────────────────
+
+describe('COMMISSION_RATES + DISCOUNT_RATES — per-tier parametric', () => {
+  const commissionCases: [NexaraPartnerTier, number | null][] = [
+    ['REFERRAL',    0.15],
+    ['RESELLER',    null],
+    ['STRATEGIC',   null],
+    ['WHITE_LABEL', null],
+  ];
+  for (const [tier, rate] of commissionCases) {
+    it(`COMMISSION_RATES[${tier}] = ${rate}`, () => {
+      expect(COMMISSION_RATES[tier]).toBe(rate);
+    });
+  }
+  const discountCases: [NexaraPartnerTier, number | null][] = [
+    ['REFERRAL',    null],
+    ['RESELLER',    0.20],
+    ['STRATEGIC',   0.30],
+    ['WHITE_LABEL', 0.35],
+  ];
+  for (const [tier, rate] of discountCases) {
+    it(`DISCOUNT_RATES[${tier}] = ${rate}`, () => {
+      expect(DISCOUNT_RATES[tier]).toBe(rate);
+    });
+  }
+});
+
+// ─── Parametric: per-deal-status color ───────────────────────────────────────
+
+describe('DEAL_STATUS_COLOR — per-status color keyword parametric', () => {
+  const cases: [DealStatus, string][] = [
+    ['NEW',         'blue'],
+    ['IN_PROGRESS', 'yellow'],
+    ['NEGOTIATION', 'purple'],
+    ['CLOSED_WON',  'green'],
+    ['CLOSED_LOST', 'red'],
+  ];
+  for (const [status, color] of cases) {
+    it(`${status} badge contains "${color}"`, () => {
+      expect(DEAL_STATUS_COLOR[status]).toContain(color);
+    });
+  }
+});
+
+// ─── Parametric: per-onboarding-step ─────────────────────────────────────────
+
+describe('PARTNER_ONBOARDING_STEPS — per-step parametric', () => {
+  const cases: [number, string][] = [
+    [1, 'Apply'],
+    [2, '5 days'],
+    [3, 'Onboarding call'],
+    [4, 'Start selling'],
+  ];
+  for (const [step, titleContains] of cases) {
+    it(`step ${step} title contains "${titleContains}"`, () => {
+      const s = PARTNER_ONBOARDING_STEPS.find((x) => x.step === step);
+      expect(s?.title).toContain(titleContains);
+    });
+  }
+});
+
+// ─── Parametric: computeReferralCommission exact values ──────────────────────
+
+describe('computeReferralCommission — parametric', () => {
+  const cases: [number, number][] = [
+    [0,      0],
+    [1000,   150],
+    [10000,  1500],
+    [50000,  7500],
+    [100000, 15000],
+  ];
+  for (const [deal, expected] of cases) {
+    it(`15% of ${deal} = ${expected}`, () => {
+      expect(computeReferralCommission(deal)).toBeCloseTo(expected, 5);
+    });
+  }
+});
+
+// ─── Parametric: formatCommissionRate ────────────────────────────────────────
+
+describe('formatCommissionRate — parametric', () => {
+  const cases: [number, string][] = [
+    [0.10, '10.0%'],
+    [0.15, '15.0%'],
+    [0.20, '20.0%'],
+    [0.35, '35.0%'],
+  ];
+  for (const [rate, expected] of cases) {
+    it(`formatCommissionRate(${rate}) = "${expected}"`, () => {
+      expect(formatCommissionRate(rate)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: isClosedDeal per-status ─────────────────────────────────────
+
+describe('isClosedDeal — per-status parametric', () => {
+  const cases: [DealStatus, boolean][] = [
+    ['NEW',         false],
+    ['IN_PROGRESS', false],
+    ['NEGOTIATION', false],
+    ['CLOSED_WON',  true],
+    ['CLOSED_LOST', true],
+  ];
+  for (const [status, expected] of cases) {
+    it(`isClosedDeal("${status}") = ${expected}`, () => {
+      expect(isClosedDeal(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: isActiveDeal per-status ─────────────────────────────────────
+
+describe('isActiveDeal — per-status parametric', () => {
+  const cases: [DealStatus, boolean][] = [
+    ['NEW',         false],
+    ['IN_PROGRESS', true],
+    ['NEGOTIATION', true],
+    ['CLOSED_WON',  false],
+    ['CLOSED_LOST', false],
+  ];
+  for (const [status, expected] of cases) {
+    it(`isActiveDeal("${status}") = ${expected}`, () => {
+      expect(isActiveDeal(status)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: buildReferralLink suffix ─────────────────────────────────────
+
+describe('buildReferralLink — suffix parametric', () => {
+  const cases: [string, string, string][] = [
+    ['https://app.nexara.io', 'abcdef1234567890', 'https://app.nexara.io/register?ref=34567890'],
+    ['https://example.com',   'ABCDEFGH',          'https://example.com/register?ref=ABCDEFGH'],
+    ['https://x.com',         '12345678',           'https://x.com/register?ref=12345678'],
+  ];
+  for (const [origin, token, expected] of cases) {
+    it(`buildReferralLink(${origin}, ${token.slice(-4)}…) = expected`, () => {
+      expect(buildReferralLink(origin, token)).toBe(expected);
+    });
+  }
+});

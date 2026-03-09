@@ -593,3 +593,152 @@ describe('Supplier Portal — Domain: Mock Supplier Scorecard Data Integrity', (
     expect(total).toBe(1 + 2 + 4 + 0 + 6 + 1 + 8);
   });
 });
+
+// ─── Parametric: per-PO data ───────────────────────────────────────────────
+
+describe('MOCK_POS — per-PO parametric', () => {
+  const expected: [string, string, POStatus, number][] = [
+    ['po-1', 'SUP-PO-2026-001', 'CONFIRMED',  14500],
+    ['po-2', 'SUP-PO-2026-002', 'IN_TRANSIT',  8200],
+    ['po-3', 'SUP-PO-2026-003', 'COMPLETED',   5600],
+    ['po-4', 'SUP-PO-2026-004', 'PENDING',     3100],
+    ['po-5', 'SUP-PO-2025-099', 'CANCELLED',   1200],
+  ];
+  for (const [id, poNumber, status, amount] of expected) {
+    test(`${id}: poNumber=${poNumber}, status=${status}, amount=${amount}`, () => {
+      const po = MOCK_POS.find((p) => p.id === id);
+      expect(po?.poNumber).toBe(poNumber);
+      expect(po?.status).toBe(status);
+      expect(po?.amount).toBe(amount);
+    });
+  }
+});
+
+// ─── Parametric: per-NCR data ──────────────────────────────────────────────
+
+describe('MOCK_NCRS — per-NCR parametric', () => {
+  const expected: [string, string, NCRSeverity, NCRStatus][] = [
+    ['ncr-1', 'NCR-2026-001', 'MAJOR',    'IN_PROGRESS'],
+    ['ncr-2', 'NCR-2026-002', 'MINOR',    'OPEN'],
+    ['ncr-3', 'NCR-2025-047', 'CRITICAL', 'CLOSED'],
+    ['ncr-4', 'NCR-2026-003', 'MINOR',    'OPEN'],
+  ];
+  for (const [id, ncrNumber, severity, status] of expected) {
+    test(`${id}: ncrNumber=${ncrNumber}, severity=${severity}, status=${status}`, () => {
+      const ncr = MOCK_NCRS.find((n) => n.id === id);
+      expect(ncr?.ncrNumber).toBe(ncrNumber);
+      expect(ncr?.severity).toBe(severity);
+      expect(ncr?.status).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: per-supplier scoreBarColor ────────────────────────────────
+
+describe('MOCK_SUPPLIERS — per-supplier scoreBarColor parametric', () => {
+  const expected: [string, string][] = [
+    ['SUP-001', 'bg-green-500'],  // 92 >= 90
+    ['SUP-002', 'bg-blue-500'],   // 85 in [75,90)
+    ['SUP-003', 'bg-blue-500'],   // 78 in [75,90)
+    ['SUP-004', 'bg-green-500'],  // 95 >= 90
+    ['SUP-005', 'bg-yellow-500'], // 71 in [60,75)
+    ['SUP-006', 'bg-blue-500'],   // 89 in [75,90)
+    ['SUP-007', 'bg-yellow-500'], // 62 in [60,75)
+  ];
+  for (const [id, expectedColor] of expected) {
+    test(`${id} scoreBarColor = "${expectedColor}"`, () => {
+      const sup = MOCK_SUPPLIERS.find((s) => s.id === id);
+      expect(scoreBarColor(sup!.currentScore)).toBe(expectedColor);
+    });
+  }
+});
+
+// ─── Parametric: scoreBarColor boundary matrix ─────────────────────────────
+
+describe('scoreBarColor — boundary matrix parametric', () => {
+  const cases: [number, string][] = [
+    [100, 'bg-green-500'],
+    [90,  'bg-green-500'],
+    [89,  'bg-blue-500'],
+    [75,  'bg-blue-500'],
+    [74,  'bg-yellow-500'],
+    [60,  'bg-yellow-500'],
+    [59,  'bg-red-500'],
+    [0,   'bg-red-500'],
+  ];
+  for (const [score, expected] of cases) {
+    test(`score ${score} → "${expected}"`, () => {
+      expect(scoreBarColor(score)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: otdColor boundary ────────────────────────────────────────
+
+describe('otdColor — boundary parametric', () => {
+  const cases: [number, string][] = [
+    [100, 'text-green-700'],
+    [95,  'text-green-700'],
+    [94,  'text-yellow-700'],
+    [85,  'text-yellow-700'],
+    [84,  'text-red-700'],
+    [0,   'text-red-700'],
+  ];
+  for (const [pct, expected] of cases) {
+    test(`OTD ${pct}% → "${expected}"`, () => {
+      expect(otdColor(pct)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: ppmColor boundary ────────────────────────────────────────
+
+describe('ppmColor — boundary parametric', () => {
+  const cases: [number, string][] = [
+    [0,   'text-green-700'],
+    [200, 'text-green-700'],
+    [201, 'text-yellow-700'],
+    [500, 'text-yellow-700'],
+    [501, 'text-red-700'],
+    [1200,'text-red-700'],
+  ];
+  for (const [ppm, expected] of cases) {
+    test(`PPM ${ppm} → "${expected}"`, () => {
+      expect(ppmColor(ppm)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: ncrCountColor boundary ───────────────────────────────────
+
+describe('ncrCountColor — boundary parametric', () => {
+  const cases: [number, string][] = [
+    [0, 'text-green-700'],
+    [1, 'text-yellow-700'],
+    [2, 'text-yellow-700'],
+    [3, 'text-red-700'],
+    [8, 'text-red-700'],
+  ];
+  for (const [count, expected] of cases) {
+    test(`NCR count ${count} → "${expected}"`, () => {
+      expect(ncrCountColor(count)).toBe(expected);
+    });
+  }
+});
+
+// ─── Parametric: GRADE_CONFIG per-grade colors ────────────────────────────
+
+describe('GRADE_CONFIG — per-grade color parametric', () => {
+  const cases: [SupplierGrade, string, string][] = [
+    ['A', 'bg-green-100',  'text-green-700'],
+    ['B', 'bg-blue-100',   'text-blue-700'],
+    ['C', 'bg-yellow-100', 'text-yellow-700'],
+    ['D', 'bg-red-100',    'text-red-700'],
+  ];
+  for (const [grade, bg, text] of cases) {
+    test(`Grade ${grade}: bg="${bg}", text="${text}"`, () => {
+      expect(GRADE_CONFIG[grade].bg).toBe(bg);
+      expect(GRADE_CONFIG[grade].text).toBe(text);
+    });
+  }
+});

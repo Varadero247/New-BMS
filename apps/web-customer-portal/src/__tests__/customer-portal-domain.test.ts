@@ -601,3 +601,152 @@ describe('Customer Portal — Domain: Scorecards', () => {
     expect(max.period).toBe('Q4 2025');
   });
 });
+
+// ─── Parametric: overallColor boundary matrix ─────────────────────────────────
+
+describe('overallColor — boundary matrix parametric', () => {
+  const cases: [number, string][] = [
+    [100, 'green'],
+    [90,  'green'],
+    [89,  'amber'],
+    [75,  'amber'],
+    [74,  'red'],
+    [0,   'red'],
+  ];
+  for (const [score, color] of cases) {
+    test(`score ${score} → contains "${color}"`, () => {
+      expect(overallColor(score)).toContain(color);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_ORDERS per-order ────────────────────────────────────────
+
+describe('MOCK_ORDERS — per-order parametric', () => {
+  const expected: [string, string, OrderStatus, number][] = [
+    ['1', 'PTL-ORD-2026-001', 'DELIVERED',  34500],
+    ['2', 'PTL-ORD-2026-002', 'SHIPPED',     4850],
+    ['3', 'PTL-ORD-2026-003', 'PROCESSING', 18200],
+    ['4', 'PTL-ORD-2026-004', 'PENDING',     6300],
+    ['5', 'PTL-ORD-2025-089', 'CANCELLED',   9100],
+  ];
+  for (const [id, ref, status, value] of expected) {
+    test(`order ${id}: ref=${ref}, status=${status}, value=${value}`, () => {
+      const order = MOCK_ORDERS.find((o) => o.id === id);
+      expect(order?.referenceNumber).toBe(ref);
+      expect(order?.status).toBe(status);
+      expect(order?.totalValue).toBe(value);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_TICKETS per-ticket ──────────────────────────────────────
+
+describe('MOCK_TICKETS — per-ticket parametric', () => {
+  const expected: [string, TicketStatus, TicketPriority, string][] = [
+    ['t1', 'in-progress', 'medium', 'Quality'],
+    ['t2', 'open',        'high',   'Logistics'],
+    ['t3', 'resolved',    'low',    'Technical'],
+    ['t4', 'open',        'high',   'Finance'],
+    ['t5', 'closed',      'medium', 'Commercial'],
+  ];
+  for (const [id, status, priority, category] of expected) {
+    test(`ticket ${id}: status=${status}, priority=${priority}, category=${category}`, () => {
+      const ticket = MOCK_TICKETS.find((t) => t.id === id);
+      expect(ticket?.status).toBe(status);
+      expect(ticket?.priority).toBe(priority);
+      expect(ticket?.category).toBe(category);
+    });
+  }
+});
+
+// ─── Parametric: SELF_SERVICE_ORDER_STATUS_CONFIG per-status label ────────────
+
+describe('SELF_SERVICE_ORDER_STATUS_CONFIG — per-status label parametric', () => {
+  const cases: [SelfServiceOrderStatus, string][] = [
+    ['pending',       'Pending'],
+    ['confirmed',     'Confirmed'],
+    ['in-production', 'In Production'],
+    ['shipped',       'Shipped'],
+    ['delivered',     'Delivered'],
+  ];
+  for (const [status, label] of cases) {
+    test(`${status} label is "${label}"`, () => {
+      expect(SELF_SERVICE_ORDER_STATUS_CONFIG[status].label).toBe(label);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_SS_ORDERS per-order ────────────────────────────────────
+
+describe('MOCK_SS_ORDERS — per-order parametric', () => {
+  const expected: [string, string, SelfServiceOrderStatus, number][] = [
+    ['o1', 'PO-2602-0045', 'in-production', 125000],
+    ['o2', 'PO-2602-0052', 'shipped',        24000],
+    ['o3', 'PO-2602-0038', 'delivered',      45000],
+    ['o4', 'PO-2602-0060', 'confirmed',       8500],
+  ];
+  for (const [id, orderNumber, status, total] of expected) {
+    test(`ss-order ${id}: orderNumber=${orderNumber}, status=${status}, total=${total}`, () => {
+      const o = MOCK_SS_ORDERS.find((x) => x.id === id);
+      expect(o?.orderNumber).toBe(orderNumber);
+      expect(o?.status).toBe(status);
+      expect(o?.total).toBe(total);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_DOCUMENTS per-document ──────────────────────────────────
+
+describe('MOCK_DOCUMENTS — per-document parametric', () => {
+  const expected: [string, string, string][] = [
+    ['doc1', 'Certificate',  '245 KB'],
+    ['doc2', 'Specification', '1.2 MB'],
+    ['doc3', 'Financial',    '89 KB'],
+    ['doc4', 'Safety',       '156 KB'],
+    ['doc5', 'Legal',        '320 KB'],
+  ];
+  for (const [id, type, size] of expected) {
+    test(`document ${id}: type=${type}, size=${size}`, () => {
+      const doc = MOCK_DOCUMENTS.find((d) => d.id === id);
+      expect(doc?.type).toBe(type);
+      expect(doc?.size).toBe(size);
+    });
+  }
+});
+
+// ─── Parametric: MOCK_SCORECARDS per-scorecard overallColor ──────────────────
+
+describe('MOCK_SCORECARDS — per-scorecard overallColor parametric', () => {
+  const expected: [string, number, string][] = [
+    ['Q4 2025', 94, 'green'],
+    ['Q3 2025', 91, 'green'],
+    ['Q2 2025', 87, 'amber'],
+  ];
+  for (const [period, score, color] of expected) {
+    test(`${period} score=${score} → overallColor contains "${color}"`, () => {
+      expect(overallColor(score)).toContain(color);
+    });
+  }
+  test('Q1 2026 DRAFT score=0 → overallColor contains "red"', () => {
+    const draft = MOCK_SCORECARDS.find((s) => s.status === 'DRAFT');
+    expect(overallColor(draft!.overallScore)).toContain('red');
+  });
+});
+
+// ─── Parametric: TICKET_CATEGORIES ───────────────────────────────────────────
+
+describe('TICKET_CATEGORIES — per-category parametric', () => {
+  const expected = ['Quality', 'Logistics', 'Technical', 'Finance', 'Commercial'];
+  for (const cat of expected) {
+    test(`includes "${cat}"`, () => {
+      expect(TICKET_CATEGORIES).toContain(cat);
+    });
+  }
+  test('has exactly 5 categories', () => {
+    expect(TICKET_CATEGORIES).toHaveLength(5);
+  });
+  test('has no duplicates', () => {
+    expect(new Set(TICKET_CATEGORIES).size).toBe(TICKET_CATEGORIES.length);
+  });
+});

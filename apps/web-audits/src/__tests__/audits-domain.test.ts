@@ -534,3 +534,138 @@ describe('cross-domain invariants', () => {
     expect(FINDING_STATUSES).toContain('OPEN');
   });
 });
+
+// ─── Tests: severityColor — per-severity parametric ──────────────────────────
+
+describe('severityColor — per-severity color keyword parametric', () => {
+  const cases: [string, string][] = [
+    ['MAJOR_NC',    'red'],
+    ['MINOR_NC',    'orange'],
+    ['OBSERVATION', 'yellow'],
+    ['OPPORTUNITY', 'blue'],
+    ['POSITIVE',    'green'],
+  ];
+  for (const [severity, color] of cases) {
+    it(`${severity} badge contains "${color}"`, () => {
+      expect(severityColor(severity)).toContain(color);
+    });
+  }
+  it('unknown input returns gray class', () => {
+    expect(severityColor('UNKNOWN')).toContain('gray');
+  });
+});
+
+// ─── Tests: findingStatusVariant — per-status parametric ─────────────────────
+
+describe('findingStatusVariant — per-status parametric', () => {
+  const cases: [string, string][] = [
+    ['CLOSED',      'secondary'],
+    ['VERIFIED',    'secondary'],
+    ['IN_PROGRESS', 'default'],
+    ['OVERDUE',     'destructive'],
+    ['OPEN',        'outline'],
+  ];
+  for (const [status, variant] of cases) {
+    it(`${status} → "${variant}"`, () => {
+      expect(findingStatusVariant(status)).toBe(variant);
+    });
+  }
+  it('unknown status → "outline"', () => {
+    expect(findingStatusVariant('ANYTHING_ELSE')).toBe('outline');
+  });
+});
+
+// ─── Tests: auditStatusVariant — per-status parametric ───────────────────────
+
+describe('auditStatusVariant — per-status parametric', () => {
+  const cases: [string, string][] = [
+    ['COMPLETED',   'secondary'],
+    ['IN_PROGRESS', 'default'],
+    ['CANCELLED',   'destructive'],
+    ['PLANNED',     'outline'],
+    ['SCHEDULED',   'outline'],
+  ];
+  for (const [status, variant] of cases) {
+    it(`${status} → "${variant}"`, () => {
+      expect(auditStatusVariant(status)).toBe(variant);
+    });
+  }
+  it('unknown status → "outline"', () => {
+    expect(auditStatusVariant('SOME_STATUS')).toBe('outline');
+  });
+});
+
+// ─── Tests: completionPercent — exact values parametric ──────────────────────
+
+describe('completionPercent — exact values parametric', () => {
+  const cases: [number, number, number][] = [
+    [0,  0,  0],
+    [0,  10, 0],
+    [5,  10, 50],
+    [10, 10, 100],
+    [1,  3,  33],
+    [2,  3,  67],
+    [3,  4,  75],
+    [7,  8,  88],
+    [1,  4,  25],
+    [3,  7,  43],
+  ];
+  for (const [completed, total, expected] of cases) {
+    it(`completionPercent(${completed}, ${total}) = ${expected}`, () => {
+      expect(completionPercent(completed, total)).toBe(expected);
+    });
+  }
+});
+
+// ─── Tests: FINDING_EMPTY_FORM keys ──────────────────────────────────────────
+
+describe('FINDING_EMPTY_FORM — all required keys present', () => {
+  const keys = [
+    'auditId', 'title', 'description', 'severity', 'status',
+    'clauseRef', 'evidence', 'rootCause', 'correctiveAction',
+    'assigneeName', 'dueDate', 'notes',
+  ];
+  for (const key of keys) {
+    it(`has key "${key}"`, () => {
+      expect(FINDING_EMPTY_FORM).toHaveProperty(key);
+    });
+  }
+  it('has exactly 12 keys', () => {
+    expect(Object.keys(FINDING_EMPTY_FORM)).toHaveLength(12);
+  });
+  it('all values are strings', () => {
+    for (const v of Object.values(FINDING_EMPTY_FORM)) {
+      expect(typeof v).toBe('string');
+    }
+  });
+});
+
+// ─── Tests: AUDIT_EMPTY_FORM keys ────────────────────────────────────────────
+
+describe('AUDIT_EMPTY_FORM — all required keys present', () => {
+  const keys = [
+    'title', 'description', 'type', 'status', 'standard', 'scope',
+    'department', 'leadAuditorName', 'scheduledDate', 'startDate',
+    'endDate', 'conclusion', 'notes',
+  ];
+  for (const key of keys) {
+    it(`has key "${key}"`, () => {
+      expect(AUDIT_EMPTY_FORM).toHaveProperty(key);
+    });
+  }
+  it('has exactly 13 keys', () => {
+    expect(Object.keys(AUDIT_EMPTY_FORM)).toHaveLength(13);
+  });
+  it('all values are strings', () => {
+    for (const v of Object.values(AUDIT_EMPTY_FORM)) {
+      expect(typeof v).toBe('string');
+    }
+  });
+  it('non-default fields are empty string', () => {
+    const nonDefault = Object.entries(AUDIT_EMPTY_FORM)
+      .filter(([k]) => !['type', 'status'].includes(k));
+    for (const [, v] of nonDefault) {
+      expect(v).toBe('');
+    }
+  });
+});
