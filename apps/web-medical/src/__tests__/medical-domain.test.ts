@@ -776,3 +776,147 @@ describe('Mock CAPA data shapes', () => {
     expect(critical?.type).toBe('corrective');
   });
 });
+
+// ─── Phase 214 parametric additions ──────────────────────────────────────────
+
+describe('DEVICE_CLASSES_SIMPLE — positional index parametric', () => {
+  const expected = [
+    [0, 'I'],
+    [1, 'II'],
+    [2, 'III'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DEVICE_CLASSES_SIMPLE[${idx}] === '${val}'`, () => {
+      expect(DEVICE_CLASSES_SIMPLE[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DEVICE_CLASSES_FULL — positional index parametric', () => {
+  const expected = [
+    [0, 'CLASS_I'],
+    [1, 'CLASS_IIA'],
+    [2, 'CLASS_IIB'],
+    [3, 'CLASS_III'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DEVICE_CLASSES_FULL[${idx}] === '${val}'`, () => {
+      expect(DEVICE_CLASSES_FULL[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DESIGN_STAGES — positional index parametric', () => {
+  const expected = [
+    [0, 'Planning'],
+    [1, 'Input'],
+    [2, 'Output'],
+    [3, 'Review'],
+    [4, 'Verification'],
+    [5, 'Validation'],
+    [6, 'Transfer'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DESIGN_STAGES[${idx}] === '${val}'`, () => {
+      expect(DESIGN_STAGES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DESIGN_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'ACTIVE'],
+    [2, 'IN_PROGRESS'],
+    [3, 'ON_HOLD'],
+    [4, 'COMPLETED'],
+    [5, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DESIGN_STATUSES[${idx}] === '${val}'`, () => {
+      expect(DESIGN_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('REGULATORY_PATHWAYS — positional index parametric', () => {
+  const expected = [
+    [0, '510(k)'],
+    [1, 'PMA'],
+    [2, 'De Novo'],
+    [3, 'CE Marking'],
+    [4, 'TGA'],
+    [5, 'Health Canada'],
+    [6, 'PMDA'],
+    [7, 'Other'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`REGULATORY_PATHWAYS[${idx}] === '${val}'`, () => {
+      expect(REGULATORY_PATHWAYS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('CAPA_SOURCES — positional index parametric', () => {
+  const expected = [
+    [0, 'complaint'],
+    [1, 'audit'],
+    [2, 'ncr'],
+    [3, 'capa-review'],
+    [4, 'risk-assessment'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CAPA_SOURCES[${idx}] === '${val}'`, () => {
+      expect(CAPA_SOURCES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('CAPA_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'open'],
+    [1, 'investigation'],
+    [2, 'action-plan'],
+    [3, 'implementation'],
+    [4, 'verification'],
+    [5, 'closed'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CAPA_STATUSES[${idx}] === '${val}'`, () => {
+      expect(CAPA_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('RISK_LEVELS — positional index parametric', () => {
+  const expected = [
+    [0, 'NEGLIGIBLE'],
+    [1, 'LOW'],
+    [2, 'MEDIUM'],
+    [3, 'HIGH'],
+    [4, 'UNACCEPTABLE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RISK_LEVELS[${idx}] === '${val}'`, () => {
+      expect(RISK_LEVELS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('HAZARD_CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'ELECTRICAL'],
+    [1, 'MECHANICAL'],
+    [2, 'BIOLOGICAL'],
+    [3, 'CHEMICAL'],
+    [4, 'THERMAL'],
+    [5, 'RADIATION'],
+    [6, 'SOFTWARE'],
+    [7, 'USABILITY'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`HAZARD_CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(HAZARD_CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
