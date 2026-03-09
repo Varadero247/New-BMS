@@ -897,3 +897,54 @@ describe('mockDocument — specific field values', () => {
   it('mockVersion.version = 3 matches currentVersion', () =>
     expect(mockVersion.version).toBe(mockDocument.currentVersion));
 });
+
+// ─── DOCUMENT_CATEGORIES — positional index parametric ───────────────────────
+
+describe('DOCUMENT_CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'POLICY'],
+    [1, 'PROCEDURE'],
+    [2, 'WORK_INSTRUCTION'],
+    [3, 'FORM'],
+    [4, 'TEMPLATE'],
+    [5, 'RECORD'],
+    [6, 'MANUAL'],
+    [7, 'EXTERNAL'],
+    [8, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DOCUMENT_CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(DOCUMENT_CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── APPROVAL_STATUSES — positional index parametric ─────────────────────────
+
+describe('APPROVAL_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'PENDING'],
+    [1, 'APPROVED'],
+    [2, 'REJECTED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`APPROVAL_STATUSES[${idx}] === '${val}'`, () => {
+      expect(APPROVAL_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── READ_RECEIPT_STATUSES — positional index parametric ─────────────────────
+
+describe('READ_RECEIPT_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'UNREAD'],
+    [1, 'READ'],
+    [2, 'ACKNOWLEDGED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`READ_RECEIPT_STATUSES[${idx}] === '${val}'`, () => {
+      expect(READ_RECEIPT_STATUSES[idx]).toBe(val);
+    });
+  }
+});
