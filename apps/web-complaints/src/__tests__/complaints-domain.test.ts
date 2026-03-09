@@ -890,3 +890,76 @@ describe('MOCK_COMPLAINTS — per-complaint exact priority+status+channel parame
     });
   }
 });
+
+// ─── CHANNELS — positional index parametric ──────────────────────────────────
+
+describe('CHANNELS — positional index parametric', () => {
+  const expected = [
+    [0, 'EMAIL'],
+    [1, 'PHONE'],
+    [2, 'WEB_FORM'],
+    [3, 'SOCIAL_MEDIA'],
+    [4, 'IN_PERSON'],
+    [5, 'LETTER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CHANNELS[${idx}] === '${val}'`, () => {
+      expect(CHANNELS[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── CATEGORIES — positional index parametric ────────────────────────────────
+
+describe('CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'PRODUCT'],
+    [1, 'SERVICE'],
+    [2, 'DELIVERY'],
+    [3, 'BILLING'],
+    [4, 'SAFETY'],
+    [5, 'ENVIRONMENTAL'],
+    [6, 'REGULATORY'],
+    [7, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── STATUSES — positional index parametric ──────────────────────────────────
+
+describe('STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'NEW'],
+    [1, 'ACKNOWLEDGED'],
+    [2, 'INVESTIGATING'],
+    [3, 'RESOLVED'],
+    [4, 'CLOSED'],
+    [5, 'ESCALATED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`STATUSES[${idx}] === '${val}'`, () => {
+      expect(STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── ACTION_STATUSES — positional index parametric ───────────────────────────
+
+describe('ACTION_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'OPEN'],
+    [1, 'IN_PROGRESS'],
+    [2, 'COMPLETED'],
+    [3, 'OVERDUE'],
+    [4, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`ACTION_STATUSES[${idx}] === '${val}'`, () => {
+      expect(ACTION_STATUSES[idx]).toBe(val);
+    });
+  }
+});

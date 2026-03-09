@@ -613,3 +613,79 @@ describe('Status filter simulation', () => {
     expect(MOCK_CONTRACTS.filter((c) => !c.autoRenew)).toHaveLength(3);
   });
 });
+
+// ─── TYPES — positional index parametric ─────────────────────────────────────
+
+describe('TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'SUPPLIER'],
+    [1, 'CUSTOMER'],
+    [2, 'SERVICE'],
+    [3, 'NDA'],
+    [4, 'LEASE'],
+    [5, 'EMPLOYMENT'],
+    [6, 'PARTNERSHIP'],
+    [7, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TYPES[${idx}] === '${val}'`, () => {
+      expect(TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── STATUSES — positional index parametric ──────────────────────────────────
+
+describe('STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'PENDING_APPROVAL'],
+    [2, 'ACTIVE'],
+    [3, 'EXPIRED'],
+    [4, 'TERMINATED'],
+    [5, 'RENEWED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`STATUSES[${idx}] === '${val}'`, () => {
+      expect(STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── CATEGORIES — positional index parametric ────────────────────────────────
+
+describe('CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'GENERAL'],
+    [1, 'PAYMENT'],
+    [2, 'TERMINATION'],
+    [3, 'LIABILITY'],
+    [4, 'CONFIDENTIALITY'],
+    [5, 'INDEMNITY'],
+    [6, 'IP'],
+    [7, 'COMPLIANCE'],
+    [8, 'DISPUTE'],
+    [9, 'OTHER'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+// ─── EXTRACTION_FIELDS — positional index parametric ─────────────────────────
+
+describe('EXTRACTION_FIELDS — positional index parametric', () => {
+  const expected = [
+    [0, 'parties'],
+    [1, 'dates'],
+    [2, 'values'],
+    [3, 'keyTerms'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`EXTRACTION_FIELDS[${idx}] === '${val}'`, () => {
+      expect(EXTRACTION_FIELDS[idx]).toBe(val);
+    });
+  }
+});
