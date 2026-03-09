@@ -15,6 +15,12 @@ router.get('/', (_req: Request, res: Response) => {
   res.json({ success: true, data: tiers });
 });
 
+// GET /api/billing/pricing-tiers/volume-bands — return volume discount bands
+// MUST be registered before /:id to avoid Express matching 'volume-bands' as :id
+router.get('/volume-bands', (_req: Request, res: Response) => {
+  res.json({ success: true, data: PRICING.volumeDiscounts });
+});
+
 // GET /api/billing/pricing-tiers/:id — return single tier by id
 router.get('/:id', (req: Request, res: Response) => {
   const { id } = req.params;
@@ -24,11 +30,6 @@ router.get('/:id', (req: Request, res: Response) => {
   }
   const [key, tier] = entry;
   res.json({ success: true, data: { key, ...tier } });
-});
-
-// GET /api/billing/pricing-tiers/volume-bands — return volume discount bands
-router.get('/volume-bands', (_req: Request, res: Response) => {
-  res.json({ success: true, data: PRICING.volumeDiscounts });
 });
 
 export default router;
