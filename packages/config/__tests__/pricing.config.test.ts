@@ -621,3 +621,151 @@ describe('PRICING.tiers — target ACV ranges', () => {
   it('ENTERPRISE targetACVMax is null', () => expect(PRICING.tiers.ENTERPRISE.targetACVMax).toBeNull());
   it('ENTERPRISE_PLUS targetACVMin is 75000', () => expect(PRICING.tiers.ENTERPRISE_PLUS.targetACVMin).toBe(75000));
 });
+
+// ─── Reseller Buy-Price Math ───────────────────────────────────────────────────
+
+describe('PRICING.partnerships.tiers.RESELLER — buy-price math', () => {
+  const r = PRICING.partnerships.tiers.RESELLER;
+  it('resellerDiscountPct is 20', () => expect(r.resellerDiscountPct).toBe(20));
+  it('starterBuyPriceMonthly = 49 × 0.80 = 39.20', () =>
+    expect(r.starterBuyPriceMonthly).toBeCloseTo(49 * 0.80, 2));
+  it('professionalBuyPriceMonthly = 39 × 0.80 = 31.20', () =>
+    expect(r.professionalBuyPriceMonthly).toBeCloseTo(39 * 0.80, 2));
+  it('enterpriseBuyPriceMonthly = 28 × 0.80 = 22.40', () =>
+    expect(r.enterpriseBuyPriceMonthly).toBeCloseTo(28 * 0.80, 2));
+});
+
+describe('PRICING.partnerships.tiers.STRATEGIC — buy-price math', () => {
+  const s = PRICING.partnerships.tiers.STRATEGIC;
+  it('resellerDiscountPct is 30', () => expect(s.resellerDiscountPct).toBe(30));
+  it('starterBuyPriceMonthly = 49 × 0.70 = 34.30', () =>
+    expect(s.starterBuyPriceMonthly).toBeCloseTo(49 * 0.70, 2));
+  it('professionalBuyPriceMonthly = 39 × 0.70 = 27.30', () =>
+    expect(s.professionalBuyPriceMonthly).toBeCloseTo(39 * 0.70, 2));
+  it('enterpriseBuyPriceMonthly = 28 × 0.70 = 19.60', () =>
+    expect(s.enterpriseBuyPriceMonthly).toBeCloseTo(28 * 0.70, 2));
+});
+
+// ─── NFR Licence Ordering ─────────────────────────────────────────────────────
+
+describe('PRICING.partnerships.tiers — NFR licence ordering', () => {
+  const { REFERRAL, RESELLER, STRATEGIC, WHITE_LABEL } = PRICING.partnerships.tiers;
+  it('REFERRAL nfrLicences is 0', () => expect(REFERRAL.nfrLicences).toBe(0));
+  it('RESELLER nfrLicences is 5', () => expect(RESELLER.nfrLicences).toBe(5));
+  it('STRATEGIC nfrLicences is 15', () => expect(STRATEGIC.nfrLicences).toBe(15));
+  it('WHITE_LABEL nfrLicences is 20', () => expect(WHITE_LABEL.nfrLicences).toBe(20));
+  it('NFR licences are strictly ascending: REFERRAL < RESELLER < STRATEGIC < WHITE_LABEL', () => {
+    expect(REFERRAL.nfrLicences).toBeLessThan(RESELLER.nfrLicences);
+    expect(RESELLER.nfrLicences).toBeLessThan(STRATEGIC.nfrLicences);
+    expect(STRATEGIC.nfrLicences).toBeLessThan(WHITE_LABEL.nfrLicences);
+  });
+});
+
+// ─── STRATEGIC Min ACV Commitment ─────────────────────────────────────────────
+
+describe('PRICING.partnerships.tiers.STRATEGIC — ACV commitment', () => {
+  it('minACVCommitmentPerYear is 150,000', () =>
+    expect(PRICING.partnerships.tiers.STRATEGIC.minACVCommitmentPerYear).toBe(150000));
+});
+
+// ─── Volume Band Contiguity ────────────────────────────────────────────────────
+
+describe('PRICING.volumeDiscounts.bands — contiguity', () => {
+  const bands = PRICING.volumeDiscounts.bands;
+  it('has 5 bands', () => expect(bands.length).toBe(5));
+  it('band 0→1 are contiguous (49+1 = 50)', () =>
+    expect((bands[0].maxUsers as number) + 1).toBe(bands[1].minUsers));
+  it('band 1→2 are contiguous (99+1 = 100)', () =>
+    expect((bands[1].maxUsers as number) + 1).toBe(bands[2].minUsers));
+  it('band 2→3 are contiguous (199+1 = 200)', () =>
+    expect((bands[2].maxUsers as number) + 1).toBe(bands[3].minUsers));
+  it('band 3→4 are contiguous (499+1 = 500)', () =>
+    expect((bands[3].maxUsers as number) + 1).toBe(bands[4].minUsers));
+  it('last band has null maxUsers (open-ended)', () =>
+    expect(bands[bands.length - 1].maxUsers).toBeNull());
+});
+
+// ─── calculateVolumePrice — Below Minimum ─────────────────────────────────────
+
+describe('calculateVolumePrice — below-minimum edge cases', () => {
+  it('userCount=0 returns null (below band minimum)', () =>
+    expect(calculateVolumePrice(0)).toBeNull());
+  it('userCount=1 returns null', () =>
+    expect(calculateVolumePrice(1)).toBeNull());
+  it('userCount=24 returns null (one below band 0 min of 25)', () =>
+    expect(calculateVolumePrice(24)).toBeNull());
+  it('userCount=25 returns non-null (first valid user count)', () =>
+    expect(calculateVolumePrice(25)).not.toBeNull());
+});
+
+// ─── Revenue Projection Uplift Math ───────────────────────────────────────────
+
+describe('PRICING.revenueProjections — uplift math', () => {
+  const proj = PRICING.revenueProjections;
+  it('month4: uplift / currentARR × 100 rounds to upliftPct (45)', () => {
+    const computed = Math.round((proj.month4.uplift / proj.month4.currentARR) * 100);
+    expect(computed).toBe(proj.month4.upliftPct);
+  });
+  it('month12: uplift / currentARR × 100 rounds to upliftPct (45)', () => {
+    const computed = Math.round((proj.month12.uplift / proj.month12.currentARR) * 100);
+    expect(computed).toBe(proj.month12.upliftPct);
+  });
+  it('month24: uplift / currentARR × 100 rounds to upliftPct (43)', () => {
+    const computed = Math.round((proj.month24.uplift / proj.month24.currentARR) * 100);
+    expect(computed).toBe(proj.month24.upliftPct);
+  });
+  it('month4: recommendedARR = currentARR + uplift', () =>
+    expect(proj.month4.recommendedARR).toBe(proj.month4.currentARR + proj.month4.uplift));
+  it('month12: recommendedARR = currentARR + uplift', () =>
+    expect(proj.month12.recommendedARR).toBe(proj.month12.currentARR + proj.month12.uplift));
+  it('month24: recommendedARR = currentARR + uplift', () =>
+    expect(proj.month24.recommendedARR).toBe(proj.month24.currentARR + proj.month24.uplift));
+  it('projections are monotonically increasing by customers', () =>
+    expect(proj.month4.customers).toBeLessThan(proj.month12.customers) &&
+    expect(proj.month12.customers).toBeLessThan(proj.month24.customers));
+  it('projections are monotonically increasing by currentARR', () =>
+    expect(proj.month4.currentARR).toBeLessThan(proj.month12.currentARR) &&
+    expect(proj.month12.currentARR).toBeLessThan(proj.month24.currentARR));
+});
+
+// ─── calculateACV — Monotone with User Count ──────────────────────────────────
+
+describe('calculateACV — monotone with user count (STARTER annual)', () => {
+  const cases: [number, number][] = [[1, 2], [5, 6], [9, 10], [10, 11], [50, 51]];
+  for (const [lo, hi] of cases) {
+    it(`calculateACV(STARTER, ${lo}) < calculateACV(STARTER, ${hi})`, () =>
+      expect(calculateACV('STARTER', lo, 'annual')).toBeLessThan(
+        calculateACV('STARTER', hi, 'annual')
+      ));
+  }
+});
+
+// ─── recommendTier + calculateACV pipeline ────────────────────────────────────
+
+describe('recommendTier + calculateACV cross-function invariants', () => {
+  const pivots: [number, PricingTier][] = [
+    [5, 'STARTER'],
+    [15, 'PROFESSIONAL'],
+    [50, 'ENTERPRISE'],
+    [150, 'ENTERPRISE_PLUS'],
+  ];
+  for (const [users, expected] of pivots) {
+    it(`recommendTier(${users}) = '${expected}' and calculateACV returns a number`, () => {
+      const tier = recommendTier(users);
+      expect(tier).toBe(expected);
+      const acv = calculateACV(tier, users);
+      expect(typeof acv).toBe('number');
+    });
+  }
+});
+
+// ─── designPartner Cross-Invariants ───────────────────────────────────────────
+
+describe('PRICING.designPartner — cross invariants', () => {
+  const dp = PRICING.designPartner;
+  it('noticeAtMonth < lockInMonths', () =>
+    expect(dp.noticeAtMonth).toBeLessThan(dp.lockInMonths));
+  it('noticePeriodDays is 90', () => expect(dp.noticePeriodDays).toBe(90));
+  it('maxCustomers > 0', () => expect(dp.maxCustomers).toBeGreaterThan(0));
+  it('maxCustomers is finite', () => expect(Number.isFinite(dp.maxCustomers)).toBe(true));
+});
