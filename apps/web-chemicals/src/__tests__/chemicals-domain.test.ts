@@ -588,3 +588,103 @@ describe('mock COSHH assessment data shapes', () => {
     expect(a.riskLevel).toBe('VERY_HIGH');
   });
 });
+
+// ─── Phase 211 parametric additions ──────────────────────────────────────────
+
+describe('GHS_PICTOGRAMS — positional index parametric', () => {
+  const expected = [
+    [0, 'GHS01'],
+    [1, 'GHS02'],
+    [2, 'GHS03'],
+    [3, 'GHS04'],
+    [4, 'GHS05'],
+    [5, 'GHS06'],
+    [6, 'GHS07'],
+    [7, 'GHS08'],
+    [8, 'GHS09'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`GHS_PICTOGRAMS[${idx}] === '${val}'`, () => {
+      expect(GHS_PICTOGRAMS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('GHS_PICTOGRAM_LABELS — per-code exact label parametric', () => {
+  const expected: [GHSPictogram, string][] = [
+    ['GHS01', 'Explosive'],
+    ['GHS02', 'Flammable'],
+    ['GHS03', 'Oxidiser'],
+    ['GHS04', 'Compressed Gas'],
+    ['GHS05', 'Corrosive'],
+    ['GHS06', 'Toxic'],
+    ['GHS07', 'Harmful'],
+    ['GHS08', 'Health Hazard'],
+    ['GHS09', 'Environment'],
+  ];
+  for (const [code, label] of expected) {
+    it(`${code} label === '${label}'`, () => {
+      expect(GHS_PICTOGRAM_LABELS[code]).toBe(label);
+    });
+  }
+});
+
+describe('RISK_LEVELS — positional index parametric', () => {
+  const expected = [
+    [0, 'LOW'],
+    [1, 'MEDIUM'],
+    [2, 'HIGH'],
+    [3, 'VERY_HIGH'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RISK_LEVELS[${idx}] === '${val}'`, () => {
+      expect(RISK_LEVELS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('PHYSICAL_FORMS — positional index parametric', () => {
+  const expected = [
+    [0, 'SOLID'],
+    [1, 'LIQUID'],
+    [2, 'GAS'],
+    [3, 'POWDER'],
+    [4, 'AEROSOL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PHYSICAL_FORMS[${idx}] === '${val}'`, () => {
+      expect(PHYSICAL_FORMS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('SDS_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'CURRENT'],
+    [1, 'OVERDUE'],
+    [2, 'MISSING'],
+    [3, 'PENDING'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SDS_STATUSES[${idx}] === '${val}'`, () => {
+      expect(SDS_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('MOCK_CHEMICALS — per-chemical exact riskLevel+signalWord+cmrFlag parametric', () => {
+  const expected: [string, RiskLevel, SignalWord, boolean][] = [
+    ['chem-001', 'MEDIUM',    'DANGER',  false],
+    ['chem-002', 'HIGH',      'DANGER',  false],
+    ['chem-003', 'VERY_HIGH', 'DANGER',  true],
+    ['chem-004', 'LOW',       'WARNING', false],
+  ];
+  for (const [id, riskLevel, signalWord, cmrFlag] of expected) {
+    it(`${id}: riskLevel=${riskLevel}, signalWord=${signalWord}, cmrFlag=${cmrFlag}`, () => {
+      const c = MOCK_CHEMICALS.find((x) => x.id === id);
+      expect(c?.riskLevel).toBe(riskLevel);
+      expect(c?.signalWord).toBe(signalWord);
+      expect(c?.cmrFlag).toBe(cmrFlag);
+    });
+  }
+});

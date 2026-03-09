@@ -808,3 +808,97 @@ describe('domain array completeness', () => {
     }
   });
 });
+
+// ─── Phase 211 parametric additions ──────────────────────────────────────────
+
+describe('PAYROLL_RUN_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'PROCESSING'],
+    [2, 'CALCULATED'],
+    [3, 'APPROVED'],
+    [4, 'COMPLETED'],
+    [5, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PAYROLL_RUN_STATUSES[${idx}] === '${val}'`, () => {
+      expect(PAYROLL_RUN_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('PAYSLIP_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'GENERATED'],
+    [2, 'CALCULATED'],
+    [3, 'APPROVED'],
+    [4, 'PUBLISHED'],
+    [5, 'PAID'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PAYSLIP_STATUSES[${idx}] === '${val}'`, () => {
+      expect(PAYSLIP_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('PAY_FREQUENCIES — positional index parametric', () => {
+  const expected = [
+    [0, 'WEEKLY'],
+    [1, 'BI_WEEKLY'],
+    [2, 'SEMI_MONTHLY'],
+    [3, 'MONTHLY'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`PAY_FREQUENCIES[${idx}] === '${val}'`, () => {
+      expect(PAY_FREQUENCIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('LOAN_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'PENDING'],
+    [1, 'APPROVED'],
+    [2, 'DISBURSED'],
+    [3, 'ACTIVE'],
+    [4, 'COMPLETED'],
+    [5, 'DEFAULTED'],
+    [6, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`LOAN_STATUSES[${idx}] === '${val}'`, () => {
+      expect(LOAN_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('EXPENSE_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'DRAFT'],
+    [1, 'SUBMITTED'],
+    [2, 'APPROVED'],
+    [3, 'REJECTED'],
+    [4, 'PAID'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`EXPENSE_STATUSES[${idx}] === '${val}'`, () => {
+      expect(EXPENSE_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('TAX_JURISDICTIONS — positional index parametric', () => {
+  const expected = [
+    [0, 'uk'],
+    [1, 'us-federal'],
+    [2, 'ie'],
+    [3, 'de'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TAX_JURISDICTIONS[${idx}] === '${val}'`, () => {
+      expect(TAX_JURISDICTIONS[idx]).toBe(val);
+    });
+  }
+});
