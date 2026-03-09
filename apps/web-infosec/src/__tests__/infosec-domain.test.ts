@@ -891,3 +891,168 @@ describe('scanStatusConfig — per-status label exact parametric', () => {
     });
   }
 });
+
+// ─── Phase 209 parametric additions ──────────────────────────────────────────
+
+describe('RISK_TREATMENTS — positional index parametric', () => {
+  const expected = [
+    [0, 'ACCEPT'],
+    [1, 'MITIGATE'],
+    [2, 'TRANSFER'],
+    [3, 'AVOID'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RISK_TREATMENTS[${idx}] === '${val}'`, () => {
+      expect(RISK_TREATMENTS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('RISK_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'OPEN'],
+    [1, 'IN_TREATMENT'],
+    [2, 'MONITORING'],
+    [3, 'CLOSED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RISK_STATUSES[${idx}] === '${val}'`, () => {
+      expect(RISK_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('RISK_LEVELS — mid-value positional parametric', () => {
+  const expected = [
+    [1, 'LOW'],
+    [2, 'MEDIUM'],
+    [3, 'HIGH'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RISK_LEVELS[${idx}] === '${val}'`, () => {
+      expect(RISK_LEVELS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('ASSET_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'HARDWARE'],
+    [1, 'SOFTWARE'],
+    [2, 'DATA'],
+    [3, 'NETWORK'],
+    [4, 'PERSONNEL'],
+    [5, 'FACILITY'],
+    [6, 'SERVICE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`ASSET_TYPES[${idx}] === '${val}'`, () => {
+      expect(ASSET_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('ASSET_CLASSIFICATIONS — positional index parametric', () => {
+  const expected = [
+    [0, 'CRITICAL'],
+    [1, 'HIGH'],
+    [2, 'MEDIUM'],
+    [3, 'LOW'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`ASSET_CLASSIFICATIONS[${idx}] === '${val}'`, () => {
+      expect(ASSET_CLASSIFICATIONS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('SOA_IMPL_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'fully'],
+    [1, 'partial'],
+    [2, 'planned'],
+    [3, 'n/a'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SOA_IMPL_STATUSES[${idx}] === '${val}'`, () => {
+      expect(SOA_IMPL_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('SCAN_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'completed'],
+    [1, 'running'],
+    [2, 'scheduled'],
+    [3, 'failed'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`SCAN_STATUSES[${idx}] === '${val}'`, () => {
+      expect(SCAN_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('VULN_SEVERITY_LEVELS — positional index parametric', () => {
+  const expected = [
+    [0, 'critical'],
+    [1, 'high'],
+    [2, 'medium'],
+    [3, 'low'],
+    [4, 'info'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`VULN_SEVERITY_LEVELS[${idx}] === '${val}'`, () => {
+      expect(VULN_SEVERITY_LEVELS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('ISO27001_DOMAINS — per-domain controlCount parametric', () => {
+  const expected: [string, number][] = [
+    ['A5', 8],
+    ['A6', 8],
+    ['A7', 8],
+    ['A8', 16],
+  ];
+  for (const [id, count] of expected) {
+    it(`domain ${id} controlCount = ${count}`, () => {
+      const d = ISO27001_DOMAINS.find((x) => x.id === id);
+      expect(d?.controlCount).toBe(count);
+    });
+  }
+});
+
+describe('MOCK_SCANS — per-scan status+criticalCount parametric', () => {
+  const expected: [string, ScanStatus, number][] = [
+    ['1', 'completed', 2],
+    ['2', 'completed', 0],
+    ['3', 'completed', 1],
+    ['4', 'running',   0],
+    ['5', 'completed', 0],
+    ['6', 'scheduled', 0],
+  ];
+  for (const [id, status, criticalCount] of expected) {
+    it(`scan ${id}: status=${status}, criticalCount=${criticalCount}`, () => {
+      const s = MOCK_SCANS.find((x) => x.id === id);
+      expect(s?.status).toBe(status);
+      expect(s?.criticalCount).toBe(criticalCount);
+    });
+  }
+});
+
+describe('MOCK_ASSETS — per-asset type+classification parametric', () => {
+  const expected: [string, string, string][] = [
+    ['asset-001', 'DATA',     'CRITICAL'],
+    ['asset-002', 'HARDWARE', 'HIGH'],
+    ['asset-003', 'NETWORK',  'MEDIUM'],
+  ];
+  for (const [id, type, classification] of expected) {
+    it(`${id}: type=${type}, classification=${classification}`, () => {
+      const a = MOCK_ASSETS.find((x) => x.id === id);
+      expect(a?.type).toBe(type);
+      expect(a?.classification).toBe(classification);
+    });
+  }
+});

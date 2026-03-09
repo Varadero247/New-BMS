@@ -1041,3 +1041,119 @@ describe('cross-domain invariants', () => {
     expect(pr).toBeGreaterThanOrEqual(0);
   });
 });
+
+// ─── Phase 209 parametric additions ──────────────────────────────────────────
+
+describe('COURSE_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'MANDATORY'],
+    [1, 'OPTIONAL'],
+    [2, 'REFRESHER'],
+    [3, 'INDUCTION'],
+    [4, 'CERTIFICATION'],
+    [5, 'COMPETENCY'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`COURSE_TYPES[${idx}] === '${val}'`, () => {
+      expect(COURSE_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('DELIVERY_MODES — positional index parametric', () => {
+  const expected = [
+    [0, 'CLASSROOM'],
+    [1, 'ONLINE'],
+    [2, 'ON_THE_JOB'],
+    [3, 'BLENDED'],
+    [4, 'SELF_PACED'],
+    [5, 'WORKSHOP'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`DELIVERY_MODES[${idx}] === '${val}'`, () => {
+      expect(DELIVERY_MODES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('RECORD_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'SCHEDULED'],
+    [1, 'IN_PROGRESS'],
+    [2, 'COMPLETED'],
+    [3, 'EXPIRED'],
+    [4, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RECORD_STATUSES[${idx}] === '${val}'`, () => {
+      expect(RECORD_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('COMPETENCY_LEVELS — positional index parametric', () => {
+  const expected = [
+    [0, 'NOT_STARTED'],
+    [1, 'DEVELOPING'],
+    [2, 'COMPETENT'],
+    [3, 'EXPERT'],
+    [4, 'EXPIRED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`COMPETENCY_LEVELS[${idx}] === '${val}'`, () => {
+      expect(COMPETENCY_LEVELS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('TNA_PRIORITIES — positional index parametric', () => {
+  const expected = [
+    [0, 'CRITICAL'],
+    [1, 'HIGH'],
+    [2, 'MEDIUM'],
+    [3, 'LOW'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TNA_PRIORITIES[${idx}] === '${val}'`, () => {
+      expect(TNA_PRIORITIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('MOCK_COURSES — per-course type+delivery+cost parametric', () => {
+  const expected: [string, CourseType, DeliveryMode, number][] = [
+    ['c1', 'MANDATORY',    'CLASSROOM', 150],
+    ['c2', 'CERTIFICATION','BLENDED',   1800],
+    ['c3', 'INDUCTION',    'CLASSROOM', 0],
+    ['c4', 'MANDATORY',    'ONLINE',    45],
+    ['c5', 'OPTIONAL',     'WORKSHOP',  600],
+    ['c6', 'REFRESHER',    'ONLINE',    30],
+  ];
+  for (const [id, type, delivery, cost] of expected) {
+    it(`${id}: type=${type}, delivery=${delivery}, cost=${cost}`, () => {
+      const c = MOCK_COURSES.find((x) => x.id === id);
+      expect(c?.type).toBe(type);
+      expect(c?.delivery).toBe(delivery);
+      expect(c?.cost).toBe(cost);
+    });
+  }
+});
+
+describe('MOCK_RECORDS — per-record status+passed+score parametric', () => {
+  const expected: [string, RecordStatus, boolean, number | null][] = [
+    ['r1', 'COMPLETED',   true,  88],
+    ['r2', 'IN_PROGRESS', false, null],
+    ['r3', 'SCHEDULED',   false, null],
+    ['r4', 'EXPIRED',     true,  75],
+    ['r5', 'CANCELLED',   false, null],
+    ['r6', 'COMPLETED',   true,  92],
+  ];
+  for (const [id, status, passed, score] of expected) {
+    it(`${id}: status=${status}, passed=${passed}, score=${score}`, () => {
+      const r = MOCK_RECORDS.find((x) => x.id === id);
+      expect(r?.status).toBe(status);
+      expect(r?.passed).toBe(passed);
+      expect(r?.score).toBe(score);
+    });
+  }
+});

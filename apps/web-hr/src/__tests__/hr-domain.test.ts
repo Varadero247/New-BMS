@@ -1001,3 +1001,102 @@ describe('isPipelineStage — per-stage parametric', () => {
     });
   }
 });
+
+// ─── Phase 209 parametric additions ──────────────────────────────────────────
+
+describe('EMPLOYMENT_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'ACTIVE'],
+    [1, 'ON_LEAVE'],
+    [2, 'PROBATION'],
+    [3, 'NOTICE_PERIOD'],
+    [4, 'SUSPENDED'],
+    [5, 'TERMINATED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`EMPLOYMENT_STATUSES[${idx}] === '${val}'`, () => {
+      expect(EMPLOYMENT_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('EMPLOYMENT_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'FULL_TIME'],
+    [1, 'PART_TIME'],
+    [2, 'CONTRACT'],
+    [3, 'INTERN'],
+    [4, 'TEMPORARY'],
+    [5, 'CASUAL'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`EMPLOYMENT_TYPES[${idx}] === '${val}'`, () => {
+      expect(EMPLOYMENT_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('LEAVE_REQUEST_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'PENDING'],
+    [1, 'APPROVED'],
+    [2, 'REJECTED'],
+    [3, 'CANCELLED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`LEAVE_REQUEST_STATUSES[${idx}] === '${val}'`, () => {
+      expect(LEAVE_REQUEST_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('JOB_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'open'],
+    [1, 'closed'],
+    [2, 'on-hold'],
+    [3, 'draft'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`JOB_STATUSES[${idx}] === '${val}'`, () => {
+      expect(JOB_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('JOB_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'full-time'],
+    [1, 'part-time'],
+    [2, 'contract'],
+    [3, 'internship'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`JOB_TYPES[${idx}] === '${val}'`, () => {
+      expect(JOB_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('APPLICANT_STAGES — positional index parametric', () => {
+  const expected = [
+    [0, 'applied'],
+    [1, 'screening'],
+    [2, 'interview-1'],
+    [3, 'interview-2'],
+    [4, 'offer'],
+    [5, 'hired'],
+    [6, 'rejected'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`APPLICANT_STAGES[${idx}] === '${val}'`, () => {
+      expect(APPLICANT_STAGES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('totalApplicantsForJobs — exact aggregate', () => {
+  it('MOCK_JOBS total applicants = 109', () => {
+    expect(totalApplicantsForJobs(MOCK_JOBS)).toBe(109);
+  });
+});

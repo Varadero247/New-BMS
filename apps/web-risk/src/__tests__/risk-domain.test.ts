@@ -809,3 +809,129 @@ describe('calcInherentScore — additional exact values parametric', () => {
     });
   }
 });
+
+// ─── Phase 208 parametric additions ──────────────────────────────────────────
+
+describe('CATEGORIES — positional index parametric', () => {
+  const expected = [
+    [0, 'STRATEGIC'],
+    [1, 'OPERATIONAL'],
+    [2, 'FINANCIAL'],
+    [3, 'COMPLIANCE'],
+    [4, 'REPUTATIONAL'],
+    [5, 'ENVIRONMENTAL'],
+    [6, 'HEALTH_SAFETY'],
+    [7, 'INFORMATION_SECURITY'],
+    [8, 'QUALITY'],
+    [9, 'SUPPLY_CHAIN'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CATEGORIES[${idx}] === '${val}'`, () => {
+      expect(CATEGORIES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('LIKELIHOODS — positional index parametric', () => {
+  const expected = [
+    [0, 'RARE'],
+    [1, 'UNLIKELY'],
+    [2, 'POSSIBLE'],
+    [3, 'LIKELY'],
+    [4, 'ALMOST_CERTAIN'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`LIKELIHOODS[${idx}] === '${val}'`, () => {
+      expect(LIKELIHOODS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('CONSEQUENCES — positional index parametric', () => {
+  const expected = [
+    [0, 'INSIGNIFICANT'],
+    [1, 'MINOR'],
+    [2, 'MODERATE'],
+    [3, 'MAJOR'],
+    [4, 'CATASTROPHIC'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CONSEQUENCES[${idx}] === '${val}'`, () => {
+      expect(CONSEQUENCES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('TREATMENTS — positional index parametric', () => {
+  const expected = [
+    [0, 'ACCEPT'],
+    [1, 'MITIGATE'],
+    [2, 'TRANSFER'],
+    [3, 'AVOID'],
+    [4, 'ESCALATE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`TREATMENTS[${idx}] === '${val}'`, () => {
+      expect(TREATMENTS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('RISK_STATUSES — positional index parametric', () => {
+  const expected = [
+    [0, 'IDENTIFIED'],
+    [1, 'ASSESSED'],
+    [2, 'TREATING'],
+    [3, 'MONITORING'],
+    [4, 'CLOSED'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`RISK_STATUSES[${idx}] === '${val}'`, () => {
+      expect(RISK_STATUSES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('CONTROL_TYPES — positional index parametric', () => {
+  const expected = [
+    [0, 'PREVENTIVE'],
+    [1, 'DETECTIVE'],
+    [2, 'REACTIVE'],
+    [3, 'DIRECTIVE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`CONTROL_TYPES[${idx}] === '${val}'`, () => {
+      expect(CONTROL_TYPES[idx]).toBe(val);
+    });
+  }
+});
+
+describe('EFFECTIVENESS_LEVELS — positional index parametric', () => {
+  const expected = [
+    [0, 'STRONG'],
+    [1, 'ADEQUATE'],
+    [2, 'WEAK'],
+    [3, 'NONE_EFFECTIVE'],
+  ] as const;
+  for (const [idx, val] of expected) {
+    it(`EFFECTIVENESS_LEVELS[${idx}] === '${val}'`, () => {
+      expect(EFFECTIVENESS_LEVELS[idx]).toBe(val);
+    });
+  }
+});
+
+describe('TREATMENT_MOCK_DATA — per-treatment count parametric', () => {
+  const expected = [
+    ['MITIGATE', 23],
+    ['ACCEPT', 12],
+    ['TRANSFER', 7],
+    ['AVOID', 5],
+    ['ESCALATE', 3],
+  ] as const;
+  for (const [treatment, count] of expected) {
+    it(`${treatment} count === ${count}`, () => {
+      const entry = TREATMENT_MOCK_DATA.find((d) => d.treatment === treatment);
+      expect(entry?.count).toBe(count);
+    });
+  }
+});
