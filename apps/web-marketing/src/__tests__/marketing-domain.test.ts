@@ -544,3 +544,83 @@ describe('TIER_IDS — per-tier parametric', () => {
     expect(TIER_IDS).toHaveLength(4);
   });
 });
+
+// ─── Parametric: ISO_STANDARDS_KEYS positional index ─────────────────────────
+
+describe('ISO_STANDARDS_KEYS — positional index parametric', () => {
+  const cases: [string, number][] = [
+    ['9001', 0],
+    ['14001', 1],
+    ['45001', 2],
+    ['27001', 3],
+    ['13485', 4],
+    ['AS9100D', 5],
+    ['IATF16949', 6],
+    ['42001', 7],
+    ['37001', 8],
+    ['22000', 9],
+    ['50001', 10],
+    ['21502', 11],
+  ];
+  for (const [key, idx] of cases) {
+    it(`${key} is at index ${idx}`, () => {
+      expect(ISO_STANDARDS_KEYS[idx]).toBe(key);
+    });
+  }
+});
+
+// ─── Parametric: ISO_STANDARDS_DETAILS per-standard first industry ────────────
+
+describe('ISO_STANDARDS_DETAILS — per-standard first industry parametric', () => {
+  const cases: [string, string][] = [
+    ['9001', 'Manufacturing'],
+    ['14001', 'Construction'],
+    ['45001', 'Construction'],
+    ['27001', 'Technology'],
+    ['13485', 'Medical Devices'],
+    ['AS9100D', 'Aerospace'],
+    ['IATF16949', 'Automotive'],
+    ['42001', 'Technology'],
+    ['37001', 'Government & Public Sector'],
+    ['22000', 'Food & Beverage'],
+    ['50001', 'Manufacturing'],
+    ['21502', 'Engineering & Construction'],
+  ];
+  for (const [key, firstIndustry] of cases) {
+    it(`${key} first industry is "${firstIndustry}"`, () => {
+      expect(ISO_STANDARDS_DETAILS[key].industries[0]).toBe(firstIndustry);
+    });
+  }
+});
+
+// ─── Parametric: ARTICLE_FILTERS positional index ─────────────────────────────
+
+describe('ARTICLE_FILTERS — positional index parametric', () => {
+  const cases: [string, number][] = [
+    ['All', 0],
+    ['Product', 1],
+    ['Standards', 2],
+    ['Engineering', 3],
+  ];
+  for (const [filter, idx] of cases) {
+    it(`"${filter}" is at index ${idx}`, () => {
+      expect(ARTICLE_FILTERS[idx]).toBe(filter);
+    });
+  }
+});
+
+// ─── Parametric: PRICING_COMPETITORS positional index ────────────────────────
+
+describe('PRICING_COMPETITORS — positional index parametric', () => {
+  const cases: [string, number][] = [
+    ['Donesafe', 0],
+    ['Intelex', 1],
+    ['ETQ Reliance', 2],
+    ['Nexara Enterprise', 3],
+  ];
+  for (const [competitor, idx] of cases) {
+    it(`"${competitor}" is at index ${idx}`, () => {
+      expect(PRICING_COMPETITORS[idx]).toBe(competitor);
+    });
+  }
+});

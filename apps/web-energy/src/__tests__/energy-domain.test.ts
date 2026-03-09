@@ -869,3 +869,89 @@ describe('cross-domain invariants — energy', () => {
     expect(ENERGY_SOURCES.reduce((s, e) => s + e.share, 0)).toBe(100);
   });
 });
+
+// ─── Parametric: STATUS_OPTIONS positional index ──────────────────────────────
+
+describe('STATUS_OPTIONS — positional index parametric', () => {
+  const cases: [ReadingStatus, number][] = [
+    ['PENDING', 0],
+    ['VERIFIED', 1],
+    ['FLAGGED', 2],
+    ['REJECTED', 3],
+  ];
+  for (const [status, idx] of cases) {
+    it(`${status} is at index ${idx}`, () => {
+      expect(STATUS_OPTIONS[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: READING_TYPES positional index ───────────────────────────────
+
+describe('READING_TYPES — positional index parametric', () => {
+  const cases: [ReadingType, number][] = [
+    ['MANUAL', 0],
+    ['AUTOMATIC', 1],
+    ['ESTIMATED', 2],
+    ['INVOICE', 3],
+  ];
+  for (const [type, idx] of cases) {
+    it(`${type} is at index ${idx}`, () => {
+      expect(READING_TYPES[idx]).toBe(type);
+    });
+  }
+});
+
+// ─── Parametric: SEU_STATUSES positional index ────────────────────────────────
+
+describe('SEU_STATUSES — positional index parametric', () => {
+  const cases: [SEUStatus, number][] = [
+    ['optimized', 0],
+    ['monitoring', 1],
+    ['action-needed', 2],
+  ];
+  for (const [status, idx] of cases) {
+    it(`"${status}" is at index ${idx}`, () => {
+      expect(SEU_STATUSES[idx]).toBe(status);
+    });
+  }
+});
+
+// ─── Parametric: ENPIS per-EnPI exact current+baseline+target ────────────────
+
+describe('ENPIS — per-EnPI exact current+baseline+target parametric', () => {
+  const cases: [string, number, number, number][] = [
+    ['Energy Intensity',   12.3,   15.0,   11.0],
+    ['Electricity per m²', 142,    165,    130],
+    ['Gas Consumption',    4200,   5100,   3800],
+    ['Energy Cost Ratio',  0.82,   0.95,   0.75],
+    ['Renewable %',        38,     22,     50],
+    ['Peak Demand',        485,    540,    450],
+  ];
+  for (const [name, current, baseline, target] of cases) {
+    it(`${name}: current=${current}, baseline=${baseline}, target=${target}`, () => {
+      const e = ENPIS.find((x) => x.name === name)!;
+      expect(e.current).toBeCloseTo(current, 5);
+      expect(e.baseline).toBeCloseTo(baseline, 5);
+      expect(e.target).toBeCloseTo(target, 5);
+    });
+  }
+});
+
+// ─── Parametric: ENERGY_SOURCES per-source cost exact ────────────────────────
+
+describe('ENERGY_SOURCES — per-source cost exact parametric', () => {
+  const cases: [string, number][] = [
+    ['Grid Electricity',    73500],
+    ['Natural Gas',         36400],
+    ['Solar PV (On-site)',  0],
+    ['Diesel (Generators)', 5880],
+    ['Wind (PPA)',          4200],
+  ];
+  for (const [name, cost] of cases) {
+    it(`${name}: cost = ${cost}`, () => {
+      const src = ENERGY_SOURCES.find((e) => e.name === name)!;
+      expect(src.cost).toBe(cost);
+    });
+  }
+});
