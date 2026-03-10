@@ -281,7 +281,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 ## Run Tests
 
 ```bash
-pnpm test                                # All Jest tests (~1,306,475 across ~1,200+ suites / 492 Jest projects — all passing)
+pnpm test                                # All Jest tests (~1,290,475 across ~1,200+ suites / 492 Jest projects — all passing)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 40 modules, ~1,800+ assertions)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
