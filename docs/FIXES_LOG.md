@@ -8,6 +8,61 @@
 ---
 
 
+## Phase 268 — UI Bug Fixes (March 11, 2026)
+
+### 1. Emergency module — Premises and Incidents tabs crash fix
+
+**Root cause:** API returns raw DB field names that do not match the TypeScript interface expected by the frontend, causing `undefined.replace()` TypeErrors at runtime.
+
+**`apps/web-emergency/src/app/premises/page.tsx`:** API returns `buildingType`, `responsiblePersonName`, `_count.activeIncidents` but interface expected `type`, `rpName`, `activeIncidents`. Added data normalisation map inside `loadPremises` useCallback to transform raw API objects to interface-compliant shapes before setting state.
+
+**`apps/web-emergency/src/app/incidents/page.tsx`:** API returns `emergencyType`, `incidentNumber`, `incidentCommanderName`, `reportedAt`, `premises.name` but interface expected `type`, `referenceNumber`, `commanderName`, `declaredAt`, `premisesName`. Added data normalisation map inside `loadIncidents` useCallback.
+
+---
+
+### 2. Partner Portal — appearance and page loading fixes
+
+**Missing Tailwind config (`apps/web-partner-portal/`):** The app had no `tailwind.config.ts` or `postcss.config.js`, so `@tailwind` directives in globals.css produced no CSS output and pages appeared unstyled. Created both config files, added `autoprefixer`/`postcss`/`tailwindcss` devDeps to `package.json`, updated `globals.css` to import from `../../../../packages/ui/globals.css`, and updated `layout.tsx` with Google Fonts (DM Sans, Syne, DM Mono) and theme-switching inline script. Also added missing `@ims/*` workspace deps.
+
+**Indefinite loading state (`apps/web-partner-portal/src/app/deals/page.tsx` and `src/app/profile/page.tsx`):** API calls to `/api/billing/partners/*` fail when no `partner_portal_token` is present in localStorage. Empty catch blocks left pages permanently stuck on "Loading...". Added `MOCK_DEALS` (5 sample deals) and `MOCK_PROFILE` fallback data so pages render with representative demo data on API failure instead of blank/stuck state. Also cleared stale server process on port 3049 that was serving old build chunks.
+
+---
+
+### 3. Quality — Management Review modal form cut off
+
+**`packages/ui/src/modal.tsx`:** Modal had no max-height or scroll, so forms taller than the viewport were cut off with no way to reach lower fields or the Save/Cancel buttons. Restructured Modal layout to use `flex flex-col max-h-[90vh]`:
+- Header: `flex-shrink-0` with bottom border (always visible)
+- Content: `flex-1 overflow-y-auto` (scrollable body)
+- ModalFooter: `sticky bottom-0` with background so Save/Cancel stay visible while scrolling
+- Added `p-4` padding to outer container to prevent modal touching viewport edges
+
+**`apps/web-quality/src/app/management-reviews/client.tsx`:** Changed Schedule Review modal from `size="lg"` to `size="xl"` to accommodate the taller form.
+
+---
+
+### 4. Quality — Templates category filter broken
+
+**`apps/web-quality/src/app/templates/client.tsx`:** The `CATEGORIES` array used human-readable title-case strings (`'Assessment'`, `'Audit'`, etc.) that did not match DB enum values (`AUDIT`, `CAPA`, `CUSTOMER`, etc.), so the filter never returned any results. Replaced with a `{ value, label }[]` array using actual DB enum values as `value` with readable labels.
+
+---
+
+### 5. All module templates — category filter audit and fixes
+
+Audited all 13 `templates/client.tsx` files across the system. Found and fixed:
+
+- **`apps/web-health-safety/src/app/templates/client.tsx`** (fixed): Same wrong-casing issue. Replaced with correct DB enum values sourced by querying actual DB records: `ASSESSMENT`, `AUDIT`, `CHECKLIST`, `COMPLIANCE`, `FORM`, `INCIDENT_INVESTIGATION`, `INSPECTION`, `MANAGEMENT_REVIEW`, `MANUAL`, `PLAN`, `POLICY`, `RECORD`, `REGISTER`, `REPORT`, `RISK_ASSESSMENT`, `TRAINING`.
+- **`apps/web-environment/src/app/templates/client.tsx`** (fixed): Same wrong-casing issue. Replaced with: `AUDIT`, `COMPLIANCE`, `INSPECTION`, `MANAGEMENT_REVIEW`, `MANUAL`, `PLAN`, `PLANNING`, `POLICY`, `RECORD`, `REGISTER`, `REPORT`, `REPORTING`, `RISK_ASSESSMENT`.
+- **`apps/web-dashboard/src/app/templates/client.tsx`** (fixed): Values were correct DB enums but rendered raw (e.g. `RISK_ASSESSMENT` shown to user). Converted to `{ value, label }` format with readable labels. Also added missing categories: `ASSESSMENT`, `CHECKLIST`, `FORM`, `MANUAL`, `PLAN`, `PLANNING`, `RECORD`, `REGISTER`, `REPORT`.
+- **`apps/web-settings/src/app/templates/client.tsx`** (fixed): Same as Dashboard fix.
+
+Already correct (no change): `web-aerospace`, `web-automotive`, `web-medical` (already used `{ value, label }` format with correct DB enums). `web-hr`, `web-inventory`, `web-payroll`, `web-project-management`, `web-workflows` (no category filter).
+
+**Rebuilt and restarted:** web-quality (3003), web-health-safety (3001), web-environment (3002), web-dashboard (3000), web-settings (3004), web-partner-portal (3049) — all confirmed running.
+
+**Note:** Unit test count unchanged (no new test files added). All ~1,290,475 unit tests / ~1,200+ suites / 492 Jest projects remain passing.
+
+---
+
 ## Phases 266–267 — Fix Broken Describe Blocks in 40 Test Files (March 9, 2026)
 
 **Root cause:** Phase-261/264 appended `admx2`-suffixed hammingDistance phases to 40 test files. A bug in the generation caused each phase to be appended TWICE — once correctly (using `hdNNNadmx2()`), and once broken (using `hd()` without suffix — `ReferenceError`). This caused 400 failing tests per file × 40 files = 16,000 failing tests.

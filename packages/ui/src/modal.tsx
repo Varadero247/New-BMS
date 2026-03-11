@@ -49,7 +49,7 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
@@ -60,7 +60,7 @@ export function Modal({
       {/* Modal */}
       <div
         className={cn(
-          'relative z-50 w-full rounded-lg bg-white dark:bg-gray-900 p-6 shadow-lg',
+          'relative z-50 w-full flex flex-col rounded-lg bg-white dark:bg-gray-900 shadow-lg max-h-[90vh]',
           sizeClasses[size],
           className
         )}
@@ -72,7 +72,7 @@ export function Modal({
       >
         {/* Header */}
         {(title || description) && (
-          <div className="mb-4">
+          <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 pr-12">
             {title && (
               <h2
                 id="modal-title"
@@ -112,8 +112,10 @@ export function Modal({
           <span className="sr-only">Close</span>
         </button>
 
-        {/* Content */}
-        {children}
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -125,5 +127,14 @@ interface ModalFooterProps {
 }
 
 export function ModalFooter({ children, className }: ModalFooterProps) {
-  return <div className={cn('mt-6 flex justify-end space-x-2', className)}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        'sticky bottom-0 mt-4 flex justify-end space-x-2 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pt-4 pb-2',
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
 }

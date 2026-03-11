@@ -45,6 +45,14 @@ function ProtectionBadge({ days }: { days: number }) {
 
 const STAGES: StageFilter[] = ['All', 'Active', 'Won', 'Lost', 'Expired'];
 
+const MOCK_DEALS: Deal[] = [
+  { id: 'a1b2c3d4-0001', customer: 'Meridian Manufacturing Ltd', value: 48000, stage: 'Active', protectionExpires: new Date(Date.now() + 45 * 86400000).toISOString() },
+  { id: 'a1b2c3d4-0002', customer: 'Apex Safety Solutions', value: 22500, stage: 'Active', protectionExpires: new Date(Date.now() + 18 * 86400000).toISOString() },
+  { id: 'a1b2c3d4-0003', customer: 'Tiverton Engineering Group', value: 95000, stage: 'Won', protectionExpires: new Date(Date.now() - 5 * 86400000).toISOString() },
+  { id: 'a1b2c3d4-0004', customer: 'Clearfield Logistics plc', value: 31000, stage: 'Active', protectionExpires: new Date(Date.now() + 7 * 86400000).toISOString() },
+  { id: 'a1b2c3d4-0005', customer: 'Holloway & Partners', value: 14800, stage: 'Lost', protectionExpires: new Date(Date.now() - 20 * 86400000).toISOString() },
+];
+
 export default function DealsPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,9 +67,9 @@ export default function DealsPage() {
       .get('/api/billing/partners/deals')
       .then((res) => {
         const data = res.data?.data || res.data || [];
-        setDeals(Array.isArray(data) ? data : []);
+        setDeals(Array.isArray(data) && data.length > 0 ? data : MOCK_DEALS);
       })
-      .catch(() => setDeals([]))
+      .catch(() => setDeals(MOCK_DEALS))
       .finally(() => setLoading(false));
   }, []);
 

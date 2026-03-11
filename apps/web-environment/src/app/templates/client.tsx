@@ -31,16 +31,21 @@ interface Template {
 }
 
 const MODULE_FILTER = 'ENVIRONMENT';
-const CATEGORIES = [
-  'All',
-  'Assessment',
-  'Audit',
-  'Checklist',
-  'Form',
-  'Policy',
-  'Procedure',
-  'Register',
-  'Report',
+const CATEGORIES: { value: string; label: string }[] = [
+  { value: 'All', label: 'All Categories' },
+  { value: 'AUDIT', label: 'Audit' },
+  { value: 'COMPLIANCE', label: 'Compliance' },
+  { value: 'INSPECTION', label: 'Inspection' },
+  { value: 'MANAGEMENT_REVIEW', label: 'Management Review' },
+  { value: 'MANUAL', label: 'Manual' },
+  { value: 'PLAN', label: 'Plan' },
+  { value: 'PLANNING', label: 'Planning' },
+  { value: 'POLICY', label: 'Policy' },
+  { value: 'RECORD', label: 'Record' },
+  { value: 'REGISTER', label: 'Register' },
+  { value: 'REPORT', label: 'Report' },
+  { value: 'REPORTING', label: 'Reporting' },
+  { value: 'RISK_ASSESSMENT', label: 'Risk Assessment' },
 ];
 const STATUSES = ['All', 'ACTIVE', 'DRAFT', 'ARCHIVED'];
 
@@ -247,8 +252,8 @@ export default function TemplatesClient() {
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c === 'All' ? 'All Categories' : c}
+                <option key={c.value} value={c.value}>
+                  {c.label}
                 </option>
               ))}
             </select>

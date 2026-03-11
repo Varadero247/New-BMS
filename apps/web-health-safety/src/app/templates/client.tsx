@@ -31,16 +31,24 @@ interface Template {
 }
 
 const MODULE_FILTER = 'HEALTH_SAFETY';
-const CATEGORIES = [
-  'All',
-  'Assessment',
-  'Audit',
-  'Checklist',
-  'Form',
-  'Policy',
-  'Procedure',
-  'Register',
-  'Report',
+const CATEGORIES: { value: string; label: string }[] = [
+  { value: 'All', label: 'All Categories' },
+  { value: 'ASSESSMENT', label: 'Assessment' },
+  { value: 'AUDIT', label: 'Audit' },
+  { value: 'CHECKLIST', label: 'Checklist' },
+  { value: 'COMPLIANCE', label: 'Compliance' },
+  { value: 'FORM', label: 'Form' },
+  { value: 'INCIDENT_INVESTIGATION', label: 'Incident Investigation' },
+  { value: 'INSPECTION', label: 'Inspection' },
+  { value: 'MANAGEMENT_REVIEW', label: 'Management Review' },
+  { value: 'MANUAL', label: 'Manual' },
+  { value: 'PLAN', label: 'Plan' },
+  { value: 'POLICY', label: 'Policy' },
+  { value: 'RECORD', label: 'Record' },
+  { value: 'REGISTER', label: 'Register' },
+  { value: 'REPORT', label: 'Report' },
+  { value: 'RISK_ASSESSMENT', label: 'Risk Assessment' },
+  { value: 'TRAINING', label: 'Training' },
 ];
 const STATUSES = ['All', 'ACTIVE', 'DRAFT', 'ARCHIVED'];
 
@@ -247,8 +255,8 @@ export default function TemplatesClient() {
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c === 'All' ? 'All Categories' : c}
+                <option key={c.value} value={c.value}>
+                  {c.label}
                 </option>
               ))}
             </select>

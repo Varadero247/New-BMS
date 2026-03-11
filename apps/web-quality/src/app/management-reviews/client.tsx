@@ -402,7 +402,7 @@ export default function ManagementReviewsPage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editItem ? 'Edit Management Review' : 'Schedule Management Review'}
-        size="lg"
+        size="xl"
       >
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">

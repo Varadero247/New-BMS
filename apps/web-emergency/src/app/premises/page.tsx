@@ -135,7 +135,28 @@ export default function PremisesPage() {
       if (searchTerm) params.search = searchTerm;
       if (typeFilter !== 'all') params.type = typeFilter;
       const r = await api.get('/premises', { params });
-      setPremises(r.data.data || []);
+      const raw: Record<string, unknown>[] = Array.isArray(r.data.data) ? r.data.data : [];
+      setPremises(
+        raw.map((p) => ({
+          id: String(p.id ?? ''),
+          referenceNumber: String(p.referenceNumber ?? p.id ?? '').slice(0, 12).toUpperCase(),
+          name: String(p.name ?? ''),
+          type: String(p.buildingType ?? p.type ?? 'OTHER'),
+          address: String(p.address ?? ''),
+          city: String(p.city ?? ''),
+          postcode: String(p.postcode ?? ''),
+          rpName: String(p.responsiblePersonName ?? p.rpName ?? ''),
+          rpEmail: String(p.responsiblePersonEmail ?? p.rpEmail ?? ''),
+          rpPhone: String(p.responsiblePersonPhone ?? p.rpPhone ?? ''),
+          occupants: Number(p.normalOccupancy ?? p.maxOccupancy ?? p.occupants ?? 0),
+          fraStatus: String(p.fraStatus ?? 'NOT_COMPLETED'),
+          fraLastDate: (p.fraLastDate as string | null) ?? null,
+          fraNextDue: (p.fraNextDue as string | null) ?? null,
+          lastDrillDate: (p.lastDrillDate as string | null) ?? null,
+          activeIncidents: Number((p._count as Record<string, unknown> | undefined)?.activeIncidents ?? p.activeIncidents ?? 0),
+          createdAt: String(p.createdAt ?? ''),
+        }))
+      );
     } catch {
       setError('Failed to load premises.');
     } finally {

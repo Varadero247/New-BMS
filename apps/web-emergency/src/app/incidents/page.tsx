@@ -100,7 +100,27 @@ export default function IncidentsPage() {
       if (statusFilter !== 'ALL') params.status = statusFilter;
       if (searchTerm) params.search = searchTerm;
       const r = await api.get('/incidents', { params });
-      setIncidents(r.data.data || []);
+      const raw: Record<string, unknown>[] = Array.isArray(r.data.data) ? r.data.data : [];
+      setIncidents(
+        raw.map((inc) => {
+          const premises = inc.premises as Record<string, unknown> | null | undefined;
+          return {
+            id: String(inc.id ?? ''),
+            referenceNumber: String(inc.incidentNumber ?? inc.referenceNumber ?? ''),
+            title: String(inc.title ?? ''),
+            type: String(inc.emergencyType ?? inc.type ?? 'OTHER'),
+            severity: String(inc.severity ?? ''),
+            status: String(inc.status ?? ''),
+            premisesId: String(inc.premisesId ?? ''),
+            premisesName: String(premises?.name ?? inc.premisesName ?? ''),
+            declaredAt: String(inc.reportedAt ?? inc.declaredAt ?? inc.createdAt ?? ''),
+            closedAt: (inc.closedAt as string | null) ?? null,
+            commanderName: String(inc.incidentCommanderName ?? inc.commanderName ?? ''),
+            description: String(inc.description ?? ''),
+            createdAt: String(inc.createdAt ?? ''),
+          };
+        })
+      );
     } catch {
       setError('Failed to load incidents.');
     } finally {

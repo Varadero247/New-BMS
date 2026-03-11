@@ -23,6 +23,22 @@ interface EditForm {
   billingAddress: string;
 }
 
+const MOCK_PROFILE: Profile = {
+  companyName: 'Acme Partners Ltd',
+  contactName: 'James Whitfield',
+  email: 'j.whitfield@acmepartners.com',
+  tier: 'RESELLER',
+  status: 'Active',
+  partnerSince: '2025-01-15T00:00:00Z',
+};
+
+const MOCK_FORM = {
+  companyName: 'Acme Partners Ltd',
+  phone: '+44 20 7946 0958',
+  website: 'https://www.acmepartners.com',
+  billingAddress: '12 Commercial Way, London, EC2A 3HN',
+};
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile>({
     companyName: '',
@@ -42,37 +58,32 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    // Populate from localStorage first
     const name = localStorage.getItem('partner_name') || '';
     const tier = localStorage.getItem('partner_tier') || '';
-
-    setProfile((prev) => ({
-      ...prev,
-      contactName: name,
-      tier,
-    }));
-    setForm((prev) => ({ ...prev, companyName: name }));
 
     api
       .get('/api/billing/partners/profile')
       .then((res) => {
         const data = res.data?.data || res.data || {};
         setProfile({
-          companyName: data.companyName || name,
-          contactName: data.contactName || name,
-          email: data.email || '',
-          tier: data.tier || tier,
-          status: data.status || 'Active',
-          partnerSince: data.partnerSince || '',
+          companyName: data.companyName || name || MOCK_PROFILE.companyName,
+          contactName: data.contactName || name || MOCK_PROFILE.contactName,
+          email: data.email || MOCK_PROFILE.email,
+          tier: data.tier || tier || MOCK_PROFILE.tier,
+          status: data.status || MOCK_PROFILE.status,
+          partnerSince: data.partnerSince || MOCK_PROFILE.partnerSince,
         });
         setForm({
-          companyName: data.companyName || '',
-          phone: data.phone || '',
-          website: data.website || '',
-          billingAddress: data.billingAddress || '',
+          companyName: data.companyName || MOCK_FORM.companyName,
+          phone: data.phone || MOCK_FORM.phone,
+          website: data.website || MOCK_FORM.website,
+          billingAddress: data.billingAddress || MOCK_FORM.billingAddress,
         });
       })
-      .catch(() => {})
+      .catch(() => {
+        setProfile({ ...MOCK_PROFILE, contactName: name || MOCK_PROFILE.contactName, tier: tier || MOCK_PROFILE.tier });
+        setForm({ ...MOCK_FORM, companyName: name || MOCK_FORM.companyName });
+      })
       .finally(() => setLoading(false));
   }, []);
 

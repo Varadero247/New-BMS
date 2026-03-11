@@ -31,16 +31,15 @@ interface Template {
 }
 
 const MODULE_FILTER = 'QUALITY';
-const CATEGORIES = [
-  'All',
-  'Assessment',
-  'Audit',
-  'Checklist',
-  'Form',
-  'Policy',
-  'Procedure',
-  'Register',
-  'Report',
+const CATEGORIES: { value: string; label: string }[] = [
+  { value: 'All', label: 'All Categories' },
+  { value: 'AUDIT', label: 'Audit' },
+  { value: 'CAPA', label: 'CAPA' },
+  { value: 'CUSTOMER', label: 'Customer' },
+  { value: 'DESIGN_DEVELOPMENT', label: 'Design & Development' },
+  { value: 'MANAGEMENT_REVIEW', label: 'Management Review' },
+  { value: 'RISK_ASSESSMENT', label: 'Risk Assessment' },
+  { value: 'SUPPLIER', label: 'Supplier' },
 ];
 const STATUSES = ['All', 'ACTIVE', 'DRAFT', 'ARCHIVED'];
 
@@ -60,7 +59,7 @@ export default function TemplatesClient() {
     try {
       const params: Record<string, string | number> = { module: MODULE_FILTER, limit: 50 };
       if (search) params.search = search;
-      if (categoryFilter !== 'All') params.category = categoryFilter;
+      if (categoryFilter !== 'All') params.category = categoryFilter;  // value is the DB enum
       if (statusFilter !== 'All') params.status = statusFilter;
       const response = await gateway.get('/templates', { params });
       setTemplates(response.data.data || []);
@@ -247,8 +246,8 @@ export default function TemplatesClient() {
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c === 'All' ? 'All Categories' : c}
+                <option key={c.value} value={c.value}>
+                  {c.label}
                 </option>
               ))}
             </select>

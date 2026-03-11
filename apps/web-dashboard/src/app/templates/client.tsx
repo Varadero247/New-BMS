@@ -30,25 +30,34 @@ interface Template {
   updatedAt: string;
 }
 
-const CATEGORIES = [
-  'All',
-  'AUDIT',
-  'CAPA',
-  'CERTIFICATION',
-  'COMPLIANCE',
-  'CUSTOMER',
-  'DESIGN_DEVELOPMENT',
-  'GENERAL',
-  'INCIDENT_INVESTIGATION',
-  'INSPECTION',
-  'MANAGEMENT_REVIEW',
-  'PLANNING',
-  'PROCESS_CONTROL',
-  'REGULATORY',
-  'REPORTING',
-  'RISK_ASSESSMENT',
-  'SUPPLIER',
-  'TRAINING',
+const CATEGORIES: { value: string; label: string }[] = [
+  { value: 'All', label: 'All Categories' },
+  { value: 'ASSESSMENT', label: 'Assessment' },
+  { value: 'AUDIT', label: 'Audit' },
+  { value: 'CAPA', label: 'CAPA' },
+  { value: 'CERTIFICATION', label: 'Certification' },
+  { value: 'CHECKLIST', label: 'Checklist' },
+  { value: 'COMPLIANCE', label: 'Compliance' },
+  { value: 'CUSTOMER', label: 'Customer' },
+  { value: 'DESIGN_DEVELOPMENT', label: 'Design & Development' },
+  { value: 'FORM', label: 'Form' },
+  { value: 'GENERAL', label: 'General' },
+  { value: 'INCIDENT_INVESTIGATION', label: 'Incident Investigation' },
+  { value: 'INSPECTION', label: 'Inspection' },
+  { value: 'MANAGEMENT_REVIEW', label: 'Management Review' },
+  { value: 'MANUAL', label: 'Manual' },
+  { value: 'PLAN', label: 'Plan' },
+  { value: 'PLANNING', label: 'Planning' },
+  { value: 'POLICY', label: 'Policy' },
+  { value: 'PROCESS_CONTROL', label: 'Process Control' },
+  { value: 'RECORD', label: 'Record' },
+  { value: 'REGISTER', label: 'Register' },
+  { value: 'REGULATORY', label: 'Regulatory' },
+  { value: 'REPORT', label: 'Report' },
+  { value: 'REPORTING', label: 'Reporting' },
+  { value: 'RISK_ASSESSMENT', label: 'Risk Assessment' },
+  { value: 'SUPPLIER', label: 'Supplier' },
+  { value: 'TRAINING', label: 'Training' },
 ];
 const STATUSES = ['All', 'ACTIVE', 'DRAFT', 'ARCHIVED'];
 
@@ -266,8 +275,8 @@ export default function TemplatesClient() {
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c === 'All' ? 'All Categories' : c}
+                <option key={c.value} value={c.value}>
+                  {c.label}
                 </option>
               ))}
             </select>
